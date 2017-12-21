@@ -229,6 +229,62 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertEquals("ii", value.get(1).impl);
     }
 
+    public void testDeserializationCachingBaseFirst() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        BaseWithDefault valueBase = mapper.readerFor(BaseWithDefault.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(valueBase instanceof BaseWithDefaultOthers);
+        assertEquals("b", ((BaseWithDefaultOthers) valueBase).base);
+        assertEquals("other", ((BaseWithDefaultOthers) valueBase).type);
+        assertEquals(1, ((BaseWithDefaultOthers) valueBase).fields.size());
+        assertEquals("i", ((BaseWithDefaultOthers) valueBase).fields.get("impl"));
+
+        BaseWithDefault valueBaseImpl = mapper.readerFor(BaseWithDefault.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(valueBaseImpl instanceof BaseWithDefaultImpl);
+        assertEquals("b", ((BaseWithDefaultImpl) valueBaseImpl).base);
+        assertEquals("i", ((BaseWithDefaultImpl) valueBaseImpl).impl);
+
+        BaseWithDefaultImpl valueImpl = mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(valueImpl instanceof BaseWithDefaultImpl);
+        assertEquals("b", ((BaseWithDefaultImpl) valueImpl).base);
+        assertEquals("i", ((BaseWithDefaultImpl) valueImpl).impl);
+
+        try {
+            mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
+            fail("Should not parse class with incorrect type");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id 'other' as a subtype");
+        }
+    }
+
+    public void testDeserializationCachingImplFirst() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        BaseWithDefaultImpl valueImpl = mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(valueImpl instanceof BaseWithDefaultImpl);
+        assertEquals("b", ((BaseWithDefaultImpl) valueImpl).base);
+        assertEquals("i", ((BaseWithDefaultImpl) valueImpl).impl);
+
+        BaseWithDefault valueBaseImpl = mapper.readerFor(BaseWithDefault.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(valueBaseImpl instanceof BaseWithDefaultImpl);
+        assertEquals("b", ((BaseWithDefaultImpl) valueBaseImpl).base);
+        assertEquals("i", ((BaseWithDefaultImpl) valueBaseImpl).impl);
+
+        BaseWithDefault valueBase = mapper.readerFor(BaseWithDefault.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(valueBase instanceof BaseWithDefaultOthers);
+        assertEquals("b", ((BaseWithDefaultOthers) valueBase).base);
+        assertEquals("other", ((BaseWithDefaultOthers) valueBase).type);
+        assertEquals(1, ((BaseWithDefaultOthers) valueBase).fields.size());
+        assertEquals("i", ((BaseWithDefaultOthers) valueBase).fields.get("impl"));
+
+        try {
+            mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
+            fail("Should not parse class with incorrect type");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id 'other' as a subtype");
+        }
+    }
+
 //    // Seems not to be a bug, however it might be a useful feature to strictly specify deserializing type.
 //    public void testBaseWithDefaultAsImplNoTypeInJson() throws Exception {
 //        // Class is specified, there is only one implementation.

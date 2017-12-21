@@ -419,7 +419,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // regular property? needs buffering
-            int ix = _fieldMatcher.matchAnyName(propName);
+            int ix = _fieldMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _fieldsByIndex[ix];
                 // !!! 21-Nov-2017, tatu: Regular deserializer handles references here...
@@ -707,7 +707,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // regular property? needs buffering
-            int ix = _fieldMatcher.matchAnyName(propName);
+            int ix = _fieldMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _fieldsByIndex[ix];
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));

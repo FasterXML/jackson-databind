@@ -438,9 +438,9 @@ public abstract class BeanDeserializerBase
         // 24-Mar-2017, tatu: Looks like we may have to iterate over
         //   properties twice, to handle potential issues with recursive
         //   types (see [databind#1575] f.ex).
-
         // First loop: find deserializer if not yet known, but do not yet
         // contextualize (since that can lead to problems with self-references)
+
         for (SettableBeanProperty prop : _beanProperties) {
             if (!prop.hasValueDeserializer()) {
                 // [databind#125]: allow use of converters
@@ -580,12 +580,14 @@ public abstract class BeanDeserializerBase
                     return;
                 }
             }
+            /*
             // ... as per above, it is possible we'd need to add this as fallback
             // if (but only if) identity check fails?
-            /*
-            if (creatorProps[i].getName().equals(prop.getName())) {
-                creatorProps[i] = prop;
-                break;
+            for (int i = 0, len = creatorProps.length; i < len; ++i) {
+                if (creatorProps[i].getName().equals(origProp.getName())) {
+                    creatorProps[i] = newProp;
+                    return;
+                }
             }
             */
         }
@@ -1068,30 +1070,6 @@ public abstract class BeanDeserializerBase
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
     }
-
-    /*
-    /**********************************************************
-    /* Mutators
-    /**********************************************************
-     */
-
-    /**
-     * Method that can be used to replace an existing property with
-     * a modified one.
-     *<p>
-     * NOTE: only ever use this method if you know what you are doing;
-     * incorrect usage can break deserializer.
-     *
-     * @param original Property to replace
-     * @param replacement Property to replace it with
-     */
-    /*
-    public void replaceProperty(SettableBeanProperty original,
-            SettableBeanProperty replacement)
-    {
-        _beanProperties.replace(replacement);
-    }
-    */
 
     /*
     /**********************************************************

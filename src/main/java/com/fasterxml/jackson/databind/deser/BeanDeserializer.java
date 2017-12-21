@@ -278,7 +278,7 @@ public class BeanDeserializer
             }
         }
         // May or may not be interned...
-        int ix = _fieldMatcher.matchAnyName(propName);
+        int ix = _fieldMatcher.matchName(propName);
         while (ix >= 0) {
             p.nextToken();
             SettableBeanProperty prop = _fieldsByIndex[ix];
@@ -602,7 +602,7 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            int ix = _fieldMatcher.matchAnyName(propName);
+            int ix = _fieldMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _fieldsByIndex[ix];
                 try {
@@ -963,7 +963,7 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            int ix = _fieldMatcher.matchAnyName(propName);
+            int ix = _fieldMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _fieldsByIndex[ix];
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
@@ -1149,7 +1149,7 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            int ix = _fieldMatcher.matchAnyName(propName);
+            int ix = _fieldMatcher.matchName(propName);
             if (ix >= 0) {
                 SettableBeanProperty prop = _fieldsByIndex[ix];
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));

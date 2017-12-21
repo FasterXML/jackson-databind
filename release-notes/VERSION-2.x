@@ -5,7 +5,9 @@ Project: jackson-databind
 
 2.9.4 (not yet released)
 
-#1855: More blacklisting of serialization gadgets
+#1854: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`
+ (reported by rue-jw@github)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
 
 2.9.3 (09-Dec-2017)
 
@@ -167,6 +169,20 @@ Project: jackson-databind
 #1690: Prevent use of quoted number (index) for Enum deserialization via
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
+
+2.8.11 (not yet released)
+
+#1604: Nested type arguments doesn't work with polymorphic types
+#1680: Blacklist couple more types for deserialization
+#1767: Allow `DeserializationProblemHandler` to respond to primitive types
+ (reported by nhtzr@github)
+#1768: Improve `TypeFactory.constructFromCanonical()` to work with
+  `java.lang.reflect.Type.getTypeName()` format
+#1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
+ (reported by henryptung@github)
+#1807: Jackson-databind caches plain map deserializer and use it even map has `@JsonDeserializer`
+ (reported by lexas2509@github)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
 
 2.8.10 (24-Aug-2017)
 

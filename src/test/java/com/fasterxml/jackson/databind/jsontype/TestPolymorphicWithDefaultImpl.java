@@ -184,7 +184,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertEquals("i", ((BaseWithDefaultOthers) value).fields.get("impl"));
     }
 
-    public void testBaseWithDefaultOtherAsImpl() throws Exception {
+    public void testBaseWithDefaultOtherAsOthers() throws Exception {
         BaseWithDefaultOthers value = MAPPER.readerFor(BaseWithDefaultOthers.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
         assertTrue(value instanceof BaseWithDefaultOthers);
         assertEquals("b", ((BaseWithDefaultOthers) value).base);
@@ -229,54 +229,57 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertEquals("ii", value.get(1).impl);
     }
 
+    public void testDeserializationCachingOtherFirst() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        assertParsingDefaultAsBase(mapper);
+        assertParsingImplAsBase(mapper);
+        assertParsingImplAsImpl(mapper);
+        assertErrorParsingDefaultAsImpl(mapper);
+    }
+
     public void testDeserializationCachingBaseFirst() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
-        BaseWithDefault valueBase = mapper.readerFor(BaseWithDefault.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
-        assertTrue(valueBase instanceof BaseWithDefaultOthers);
-        assertEquals("b", ((BaseWithDefaultOthers) valueBase).base);
-        assertEquals("other", ((BaseWithDefaultOthers) valueBase).type);
-        assertEquals(1, ((BaseWithDefaultOthers) valueBase).fields.size());
-        assertEquals("i", ((BaseWithDefaultOthers) valueBase).fields.get("impl"));
-
-        BaseWithDefault valueBaseImpl = mapper.readerFor(BaseWithDefault.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
-        assertTrue(valueBaseImpl instanceof BaseWithDefaultImpl);
-        assertEquals("b", ((BaseWithDefaultImpl) valueBaseImpl).base);
-        assertEquals("i", ((BaseWithDefaultImpl) valueBaseImpl).impl);
-
-        BaseWithDefaultImpl valueImpl = mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
-        assertTrue(valueImpl instanceof BaseWithDefaultImpl);
-        assertEquals("b", ((BaseWithDefaultImpl) valueImpl).base);
-        assertEquals("i", ((BaseWithDefaultImpl) valueImpl).impl);
-
-        try {
-            mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
-            fail("Should not parse class with incorrect type");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'other' as a subtype");
-        }
+        assertParsingImplAsBase(mapper);
+        assertParsingDefaultAsBase(mapper);
+        assertParsingImplAsImpl(mapper);
+        assertErrorParsingDefaultAsImpl(mapper);
     }
 
     public void testDeserializationCachingImplFirst() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 
-        BaseWithDefaultImpl valueImpl = mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
-        assertTrue(valueImpl instanceof BaseWithDefaultImpl);
-        assertEquals("b", ((BaseWithDefaultImpl) valueImpl).base);
-        assertEquals("i", ((BaseWithDefaultImpl) valueImpl).impl);
+        assertParsingImplAsImpl(mapper);
+        assertParsingImplAsBase(mapper);
+        assertParsingDefaultAsBase(mapper);
+        assertErrorParsingDefaultAsImpl(mapper);
+    }
 
+    private void assertParsingImplAsBase(ObjectMapper mapper) throws java.io.IOException {
         BaseWithDefault valueBaseImpl = mapper.readerFor(BaseWithDefault.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
         assertTrue(valueBaseImpl instanceof BaseWithDefaultImpl);
         assertEquals("b", ((BaseWithDefaultImpl) valueBaseImpl).base);
         assertEquals("i", ((BaseWithDefaultImpl) valueBaseImpl).impl);
+    }
 
+    private void assertParsingImplAsImpl(ObjectMapper mapper) throws java.io.IOException {
+        BaseWithDefaultImpl valueImpl = mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(valueImpl instanceof BaseWithDefaultImpl);
+        assertEquals("b", ((BaseWithDefaultImpl) valueImpl).base);
+        assertEquals("i", ((BaseWithDefaultImpl) valueImpl).impl);
+    }
+
+    private void assertParsingDefaultAsBase(ObjectMapper mapper) throws java.io.IOException {
         BaseWithDefault valueBase = mapper.readerFor(BaseWithDefault.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
         assertTrue(valueBase instanceof BaseWithDefaultOthers);
         assertEquals("b", ((BaseWithDefaultOthers) valueBase).base);
         assertEquals("other", ((BaseWithDefaultOthers) valueBase).type);
         assertEquals(1, ((BaseWithDefaultOthers) valueBase).fields.size());
         assertEquals("i", ((BaseWithDefaultOthers) valueBase).fields.get("impl"));
+    }
 
+    private void assertErrorParsingDefaultAsImpl(ObjectMapper mapper) throws java.io.IOException {
         try {
             mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
             fail("Should not parse class with incorrect type");

@@ -175,7 +175,7 @@ public class StdTypeResolverBuilder
         JavaType defaultType = config.getTypeFactory().constructType(_defaultImpl);
         for (JavaType current = defaultType; current != null; current = current.getSuperClass())
         {
-            AnnotatedClass annotatedClass = AnnotatedClassResolver.resolve(config, current, config.getMixIns());
+            AnnotatedClass annotatedClass = AnnotatedClassResolver.resolve(config, current, config);
             if (annotatedClass.hasAnnotation(JsonTypeInfo.class)) {
                 JsonTypeInfo typeInfo = annotatedClass.getAnnotation(JsonTypeInfo.class);
                 if (typeInfo.defaultImpl() == null || !typeInfo.defaultImpl().equals(_defaultImpl)) {

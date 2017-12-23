@@ -730,8 +730,4 @@ public final class DeserializationConfig
         }
         return b.buildTypeDeserializer(this, baseType, subtypes);
     }
-
-    public ClassIntrospector.MixInResolver getMixIns() {
-        return _mixIns;
-    }
 }

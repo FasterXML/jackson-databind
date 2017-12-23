@@ -13,10 +13,9 @@ import com.fasterxml.jackson.databind.util.RawValue;
  * to behavior of node types, mostly) is needed.
  */
 public class JsonNodeFactory
-    implements java.io.Serializable, // since 2.1
-        JsonNodeCreator // since 2.3
+    implements java.io.Serializable,
+        JsonNodeCreator
 {
-    // with 2.2
     private static final long serialVersionUID = 1L;
 
     private final boolean _cfgBigDecimalExact;

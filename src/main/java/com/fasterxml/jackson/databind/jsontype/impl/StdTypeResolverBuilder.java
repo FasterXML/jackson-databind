@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
 import com.fasterxml.jackson.databind.jsontype.*;
 
 /**
@@ -129,7 +131,7 @@ public class StdTypeResolverBuilder
             //   seems like a reasonable compromise.
             if (_defaultImpl == Void.class) {
                 defaultImpl = config.getTypeFactory().constructType(_defaultImpl);
-            } else if (!baseType.getRawClass().isAssignableFrom(_defaultImpl)) {
+            } else if (!baseType.getRawClass().isAssignableFrom(_defaultImpl) && isBaseActuallySpecializedType(config, baseType)) {
                 defaultImpl = null;
             } else {
                 defaultImpl = config.getTypeFactory()
@@ -154,6 +156,40 @@ public class StdTypeResolverBuilder
                     _typeProperty, _typeIdVisible, defaultImpl);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
+    }
+
+    private boolean isBaseActuallySpecializedType(DeserializationConfig config, JavaType baseType) {
+        // 12-Jun-2017, slobo: There is a chance that we're deserializing
+        // a specific class part of a polymorphic hierarchy. In this case
+        // baseType is actually a specific type, but the _defaultImpl comes
+        // from the real base type. For example:
+        //
+        //     B @JsonTypeInfo(defaultImpl=S2)
+        //  /--+--\
+        //  S1    S2
+        //  baseType = S1
+        //  _defaultImpl = S2
+        //
+        // To detect this scenario we'll check whether _defaultImpl and
+        // baseType share a common superclass or super superclass, etc.
+        JavaType defaultType = config.getTypeFactory().constructType(_defaultImpl);
+        for (JavaType current = defaultType; current != null; current = current.getSuperClass())
+        {
+            AnnotatedClass annotatedClass = AnnotatedClassResolver.resolve(config, current, config.getMixIns());
+            if (annotatedClass.hasAnnotation(JsonTypeInfo.class)) {
+                JsonTypeInfo typeInfo = annotatedClass.getAnnotation(JsonTypeInfo.class);
+                if (typeInfo.defaultImpl() == null || !typeInfo.defaultImpl().equals(_defaultImpl)) {
+                    break; // ignore any classes that have a different JsonTypeInfo annotation
+                }
+                if (annotatedClass.getRawType().isAssignableFrom(baseType.getRawClass())) {
+                    return true;
+                }
+            }
+            else {
+                break; // ignore any classes above the JsonTypeInfo annotation
+            }
+        };
+        return false;
     }
 
     /*

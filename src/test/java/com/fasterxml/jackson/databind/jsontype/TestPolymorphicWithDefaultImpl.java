@@ -63,6 +63,15 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true, defaultImpl = BaseWithIncorrectDefaultOthers.class)
+    @JsonSubTypes(value = {@JsonSubTypes.Type(name = "impl", value = BaseWithIncorrectDefaultImpl.class)})
+    public static abstract class BaseWithIncorrectDefault {}
+
+    public static class BaseWithIncorrectDefaultImpl extends BaseWithIncorrectDefault {}
+
+    public static class BaseWithIncorrectDefaultOthers {} // No extends BaseWithIncorrectDefault here
+
     /**
      * Also another variant to verify that from 2.5 on, can use non-deprecated
      * value for the same.
@@ -254,6 +263,24 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertParsingImplAsBase(mapper);
         assertParsingDefaultAsBase(mapper);
         assertErrorParsingDefaultAsImpl(mapper);
+    }
+
+    public void testBaseWithIncorrectDefaultAsBase() throws Exception {
+        try {
+            MAPPER.readerFor(BaseWithIncorrectDefault.class).readValue("{\"type\": \"impl\"}");
+            fail("Should not parse class with incorrect default implementation");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "not subtype of");
+        }
+    }
+
+    public void testBaseWithIncorrectDefaultAsImpl() throws Exception {
+        try {
+            MAPPER.readerFor(BaseWithIncorrectDefaultImpl.class).readValue("{\"type\": \"impl\"}");
+            fail("Should not parse class with incorrect default implementation");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "not subtype of");
+        }
     }
 
     private void assertParsingImplAsBase(ObjectMapper mapper) throws java.io.IOException {

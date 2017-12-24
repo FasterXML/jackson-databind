@@ -71,7 +71,12 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     public static class BaseWithIncorrectDefaultImpl extends BaseWithIncorrectDefault {}
 
     public static class BaseWithIncorrectDefaultOthers {} // No extends BaseWithIncorrectDefault here
-
+    
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+    @JsonSubTypes(value = {})
+    public static class NoInheritanceMixIn {}
+    
     /**
      * Also another variant to verify that from 2.5 on, can use non-deprecated
      * value for the same.
@@ -315,13 +320,13 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         }
     }
 
-//    // Seems not to be a bug, however it might be a useful feature to strictly specify deserializing type.
-//    public void testBaseWithDefaultAsImplNoTypeInJson() throws Exception {
-//        // Class is specified, there is only one implementation.
-//        BaseWithDefaultImpl value = MAPPER.readerFor(BaseWithDefaultImpl.class).readValue("{\"base\": \"b\", \"impl\": \"i\"}");
-//        assertEquals("b", value.base);
-//        assertEquals("i", value.impl);
-//    }
+    public void testBaseWithDefaultAsImplNoTypeInJson() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(BaseWithDefaultImpl.class, NoInheritanceMixIn.class);
+        BaseWithDefaultImpl value = mapper.readerFor(BaseWithDefaultImpl.class).readValue("{\"base\": \"b\", \"impl\": \"i\"}");
+        assertEquals("b", value.base);
+        assertEquals("i", value.impl);
+    }
 
     public void testDeserializationWithObject() throws Exception
     {

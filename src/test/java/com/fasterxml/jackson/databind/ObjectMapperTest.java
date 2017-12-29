@@ -58,7 +58,7 @@ public class ObjectMapperTest extends BaseMapTest
 
     public void testFactorFeatures()
     {
-        assertTrue(MAPPER.isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES));
+        assertTrue(MAPPER.isEnabled(TokenStreamFactory.Feature.CANONICALIZE_FIELD_NAMES));
     }
 
     public void testGeneratorFeatures()

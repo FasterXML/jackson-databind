@@ -118,7 +118,7 @@ public class BeanAsArrayDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
             } else { // just skip?
                 p.skipChildren();
@@ -171,7 +171,7 @@ public class BeanAsArrayDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
             } else { // just skip?
                 p.skipChildren();
@@ -242,7 +242,7 @@ public class BeanAsArrayDeserializer
                     try {
                         prop.deserializeAndSet(p, ctxt, bean);
                     } catch (Exception e) {
-                        wrapAndThrow(e, bean, prop.getName(), ctxt);
+                        throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                     }
                     continue;
                 }
@@ -301,7 +301,7 @@ public class BeanAsArrayDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -314,8 +314,7 @@ public class BeanAsArrayDeserializer
                     try {
                         bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        continue; // never gets here
+                        throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.setCurrentValue(bean);

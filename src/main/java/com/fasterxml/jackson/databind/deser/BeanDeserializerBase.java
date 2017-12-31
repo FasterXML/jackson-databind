@@ -1538,7 +1538,7 @@ public abstract class BeanDeserializerBase
                // should we consider return type of any setter?
                 _anySetter.deserializeAndSet(p, ctxt, bean, propName);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
+                throw wrapAndThrow(e, bean, propName, ctxt);
             }
         } else {
             // Unknown: let's call handler method
@@ -1681,8 +1681,14 @@ public abstract class BeanDeserializerBase
      * <li>"Plain" IOExceptions (ones that are not of type
      *   {@link JsonMappingException} are to be passed as is
      *</ul>
+     * The method always throws but declares its return type as
+     * {@link IOException} in order to allow callers to invoke method as
+     * {@code throw wrapAndThrow(...);} thereby ensuring complete code
+     * coverage is possible. This also ensures that all call paths within
+     * this method throw an exception; otherwise they would be required
+     * to return.
      */
-    public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+    public IOException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws IOException
     {
         // Need to add reference information

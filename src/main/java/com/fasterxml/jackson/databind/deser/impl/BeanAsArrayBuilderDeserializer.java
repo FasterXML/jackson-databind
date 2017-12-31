@@ -147,7 +147,7 @@ public class BeanAsArrayBuilderDeserializer
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
             } else { // just skip?
                 p.skipChildren();
@@ -225,7 +225,7 @@ public class BeanAsArrayBuilderDeserializer
                     try {
                         prop.deserializeSetAndReturn(p, ctxt, builder);
                     } catch (Exception e) {
-                        wrapAndThrow(e, builder, prop.getName(), ctxt);
+                        throw wrapAndThrow(e, builder, prop.getName(), ctxt);
                     }
                     continue;
                 }
@@ -284,7 +284,7 @@ public class BeanAsArrayBuilderDeserializer
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -297,8 +297,7 @@ public class BeanAsArrayBuilderDeserializer
                     try {
                         builder = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        continue; // never gets here
+                        throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
                     //  polymorphic?
                     if (builder.getClass() != _beanType.getRawClass()) {

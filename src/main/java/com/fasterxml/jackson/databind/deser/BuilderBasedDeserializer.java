@@ -268,7 +268,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
             } else {
                 handleUnknownVanilla(p, ctxt, bean, propName);
@@ -313,7 +313,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
                 continue;
             }
@@ -363,8 +363,7 @@ public class BuilderBasedDeserializer
                     try {
                         builder = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        continue; // never gets here
+                        throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
                     //  polymorphic?
                     if (builder.getClass() != _beanType.getRawClass()) {
@@ -464,7 +463,7 @@ public class BuilderBasedDeserializer
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, propName, ctxt);
+                    throw wrapAndThrow(e, builder, propName, ctxt);
                 }
                 continue;
             }
@@ -497,7 +496,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
                 continue;
             }
@@ -548,7 +547,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
                 continue;
             }
@@ -565,7 +564,7 @@ public class BuilderBasedDeserializer
                 try {
                     _anySetter.deserializeAndSet(p, ctxt, bean, propName);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
                 continue;
             }
@@ -599,8 +598,7 @@ public class BuilderBasedDeserializer
                     try {
                         builder = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        continue; // never gets here
+                        throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                     }
                     if (builder.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(p, ctxt, builder, tokens);
@@ -658,7 +656,7 @@ public class BuilderBasedDeserializer
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, propName, ctxt);
+                    throw wrapAndThrow(e, builder, propName, ctxt);
                 }
                 continue;
             }
@@ -717,7 +715,7 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
                 continue;
             }
@@ -735,7 +733,7 @@ public class BuilderBasedDeserializer
                 try {
                     _anySetter.deserializeAndSet(p, ctxt, bean, propName);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
                 continue;
             } else {

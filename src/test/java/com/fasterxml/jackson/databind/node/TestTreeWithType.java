@@ -35,7 +35,7 @@ public class TestTreeWithType extends BaseMapTest
         @Override
         public SavedCookie deserialize(JsonParser jsonParser, DeserializationContext ctxt)
                 throws IOException {
-           ObjectCodec oc = jsonParser.getCodec();
+           ObjectReadContext oc = jsonParser.getObjectReadContext();
            JsonNode node = oc.readTree(jsonParser);
            return new SavedCookie(node.path("name").textValue(),
                    node.path("value").textValue());

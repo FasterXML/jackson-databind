@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.Base64Variant;
 
 import com.fasterxml.jackson.databind.*;
@@ -15,6 +14,7 @@ import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
@@ -24,23 +24,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     extends MapperConfig<T>
     implements java.io.Serializable
 {
-    /**
-     * @since 2.9
-     */
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
-
-    /**
-     * @since 2.9
-     */
-    private final static int AUTO_DETECT_MASK =
-            MapperFeature.AUTO_DETECT_FIELDS.getMask()
-            | MapperFeature.AUTO_DETECT_GETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_IS_GETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_SETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_CREATORS.getMask()
-            ;
 
     /*
     /**********************************************************
@@ -51,8 +37,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Mix-in annotation mappings to use, if any: immutable,
      * cannot be changed once defined.
-     * 
-     * @since 2.6
      */
     protected final SimpleMixInResolver _mixIns;
 
@@ -83,8 +67,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Contextual attributes accessible (get and set) during processing,
      * on per-call basis.
-     * 
-     * @since 2.3
      */
     protected final ContextAttributes _attributes;
 
@@ -94,15 +76,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      *<p>
      * Note that instances are stateful (for caching) and as such may need to be copied,
      * and may NOT be demoted down to {@link BaseSettings}.
-     *
-     * @since 2.6
      */
     protected final RootNameLookup _rootNames;
 
     /**
      * Configuration overrides to apply, keyed by type of property.
-     *
-     * @since 2.8
      */
     protected final ConfigOverrides _configOverrides;
 
@@ -115,8 +93,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
-     *
-     * @since 2.8
      */
     protected MapperConfigBase(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
@@ -133,9 +109,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = configOverrides;
     }
 
-    /**
-     * @since 2.8
-     */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src,
             SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
@@ -224,9 +197,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = src._configOverrides;
     }
 
-    /**
-     * @since 2.1
-     */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins)
     {
         super(src);
@@ -239,9 +209,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = src._configOverrides;
     }
 
-    /**
-     * @since 2.3
-     */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, ContextAttributes attr)
     {
         super(src);
@@ -260,14 +227,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**********************************************************
      */
 
-    /**
-     * @since 2.9 (in this case, demoted from sub-classes)
-     */
     protected abstract T _withBase(BaseSettings newBase);
 
-    /**
-     * @since 2.9 (in this case, demoted from sub-classes)
-     */
     protected abstract T _withMapperFeatures(int mapperFeatures);
 
     /*
@@ -373,6 +334,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _withBase(_base.withClassIntrospector(ci));
     }
 
+    /**
+     * Fluent factory method that will construct a new instance with
+     * specified {@link JsonNodeFactory}
+     */
+    public final T with(JsonNodeFactory f) {
+        return _withBase(_base.with(f));
+    }
+
     /*
     /**********************************************************
     /* Additional shared fluent factory methods; attributes
@@ -382,16 +351,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has specified
      * contextual attributes.
-     * 
-     * @since 2.3
      */
     public abstract T with(ContextAttributes attrs);
 
     /**
      * Method for constructing an instance that has only specified
      * attributes, removing any attributes that exist before the call.
-     * 
-     * @since 2.3
      */
     public T withAttributes(Map<?,?> attributes) {
         return with(getAttributes().withSharedAttributes(attributes));
@@ -400,8 +365,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has specified
      * value for attribute for given key.
-     * 
-     * @since 2.3
      */
     public T withAttribute(Object key, Object value) {
         return with(getAttributes().withSharedAttribute(key, value));
@@ -410,8 +373,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has no
      * value for attribute for given key.
-     * 
-     * @since 2.3
      */
     public T withoutAttribute(Object key) {
         return with(getAttributes().withoutSharedAttribute(key));
@@ -562,17 +523,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _subtypeResolver;
     }
 
-    /**
-     * @deprecated Since 2.6 use {@link #getFullRootName} instead.
-     */
-    @Deprecated // since 2.6
-    public final String getRootName() {
-        return (_rootName == null) ? null : _rootName.getSimpleName();
-    }
-
-    /**
-     * @since 2.6
-     */
     public final PropertyName getFullRootName() {
         return _rootName;
     }
@@ -670,29 +620,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public final VisibilityChecker<?> getDefaultVisibilityChecker()
     {
-        VisibilityChecker<?> vchecker = _configOverrides.getDefaultVisibility();
-        // then global overrides (disabling)
-        if ((_mapperFeatures & AUTO_DETECT_MASK) != 0) {
-            if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
-                vchecker = vchecker.withFieldVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
-                vchecker = vchecker.withGetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
-                vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
-                vchecker = vchecker.withSetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
-                vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
-            }
-        }
-        return vchecker;
+        return _configOverrides.getDefaultVisibility();
     }
 
-    @Override // since 2.9
+    @Override
     public final VisibilityChecker<?> getDefaultVisibilityChecker(Class<?> baseType,
             AnnotatedClass actualClass) {
         VisibilityChecker<?> vc = getDefaultVisibilityChecker();

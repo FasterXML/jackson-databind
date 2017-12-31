@@ -281,17 +281,20 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertEquals(exp, MAPPER.readValue("\""+exp.toString()+"\"", URL.class));
 
         // trivial case; null to null, embedded URL to URL
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
 
         // then, URLitself come as is:
-        buf = new TokenBuffer(null, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeObject(exp);
         assertSame(exp, MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
+    }
 
+    public void testURLInvalid() throws Exception
+    {
         // and finally, invalid URL should be handled appropriately too
         try {
             URL result = MAPPER.readValue(quote("a b"), URL.class);
@@ -300,7 +303,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
             verifyException(e, "not a valid textual representation");
         }
     }
-
+    
     public void testUUID() throws Exception
     {
         final ObjectMapper mapper = objectMapper();
@@ -359,17 +362,16 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     public void testUUIDAux() throws Exception
     {
-        // [JACKSON-393] fix:
         final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
 
         // first, null should come as null
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
         buf.close();
 
         // then, UUID itself come as is:
-        buf = new TokenBuffer(null, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeObject(value);
         assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
 

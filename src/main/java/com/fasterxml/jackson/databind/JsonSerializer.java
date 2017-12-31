@@ -51,7 +51,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * contextualization.
  */
 public abstract class JsonSerializer<T>
-    implements JsonFormatVisitable // since 2.1
+    implements JsonFormatVisitable
 {
     /*
     /**********************************************************
@@ -187,25 +187,6 @@ public abstract class JsonSerializer<T>
      * of empty values).
      *<p>
      * Default implementation will consider only null values to be empty.
-     * 
-     * @deprecated Since 2.5 Use {@link #isEmpty(SerializerProvider, Object)} instead;
-     *   will be removed from 3.0
-     */
-    @Deprecated
-    public boolean isEmpty(T value) {
-        return isEmpty(null, value);
-    }
-
-    /**
-     * Method called to check whether given serializable value is
-     * considered "empty" value (for purposes of suppressing serialization
-     * of empty values).
-     *<p>
-     * Default implementation will consider only null values to be empty.
-     *<p>
-     * NOTE: replaces {@link #isEmpty(Object)}, which was deprecated in 2.5
-     * 
-     * @since 2.5
      */
     public boolean isEmpty(SerializerProvider provider, T value) {
         return (value == null);

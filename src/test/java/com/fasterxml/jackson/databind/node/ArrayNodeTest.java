@@ -88,11 +88,6 @@ public class ArrayNodeTest
         n.addPOJO("foo");
         assertEquals(6, n.size());
 
-        // Try serializing it for fun, too...
-        JsonGenerator g = objectMapper().getFactory().createGenerator(new StringWriter());
-        n.serialize(g, null);
-        g.close();
-
         n.removeAll();
         assertEquals(0, n.size());
     }
@@ -241,8 +236,7 @@ public class ArrayNodeTest
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         n.add(123);
         TreeTraversingParser p = new TreeTraversingParser(n, null);
-        p.setCodec(null);
-        assertNull(p.getCodec());
+        assertNull(p.getObjectReadContext());
         assertNotNull(p.getParsingContext());
         assertNotNull(p.getTokenLocation());
         assertNotNull(p.getCurrentLocation());
@@ -253,7 +247,7 @@ public class ArrayNodeTest
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         p.skipChildren();
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
         p.close();
 
         p = new TreeTraversingParser(n, null);

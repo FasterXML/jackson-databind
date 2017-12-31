@@ -350,7 +350,7 @@ public class MapDeserializer
                     "no default constructor found");
         }
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
             // (empty) String may be ok however; or single-String-arg ctor
             if (t == JsonToken.VALUE_STRING) {
@@ -378,7 +378,7 @@ public class MapDeserializer
         p.setCurrentValue(result);
         
         // Ok: must point to START_OBJECT or FIELD_NAME
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
             return (Map<Object,Object>) ctxt.handleUnexpectedToken(getMapClass(), p);
         }
@@ -435,14 +435,14 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            keyStr = p.getCurrentName();
+            keyStr = p.currentName();
         }
         
         for (; keyStr != null; keyStr = p.nextFieldName()) {
@@ -499,14 +499,14 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            key = p.getCurrentName();
+            key = p.currentName();
         }
 
         for (; key != null; key = p.nextFieldName()) {
@@ -556,7 +556,7 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else if (p.hasToken(JsonToken.FIELD_NAME)) {
-            key = p.getCurrentName();
+            key = p.currentName();
         } else {
             key = null;
         }
@@ -638,14 +638,14 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            keyStr = p.getCurrentName();
+            keyStr = p.currentName();
         }
         
         for (; keyStr != null; keyStr = p.nextFieldName()) {
@@ -703,14 +703,14 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            key = p.getCurrentName();
+            key = p.currentName();
         }
 
         for (; key != null; key = p.nextFieldName()) {

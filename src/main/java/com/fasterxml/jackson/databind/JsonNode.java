@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * {@link com.fasterxml.jackson.databind.node}.
  *<p>
  * Note that it is possible to "read" from nodes, using
- * method {@link TreeNode#traverse(ObjectCodec)}, which will result in
+ * method {@link TreeNode#traverse}, which will result in
  * a {@link JsonParser} being constructed. This can be used for (relatively)
  * efficient conversations between different representations; and it is what
  * core databind uses for methods like {@link ObjectMapper#treeToValue(TreeNode, Class)}
@@ -59,9 +59,7 @@ public abstract class JsonNode
      * Note: return type is guaranteed to have same type as the
      * node method is called on; which is why method is declared
      * with local generic type.
-     * 
-     * @since 2.0
-     * 
+     *
      * @return Node that is either a copy of this node (and all non-leaf
      *    children); or, for immutable leaf nodes, node itself.
      */
@@ -190,8 +188,6 @@ public abstract class JsonNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link #isMissingNode()} returns true.
-     * 
-     * @since 2.3
      */
     @Override
     public final JsonNode at(JsonPointer ptr)
@@ -222,8 +218,6 @@ public abstract class JsonNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
-     * 
-     * @since 2.3
      */
     @Override
     public final JsonNode at(String jsonPtrExpr) {

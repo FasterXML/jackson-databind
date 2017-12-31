@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;

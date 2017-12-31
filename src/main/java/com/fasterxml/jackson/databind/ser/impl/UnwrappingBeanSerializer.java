@@ -109,18 +109,25 @@ public class UnwrappingBeanSerializer
     @Override
     public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
-        gen.setCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, false);
             return;
         }
+        // Because we do not write start-object need to call this explicitly:
+        // (although... is that a problem, overwriting it now?)
+        gen.setCurrentValue(bean); // [databind#631]
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, gen, provider);
-        } else {
-            serializeFields(bean, gen, provider);
+            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            return;
         }
+        BeanPropertyWriter[] fProps = _filteredProps;
+        if ((fProps != null) && (provider.getActiveView() != null)) {
+            _serializeFieldsMaybeView(bean, gen, provider, fProps);
+            return;
+        }
+        _serializeFieldsNoView(bean, gen, provider, _props);
     }
-    
+
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
     		TypeSerializer typeSer) throws IOException
@@ -129,16 +136,22 @@ public class UnwrappingBeanSerializer
             provider.reportBadDefinition(handledType(),
                     "Unwrapped property requires use of type information: cannot serialize without disabling `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`");
         }
-        gen.setCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
+        // Because we do not write start-object need to call this explicitly:
+        gen.setCurrentValue(bean);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, gen, provider);
-        } else {
-            serializeFields(bean, gen, provider);
+            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            return;
         }
+        BeanPropertyWriter[] fProps = _filteredProps;
+        if ((fProps != null) && (provider.getActiveView() != null)) {
+            _serializeFieldsMaybeView(bean, gen, provider, fProps);
+            return;
+        }
+        _serializeFieldsNoView(bean, gen, provider, _props);
     }
 
     /*

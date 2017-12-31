@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -15,7 +14,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -27,19 +25,16 @@ import com.fasterxml.jackson.databind.util.Converter;
  * Base class used by all standard serializers, and can also
  * be used for custom serializers (in fact, this is the recommended
  * base class to use).
- * Provides convenience methods for implementing {@link SchemaAware}
  */
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements JsonFormatVisitable, SchemaAware, java.io.Serializable
+    implements JsonFormatVisitable, java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
     /**
      * Key used for storing a lock object to prevent infinite recursion when
      * constructing converting serializers.
-     *
-     * @since 2.9
      */
     private final static Object KEY_CONTENT_CONVERTER_LOCK = new Object();
     
@@ -117,31 +112,6 @@ public abstract class StdSerializer<T>
         visitor.expectAnyFormat(typeHint);
     }
 
-    /**
-     * Default implementation simply claims type is "string"; usually
-     * overriden by custom serializers.
-     */
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException
-    {
-        return createSchemaNode("string");
-    }
-    
-    /**
-     * Default implementation simply claims type is "string"; usually
-     * overriden by custom serializers.
-     */
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
-        throws JsonMappingException
-    {
-        ObjectNode schema = (ObjectNode) getSchema(provider, typeHint);
-        if (!isOptional) {
-            schema.put("required", !isOptional);
-        }
-        return schema;
-    }
-
     /*
     /**********************************************************
     /* Helper methods for JSON Schema generation
@@ -167,8 +137,6 @@ public abstract class StdSerializer<T>
     /**
      * Helper method that calls necessary visit method(s) to indicate that the
      * underlying JSON type is JSON String.
-     *
-     * @since 2.7
      */
     protected void visitStringFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException {
@@ -259,9 +227,6 @@ public abstract class StdSerializer<T>
         }
     }
 
-    /**
-     * @since 2.7
-     */
     protected void visitArrayFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             JsonFormatTypes itemType)
         throws JsonMappingException
@@ -413,8 +378,6 @@ public abstract class StdSerializer<T>
     /**
      * Helper method used to locate filter that is needed, based on filter id
      * this serializer was constructed with.
-     * 
-     * @since 2.3
      */
     protected PropertyFilter findPropertyFilter(SerializerProvider provider,
             Object filterId, Object valueToFilter)
@@ -436,8 +399,6 @@ public abstract class StdSerializer<T>
      * defaulting.
      *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
-     *
-     * @since 2.7
      */
     protected JsonFormat.Value findFormatOverrides(SerializerProvider provider,
             BeanProperty prop, Class<?> typeForDefaults)
@@ -468,9 +429,6 @@ public abstract class StdSerializer<T>
         return null;
     }
 
-    /**
-     * @since 2.8
-     */
     protected JsonInclude.Value findIncludeOverrides(SerializerProvider provider,
             BeanProperty prop, Class<?> typeForDefaults)
     {
@@ -483,8 +441,6 @@ public abstract class StdSerializer<T>
     
     /**
      * Convenience method for finding out possibly configured content value serializer.
-     *
-     * @since 2.7.4
      */
     protected JsonSerializer<?> findAnnotatedContentSerializer(SerializerProvider serializers,
             BeanProperty property)
@@ -520,16 +476,10 @@ public abstract class StdSerializer<T>
         return ClassUtil.isJacksonStdImpl(serializer);
     }
 
-    /**
-     * @since 2.9
-     */
     protected final static boolean _neitherNull(Object a, Object b) {
         return (a != null) && (b != null);
     }
 
-    /**
-     * @since 2.9
-     */
     protected final static boolean _nonEmpty(Collection<?> c) {
         return (c != null) && !c.isEmpty();
     }

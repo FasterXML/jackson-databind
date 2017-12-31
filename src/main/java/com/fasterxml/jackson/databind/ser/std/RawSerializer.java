@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.lang.reflect.Type;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
@@ -41,14 +40,7 @@ public class RawSerializer<T>
         serialize(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
-    
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
-        // type not really known, but since it is a JSON string:
-        return createSchemaNode("string", true);
-    }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {

@@ -74,25 +74,20 @@ public class SerializationFeaturesTest
         assertEquals("[\"a\",\"b\",\"c\"]", m.writeValueAsString(chars));
     }
 
-    // Test for [JACKSON-401]
     public void testFlushingAutomatic() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE));
         // default is to flush after writeValue()
         StringWriter sw = new StringWriter();
-        JsonGenerator g = mapper.getFactory().createGenerator(sw);
-        mapper.writeValue(g, Integer.valueOf(13));
+        mapper.writeValue(sw, Integer.valueOf(13));
         assertEquals("13", sw.toString());
-        g.close();
 
         // ditto with ObjectWriter
         sw = new StringWriter();
-        g = mapper.getFactory().createGenerator(sw);
         ObjectWriter ow = mapper.writer();
-        ow.writeValue(g, Integer.valueOf(99));
+        ow.writeValue(sw, Integer.valueOf(99));
         assertEquals("99", sw.toString());
-        g.close();
     }
 
     public void testFlushingNotAutomatic() throws IOException
@@ -101,7 +96,7 @@ public class SerializationFeaturesTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, false);
         StringWriter sw = new StringWriter();
-        JsonGenerator g = mapper.getFactory().createGenerator(sw);
+        JsonGenerator g = mapper.createGenerator(sw);
 
         mapper.writeValue(g, Integer.valueOf(13));
         // no flushing now:
@@ -112,7 +107,7 @@ public class SerializationFeaturesTest
         g.close();
         // Also, same should happen with ObjectWriter
         sw = new StringWriter();
-        g = mapper.getFactory().createGenerator(sw);
+        g = mapper.createGenerator(sw);
         ObjectWriter ow = mapper.writer();
         ow.writeValue(g, Integer.valueOf(99));
         assertEquals("", sw.toString());

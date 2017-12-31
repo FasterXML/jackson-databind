@@ -26,7 +26,7 @@ public class DeserExceptionTypeTest
         public int x;
 
         // Constructor that is not detectable as Creator
-        public NoCreatorsBean(boolean foo, int foo2) { }
+        protected NoCreatorsBean(boolean foo, int foo2) { }
     }
     
     /*
@@ -74,7 +74,7 @@ public class DeserExceptionTypeTest
         throws Exception
     {
         BrokenStringReader r = new BrokenStringReader("[ 1, ", "TEST");
-        JsonParser p = MAPPER.getFactory().createParser(r);
+        JsonParser p = MAPPER.createParser(r);
         try {
             @SuppressWarnings("unused")
             Object ob = MAPPER.readValue(p, Object.class);
@@ -89,7 +89,7 @@ public class DeserExceptionTypeTest
 
     public void testExceptionWithEOF() throws Exception
     {
-        JsonParser p = MAPPER.getFactory().createParser("  3");
+        JsonParser p = MAPPER.createParser("  3");
 
         Integer I = MAPPER.readValue(p, Integer.class);
         assertEquals(3, I.intValue());
@@ -102,7 +102,7 @@ public class DeserExceptionTypeTest
             verifyException(e, MismatchedInputException.class, "No content");
         }
         // also: should have no current token after end-of-input
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != null) {
             fail("Expected current token to be null after end-of-stream, was: "+t);
         }
@@ -117,23 +117,6 @@ public class DeserExceptionTypeTest
             fail("Should not succeed, got: "+b);
         } catch (JsonMappingException e) {
             verifyException(e, InvalidDefinitionException.class, "no Creators");
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    void verifyException(Exception e, Class<?> expType, String expMsg)
-        throws Exception
-    {
-        if (e.getClass() != expType) {
-            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
-        }
-        if (expMsg != null) {
-            verifyException(e, expMsg);
         }
     }
 }

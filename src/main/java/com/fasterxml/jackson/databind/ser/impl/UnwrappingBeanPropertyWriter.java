@@ -64,8 +64,6 @@ public class UnwrappingBeanPropertyWriter
 
     /**
      * Overridable factory method used by sub-classes
-     *
-     * @since 2.6.0
      */
     protected UnwrappingBeanPropertyWriter _new(NameTransformer transformer, SerializedString newName)
     {

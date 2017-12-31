@@ -123,14 +123,14 @@ public class CollectionSerializationTest
             String json = MAPPER.writeValueAsString(value);
             
             // and then need to verify:
-            JsonParser jp = new JsonFactory().createParser(json);
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            JsonParser p = MAPPER.createParser(json);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             for (int i = 0; i < entryLen; ++i) {
-                assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-                assertEquals(i, jp.getIntValue());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(i, p.getIntValue());
             }
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());
-            jp.close();
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
         }
     }
 
@@ -144,37 +144,37 @@ public class CollectionSerializationTest
         }
         // Let's test using 3 main variants...
         for (int mode = 0; mode < 3; ++mode) {
-            JsonParser jp = null;
+            JsonParser p = null;
             switch (mode) {
             case 0:
                 {
                     byte[] data = MAPPER.writeValueAsBytes(value);
-                    jp = new JsonFactory().createParser(data);
+                    p = MAPPER.createParser(data);
                 }
                 break;
             case 1:
                 {
                     StringWriter sw = new StringWriter(value.size());
                     MAPPER.writeValue(sw, value);
-                    jp = createParserUsingReader(sw.toString());
+                    p = createParserUsingReader(sw.toString());
                 }
                 break;
             case 2:
                 {
                     String str = MAPPER.writeValueAsString(value);
-                    jp = createParserUsingReader(str);
+                    p = createParserUsingReader(str);
                 }
                 break;
             }
 
             // and verify
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             for (int i = 0; i <= COUNT; ++i) {
-                assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-                assertEquals(i, jp.getIntValue());
+                assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(i, p.getIntValue());
             }
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());
-            jp.close();
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
         }
     }
 

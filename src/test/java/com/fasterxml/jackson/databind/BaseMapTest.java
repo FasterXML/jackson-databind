@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.*;
@@ -83,7 +81,8 @@ public abstract class BaseMapTest
             this.object = object;
         }
         public Object getObject() { return object; }
-        @JsonCreator
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         static ObjectWrapper jsonValue(final Object object) {
             return new ObjectWrapper(object);
         }
@@ -205,33 +204,7 @@ public abstract class BaseMapTest
     /* Factory methods
     /**********************************************************
      */
-
-    private static ObjectMapper SHARED_MAPPER;
-
-    protected ObjectMapper objectMapper() {
-        if (SHARED_MAPPER == null) {
-            SHARED_MAPPER = newObjectMapper();
-        }
-        return SHARED_MAPPER;
-    }
-
-    protected ObjectWriter objectWriter() {
-        return objectMapper().writer();
-    }
-
-    protected ObjectReader objectReader() {
-        return objectMapper().reader();
-    }
     
-    protected ObjectReader objectReader(Class<?> cls) {
-        return objectMapper().readerFor(cls);
-    }
-
-    // @since 2.9
-    protected static ObjectMapper newObjectMapper() {
-        return new ObjectMapper();
-    }
-
     // @since 2.7
     protected TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added

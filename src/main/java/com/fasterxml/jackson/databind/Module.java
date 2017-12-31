@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
@@ -119,10 +120,8 @@ public abstract class Module
          * however, instance will always be of that type.
          * This is why return value is declared generic, to allow caller to
          * specify context to often avoid casting.
-         * 
-         * @since 2.0
          */
-        public <C extends ObjectCodec> C getOwner();
+        public Object getOwner();
 
         /**
          * Accessor for finding {@link TypeFactory} that is currently configured
@@ -130,8 +129,6 @@ public abstract class Module
          *<p>
          * NOTE: since it is possible that other modules might change or replace
          * TypeFactory, use of this method adds order-dependency for registrations.
-         * 
-         * @since 2.0
          */
         public TypeFactory getTypeFactory();
         

@@ -5,14 +5,13 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerBase;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.NullsAsEmptyProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;
@@ -37,14 +36,11 @@ public abstract class StdDeserializer<T>
      * Bitmask that covers {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}
      * and {@link DeserializationFeature#USE_LONG_FOR_INTS}, used for more efficient
      * cheks when coercing integral values for untyped deserialization.
-     *
-     * @since 2.6
      */
     protected final static int F_MASK_INT_COERCIONS = 
             DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
             | DeserializationFeature.USE_LONG_FOR_INTS.getMask();
 
-    // @since 2.9
     protected final static int F_MASK_ACCEPT_ARRAYS =
             DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS.getMask() |
             DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT.getMask();
@@ -59,19 +55,19 @@ public abstract class StdDeserializer<T>
     final protected Class<?> _valueClass;
 
     protected StdDeserializer(Class<?> vc) {
+        if (vc == null) {
+            throw new IllegalArgumentException("`null` not accepted as handled type");
+        }
         _valueClass = vc;
     }
 
     protected StdDeserializer(JavaType valueType) {
-        // 26-Sep-2017, tatu: [databind#1764] need to add null-check back until 3.x
-        _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
+        this(ClassUtil.rawClass(valueType));
     }
 
     /**
      * Copy-constructor for sub-classes to use, most often when creating
      * new instances for {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}.
-     * 
-     * @since 2.5
      */
     protected StdDeserializer(StdDeserializer<?> src) {
         _valueClass = src._valueClass;
@@ -91,12 +87,6 @@ public abstract class StdDeserializer<T>
     /* Extended API
     /**********************************************************
      */
-
-    /**
-     * @deprecated Since 2.3 use {@link #handledType} instead
-     */
-    @Deprecated
-    public final Class<?> getValueClass() { return _valueClass; }
 
     /**
      * Exact structured type this deserializer handles, if known.
@@ -146,7 +136,7 @@ public abstract class StdDeserializer<T>
 
     protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         if (t == JsonToken.VALUE_NULL) {
@@ -232,7 +222,7 @@ public abstract class StdDeserializer<T>
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             return p.getIntValue();
         }
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
@@ -292,7 +282,7 @@ public abstract class StdDeserializer<T>
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             return p.getLongValue();
         }
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
@@ -320,9 +310,6 @@ public abstract class StdDeserializer<T>
         return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).longValue();
     }
 
-    /**
-     * @since 2.9
-     */
     protected final long _parseLongPrimitive(DeserializationContext ctxt, String text) throws IOException
     {
         try {
@@ -341,7 +328,7 @@ public abstract class StdDeserializer<T>
         if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
             return p.getFloatValue();
         }
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
@@ -402,7 +389,7 @@ public abstract class StdDeserializer<T>
         if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
             return p.getDoubleValue();
         }
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
@@ -462,7 +449,7 @@ public abstract class StdDeserializer<T>
     protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             return _parseDate(p.getText().trim(), ctxt);
         case JsonTokenId.ID_NUMBER_INT:
@@ -503,7 +490,7 @@ public abstract class StdDeserializer<T>
                 return parsed;            
             }
         } else {
-            t = p.getCurrentToken();
+            t = p.currentToken();
         }
         return (java.util.Date) ctxt.handleUnexpectedToken(_valueClass, t, p, null);
     }
@@ -547,7 +534,7 @@ public abstract class StdDeserializer<T>
      */
     protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_STRING) {
             return p.getText();
         }
@@ -572,14 +559,12 @@ public abstract class StdDeserializer<T>
     /**
      * Helper method that may be used to support fallback for Empty String / Empty Array
      * non-standard representations; usually for things serialized as JSON Objects.
-     * 
-     * @since 2.5
      */
     @SuppressWarnings("unchecked")
     protected T _deserializeFromEmpty(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_ARRAY) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
                 t = p.nextToken();
@@ -668,7 +653,7 @@ public abstract class StdDeserializer<T>
                 return parsed;            
             }
         } else {
-            t = p.getCurrentToken();
+            t = p.currentToken();
         }
         @SuppressWarnings("unchecked")
         T result = (T) ctxt.handleUnexpectedToken(_valueClass, t, p, null);
@@ -693,7 +678,7 @@ public abstract class StdDeserializer<T>
                     ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
                     "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
             @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleUnexpectedToken(_valueClass, p.getCurrentToken(), p, msg);
+            T result = (T) ctxt.handleUnexpectedToken(_valueClass, p.currentToken(), p, msg);
             return result;
         }
         return (T) deserialize(p, ctxt);
@@ -1138,7 +1123,7 @@ public abstract class StdDeserializer<T>
      *    error reporting functionality
      * @param instanceOrClass Instance that is being populated by this
      *   deserializer, or if not known, Class that would be instantiated.
-     *   If null, will assume type is what {@link #getValueClass} returns.
+     *   If null, will assume type is what {@link #handledType} returns.
      * @param propName Name of the property that cannot be mapped
      */
     protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt,
@@ -1152,9 +1137,8 @@ public abstract class StdDeserializer<T>
         if (ctxt.handleUnknownProperty(p, this, instanceOrClass, propName)) {
             return;
         }
-        /* But if we do get this far, need to skip whatever value we
-         * are pointing to now (although handler is likely to have done that already)
-         */
+        // But if we do get this far, need to skip whatever value we
+        // are pointing to now (although handler is likely to have done that already)
         p.skipChildren();
     }
 

@@ -5,12 +5,10 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Unit tests for checking that alternative settings for
- * {@link JsonSerialize#include} annotation property work
- * as expected.
+ * inclusion annotation properties work as expected.
  */
 public class JsonInclude1327Test
     extends BaseMapTest

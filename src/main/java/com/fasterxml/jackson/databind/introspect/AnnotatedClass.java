@@ -6,7 +6,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -27,9 +26,6 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    /**
-     * @since 2.7
-     */
     final protected JavaType _type;
 
     /**
@@ -40,8 +36,6 @@ public final class AnnotatedClass
 
     /**
      * Type bindings to use for members of {@link #_class}.
-     *
-     * @since 2.7
      */
     final protected TypeBindings _bindings;
 
@@ -58,9 +52,6 @@ public final class AnnotatedClass
      */
     final protected AnnotationIntrospector _annotationIntrospector;
 
-    /**
-     * @since 2.7
-     */
     final protected TypeFactory _typeFactory;
     
     /**
@@ -88,9 +79,6 @@ public final class AnnotatedClass
      */
     final protected Annotations _classAnnotations;
 
-    /**
-     * @since 2.9
-     */
     protected Creators _creators;
 
     /**
@@ -108,8 +96,6 @@ public final class AnnotatedClass
     /**
      * Lazily determined property to see if this is a non-static inner
      * class.
-     *
-     * @since 2.8.7
      */
     protected transient Boolean _nonStaticInnerClass;
 
@@ -145,8 +131,6 @@ public final class AnnotatedClass
     /**
      * Constructor (only) used for creating primordial simple types (during bootstrapping)
      * and array type placeholders where no fields or methods are needed.
-     *
-     * @since 2.9
      */
     AnnotatedClass(Class<?> rawType) {
         _type = null;
@@ -158,47 +142,6 @@ public final class AnnotatedClass
         _annotationIntrospector = null;
         _mixInResolver = null;
         _typeFactory = null;
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config) {
-        return construct(type, config, (MixInResolver) config);
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config,
-            MixInResolver mir)
-    {
-        return AnnotatedClassResolver.resolve(config, type, mir);
-    }
-
-    /**
-     * Method similar to {@link #construct}, but that will NOT include
-     * information from supertypes; only class itself and any direct
-     * mix-ins it may have.
-     */
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> raw, MapperConfig<?> config) {
-        return constructWithoutSuperTypes(raw, config, config);
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> raw, MapperConfig<?> config,
-            MixInResolver mir)
-    {
-        return AnnotatedClassResolver.resolveWithoutSuperTypes(config, raw, mir);
     }
 
     /*
@@ -248,18 +191,6 @@ public final class AnnotatedClass
     }
 
     @Override
-    @Deprecated
-    public Iterable<Annotation> annotations() {
-        if (_classAnnotations instanceof AnnotationMap) {
-            return ((AnnotationMap) _classAnnotations).annotations();
-        } else if (_classAnnotations instanceof AnnotationCollector.OneAnnotation ||
-           _classAnnotations instanceof AnnotationCollector.TwoAnnotations) {
-            throw new UnsupportedOperationException("please use getAnnotations/ hasAnnotation to check for Annotations");
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
     public JavaType getType() {
         return _type;
     }
@@ -286,19 +217,8 @@ public final class AnnotatedClass
         return _creators().constructors;
     }
 
-    /**
-     * @since 2.9
-     */
     public List<AnnotatedMethod> getFactoryMethods() {
         return _creators().creatorMethods;
-    }
-
-    /**
-     * @deprecated Since 2.9; use {@link #getFactoryMethods} instead.
-     */
-    @Deprecated
-    public List<AnnotatedMethod> getStaticMethods() {
-        return getFactoryMethods();
     }
 
     public Iterable<AnnotatedMethod> memberMethods() {
@@ -321,9 +241,6 @@ public final class AnnotatedClass
         return _fields();
     }
 
-    /**
-     * @since 2.9
-     */
     public boolean isNonStaticInnerClass()
     {
         Boolean B = _nonStaticInnerClass;

@@ -90,7 +90,7 @@ public class UntypedDeserializationTest
         {
             Map<String,Object> map = new LinkedHashMap<String,Object>();
             while (p.nextValue() != JsonToken.END_OBJECT) {
-                map.put(p.getCurrentName(), "Y"+p.getText());
+                map.put(p.currentName(), "Y"+p.getText());
             }
             return map;
         }
@@ -184,7 +184,7 @@ public class UntypedDeserializationTest
 
         // Not a guaranteed cast theoretically, but will work:
         @SuppressWarnings("unchecked")
-        Map<String,Object> result = (Map<String,Object>)MAPPER.readValue(JSON, Object.class);
+        Map<Object,Object> result = (Map<Object,Object>)MAPPER.readValue(JSON, Object.class);
         assertNotNull(result);
         assertTrue(result instanceof Map<?,?>);
 

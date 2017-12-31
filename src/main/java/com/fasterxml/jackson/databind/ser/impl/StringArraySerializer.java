@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -167,7 +166,7 @@ public class StringArraySerializer
                 return;
             }
         }
-        gen.writeStartArray(len);
+        gen.writeStartArray(value, len);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
@@ -207,11 +206,6 @@ public class StringArraySerializer
         }
     }
 
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode("array", true).set("items", createSchemaNode("string"));
-    }
-    
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {

@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 /**
  * Base class for {@link JsonMappingException}s that are specifically related
  * to problems related to binding an individual property.
- * 
- * @since 2.3
  */
 @SuppressWarnings("serial")
 public abstract class PropertyBindingException
@@ -42,9 +40,6 @@ public abstract class PropertyBindingException
      */
     protected transient String _propertiesAsString;
 
-    /**
-     * @since 2.7
-     */
     protected PropertyBindingException(JsonParser p, String msg, JsonLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
@@ -53,17 +48,6 @@ public abstract class PropertyBindingException
         _referringClass = referringClass;
         _propertyName = propName;
         _propertyIds = propertyIds;
-    }
-
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    protected PropertyBindingException(String msg, JsonLocation loc,
-            Class<?> referringClass, String propName,
-            Collection<Object> propertyIds)
-    {
-        this(null, msg, loc, referringClass, propName, propertyIds);
     }
 
     /*

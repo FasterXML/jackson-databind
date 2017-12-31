@@ -63,94 +63,6 @@ public enum MapperFeature implements ConfigFeature
      */
     PROPAGATE_TRANSIENT_MARKER(false),
 
-    /*
-    /******************************************************
-    /* Introspection-based property auto-detection
-    /******************************************************
-     */
-
-    /**
-     * Feature that determines whether "creator" methods are
-     * automatically detected by consider public constructors,
-     * and static single argument methods with name "valueOf".
-     * If disabled, only methods explicitly annotated are considered
-     * creator methods (except for the no-arg default constructor which
-     * is always considered a factory method).
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<P>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_CREATORS(true),
-    
-    /**
-     * Feature that determines whether non-static fields are recognized as
-     * properties.
-     * If yes, then all public member fields
-     * are considered as properties. If disabled, only fields explicitly
-     * annotated are considered property fields.
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<p>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_FIELDS(true),
-    
-    /**
-     * Feature that determines whether regular "getter" methods are
-     * automatically detected based on standard Bean naming convention
-     * or not. If yes, then all public zero-argument methods that
-     * start with prefix "get" 
-     * are considered as getters.
-     * If disabled, only methods explicitly  annotated are considered getters.
-     *<p>
-     * Note that since version 1.3, this does <b>NOT</b> include
-     * "is getters" (see {@link #AUTO_DETECT_IS_GETTERS} for details)
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<p>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_GETTERS(true),
-
-    /**
-     * Feature that determines whether "is getter" methods are
-     * automatically detected based on standard Bean naming convention
-     * or not. If yes, then all public zero-argument methods that
-     * start with prefix "is", and whose return type is boolean
-     * are considered as "is getters".
-     * If disabled, only methods explicitly annotated are considered getters.
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<p>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_IS_GETTERS(true),
-
-    /**
-     * Feature that determines whether "setter" methods are
-     * automatically detected based on standard Bean naming convention
-     * or not. If yes, then all public one-argument methods that
-     * start with prefix "set"
-     * are considered setters. If disabled, only methods explicitly
-     * annotated are considered setters.
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<P>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_SETTERS(true),
-
     /**
      * Feature that determines whether getters (getter methods)
      * can be auto-detected if there is no matching mutator (setter,
@@ -381,22 +293,6 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.1
      */
     USE_WRAPPER_NAME_AS_PROPERTY_NAME(false),
-
-    /**
-     * Feature that may be enabled to enforce strict compatibility with
-     * Bean name introspection, instead of slightly different mechanism
-     * Jackson defaults to.
-     * Specific difference is that Jackson always lower cases leading upper-case
-     * letters, so "getURL()" becomes "url" property; whereas standard Bean
-     * naming <b>only</b> lower-cases the first letter if it is NOT followed by
-     * another upper-case letter (so "getURL()" would result in "URL" property).
-     *<p>
-     * Feature is disabled by default for backwards compatibility purposes: earlier
-     * Jackson versions used Jackson's own mechanism.
-     *
-     * @since 2.5
-     */
-    USE_STD_BEAN_NAMING(false),
 
     /**
      * Feature that when enabled will allow explicitly named properties (i.e., fields or methods

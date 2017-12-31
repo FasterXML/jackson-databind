@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -27,7 +26,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public class BasicBeanDescription extends BeanDescription
 {
-    // since 2.9
     private final static Class<?>[] NO_VIEWS = new Class<?>[0];
 
     /*
@@ -58,14 +56,8 @@ public class BasicBeanDescription extends BeanDescription
      */
     final protected AnnotatedClass _classInfo;
 
-    /**
-     * @since 2.9
-     */
     protected Class<?>[] _defaultViews;
 
-    /**
-     * @since 2.9
-     */
     protected boolean _defaultViewsResolved;
 
     /*
@@ -239,13 +231,6 @@ public class BasicBeanDescription extends BeanDescription
         return _properties();
     }
 
-    @Override
-    @Deprecated // since 2.9
-    public AnnotatedMethod findJsonValueMethod() {
-        return (_propCollector == null) ? null
-                : _propCollector.getJsonValueMethod();
-    }
-
     @Override // since 2.9
     public AnnotatedMember findJsonValueAccessor() {
         return (_propCollector == null) ? null
@@ -270,21 +255,6 @@ public class BasicBeanDescription extends BeanDescription
     @Override
     public Annotations getClassAnnotations() {
         return _classInfo.getAnnotations();
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public TypeBindings bindingsForBeanType() {
-        return _type.getBindings();
-    }
-
-    @Override
-    @Deprecated // since 2.8
-    public JavaType resolveType(java.lang.reflect.Type jdkType) {
-        if (jdkType == null) {
-            return null;
-        }
-        return _config.getTypeFactory().constructType(jdkType, _type.getBindings());
     }
 
     @Override
@@ -504,21 +474,6 @@ anyField.getName()));
         return result;
     }
 
-    @Deprecated // since 2.9
-    @Override
-    public Map<String,AnnotatedMember> findBackReferenceProperties()
-    {
-        List<BeanPropertyDefinition> props = findBackReferences();
-        if (props == null) {
-            return null;
-        }
-        Map<String,AnnotatedMember> result = new HashMap<>();
-        for (BeanPropertyDefinition prop : props) {
-            result.put(prop.getName(), prop.getMutator());
-        }
-        return result;
-    }
-
     /*
     /**********************************************************
     /* Introspection for deserialization, factories
@@ -623,22 +578,6 @@ anyField.getName()));
         return false;
     }
 
-    /**
-     * @deprecated since 2.8
-     */
-    @Deprecated // since 2.8, not used at least since 2.7
-    protected PropertyName _findCreatorPropertyName(AnnotatedParameter param)
-    {
-        PropertyName name = _annotationIntrospector.findNameForDeserialization(param);
-        if (name == null || name.isEmpty()) {
-            String str = _annotationIntrospector.findImplicitPropertyName(param);
-            if (str != null && !str.isEmpty()) {
-                name = PropertyName.construct(str);
-            }
-        }
-        return name;
-    }
-
     /*
     /**********************************************************
     /* Introspection for deserialization, other
@@ -671,44 +610,6 @@ anyField.getName()));
     public String findClassDescription() {
         return (_annotationIntrospector == null) ?
                 null : _annotationIntrospector.findClassDescription(_classInfo);
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods for field introspection
-    /**********************************************************
-     */
-
-    /**
-     * @param ignoredProperties (optional) names of properties to ignore;
-     *   any fields that would be recognized as one of these properties
-     *   is ignored.
-     * @param forSerialization If true, will collect serializable property
-     *    fields; if false, deserializable
-     *
-     * @return Ordered Map with logical property name as key, and
-     *    matching field as value.
-     *
-     * @deprecated Since 2.7.2, does not seem to be used?
-     */
-    @Deprecated
-    public LinkedHashMap<String,AnnotatedField> _findPropertyFields(
-            Collection<String> ignoredProperties, boolean forSerialization)
-    {
-        LinkedHashMap<String,AnnotatedField> results = new LinkedHashMap<String,AnnotatedField>();
-        for (BeanPropertyDefinition property : _properties()) {
-            AnnotatedField f = property.getField();
-            if (f != null) {
-                String name = property.getName();
-                if (ignoredProperties != null) {
-                    if (ignoredProperties.contains(name)) {
-                        continue;
-                    }
-                }
-                results.put(name, f);
-            }
-        }
-        return results;
     }
 
     /*

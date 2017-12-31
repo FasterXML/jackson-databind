@@ -5,8 +5,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -58,6 +61,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             File.class,
             URL.class,
             URI.class,
+            Path.class, // since 3.0
             Class.class,
             JavaType.class,
             Currency.class,
@@ -94,6 +98,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             kind = Std.STD_URL;
         } else if (rawType == URI.class) {
             kind = Std.STD_URI;
+        } else if (rawType == Path.class) {
+            kind = Std.STD_PATH;
         } else if (rawType == Class.class) {
             kind = Std.STD_CLASS;
         } else if (rawType == JavaType.class) {
@@ -158,7 +164,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             throw e;
             // nothing to do here, yet? We'll fail anyway
         }
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         // [databind#381]
         if (t == JsonToken.START_ARRAY) {
             return _deserializeFromArray(p, ctxt);
@@ -210,16 +216,17 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         public final static int STD_FILE = 1;
         public final static int STD_URL = 2;
         public final static int STD_URI = 3;
-        public final static int STD_CLASS = 4;
-        public final static int STD_JAVA_TYPE = 5;
-        public final static int STD_CURRENCY = 6;
-        public final static int STD_PATTERN = 7;
-        public final static int STD_LOCALE = 8;
-        public final static int STD_CHARSET = 9;
-        public final static int STD_TIME_ZONE = 10;
-        public final static int STD_INET_ADDRESS = 11;
-        public final static int STD_INET_SOCKET_ADDRESS = 12;
-        public final static int STD_STRING_BUILDER = 13;
+        public final static int STD_PATH = 4;
+        public final static int STD_CLASS = 5;
+        public final static int STD_JAVA_TYPE = 6;
+        public final static int STD_CURRENCY = 7;
+        public final static int STD_PATTERN = 8;
+        public final static int STD_LOCALE = 9;
+        public final static int STD_CHARSET = 10;
+        public final static int STD_TIME_ZONE = 11;
+        public final static int STD_INET_ADDRESS = 12;
+        public final static int STD_INET_SOCKET_ADDRESS = 13;
+        public final static int STD_STRING_BUILDER = 14;
 
         protected final int _kind;
         
@@ -238,6 +245,15 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 return new URL(value);
             case STD_URI:
                 return URI.create(value);
+            case STD_PATH:
+                if (value.indexOf(':') < 0) {
+                    return Paths.get(value);
+                }
+                try {
+                    return Paths.get(new URI(value));
+                } catch (URISyntaxException e) {
+                    return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
+                }
             case STD_CLASS:
                 try {
                     return ctxt.findClass(value);

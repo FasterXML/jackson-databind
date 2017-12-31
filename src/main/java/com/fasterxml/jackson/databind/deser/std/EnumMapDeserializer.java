@@ -41,10 +41,7 @@ public class EnumMapDeserializer
     protected final TypeDeserializer _valueTypeDeserializer;
 
     // // Instance construction settings:
-    
-    /**
-     * @since 2.9
-     */
+
     protected final ValueInstantiator _valueInstantiator;
 
     /**
@@ -100,13 +97,6 @@ public class EnumMapDeserializer
         _propertyBasedCreator = base._propertyBasedCreator;
     }
 
-    @Deprecated // since 2.9
-    public EnumMapDeserializer(JavaType mapType, KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer vtd)
-    {
-        this(mapType, null, keyDeser, valueDeser, vtd, null);
-    }
-    
     public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer,
             JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller)
@@ -235,7 +225,7 @@ public class EnumMapDeserializer
                     _delegateDeserializer.deserialize(p, ctxt));
         }
         // Ok: must point to START_OBJECT
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
             // (empty) String may be ok however; or single-String-arg ctor
             if (t == JsonToken.VALUE_STRING) {
@@ -335,7 +325,7 @@ public class EnumMapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyName = p.nextFieldName();
         } else if (p.hasToken(JsonToken.FIELD_NAME)) {
-            keyName = p.getCurrentName();
+            keyName = p.currentName();
         } else {
             keyName = null;
         }

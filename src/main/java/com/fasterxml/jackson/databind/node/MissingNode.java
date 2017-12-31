@@ -30,11 +30,6 @@ public final class MissingNode
      */
     protected MissingNode() { }
 
-    @Override
-    public boolean isMissingNode() {
-        return true;
-    }
-
     // Immutable: no need to copy
     @SuppressWarnings("unchecked")
     @Override
@@ -43,9 +38,13 @@ public final class MissingNode
     public static MissingNode getInstance() { return instance; }
     
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.MISSING;
+    }
+
+    @Override
+    public final boolean isMissingNode() {
+        return true;
     }
 
     @Override public JsonToken asToken() { return JsonToken.NOT_AVAILABLE; }

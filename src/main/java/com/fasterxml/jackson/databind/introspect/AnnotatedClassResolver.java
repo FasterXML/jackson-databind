@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Helper class that contains logic for resolving annotations to construct
  * {@link AnnotatedClass} instances.
- *
- * @since 2.9
  */
 public class AnnotatedClassResolver
 {

@@ -23,23 +23,32 @@ import com.fasterxml.jackson.databind.util.TypeKey;
  * to resolve value type. One (but not both) of entries can be null.
  */
 public final class SerializerCache
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Shared, modifiable map; all access needs to be through synchronized blocks.
      *<p>
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private final HashMap<TypeKey, JsonSerializer<Object>> _sharedMap
-        = new HashMap<TypeKey, JsonSerializer<Object>>(64);
+    private final transient HashMap<TypeKey, JsonSerializer<Object>> _sharedMap;
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
      */
-    private final AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap
-        = new AtomicReference<ReadOnlyClassToSerializerMap>();
+    private final transient AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap;
 
-    public SerializerCache() { }
+    public SerializerCache() {
+        _sharedMap = new HashMap<TypeKey, JsonSerializer<Object>>(64);
+        _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
+    }
+
+    // Since 3.0, needed to initialize cache properly
+    protected Object readResolve() {
+        return new SerializerCache();
+    }
 
     /**
      * Method that can be called to get a read-only instance populated from the

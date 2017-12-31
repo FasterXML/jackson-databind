@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -360,7 +361,7 @@ public class POJOPropertiesCollectorTest
     public void testGlobalVisibilityForGetters()
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+        m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
         POJOPropertiesCollector coll = collector(m, SimpleGetterVisibility.class, true);
         // should be 1, expect that we disabled getter auto-detection, so
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();

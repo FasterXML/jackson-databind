@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -60,11 +59,6 @@ public class NumberSerializers {
             _isInt = (numberType == JsonParser.NumberType.INT)
                     || (numberType == JsonParser.NumberType.LONG)
                     || (numberType == JsonParser.NumberType.BIG_INTEGER);
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode(_schemaType, true);
         }
 
         @Override

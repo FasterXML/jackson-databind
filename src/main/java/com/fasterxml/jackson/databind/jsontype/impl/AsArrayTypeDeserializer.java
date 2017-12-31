@@ -23,9 +23,6 @@ public class AsArrayTypeDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @since 2.8
-     */
     public AsArrayTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
@@ -101,16 +98,16 @@ public class AsArrayTypeDeserializer
                 //   internal and external properties
                 //  TODO: but does it need to be injected in external case? Why not?
                 && !_usesExternalId()
-                && p.getCurrentToken() == JsonToken.START_OBJECT) {
+                && p.isExpectedStartObjectToken()) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
-            TokenBuffer tb = new TokenBuffer(null, false);
+            TokenBuffer tb = TokenBuffer.forInputBuffering(p, ctxt);
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeFieldName(_typePropertyName);
             tb.writeString(typeId);
-            // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
+            // 02-Jul-2016, tatu: Depending on how JsonParserSequence is initialized it may
             //   try to access current token; ensure there isn't one
             p.clearCurrentToken();
-            p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
+            p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);
             p.nextToken();
         }
         Object value = deser.deserialize(p, ctxt);

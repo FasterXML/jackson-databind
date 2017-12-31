@@ -164,8 +164,7 @@ public class TestRootType
         assertEquals(EXP, json);
 
         StringWriter out = new StringWriter();
-        JsonFactory f = new JsonFactory();
-        mapper.writerFor(collectionType).writeValue(f.createGenerator(out), typedList);
+        mapper.writerFor(collectionType).writeValue(mapper.createGenerator(out), typedList);
 
         assertEquals(EXP, out.toString());
     }

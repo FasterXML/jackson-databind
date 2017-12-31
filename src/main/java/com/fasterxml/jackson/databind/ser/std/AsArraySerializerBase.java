@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -10,9 +9,7 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -40,8 +37,6 @@ public abstract class AsArraySerializerBase<T>
      * Setting for specific local override for "unwrap single element arrays":
      * true for enable unwrapping, false for preventing it, `null` for using
      * global configuration.
-     *
-     * @since 2.6
      */
     protected final Boolean _unwrapSingle;
 
@@ -70,8 +65,6 @@ public abstract class AsArraySerializerBase<T>
     /**
      * Non-contextual, "blueprint" constructor typically called when the first
      * instance is created, without knowledge of property it was used via.
-     *
-     * @since 2.6
      */
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<Object> elementSerializer)
@@ -82,26 +75,6 @@ public abstract class AsArraySerializerBase<T>
         _staticTyping = staticTyping || (et != null && et.isFinal());
         _valueTypeSerializer = vts;
         _property = null;
-        _elementSerializer = elementSerializer;
-        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
-        _unwrapSingle = null;
-    }
-
-    /**
-     * @deprecated Since 2.6 Use variants that either take 'src', or do NOT pass
-     *    BeanProperty
-     */
-    @Deprecated
-    protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
-            TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)
-    {
-        // typing with generics is messy... have to resort to this:
-        super(cls, false);
-        _elementType = et;
-        // static if explicitly requested, or if element type is final
-        _staticTyping = staticTyping || (et != null && et.isFinal());
-        _valueTypeSerializer = vts;
-        _property = property;
         _elementSerializer = elementSerializer;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _unwrapSingle = null;
@@ -122,28 +95,6 @@ public abstract class AsArraySerializerBase<T>
         _unwrapSingle = unwrapSingle;
     }
 
-    /**
-     * @deprecated since 2.6: use the overloaded method that takes 'unwrapSingle'
-     */
-    @Deprecated
-    protected AsArraySerializerBase(AsArraySerializerBase<?> src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer)
-    {
-        this(src, property, vts, elementSerializer, src._unwrapSingle);
-    }
-    
-    /**
-     * @deprecated since 2.6: use the overloaded method that takes 'unwrapSingle'
-     */
-    @Deprecated
-    public final AsArraySerializerBase<T> withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return withResolved(property, vts, elementSerializer, _unwrapSingle);
-    }
-
-    /**
-     * @since 2.6
-     */
     public abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle);
@@ -232,7 +183,7 @@ public abstract class AsArraySerializerBase<T>
     /**********************************************************
      */
 
-    // NOTE: as of 2.5, sub-classes SHOULD override (in 2.4 and before, was final),
+    // NOTE: as of 2.5, sub-classes SHOULD override
     // at least if they can provide access to actual size of value and use `writeStartArray()`
     // variant that passes size of array to output, which is helpful with some data formats
     @Override
@@ -264,25 +215,6 @@ public abstract class AsArraySerializerBase<T>
 
     protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
         throws IOException;
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
-        ObjectNode o = createSchemaNode("array", true);
-        if (_elementSerializer != null) {
-            JsonNode schemaNode = null;
-            if (_elementSerializer instanceof SchemaAware) {
-                schemaNode = ((SchemaAware) _elementSerializer).getSchema(provider, null);
-            }
-            if (schemaNode == null) {
-                schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
-            }
-            o.set("items", schemaNode);
-        }
-        return o;
-    }
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.lang.reflect.Type;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
@@ -43,12 +42,7 @@ public class NullSerializer
     {
         gen.writeNull();
     }
-    
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-        return createSchemaNode("null");
-    }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         visitor.expectNullFormat(typeHint);

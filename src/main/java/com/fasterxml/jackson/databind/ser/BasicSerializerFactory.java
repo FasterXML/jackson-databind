@@ -5,8 +5,13 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,6 +20,14 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
+import com.fasterxml.jackson.databind.ext.jdk8.DoubleStreamSerializer;
+import com.fasterxml.jackson.databind.ext.jdk8.IntStreamSerializer;
+import com.fasterxml.jackson.databind.ext.jdk8.LongStreamSerializer;
+import com.fasterxml.jackson.databind.ext.jdk8.OptionalDoubleSerializer;
+import com.fasterxml.jackson.databind.ext.jdk8.OptionalIntSerializer;
+import com.fasterxml.jackson.databind.ext.jdk8.OptionalLongSerializer;
+import com.fasterxml.jackson.databind.ext.jdk8.Jdk8OptionalSerializer;
+import com.fasterxml.jackson.databind.ext.jdk8.Jdk8StreamSerializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -364,24 +377,42 @@ public abstract class BasicSerializerFactory
      * mostly concrete or abstract base classes.
      */
     protected final JsonSerializer<?> findSerializerByPrimaryType(SerializerProvider prov, 
-            JavaType type, BeanDescription beanDesc,
-            boolean staticTyping)
+            JavaType type, BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
     {
-        Class<?> raw = type.getRawClass();
-        
-        // Then check for optional/external serializers 
-        JsonSerializer<?> ser = findOptionalStdSerializer(prov, type, beanDesc, staticTyping);
-        if (ser != null) {
-            return ser;
-        }
-        
-        if (Calendar.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(Calendar.class)) {
             return CalendarSerializer.instance;
         }
-        if (java.util.Date.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(java.util.Date.class)) {
             return DateSerializer.instance;
         }
+        // 19-Sep-2017, tatu: Jackson 3.x adds Java 8 types.
+        // NOTE: while seemingly more of an add-on type, we must handle here because
+        //   otherwise Bean-handling would be used instead...
+        if (type.isTypeOrSubTypeOf(Stream.class)) {
+            return new Jdk8StreamSerializer(type,
+                    prov.getTypeFactory().findFirstTypeParameter(type, Stream.class));
+        }
+
+        if (type.isTypeOrSubTypeOf(Number.class)) {
+            // 21-May-2014, tatu: Couple of alternatives actually
+            JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+            if (format != null) {
+                switch (format.getShape()) {
+                case STRING:
+                    return ToStringSerializer.instance;
+                case OBJECT: // need to bail out to let it be serialized as POJO
+                case ARRAY: // or, I guess ARRAY; otherwise no point in speculating
+                    return null;
+                default:
+                }
+            }
+            return NumberSerializer.instance;
+        }
+        if (type.isTypeOrSubTypeOf(Enum.class)) {
+            return buildEnumSerializer(prov.getConfig(), type, beanDesc);
+        }
+        Class<?> raw = type.getRawClass();
         if (Map.Entry.class.isAssignableFrom(raw)) {
             // 18-Oct-2015, tatu: With 2.7, need to dig type info:
             JavaType mapEntryType = type.findSuperType(Map.Entry.class);
@@ -406,39 +437,30 @@ public abstract class BasicSerializerFactory
         if (java.nio.charset.Charset.class.isAssignableFrom(raw)) {
             return ToStringSerializer.instance;
         }
-        if (Number.class.isAssignableFrom(raw)) {
-            // 21-May-2014, tatu: Couple of alternatives actually
-            JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-            if (format != null) {
-                switch (format.getShape()) {
-                case STRING:
-                    return ToStringSerializer.instance;
-                case OBJECT: // need to bail out to let it be serialized as POJO
-                case ARRAY: // or, I guess ARRAY; otherwise no point in speculating
-                    return null;
-                default:
-                }
-            }
-            return NumberSerializer.instance;
+        // 19-Sep-2017, tatu: Java 8 streams, except for main `Stream` (which is "add-on" interface?)
+        if (LongStream.class.isAssignableFrom(raw)) {
+            return LongStreamSerializer.INSTANCE;
         }
-        if (Enum.class.isAssignableFrom(raw)) {
-            return buildEnumSerializer(prov.getConfig(), type, beanDesc);
+        if (IntStream.class.isAssignableFrom(raw)) {
+            return IntStreamSerializer.INSTANCE;
+        }
+        if (DoubleStream.class.isAssignableFrom(raw)) {
+            return DoubleStreamSerializer.INSTANCE;
+        }
+        // 17-Sep-2017, tatu: With 3.0, this JDK7 type may be added here too.
+        // NOTE: not concrete, can not just add via StdJdkSerializers.
+        if (Path.class.isAssignableFrom(raw)) {
+            return new NioPathSerializer();
+        }
+        // Then check for optional/external serializers 
+        JsonSerializer<?> ser = OptionalHandlerFactory.instance.findSerializer(prov.getConfig(),
+                type, beanDesc);
+        if (ser != null) {
+            return ser;
         }
         return null;
     }
 
-    /**
-     * Overridable method called after checking all other types.
-     * 
-     * @since 2.2
-     */
-    protected JsonSerializer<?> findOptionalStdSerializer(SerializerProvider prov, 
-            JavaType type, BeanDescription beanDesc, boolean staticTyping)
-        throws JsonMappingException
-    {
-        return OptionalHandlerFactory.instance.findSerializer(prov.getConfig(), type, beanDesc);
-    }
-        
     /**
      * Reflection-based serialized find method, which checks if
      * given class implements one of recognized "add-on" interfaces.
@@ -450,26 +472,21 @@ public abstract class BasicSerializerFactory
     protected final JsonSerializer<?> findSerializerByAddonType(SerializationConfig config,
             JavaType javaType, BeanDescription beanDesc, boolean staticTyping) throws JsonMappingException
     {
-        Class<?> rawType = javaType.getRawClass();
-
-        if (Iterator.class.isAssignableFrom(rawType)) {
-            JavaType[] params = config.getTypeFactory().findTypeParameters(javaType, Iterator.class);
-            JavaType vt = (params == null || params.length != 1) ?
-                    TypeFactory.unknownType() : params[0];
-            return buildIteratorSerializer(config, javaType, beanDesc, staticTyping, vt);
+        final TypeFactory tf = config.getTypeFactory();
+        if (javaType.isTypeOrSubTypeOf(Iterator.class)) {
+            return buildIteratorSerializer(config, javaType, beanDesc, staticTyping,
+                    tf.findFirstTypeParameter(javaType, Iterator.class));
         }
-        if (Iterable.class.isAssignableFrom(rawType)) {
-            JavaType[] params = config.getTypeFactory().findTypeParameters(javaType, Iterable.class);
-            JavaType vt = (params == null || params.length != 1) ?
-                    TypeFactory.unknownType() : params[0];
-            return buildIterableSerializer(config, javaType, beanDesc,  staticTyping, vt);
+        if (javaType.isTypeOrSubTypeOf(Iterable.class)) {
+            return buildIterableSerializer(config, javaType, beanDesc,  staticTyping,
+                    tf.findFirstTypeParameter(javaType, Iterable.class));
         }
-        if (CharSequence.class.isAssignableFrom(rawType)) {
+        if (javaType.isTypeOrSubTypeOf(CharSequence.class)) {
             return ToStringSerializer.instance;
         }
         return null;
     }
-    
+
     /**
      * Helper method called to check if a class or method
      * has an annotation
@@ -796,7 +813,6 @@ public abstract class BasicSerializerFactory
      *
      * @since 2.9
      */
-    @SuppressWarnings("deprecation")
     protected MapSerializer _checkMapContentInclusion(SerializerProvider prov,
             BeanDescription beanDesc, MapSerializer mapSer)
         throws JsonMappingException
@@ -809,9 +825,6 @@ public abstract class BasicSerializerFactory
         JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
         if (incl == JsonInclude.Include.USE_DEFAULTS
                 || incl == JsonInclude.Include.ALWAYS) {
-            if (!prov.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
-                return mapSer.withContentInclusion(null, true);
-            }
             return mapSer;
         }
 
@@ -1018,13 +1031,9 @@ public abstract class BasicSerializerFactory
     /*
     /**********************************************************
     /* Factory methods for Reference types
-    /* (demoted from BeanSF down here in 2.9)
     /**********************************************************
      */
 
-    /**
-     * @since 2.7
-     */
     public JsonSerializer<?> findReferenceSerializer(SerializerProvider prov, ReferenceType refType,
             BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
@@ -1044,20 +1053,35 @@ public abstract class BasicSerializerFactory
             }
         }
         if (refType.isTypeOrSubTypeOf(AtomicReference.class)) {
-            return buildAtomicReferenceSerializer(prov, refType, beanDesc, staticTyping,
+            return _buildReferenceSerializer(prov, AtomicReference.class,
+                    refType, beanDesc, staticTyping,
                     contentTypeSerializer, contentSerializer);
+        }
+        if (refType.isTypeOrSubTypeOf(Optional.class)) {
+            return _buildReferenceSerializer(prov, Optional.class,
+                    refType, beanDesc, staticTyping,
+                    contentTypeSerializer, contentSerializer);
+        }
+        if (refType.isTypeOrSubTypeOf(OptionalInt.class)) {
+            return new OptionalIntSerializer();
+        }
+        if (refType.isTypeOrSubTypeOf(OptionalLong.class)) {
+            return new OptionalLongSerializer();
+        }
+        if (refType.isTypeOrSubTypeOf(OptionalDouble.class)) {
+            return new OptionalDoubleSerializer();
         }
         return null;
     }
 
-    protected JsonSerializer<?> buildAtomicReferenceSerializer(SerializerProvider prov,
+    protected JsonSerializer<?> _buildReferenceSerializer(SerializerProvider prov, Class<?> baseType,
             ReferenceType refType, BeanDescription beanDesc, boolean staticTyping,
             TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentSerializer)
         throws JsonMappingException
     {
         final JavaType contentType = refType.getReferencedType();
         JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
-                contentType, AtomicReference.class);
+                contentType, baseType);
         
         // Need to support global legacy setting, for now:
         JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
@@ -1100,8 +1124,14 @@ public abstract class BasicSerializerFactory
                 break;
             }
         }
-        AtomicReferenceSerializer ser = new AtomicReferenceSerializer(refType, staticTyping,
-                contentTypeSerializer, contentSerializer);
+        ReferenceTypeSerializer<?> ser;
+        if (baseType == Optional.class) {
+            ser = new Jdk8OptionalSerializer(refType, staticTyping,
+                    contentTypeSerializer, contentSerializer);
+        } else {
+            ser = new AtomicReferenceSerializer(refType, staticTyping,
+                    contentTypeSerializer, contentSerializer);
+        }
         return ser.withContentInclusion(valueToSuppress, suppressNulls);
     }
 

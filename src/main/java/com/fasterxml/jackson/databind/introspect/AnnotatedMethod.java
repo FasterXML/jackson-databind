@@ -20,8 +20,6 @@ public final class AnnotatedMethod
     /**
      * Field that is used to make JDK serialization work with this
      * object.
-     * 
-     * @since 2.1
      */
     protected Serialization _serialization;
     
@@ -43,7 +41,6 @@ public final class AnnotatedMethod
 
     /**
      * Method used for JDK serialization support
-     * @since 2.1
      */
     protected AnnotatedMethod(Serialization ser)
     {
@@ -85,12 +82,6 @@ public final class AnnotatedMethod
     @Override
     public Class<?> getRawType() {
         return _method.getReturnType();
-    }
-
-    @Deprecated
-    @Override
-    public Type getGenericType() {
-        return _method.getGenericReturnType();
     }
 
     /*
@@ -150,15 +141,10 @@ public final class AnnotatedMethod
     }
 
     @Override
-    @Deprecated // since 2.7
-    public Type getGenericParameterType(int index) {
-        Type[] types = getGenericParameterTypes();
-        if (index >= types.length) {
-            return null;
-        }
-        return types[index];
+    public Parameter[] getNativeParameters() {
+        return _method.getParameters();
     }
-    
+
     @Override
     public Class<?> getDeclaringClass() { return _method.getDeclaringClass(); }
 
@@ -206,11 +192,6 @@ public final class AnnotatedMethod
         return _paramClasses;
     }
 
-    @Deprecated // since 2.7
-    public Type[] getGenericParameterTypes() {
-        return _method.getGenericParameterTypes();
-    }
-
     public Class<?> getRawReturnType() {
         return _method.getReturnType();
     }
@@ -219,8 +200,6 @@ public final class AnnotatedMethod
      * Helper method that can be used to check whether method returns
      * a value or not; if return type declared as <code>void</code>, returns
      * false, otherwise true
-     * 
-     * @since 2.4
      */
     public boolean hasReturnType() {
         Class<?> rt = getRawReturnType();

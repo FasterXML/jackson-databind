@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  * process. Designed so that some of implementations can rely on shared
  * aspects like access to secondary contextual objects like type factories
  * or handler instantiators.
- * 
- * @since 2.2
  */
 public abstract class DatabindContext
 {
@@ -29,8 +27,6 @@ public abstract class DatabindContext
      * Let's limit length of error messages, for cases where underlying data
      * may be very large -- no point in spamming logs with megabytes of meaningless
      * data.
-     *
-     * @since 2.9
      */
     private final static int MAX_ERROR_STR_LEN = 500;
 
@@ -84,24 +80,15 @@ public abstract class DatabindContext
      */
     public abstract Class<?> getActiveView();
 
-    /**
-     * @since 2.6
-     */
     public abstract Locale getLocale();
 
-    /**
-     * @since 2.6
-     */
     public abstract TimeZone getTimeZone();
 
-    /**
-     * @since 2.7
-     */
     public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
 
     /*
     /**********************************************************
-    /* Generic attributes (2.3+)
+    /* Generic attributes
     /**********************************************************
      */
 
@@ -113,8 +100,6 @@ public abstract class DatabindContext
      * 
      * @param key Key of the attribute to get
      * @return Value of the attribute, if any; null otherwise
-     * 
-     * @since 2.3
      */
     public abstract Object getAttribute(Object key);
 
@@ -127,8 +112,6 @@ public abstract class DatabindContext
      * @param value Value to set attribute to
      * 
      * @return This context object, to allow chaining
-     * 
-     * @since 2.3
      */
     public abstract DatabindContext setAttribute(Object key, Object value);
 
@@ -164,8 +147,6 @@ public abstract class DatabindContext
     /**
      * Lookup method called when code needs to resolve class name from input;
      * usually simple lookup
-     *
-     * @since 2.9
      */
     public JavaType resolveSubType(JavaType baseType, String subClass)
         throws JsonMappingException
@@ -208,8 +189,6 @@ public abstract class DatabindContext
      * Note that most of the time this method should NOT be called directly: instead,
      * method <code>handleUnknownTypeId()</code> should be called which will call this method
      * if necessary.
-     *
-     * @since 2.9
      */
     protected abstract JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc);
@@ -300,14 +279,9 @@ public abstract class DatabindContext
      * Helper method called to indicate a generic problem that stems from type
      * definition(s), not input data, or input/output state; typically this
      * means throwing a {@link com.fasterxml.jackson.databind.exc.InvalidDefinitionException}.
-     *
-     * @since 2.9
      */
     public abstract <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException;
 
-    /**
-     * @since 2.9
-     */
     public <T> T reportBadDefinition(Class<?> type, String msg) throws JsonMappingException {
         return reportBadDefinition(constructType(type), msg);
     }
@@ -318,9 +292,6 @@ public abstract class DatabindContext
     /**********************************************************
      */
 
-    /**
-     * @since 2.9
-     */
     protected final String _format(String msg, Object... msgArgs) {
         if (msgArgs.length > 0) {
             return String.format(msg, msgArgs);
@@ -328,9 +299,6 @@ public abstract class DatabindContext
         return msg;
     }
 
-    /**
-     * @since 2.9
-     */
     protected final String _truncate(String desc) {
         if (desc == null) {
             return "";
@@ -341,9 +309,6 @@ public abstract class DatabindContext
         return desc.substring(0, MAX_ERROR_STR_LEN) + "]...[" + desc.substring(desc.length() - MAX_ERROR_STR_LEN);
     }
 
-    /**
-     * @since 2.9
-     */
     protected String _quotedString(String desc) {
         if (desc == null) {
             return "[N/A]";
@@ -351,10 +316,7 @@ public abstract class DatabindContext
         // !!! should we quote it? (in case there are control chars, linefeeds)
         return String.format("\"%s\"", _truncate(desc));
     }
-    
-    /**
-     * @since 2.9
-     */
+
     protected String _colonConcat(String msgBase, String extra) {
         if (extra == null) {
             return msgBase;
@@ -362,9 +324,6 @@ public abstract class DatabindContext
         return msgBase + ": " + extra;
     }
 
-    /**
-     * @since 2.9
-     */
     protected String _desc(String desc) {
         if (desc == null) {
             return "[N/A]";

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
@@ -22,11 +21,6 @@ public class SqlTimeSerializer
         g.writeString(value.toString());
     }
 
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode("string", true);
-    }
-    
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

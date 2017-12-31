@@ -156,13 +156,13 @@ public class TestTypeModifiers extends BaseMapTest
     static class MyMapDeserializer extends JsonDeserializer<MapMarker<?,?>>
     {
         @Override
-        public MapMarker<?,?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            if (jp.getCurrentToken() != JsonToken.START_OBJECT) throw new IOException("Wrong token: "+jp.getCurrentToken());
-            if (jp.nextToken() != JsonToken.FIELD_NAME) throw new IOException("Wrong token: "+jp.getCurrentToken());
-            String key = jp.getCurrentName();
-            if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+jp.getCurrentToken());
-            int value = jp.getIntValue();
-            if (jp.nextToken() != JsonToken.END_OBJECT) throw new IOException("Wrong token: "+jp.getCurrentToken());
+        public MapMarker<?,?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            if (p.currentToken() != JsonToken.START_OBJECT) throw new IOException("Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.FIELD_NAME) throw new IOException("Wrong token: "+p.currentToken());
+            String key = p.currentName();
+            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+p.currentToken());
+            int value = p.getIntValue();
+            if (p.nextToken() != JsonToken.END_OBJECT) throw new IOException("Wrong token: "+p.currentToken());
             return new MyMapLikeType(key, value);
         }        
     }
@@ -179,11 +179,11 @@ public class TestTypeModifiers extends BaseMapTest
     static class MyCollectionDeserializer extends JsonDeserializer<MyCollectionLikeType>
     {
         @Override
-        public MyCollectionLikeType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            if (jp.getCurrentToken() != JsonToken.START_ARRAY) throw new IOException("Wrong token: "+jp.getCurrentToken());
-            if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+jp.getCurrentToken());
-            int value = jp.getIntValue();
-            if (jp.nextToken() != JsonToken.END_ARRAY) throw new IOException("Wrong token: "+jp.getCurrentToken());
+        public MyCollectionLikeType deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            if (p.currentToken() != JsonToken.START_ARRAY) throw new IOException("Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+p.currentToken());
+            int value = p.getIntValue();
+            if (p.nextToken() != JsonToken.END_ARRAY) throw new IOException("Wrong token: "+p.currentToken());
             return new MyCollectionLikeType(value);
         }        
     }

@@ -141,7 +141,7 @@ public abstract class TypeDeserializer
     public static Object deserializeIfNatural(JsonParser p, DeserializationContext ctxt,
             Class<?> base) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == null) {
             return null;
         }

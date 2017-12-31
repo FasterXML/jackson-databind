@@ -3,6 +3,7 @@ package perf;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 
 public class ManualReadPerfUntypedStream extends ObjectReaderTestBase
@@ -50,9 +51,8 @@ public class ManualReadPerfUntypedStream extends ObjectReaderTestBase
     protected final double _testRawDeser(int reps, byte[] json, ObjectReader reader) throws IOException
     {
         long start = System.nanoTime();
-        final JsonFactory f = reader.getFactory();
         while (--reps >= 0) {
-            JsonParser p = f.createParser(new ByteArrayInputStream(json));
+            JsonParser p = reader.createParser(new ByteArrayInputStream(json));
             JsonToken t;
             while ((t = p.nextToken()) != null) {
                 if (t == JsonToken.VALUE_STRING) {
@@ -64,7 +64,7 @@ public class ManualReadPerfUntypedStream extends ObjectReaderTestBase
             }
             p.close();
         }
-        hash = f.hashCode();
+        hash = (int) start;
         return _msecsFromNanos(System.nanoTime() - start);
     }
 }

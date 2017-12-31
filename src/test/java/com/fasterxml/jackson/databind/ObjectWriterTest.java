@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -148,7 +149,7 @@ public class ObjectWriterTest
         input.close();
 
         // and via explicitly passed generator
-        JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
+        JsonGenerator g = MAPPER.createGenerator(new StringWriter());
         input = new CloseableValue();
         assertFalse(input.closed);
         w.writeValue(g, input);
@@ -172,13 +173,13 @@ public class ObjectWriterTest
     public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertSame(MAPPER.getFactory(), w.getFactory());
+        assertSame(MAPPER.tokenStreamFactory(), w.generatorFactory());
         assertFalse(w.hasPrefetchedSerializer());
-        assertNotNull(w.getTypeFactory());
+        assertNotNull(w.typeFactory());
 
         JsonFactory f = new JsonFactory();
         w = w.with(f);
-        assertSame(f, w.getFactory());
+        assertSame(f, w.generatorFactory());
         ObjectWriter newW = w.with(Base64Variants.MODIFIED_FOR_URL);
         assertNotSame(w, newW);
         assertSame(newW, newW.with(Base64Variants.MODIFIED_FOR_URL));

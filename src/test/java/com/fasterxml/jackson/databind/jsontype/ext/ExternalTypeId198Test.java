@@ -26,27 +26,32 @@ public class ExternalTypeId198Test extends BaseMapTest
     public static abstract class Attack {
         public String side;
 
-        @JsonCreator
-        public Attack(String side) {
+        protected Attack(String side) {
             this.side = side;
         }
     }
 
     public static class Kick extends Attack {
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public Kick(String side) {
             super(side);
         }
     }
 
     public static class Punch extends Attack {
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public Punch(String side) {
             super(side);
         }
     }
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
+    final ObjectMapper MAPPER = newObjectMapper();
 
     public void testFails() throws Exception {
         String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";

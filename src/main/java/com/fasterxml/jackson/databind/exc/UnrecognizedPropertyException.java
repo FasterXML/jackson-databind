@@ -25,17 +25,6 @@ public class UnrecognizedPropertyException
     }
 
     /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public UnrecognizedPropertyException(String msg, JsonLocation loc,
-            Class<?> referringClass, String propName,
-            Collection<Object> propertyIds)
-    {
-        super(msg, loc, referringClass, propName, propertyIds);
-    }
-
-    /**
      * Factory method used for constructing instances of this exception type.
      * 
      * @param p Underlying parser used for reading input being used for data-binding

@@ -3,10 +3,12 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -35,20 +37,29 @@ public class ThrowableDeserializer
     /**
      * Alternative constructor used when creating "unwrapping" deserializers
      */
-    protected ThrowableDeserializer(BeanDeserializer src, NameTransformer unwrapper) {
-        super(src, unwrapper);
+    protected ThrowableDeserializer(BeanDeserializer src,
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
+            boolean ignoreAllUnknown) {
+        super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
     }
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper) {
+    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer transformer)
+    {
         if (getClass() != ThrowableDeserializer.class) {
             return this;
         }
-        /* main thing really is to just enforce ignoring of unknown
-         * properties; since there may be multiple unwrapped values
-         * and properties for all may be interleaved...
-         */
-        return new ThrowableDeserializer(this, unwrapper);
+        // main thing really is to just enforce ignoring of unknown properties; since
+        // there may be multiple unwrapped values and properties for all may be interleaved...
+        UnwrappedPropertyHandler uwHandler = _unwrappedPropertyHandler;
+        // delegate further unwraps, if any
+        if (uwHandler != null) {
+            uwHandler = uwHandler.renameAll(ctxt, transformer);
+        }
+        // and handle direct unwrapping as well:
+        return new ThrowableDeserializer(this, uwHandler,
+                _beanProperties.renameAll(ctxt, transformer), true);
     }
 
     /*
@@ -84,12 +95,11 @@ public class ThrowableDeserializer
         Object[] pending = null;
         int pendingIx = 0;
 
-        for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
-            String propName = p.getCurrentName();
-            SettableBeanProperty prop = _beanProperties.find(propName);
-            p.nextToken(); // to point to field value
-
-            if (prop != null) { // normal case
+        int ix = p.currentFieldName(_fieldMatcher);
+        for (; ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) {
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 if (throwable != null) {
                     prop.deserializeAndSet(p, ctxt, throwable);
                     continue;
@@ -103,15 +113,22 @@ public class ThrowableDeserializer
                 pending[pendingIx++] = prop.deserialize(p, ctxt);
                 continue;
             }
-
+            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                    break;
+                }
+                return _handleUnexpectedWithin(p, ctxt, throwable);
+            }
             // Maybe it's "message"?
+            String propName = p.currentName();
+            p.nextToken();
             if (PROP_NAME_MESSAGE.equals(propName)) {
                 if (hasStringCreator) {
                     throwable = _valueInstantiator.createFromString(ctxt, p.getValueAsString());
                     // any pending values?
                     if (pending != null) {
                         for (int i = 0, len = pendingIx; i < len; i += 2) {
-                            prop = (SettableBeanProperty)pending[i];
+                            SettableBeanProperty prop = (SettableBeanProperty)pending[i];
                             prop.set(throwable, pending[i+1]);
                         }
                         pending = null;
@@ -133,11 +150,11 @@ public class ThrowableDeserializer
         }
         // Sanity check: did we find "message"?
         if (throwable == null) {
-            /* 15-Oct-2010, tatu: Can't assume missing message is an error, since it may be
-             *   suppressed during serialization, as per [JACKSON-388].
-             *   
-             *   Should probably allow use of default constructor, too...
-             */
+            // 15-Oct-2010, tatu: Can't assume missing message is an error, since it may be
+            //   suppressed during serialization, as per [JACKSON-388].
+            //
+            //   Should probably allow use of default constructor, too...
+
             //throw new JsonMappingException("No 'message' property found: could not deserialize "+_beanType);
             if (hasStringCreator) {
                 throwable = _valueInstantiator.createFromString(ctxt, null);

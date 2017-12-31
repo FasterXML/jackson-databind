@@ -7,6 +7,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.Named;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -27,9 +28,6 @@ public final class ClassUtil
     /**********************************************************
      */
 
-    /**
-     * @since 2.7
-     */
     @SuppressWarnings("unchecked")
     public static <T> Iterator<T> emptyIterator() {
         return (Iterator<T>) EMPTY_ITERATOR;
@@ -52,8 +50,6 @@ public final class ClassUtil
      *
      * @param endBefore Super-type to NOT include in results, if any; when
      *    encountered, will be ignored (and no super types are checked).
-     *
-     * @since 2.7
      */
     public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore,
             boolean addClassItself) {
@@ -98,17 +94,6 @@ public final class ClassUtil
                 result.add(cls);
             }
         }
-        return result;
-    }
-
-    @Deprecated // since 2.7
-    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore) {
-        return findSuperTypes(cls, endBefore, new ArrayList<Class<?>>(8));
-    }
-
-    @Deprecated // since 2.7
-    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result) {
-        _addRawSuperTypes(cls, endBefore, result, false);
         return result;
     }
 
@@ -273,8 +258,7 @@ public final class ClassUtil
     }
 
     public static boolean isBogusClass(Class<?> cls) {
-        return (cls == Void.class || cls == Void.TYPE
-                || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
+        return (cls == Void.class || cls == Void.TYPE);
     }
 
     public static boolean isNonStaticInnerClass(Class<?> cls) {
@@ -282,25 +266,16 @@ public final class ClassUtil
                 && (getEnclosingClass(cls) != null);
     }
 
-    /**
-     * @since 2.7
-     */
     public static boolean isObjectOrPrimitive(Class<?> cls) {
         return (cls == CLS_OBJECT) || cls.isPrimitive();
     }
 
-    /**
-     * @since 2.9
-     */
     public static boolean hasClass(Object inst, Class<?> raw) {
         // 10-Nov-2016, tatu: Could use `Class.isInstance()` if we didn't care
         //    about being exactly that type
         return (inst != null) && (inst.getClass() == raw);
     }
 
-    /**
-     * @since 2.9
-     */
     public static void verifyMustOverride(Class<?> expType, Object instance,
             String method)
     {
@@ -313,35 +288,6 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Method type detection methods
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 2.6 not used; may be removed before 3.x
-     */
-    @Deprecated // since 2.6
-    public static boolean hasGetterSignature(Method m)
-    {
-        // First: static methods can't be getters
-        if (Modifier.isStatic(m.getModifiers())) {
-            return false;
-        }
-        // Must take no args
-        Class<?>[] pts = m.getParameterTypes();
-        if (pts != null && pts.length != 0) {
-            return false;
-        }
-        // Can't be a void method
-        if (Void.TYPE == m.getReturnType()) {
-            return false;
-        }
-        // Otherwise looks ok:
-        return true;
-    }
-
-    /*
-    /**********************************************************
     /* Exception handling; simple re-throw
     /**********************************************************
      */
@@ -349,8 +295,6 @@ public final class ClassUtil
     /**
      * Helper method that will check if argument is an {@link Error},
      * and if so, (re)throw it; otherwise just return
-     *
-     * @since 2.9
      */
     public static Throwable throwIfError(Throwable t) {
         if (t instanceof Error) {
@@ -362,8 +306,6 @@ public final class ClassUtil
     /**
      * Helper method that will check if argument is an {@link RuntimeException},
      * and if so, (re)throw it; otherwise just return
-     *
-     * @since 2.9
      */
     public static Throwable throwIfRTE(Throwable t) {
         if (t instanceof RuntimeException) {
@@ -375,8 +317,6 @@ public final class ClassUtil
     /**
      * Helper method that will check if argument is an {@link IOException},
      * and if so, (re)throw it; otherwise just return
-     *
-     * @since 2.9
      */
     public static Throwable throwIfIOE(Throwable t) throws IOException {
         if (t instanceof IOException) {
@@ -473,15 +413,12 @@ public final class ClassUtil
      * error conditions tend to be hard to diagnose. However, it is often the
      * case that output state may be corrupt so we need to be prepared for
      * secondary exception without masking original one.
-     *
-     * @since 2.8
      */
     public static void closeOnFailAndThrowAsIOE(JsonGenerator g, Exception fail)
         throws IOException
     {
-        /* 04-Mar-2014, tatu: Let's try to prevent auto-closing of
-         *    structures, which typically causes more damage.
-         */
+        // 04-Mar-2014, tatu: Let's try to prevent auto-closing of
+        //    structures, which typically causes more damage.
         g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
         try {
             g.close();
@@ -499,8 +436,6 @@ public final class ClassUtil
      * error conditions tend to be hard to diagnose. However, it is often the
      * case that output state may be corrupt so we need to be prepared for
      * secondary exception without masking original one.
-     *
-     * @since 2.8
      */
     public static void closeOnFailAndThrowAsIOE(JsonGenerator g,
             Closeable toClose, Exception fail)
@@ -712,8 +647,6 @@ public final class ClassUtil
     /**
      * Returns either backtick-quoted `named.getName()` (if `named` not null),
      * or "[null]" if `named` is null.
-     *
-     * @since 2.9
      */
     public static String nameOf(Named named) {
         if (named == null) {
@@ -724,8 +657,6 @@ public final class ClassUtil
 
     /**
      * Returns either `text` or [null].
-     *
-     * @since 2.9
      */
     public static String backticked(String text) {
         if (text == null) {
@@ -852,19 +783,6 @@ public final class ClassUtil
      */
 
     /**
-     * Equivalent to call:
-     *<pre>
-     *   checkAndFixAccess(member, false);
-     *</pre>
-     *
-     * @deprecated Since 2.7 call variant that takes boolean flag.
-     */
-    @Deprecated
-    public static void checkAndFixAccess(Member member) {
-        checkAndFixAccess(member, false);
-    }
-
-    /**
      * Method that is called if a {@link Member} may need forced access,
      * to force a field, method or constructor to be accessible: this
      * is done by calling {@link AccessibleObject#setAccessible(boolean)}.
@@ -872,8 +790,6 @@ public final class ClassUtil
      * @param member Accessor to call <code>setAccessible()</code> on.
      * @param force Whether to always try to make accessor accessible (true),
      *   or only if needed as per access rights (false)
-     *
-     * @since 2.7
      */
     public static void checkAndFixAccess(Member member, boolean force)
     {

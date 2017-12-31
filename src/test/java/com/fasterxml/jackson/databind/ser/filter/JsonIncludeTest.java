@@ -8,11 +8,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Unit tests for checking that alternative settings for
- * {@link JsonSerialize#include} annotation property work
+ * <code>JsonInclude</code> annotation property work
  * as expected.
  */
 public class JsonIncludeTest

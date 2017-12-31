@@ -26,80 +26,77 @@ public class UntypedSerializationTest
         doc.add(struct);
         doc.add(Boolean.FALSE);
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonFactory f =  new JsonFactory();
+        ObjectMapper mapper = objectMapper();
 
         // loop more than once, just to ensure caching works ok (during second round)
         for (int i = 0; i < 3; ++i) {
             String str = mapper.writeValueAsString(doc);
             
-            JsonParser jp = f.createParser(str);
-            assertEquals(JsonToken.START_ARRAY, jp.nextToken());
+            JsonParser p = mapper.createParser(str);
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
             
-            assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-            assertEquals("Elem1", getAndVerifyText(jp));
+            assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals("Elem1", getAndVerifyText(p));
             
-            assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(3, jp.getIntValue());
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(3, p.getIntValue());
             
-            assertEquals(JsonToken.START_OBJECT, jp.nextToken());
-            assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-            assertEquals("first", getAndVerifyText(jp));
+            assertEquals(JsonToken.START_OBJECT, p.nextToken());
+            assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("first", getAndVerifyText(p));
             
-            assertEquals(JsonToken.VALUE_TRUE, jp.nextToken());
-            assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-            assertEquals("Second", getAndVerifyText(jp));
+            assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
+            assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("Second", getAndVerifyText(p));
             
-            if (jp.nextToken() != JsonToken.START_ARRAY) {
+            if (p.nextToken() != JsonToken.START_ARRAY) {
                 fail("Expected START_ARRAY: JSON == '"+str+"'");
             }
-            assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-            assertEquals(JsonToken.END_OBJECT, jp.nextToken());
+            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+            assertEquals(JsonToken.END_OBJECT, p.nextToken());
             
-            assertEquals(JsonToken.VALUE_FALSE, jp.nextToken());
+            assertEquals(JsonToken.VALUE_FALSE, p.nextToken());
             
-            assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-            assertNull(jp.nextToken());
-            jp.close();
+            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+            assertNull(p.nextToken());
+            p.close();
         }
     }
 
-    public void testFromMap()
-        throws Exception
+    public void testFromMap() throws Exception
     {
         LinkedHashMap<String,Object> doc = new LinkedHashMap<String,Object>();
-        JsonFactory f =  new JsonFactory();
 
         doc.put("a1", "\"text\"");
         doc.put("int", Integer.valueOf(137));
         doc.put("foo bar", Long.valueOf(1234567890L));
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = objectMapper();
         for (int i = 0; i < 3; ++i) {
             String str = mapper.writeValueAsString(doc);
-            JsonParser jp = f.createParser(str);
+            JsonParser p = mapper.createParser(str);
             
-            assertEquals(JsonToken.START_OBJECT, jp.nextToken());
+            assertEquals(JsonToken.START_OBJECT, p.nextToken());
             
-            assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-            assertEquals("a1", getAndVerifyText(jp));
-            assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-            assertEquals("\"text\"", getAndVerifyText(jp));
+            assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("a1", getAndVerifyText(p));
+            assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals("\"text\"", getAndVerifyText(p));
             
-            assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-            assertEquals("int", getAndVerifyText(jp));
-            assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(137, jp.getIntValue());
+            assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("int", getAndVerifyText(p));
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(137, p.getIntValue());
             
-            assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-            assertEquals("foo bar", getAndVerifyText(jp));
-            assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(1234567890L, jp.getLongValue());
+            assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("foo bar", getAndVerifyText(p));
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(1234567890L, p.getLongValue());
             
-            assertEquals(JsonToken.END_OBJECT, jp.nextToken());
+            assertEquals(JsonToken.END_OBJECT, p.nextToken());
 
-            assertNull(jp.nextToken());
-            jp.close();
+            assertNull(p.nextToken());
+            p.close();
         }
     }
 }

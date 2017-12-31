@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.*;
@@ -51,17 +49,17 @@ public class TestConversions extends BaseMapTest
     
     static class Issue467Serializer extends JsonSerializer<Issue467Bean> {
         @Override
-        public void serialize(Issue467Bean value, JsonGenerator jgen,
+        public void serialize(Issue467Bean value, JsonGenerator g,
                 SerializerProvider provider) throws IOException {
-            jgen.writeObject(new Issue467TmpBean(value.i));
+            g.writeObject(new Issue467TmpBean(value.i));
         }
     }    
 
     static class Issue467TreeSerializer extends JsonSerializer<Issue467Tree> {
         @Override
-        public void serialize(Issue467Tree value, JsonGenerator jgen,
+        public void serialize(Issue467Tree value, JsonGenerator g,
                 SerializerProvider provider) throws IOException {
-            jgen.writeTree(BooleanNode.TRUE);
+            g.writeTree(BooleanNode.TRUE);
         }
     }    
     
@@ -199,7 +197,7 @@ public class TestConversions extends BaseMapTest
 
     public void testEmbeddedByteArray() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(new byte[3]);
         JsonNode node = MAPPER.readTree(buf.asParser());
         buf.close();
@@ -232,9 +230,9 @@ public class TestConversions extends BaseMapTest
         }
     
         @Override
-        public void serialize(final JsonGenerator jgen, final SerializerProvider provider) throws IOException
+        public void serialize(final JsonGenerator g, final SerializerProvider provider) throws IOException
         {
-            jgen.writeTree(node);
+            g.writeTree(node);
         }
 
         @Override

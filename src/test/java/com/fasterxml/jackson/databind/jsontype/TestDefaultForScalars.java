@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.databind.*;
 
 /**

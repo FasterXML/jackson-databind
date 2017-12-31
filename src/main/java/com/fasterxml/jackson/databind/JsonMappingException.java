@@ -206,33 +206,6 @@ public class JsonMappingException
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.7 Use variant that takes {@link JsonParser} instead
-     */
-    @Deprecated // since 2.7
-    public JsonMappingException(String msg) { super(msg); }
-
-    /**
-     * @deprecated Since 2.7 Use variant that takes {@link JsonParser} instead
-     */
-    @Deprecated // since 2.7
-    public JsonMappingException(String msg, Throwable rootCause) { super(msg, rootCause); }
-
-    /**
-     * @deprecated Since 2.7 Use variant that takes {@link JsonParser} instead
-     */
-    @Deprecated // since 2.7
-    public JsonMappingException(String msg, JsonLocation loc) { super(msg, loc); }
-
-    /**
-     * @deprecated Since 2.7 Use variant that takes {@link JsonParser} instead
-     */
-    @Deprecated // since 2.7
-    public JsonMappingException(String msg, JsonLocation loc, Throwable rootCause) { super(msg, loc, rootCause); }
-
-    /**
-     * @since 2.7
-     */
     public JsonMappingException(Closeable processor, String msg) {
         super(msg);
         _processor = processor;
@@ -244,9 +217,6 @@ public class JsonMappingException
         }
     }
 
-    /**
-     * @since 2.7
-     */
     public JsonMappingException(Closeable processor, String msg, Throwable problem) {
         super(msg, problem);
         _processor = processor;
@@ -255,73 +225,46 @@ public class JsonMappingException
         }
     }
 
-    /**
-     * @since 2.7
-     */
     public JsonMappingException(Closeable processor, String msg, JsonLocation loc) {
         super(msg, loc);
         _processor = processor;
     }
 
-    /**
-     * @since 2.7
-     */
     public static JsonMappingException from(JsonParser p, String msg) {
         return new JsonMappingException(p, msg);
     }
 
-    /**
-     * @since 2.7
-     */
     public static JsonMappingException from(JsonParser p, String msg, Throwable problem) {
         return new JsonMappingException(p, msg, problem);
     }
 
-    /**
-     * @since 2.7
-     */
     public static JsonMappingException from(JsonGenerator g, String msg) {
         return new JsonMappingException(g, msg, (Throwable) null);
     }
 
-    /**
-     * @since 2.7
-     */
     public static JsonMappingException from(JsonGenerator g, String msg, Throwable problem) {
         return new JsonMappingException(g, msg, problem);
     }
 
-    /**
-     * @since 2.7
-     */
     public static JsonMappingException from(DeserializationContext ctxt, String msg) {
         return new JsonMappingException(ctxt.getParser(), msg);
     }
 
-    /**
-     * @since 2.7
-     */
     public static JsonMappingException from(DeserializationContext ctxt, String msg, Throwable t) {
         return new JsonMappingException(ctxt.getParser(), msg, t);
     }
 
-    /**
-     * @since 2.7
-     */
     public static JsonMappingException from(SerializerProvider ctxt, String msg) {
         return new JsonMappingException(ctxt.getGenerator(), msg);
     }
 
-    /**
-     * @since 2.7
-     */
     public static JsonMappingException from(SerializerProvider ctxt, String msg, Throwable problem) {
         /* 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
          *   SerializerProvider instance does not currently hold on to generator...
          */
         return new JsonMappingException(ctxt.getGenerator(), msg, problem);
     }
-    
+
     /**
      * Factory method used when "upgrading" an {@link IOException} into
      * {@link JsonMappingException}: usually only needed to comply with
@@ -329,8 +272,6 @@ public class JsonMappingException
      *<p>
      * NOTE: since 2.9 should usually NOT be used on input-side (deserialization)
      *    exceptions; instead use method(s) of <code>InputMismatchException</code>
-     * 
-     * @since 2.1
      */
     public static JsonMappingException fromUnexpectedIOE(IOException src) {
         return new JsonMappingException(null,

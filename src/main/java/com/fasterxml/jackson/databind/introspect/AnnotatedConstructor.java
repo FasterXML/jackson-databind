@@ -13,10 +13,7 @@ public final class AnnotatedConstructor
     protected final Constructor<?> _constructor;
 
     /**
-     * Field that is used to make JDK serialization work with this
-     * object.
-     * 
-     * @since 2.1
+     * Field that is used to make JDK serialization work with this object.
      */
     protected Serialization _serialization;
 
@@ -38,7 +35,6 @@ public final class AnnotatedConstructor
 
     /**
      * Method used for JDK serialization support
-     * @since 2.1
      */
     protected AnnotatedConstructor(Serialization ser)
     {
@@ -105,15 +101,10 @@ public final class AnnotatedConstructor
     }
 
     @Override
-    @Deprecated // since 2.7
-    public Type getGenericParameterType(int index) {
-        Type[] types = _constructor.getGenericParameterTypes();
-        if (index >= types.length) {
-            return null;
-        }
-        return types[index];
+    public Parameter[] getNativeParameters() {
+        return _constructor.getParameters();
     }
-    
+
     @Override
     public final Object call() throws Exception {
         return _constructor.newInstance();
@@ -128,7 +119,7 @@ public final class AnnotatedConstructor
     public final Object call1(Object arg) throws Exception {
         return _constructor.newInstance(arg);
     }
-    
+
     /*
     /**********************************************************
     /* AnnotatedMember impl

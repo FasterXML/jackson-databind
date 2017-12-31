@@ -23,8 +23,6 @@ public class POJOPropertyBuilder
     /**
      * Marker value used to denote that no reference-property information found for
      * this property
-     *
-     * @since 2.9
      */
     private final static AnnotationIntrospector.ReferenceProperty NOT_REFEFERENCE_PROP =
             AnnotationIntrospector.ReferenceProperty.managed("");
@@ -85,7 +83,6 @@ public class POJOPropertyBuilder
         _forSerialization = forSerialization;
     }
 
-    // protected since 2.9 (was public before)
     protected POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
     {
         _config = src._config;
@@ -136,9 +133,7 @@ public class POJOPropertyBuilder
         } else if (other._ctorParameters != null) {
             return 1;
         }
-        /* otherwise sort by external name (including sorting of
-         * ctor parameters)
-         */
+        // otherwise sort by external name (including sorting of ctor parameters)
         return getName().compareTo(other.getName());
     }
 
@@ -174,7 +169,7 @@ public class POJOPropertyBuilder
          *   occur, try commenting out full traversal code
          */
         AnnotatedMember member = getPrimaryMember();
-        return (member == null || _annotationIntrospector == null) ? null
+        return (member == null) ? null
                 : _annotationIntrospector.findWrapperName(member);
     	/*
         return fromMemberAnnotations(new WithMember<PropertyName>() {
@@ -400,9 +395,8 @@ public class POJOPropertyBuilder
         }
         // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
-             *   is in super-class from the other
-             */
+            // Allow masking, i.e. do not report exception if one
+            // is in super-class from the other
             Class<?> currClass = curr.value.getDeclaringClass();
             Class<?> nextClass = next.value.getDeclaringClass();
             if (currClass != nextClass) {
@@ -608,12 +602,7 @@ public class POJOPropertyBuilder
 
     @Override
     public Class<?>[] findViews() {
-        return fromMemberAnnotations(new WithMember<Class<?>[]>() {
-            @Override
-            public Class<?>[] withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findViews(member);
-            }
-        });
+        return _annotationIntrospector.findViews(getPrimaryMember());
     }
 
     @Override
@@ -627,75 +616,58 @@ public class POJOPropertyBuilder
             }
             return result;
         }
-        result = fromMemberAnnotations(new WithMember<AnnotationIntrospector.ReferenceProperty>() {
-            @Override
-            public AnnotationIntrospector.ReferenceProperty withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findReferenceType(member);
-            }
-        });
+        AnnotatedMember m = getPrimaryMember();
+        result = (m == null) ? null : _annotationIntrospector.findReferenceType(m);
         _referenceInfo = (result == null) ? NOT_REFEFERENCE_PROP : result;
         return result;
     }
 
     @Override
     public boolean isTypeId() {
-        Boolean b = fromMemberAnnotations(new WithMember<Boolean>() {
-            @Override
-            public Boolean withMember(AnnotatedMember member) {
-                return _annotationIntrospector.isTypeId(member);
+        AnnotatedMember m = getPrimaryMember();
+        if (m != null) {
+            Boolean b = _annotationIntrospector.isTypeId(m);
+            if (b != null) {
+                return b.booleanValue();
             }
-        });
-        return (b != null) && b.booleanValue();
+        }
+        return false;
     }
 
     protected Boolean _findRequired() {
-       return fromMemberAnnotations(new WithMember<Boolean>() {
-            @Override
-            public Boolean withMember(AnnotatedMember member) {
-                return _annotationIntrospector.hasRequiredMarker(member);
-            }
-        });
+        AnnotatedMember m = getPrimaryMember();
+        return (m == null) ? null
+                : _annotationIntrospector.hasRequiredMarker(m);
     }
     
     protected String _findDescription() {
-        return fromMemberAnnotations(new WithMember<String>() {
-            @Override
-            public String withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findPropertyDescription(member);
-            }
-        });
+        AnnotatedMember m = getPrimaryMember();
+        return (m == null) ? null
+                : _annotationIntrospector.findPropertyDescription(m);
     }
 
     protected Integer _findIndex() {
-        return fromMemberAnnotations(new WithMember<Integer>() {
-            @Override
-            public Integer withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findPropertyIndex(member);
-            }
-        });
+        AnnotatedMember m = getPrimaryMember();
+        return (m == null) ? null
+                : _annotationIntrospector.findPropertyIndex(m);
     }
 
     protected String _findDefaultValue() {
-        return fromMemberAnnotations(new WithMember<String>() {
-            @Override
-            public String withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findPropertyDefaultValue(member);
-            }
-        });
+        AnnotatedMember m = getPrimaryMember();
+        return (m == null) ? null
+                : _annotationIntrospector.findPropertyDefaultValue(m);
     }
-    
+
     @Override
     public ObjectIdInfo findObjectIdInfo() {
-        return fromMemberAnnotations(new WithMember<ObjectIdInfo>() {
-            @Override
-            public ObjectIdInfo withMember(AnnotatedMember member) {
-                ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(member);
-                if (info != null) {
-                    info = _annotationIntrospector.findObjectReferenceInfo(member, info);
-                }
-                return info;
+        AnnotatedMember m = getPrimaryMember();
+        if (m != null) {
+            ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(m);
+            if (info != null) {
+                return _annotationIntrospector.findObjectReferenceInfo(m, info);
             }
-        });
+        }
+        return null;
     }
 
     @Override
@@ -705,12 +677,13 @@ public class POJOPropertyBuilder
         // 17-Aug-2016, tatu: Do NOT include global, or per-type defaults, because
         //    not all of this information (specifically, enclosing type's settings)
         //    is available here
-        JsonInclude.Value v = (_annotationIntrospector == null) ?
-                null : _annotationIntrospector.findPropertyInclusion(a);
+        JsonInclude.Value v = _annotationIntrospector.findPropertyInclusion(a);
         return (v == null) ? JsonInclude.Value.empty() : v;
     }
 
     public JsonProperty.Access findAccess() {
+        // 25-Sep-2017, tatu: IMPORTANT! Called BEFORE merge occurs so MUST traverse
+        //    accessors separately
         return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
             @Override
             public JsonProperty.Access withMember(AnnotatedMember member) {
@@ -893,8 +866,6 @@ public class POJOPropertyBuilder
      *<pre>
      * nodes[index].value.getAllAnnotations()
      *</pre>
-     * 
-     * @since 2.6
      */
     private <T extends AnnotatedMember> AnnotationMap _getAllAnnotations(Linked<T> node) {
         AnnotationMap ann = node.value.getAllAnnotations();
@@ -1159,10 +1130,6 @@ public class POJOPropertyBuilder
 
     protected <T> T fromMemberAnnotationsExcept(WithMember<T> func, T defaultValue)
     {
-        if (_annotationIntrospector == null) {
-            return null;
-        }
-
         // NOTE: here we must ask ALL accessors, but the order varies between
         // serialization, deserialization
         if (_forSerialization) {

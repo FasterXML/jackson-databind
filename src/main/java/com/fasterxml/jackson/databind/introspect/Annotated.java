@@ -3,10 +3,8 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 
 /**
  * Shared base class used for anything on which annotations (included
@@ -20,9 +18,6 @@ public abstract class Annotated
 
     public abstract boolean hasAnnotation(Class<?> acls);
 
-    /**
-     * @since 2.7
-     */
     public abstract boolean hasOneOf(Class<? extends Annotation>[] annoClasses);
 
     /**
@@ -43,48 +38,14 @@ public abstract class Annotated
     /**
      * Full generic type of the annotated element; definition
      * of what exactly this means depends on sub-class.
-     *
-     * @since 2.7
      */
     public abstract JavaType getType();
-
-    /**
-     * @deprecated Since 2.7 Use {@link #getType()} instead. To be removed from 2.9
-     */
-    @Deprecated
-    public final JavaType getType(TypeBindings bogus) {
-        return getType();
-    }
-
-    /**
-     * JDK declared generic type of the annotated element; definition
-     * of what exactly this means depends on sub-class. Note that such type
-     * cannot be reliably resolved without {@link TypeResolutionContext}, and
-     * as a result use of this method was deprecated in Jackson 2.7: see
-     * {@link #getType} for replacement.
-     *
-     * @deprecated Since 2.7 should instead use {@link #getType()}. To be removed from 2.9
-     */
-    @Deprecated
-    public Type getGenericType() {
-        return getRawType();
-    }
 
     /**
      * "Raw" type (type-erased class) of the annotated element; definition
      * of what exactly this means depends on sub-class.
      */
     public abstract Class<?> getRawType();
-
-    /**
-     * Accessor that can be used to iterate over all the annotations
-     * associated with annotated component.
-     *
-     * @since 2.3
-     * @deprecated Since 2.9 should instead use {@link #getAnnotated()}
-     */
-    @Deprecated
-    public abstract Iterable<Annotation> annotations();
 
     // Also: ensure we can use #equals, #hashCode
     

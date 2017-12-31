@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.beans.ConstructorProperties;
+import java.beans.Transient;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.MalformedParametersException;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -10,7 +14,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.ext.Java7Support;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -59,27 +62,14 @@ public class JacksonAnnotationIntrospector
         JsonMerge.class // since 2.9
     };
 
-    // NOTE: loading of Java7 dependencies is encapsulated by handlers in Java7Support,
-    //  here we do not really need any handling; but for extra-safety use try-catch
-    private static final Java7Support _java7Helper;
-    static {
-        Java7Support x = null;
-        try {
-            x = Java7Support.instance();
-        } catch (Throwable t) { }
-        _java7Helper = x;
-    }
-    
     /**
      * Since introspection of annotation types is a performance issue in some
      * use cases (rare, but do exist), let's try a simple cache to reduce
      * need for actual meta-annotation introspection.
      *<p>
      * Non-final only because it needs to be re-created after deserialization.
-     *
-     * @since 2.7
      */
-    protected transient LRUMap<Class<?>,Boolean> _annotationsInside = new LRUMap<Class<?>,Boolean>(48, 48);
+    protected transient SimpleLookupCache<Class<?>,Boolean> _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 48);
 
     /*
     /**********************************************************
@@ -92,8 +82,6 @@ public class JacksonAnnotationIntrospector
      * explanation.
      *<p>
      * Defaults to true.
-     * 
-     * @since 2.7.4
      */
     protected boolean _cfgConstructorPropertiesImpliesCreator = true;
 
@@ -112,7 +100,7 @@ public class JacksonAnnotationIntrospector
 
     protected Object readResolve() {
         if (_annotationsInside == null) {
-            _annotationsInside = new LRUMap<Class<?>,Boolean>(48, 48);
+            _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 48);
         }
         return this;
     }
@@ -130,8 +118,6 @@ public class JacksonAnnotationIntrospector
      * without explicit use of <code>JsonCreator</code> annotation.
      *<p>
      * Default setting is `true`
-     *
-     * @since 2.7.4
      */
     public JacksonAnnotationIntrospector setConstructorPropertiesImpliesCreator(boolean b)
     {
@@ -169,37 +155,6 @@ public class JacksonAnnotationIntrospector
     /* General annotations
     /**********************************************************
      */
-
-    /**
-     * Since 2.6, we have supported use of {@link JsonProperty} for specifying
-     * explicit serialized name
-     */
-    @Override
-    @Deprecated // since 2.8
-    public String findEnumValue(Enum<?> value)
-    {
-        // 11-Jun-2015, tatu: As per [databind#677], need to allow explicit naming.
-        //   Unfortunately cannot quite use standard AnnotatedClass here (due to various
-        //   reasons, including odd representation JVM uses); has to do for now
-        try {
-            // We know that values are actually static fields with matching name so:
-            Field f = value.getClass().getField(value.name());
-            if (f != null) {
-                JsonProperty prop = f.getAnnotation(JsonProperty.class);
-                if (prop != null) {
-                    String n = prop.value();
-                    if (n != null && !n.isEmpty()) {
-                        return n;
-                    }
-                }
-            }
-        } catch (SecurityException e) {
-            // 17-Sep-2015, tatu: Anything we could/should do here?
-        } catch (NoSuchFieldException e) {
-            // 17-Sep-2015, tatu: should not really happen. But... can we do anything?
-        }
-        return value.name();
-    }
 
     @Override // since 2.7
     public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
@@ -321,7 +276,10 @@ public class JacksonAnnotationIntrospector
         VisibilityChecker<?> checker)
     {
         JsonAutoDetect ann = _findAnnotation(ac, JsonAutoDetect.class);
-        return (ann == null) ? checker : checker.with(ann);
+        if (ann == null) {
+            return checker;
+        }
+        return checker.withOverrides(JsonAutoDetect.Value.from(ann));
     }
 
     /*
@@ -331,9 +289,53 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String findImplicitPropertyName(AnnotatedMember m) {
-        PropertyName n = _findConstructorName(m);
-        return (n == null) ? null : n.getSimpleName();
+    public String findImplicitPropertyName(AnnotatedMember m)
+    {
+        // Always get name for fields so why not
+        if (m instanceof AnnotatedField) {
+            return m.getName();
+        }
+        if (m instanceof AnnotatedParameter) {
+            AnnotatedParameter p = (AnnotatedParameter) m;
+            AnnotatedWithParams owner = p.getOwner();
+            if (owner instanceof AnnotatedConstructor) {
+                // 17-Sep-2017, tatu: Two possibilities; either `@ConstructorProperties` (JDK6)
+                ConstructorProperties props = owner.getAnnotation(ConstructorProperties.class);
+                if (props != null) {
+                    String[] names = props.value();
+                    int ix = p.getIndex();
+                    if (ix < names.length) {
+                        return names[ix];
+                    }
+                }
+                // ... or parameter names from bytecode (JDK8)
+                return _findImplicitName(owner, p.getIndex());
+            }
+            if (owner instanceof AnnotatedMethod) {
+                // For now let's only bother discovering names for static methods as they
+                // (only) may be creators
+                if (owner.isStatic()) {
+                    return _findImplicitName(owner, p.getIndex());
+                }
+            }
+        }
+        return null;
+    }
+
+    protected String _findImplicitName(AnnotatedWithParams m, int index)
+    {
+        try {
+            Parameter[] params = m.getNativeParameters();
+            Parameter p = params[index];
+            if (p.isNamePresent()) {
+                return p.getName();
+            }
+        } catch (MalformedParametersException e) {
+            // 17-Sep-2017, tatu: I don't usually add defensive handling like this without
+            //    having clear examples of problems, but this seems like something that
+            //    can still crop up unexpectedly and be a PITA so...
+        }
+        return null;
     }
 
     @Override
@@ -468,20 +470,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    @Deprecated // since 2.9
-    public Object findInjectableValueId(AnnotatedMember m) {
-        JacksonInject.Value v = findInjectableValue(m);
-        return (v == null) ? null : v.getId();
-    }
-
-    @Override
     public Class<?>[] findViews(Annotated a)
     {
         JsonView ann = _findAnnotation(a, JsonView.class);
         return (ann == null) ? null : ann.value();
     }
 
-    @Override // since 2.7
+    @Override
     public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config,
             AnnotatedMethod setter1, AnnotatedMethod setter2)
     {
@@ -682,31 +677,6 @@ public class JacksonAnnotationIntrospector
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
         JsonInclude.Value value = (inc == null) ? JsonInclude.Value.empty() : JsonInclude.Value.from(inc);
-
-        // only consider deprecated variant if we didn't have non-deprecated one:
-        if (value.getValueInclusion() == JsonInclude.Include.USE_DEFAULTS) {
-            value = _refinePropertyInclusion(a, value);
-        }
-        return value;
-    }
-
-    @SuppressWarnings("deprecation")
-    private JsonInclude.Value _refinePropertyInclusion(Annotated a, JsonInclude.Value value) {
-        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
-        if (ann != null) {
-            switch (ann.include()) {
-            case ALWAYS:
-                return value.withValueInclusion(JsonInclude.Include.ALWAYS);
-            case NON_NULL:
-                return value.withValueInclusion(JsonInclude.Include.NON_NULL);
-            case NON_DEFAULT:
-                return value.withValueInclusion(JsonInclude.Include.NON_DEFAULT);
-            case NON_EMPTY:
-                return value.withValueInclusion(JsonInclude.Include.NON_EMPTY);
-            case DEFAULT_INCLUSION:
-            default:
-            }
-        }
         return value;
     }
 
@@ -851,24 +821,6 @@ public class JacksonAnnotationIntrospector
            }
         }
         return type;
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public Class<?> findSerializationType(Annotated am) {
-        return null;
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
-        return null;
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
-        return null;
     }
 
     /*
@@ -1029,21 +981,6 @@ public class JacksonAnnotationIntrospector
         return ann.enabled();
     }
 
-    @Override
-    @Deprecated // since 2.9
-    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
-        // No dedicated disabling; regular @JsonIgnore used if needs to be ignored (handled separately)
-        return _hasAnnotation(am, JsonAnyGetter.class);
-    }
-
-    @Override
-    @Deprecated // since 2.9
-    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
-        JsonValue ann = _findAnnotation(am, JsonValue.class);
-        // value of 'false' means disabled...
-        return (ann != null) && ann.value();
-    }
-
     /*
     /**********************************************************
     /* Deserialization: general annotations
@@ -1172,24 +1109,6 @@ public class JacksonAnnotationIntrospector
         return type;
     }
 
-    @Override
-    @Deprecated // since 2.7
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
-        return null;
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
-        return null;
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
-        return null;
-    }
-
     /*
     /**********************************************************
     /* Deserialization: Class annotations
@@ -1261,45 +1180,6 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    @Deprecated // since 2.9
-    public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
-        return _hasAnnotation(am, JsonAnySetter.class);
-    }
-
-    @Override
-    @Deprecated // since 2.9
-    public boolean hasCreatorAnnotation(Annotated a)
-    {
-        /* No dedicated disabling; regular @JsonIgnore used if needs to be
-         * ignored (and if so, is handled prior to this method getting called)
-         */
-         JsonCreator ann = _findAnnotation(a, JsonCreator.class);
-         if (ann != null) {
-             return (ann.mode() != JsonCreator.Mode.DISABLED);
-         }
-         // 19-Apr-2016, tatu: As per [databind#1197], [databind#1122] (and some related),
-         //    may or may not consider it a creator
-         if (_cfgConstructorPropertiesImpliesCreator ) {
-             if (a instanceof AnnotatedConstructor) {
-                 if (_java7Helper != null) {
-                     Boolean b = _java7Helper.hasCreatorAnnotation(a);
-                     if (b != null) {
-                         return b.booleanValue();
-                     }
-                 }
-             }
-         }
-         return false;
-    }
-
-    @Override
-    @Deprecated // since 2.9
-    public JsonCreator.Mode findCreatorBinding(Annotated a) {
-        JsonCreator ann = _findAnnotation(a, JsonCreator.class);
-        return (ann == null) ? null : ann.mode();
-    }
-
-    @Override
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
         JsonCreator ann = _findAnnotation(a, JsonCreator.class);
         if (ann != null) {
@@ -1308,15 +1188,10 @@ public class JacksonAnnotationIntrospector
         if (_cfgConstructorPropertiesImpliesCreator
                 && config.isEnabled(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES)
             ) {
-            if (a instanceof AnnotatedConstructor) {
-                if (_java7Helper != null) {
-                    Boolean b = _java7Helper.hasCreatorAnnotation(a);
-                    if ((b != null) && b.booleanValue()) {
-                        // 13-Sep-2016, tatu: Judgment call, but I don't think JDK ever implies
-                        //    use of delegate; assumes as-properties implicitly
-                        return JsonCreator.Mode.PROPERTIES;
-                    }
-                }
+            if (_hasAnnotation(a, ConstructorProperties.class)) {
+                // 13-Sep-2016, tatu: Judgment call, but I don't think JDK ever implies
+                //    use of delegate; assumes as-properties implicitly
+                return JsonCreator.Mode.PROPERTIES;
             }
         }
         return null;
@@ -1334,11 +1209,10 @@ public class JacksonAnnotationIntrospector
         if (ann != null) {
             return ann.value();
         }
-        if (_java7Helper != null) {
-            Boolean b = _java7Helper.findTransient(a);
-            if (b != null) {
-                return b.booleanValue();
-            }
+        // From JDK 7:
+        Transient t = a.getAnnotation(Transient.class);
+        if (t != null) {
+            return t.value();
         }
         return false;
     }
@@ -1365,29 +1239,10 @@ public class JacksonAnnotationIntrospector
         return PropertyName.construct(localName, namespace);
     }
 
-    protected PropertyName _findConstructorName(Annotated a)
-    {
-        if (a instanceof AnnotatedParameter) {
-            AnnotatedParameter p = (AnnotatedParameter) a;
-            AnnotatedWithParams ctor = p.getOwner();
-
-            if (ctor != null) {
-                if (_java7Helper != null) {
-                    PropertyName name = _java7Helper.findConstructorName(p);
-                    if (name != null) {
-                        return name;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * Helper method called to construct and initialize instance of {@link TypeResolverBuilder}
      * if given annotated element indicates one is needed.
      */
-    @SuppressWarnings("deprecation")
     protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType)
     {
@@ -1439,7 +1294,7 @@ public class JacksonAnnotationIntrospector
         //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
         //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
         //   valid use (cannot instantiate as default)
-        if (defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
+        if (!defaultImpl.isAnnotation()) {
             b = b.defaultImpl(defaultImpl);
         }
         b = b.typeIdVisibility(info.visible());

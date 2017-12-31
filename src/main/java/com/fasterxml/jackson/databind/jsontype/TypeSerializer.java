@@ -122,177 +122,17 @@ public abstract class TypeSerializer
      *
      * @param g Generator to use for outputting type id and possible wrapping
      * @param typeId Details of what type id is to be written, how.
-     * 
-     * @since 2.9
      */
     public abstract WritableTypeId writeTypePrefix(JsonGenerator g,
             WritableTypeId typeId) throws IOException;
 
-    /**
-     * @since 2.9
-     */
     public abstract WritableTypeId writeTypeSuffix(JsonGenerator g,
             WritableTypeId typeId) throws IOException;
-
-    /*
-    /**********************************************************
-    /* Legacy type serialization methods
-    /**********************************************************
-     */
-
-    /**
-     * Method called to write initial part of type information for given
-     * value, when it will be output as scalar JSON value (not as JSON
-     * Object or Array).
-     * This means that the context after call cannot be that of JSON Object;
-     * it may be Array or root context.
-     * 
-     * @param value Value that will be serialized, for which type information is
-     *   to be written
-     * @param g Generator to use for writing type information
-     */
-    @Deprecated // since 2.9
-    public void writeTypePrefixForScalar(Object value, JsonGenerator g) throws IOException {
-        writeTypePrefix(g, typeId(value, JsonToken.VALUE_STRING));
-    }
-
-    /**
-     * Method called to write initial part of type information for given
-     * value, when it will be output as JSON Object value (not as JSON
-     * Array or scalar).
-     * This means that context after call must be JSON Object, meaning that
-     * caller can then proceed to output field entries.
-     * 
-     * @param value Value that will be serialized, for which type information is
-     *   to be written
-     * @param g Generator to use for writing type information
-     */
-    @Deprecated // since 2.9
-    public void writeTypePrefixForObject(Object value, JsonGenerator g) throws IOException {
-        writeTypePrefix(g, typeId(value, JsonToken.START_OBJECT));
-    }
-
-    /**
-     * Method called to write initial part of type information for given
-     * value, when it will be output as JSON Array value (not as JSON
-     * Object or scalar).
-     * This means that context after call must be JSON Array, that is, there
-     * must be an open START_ARRAY to write contents in.
-     * 
-     * @param value Value that will be serialized, for which type information is
-     *   to be written
-     * @param g Generator to use for writing type information
-     */
-    @Deprecated // since 2.9
-    public void writeTypePrefixForArray(Object value, JsonGenerator g) throws IOException {
-        writeTypePrefix(g, typeId(value, JsonToken.START_ARRAY));
-    }
-
-    /**
-     * Method called after value has been serialized, to close any scopes opened
-     * by earlier matching call to {@link #writeTypePrefixForScalar}.
-     * Actual action to take may depend on various factors, but has to match with
-     * action {@link #writeTypePrefixForScalar} did (close array or object; or do nothing).
-     */
-    @Deprecated // since 2.9
-    public void writeTypeSuffixForScalar(Object value, JsonGenerator g) throws IOException {
-        _writeLegacySuffix(g, typeId(value, JsonToken.VALUE_STRING));
-    }
-
-    /**
-     * Method called after value has been serialized, to close any scopes opened
-     * by earlier matching call to {@link #writeTypePrefixForObject}.
-     * It needs to write closing END_OBJECT marker, and any other decoration
-     * that needs to be matched.
-     */
-    @Deprecated // since 2.9
-    public void writeTypeSuffixForObject(Object value, JsonGenerator g) throws IOException {
-        _writeLegacySuffix(g, typeId(value, JsonToken.START_OBJECT));
-    }
-
-    /**
-     * Method called after value has been serialized, to close any scopes opened
-     * by earlier matching call to {@link #writeTypeSuffixForScalar}.
-     * It needs to write closing END_ARRAY marker, and any other decoration
-     * that needs to be matched.
-     */
-    @Deprecated // since 2.9
-    public void writeTypeSuffixForArray(Object value, JsonGenerator g) throws IOException {
-        _writeLegacySuffix(g, typeId(value, JsonToken.START_ARRAY));
-    }
-
-    /**
-     * Alternative version of the prefix-for-scalar method, which is given
-     * actual type to use (instead of using exact type of the value); typically
-     * a super type of actual value type
-     */
-    @Deprecated // since 2.9
-    public void writeTypePrefixForScalar(Object value, JsonGenerator g, Class<?> type) throws IOException {
-        writeTypePrefix(g, typeId(value, type, JsonToken.VALUE_STRING));
-    }
-
-    /**
-     * Alternative version of the prefix-for-object method, which is given
-     * actual type to use (instead of using exact type of the value); typically
-     * a super type of actual value type
-     */
-    @Deprecated // since 2.9
-    public void writeTypePrefixForObject(Object value, JsonGenerator g, Class<?> type) throws IOException {
-        writeTypePrefix(g, typeId(value, type, JsonToken.START_OBJECT));
-    }
-
-    /**
-     * Alternative version of the prefix-for-array method, which is given
-     * actual type to use (instead of using exact type of the value); typically
-     * a super type of actual value type
-     */
-    @Deprecated // since 2.9
-    public void writeTypePrefixForArray(Object value, JsonGenerator g, Class<?> type) throws IOException {
-        writeTypePrefix(g, typeId(value, type, JsonToken.START_ARRAY));
-    }
-
-    /*
-    /**********************************************************
-    /* Type serialization methods with type id override
-    /**********************************************************
-     */
-
-    @Deprecated // since 2.9
-    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException {
-        writeTypePrefix(g, typeId(value, JsonToken.VALUE_STRING, typeId));
-    }
-
-    @Deprecated // since 2.9
-    public void writeCustomTypePrefixForObject(Object value, JsonGenerator g, String typeId) throws IOException {
-        writeTypePrefix(g, typeId(value, JsonToken.START_OBJECT, typeId));
-    }
-
-    @Deprecated // since 2.9
-    public void writeCustomTypePrefixForArray(Object value, JsonGenerator g, String typeId) throws IOException {
-        writeTypePrefix(g, typeId(value, JsonToken.START_ARRAY, typeId));
-    }
-
-    @Deprecated // since 2.9
-    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator g, String typeId) throws IOException {
-        _writeLegacySuffix(g, typeId(value, JsonToken.VALUE_STRING, typeId));
-    }
-
-    @Deprecated // since 2.9
-    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator g, String typeId) throws IOException {
-        _writeLegacySuffix(g, typeId(value, JsonToken.START_OBJECT, typeId));
-    }
-
-    @Deprecated // since 2.9
-    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator g, String typeId) throws IOException {
-        _writeLegacySuffix(g, typeId(value, JsonToken.START_ARRAY, typeId));
-    }
 
     /**
      * Helper method needed for backwards compatibility: since original type id
      * can not be routed through completely, we have to reverse-engineer likely
      * setting before calling suffix.
-     *
-     * @since 2.9
      */
     protected final void _writeLegacySuffix(JsonGenerator g,
             WritableTypeId typeId) throws IOException

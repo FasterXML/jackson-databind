@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import static org.junit.Assert.*;
-
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
@@ -23,9 +21,10 @@ public class TestTreeMapperSerializer extends NodeTestBase
 
     final static double DOUBLE_VALUE = 9.25;
 
+    private final ObjectMapper mapper = newObjectMapper();
+
     public void testFromArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         ArrayNode root = mapper.createArrayNode();
         root.add(TEXT1);
         root.add(3);
@@ -41,7 +40,7 @@ public class TestTreeMapperSerializer extends NodeTestBase
         for (int i = 0; i < 2; ++i) {
             StringWriter sw = new StringWriter();
             if (i == 0) {
-                JsonGenerator gen = new JsonFactory().createGenerator(sw);
+                JsonGenerator gen = mapper.createGenerator(sw);
                 root.serialize(gen, null);
                 gen.close();
             } else {
@@ -51,13 +50,11 @@ public class TestTreeMapperSerializer extends NodeTestBase
         }
             
         // And then convenient but less efficient alternative:
-        verifyFromArray(root.toString());
+        verifyFromArray(mapper.writeValueAsString(root));
     }
 
-    public void testFromMap()
-        throws Exception
+    public void testFromMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         ObjectNode root = mapper.createObjectNode();
         root.put(FIELD4, TEXT2);
         root.put(FIELD3, -1);
@@ -71,7 +68,7 @@ public class TestTreeMapperSerializer extends NodeTestBase
         for (int i = 0; i < 2; ++i) {
             StringWriter sw = new StringWriter();
             if (i == 0) {
-                JsonGenerator gen = new JsonFactory().createGenerator(sw);
+                JsonGenerator gen = mapper.createGenerator(sw);
                 root.serialize(gen, null);
                 gen.close();
             } else {
@@ -81,7 +78,7 @@ public class TestTreeMapperSerializer extends NodeTestBase
         }
 
         // And then convenient but less efficient alternative:
-        verifyFromMap(root.toString());
+        verifyFromMap(mapper.writeValueAsString(root));
     }
 
     /**
@@ -90,7 +87,6 @@ public class TestTreeMapperSerializer extends NodeTestBase
     public void testSmallNumbers()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         ArrayNode root = mapper.createArrayNode();
         for (int i = -20; i <= 20; ++i) {
             JsonNode n = root.numberNode(i);
@@ -103,30 +99,29 @@ public class TestTreeMapperSerializer extends NodeTestBase
         for (int type = 0; type < 2; ++type) {
             StringWriter sw = new StringWriter();
             if (type == 0) {
-                JsonGenerator gen = new JsonFactory().createGenerator(sw);
+                JsonGenerator gen = mapper.createGenerator(sw);
                 root.serialize(gen, null);
                 gen.close();
             } else {
                 mapper.writeValue(sw, root);
             }
-            
+
             String doc = sw.toString();
-            JsonParser p = new JsonFactory().createParser(new StringReader(doc));
+            JsonParser p = mapper.createParser(new StringReader(doc));
             
-            assertEquals(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             for (int i = -20; i <= 20; ++i) {
-                assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(i, p.getIntValue());
                 assertEquals(""+i, p.getText());
             }
-            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
             p.close();
         }
     }
 
     public void testBinary() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LENGTH = 13045;
         byte[] data = new byte[LENGTH];
         for (int i = 0; i < LENGTH; ++i) {
@@ -135,7 +130,7 @@ public class TestTreeMapperSerializer extends NodeTestBase
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, BinaryNode.valueOf(data));
 
-        JsonParser p = new JsonFactory().createParser(sw.toString());
+        JsonParser p = mapper.createParser(sw.toString());
         // note: can't determine it's binary from json alone:
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertArrayEquals(data, p.getBinaryValue());
@@ -151,31 +146,31 @@ public class TestTreeMapperSerializer extends NodeTestBase
     private void verifyFromArray(String input)
         throws Exception
     {
-        JsonParser p = new JsonFactory().createParser(new StringReader(input));
+        JsonParser p = mapper.createParser(new StringReader(input));
         
-        assertEquals(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         
-        assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(TEXT1, getAndVerifyText(p));
-        
-        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
         
-        assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD1, getAndVerifyText(p));
         
-        assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD2, getAndVerifyText(p));
         
-        assertEquals(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals(JsonToken.END_ARRAY, p.nextToken());
-        assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
         
-        assertEquals(JsonToken.VALUE_FALSE, p.nextToken());
-        
-        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertNull(p.nextToken());
         p.close();
     }
@@ -183,29 +178,29 @@ public class TestTreeMapperSerializer extends NodeTestBase
     private void verifyFromMap(String input)
         throws Exception
     {
-        JsonParser p = new JsonFactory().createParser(input);
-        assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        JsonParser p = mapper.createParser(input);
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD4, getAndVerifyText(p));
-        assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(TEXT2, getAndVerifyText(p));
         
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD3, getAndVerifyText(p));
-        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(-1, p.getIntValue());
         
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD2, getAndVerifyText(p));
-        assertEquals(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
         
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD1, getAndVerifyText(p));
-        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(DOUBLE_VALUE, p.getDoubleValue(), 0);
         
-        assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
         
         assertNull(p.nextToken());
         p.close();

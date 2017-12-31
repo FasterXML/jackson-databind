@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.util.*;
  */
 public class PropertyBuilder
 {
-    // @since 2.7
     private final static Object NO_DEFAULT_MARKER = Boolean.FALSE;
 
     final protected SerializationConfig _config;
@@ -44,8 +43,6 @@ public class PropertyBuilder
     /**
      * Marker flag used to indicate that "real" default values are to be used
      * for properties, as per per-type value inclusion of type <code>NON_DEFAULT</code>
-     *
-     * @since 2.8
      */
     final protected boolean _useRealPropertyDefaults;
 
@@ -326,44 +323,6 @@ public class PropertyBuilder
             _defaultBean = def;
         }
         return (def == NO_DEFAULT_MARKER) ? null : _defaultBean;
-    }
-
-    /**
-     * Accessor used to find out "default value" for given property, to use for
-     * comparing values to serialize, to determine whether to exclude value from serialization with
-     * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
-     * This method is called when we specifically want to know default value within context
-     * of a POJO, when annotation is within containing class, and not for property or
-     * defined as global baseline.
-     *<p>
-     * Note that returning of pseudo-type
-     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_EMPTY} requires special handling.
-     *
-     * @since 2.7
-     * @deprecated Since 2.9 since this will not allow determining difference between "no default instance"
-     *    case and default being `null`.
-     */
-    @Deprecated // since 2.9
-    protected Object getPropertyDefaultValue(String name, AnnotatedMember member,
-            JavaType type)
-    {
-        Object defaultBean = getDefaultBean();
-        if (defaultBean == null) {
-            return getDefaultValue(type);
-        }
-        try {
-            return member.getValue(defaultBean);
-        } catch (Exception e) {
-            return _throwWrapped(e, name, defaultBean);
-        }
-    }
-
-    /**
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    protected Object getDefaultValue(JavaType type) {
-        return BeanUtil.getDefaultValue(type);
     }
 
     /*

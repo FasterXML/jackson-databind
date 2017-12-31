@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * contextualization.
  */
 public abstract class JsonDeserializer<T>
-    implements NullValueProvider // since 2.9
+    implements NullValueProvider
 {
     /*
     /**********************************************************
@@ -169,7 +169,8 @@ public abstract class JsonDeserializer<T>
      * Default implementation just returns 'this'
      * indicating that no unwrapped variant exists
      */
-    public JsonDeserializer<T> unwrappingDeserializer(NameTransformer unwrapper) {
+    public JsonDeserializer<T> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper) {
         return this;
     }
 
@@ -179,8 +180,6 @@ public abstract class JsonDeserializer<T>
      * delegate anything; or it does not want any changes), should either
      * throw {@link UnsupportedOperationException} (if operation does not
      * make sense or is not allowed); or return this deserializer as is.
-     * 
-     * @since 2.1
      */
     public JsonDeserializer<?> replaceDelegatee(JsonDeserializer<?> delegatee) {
         throw new UnsupportedOperationException();
@@ -202,8 +201,6 @@ public abstract class JsonDeserializer<T>
      * Default implementation will return null, which means almost same
      * same as returning <code>Object.class</code> would; that is, that
      * nothing is known about handled type.
-     *<p>
-     * @since 2.3
      */
     public Class<?> handledType() { return null; }
 
@@ -231,8 +228,6 @@ public abstract class JsonDeserializer<T>
      * 
      * @return Deserializer this deserializer delegates calls to, if null;
      *   null otherwise.
-     * 
-     * @since 2.1
      */
     public JsonDeserializer<?> getDelegatee() {
         return null;
@@ -247,8 +242,6 @@ public abstract class JsonDeserializer<T>
      * This is only to be used for error reporting and diagnostics
      * purposes (most commonly, to accompany "unknown property"
      * exception).
-     * 
-     * @since 2.0
      */
     public Collection<Object> getKnownPropertyNames() {
         return null;
@@ -267,18 +260,14 @@ public abstract class JsonDeserializer<T>
      * Java null, but for some types (especially primitives) it may be
      * necessary to use non-null values.
      *<p>
-     * Since version 2.6 (in which the context argument was added), call is
-     * expected to be made each and every time a null token needs to
-     * be handled.
+     * Call is expected to be made each and every time a null token
+     * needs to be handled.
      *<p>
      * Default implementation simply returns null.
-     * 
-     * @since 2.6 Added to replace earlier no-arguments variant
      */
     @Override
     public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-        // Change the direction in 2.7
-        return getNullValue();
+        return null;
     }
 
     /**
@@ -299,8 +288,6 @@ public abstract class JsonDeserializer<T>
      * {@link #getEmptyValue(DeserializationContext)}, to check whether it needs
      * to be called just once (static values), or each time empty value is
      * needed.
-     *
-     * @since 2.9
      */
     public AccessPattern getEmptyAccessPattern() {
         return AccessPattern.DYNAMIC;
@@ -327,8 +314,6 @@ public abstract class JsonDeserializer<T>
      *<p>
      * Default implementation simply calls {@link #getNullValue} and
      * returns value.
-     *
-     * @since 2.6 Added to replace earlier no-arguments variant
      */
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         return getNullValue(ctxt);
@@ -349,16 +334,12 @@ public abstract class JsonDeserializer<T>
      * @return ObjectIdReader used for resolving possible Object Identifier
      *    value, instead of full value serialization, if deserializer can do that;
      *    null if no Object Id is expected.
-     * 
-     * @since 2.0
      */
     public ObjectIdReader getObjectIdReader() { return null; }
 
     /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
      * managed- and back-reference pairs.
-     * 
-     * @since 2.2 (was moved out of <code>BeanDeserializerBase</code>)
      */
     public SettableBeanProperty findBackReference(String refName)
     {
@@ -382,30 +363,10 @@ public abstract class JsonDeserializer<T>
      *<p>
      * Default implementation returns <code>null</code> to allow explicit per-type
      * or per-property attempts.
-     *
-     * @since 2.9
      */
     public Boolean supportsUpdate(DeserializationConfig config) {
         return null;
     }
-
-    /*
-    /**********************************************************
-    /* Deprecated methods
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 2.6 Use overloaded variant that takes context argument
-     */
-    @Deprecated
-    public T getNullValue() { return null; }
-
-    /**
-     * @deprecated Since 2.6 Use overloaded variant that takes context argument
-     */
-    @Deprecated
-    public Object getEmptyValue() { return getNullValue(); }
 
     /*
     /**********************************************************

@@ -23,7 +23,9 @@ public class TestValueInstantiator extends BaseMapTest
     {
         String _secret;
 
-        public MyBean(String s, boolean bogus) {
+        // 20-Sep-2017, tatu: Must NOT be public for 3.x because we do auto-detect
+        //   public ctors....
+        protected MyBean(String s, boolean bogus) {
             _secret = s;
         }
     }
@@ -581,7 +583,6 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals(3, bean.b);
     }
 
-    // @since 2.8
     public void testErrorMessageForMissingCtor() throws Exception
     {
         // first fail, check message from JSON Object (no default ctor)
@@ -596,7 +597,6 @@ public class TestValueInstantiator extends BaseMapTest
         }
     }
 
-    // @since 2.8
     public void testErrorMessageForMissingStringCtor() throws Exception
     {
         // then from JSON String

@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 
 /**
@@ -42,8 +41,6 @@ public class MapProperty extends PropertyWriter
     /**
      * Initialization method that needs to be called before passing
      * property to filter.
-     *
-     * @since 2.9
      */
     public void reset(Object key, Object value,
             JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer)
@@ -52,13 +49,6 @@ public class MapProperty extends PropertyWriter
         _value = value;
         _keySerializer = keySer;
         _valueSerializer = valueSer;
-    }
-
-    @Deprecated // since 2.9
-    public void reset(Object key,
-            JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer)
-    {
-        reset(key, _value, keySer, valueSer);
     }
 
     @Override
@@ -149,13 +139,6 @@ public class MapProperty extends PropertyWriter
         throws JsonMappingException
     {
         _property.depositSchemaProperty(objectVisitor, provider);
-    }
-
-    @Override
-    @Deprecated
-    public void depositSchemaProperty(ObjectNode propertiesNode,
-            SerializerProvider provider) throws JsonMappingException {
-        // nothing to do here
     }
 
     @Override

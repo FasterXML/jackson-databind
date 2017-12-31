@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.module;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
-
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -40,26 +38,21 @@ public class SimpleModuleTest extends BaseMapTest
         public CustomBeanSerializer() { super(CustomBean.class); }
 
         @Override
-        public void serialize(CustomBean value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(CustomBean value, JsonGenerator g, SerializerProvider provider)
             throws IOException, JsonProcessingException
         {
             // We will write it as a String, with '|' as delimiter
-            jgen.writeString(value.str + "|" + value.num);
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-            return null;
+            g.writeString(value.str + "|" + value.num);
         }
     }
     
     static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
     {
         @Override
-        public CustomBean deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public CustomBean deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException
         {
-            String text = jp.getText();
+            String text = p.getText();
             int ix = text.indexOf('|');
             if (ix < 0) {
                 throw new IOException("Failed to parse String value of \""+text+"\"");
@@ -75,25 +68,20 @@ public class SimpleModuleTest extends BaseMapTest
         public SimpleEnumSerializer() { super(SimpleEnum.class); }
 
         @Override
-        public void serialize(SimpleEnum value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
+        public void serialize(SimpleEnum value, JsonGenerator g, SerializerProvider provider)
+            throws IOException
         {
-            jgen.writeString(value.name().toLowerCase());
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-            return null;
+            g.writeString(value.name().toLowerCase());
         }
     }
 
     static class SimpleEnumDeserializer extends JsonDeserializer<SimpleEnum>
     {
         @Override
-        public SimpleEnum deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public SimpleEnum deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException
         {
-            return SimpleEnum.valueOf(jp.getText().toUpperCase());
+            return SimpleEnum.valueOf(p.getText().toUpperCase());
         }
     }
 
@@ -116,8 +104,8 @@ public class SimpleModuleTest extends BaseMapTest
         public BaseSerializer() { super(Base.class); }
         
         @Override
-        public void serialize(Base value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            jgen.writeString("Base:"+value.getText());
+        public void serialize(Base value, JsonGenerator g, SerializerProvider provider) throws IOException {
+            g.writeString("Base:"+value.getText());
         }
     }
 
@@ -157,11 +145,9 @@ public class SimpleModuleTest extends BaseMapTest
         @Override
         public void setupModule(SetupContext context)
         {
-            ObjectCodec c = context.getOwner();
+            Object c = context.getOwner();
             assertNotNull(c);
             assertTrue(c instanceof ObjectMapper);
-            ObjectMapper m = context.getOwner();
-            assertNotNull(m);
         }
     }
 
@@ -205,8 +191,13 @@ public class SimpleModuleTest extends BaseMapTest
             mapper.readValue("{\"str\":\"ab\",\"num\":2}", CustomBean.class);
             fail("Should have caused an exception");
         } catch (IOException e) {
+            // 20-Sep-2017, tatu: Jackson 2.x had different exception; 3.x finds implicits too
+            verifyException(e, "Unrecognized field \"str\"");
+
+            /*
             verifyException(e, "Cannot construct");
             verifyException(e, "no creators");
+            */
         }
     }
 

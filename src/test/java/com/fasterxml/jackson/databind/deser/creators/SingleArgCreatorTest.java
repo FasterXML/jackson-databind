@@ -9,12 +9,11 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 public class SingleArgCreatorTest extends BaseMapTest
 {
     // [databind#430]: single arg BUT named; should not delegate
-
     static class SingleNamedStringBean {
         final String _ss;
 
         @JsonCreator
-        public SingleNamedStringBean(@JsonProperty("") String ss){
+        public SingleNamedStringBean(@JsonProperty("value") String ss){
             this._ss = ss;
         }
 
@@ -39,7 +38,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     {
         public final String value;
 
-        private StringyBean(String value) { this.value = value; }
+        protected StringyBean(String value) { this.value = value; }
 
         public String getValue() {
             return value;
@@ -149,7 +148,7 @@ public class SingleArgCreatorTest extends BaseMapTest
 
     public void testNamedSingleArg() throws Exception
     {
-        SingleNamedStringBean bean = MAPPER.readValue(quote("foobar"),
+        SingleNamedStringBean bean = MAPPER.readValue(aposToQuotes("{'value':'foobar'}"),
                 SingleNamedStringBean.class);
         assertEquals("foobar", bean._ss);
     }

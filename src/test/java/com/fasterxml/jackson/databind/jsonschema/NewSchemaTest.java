@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
  * Basic tests to exercise low-level support added for JSON Schema module and
@@ -145,10 +144,6 @@ public class NewSchemaTest extends BaseMapTest
                             throw new Error("SerializerProvider missing");
                         }
                         ser = prov.findValueSerializer(prop.getType(), prop);
-                    }
-                    // and this just for bit of extra coverage...
-                    if (ser instanceof StdSerializer) {
-                        assertNotNull(((StdSerializer<?>) ser).getSchema(prov, prop.getType()));
                     }
                     JsonFormatVisitorWrapper visitor = new JsonFormatVisitorWrapper.Base(getProvider());
                     ser.acceptJsonFormatVisitor(visitor, prop.getType());

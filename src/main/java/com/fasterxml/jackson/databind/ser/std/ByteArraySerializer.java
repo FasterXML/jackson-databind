@@ -1,21 +1,18 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Unlike other integral number array serializers, we do not just print out byte values
@@ -67,14 +64,6 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
                 value, 0, value.length);
         typeSer.writeTypeSuffixForScalar(value, g);
         */
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
-        ObjectNode o = createSchemaNode("array", true);
-        ObjectNode itemSchema = createSchemaNode("byte"); //binary values written as strings?
-        return o.set("items", itemSchema);
     }
 
     @Override

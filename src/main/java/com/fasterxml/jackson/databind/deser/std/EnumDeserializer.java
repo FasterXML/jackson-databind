@@ -28,30 +28,19 @@ public class EnumDeserializer
     private static final long serialVersionUID = 1L;
 
     protected Object[] _enumsByIndex;
-    
-    /**
-     * @since 2.8
-     */
+
     private final Enum<?> _enumDefaultValue;
 
-    /**
-     * @since 2.7.3
-     */
     protected final CompactStringObjectMap _lookupByName;
 
     /**
      * Alternatively, we may need a different lookup object if "use toString"
      * is defined.
-     *
-     * @since 2.7.3
      */
     protected CompactStringObjectMap _lookupByToString;
 
     protected final Boolean _caseInsensitive;
 
-    /**
-     * @since 2.9
-     */
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
         super(byNameResolver.getEnumClass());
@@ -61,9 +50,6 @@ public class EnumDeserializer
         _caseInsensitive = caseInsensitive;
     }
 
-    /**
-     * @since 2.9
-     */
     protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive)
     {
         super(base);
@@ -74,29 +60,10 @@ public class EnumDeserializer
     }
 
     /**
-     * @deprecated Since 2.9
-     */
-    @Deprecated
-    public EnumDeserializer(EnumResolver byNameResolver) {
-        this(byNameResolver, null);
-    }
-    
-    /**
-     * @deprecated Since 2.8
-     */
-    @Deprecated
-    public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
-            Class<?> enumClass, AnnotatedMethod factory) {
-        return deserializerForCreator(config, enumClass, factory, null, null);
-    }
-
-    /**
      * Factory method used when Enum instances are to be deserialized
      * using a creator (static factory method)
      * 
      * @return Deserializer based on given factory method
-     *
-     * @since 2.8
      */
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory,
@@ -167,7 +134,7 @@ public class EnumDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken curr = p.getCurrentToken();
+        JsonToken curr = p.currentToken();
         
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {

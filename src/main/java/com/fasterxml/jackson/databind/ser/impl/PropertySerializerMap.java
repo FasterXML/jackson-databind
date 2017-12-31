@@ -24,14 +24,9 @@ public abstract class PropertySerializerMap
      * Configuration setting that determines what happens when maximum
      * size (currently 8) is reached: if true, will "start from beginning";
      * if false, will simply stop adding new entries.
-     *
-     * @since 2.5
      */
     protected final boolean _resetWhenFull;
 
-    /**
-     * @since 2.5
-     */
     protected PropertySerializerMap(boolean resetWhenFull) {
         _resetWhenFull = resetWhenFull;
     }
@@ -52,8 +47,6 @@ public abstract class PropertySerializerMap
      * serializer (one that is directly attached to a property).
      * Will both find serializer
      * and construct new map instance if warranted, and return both.
-     * 
-     * @since 2.3
      * 
      * @throws JsonMappingException 
      */
@@ -155,33 +148,16 @@ public abstract class PropertySerializerMap
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
-    /**
-     * @since 2.5
-     */
     public final SerializerAndMapResult addSerializer(JavaType type, JsonSerializer<Object> serializer) {
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
     public abstract PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer);
 
-    /**
-     * @deprecated Since 2.5 Use {@link #emptyForProperties} instead
-     */
-    @Deprecated
-    public static PropertySerializerMap emptyMap() {
-        return emptyForProperties();
-    }
-
-    /**
-     * @since 2.5
-     */
     public static PropertySerializerMap emptyForProperties() {
         return Empty.FOR_PROPERTIES;
     }
 
-    /**
-     * @since 2.5
-     */
     public static PropertySerializerMap emptyForRootValues() {
         return Empty.FOR_ROOT_VALUES;
     }

@@ -206,7 +206,7 @@ public class ObjectArraySerializer
                 return;
             }
         }
-        gen.writeStartArray(len);
+        gen.writeStartArray(value, len);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }

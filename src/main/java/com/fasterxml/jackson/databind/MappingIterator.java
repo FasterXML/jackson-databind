@@ -76,7 +76,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * Context to resynchronize to, in case an exception is encountered
      * but caller wants to try to read more elements.
      */
-    protected final JsonStreamContext _seqContext;
+    protected final TokenStreamContext _seqContext;
     
     /**
      * If not null, "value to update" instead of creating a new instance
@@ -144,7 +144,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             _seqContext = null;
             _state = STATE_CLOSED;
         } else {
-            JsonStreamContext sctxt = p.getParsingContext();
+            TokenStreamContext sctxt = p.getParsingContext();
             if (managedParser && p.isExpectedStartArrayToken()) {
                 // If pointing to START_ARRAY, context should be that ARRAY
                 p.clearCurrentToken();
@@ -152,7 +152,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
                 // regardless, recovery context should be whatever context we have now,
                 // with sole exception of pointing to a start marker, in which case it's
                 // the parent
-                JsonToken t = p.getCurrentToken();
+                JsonToken t = p.currentToken();
                 if ((t == JsonToken.START_OBJECT) || (t == JsonToken.START_ARRAY)) {
                     sctxt = sctxt.getParent();
                 }
@@ -235,7 +235,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             _resync();
             // fall-through
         case STATE_MAY_HAVE_VALUE:
-            JsonToken t = _parser.getCurrentToken();
+            JsonToken t = _parser.currentToken();
             if (t == null) { // un-initialized or cleared; find next
                 t = _parser.nextToken();
                 // If EOF, no more, or if we hit END_ARRAY (although we don't clear the token).

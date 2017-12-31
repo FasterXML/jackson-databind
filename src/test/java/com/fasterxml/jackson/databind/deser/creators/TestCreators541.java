@@ -67,14 +67,7 @@ public class TestCreators541 extends BaseMapTest
 
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        mapper.disable(
-                MapperFeature.AUTO_DETECT_CREATORS,
-                MapperFeature.AUTO_DETECT_FIELDS,
-                MapperFeature.AUTO_DETECT_GETTERS,
-                MapperFeature.AUTO_DETECT_IS_GETTERS,
-                MapperFeature.AUTO_DETECT_SETTERS,
-                MapperFeature.USE_GETTERS_AS_SETTERS
-        );
+        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);  
 
         final String JSON = "{\n"

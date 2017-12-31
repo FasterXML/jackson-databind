@@ -79,7 +79,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
     static class RecursiveHolder3 {
         public int x;
 
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         @HolderA
         public RecursiveHolder3(int x) { this.x = x; }
     }

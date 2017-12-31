@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -26,7 +24,6 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
  */
 @JacksonStdImpl
 public final class BooleanSerializer
-//In 2.9, removed use of intermediate type `NonTypedScalarSerializerBase`
     extends StdScalarSerializer<Object>
     implements ContextualSerializer
 {
@@ -68,11 +65,6 @@ public final class BooleanSerializer
             TypeSerializer typeSer) throws IOException
     {
         g.writeBoolean(Boolean.TRUE.equals(value));
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode("boolean", !_forPrimitive);
     }
 
     @Override

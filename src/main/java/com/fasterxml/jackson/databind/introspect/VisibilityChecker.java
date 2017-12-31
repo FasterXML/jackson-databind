@@ -1,10 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -22,19 +17,10 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
     // // Builder methods
 
     /**
-     * Builder method that will return an instance that has same
-     * settings as this instance has, except for values that
-     * given annotation overrides.
-     */
-    public T with(JsonAutoDetect ann);
-
-    /**
      * Method that can be used for merging default values from `this`
      * instance with specified overrides; and either return `this`
      * if overrides had no effect (that is, result would be equal),
      * or a new instance with merged visibility settings.
-     *
-     * @since 2.9
      */
     public T withOverrides(JsonAutoDetect.Value vis);
 
@@ -82,16 +68,21 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
 
     /**
      * Builder method that will return a checker instance that has
+     * specified minimum visibility level for fields.
+     */
+    public T withFieldVisibility(Visibility v);
+    
+    /**
+     * Builder method that will return a checker instance that has
      * specified minimum visibility level for creator methods
      * (constructors, factory methods)
      */
     public T withCreatorVisibility(Visibility v);
 
     /**
-     * Builder method that will return a checker instance that has
-     * specified minimum visibility level for fields.
+     * @since 3.0
      */
-    public T withFieldVisibility(Visibility v);
+    public T withScalarConstructorVisibility(Visibility v);
 	
     // // Accessors
 	
@@ -100,7 +91,6 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      * as regular getter, with respect to its visibility (not considering
      * method signature or name, just visibility)
      */
-    public boolean isGetterVisible(Method m);
     public boolean isGetterVisible(AnnotatedMethod m);
 
     /**
@@ -108,7 +98,6 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      * as is-getter, with respect to its visibility (not considering
      * method signature or name, just visibility)
      */
-    public boolean isIsGetterVisible(Method m);
     public boolean isIsGetterVisible(AnnotatedMethod m);
     
     /**
@@ -116,24 +105,32 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      * as setter, with respect to its visibility (not considering
      * method signature or name, just visibility)
      */
-    public boolean isSetterVisible(Method m);
     public boolean isSetterVisible(AnnotatedMethod m);
-
-    /**
-     * Method for checking whether given method is auto-detectable
-     * as Creator, with respect to its visibility (not considering
-     * method signature or name, just visibility)
-     */
-    public boolean isCreatorVisible(Member m);
-    public boolean isCreatorVisible(AnnotatedMember m);
 
     /**
      * Method for checking whether given field is auto-detectable
      * as property, with respect to its visibility (not considering
      * method signature or name, just visibility)
      */
-    public boolean isFieldVisible(Field f);
     public boolean isFieldVisible(AnnotatedField f);
+
+    /**
+     * Method for checking whether given creator (other than "scalar constructor",
+     * see {@link #isScalarConstructorVisible}) is auto-detectable
+     * as Creator, with respect to its visibility
+     * (not considering signature, just visibility)
+     */
+    public boolean isCreatorVisible(AnnotatedMember m);
+
+    /**
+     * Method for checking whether given single-scalar-argument
+     * constructor is auto-detectable
+     * as delegating Creator, with respect to its visibility
+     * (not considering signature, just visibility)
+     * 
+     * @since 3.0
+     */
+    public boolean isScalarConstructorVisible(AnnotatedMember m);
 
     /*
     /********************************************************
@@ -162,19 +159,21 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
          * visibility values
          */
         protected final static Std DEFAULT = new Std(
+                Visibility.PUBLIC_ONLY, // field
                 Visibility.PUBLIC_ONLY, // getter
                 Visibility.PUBLIC_ONLY, // is-getter
                 Visibility.ANY, // setter
-                Visibility.ANY, // creator -- legacy, to support single-arg ctors
-                Visibility.PUBLIC_ONLY // field
+                Visibility.PUBLIC_ONLY, // creator -- NOTE: was `ANY` for 2.x
+                Visibility.NON_PRIVATE // scalar-constructor (new in 3.x)
                 );
 
+        protected final Visibility _fieldMinLevel;
         protected final Visibility _getterMinLevel;
         protected final Visibility _isGetterMinLevel;
         protected final Visibility _setterMinLevel;
         protected final Visibility _creatorMinLevel;
-        protected final Visibility _fieldMinLevel;
-		
+        protected final Visibility _scalarConstructorMinLevel;
+
         public static Std defaultInstance() { return DEFAULT; }
         
         /**
@@ -186,24 +185,28 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         public Std(JsonAutoDetect ann)
         {
             // let's combine checks for enabled/disabled, with minimum level checks:
+            _fieldMinLevel = ann.fieldVisibility();
             _getterMinLevel = ann.getterVisibility();
             _isGetterMinLevel = ann.isGetterVisibility();
             _setterMinLevel = ann.setterVisibility();
             _creatorMinLevel = ann.creatorVisibility();
-            _fieldMinLevel = ann.fieldVisibility();
+            _scalarConstructorMinLevel = ann.scalarConstructorVisibility();
         }
 
         /**
          * Constructor that allows directly specifying minimum visibility levels to use
          */
-        public Std(Visibility getter, Visibility isGetter, Visibility setter,
-                Visibility creator, Visibility field)
+        public Std(Visibility field,
+                Visibility getter, Visibility isGetter, Visibility setter,
+                Visibility creator, Visibility scalarConstructor)
         {
+            
             _getterMinLevel = getter;
             _isGetterMinLevel = isGetter;
             _setterMinLevel = setter;
             _creatorMinLevel = creator;
             _fieldMinLevel = field;
+            _scalarConstructorMinLevel = scalarConstructor;
         }
 
         /**
@@ -221,12 +224,14 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
                 _setterMinLevel = DEFAULT._setterMinLevel;
                 _creatorMinLevel = DEFAULT._creatorMinLevel;
                 _fieldMinLevel = DEFAULT._fieldMinLevel;
+                _scalarConstructorMinLevel = DEFAULT._scalarConstructorMinLevel;
             } else {
                 _getterMinLevel = v;
                 _isGetterMinLevel = v;
                 _setterMinLevel = v;
                 _creatorMinLevel = v;
                 _fieldMinLevel = v;
+                _scalarConstructorMinLevel = v;
             }
         }
 
@@ -244,49 +249,33 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         /********************************************************
          */
 
-        protected Std _with(Visibility g, Visibility isG, Visibility s,
-                Visibility cr, Visibility f) {
-            if ((g == _getterMinLevel)
+        protected Std _with(Visibility f, Visibility g, Visibility isG, Visibility s,
+                Visibility cr, Visibility scalarCr) {
+            if ((f == _fieldMinLevel)
+                    && (g == _getterMinLevel)
                     && (isG == _isGetterMinLevel)
                     && (s == _setterMinLevel)
                     && (cr == _creatorMinLevel)
-                    && (f == _fieldMinLevel)
-                    ) {
+                    && (scalarCr == _scalarConstructorMinLevel)) {
                 return this;
             }
-            return new Std(g, isG, s, cr, f);
+            return new Std(f, g, isG, s, cr, scalarCr);
         }
 
         @Override
-        public Std with(JsonAutoDetect ann)
-        {
-            Std curr = this;
-            if (ann != null) {
-                return _with(
-                        _defaultOrOverride(_getterMinLevel, ann.getterVisibility()),
-                        _defaultOrOverride(_isGetterMinLevel, ann.isGetterVisibility()),
-                        _defaultOrOverride(_setterMinLevel, ann.setterVisibility()),
-                        _defaultOrOverride(_creatorMinLevel, ann.creatorVisibility()),
-                        _defaultOrOverride(_fieldMinLevel, ann.fieldVisibility())
-                        );
-            }
-            return curr;
-        }
-
-        @Override // since 2.9
         public Std withOverrides(JsonAutoDetect.Value vis)
         {
-            Std curr = this;
-            if (vis != null) {
-                return _with(
-                        _defaultOrOverride(_getterMinLevel, vis.getGetterVisibility()),
-                        _defaultOrOverride(_isGetterMinLevel, vis.getIsGetterVisibility()),
-                        _defaultOrOverride(_setterMinLevel, vis.getSetterVisibility()),
-                        _defaultOrOverride(_creatorMinLevel, vis.getCreatorVisibility()),
-                        _defaultOrOverride(_fieldMinLevel, vis.getFieldVisibility())
-                        );
+            if (vis == null) {
+                return this;
             }
-            return curr;
+            return _with(
+                    _defaultOrOverride(_fieldMinLevel, vis.getFieldVisibility()),
+                    _defaultOrOverride(_getterMinLevel, vis.getGetterVisibility()),
+                    _defaultOrOverride(_isGetterMinLevel, vis.getIsGetterVisibility()),
+                    _defaultOrOverride(_setterMinLevel, vis.getSetterVisibility()),
+                    _defaultOrOverride(_creatorMinLevel, vis.getCreatorVisibility()),
+                    _defaultOrOverride(_scalarConstructorMinLevel, vis.getScalarConstructorVisibility())
+                    );
         }
 
         private Visibility _defaultOrOverride(Visibility defaults, Visibility override) {
@@ -327,40 +316,53 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
                 return this;
             }
         }
-	
+
+        @Override
+        public Std withFieldVisibility(Visibility v) {
+            if (v == Visibility.DEFAULT)  v = DEFAULT._fieldMinLevel;
+            if (_fieldMinLevel == v) return this;
+            return new Std(v, _getterMinLevel, _isGetterMinLevel, _setterMinLevel,
+                    _creatorMinLevel, _scalarConstructorMinLevel);
+        }
+
         @Override
         public Std withGetterVisibility(Visibility v) {
             if (v == Visibility.DEFAULT) v = DEFAULT._getterMinLevel;
             if (_getterMinLevel == v) return this;
-            return new Std(v, _isGetterMinLevel, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
+            return new Std(_fieldMinLevel, v, _isGetterMinLevel, _setterMinLevel,
+                    _creatorMinLevel, _scalarConstructorMinLevel);
         }
 
         @Override
         public Std withIsGetterVisibility(Visibility v) {
             if (v == Visibility.DEFAULT) v = DEFAULT._isGetterMinLevel;
             if (_isGetterMinLevel == v) return this;
-            return new Std(_getterMinLevel, v, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
+            return new Std(_fieldMinLevel, _getterMinLevel, v, _setterMinLevel,
+                    _creatorMinLevel, _scalarConstructorMinLevel);
         }
 
         @Override
         public Std withSetterVisibility(Visibility v) {
             if (v == Visibility.DEFAULT) v = DEFAULT._setterMinLevel;
             if (_setterMinLevel == v) return this;
-            return new Std(_getterMinLevel, _isGetterMinLevel, v, _creatorMinLevel, _fieldMinLevel);
+            return new Std(_fieldMinLevel, _getterMinLevel, _isGetterMinLevel, v,
+                    _creatorMinLevel, _scalarConstructorMinLevel);
         }
 
         @Override
         public Std withCreatorVisibility(Visibility v) {
             if (v == Visibility.DEFAULT) v = DEFAULT._creatorMinLevel;
             if (_creatorMinLevel == v) return this;
-            return new Std(_getterMinLevel, _isGetterMinLevel, _setterMinLevel, v, _fieldMinLevel);
+            return new Std(_fieldMinLevel, _getterMinLevel, _isGetterMinLevel, _setterMinLevel,
+                    v, _scalarConstructorMinLevel);
         }
 
         @Override
-        public Std withFieldVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._fieldMinLevel;
-            if (_fieldMinLevel == v) return this;
-            return new Std(_getterMinLevel, _isGetterMinLevel, _setterMinLevel, _creatorMinLevel, v);
+        public Std withScalarConstructorVisibility(Visibility v) {
+            if (v == Visibility.DEFAULT)  v = DEFAULT._scalarConstructorMinLevel;
+            if (_scalarConstructorMinLevel == v) return this;
+            return new Std(_fieldMinLevel, _getterMinLevel, _isGetterMinLevel, _setterMinLevel,
+                    _creatorMinLevel, v);
         }
 
         /*
@@ -370,53 +372,33 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
          */
 
         @Override
-        public boolean isCreatorVisible(Member m) {
-            return _creatorMinLevel.isVisible(m);
-        }
-
-        @Override
-        public boolean isCreatorVisible(AnnotatedMember m) {
-            return isCreatorVisible(m.getMember());
-        }
-
-        @Override
-        public boolean isFieldVisible(Field f) {
-            return _fieldMinLevel.isVisible(f);
-        }
-
-        @Override
         public boolean isFieldVisible(AnnotatedField f) {
-            return isFieldVisible(f.getAnnotated());
-        }
-
-        @Override
-        public boolean isGetterVisible(Method m) {
-            return _getterMinLevel.isVisible(m);
+            return _fieldMinLevel.isVisible(f.getAnnotated());
         }
 
         @Override
         public boolean isGetterVisible(AnnotatedMethod m) {
-             return isGetterVisible(m.getAnnotated());
+             return _getterMinLevel.isVisible(m.getAnnotated());
         }
-    
-        @Override
-        public boolean isIsGetterVisible(Method m) {
-            return _isGetterMinLevel.isVisible(m);
-        }    
-    
+
         @Override
         public boolean isIsGetterVisible(AnnotatedMethod m) {
-            return isIsGetterVisible(m.getAnnotated());
+            return _isGetterMinLevel.isVisible(m.getAnnotated());
         }
-    
-        @Override
-        public boolean isSetterVisible(Method m) {
-            return _setterMinLevel.isVisible(m);
-        }
-        
+
         @Override
         public boolean isSetterVisible(AnnotatedMethod m) {
-            return isSetterVisible(m.getAnnotated());
+            return _setterMinLevel.isVisible(m.getAnnotated());
+        }
+
+        @Override
+        public boolean isCreatorVisible(AnnotatedMember m) {
+            return _creatorMinLevel.isVisible(m.getMember());
+        }
+
+        @Override
+        public boolean isScalarConstructorVisible(AnnotatedMember m) {
+            return _scalarConstructorMinLevel.isVisible(m.getMember());
         }
 
         /*
@@ -427,8 +409,9 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
     
         @Override
         public String toString() {
-            return String.format("[Visibility: getter=%s,isGetter=%s,setter=%s,creator=%s,field=%s]",
-                    _getterMinLevel, _isGetterMinLevel, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
+            return String.format("[Visibility: field=%s,getter=%s,isGetter=%s,setter=%s,creator=%s,scalarConstructor=%s]",
+                    _fieldMinLevel, _getterMinLevel, _isGetterMinLevel, _setterMinLevel,
+                    _creatorMinLevel, _scalarConstructorMinLevel);
         }
     }
 }

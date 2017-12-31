@@ -32,10 +32,9 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
     public static class AbstractCustomTypeUser {
         @JsonProperty
         @JsonDeserialize(converter = AbstractCustomTypeDeserializationConverter.class)
-        private final AbstractCustomType customField;
+        protected AbstractCustomType customField;
 
-        @JsonCreator
-        AbstractCustomTypeUser(@JsonProperty("customField") AbstractCustomType cf) {
+        public AbstractCustomTypeUser(@JsonProperty("customField") AbstractCustomType cf) {
             this.customField = cf;
         }
     }
@@ -71,16 +70,16 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
     /**********************************************************
      */
 
-    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = newObjectMapper();
 
     public void testAbstractTypeDeserialization() throws Exception {
-        String test="{\"customField\": \"customString\"}";
+        String test = aposToQuotes("{'customField': 'customString'}");
         AbstractCustomTypeUser cu = JSON_MAPPER.readValue(test, AbstractCustomTypeUser.class);
         assertNotNull(cu);
     }
 
     public void testNonAbstractDeserialization() throws Exception {
-        String test="{\"customField\": \"customString\"}";
+        String test = aposToQuotes("{'customField': 'customString'}");
         NonAbstractCustomTypeUser cu = JSON_MAPPER.readValue(test, NonAbstractCustomTypeUser.class);
         assertNotNull(cu);
     }

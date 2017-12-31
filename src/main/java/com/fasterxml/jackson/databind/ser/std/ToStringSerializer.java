@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -38,11 +36,6 @@ public class ToStringSerializer
      */
     public ToStringSerializer() { super(Object.class); }
 
-    /**
-     * Sometimes it may actually make sense to retain actual handled type, so...
-     * 
-     * @since 2.5
-     */
     public ToStringSerializer(Class<?> handledType) {
         super(handledType, false);
     }
@@ -79,11 +72,6 @@ public class ToStringSerializer
                 typeSer.typeId(value, JsonToken.VALUE_STRING));
         serialize(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-        return createSchemaNode("string", true);
     }
 
     @Override

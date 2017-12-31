@@ -33,24 +33,11 @@ public class CollectionSerializer
     /**********************************************************
      */
 
-    /**
-     * @since 2.6
-     */
     public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
             JsonSerializer<Object> valueSerializer) {
         super(Collection.class, elemType, staticTyping, vts, valueSerializer);
     }
 
-    /**
-     * @deprecated since 2.6
-     */
-    @Deprecated // since 2.6
-    public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
-            BeanProperty property, JsonSerializer<Object> valueSerializer) {
-        // note: assumption is 'property' is always passed as null
-        this(elemType, staticTyping, vts, valueSerializer);
-    }
-    
     public CollectionSerializer(CollectionSerializer src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
             Boolean unwrapSingle) {
@@ -103,7 +90,7 @@ public class CollectionSerializer
                 return;
             }
         }
-        g.writeStartArray(len);
+        g.writeStartArray(value, len);
         serializeContents(value, g, provider);
         g.writeEndArray();
     }
@@ -111,7 +98,6 @@ public class CollectionSerializer
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        g.setCurrentValue(value);
         if (_elementSerializer != null) {
             serializeContentsUsing(value, g, provider, _elementSerializer);
             return;

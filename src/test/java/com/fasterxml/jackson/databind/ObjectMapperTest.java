@@ -58,7 +58,7 @@ public class ObjectMapperTest extends BaseMapTest
 
     public void testFactorFeatures()
     {
-        assertTrue(MAPPER.isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES));
+        assertTrue(MAPPER.isEnabled(TokenStreamFactory.Feature.CANONICALIZE_FIELD_NAMES));
     }
 
     public void testGeneratorFeatures()
@@ -123,7 +123,7 @@ public class ObjectMapperTest extends BaseMapTest
 
         // // Also, underlying JsonFactory instances should be distinct
         
-        assertNotSame(m.getFactory(), m2.getFactory());
+        assertNotSame(m.tokenStreamFactory(), m2.tokenStreamFactory());
 
         // [databind#122]: Need to ensure mix-ins are not shared
         assertEquals(0, m.getSerializationConfig().mixInCount());
@@ -236,19 +236,6 @@ public class ObjectMapperTest extends BaseMapTest
         // and not just via SerializationConfig, but also via DeserializationConfig
         assertTrue(dc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(dc.shouldSortPropertiesAlphabetically());
-    }
-
-
-    public void testJsonFactoryLinkage()
-    {
-        // first, implicit factory, giving implicit linkage
-        assertSame(MAPPER, MAPPER.getFactory().getCodec());
-
-        // and then explicit factory, which should also be implicitly linked
-        JsonFactory f = new JsonFactory();
-        ObjectMapper m = new ObjectMapper(f);
-        assertSame(f, m.getFactory());
-        assertSame(m, f.getCodec());
     }
 
     public void testProviderConfig() throws Exception   

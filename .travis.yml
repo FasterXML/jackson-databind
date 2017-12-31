@@ -1,9 +1,11 @@
 language: java
 
-# Since Jackson 2.7, build requires jdk7, although module itself works on jdk6 still (for now)
+# Jackson 3.x only compiles on Java 8 and above so...
+# 06-Oct-2017, tatu: One test fails on Java 9, no time to figure out why,
+#    comment it out for now
 jdk:
-  - openjdk7
   - openjdk8
+#  - oraclejdk9
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
 # http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html
@@ -16,7 +18,7 @@ after_success:
 branches:
   only:
     - master
-    - "2.8"
+    - "2.9"
 
 env:
   global:

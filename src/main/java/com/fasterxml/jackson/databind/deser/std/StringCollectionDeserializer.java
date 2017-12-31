@@ -190,7 +190,7 @@ public final class StringCollectionDeserializer
                     result.add(value);
                     continue;
                 }
-                JsonToken t = p.getCurrentToken();
+                JsonToken t = p.currentToken();
                 if (t == JsonToken.END_ARRAY) {
                     break;
                 }
@@ -221,7 +221,7 @@ public final class StringCollectionDeserializer
              */
             String value;
             if (p.nextTextValue() == null) {
-                JsonToken t = p.getCurrentToken();
+                JsonToken t = p.currentToken();
                 if (t == JsonToken.END_ARRAY) {
                     break;
                 }
@@ -267,7 +267,7 @@ public final class StringCollectionDeserializer
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved
         JsonDeserializer<String> valueDes = _valueDeserializer;
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
 
         String value;
         

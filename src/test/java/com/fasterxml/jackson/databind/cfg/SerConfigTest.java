@@ -3,8 +3,9 @@ package com.fasterxml.jackson.databind.cfg;
 import java.util.Collections;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonFactory;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.TokenStreamFactory;
 
 import com.fasterxml.jackson.databind.*;
 
@@ -51,7 +52,7 @@ public class SerConfigTest extends BaseMapTest
     public void testGeneratorFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
-        JsonFactory f = MAPPER.getFactory();
+        TokenStreamFactory f = MAPPER.tokenStreamFactory();
         assertFalse(config.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII, f));
         assertNotSame(config, config.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
         SerializationConfig newConfig = config.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII,

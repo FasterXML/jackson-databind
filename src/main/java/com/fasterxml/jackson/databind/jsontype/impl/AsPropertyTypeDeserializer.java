@@ -74,7 +74,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         }
         
         // but first, sanity check to ensure we have START_OBJECT or FIELD_NAME
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.FIELD_NAME) {
@@ -91,7 +91,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         TokenBuffer tb = null;
 
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String name = p.getCurrentName();
+            String name = p.currentName();
             p.nextToken(); // to point to the value
             if (name.equals(_typePropertyName)) { // gotcha!
                 return _deserializeTypedForId(p, ctxt, tb);
@@ -115,14 +115,14 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             if (tb == null) {
                 tb = new TokenBuffer(p, ctxt);
             }
-            tb.writeFieldName(p.getCurrentName());
+            tb.writeFieldName(p.currentName());
             tb.writeString(typeId);
         }
         if (tb != null) { // need to put back skipped properties?
             // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
             //   try to access current token; ensure there isn't one
             p.clearCurrentToken();
-            p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
+            p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);
         }
         // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
         p.nextToken(); // to skip past String value
@@ -171,7 +171,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         }
         if (tb != null) {
             tb.writeEndObject();
-            p = tb.asParser(p);
+            p = tb.asParser(ctxt, p);
             // must move to point to the first token:
             p.nextToken();
         }
@@ -187,7 +187,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         /* Sometimes, however, we get an array wrapper; specifically
          * when an array or list has been serialized with type information.
          */
-        if (p.getCurrentToken() == JsonToken.START_ARRAY) {
+        if (p.hasToken(JsonToken.START_ARRAY)) {
             return super.deserializeTypedFromArray(p, ctxt);
         }
         return deserializeTypedFromObject(p, ctxt);

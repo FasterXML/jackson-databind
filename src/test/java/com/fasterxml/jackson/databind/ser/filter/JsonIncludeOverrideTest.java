@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Unit tests for checking that overridden settings for
- * {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#include} annotation property work
+ * <code>JsonInclude</code> annotation property work
  * as expected.
  */
 public class JsonIncludeOverrideTest

@@ -215,7 +215,7 @@ public class ExternalTypeHandler
                 // will be included.
                 JsonToken t = tokens.firstToken();
                 if (t.isScalarValue()) { // can't be null as we never store empty buffers
-                    JsonParser buffered = tokens.asParser(p);
+                    JsonParser buffered = tokens.asParser(ctxt, p);
                     buffered.nextToken();
                     SettableBeanProperty extProp = _properties[i].getProperty();
                     Object result = TypeDeserializer.deserializeIfNatural(buffered, ctxt, extProp.getType());
@@ -314,7 +314,7 @@ public class ExternalTypeHandler
     protected final Object _deserialize(JsonParser p, DeserializationContext ctxt,
             int index, String typeId) throws IOException
     {
-        JsonParser p2 = _tokens[index].asParser(p);
+        JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
@@ -327,7 +327,7 @@ public class ExternalTypeHandler
         merged.writeEndArray();
 
         // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(p);
+        JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
         return _properties[index].getProperty().deserialize(mp, ctxt);
     }
@@ -339,7 +339,7 @@ public class ExternalTypeHandler
         /* Ok: time to mix type id, value; and we will actually use "wrapper-array"
          * style to ensure we can handle all kinds of JSON constructs.
          */
-        JsonParser p2 = _tokens[index].asParser(p);
+        JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
@@ -353,7 +353,7 @@ public class ExternalTypeHandler
         merged.copyCurrentStructure(p2);
         merged.writeEndArray();
         // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(p);
+        JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
         _properties[index].getProperty().deserializeAndSet(mp, ctxt, bean);
     }
@@ -403,8 +403,6 @@ public class ExternalTypeHandler
          * Method called after all external properties have been assigned, to further
          * link property with polymorphic value with possible property for type id
          * itself. This is needed to support type ids as Creator properties.
-         *
-         * @since 2.8
          */
         public ExternalTypeHandler build(BeanPropertyMap otherProps) {
             // 21-Jun-2016, tatu: as per [databind#999], may need to link type id property also
@@ -413,7 +411,7 @@ public class ExternalTypeHandler
             for (int i = 0; i < len; ++i) {
                 ExtTypedProperty extProp = _properties.get(i);
                 String typePropId = extProp.getTypePropertyName();
-                SettableBeanProperty typeProp = otherProps.find(typePropId);
+                SettableBeanProperty typeProp = otherProps.findDefinition(typePropId);
                 if (typeProp != null) {
                     extProp.linkTypeProperty(typeProp);
                 }
@@ -430,9 +428,6 @@ public class ExternalTypeHandler
         private final TypeDeserializer _typeDeserializer;
         private final String _typePropertyName;
 
-        /**
-         * @since 2.8
-         */
         private SettableBeanProperty _typeProperty;
 
         public ExtTypedProperty(SettableBeanProperty property, TypeDeserializer typeDeser)
@@ -476,9 +471,6 @@ public class ExternalTypeHandler
             return _property;
         }
 
-        /**
-         * @since 2.8
-         */
         public SettableBeanProperty getTypeProperty() {
             return _typeProperty;
         }

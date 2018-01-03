@@ -285,7 +285,7 @@ public class BeanDeserializer
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, prop.getName(), ctxt);
+                throw wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             ix = p.nextFieldName(_fieldMatcher);
         }
@@ -396,7 +396,7 @@ public class BeanDeserializer
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, p.currentName(), ctxt);
+                throw wrapAndThrow(e, bean, p.currentName(), ctxt);
             }
 
             // Elem #2
@@ -409,7 +409,7 @@ public class BeanDeserializer
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, p.currentName(), ctxt);
+                throw wrapAndThrow(e, bean, p.currentName(), ctxt);
             }
             ix = p.nextFieldName(_fieldMatcher);
         }
@@ -522,7 +522,7 @@ public class BeanDeserializer
                 try {
                     _fieldsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, p.currentName(), ctxt);
+                    throw wrapAndThrow(e, bean, p.currentName(), ctxt);
                 }
                 continue;
             }
@@ -630,7 +630,7 @@ public class BeanDeserializer
                 try {
                     buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
                 } catch (Exception e) {
-                    wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                    throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
                 continue;
             }
@@ -687,9 +687,7 @@ public class BeanDeserializer
         try {
             return prop.deserialize(p, ctxt);
         } catch (Exception e) {
-            wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
-            // never gets here, unless caller declines to throw an exception
-            return null;
+            throw wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
         }
     }
 
@@ -800,7 +798,7 @@ public class BeanDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -834,7 +832,7 @@ public class BeanDeserializer
             try {
                 _anySetter.deserializeAndSet(b2.asParserOnFirstToken(), ctxt, bean, propName);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
+                throw wrapAndThrow(e, bean, propName, ctxt);
             }
         }
         tokens.writeEndObject();
@@ -865,7 +863,7 @@ public class BeanDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -897,9 +895,8 @@ public class BeanDeserializer
                 try {
                     _anySetter.deserializeAndSet(b2.asParserOnFirstToken(), ctxt, bean, propName);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
-                continue;
             }
         }
         tokens.writeEndObject();
@@ -991,9 +988,8 @@ public class BeanDeserializer
                     buffer.bufferAnyProperty(_anySetter, propName,
                             _anySetter.deserialize(b2.asParserOnFirstToken(), ctxt));
                 } catch (Exception e) {
-                    wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                    throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
-                continue;
             }
         }
 
@@ -1056,7 +1052,7 @@ public class BeanDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                    throw wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
@@ -1082,7 +1078,7 @@ public class BeanDeserializer
                 try {
                     _anySetter.deserializeAndSet(p, ctxt, bean, propName);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    throw wrapAndThrow(e, bean, propName, ctxt);
                 }
                 continue;
             }
@@ -1123,8 +1119,7 @@ public class BeanDeserializer
                         try {
                             bean = creator.build(ctxt, buffer);
                         } catch (Exception e) {
-                            wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                            continue; // never gets here
+                            throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                         }
                         // if so, need to copy all remaining tokens into buffer
                         while (t == JsonToken.FIELD_NAME) {

@@ -19,13 +19,12 @@ public class ManualReadPerfUntypedStream extends ObjectReaderTestBase
         }
         byte[] data = readAll(args[0]);
 
-        JsonFactory f = new JsonFactory();
         boolean doIntern = true;
-
-        f.configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern);
-        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern);
-        
-        ObjectMapper m = new ObjectMapper();
+        JsonFactory f = JsonFactory.builder()
+                .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern)
+                .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern)
+                .build();
+        ObjectMapper m = new ObjectMapper(f);
         Object input1 = m.readValue(data, Object.class);
         JsonNode input2 = m.readTree(data);
 

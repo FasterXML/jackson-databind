@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 
@@ -120,7 +121,59 @@ public class TestTokenBuffer extends BaseMapTest
         p.close();
         buf.close();
     }
-    
+
+    // [databind#1729]
+    public void testNumberOverflowInt() throws IOException
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            long big = 1L + Integer.MAX_VALUE;
+            buf.writeNumber(big);
+            try (JsonParser p = buf.asParser()) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(NumberType.LONG, p.getNumberType());
+                try {
+                    p.getIntValue();
+                    fail("Expected failure for `int` overflow");
+                } catch (JsonParseException e) {
+                    verifyException(e, "Numeric value ("+big+") out of range of int");
+                }
+            }
+        }
+        // and ditto for coercion.
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            long big = 1L + Integer.MAX_VALUE;
+            buf.writeNumber(String.valueOf(big));
+            try (JsonParser p = buf.asParser()) {
+                // NOTE: oddity of buffering, no inspection of "real" type if given String...
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                try {
+                    p.getIntValue();
+                    fail("Expected failure for `int` overflow");
+                } catch (JsonParseException e) {
+                    verifyException(e, "Numeric value ("+big+") out of range of int");
+                }
+            }
+        }
+    }
+
+    public void testNumberOverflowLong() throws IOException
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            BigInteger big = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
+            buf.writeNumber(big);
+            try (JsonParser p = buf.asParser()) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
+                try {
+                    p.getLongValue();
+                    fail("Expected failure for `long` overflow");
+                } catch (JsonParseException e) {
+                    verifyException(e, "Numeric value ("+big+") out of range of long");
+                }
+            }
+        }
+    }
+
     public void testParentContext() throws IOException
     {
         TokenBuffer buf = TokenBuffer.forGeneration();

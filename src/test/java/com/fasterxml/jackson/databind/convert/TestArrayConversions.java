@@ -14,16 +14,19 @@ public class TestArrayConversions
     final static String OVERFLOW_MSG_BYTE = "out of range of Java byte";
     final static String OVERFLOW_MSG = "overflow";
 
-    final ObjectMapper mapper = new ObjectMapper();
+    final static String OVERFLOW_MSG_INT = "out of range of int";
+    final static String OVERFLOW_MSG_LONG = "out of range of long";
+
+    final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testNullXform() throws Exception
     {
         /* when given null, null should be returned without conversion
          * (Java null has no type)
          */
-        assertNull(mapper.convertValue(null, Integer.class));
-        assertNull(mapper.convertValue(null, String.class));
-        assertNull(mapper.convertValue(null, byte[].class));
+        assertNull(MAPPER.convertValue(null, Integer.class));
+        assertNull(MAPPER.convertValue(null, String.class));
+        assertNull(MAPPER.convertValue(null, byte[].class));
     }
 
     /**
@@ -72,7 +75,7 @@ public class TestArrayConversions
 
         List<Number> expNums = _numberList(data, data.length);
         // Alas, due to type erasure, need to use TypeRef, not just class
-        List<Integer> actNums = mapper.convertValue(data, new TypeReference<List<Integer>>() {});
+        List<Integer> actNums = MAPPER.convertValue(data, new TypeReference<List<Integer>>() {});
         assertEquals(expNums, actNums);
     }
 
@@ -84,7 +87,7 @@ public class TestArrayConversions
         verifyLongArrayConversion(data, int[].class);
  
         List<Number> expNums = _numberList(data, data.length);
-        List<Long> actNums = mapper.convertValue(data, new TypeReference<List<Long>>() {});
+        List<Long> actNums = MAPPER.convertValue(data, new TypeReference<List<Long>>() {});
         assertEquals(expNums, actNums);        
     }
 
@@ -92,21 +95,21 @@ public class TestArrayConversions
     {
         // Byte overflow
         try {
-            mapper.convertValue(new int[] { 1000 }, byte[].class);
+            MAPPER.convertValue(new int[] { 1000 }, byte[].class);
         } catch (IllegalArgumentException e) {
             verifyException(e, OVERFLOW_MSG_BYTE);
         }
         // Short overflow
         try {
-            mapper.convertValue(new int[] { -99999 }, short[].class);
+            MAPPER.convertValue(new int[] { -99999 }, short[].class);
         } catch (IllegalArgumentException e) {
             verifyException(e, OVERFLOW_MSG);
         }
         // Int overflow
         try {
-            mapper.convertValue(new long[] { Long.MAX_VALUE }, int[].class);
+            MAPPER.convertValue(new long[] { Long.MAX_VALUE }, int[].class);
         } catch (IllegalArgumentException e) {
-            verifyException(e, OVERFLOW_MSG);
+            verifyException(e, OVERFLOW_MSG_INT);
         }
         // Longs need help of BigInteger...
         BigInteger biggie = BigInteger.valueOf(Long.MAX_VALUE);
@@ -114,13 +117,12 @@ public class TestArrayConversions
         List<BigInteger> l = new ArrayList<BigInteger>();
         l.add(biggie);
         try {
-            mapper.convertValue(l, int[].class);
+            MAPPER.convertValue(l, long[].class);
         } catch (IllegalArgumentException e) {
-            verifyException(e, OVERFLOW_MSG);
+            verifyException(e, OVERFLOW_MSG_LONG);
         }
-        
     }
-    
+
     /*
     /********************************************************
     /* Helper methods
@@ -171,7 +173,7 @@ public class TestArrayConversions
         // must be a primitive array, like "int[].class"
         if (!outputType.isArray()) throw new IllegalArgumentException();
         if (!outputType.getComponentType().isPrimitive()) throw new IllegalArgumentException();
-        T result = mapper.convertValue(input, outputType);
+        T result = MAPPER.convertValue(input, outputType);
         // sanity check first:
         assertNotNull(result);
         assertEquals(outputType, result.getClass());

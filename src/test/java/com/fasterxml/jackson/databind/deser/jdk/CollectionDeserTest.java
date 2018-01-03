@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.IOException;
 import java.util.*;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 @SuppressWarnings("serial")
-public class TestCollectionDeserialization
+public class CollectionDeserTest
     extends BaseMapTest
 {
     enum Key {
@@ -42,7 +42,7 @@ public class TestCollectionDeserialization
         public XBean(int x) { this.x = x; }
     }
 
-    // [Issue#199]
+    // [databind#199]
     static class ListAsIterable {
         public Iterable<String> values;
     }
@@ -283,23 +283,5 @@ public class TestCollectionDeserialization
         } catch (RuntimeException exc) {
             assertEquals("I want to catch this exception", exc.getMessage());
         }
-    }
-
-    // And then a round-trip test for singleton collections
-    public void testSingletonCollections() throws Exception
-    {
-        final TypeReference<?> xbeanListType = new TypeReference<List<XBean>>() { };
-
-        String json = MAPPER.writeValueAsString(Collections.singleton(new XBean(3)));
-        Collection<XBean> result = MAPPER.readValue(json, xbeanListType);
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(3, result.iterator().next().x);
-
-        json = MAPPER.writeValueAsString(Collections.singletonList(new XBean(28)));
-        result = MAPPER.readValue(json, xbeanListType);
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(28, result.iterator().next().x);
     }
 }

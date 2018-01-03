@@ -1573,16 +1573,22 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public int getIntValue() throws IOException
         {
-            // optimize common case:
-            if (_currToken == JsonToken.VALUE_NUMBER_INT) {
-                return ((Number) _currentObject()).intValue();
+            Number n = (_currToken == JsonToken.VALUE_NUMBER_INT) ?
+                    ((Number) _currentObject()) : getNumberValue();
+            if ((n instanceof Integer) || _smallerThanInt(n)) {
+                return n.intValue();
             }
-            return getNumberValue().intValue();
+            return _convertNumberToInt(n);
         }
 
         @Override
         public long getLongValue() throws IOException {
-            return getNumberValue().longValue();
+            Number n = (_currToken == JsonToken.VALUE_NUMBER_INT) ?
+                    ((Number) _currentObject()) : getNumberValue();
+            if ((n instanceof Long) || _smallerThanLong(n)) {
+                return n.longValue();
+            }
+            return _convertNumberToLong(n);
         }
 
         @Override
@@ -1621,6 +1627,79 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             throw new IllegalStateException("Internal error: entry should be a Number, but is of type "
                     +value.getClass().getName());
+        }
+
+        private final boolean _smallerThanInt(Number n) {
+            return (n instanceof Short) || (n instanceof Byte);
+        }
+
+        private final boolean _smallerThanLong(Number n) {
+            return (n instanceof Integer) || (n instanceof Short) || (n instanceof Byte);
+        }
+
+        /* 02-Jan-2017, tatu: Modified from method(s) in `ParserBase`
+         */
+        
+        protected int _convertNumberToInt(Number n) throws IOException
+        {
+            if (n instanceof Long) {
+                long l = n.longValue();
+                int result = (int) l;
+                if (((long) result) != l) {
+                    reportOverflowInt();
+                }
+                return result;
+            }
+            if (n instanceof BigInteger) {
+                BigInteger big = (BigInteger) n;
+                if (BI_MIN_INT.compareTo(big) > 0 
+                        || BI_MAX_INT.compareTo(big) < 0) {
+                    reportOverflowInt();
+                }
+            } else if ((n instanceof Double) || (n instanceof Float)) {
+                double d = n.doubleValue();
+                // Need to check boundaries
+                if (d < MIN_INT_D || d > MAX_INT_D) {
+                    reportOverflowInt();
+                }
+                return (int) d;
+            } else if (n instanceof BigDecimal) {
+                BigDecimal big = (BigDecimal) n;
+                if (BD_MIN_INT.compareTo(big) > 0 
+                    || BD_MAX_INT.compareTo(big) < 0) {
+                    reportOverflowInt();
+                }
+            } else {
+                _throwInternal();
+            }
+            return n.intValue();
+        }
+
+        protected long _convertNumberToLong(Number n) throws IOException
+        {
+            if (n instanceof BigInteger) {
+                BigInteger big = (BigInteger) n;
+                if (BI_MIN_LONG.compareTo(big) > 0 
+                        || BI_MAX_LONG.compareTo(big) < 0) {
+                    reportOverflowLong();
+                }
+            } else if ((n instanceof Double) || (n instanceof Float)) {
+                double d = n.doubleValue();
+                // Need to check boundaries
+                if (d < MIN_LONG_D || d > MAX_LONG_D) {
+                    reportOverflowLong();
+                }
+                return (int) d;
+            } else if (n instanceof BigDecimal) {
+                BigDecimal big = (BigDecimal) n;
+                if (BD_MIN_LONG.compareTo(big) > 0 
+                    || BD_MAX_LONG.compareTo(big) < 0) {
+                    reportOverflowLong();
+                }
+            } else {
+                _throwInternal();
+            }
+            return n.longValue();
         }
 
         /*

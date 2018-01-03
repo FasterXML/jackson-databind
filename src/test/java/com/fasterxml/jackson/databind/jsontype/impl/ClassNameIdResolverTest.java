@@ -36,7 +36,7 @@ public class ClassNameIdResolverTest
     }
     
     @Test
-    public void testIdFromValue_shouldUseJavaUtilHashMapForSingletonMap(){
+    public void testShouldUseJavaUtilHashMapForSingletonMap(){
         Map<String, String> singletonMap = Collections.singletonMap("ANY_KEY", "ANY_VALUE");
         
         String clazz = classNameIdResolver.idFromValue( singletonMap );
@@ -45,7 +45,7 @@ public class ClassNameIdResolverTest
     }
     
     @Test
-    public void testIdFromValue_shouldUseJavaUtilHashSetForSingletonSet(){
+    public void testShouldUseJavaUtilHashSetForSingletonSet(){
         Set<String> singletonSet = Collections.singleton("ANY_VALUE");
         
         String clazz = classNameIdResolver.idFromValue( singletonSet );
@@ -54,7 +54,7 @@ public class ClassNameIdResolverTest
     }
     
     @Test
-    public void testIdFromValue_shouldUseJavaUtilArrayListForSingletonList(){
+    public void testShouldUseJavaUtilArrayListForSingletonList(){
         List<String> singletonList = Collections.singletonList("ANY_VALUE");
         
         String clazz = classNameIdResolver.idFromValue( singletonList );
@@ -63,7 +63,7 @@ public class ClassNameIdResolverTest
     }
     
     @Test
-    public void testIdFromValue_shouldUseJavaUtilArrayListForArrays$List(){
+    public void testShouldUseJavaUtilArrayListForArraysAsList(){
         List<String> utilList = Arrays.asList("ANY_VALUE");
         
         String clazz = classNameIdResolver.idFromValue( utilList );

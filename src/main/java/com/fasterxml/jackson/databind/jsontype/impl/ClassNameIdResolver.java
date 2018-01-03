@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class ClassNameIdResolver
     extends TypeIdResolverBase
 {
+    private final static String JAVA_UTIL_PKG = "java.util.";
+    
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
         super(baseType, typeFactory);
     }
@@ -70,7 +72,7 @@ public class ClassNameIdResolver
             }
         }
         String str = cls.getName();
-        if (str.startsWith("java.util.")) {
+        if (str.startsWith(JAVA_UTIL_PKG)) {
             // 25-Jan-2009, tatu: There are some internal classes that we cannot access as is.
             //     We need better mechanism; for now this has to do...
 
@@ -90,12 +92,12 @@ public class ClassNameIdResolver
                 // 17-Feb-2010, tatus: Another such case: result of Arrays.asList() is
                 // named like so in Sun JDK... Let's just plain old ArrayList in its place.
                 // ... also, other similar cases exist...
-                String suffix = str.substring(10);
+                String suffix = str.substring(JAVA_UTIL_PKG.length());
                 if (isJavaUtilCollectionClass(suffix, "List")) {
                     str = ArrayList.class.getName();
-                } else if(isJavaUtilCollectionClass(suffix, "Map")){
+                } else if (isJavaUtilCollectionClass(suffix, "Map")){
                     str = HashMap.class.getName();
-                } else if(isJavaUtilCollectionClass(suffix, "Set")){
+                } else if (isJavaUtilCollectionClass(suffix, "Set")){
                     str = HashSet.class.getName();
                 }
             }
@@ -109,10 +111,8 @@ public class ClassNameIdResolver
              */
             Class<?> outer = ClassUtil.getOuterClass(cls);
             if (outer != null) {
-                /* one more check: let's actually not worry if the declared
-                 * static type is non-static as well; if so, deserializer does
-                 * have a chance at figuring it all out.
-                 */
+                // one more check: let's actually not worry if the declared static type is
+                // non-static as well; if so, deserializer does have a chance at figuring it all out.
                 Class<?> staticType = _baseType.getRawClass();
                 if (ClassUtil.getOuterClass(staticType) == null) {
                     // Is this always correct? Seems like it should be...
@@ -129,8 +129,16 @@ public class ClassNameIdResolver
         return "class name used as type id";
     }
     
-    private static boolean isJavaUtilCollectionClass(String clz, String type){
-        return (clz.startsWith("Collections$") || clz.startsWith("Arrays$"))
-                && clz.indexOf(type) > 0;
+    private static boolean isJavaUtilCollectionClass(String clz, String type)
+    {
+        if (clz.startsWith("Collections$")) {
+            // 02-Jan-2017, tatu: As per [databind#1868], need to leave Unmodifiable variants as is
+            return ((clz.indexOf(type) > 0)
+                    && !clz.contains("Unmodifiable"));
+        }
+        if (clz.startsWith("Arrays$")) {
+            return (clz.indexOf(type) > 0);
+        }
+        return false;
     }
 }

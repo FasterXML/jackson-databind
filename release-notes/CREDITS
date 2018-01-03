@@ -643,6 +643,8 @@ Kevin Gallardo (newkek@github)
   * Reported #1658: Infinite recursion when deserializing a class extending a Map,
     with a recursive value type
    (2.8.10)
+  * Reported #1729: Integer bounds verification when calling `TokenBuffer.getIntValue()`
+   (2.9.4)
 
 Lukas Euler
   * Reported #1735: Missing type checks when using polymorphic type ids

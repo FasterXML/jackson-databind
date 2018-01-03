@@ -5,6 +5,8 @@ Project: jackson-databind
 
 2.9.4 (not yet released)
 
+#1729: Integer bounds verification when calling `TokenBuffer.getIntValue()`
+ (reported by Kevin G)
 #1854: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (reported by rue-jw@github)
 #1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)

@@ -132,9 +132,10 @@ public class ClassNameIdResolver
     private static boolean isJavaUtilCollectionClass(String clz, String type)
     {
         if (clz.startsWith("Collections$")) {
-            // 02-Jan-2017, tatu: As per [databind#1868], need to leave Unmodifiable variants as is
-            return ((clz.indexOf(type) > 0)
-                    && !clz.contains("Unmodifiable"));
+            // 02-Jan-2017, tatu: As per [databind#1868], may need to leave Unmodifiable variants as is
+            return (clz.indexOf(type) > 0)
+//                    && !clz.contains("Unmodifiable");
+                    ;
         }
         if (clz.startsWith("Arrays$")) {
             return (clz.indexOf(type) > 0);

@@ -12,6 +12,9 @@ Project: jackson-databind
 #1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
 #1868: Class name handling for JDK unmodifiable Collection types changed
   (reported by Rob W)
+#1870: Remove `final` on inherited methods in `BuilderBasedDeserializer` to allow
+  overriding by subclasses
+  (requested by Ville K)
 
 2.9.3 (09-Dec-2017)
 

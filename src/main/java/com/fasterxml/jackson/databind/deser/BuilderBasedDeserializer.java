@@ -193,7 +193,7 @@ public class BuilderBasedDeserializer
     /**********************************************************
      */
 
-    protected final Object finishBuild(DeserializationContext ctxt, Object builder)
+    protected Object finishBuild(DeserializationContext ctxt, Object builder)
             throws IOException
     {
         // As per [databind#777], allow returning builder itself

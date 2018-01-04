@@ -57,11 +57,10 @@ public class JDKCollectionsDeserTest extends BaseMapTest
         assertEquals("[\"java.util.Collections$UnmodifiableSet\",[\"a\"]]", json);
 
         // 04-Jan-2018, tatu: Alas, no way to make this actually work well, at this point.
-        //   In theory could jiggle things back on deser, using one of two ways:
-        //
-        //   1) Do mapping to regular Set/List types (abstract type mapping): would work, but get rid of immutability
-        //   2) Have actually separate deserializer OR ValueInstantiator
-        
+         //   In theory could jiggle things back on deser, using one of two ways:
+         //
+         //   1) Do mapping to regular Set/List types (abstract type mapping): would work, but get rid of immutability
+         //   2) Have actually separate deserializer OR ValueInstantiator
         /*
         Set<String> result = mapper.readValue(json, Set.class);
         assertNotNull(result);

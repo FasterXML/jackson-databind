@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;

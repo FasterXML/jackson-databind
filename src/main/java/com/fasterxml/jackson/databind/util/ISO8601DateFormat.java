@@ -12,7 +12,7 @@ import java.util.GregorianCalendar;
  *<p>
  * All other methods but parse and format and clone are undefined behavior.
  *
- * @see ISO8601Utils
+ * @deprecated Use {@link com.fasterxml.jackson.databind.util.StdDateFormat} instead
  */
 @Deprecated // since 2.9
 public class ISO8601DateFormat extends DateFormat

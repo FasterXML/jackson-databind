@@ -165,7 +165,7 @@ public class BuilderBasedDeserializer
     /**********************************************************
      */
 
-    protected final Object finishBuild(DeserializationContext ctxt, Object builder)
+    protected Object finishBuild(DeserializationContext ctxt, Object builder)
             throws IOException
     {
         // As per [databind#777], allow returning builder itself
@@ -183,7 +183,7 @@ public class BuilderBasedDeserializer
      * Main deserialization method for bean-based objects (POJOs).
      */
     @Override
-    public final Object deserialize(JsonParser p, DeserializationContext ctxt)
+    public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // common case first:
@@ -334,7 +334,7 @@ public class BuilderBasedDeserializer
      */
     @Override
     @SuppressWarnings("resource")
-    protected final Object _deserializeUsingPropertyBased(final JsonParser p,
+    protected Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
         throws IOException
     { 

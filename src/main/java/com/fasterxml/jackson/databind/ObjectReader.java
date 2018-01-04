@@ -977,7 +977,7 @@ public class ObjectReader
      * (data-format specific) parser is given.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException
     {
         return (T) forType(valueTypeRef).readValue(p);
     }
@@ -1050,7 +1050,7 @@ public class ObjectReader
      * NOTE: this method never tries to auto-detect format, since actual
      * (data-format specific) parser is given.
      */
-    public <T> Iterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+    public <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
         return forType(valueTypeRef).readValues(p);
     }
     

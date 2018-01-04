@@ -2290,7 +2290,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef)
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -3660,7 +3660,7 @@ public class ObjectMapper
      * See {@link #convertValue(Object, Class)}
      */
     @SuppressWarnings("unchecked")
-    public <T> T convertValue(Object fromValue, TypeReference<?> toValueTypeRef)
+    public <T> T convertValue(Object fromValue, TypeReference<T> toValueTypeRef)
         throws IllegalArgumentException
     {
         return (T) _convert(fromValue, _typeFactory.constructType(toValueTypeRef));

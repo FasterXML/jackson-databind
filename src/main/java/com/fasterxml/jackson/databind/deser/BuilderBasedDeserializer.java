@@ -676,7 +676,6 @@ public class BuilderBasedDeserializer
 
         TokenBuffer tokens = new TokenBuffer(p, ctxt);
         tokens.writeStartObject();
-        Object builder = null;
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
@@ -688,6 +687,7 @@ public class BuilderBasedDeserializer
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
+                    Object builder = null;
                     try {
                         builder = creator.build(ctxt, buffer);
                     } catch (Exception e) {
@@ -723,12 +723,11 @@ public class BuilderBasedDeserializer
             }
         }
         // We hit END_OBJECT, so:
-        if (builder == null) {
-            try {
-                builder = creator.build(ctxt, buffer);
-            } catch (Exception e) {
-                return wrapInstantiationProblem(e, ctxt);
-            }
+        Object builder = null;
+        try {
+            builder = creator.build(ctxt, buffer);
+        } catch (Exception e) {
+            return wrapInstantiationProblem(e, ctxt);
         }
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
     }

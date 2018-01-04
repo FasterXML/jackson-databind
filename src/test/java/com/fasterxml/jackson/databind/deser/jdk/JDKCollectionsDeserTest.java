@@ -46,8 +46,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
         assertEquals(28, result.iterator().next().x);
     }
 
-    // [databind#1868]: Not sure if this should or should not pass...
-    /*
+    // [databind#1868]: Verify class name serialized as is
     public void testUnmodifiableSet() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -58,10 +57,15 @@ public class JDKCollectionsDeserTest extends BaseMapTest
 
         assertEquals("[\"java.util.Collections$UnmodifiableSet\",[\"a\"]]", json);
 
-        // and back...
+        // 04-Jan-2018, tatu: Alas, no way to make this actually work well, at this point.
+         //   In theory could jiggle things back on deser, using one of two ways:
+         //
+         //   1) Do mapping to regular Set/List types (abstract type mapping): would work, but get rid of immutability
+         //   2) Have actually separate deserializer OR ValueInstantiator
+        /*
         Set<String> result = mapper.readValue(json, Set.class);
         assertNotNull(result);
         assertEquals(1, result.size());
+        */
     }
-    */
 }

@@ -707,3 +707,7 @@ Tim Bartley (tbartley@github)
   * Reported, suggested fix for #1705: Non-generic interface method hides type resolution info
     from generic base class
    (2.9.1)
+
+Rob Winch (rwinch@github)
+  * Reported #1868: Class name handling for JDK unmodifiable Collection types changed
+   (2.9.4)

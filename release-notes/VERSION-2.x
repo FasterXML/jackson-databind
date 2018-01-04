@@ -10,6 +10,8 @@ Project: jackson-databind
 #1854: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (reported by rue-jw@github)
 #1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+#1868: Class name handling for JDK unmodifiable Collection types changed
+ (reported by Rob W)
 
 2.9.3 (09-Dec-2017)
 

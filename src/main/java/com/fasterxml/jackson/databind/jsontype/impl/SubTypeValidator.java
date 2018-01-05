@@ -79,8 +79,9 @@ public class SubTypeValidator
 
             // 18-Dec-2017, tatu: As per [databind#1855], need bit more sophisticated handling
             //    for some Spring framework types
-            if (full.startsWith(PREFIX_STRING)) {
-                for (Class<?> cls = raw; cls != Object.class; cls = cls.getSuperclass()) {
+            // 05-Jan-2017, tatu: ... also, only applies to classes, not interfaces
+            if (!raw.isInterface() && full.startsWith(PREFIX_STRING)) {
+                for (Class<?> cls = raw; (cls != null) && (cls != Object.class); cls = cls.getSuperclass()) {
                     String name = cls.getSimpleName();
                     // looking for "AbstractBeanFactoryPointcutAdvisor" but no point to allow any is there?
                     if ("AbstractPointcutAdvisor".equals(name)

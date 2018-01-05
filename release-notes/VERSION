@@ -3,6 +3,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.11.1 (not yet released)
+
+#1872 `NullPointerException` in `SubTypeValidator.validateSubType` when
+  validating Spring interface
+ (reported by Rob W)
+
 2.8.11 (24-Dec-2017)
 
 #1604: Nested type arguments doesn't work with polymorphic types

@@ -17,7 +17,7 @@ public class ClassNameIdResolver
     extends TypeIdResolverBase
 {
     private final static String JAVA_UTIL_PKG = "java.util.";
-    
+
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
         super(baseType, typeFactory);
     }
@@ -28,7 +28,7 @@ public class ClassNameIdResolver
     public void registerSubtype(Class<?> type, String name) {
         // not used with class name - based resolvers
     }
-    
+
     @Override
     public String idFromValue(Object value) {
         return _idFrom(value, value.getClass(), _typeFactory);
@@ -128,7 +128,7 @@ public class ClassNameIdResolver
     public String getDescForKnownTypeIds() {
         return "class name used as type id";
     }
-    
+
     private static boolean isJavaUtilCollectionClass(String clz, String type)
     {
         if (clz.startsWith("Collections$")) {

@@ -179,7 +179,13 @@ Project: jackson-databind
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
 
-2.8.11 (not yet released)
+2.8.11.1 (not yet released)
+
+#1872 `NullPointerException` in `SubTypeValidator.validateSubType` when
+  validating Spring interface
+ (reported by Rob W)
+
+2.8.11 (24-Dec-2017)
 
 #1604: Nested type arguments doesn't work with polymorphic types
 #1680: Blacklist couple more types for deserialization

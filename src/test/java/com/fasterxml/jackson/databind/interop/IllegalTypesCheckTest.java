@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.interop;
 
+import java.util.*;
+
 import org.springframework.jacksontest.BogusApplicationContext;
 import org.springframework.jacksontest.BogusPointcutAdvisor;
+import org.springframework.jacksontest.GrantedAuthority;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
@@ -23,7 +26,11 @@ public class IllegalTypesCheckTest extends BaseMapTest
                 include = JsonTypeInfo.As.WRAPPER_ARRAY)
         public Object v;
     }
-    
+
+    static class Authentication1872 {
+         public List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -94,6 +101,18 @@ public class IllegalTypesCheckTest extends BaseMapTest
         _testTypes1737("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource");
     }
     */
+
+    // // // Tests for [databind#1872]
+    public void testJDKTypes1872() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+    
+        String json = aposToQuotes(String.format("{'@class':'%s','authorities':['java.util.ArrayList',[]]}",
+                Authentication1872.class.getName()));
+        Authentication1872 result = mapper.readValue(json, Authentication1872.class);
+        assertNotNull(result);
+    }
 
     private void _testIllegalType(Class<?> nasty) throws Exception {
         _testIllegalType(nasty.getName());

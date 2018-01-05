@@ -201,9 +201,7 @@ public class EnumDeserializationTest
         assertEquals(TestEnum.OK, MAPPER.readValue(jp, TestEnum.class));
         assertEquals(TestEnum.RULES, MAPPER.readValue(jp, TestEnum.class));
 
-        /* should be ok; nulls are typeless; handled by mapper, not by
-         * deserializer
-         */
+        // should be ok; nulls are typeless; handled by mapper, not by deserializer
         assertNull(MAPPER.readValue(jp, TestEnum.class));
 
         // and no more content beyond that...

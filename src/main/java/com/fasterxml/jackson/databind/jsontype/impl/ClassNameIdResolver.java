@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class ClassNameIdResolver
     extends TypeIdResolverBase
 {
+    private final static String JAVA_UTIL_PKG = "java.util.";
+
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
         super(baseType, typeFactory);
     }
@@ -86,8 +88,8 @@ public class ClassNameIdResolver
     /* Internal methods
     /**********************************************************
      */
-    
-    protected final String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
+
+    protected String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
     {
         // Need to ensure that "enum subtypes" work too
         if (Enum.class.isAssignableFrom(cls)) {
@@ -96,8 +98,8 @@ public class ClassNameIdResolver
             }
         }
         String str = cls.getName();
-        if (str.startsWith("java.util")) {
-            // 25-Jan-2009, tatu: There are some internal classes that we can not access as is.
+        if (str.startsWith(JAVA_UTIL_PKG)) {
+            // 25-Jan-2009, tatu: There are some internal classes that we cannot access as is.
             //     We need better mechanism; for now this has to do...
 
             // Enum sets and maps are problematic since we MUST know type of
@@ -113,20 +115,20 @@ public class ClassNameIdResolver
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
                 str = typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
             } else {
-                String end = str.substring(9);
-                if ((end.startsWith(".Arrays$") || end.startsWith(".Collections$"))
-                       && str.indexOf("List") >= 0) {
-                    /* 17-Feb-2010, tatus: Another such case: result of
-                     *    Arrays.asList() is named like so in Sun JDK...
-                     *   Let's just plain old ArrayList in its place
-                     * NOTE: chances are there are plenty of similar cases
-                     * for other wrappers... (immutable, singleton, synced etc)
-                     */
-                    str = "java.util.ArrayList";
+                // 17-Feb-2010, tatus: Another such case: result of Arrays.asList() is
+                // named like so in Sun JDK... Let's just plain old ArrayList in its place.
+                // ... also, other similar cases exist...
+                String suffix = str.substring(JAVA_UTIL_PKG.length());
+                if (isJavaUtilCollectionClass(suffix, "List")) {
+                    str = ArrayList.class.getName();
+                } else if (isJavaUtilCollectionClass(suffix, "Map")){
+                    str = HashMap.class.getName();
+                } else if (isJavaUtilCollectionClass(suffix, "Set")){
+                    str = HashSet.class.getName();
                 }
             }
         } else if (str.indexOf('$') >= 0) {
-            /* Other special handling may be needed for inner classes, [JACKSON-584].
+            /* Other special handling may be needed for inner classes,
              * The best way to handle would be to find 'hidden' constructor; pass parent
              * value etc (which is actually done for non-anonymous static classes!),
              * but that is just not possible due to various things. So, we will instead
@@ -135,10 +137,8 @@ public class ClassNameIdResolver
              */
             Class<?> outer = ClassUtil.getOuterClass(cls);
             if (outer != null) {
-                /* one more check: let's actually not worry if the declared
-                 * static type is non-static as well; if so, deserializer does
-                 * have a chance at figuring it all out.
-                 */
+                // one more check: let's actually not worry if the declared static type is
+                // non-static as well; if so, deserializer does have a chance at figuring it all out.
                 Class<?> staticType = _baseType.getRawClass();
                 if (ClassUtil.getOuterClass(staticType) == null) {
                     // Is this always correct? Seems like it should be...
@@ -153,5 +153,18 @@ public class ClassNameIdResolver
     @Override
     public String getDescForKnownTypeIds() {
         return "class name used as type id";
+    }
+
+    private static boolean isJavaUtilCollectionClass(String clz, String type)
+    {
+        if (clz.startsWith("Collections$")) {
+            // 02-Jan-2017, tatu: As per [databind#1868], may need to leave Unmodifiable variants as is
+            return (clz.indexOf(type) > 0)
+                    && !clz.contains("Unmodifiable");
+        }
+        if (clz.startsWith("Arrays$")) {
+            return (clz.indexOf(type) > 0);
+        }
+        return false;
     }
 }

@@ -361,11 +361,14 @@ public class StdKeyDeserializer extends KeyDeserializer
          * @since 2.7.3
          */
         protected EnumResolver _byToStringResolver;
+
+        protected final Enum<?> _enumDefaultValue;
         
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
             super(-1, er.getEnumClass());
             _byNameResolver = er;
             _factory = factory;
+            _enumDefaultValue = er.getDefaultValue();
         }
 
         @Override
@@ -381,9 +384,14 @@ public class StdKeyDeserializer extends KeyDeserializer
             EnumResolver res = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                     ? _getToStringResolver(ctxt) : _byNameResolver;
             Enum<?> e = res.findEnum(key);
-            if ((e == null) && !ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                return ctxt.handleWeirdKey(_keyClass, key, "not one of values excepted for Enum class: %s",
+            if (e == null) {
+                if ((_enumDefaultValue != null)
+                        && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+                    e = _enumDefaultValue;
+                } else if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+                    return ctxt.handleWeirdKey(_keyClass, key, "not one of values excepted for Enum class: %s",
                         res.getEnumIds());
+                }
                 // fall-through if problems are collected, not immediately thrown
             }
             return e;

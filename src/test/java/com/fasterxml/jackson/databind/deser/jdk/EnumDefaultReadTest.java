@@ -13,7 +13,7 @@ public class EnumDefaultReadTest extends BaseMapTest
         ZERO,
         ONE;
     }
-    
+
     enum SimpleEnumWithDefault {
         @JsonEnumDefaultValue
         ZERO,
@@ -165,8 +165,8 @@ public class EnumDefaultReadTest extends BaseMapTest
         throws Exception
     {
         ObjectReader r = MAPPER.reader()
-                          .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
-                          .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+                .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
         _verifyOkDeserialization(r, "ZERO", SimpleEnum.class, SimpleEnum.ZERO);
         _verifyOkDeserialization(r, "ONE", SimpleEnum.class, SimpleEnum.ONE);

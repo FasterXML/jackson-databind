@@ -197,7 +197,7 @@ public class BeanDeserializerBuilder
         _backRefProperties.put(referenceName, prop);
         // also: if we had property with same name, actually remove it
         if (_properties != null) {
-            _properties.remove(prop.getName());
+            _properties.remove(referenceName);
         }
         // ??? 23-Jul-2012, tatu: Should it be included in list of all properties?
         //   For now, won't add, since it is inferred, not explicit...

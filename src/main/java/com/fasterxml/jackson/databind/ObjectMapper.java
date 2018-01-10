@@ -1882,144 +1882,26 @@ public class ObjectMapper
     
     /*
     /**********************************************************
-    /* Configuration, simple features: JsonParser.Feature
+    /* Configuration, accessing features
     /**********************************************************
      */
+
+    /**
+     * Convenience method, equivalent to:
+     *<pre>
+     *  tokenStreamFactory().isEnabled(f);
+     *</pre>
+     */
+    public boolean isEnabled(JsonFactory.Feature f) {
+        return _jsonFactory.isEnabled(f);
+    }
 
     public boolean isEnabled(JsonParser.Feature f) {
         return _deserializationConfig.isEnabled(f, _jsonFactory);
     }
 
-    /**
-     * Method for changing state of specified {@link com.fasterxml.jackson.core.JsonParser.Feature}s
-     * for parser instances this object mapper creates.
-     *<p>
-     * Note that this is equivalent to directly calling same method
-     * on {@link #getFactory}.
-     *<p>
-     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
-     * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
-     * this, use {@link ObjectReader#with(JsonParser.Feature)} instead.
-     */
-    public ObjectMapper configure(JsonParser.Feature f, boolean state) {
-        _jsonFactory.configure(f, state);
-        return this;
-    }
-
-    /**
-     * Method for enabling specified {@link com.fasterxml.jackson.core.JsonParser.Feature}s
-     * for parser instances this object mapper creates.
-     *<p>
-     * Note that this is equivalent to directly calling same method on {@link #getFactory}.
-     *<p>
-     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
-     * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
-     * this, use {@link ObjectReader#with(JsonParser.Feature)} instead.
-     *
-     * @since 2.5
-     */
-    public ObjectMapper enable(JsonParser.Feature... features) {
-        for (JsonParser.Feature f : features) {
-            _jsonFactory.enable(f);
-        }
-        return this;
-    }
-    
-    /**
-     * Method for disabling specified {@link com.fasterxml.jackson.core.JsonParser.Feature}s
-     * for parser instances this object mapper creates.
-     *<p>
-     * Note that this is equivalent to directly calling same method on {@link #getFactory}.
-     *<p>
-     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
-     * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
-     * this, use {@link ObjectReader#without(JsonParser.Feature)} instead.
-     *
-     * @since 2.5
-     */
-    public ObjectMapper disable(JsonParser.Feature... features) {
-        for (JsonParser.Feature f : features) {
-            _jsonFactory.disable(f);
-        }
-        return this;
-    }
-    
-    /*
-    /**********************************************************
-    /* Configuration, simple features: JsonGenerator.Feature
-    /**********************************************************
-     */
-
     public boolean isEnabled(JsonGenerator.Feature f) {
         return _serializationConfig.isEnabled(f, _jsonFactory);
-    }
-
-    /**
-     * Method for changing state of an on/off {@link JsonGenerator} feature for
-     * generator instances this object mapper creates.
-     *<p>
-     * Note that this is equivalent to directly calling same method
-     * on {@link #getFactory}.
-     *<p>
-     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
-     * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
-     * this, use {@link ObjectWriter#with(JsonGenerator.Feature)} instead.
-     */
-    public ObjectMapper configure(JsonGenerator.Feature f, boolean state) {
-        _jsonFactory.configure(f,  state);
-        return this;
-    }
-
-    /**
-     * Method for enabling specified {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s
-     * for parser instances this object mapper creates.
-     *<p>
-     * Note that this is equivalent to directly calling same method on {@link #getFactory}.
-     *<p>
-     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
-     * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
-     * this, use {@link ObjectWriter#with(JsonGenerator.Feature)} instead.
-     *
-     * @since 2.5
-     */
-    public ObjectMapper enable(JsonGenerator.Feature... features) {
-        for (JsonGenerator.Feature f : features) {
-            _jsonFactory.enable(f);
-        }
-        return this;
-    }
-
-    /**
-     * Method for disabling specified {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s
-     * for parser instances this object mapper creates.
-     *<p>
-     * Note that this is equivalent to directly calling same method on {@link #getFactory}.
-     *<p>
-     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
-     * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
-     * this, use {@link ObjectWriter#without(JsonGenerator.Feature)} instead.
-     */
-    public ObjectMapper disable(JsonGenerator.Feature... features) {
-        for (JsonGenerator.Feature f : features) {
-            _jsonFactory.disable(f);
-        }
-        return this;
-    }
-
-    /*
-    /**********************************************************
-    /* Configuration, simple features: JsonFactory.Feature
-    /**********************************************************
-     */
-    
-    /**
-     * Convenience method, equivalent to:
-     *<pre>
-     *  getJsonFactory().isEnabled(f);
-     *</pre>
-     */
-    public boolean isEnabled(JsonFactory.Feature f) {
-        return _jsonFactory.isEnabled(f);
     }
 
     /*

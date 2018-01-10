@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,9 +45,9 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
 
     public void testObjectIdWithRepeatedChild() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .without(JsonGenerator.Feature.AUTO_CLOSE_CONTENT).build());
         // to keep output faithful to original, prevent auto-closing...
-        mapper.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
 
         // Equivalent to Spring _embedded for Bean w/ List property
         ListOfParents parents = new ListOfParents();

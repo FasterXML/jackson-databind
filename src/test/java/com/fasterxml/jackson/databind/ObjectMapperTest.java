@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -56,32 +57,16 @@ public class ObjectMapperTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testFactorFeatures()
+    public void testFeatureDefaults()
     {
         assertTrue(MAPPER.isEnabled(TokenStreamFactory.Feature.CANONICALIZE_FIELD_NAMES));
-    }
 
-    public void testGeneratorFeatures()
-    {
         // and also for mapper
-        ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertTrue(mapper.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
-        mapper.disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM,
-                JsonGenerator.Feature.QUOTE_FIELD_NAMES);
-    }
+        assertFalse(MAPPER.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(MAPPER.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
 
-    public void testParserFeatures()
-    {
-        // and also for mapper
-        ObjectMapper mapper = new ObjectMapper();
-                
-        assertTrue(mapper.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-        assertFalse(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-
-        mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE,
-                JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
-        assertFalse(mapper.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        assertTrue(MAPPER.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        assertFalse(MAPPER.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
     }
 
     /*
@@ -93,15 +78,15 @@ public class ObjectMapperTest extends BaseMapTest
     // [databind#28]: ObjectMapper.copy()
     public void testCopy() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = new ObjectMapper(JsonFactory.builder()
+                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .build());
         assertTrue(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        assertTrue(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         InjectableValues inj = new InjectableValues.Std();
         m.setInjectableValues(inj);
-        assertFalse(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        m.enable(JsonParser.Feature.ALLOW_COMMENTS);
-        assertTrue(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
 
         // // First: verify that handling of features is decoupled:
         
@@ -331,21 +316,14 @@ public class ObjectMapperTest extends BaseMapTest
     public void testCopyOfParserFeatures() throws Exception
     {
         // ensure we have "fresh" instance to start with
-        ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .with(JsonParser.Feature.ALLOW_COMMENTS).build());
         assertTrue(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
 
         ObjectMapper copy = mapper.copy();
         assertTrue(copy.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-
-        // also verify there's no back-linkage
-        copy.configure(JsonParser.Feature.ALLOW_COMMENTS, false);
-        assertFalse(copy.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        assertTrue(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
     }
 
-    // since 2.8
     public void testDataOutputViaMapper() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

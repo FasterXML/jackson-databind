@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -39,9 +40,9 @@ public class JDKTypeSerializationTest
     
     public void testBigDecimalAsPlainString() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-
-        mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        final ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build());
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";
         map.put("pi", new BigDecimal(PI_STR));

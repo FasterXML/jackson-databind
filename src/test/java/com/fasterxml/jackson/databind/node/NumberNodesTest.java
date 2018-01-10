@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -363,9 +364,11 @@ public class NumberNodesTest extends NodeTestBase
 
     public void testBigDecimalAsPlain() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
-                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build());
+        mapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+
         final String INPUT = "{\"x\":1e2}";
         final JsonNode node = mapper.readTree(INPUT);
         String result = mapper.writeValueAsString(node);

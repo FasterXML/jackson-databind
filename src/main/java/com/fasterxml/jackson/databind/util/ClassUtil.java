@@ -419,7 +419,7 @@ public final class ClassUtil
     {
         // 04-Mar-2014, tatu: Let's try to prevent auto-closing of
         //    structures, which typically causes more damage.
-        g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+        g.disable(JsonGenerator.Feature.AUTO_CLOSE_CONTENT);
         try {
             g.close();
         } catch (Exception e) {
@@ -442,7 +442,7 @@ public final class ClassUtil
         throws IOException
     {
         if (g != null) {
-            g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+            g.disable(JsonGenerator.Feature.AUTO_CLOSE_CONTENT);
             try {
                 g.close();
             } catch (Exception e) {

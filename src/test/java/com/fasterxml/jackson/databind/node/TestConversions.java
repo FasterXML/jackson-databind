@@ -7,6 +7,7 @@ import java.util.*;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -210,8 +211,9 @@ public class TestConversions extends BaseMapTest
     // [databind#232]
     public void testBigDecimalAsPlainStringTreeConversion() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build());
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";
         map.put("pi", new BigDecimal(PI_STR));
@@ -228,7 +230,7 @@ public class TestConversions extends BaseMapTest
         public void setFoo(final String foo) {
             node.put("foo", foo);
         }
-    
+
         @Override
         public void serialize(final JsonGenerator g, final SerializerProvider provider) throws IOException
         {

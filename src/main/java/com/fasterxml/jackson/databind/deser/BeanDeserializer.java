@@ -207,34 +207,35 @@ public class BeanDeserializer
             JsonToken t) throws IOException
     {
         // and then others, generally requiring use of @JsonCreator
-        switch (t) {
-        case VALUE_STRING:
-            return deserializeFromString(p, ctxt);
-        case VALUE_NUMBER_INT:
-            return deserializeFromNumber(p, ctxt);
-        case VALUE_NUMBER_FLOAT:
-	    return deserializeFromDouble(p, ctxt);
-        case VALUE_EMBEDDED_OBJECT:
-            return deserializeFromEmbedded(p, ctxt);
-        case VALUE_TRUE:
-        case VALUE_FALSE:
-            return deserializeFromBoolean(p, ctxt);
-
-        case VALUE_NULL:
-            return deserializeFromNull(p, ctxt);
-        case START_ARRAY:
-            // these only work if there's a (delegating) creator...
-            return deserializeFromArray(p, ctxt);
-        case FIELD_NAME:
-        case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
-            if (_vanillaProcessing) {
-                return _vanillaDeserialize(p, ctxt, t);
+        if (t != null) {
+            switch (t) {
+            case VALUE_STRING:
+                return deserializeFromString(p, ctxt);
+            case VALUE_NUMBER_INT:
+                return deserializeFromNumber(p, ctxt);
+            case VALUE_NUMBER_FLOAT:
+                return deserializeFromDouble(p, ctxt);
+            case VALUE_EMBEDDED_OBJECT:
+                return deserializeFromEmbedded(p, ctxt);
+            case VALUE_TRUE:
+            case VALUE_FALSE:
+                return deserializeFromBoolean(p, ctxt);
+            case VALUE_NULL:
+                return deserializeFromNull(p, ctxt);
+            case START_ARRAY:
+                // these only work if there's a (delegating) creator...
+                return deserializeFromArray(p, ctxt);
+            case FIELD_NAME:
+            case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
+                if (_vanillaProcessing) {
+                    return _vanillaDeserialize(p, ctxt, t);
+                }
+                if (_objectIdReader != null) {
+                    return deserializeWithObjectId(p, ctxt);
+                }
+                return deserializeFromObject(p, ctxt);
+            default:
             }
-            if (_objectIdReader != null) {
-                return deserializeWithObjectId(p, ctxt);
-            }
-            return deserializeFromObject(p, ctxt);
-        default:
         }
         return ctxt.handleUnexpectedToken(handledType(), p);
     }

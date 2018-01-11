@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
+import com.fasterxml.jackson.databind.deser.impl.JavaUtilCollectionsDeserializers;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -285,6 +286,19 @@ public abstract class BasicDeserializerFactory
         Class<?> raw = beanDesc.getBeanClass();
         if (raw == JsonLocation.class) {
             return new JsonLocationInstantiator();
+        }
+        // [databind#1868]: empty List/Set/Map
+        if (Collection.class.isAssignableFrom(raw)) {
+            if (Collections.EMPTY_SET.getClass() == raw) {
+                return new ConstantValueInstantiator(Collections.EMPTY_SET);
+            }
+            if (Collections.EMPTY_LIST.getClass() == raw) {
+                return new ConstantValueInstantiator(Collections.EMPTY_LIST);
+            }
+        } else if (Map.class.isAssignableFrom(raw)) {
+            if (Collections.EMPTY_MAP.getClass() == raw) {
+                return new ConstantValueInstantiator(Collections.EMPTY_MAP);
+            }
         }
         return null;
     }
@@ -1180,6 +1194,11 @@ nonAnnotatedParamIndex, ctor);
                     if (type.hasRawClass(ArrayBlockingQueue.class)) {
                         return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst);
                     }
+                    // 10-Jan-2017, tatu: `java.util.Collections` types need help:
+                    deser = JavaUtilCollectionsDeserializers.findForCollection(ctxt, type);
+                    if (deser != null) {
+                        return deser;
+                    }
                 }
                 // Can use more optimal deserializer if content type is String, so:
                 if (contentType.hasRawClass(String.class)) {
@@ -1318,6 +1337,12 @@ nonAnnotatedParamIndex, ctor);
                             throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Map type "+type);
                         }
                         deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
+                    }
+                } else {
+                    // 10-Jan-2017, tatu: `java.util.Collections` types need help:
+                    deser = JavaUtilCollectionsDeserializers.findForMap(ctxt, type);
+                    if (deser != null) {
+                        return deser;
                     }
                 }
                 if (deser == null) {

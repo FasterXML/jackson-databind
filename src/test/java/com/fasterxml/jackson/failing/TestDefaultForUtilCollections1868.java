@@ -76,6 +76,22 @@ public class TestDefaultForUtilCollections1868 extends BaseMapTest
 
    /*
    /**********************************************************
+   /* Unit tests, other
+   /**********************************************************
+    */
+
+   public void testArraysAsList() throws Exception
+   {
+       // Here there are no semantics to preserve, so simply check that
+       // contents remain the same
+       List<String> input = Arrays.asList("a", "bc", "def");
+       String json = DEFAULT_MAPPER.writeValueAsString(input);
+       List<?> result = DEFAULT_MAPPER.readValue(json, List.class);
+       assertEquals(input, result);
+   }
+
+   /*
+   /**********************************************************
    /* Helper methods
    /**********************************************************
     */

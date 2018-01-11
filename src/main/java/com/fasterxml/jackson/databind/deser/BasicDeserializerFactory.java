@@ -268,7 +268,7 @@ public abstract class BasicDeserializerFactory
             }
         }
 
-        // Sanity check: does the chosen instantatior have incomplete creators?
+        // Sanity check: does the chosen ValueInstantiator have incomplete creators?
         if (instantiator.getIncompleteParameter() != null) {
             final AnnotatedParameter nonAnnotatedParam = instantiator.getIncompleteParameter();
             final AnnotatedWithParams ctor = nonAnnotatedParam.getOwner();
@@ -282,7 +282,8 @@ public abstract class BasicDeserializerFactory
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        if (beanDesc.getBeanClass() == JsonLocation.class) {
+        Class<?> raw = beanDesc.getBeanClass();
+        if (raw == JsonLocation.class) {
             return new JsonLocationInstantiator();
         }
         return null;

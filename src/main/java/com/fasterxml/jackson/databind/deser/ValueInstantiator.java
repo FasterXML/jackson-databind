@@ -163,8 +163,6 @@ public abstract class ValueInstantiator
      * non-null type is returned, deserializer will bind JSON into specified
      * type (using standard deserializer for that type), and pass that to
      * instantiator.
-     *
-     * @since 2.7
      */
     public JavaType getArrayDelegateType(DeserializationConfig config) { return null; }
 
@@ -407,7 +405,7 @@ public abstract class ValueInstantiator
         public Base(JavaType type) {
             _valueType = type.getRawClass();
         }
-        
+
         @Override
         public String getValueTypeDesc() {
             return _valueType.getName();

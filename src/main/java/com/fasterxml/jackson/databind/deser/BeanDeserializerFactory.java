@@ -104,9 +104,9 @@ public class BeanDeserializerFactory
         if (type.isThrowable()) {
             return buildThrowableDeserializer(ctxt, type, beanDesc);
         }
-        /* Or, for abstract types, may have alternate means for resolution
-         * (defaulting, materialization)
-         */
+        // Or, for abstract types, may have alternate means for resolution
+        // (defaulting, materialization)
+
         // 29-Nov-2015, tatu: Also, filter out calls to primitive types, they are
         //    not something we could materialize anything for
         if (type.isAbstract() && !type.isPrimitive() && !type.isEnumType()) {

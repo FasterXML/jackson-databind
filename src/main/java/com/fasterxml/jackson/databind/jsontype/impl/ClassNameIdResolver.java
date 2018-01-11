@@ -88,19 +88,9 @@ public class ClassNameIdResolver
                 Class<?> valueClass = Object.class;
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
                 str = typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
-            } else {
-                // 17-Feb-2010, tatus: Another such case: result of Arrays.asList() is
-                // named like so in Sun JDK... Let's just plain old ArrayList in its place.
-                // ... also, other similar cases exist...
-                String suffix = str.substring(JAVA_UTIL_PKG.length());
-                if (isJavaUtilCollectionClass(suffix, "List")) {
-                    str = ArrayList.class.getName();
-                } else if (isJavaUtilCollectionClass(suffix, "Map")){
-                    str = HashMap.class.getName();
-                } else if (isJavaUtilCollectionClass(suffix, "Set")){
-                    str = HashSet.class.getName();
-                }
             }
+            // 10-Jan-2018, tatu: Up until 2.9.4 we used to have other conversions for `Collections.xxx()`
+            //    and `Arrays.asList(...)`; but it was changed to be handled on receiving end instead
         } else if (str.indexOf('$') >= 0) {
             /* Other special handling may be needed for inner classes,
              * The best way to handle would be to find 'hidden' constructor; pass parent
@@ -127,18 +117,5 @@ public class ClassNameIdResolver
     @Override
     public String getDescForKnownTypeIds() {
         return "class name used as type id";
-    }
-
-    private static boolean isJavaUtilCollectionClass(String clz, String type)
-    {
-        if (clz.startsWith("Collections$")) {
-            // 02-Jan-2017, tatu: As per [databind#1868], may need to leave Unmodifiable variants as is
-            return (clz.indexOf(type) > 0)
-                    && !clz.contains("Unmodifiable");
-        }
-        if (clz.startsWith("Arrays$")) {
-            return (clz.indexOf(type) > 0);
-        }
-        return false;
     }
 }

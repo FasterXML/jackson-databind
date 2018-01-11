@@ -121,7 +121,7 @@ public class StdDelegatingDeserializer<T>
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         throws JsonMappingException
     {
-        // First: if already got serializer to delegate to, contextualize it:
+        // First: if already got deserializer to delegate to, contextualize it:
         if (_delegateDeserializer != null) {
             JsonDeserializer<?> deser = ctxt.handleSecondaryContextualization(_delegateDeserializer,
                     property, _delegateType);

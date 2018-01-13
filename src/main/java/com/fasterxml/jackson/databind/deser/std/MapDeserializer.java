@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
 @JacksonStdImpl
 public class MapDeserializer
     extends ContainerDeserializerBase<Map<Object,Object>>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 

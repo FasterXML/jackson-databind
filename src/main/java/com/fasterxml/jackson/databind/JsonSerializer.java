@@ -16,16 +16,9 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * Abstract class that defines API used by {@link ObjectMapper} (and
  * other chained {@link JsonSerializer}s too) to serialize Objects of
  * arbitrary types into JSON, using provided {@link JsonGenerator}.
- * {@link com.fasterxml.jackson.databind.ser.std.StdSerializer} instead
- * of this class, since it will implement many of optional
- * methods of this class.
- *<p>
- * NOTE: various <code>serialize</code> methods are never (to be) called
- * with null values -- caller <b>must</b> handle null values, usually
- * by calling {@link SerializerProvider#findNullValueSerializer} to obtain
- * serializer to use.
- * This also means that custom serializers cannot be directly used to change
- * the output to produce when serializing null values.
+ * Note that although API is defined here, custom serializer implementations
+ * should almost always be based on {@link com.fasterxml.jackson.databind.ser.std.StdSerializer} 
+ * since it will implement many of optional methods of this class.
  *<p>
  * If serializer is an aggregate one -- meaning it delegates handling of some
  * of its contents by using other serializer(s) -- it typically also needs
@@ -35,23 +28,34 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * resolution of secondary serializers (which may have cyclic link back
  * to serializer itself, directly or indirectly).
  *<p>
- * In addition, to support per-property annotations (to configure aspects
- * of serialization on per-property basis), serializers may want
- * to implement 
- * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer},
- * which allows specialization of serializers: call to
- * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer#createContextual}
- * is passed information on property, and can create a newly configured
- * serializer for handling that particular property.
+ * Initialization of serializers is handled by two main methods:
+ *<ol>
+ *  <li>{@link #resolve}: called after instance is configured to be used for specific type,
+ *     but without yet knowing property it will be used for (or, in case of root values, without property).
+ *     Method needs to be implemented for serializers that may work on cyclic types, and specifically
+ *     is implemented by standard POJO serializer ({@code BeanSerializer}). It is usually not needed for
+ *     container types as their type definitions are not cyclic, unlike some POJO types.
+ *  <li>{@link #createContextual}: called on resolved instance (whether newly created, or found via cache),
+ *     when serializer is to be used for specific property, or as root value serializer (no referring property).
+ *     It is used to apply annotations from property accessors (getter, field), and may also be used for resolving
+ *     nested types for container serializers (such as ones for {@link java.util.Collection}s).
+ * </ol>
+ * Caching of serializers occurs after {@link #resolve} is called: cached instances are not contextual.
  *<p>
- * Resolution of serializers occurs before contextualization.
+ * NOTE: various <code>serialize</code> methods are never (to be) called
+ * with null values -- caller <b>must</b> handle null values, usually
+ * by calling {@link SerializerProvider#findNullValueSerializer} to obtain
+ * serializer to use.
+ * This also means that custom serializers cannot be directly used to change
+ * the output to produce when serializing null values.
  */
 public abstract class JsonSerializer<T>
     implements JsonFormatVisitable
 {
     /*
     /**********************************************************
-    /* Initialization, with former `ResolvableSerializer`
+    /* Initialization, with former `ResolvableSerializer`,
+    /* `ContextualSerializer`.
     /**********************************************************
      */
 
@@ -69,6 +73,35 @@ public abstract class JsonSerializer<T>
      */
     public void resolve(SerializerProvider provider) throws JsonMappingException {
         // Default implementation does nothing
+    }
+
+    /**
+     * Method called to see if a different (or differently configured) serializer
+     * is needed to serialize values of specified property (or, for root values, in which
+     * case `null` is passed).
+     * Note that instance that this method is called on is typically shared one and
+     * as a result method should <b>NOT</b> modify this instance but rather construct
+     * and return a new instance. This instance should only be returned as-is, in case
+     * it is already suitable for use.
+     *<p>
+     * Note that method is only called once per POJO property, and for the first usage as root
+     * value serializer; it is not called for every serialization, as doing that would have
+     * significant performance impact; most serializers cache contextual instances for future
+     * use.
+     * 
+     * @param prov Serializer provider to use for accessing config, other serializers
+     * @param property Property (defined by one or more accessors - field or method - used
+     *     for accessing logical property value) for which serializer is used to be used;
+     *     or, `null` for root value (or in cases where caller does not have this information,
+     *     which is handled as root value case).
+     * 
+     * @return Serializer to use for serializing values of specified property;
+     *   may be this instance or a new instance.
+     */
+    public JsonSerializer<?> createContextual(SerializerProvider prov,
+            BeanProperty property) throws JsonMappingException {
+        // default implementation returns instance unmodified
+        return this;
     }
 
     /*

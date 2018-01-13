@@ -103,7 +103,6 @@ public class TestBeanDeserializer extends BaseMapTest
         public String name, value;
     }
     static class Issue476Deserializer extends BeanDeserializer
-        implements ContextualDeserializer
     {
         protected static int propCount;
 

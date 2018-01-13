@@ -25,10 +25,9 @@ import com.fasterxml.jackson.databind.util.FullyNamed;
  *<p>
  * Instances are not typically passed when constructing serializers
  * and deserializers, but rather only passed when context
- * is known when
- * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer} and
- * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}
- * resolution occurs (<code>createContextual(...)</code> method is called).
+ * is known and
+ * {@link JsonSerializer#createContextual} and
+ * {@link JsonDeserializer#createContextual} are called.
  * References may (need to) be retained by serializers and deserializers,
  * especially when further resolving dependent handlers like value
  * serializers/deserializers or structured types.

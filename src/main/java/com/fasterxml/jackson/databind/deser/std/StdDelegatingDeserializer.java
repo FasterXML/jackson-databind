@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -31,7 +30,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public class StdDelegatingDeserializer<T>
     extends StdDeserializer<T>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 

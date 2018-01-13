@@ -167,7 +167,6 @@ public class TestCustomDeserializers
     }
 
     static class Bean375OuterDeserializer extends StdDeserializer<Bean375Outer>
-        implements ContextualDeserializer
     {
         protected BeanProperty prop;
         
@@ -191,7 +190,6 @@ public class TestCustomDeserializers
     }
 
     static class Bean375InnerDeserializer extends StdDeserializer<Bean375Inner>
-        implements ContextualDeserializer
     {
         protected boolean negative;
         

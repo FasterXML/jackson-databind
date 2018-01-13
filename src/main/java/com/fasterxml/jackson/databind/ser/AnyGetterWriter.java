@@ -96,12 +96,10 @@ public class AnyGetterWriter
     public void resolve(SerializerProvider provider) throws JsonMappingException
     {
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-        if (_serializer instanceof ContextualSerializer) {
-            JsonSerializer<?> ser = provider.handlePrimaryContextualization(_serializer, _property);
-            _serializer = (JsonSerializer<Object>) ser;
-            if (ser instanceof MapSerializer) {
-                _mapSerializer = (MapSerializer) ser;
-            }
+        JsonSerializer<?> ser = provider.handlePrimaryContextualization(_serializer, _property);
+        _serializer = (JsonSerializer<Object>) ser;
+        if (ser instanceof MapSerializer) {
+            _mapSerializer = (MapSerializer) ser;
         }
     }
 }

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Intermediate base class for Lists, Collections and Arrays
@@ -19,14 +18,11 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @SuppressWarnings("serial")
 public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends StdSerializer<T>
-    implements ContextualSerializer
 {
     /**
      * Setting for specific local override for "unwrap single element arrays":
      * true for enable unwrapping, false for preventing it, `null` for using
      * global configuration.
-     *
-     * @since 2.6
      */
     protected final Boolean _unwrapSingle;
 
@@ -35,18 +31,12 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         _unwrapSingle = null;
     }
 
-    /**
-     * @since 2.9
-     */
     protected StaticListSerializerBase(StaticListSerializerBase<?> src,
             Boolean unwrapSingle) {
         super(src);
         _unwrapSingle = unwrapSingle;
     }
 
-    /**
-     * @since 2.9
-     */
     public abstract JsonSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle);
 

@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @SuppressWarnings({ "unchecked", "rawtypes" }) 
 public class EnumMapDeserializer
     extends ContainerDeserializerBase<EnumMap<?,?>>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1;
 

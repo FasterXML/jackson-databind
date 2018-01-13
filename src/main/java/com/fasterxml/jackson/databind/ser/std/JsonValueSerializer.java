@@ -11,13 +11,11 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -36,11 +34,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @JacksonStdImpl
 public class JsonValueSerializer
     extends StdSerializer<Object>
-    implements ContextualSerializer, JsonFormatVisitable
 {
-    /**
-     * @since 2.9
-     */
     protected final AnnotatedMember _accessor;
 
     protected final JsonSerializer<Object> _valueSerializer;

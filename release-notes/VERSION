@@ -20,4 +20,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1790: Add `createParser` methods in `ObjectMapper`, `ObjectReader`
 #1888: Merge `ResolvableSerializer` into `JsonSerializer`, `ResolvableDeserializer`
  into `JsonDeserializer`
+#1889: Merge `ContextualSerializer` into `JsonSerializer`, `ContextualDeserializer`
+ into `JsonDeserializer`
 - Remove `MappingJsonFactory`

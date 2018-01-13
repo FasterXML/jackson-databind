@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 /**
@@ -22,7 +21,6 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 @SuppressWarnings("serial")
 public abstract class AsArraySerializerBase<T>
     extends ContainerSerializer<T>
-    implements ContextualSerializer
 {
     protected final JavaType _elementType;
 

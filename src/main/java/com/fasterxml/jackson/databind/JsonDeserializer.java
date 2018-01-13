@@ -30,11 +30,9 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  *<p>
  * In addition, to support per-property annotations (to configure aspects
  * of deserialization on per-property basis), deserializers may want
- * to implement
- * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer},
- * which allows specialization of deserializers: call to
- * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer#createContextual}
- * is passed information on property, and can create a newly configured
+ * to override
+ * {@link #createContextual} which allows specialization of deserializers:
+ * it is passed information on property, and can create a newly configured
  * deserializer for handling that particular property.
  *<br />
  * Resolution of deserializers occurs before contextualization.
@@ -44,7 +42,8 @@ public abstract class JsonDeserializer<T>
 {
     /*
     /**********************************************************
-    /* Initialization, with former `ResolvableDeserializer`
+    /* Initialization, with former `ResolvableDeserializer`,
+    /* `ContextualDeserializer`
     /**********************************************************
      */
 
@@ -60,6 +59,32 @@ public abstract class JsonDeserializer<T>
      */
     public void resolve(DeserializationContext ctxt) throws JsonMappingException {
         // Default implementation does nothing
+    }
+
+    /**
+     * Method called to see if a different (or differently configured) deserializer
+     * is needed to deserialize values of specified property.
+     * Note that instance that this method is called on is typically shared one and
+     * as a result method should <b>NOT</b> modify this instance but rather construct
+     * and return a new instance. This instance should only be returned as-is, in case
+     * it is already suitable for use.
+     * 
+     * @param ctxt Deserialization context to access configuration, additional 
+     *    deserializers that may be needed by this deserializer
+     * @param property Method, field or constructor parameter that represents the property
+     *   (and is used to assign deserialized value).
+     *   Should be available; but there may be cases where caller cannot provide it and
+     *   null is passed instead (in which case impls usually pass 'this' deserializer as is)
+     * 
+     * @return Deserializer to use for deserializing values of specified property;
+     *   may be this instance or a new instance.
+     * 
+     * @throws JsonMappingException
+     */
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException {
+        // default implementation returns instance unmodified
+        return this;
     }
 
     /*

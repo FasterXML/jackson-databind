@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 /**
@@ -23,7 +22,6 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 @SuppressWarnings("serial")
 public class ObjectArraySerializer
     extends ArraySerializerBase<Object[]>
-    implements ContextualSerializer
 {
     /**
      * Whether we are using static typing (using declared types, ignoring

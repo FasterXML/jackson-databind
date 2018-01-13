@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ext.jdk8;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
@@ -13,7 +12,7 @@ import java.util.stream.Stream;
  * Common typed stream serializer
  *
  */
-public class Jdk8StreamSerializer extends StdSerializer<Stream<?>> implements ContextualSerializer
+public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
 {
     private static final long serialVersionUID = 1L;
 

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Simple serializer for {@link java.net.InetAddress}. Main complexity is
@@ -25,7 +24,6 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @SuppressWarnings("serial")
 public class InetAddressSerializer
     extends StdScalarSerializer<InetAddress>
-    implements ContextualSerializer
 {
     /**
      * @since 2.9

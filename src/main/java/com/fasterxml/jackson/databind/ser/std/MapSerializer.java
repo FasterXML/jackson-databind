@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -34,7 +33,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @JacksonStdImpl
 public class MapSerializer
     extends ContainerSerializer<Map<?,?>>
-    implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
 

@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;
@@ -23,8 +22,8 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
  * arrays that contain non-object java primitive types.
  */
 @SuppressWarnings("serial")
-public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
-    implements ContextualDeserializer // since 2.7
+public abstract class PrimitiveArrayDeserializers<T>
+    extends StdDeserializer<T>
 {
     /**
      * Specific override for this instance (from proper, or global per-type overrides)

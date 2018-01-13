@@ -14,18 +14,13 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 
-/**
- * @since 2.5
- */
 @SuppressWarnings("serial")
 @JacksonStdImpl
 public class MapEntrySerializer
     extends ContainerSerializer<Map.Entry<?,?>>
-    implements ContextualSerializer
 {
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 

@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -18,7 +17,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @SuppressWarnings("rawtypes")
 public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L; // since 2.5
 

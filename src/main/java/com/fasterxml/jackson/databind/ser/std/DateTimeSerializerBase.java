@@ -15,13 +15,11 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 @SuppressWarnings("serial")
 public abstract class DateTimeSerializerBase<T>
     extends StdScalarSerializer<T>
-    implements ContextualSerializer
 {
     /**
      * Flag that indicates that serialization must be done as the

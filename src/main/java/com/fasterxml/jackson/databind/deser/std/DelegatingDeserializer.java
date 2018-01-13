@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
  */
 public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 

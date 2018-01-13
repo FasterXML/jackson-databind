@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.*;
  * have differing behavior depending on what kind of property is being serialized.
  *<p>
  * Note that in cases where serializer needs both contextualization and
- * resolution -- that is, implements both this interface and {@link ResolvableSerializer}
- * -- resolution via {@link ResolvableSerializer} occurs first, and contextual
+ * resolution, resolution occurs first, and contextual
  * resolution (via this interface) later on.
  */
 public interface ContextualSerializer

@@ -775,11 +775,11 @@ public class BeanSerializerFactory
                 accessor);
         // Unlike most other code paths, serializer produced
         // here will NOT be resolved or contextualized, unless done here, so:
-        if (annotatedSerializer instanceof ResolvableSerializer) {
-            ((ResolvableSerializer) annotatedSerializer).resolve(prov);
+        if (annotatedSerializer != null) {
+            annotatedSerializer.resolve(prov);
+            // 05-Sep-2013, tatu: should be primary property serializer so:
+            annotatedSerializer = prov.handlePrimaryContextualization(annotatedSerializer, property);
         }
-        // 05-Sep-2013, tatu: should be primary property serializer so:
-        annotatedSerializer = prov.handlePrimaryContextualization(annotatedSerializer, property);
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         // 16-Feb-2014, cgc: contentType serializers for collection-like and map-like types

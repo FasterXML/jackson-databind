@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -20,13 +19,11 @@ import com.fasterxml.jackson.databind.util.Converter;
  *<p>
  * Note that although types may be related, they must not be same; trying
  * to do this will result in an exception.
- *
- * @since 2.1
  */
 @SuppressWarnings("serial")
 public class StdDelegatingSerializer
     extends StdSerializer<Object>
-    implements ContextualSerializer, ResolvableSerializer,
+    implements ContextualSerializer,
         JsonFormatVisitable
 {
     protected final Converter<Object,?> _converter;
@@ -95,9 +92,8 @@ public class StdDelegatingSerializer
     @Override
     public void resolve(SerializerProvider provider) throws JsonMappingException
     {
-        if ((_delegateSerializer != null)
-                && (_delegateSerializer instanceof ResolvableSerializer)) {
-            ((ResolvableSerializer) _delegateSerializer).resolve(provider);
+        if (_delegateSerializer != null) {
+            _delegateSerializer.resolve(provider);
         }
     }
 

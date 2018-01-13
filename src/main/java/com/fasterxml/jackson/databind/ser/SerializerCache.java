@@ -160,9 +160,7 @@ public final class SerializerCache
              *   this because while we do need to register instance first, we also must
              *   keep lock until resolution is complete.
              */
-            if (ser instanceof ResolvableSerializer) {
-                ((ResolvableSerializer) ser).resolve(provider);
-            }
+            ser.resolve(provider);
         }
     }
 
@@ -179,9 +177,7 @@ public final class SerializerCache
              *   this because while we do need to register instance first, we also must
              *   keep lock until resolution is complete.
              */
-            if (ser instanceof ResolvableSerializer) {
-                ((ResolvableSerializer) ser).resolve(provider);
-            }
+            ser.resolve(provider);
         }
     }
 
@@ -202,9 +198,7 @@ public final class SerializerCache
             if ((ob1 == null) || (ob2 == null)) {
                 _readOnlyMap.set(null);
             }
-            if (ser instanceof ResolvableSerializer) {
-                ((ResolvableSerializer) ser).resolve(provider);
-            }
+            ser.resolve(provider);
         }
     }
 

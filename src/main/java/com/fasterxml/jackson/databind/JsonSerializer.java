@@ -29,8 +29,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  *<p>
  * If serializer is an aggregate one -- meaning it delegates handling of some
  * of its contents by using other serializer(s) -- it typically also needs
- * to implement {@link com.fasterxml.jackson.databind.ser.ResolvableSerializer},
- * which can locate secondary serializers needed. This is important to allow dynamic
+ * to implement {@link #resolve} which can locate secondary serializers needed.
+ * This is important to allow dynamic
  * overrides of serializers; separate call interface is needed to separate
  * resolution of secondary serializers (which may have cyclic link back
  * to serializer itself, directly or indirectly).
@@ -44,15 +44,34 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * is passed information on property, and can create a newly configured
  * serializer for handling that particular property.
  *<p>
- * If both
- * {@link com.fasterxml.jackson.databind.ser.ResolvableSerializer} and
- * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer}
- * are implemented, resolution of serializers occurs before
- * contextualization.
+ * Resolution of serializers occurs before contextualization.
  */
 public abstract class JsonSerializer<T>
     implements JsonFormatVisitable
 {
+    /*
+    /**********************************************************
+    /* Initialization, with former `ResolvableSerializer
+    /**********************************************************
+     */
+
+    /**
+     * Method called after {@link SerializerProvider} has registered
+     * the serializer, but before it has returned it to the caller.
+     * Called object can then resolve its dependencies to other types,
+     * including self-references (direct or indirect).
+     *<p>
+     * Note that this method does NOT return serializer, since resolution
+     * is not allowed to change actual serializer to use.
+     *
+     * @param provider Provider that has constructed serializer this method
+     *   is called on.
+     */
+    public void resolve(SerializerProvider provider)
+        throws JsonMappingException {
+        // Default implementation does nothing
+    }
+
     /*
     /**********************************************************
     /* Fluent factory methods for constructing decorated versions

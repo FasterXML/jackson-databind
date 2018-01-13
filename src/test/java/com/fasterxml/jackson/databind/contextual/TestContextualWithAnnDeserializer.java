@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 
 public class TestContextualWithAnnDeserializer extends BaseMapTest
 {
@@ -36,7 +35,6 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
     
     static class AnnotatedContextualDeserializer
         extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
     {
         protected final String _fieldName;
         

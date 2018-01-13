@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ser.*;
 @SuppressWarnings("serial")
 public abstract class ArraySerializerBase<T>
     extends ContainerSerializer<T>
-    implements ContextualSerializer // for 'unwrapSingleElemArray'
 {
     protected final BeanProperty _property;
 
@@ -72,27 +71,6 @@ public abstract class ArraySerializerBase<T>
         }
         return this;
     }
-    
-    /*
-    // NOTE: as of 2.5, sub-classes SHOULD override (in 2.4 and before, was final),
-    // at least if they can provide access to actual size of value and use `writeStartArray()`
-    // variant that passes size of array to output, which is helpful with some data formats
-    @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException
-    {
-        if (_shouldUnwrapSingle(provider)) {
-            if (hasSingleElement(value)) {
-                serializeContents(value, gen, provider);
-                return;
-            }
-        }
-        gen.setCurrentValue(value);
-        gen.writeStartArray();
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
-    }
-    */
 
     @Override
     public final void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,

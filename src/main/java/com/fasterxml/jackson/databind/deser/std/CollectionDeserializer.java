@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @JacksonStdImpl
 public class CollectionDeserializer
     extends ContainerDeserializerBase<Collection<Object>>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = -1L; // since 2.5
 

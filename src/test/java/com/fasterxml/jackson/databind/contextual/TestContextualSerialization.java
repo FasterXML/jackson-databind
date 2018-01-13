@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Test cases to verify that it is possible to define serializers
@@ -123,7 +122,6 @@ public class TestContextualSerialization extends BaseMapTest
      */
     static class AnnotatedContextualSerializer
         extends JsonSerializer<String>
-        implements ContextualSerializer
     {
         protected final String _prefix;
         
@@ -159,7 +157,6 @@ public class TestContextualSerialization extends BaseMapTest
 
     static class ContextualAndResolvable
         extends JsonSerializer<String>
-        implements ContextualSerializer
     {
         protected int isContextual;
         protected int isResolved;

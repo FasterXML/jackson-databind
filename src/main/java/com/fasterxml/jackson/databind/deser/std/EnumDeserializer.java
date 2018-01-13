@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -20,10 +19,9 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  * Deserializer class that can deserialize instances of
  * specified Enum class from Strings and Integers.
  */
-@JacksonStdImpl // was missing until 2.6
+@JacksonStdImpl
 public class EnumDeserializer
     extends StdScalarDeserializer<Object>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -83,8 +81,6 @@ public class EnumDeserializer
      * using a zero-/no-args factory method
      * 
      * @return Deserializer based on given no-args factory method
-     *
-     * @since 2.8
      */
     public static JsonDeserializer<?> deserializerForNoArgsCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory)
@@ -96,9 +92,6 @@ public class EnumDeserializer
         return new FactoryBasedEnumDeserializer(enumClass, factory);
     }
 
-    /**
-     * @since 2.9
-     */
     public EnumDeserializer withResolved(Boolean caseInsensitive) {
         if (_caseInsensitive == caseInsensitive) {
             return this;
@@ -106,7 +99,7 @@ public class EnumDeserializer
         return new EnumDeserializer(this, caseInsensitive);
     }
     
-    @Override // since 2.9
+    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {

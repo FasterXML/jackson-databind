@@ -5,10 +5,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -23,8 +21,6 @@ import com.fasterxml.jackson.databind.util.Converter;
 @SuppressWarnings("serial")
 public class StdDelegatingSerializer
     extends StdSerializer<Object>
-    implements ContextualSerializer,
-        JsonFormatVisitable
 {
     protected final Converter<Object,?> _converter;
 
@@ -115,7 +111,7 @@ public class StdDelegatingSerializer
                 delSer = provider.findValueSerializer(delegateType);
             }
         }
-        if (delSer instanceof ContextualSerializer) {
+        if (delSer != null) {
             delSer = provider.handleSecondaryContextualization(delSer, property);
         }
         if (delSer == _delegateSerializer && delegateType == _delegateType) {

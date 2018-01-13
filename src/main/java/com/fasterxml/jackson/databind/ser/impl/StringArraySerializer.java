@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.ArraySerializerBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -22,7 +21,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 @SuppressWarnings("serial")
 public class StringArraySerializer
     extends ArraySerializerBase<String[]>
-    implements ContextualSerializer
 {
     /* Note: not clean in general, but we are betting against
      * anyone re-defining properties of String.class here...

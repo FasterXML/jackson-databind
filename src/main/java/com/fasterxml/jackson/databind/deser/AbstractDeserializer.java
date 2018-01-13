@@ -25,8 +25,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public class AbstractDeserializer
     extends JsonDeserializer<Object>
-    implements ContextualDeserializer, // since 2.9
-        java.io.Serializable
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 

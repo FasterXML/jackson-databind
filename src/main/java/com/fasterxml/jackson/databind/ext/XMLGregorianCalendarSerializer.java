@@ -13,14 +13,12 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 @SuppressWarnings("serial")
 public class XMLGregorianCalendarSerializer
     extends StdSerializer<XMLGregorianCalendar>
-    implements ContextualSerializer
 {
     final static XMLGregorianCalendarSerializer instance = new XMLGregorianCalendarSerializer();
 

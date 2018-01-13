@@ -121,7 +121,7 @@ public final class DeserializerCache
      *<p>
      * Note also that deserializer returned is guaranteed to be resolved
      * (see {@link JsonDeserializer#resolve}), but
-     * not contextualized (wrt {@link ContextualDeserializer}): caller
+     * not contextualized (wrt {@link JsonDeserializer#createContextual}): caller
      * has to handle latter if necessary.
      *
      * @param ctxt Deserialization context

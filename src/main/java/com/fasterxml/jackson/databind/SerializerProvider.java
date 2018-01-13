@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -1021,9 +1020,8 @@ public abstract class SerializerProvider
      * Method that can be called to construct and configure serializer instance,
      * either given a {@link Class} to instantiate (with default constructor),
      * or an uninitialized serializer instance.
-     * Either way, serialize will be properly resolved
-     * (via {@link com.fasterxml.jackson.databind.JsonSerializer#resolve}) and/or contextualized
-     * (via {@link com.fasterxml.jackson.databind.ser.ContextualSerializer}) as necessary.
+     * Either way, serializer will be properly resolved
+     * (via {@link com.fasterxml.jackson.databind.JsonSerializer#resolve}).
      * 
      * @param annotated Annotated entity that contained definition
      * @param serDef Serializer definition: either an instance or class
@@ -1039,8 +1037,6 @@ public abstract class SerializerProvider
      *
      * @param forProperty (optional) If filter is created for a property, that property;
      *    `null` if filter created via defaulting, global or per-type.
-     *
-     * @since 2.9
      */
     public abstract Object includeFilterInstance(BeanPropertyDefinition forProperty,
             Class<?> filterClass)
@@ -1049,8 +1045,6 @@ public abstract class SerializerProvider
     /**
      * Follow-up method that may be called after calling {@link #includeFilterInstance},
      * to check handling of `null` values by the filter.
-     *
-     * @since 2.9
      */
     public abstract boolean includeFilterSuppressNulls(Object filter)
         throws JsonMappingException;
@@ -1064,8 +1058,8 @@ public abstract class SerializerProvider
     /**
      * Method called for primary property serializers (ones
      * directly created to serialize values of a POJO property),
-     * to handle details of resolving
-     * {@link ContextualSerializer} with given property context.
+     * to handle details of contextualization, calling
+     * {@link JsonSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
      * 
      * @param property Property for which the given primary serializer is used; never null.
      */
@@ -1074,9 +1068,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         if (ser != null) {
-            if (ser instanceof ContextualSerializer) {
-                ser = ((ContextualSerializer) ser).createContextual(this, property);
-            }
+            ser = ser.createContextual(this, property);
         }
         return ser;
     }
@@ -1086,29 +1078,25 @@ public abstract class SerializerProvider
      * NOT directly created to serialize values of a POJO property
      * but instead created as a dependant serializer -- such as value serializers
      * for structured types, or serializers for root values)
-     * to handle details of resolving
-     * {@link ContextualDeserializer} with given property context.
+     * to handle details of contextualization, calling
+     * {@link JsonSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
      * Given that these serializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
      * 
      * @param property Property for which serializer is used, if any; null
      *    when deserializing root values
-     * 
-     * @since 2.3
      */
     public JsonSerializer<?> handleSecondaryContextualization(JsonSerializer<?> ser,
             BeanProperty property)
         throws JsonMappingException
     {
         if (ser != null) {
-            if (ser instanceof ContextualSerializer) {
-                ser = ((ContextualSerializer) ser).createContextual(this, property);
-            }
+            ser = ser.createContextual(this, property);
         }
         return ser;
     }
-    
+
     /*
     /********************************************************
     /* Convenience methods for serializing using default methods

@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
@@ -68,7 +67,6 @@ public class DateDeserializers
 
     protected abstract static class DateBasedDeserializer<T>
         extends StdScalarDeserializer<T>
-        implements ContextualDeserializer
     {
         /**
          * Specific format to use, if non-null; if null will

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided
@@ -46,7 +45,7 @@ public class NumberSerializers {
      */
 
     protected abstract static class Base<T> extends StdScalarSerializer<T>
-            implements ContextualSerializer {
+    {
         protected final JsonParser.NumberType _numberType;
         protected final String _schemaType;
         protected final boolean _isInt;

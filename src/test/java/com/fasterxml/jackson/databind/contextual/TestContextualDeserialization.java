@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -88,7 +87,6 @@ public class TestContextualDeserialization extends BaseMapTest
     
     static class MyContextualDeserializer
         extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
     {
         protected final String _fieldName;
         
@@ -118,7 +116,6 @@ public class TestContextualDeserialization extends BaseMapTest
      */
     static class AnnotatedContextualDeserializer
         extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
     {
         protected final String _fieldName;
         
@@ -149,7 +146,6 @@ public class TestContextualDeserialization extends BaseMapTest
 
     static class GenericStringDeserializer
         extends StdScalarDeserializer<Object>
-        implements ContextualDeserializer
     {
         final String _value;
 

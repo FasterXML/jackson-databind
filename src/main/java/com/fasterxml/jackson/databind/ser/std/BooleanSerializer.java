@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Serializer used for primitive boolean, as well as java.util.Boolean
@@ -25,7 +24,6 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @JacksonStdImpl
 public final class BooleanSerializer
     extends StdScalarSerializer<Object>
-    implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -75,12 +73,9 @@ public final class BooleanSerializer
     /**
      * Alternate implementation that is used when values are to be serialized
      * as numbers <code>0</code> (false) or <code>1</code> (true).
-     * 
-     * @since 2.9
      */
     final static class AsNumber
         extends StdScalarSerializer<Object>
-        implements ContextualSerializer
     {
         private static final long serialVersionUID = 1L;
 

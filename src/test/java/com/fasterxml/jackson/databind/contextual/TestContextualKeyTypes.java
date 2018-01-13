@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -27,7 +26,6 @@ public class TestContextualKeyTypes extends BaseMapTest
 
     static class ContextualKeySerializer
         extends JsonSerializer<String>
-        implements ContextualSerializer
     {
         protected final String _prefix;
     

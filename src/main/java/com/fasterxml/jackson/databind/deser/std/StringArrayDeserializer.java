@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -24,7 +23,6 @@ public final class StringArrayDeserializer
 //    extends ContainerDeserializerBase<String[]>
 // but for now won't:
     extends StdDeserializer<String[]>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 2L;
 

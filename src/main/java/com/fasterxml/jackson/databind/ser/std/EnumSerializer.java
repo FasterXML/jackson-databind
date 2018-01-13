@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
 /**
@@ -24,7 +23,6 @@ import com.fasterxml.jackson.databind.util.EnumValues;
 @JacksonStdImpl
 public class EnumSerializer
     extends StdScalarSerializer<Enum<?>>
-    implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
 

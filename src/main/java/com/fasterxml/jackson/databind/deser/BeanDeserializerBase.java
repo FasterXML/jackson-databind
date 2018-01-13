@@ -25,8 +25,7 @@ import com.fasterxml.jackson.databind.util.*;
  */
 public abstract class BeanDeserializerBase
     extends StdDeserializer<Object>
-    implements ContextualDeserializer,
-        ValueInstantiator.Gettable,
+    implements ValueInstantiator.Gettable,
         java.io.Serializable
 {
     private static final long serialVersionUID = 1;

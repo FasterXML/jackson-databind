@@ -100,8 +100,8 @@ public interface Deserializers
      *    the type information deserializer to use; should usually be used as is when constructing
      *    array deserializer.
      * @param elementDeserializer Deserializer to use for elements, if explicitly defined (by using
-     *    annotations, for exmple). May be null, in which case it should be resolved here (or using
-     *    {@link ResolvableDeserializer} callback)
+     *    annotations, for example). May be null, in which case it will need to be resolved
+     *    by deserializer at a later point.
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
@@ -110,7 +110,6 @@ public interface Deserializers
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException;
 
-    
     /**
      * Method called to locate serializer for specified {@link java.util.Collection} (List, Set etc) type.
      *<p>
@@ -127,8 +126,8 @@ public interface Deserializers
      *    the type information deserializer to use; should usually be used as is when constructing
      *    array deserializer.
      * @param elementDeserializer Deserializer to use for elements, if explicitly defined (by using
-     *    annotations, for exmple). May be null, in which case it should be resolved here (or using
-     *    {@link ResolvableDeserializer} callback)
+     *    annotations, for example). May be null, in which case it will need to be resolved
+     *    by deserializer at a later point.
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
@@ -155,8 +154,8 @@ public interface Deserializers
      *    the type information deserializer to use; should usually be used as is when constructing
      *    array deserializer.
      * @param elementDeserializer Deserializer to use for elements, if explicitly defined (by using
-     *    annotations, for exmple). May be null, in which case it should be resolved here (or using
-     *    {@link ResolvableDeserializer} callback)
+     *    annotations, for example). May be null, in which case it will need to be resolved
+     *    by deserializer at a later point.
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
@@ -176,7 +175,7 @@ public interface Deserializers
      * Similarly, a {@link KeyDeserializer} may be passed, but this is only done if there is
      * a specific configuration override (annotations) to indicate instance to use.
      * Otherwise null is passed, and key deserializer needs to be obtained later during
-     * resolution (using {@link ResolvableDeserializer#resolve}).
+     * resolution of map serializer constructed here.
      * 
      * @param type Type of {@link java.util.Map} instances to deserialize
      * @param config Configuration in effect
@@ -188,8 +187,8 @@ public interface Deserializers
      *    the type information deserializer to use; should usually be used as is when constructing
      *    array deserializer.
      * @param elementDeserializer Deserializer to use for elements, if explicitly defined (by using
-     *    annotations, for exmple). May be null, in which case it should be resolved here (or using
-     *    {@link ResolvableDeserializer} callback)
+     *    annotations, for example). May be null, in which case it will need to be resolved
+     *    by deserializer at a later point.
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
@@ -212,7 +211,7 @@ public interface Deserializers
      * Similarly, a {@link KeyDeserializer} may be passed, but this is only done if there is
      * a specific configuration override (annotations) to indicate instance to use.
      * Otherwise null is passed, and key deserializer needs to be obtained later during
-     * resolution (using {@link ResolvableDeserializer#resolve}).
+     * resolution, by deserializer constructed here.
      * 
      * @param type Type of {@link java.util.Map} instances to deserialize
      * @param config Configuration in effect
@@ -224,8 +223,8 @@ public interface Deserializers
      *    the type information deserializer to use; should usually be used as is when constructing
      *    array deserializer.
      * @param elementDeserializer Deserializer to use for elements, if explicitly defined (by using
-     *    annotations, for exmple). May be null, in which case it should be resolved here (or using
-     *    {@link ResolvableDeserializer} callback)
+     *    annotations, for example). May be null, in which case it will need to be resolved
+     *    by deserializer at a later point.
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */

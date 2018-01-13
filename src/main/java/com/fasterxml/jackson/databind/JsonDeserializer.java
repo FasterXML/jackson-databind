@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  *<p>
  * If deserializer is an aggregate one -- meaning it delegates handling of some
  * of its contents by using other deserializer(s) -- it typically also needs
- * to implement {@link com.fasterxml.jackson.databind.deser.ResolvableDeserializer},
+ * to implement {@link #resolve}
  * which can locate dependant deserializers. This is important to allow dynamic
  * overrides of deserializers; separate call interface is needed to separate
  * resolution of dependant deserializers (which may have cyclic link back
@@ -36,16 +36,32 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer#createContextual}
  * is passed information on property, and can create a newly configured
  * deserializer for handling that particular property.
- *<p>
- * If both
- * {@link com.fasterxml.jackson.databind.deser.ResolvableDeserializer} and
- * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}
- * are implemented, resolution of deserializers occurs before
- * contextualization.
+ *<br />
+ * Resolution of deserializers occurs before contextualization.
  */
 public abstract class JsonDeserializer<T>
     implements NullValueProvider
 {
+    /*
+    /**********************************************************
+    /* Initialization, with former `ResolvableDeserializer`
+    /**********************************************************
+     */
+
+    /**
+     * Method called after deserializer instance has been constructed
+     * (and registered as necessary by provider objects),
+     * but before it has returned it to the caller.
+     * Called object can then resolve its dependencies to other types,
+     * including self-references (direct or indirect).
+     *
+     * @param ctxt Context to use for accessing configuration, resolving
+     *    secondary deserializers
+     */
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
+        // Default implementation does nothing
+    }
+
     /*
     /**********************************************************
     /* Main deserialization methods
@@ -209,14 +225,14 @@ public abstract class JsonDeserializer<T>
      * usable for other properties of same type (type for which instance
      * was created).
      *<p>
-     * Note that cached instances are still resolved on per-property basis,
-     * if instance implements {@link com.fasterxml.jackson.databind.deser.ResolvableDeserializer}:
-     * cached instance is just as the base. This means that in most cases it is safe to
+     * Note that cached instances are still contextualized on per-property basis
+     * (but note that {@link JsonDeserializer#resolve(DeserializationContext)}d
+     * just once!)
+     * This means that in most cases it is safe to
      * cache instances; however, it only makes sense to cache instances
      * if instantiation is expensive, or if instances are heavy-weight.
      *<p>
-     * Default implementation returns false, to indicate that no caching
-     * is done.
+     * Default implementation returns false, to indicate that no caching is done.
      */
     public boolean isCachable() { return false; }
 

@@ -5,11 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -24,7 +20,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @SuppressWarnings({ "unchecked", "rawtypes" }) 
 public class EnumMapDeserializer
     extends ContainerDeserializerBase<EnumMap<?,?>>
-    implements ContextualDeserializer, ResolvableDeserializer
+    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1;
 

@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-/**
+/*
  * Interface used to indicate deserializers that want to do post-processing
  * after construction but before being returned to caller (and possibly cached)
  * and used.
@@ -27,19 +27,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * resolution -- that is, implements both this interface and {@link ContextualDeserializer}
  * -- resolution via this interface occurs first, and contextual
  * resolution (using {@link ContextualDeserializer}) later on.
+ *
+ * @deprecated Since 3.0: method demoted to <code>JsonSerializer</code>
  */
+/**
+ * Leftover interface from 2.x: method now merged in <code>JsonSerializer</code>
+ *
+ * @deprecated Since 3.0: method demoted to <code>JsonSerializer</code>
+*/
+@Deprecated
 public interface ResolvableDeserializer
 {
-    /**
-     * Method called after deserializer instance has been constructed
-     * (and registered as necessary by provider objects),
-     * but before it has returned it to the caller.
-     * Called object can then resolve its dependencies to other types,
-     * including self-references (direct or indirect).
-     *
-     * @param ctxt Context to use for accessing configuration, resolving
-     *    secondary deserializers
-     */
     public abstract void resolve(DeserializationContext ctxt)
         throws JsonMappingException;
 }

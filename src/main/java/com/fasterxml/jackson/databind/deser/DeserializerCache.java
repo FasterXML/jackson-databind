@@ -120,7 +120,7 @@ public final class DeserializerCache
      * Key deserializers can be accessed using {@link #findKeyDeserializer}.
      *<p>
      * Note also that deserializer returned is guaranteed to be resolved
-     * (if it is of type {@link ResolvableDeserializer}), but
+     * (see {@link JsonDeserializer#resolve}), but
      * not contextualized (wrt {@link ContextualDeserializer}): caller
      * has to handle latter if necessary.
      *
@@ -168,9 +168,7 @@ public final class DeserializerCache
             return _handleUnknownKeyDeserializer(ctxt, type);
         }
         // First: need to resolve?
-        if (kd instanceof ResolvableDeserializer) {
-            ((ResolvableDeserializer) kd).resolve(ctxt);
-        }
+        kd.resolve(ctxt);
         return kd;
     }
 
@@ -288,9 +286,10 @@ public final class DeserializerCache
         /* Need to resolve? Mostly done for bean deserializers; required for
          * resolving cyclic references.
          */
-        if (deser instanceof ResolvableDeserializer) {
-            _incompleteDeserializers.put(type, deser);
-            ((ResolvableDeserializer)deser).resolve(ctxt);
+        _incompleteDeserializers.put(type, deser);
+        try {
+            deser.resolve(ctxt);
+        } finally {
             _incompleteDeserializers.remove(type);
         }
         if (addToCache) {

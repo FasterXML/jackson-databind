@@ -576,13 +576,11 @@ public abstract class DeserializationContext
      * performing any contextualization (unlike {@link #findContextualValueDeserializer})
      * or checking for need to create a {@link TypeDeserializer} (unlike
      * {@link #findRootValueDeserializer(JavaType)}.
-     * This method is usually called from within {@link ResolvableDeserializer#resolve},
+     * This method is usually called from within {@link JsonDeserializer#resolve},
      * and expectation is that caller then calls either
      * {@link #handlePrimaryContextualization(JsonDeserializer, BeanProperty, JavaType)} or
      * {@link #handleSecondaryContextualization(JsonDeserializer, BeanProperty, JavaType)} at a
      * later point, as necessary.
-     *
-     * @since 2.5
      */
     public final JsonDeserializer<Object> findNonContextualValueDeserializer(JavaType type)
         throws JsonMappingException

@@ -1022,7 +1022,7 @@ public abstract class SerializerProvider
      * either given a {@link Class} to instantiate (with default constructor),
      * or an uninitialized serializer instance.
      * Either way, serialize will be properly resolved
-     * (via {@link com.fasterxml.jackson.databind.ser.ResolvableSerializer}) and/or contextualized
+     * (via {@link com.fasterxml.jackson.databind.JsonSerializer#resolve}) and/or contextualized
      * (via {@link com.fasterxml.jackson.databind.ser.ContextualSerializer}) as necessary.
      * 
      * @param annotated Annotated entity that contained definition
@@ -1455,9 +1455,7 @@ public abstract class SerializerProvider
             BeanProperty property)
         throws JsonMappingException
     {
-        if (ser instanceof ResolvableSerializer) {
-            ((ResolvableSerializer) ser).resolve(this);
-        }
+        ser.resolve(this);
         return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
     }
 
@@ -1465,9 +1463,7 @@ public abstract class SerializerProvider
     protected JsonSerializer<Object> _handleResolvable(JsonSerializer<?> ser)
         throws JsonMappingException
     {
-        if (ser instanceof ResolvableSerializer) {
-            ((ResolvableSerializer) ser).resolve(this);
-        }
+        ser.resolve(this);
         return (JsonSerializer<Object>) ser;
     }
 
@@ -1482,10 +1478,9 @@ public abstract class SerializerProvider
         if (_dateFormat != null) {
             return _dateFormat;
         }
-        /* At this point, all timezone configuration should have occurred, with respect
-         * to default dateformat configuration. But we still better clone
-         * an instance as formatters are stateful, not thread-safe.
-         */
+        // At this point, all timezone configuration should have occurred, with respect
+        // to default dateformat configuration. But we still better clone
+        // an instance as formatters are stateful, not thread-safe.
         DateFormat df = _config.getDateFormat();
         _dateFormat = df = (DateFormat) df.clone();
         // [databind#939]: 26-Sep-2015, tatu: With 2.6, formatter has been (pre)configured

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 
 public class TestWithGenerics extends BaseMapTest
 {
@@ -67,10 +66,7 @@ public class TestWithGenerics extends BaseMapTest
         public String someValue = UUID.randomUUID().toString();
     }
     
-    // Beans for [JACKSON-430]
-    
     static class CustomJsonSerializer extends JsonSerializer<Object>
-        implements ResolvableSerializer
     {
         private final JsonSerializer<Object> beanSerializer;
     
@@ -96,9 +92,7 @@ public class TestWithGenerics extends BaseMapTest
         @Override
         public void resolve(SerializerProvider provider) throws JsonMappingException
         {
-            if (beanSerializer instanceof ResolvableSerializer) {
-                ((ResolvableSerializer) beanSerializer).resolve(provider);
-            }
+            beanSerializer.resolve(provider);
         }
     }
     

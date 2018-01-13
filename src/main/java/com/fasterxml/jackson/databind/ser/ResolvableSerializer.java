@@ -8,12 +8,10 @@ import com.fasterxml.jackson.databind.*;
  * but before being used. This is typically used to resolve references
  * to other contained types; for example, bean serializers use this
  * to eagerly find serializers for contained field types.
- *<p>
- * Note that in cases where serializer needs both contextualization and
- * resolution -- that is, implements both this interface and {@link ContextualSerializer}
- * -- resolution via this interface occurs first, and contextual
- * resolution (using {@link ContextualSerializer}) later on.
+ *
+ * @deprecated Since 3.0: method demoted to <code>JsonSerializer</code>
  */
+@Deprecated
 public interface ResolvableSerializer
 {
     /**

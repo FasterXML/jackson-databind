@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 @SuppressWarnings("serial")
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
-    implements ContextualSerializer, ResolvableSerializer,
+    implements ContextualSerializer,
         JsonFormatVisitable
 {
     protected final static PropertyName NAME_FOR_OBJECT_REF = new PropertyName("#object-ref");
@@ -265,8 +265,8 @@ public abstract class BeanSerializerBase
      */
 
     /**
-     * We need to implement {@link ResolvableSerializer} to be able to
-     * properly handle cyclic type references.
+     * We need to resolve dependant serializers here
+     * to be able to properly handle cyclic type references.
      */
     @Override
     public void resolve(SerializerProvider provider)

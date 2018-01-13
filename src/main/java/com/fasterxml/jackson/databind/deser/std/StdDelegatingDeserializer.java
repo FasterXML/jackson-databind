@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -27,14 +26,12 @@ import com.fasterxml.jackson.databind.util.Converter;
  * 
  * @param <T> Target type to convert to, from delegate type
  * 
- * @since 2.1
- * 
  * @see StdNodeBasedDeserializer
  * @see Converter
  */
 public class StdDelegatingDeserializer<T>
     extends StdDeserializer<T>
-    implements ContextualDeserializer, ResolvableDeserializer
+    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -112,8 +109,9 @@ public class StdDelegatingDeserializer<T>
     public void resolve(DeserializationContext ctxt)
         throws JsonMappingException
     {
-        if (_delegateDeserializer != null && _delegateDeserializer instanceof ResolvableDeserializer) {
-            ((ResolvableDeserializer) _delegateDeserializer).resolve(ctxt);
+        if (_delegateDeserializer != null) {
+            _delegateDeserializer.resolve(ctxt);
+            
         }
     }
 

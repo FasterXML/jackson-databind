@@ -234,9 +234,7 @@ public abstract class DefaultDeserializationContext
             }
         }
         // First: need to resolve
-        if (deser instanceof ResolvableDeserializer) {
-            ((ResolvableDeserializer) deser).resolve(this);
-        }
+        deser.resolve(this);
         return (JsonDeserializer<Object>) deser;
     }
 
@@ -275,9 +273,7 @@ public abstract class DefaultDeserializationContext
             }
         }
         // First: need to resolve
-        if (deser instanceof ResolvableDeserializer) {
-            ((ResolvableDeserializer) deser).resolve(this);
-        }
+        deser.resolve(this);
         return deser;
     }
 

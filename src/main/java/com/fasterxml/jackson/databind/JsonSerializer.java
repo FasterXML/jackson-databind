@@ -51,7 +51,7 @@ public abstract class JsonSerializer<T>
 {
     /*
     /**********************************************************
-    /* Initialization, with former `ResolvableSerializer
+    /* Initialization, with former `ResolvableSerializer`
     /**********************************************************
      */
 
@@ -67,8 +67,7 @@ public abstract class JsonSerializer<T>
      * @param provider Provider that has constructed serializer this method
      *   is called on.
      */
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException {
+    public void resolve(SerializerProvider provider) throws JsonMappingException {
         // Default implementation does nothing
     }
 

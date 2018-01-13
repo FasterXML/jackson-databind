@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -14,12 +13,9 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  *
  * @param <T> Target type of this deserializer; that is, type of values that
  *   input data is deserialized into.
- * 
- * @since 2.5
  */
 public abstract class StdNodeBasedDeserializer<T>
     extends StdDeserializer<T>
-    implements ResolvableDeserializer
 {
     private static final long serialVersionUID = 1L;
 

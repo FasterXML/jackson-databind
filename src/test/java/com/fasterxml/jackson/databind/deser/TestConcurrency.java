@@ -39,7 +39,6 @@ public class TestConcurrency extends BaseMapTest
      */
     static class TestBeanDeserializer
         extends JsonDeserializer<Bean>
-        implements ResolvableDeserializer
     {
         protected volatile boolean resolved = false;
         

@@ -11,8 +11,7 @@ import com.fasterxml.jackson.databind.*;
  * have differing behavior depending on what kind of property is being deserialized.
  *<p>
  * Note that in cases where deserializer needs both contextualization and
- * resolution -- that is, implements both this interface and {@link ResolvableDeserializer}
- * -- resolution via {@link ResolvableDeserializer} occurs first, and contextual
+ * resolution -- resolution occurs first, and contextual
  * resolution (via this interface) later on.
  */
 public interface ContextualDeserializer

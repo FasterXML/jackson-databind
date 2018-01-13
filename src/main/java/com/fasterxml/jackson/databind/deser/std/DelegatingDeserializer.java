@@ -15,12 +15,10 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
  * that mostly delegate functionality to another deserializer implementation
  * (possibly forming a chaing of deserializers delegating functionality
  * in some cases)
- * 
- * @since 2.1
  */
 public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>
-    implements ContextualDeserializer, ResolvableDeserializer
+    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -54,8 +52,8 @@ public abstract class DelegatingDeserializer
 
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException {
-        if (_delegatee instanceof ResolvableDeserializer) {
-            ((ResolvableDeserializer) _delegatee).resolve(ctxt);
+        if (_delegatee != null) {
+            _delegatee.resolve(ctxt);
         }
     }
 

@@ -18,4 +18,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by timo-schmid@github)
 #1789: Add `createGenerator` methods in `ObjectMapper`, `ObjectWriter`
 #1790: Add `createParser` methods in `ObjectMapper`, `ObjectReader`
+#1888: Merge `ResolvableSerializer` into `JsonSerializer`, `ResolvableDeserializer`
+ into `JsonDeserializer`
 - Remove `MappingJsonFactory`

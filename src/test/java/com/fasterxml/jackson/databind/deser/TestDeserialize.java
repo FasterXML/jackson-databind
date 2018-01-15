@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.beans.ConstructorProperties;
 import java.io.IOException;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,16 +22,75 @@ public class TestDeserialize {
 	}
 
 	@Test
-	public void deserialize() throws IOException {
+	public void deserialize_annotations_one_field() throws IOException {
+		String json = "{\"testEnum\":\"\"}";
+
+		PersonAnnotations person = this.objectMapper.readValue(json, PersonAnnotations.class);
+
+		MatcherAssert.assertThat(person.getTestEnum(), is(nullValue()));
+	}
+
+	@Test
+	public void deserialize_annotations_two_fields() throws IOException {
+		String json = "{\"testEnum\":\"\",\"name\":\"changyong\"}";
+
+		PersonAnnotations person = this.objectMapper.readValue(json, PersonAnnotations.class);
+
+		MatcherAssert.assertThat(person.getTestEnum(), is(nullValue()));
+		MatcherAssert.assertThat(person.getName(), is("changyong"));
+	}
+
+	@Test
+	public void deserialize_one_field() throws IOException {
+		String json = "{\"testEnum\":\"\"}";
+
+		Person person = this.objectMapper.readValue(json, Person.class);
+
+		MatcherAssert.assertThat(person.getTestEnum(), is(nullValue()));
+	}
+
+	@Test
+	public void deserialize_two_fields() throws IOException {
 		String json = "{\"testEnum\":\"\",\"name\":\"changyong\"}";
 
 		Person person = this.objectMapper.readValue(json, Person.class);
 
-		assertThat(person.getTestEnum(), is(nullValue()));
-		assertThat(person.getName(), is("changyong"));
+		MatcherAssert.assertThat(person.getTestEnum(), is(nullValue()));
+		MatcherAssert.assertThat(person.getName(), is("changyong"));
 	}
 
-	public static class Person{
+	public static class PersonAnnotations {
+		@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+		private TestEnum testEnum;
+		private String name;
+
+		public PersonAnnotations() {
+		}
+
+		@ConstructorProperties({"testEnum", "name"})
+		public PersonAnnotations(TestEnum testEnum, String name) {
+			this.testEnum = testEnum;
+			this.name = name;
+		}
+
+		public TestEnum getTestEnum() {
+			return testEnum;
+		}
+
+		public void setTestEnum(TestEnum testEnum) {
+			this.testEnum = testEnum;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+	}
+
+	public static class Person {
 		@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 		private TestEnum testEnum;
 		private String name;
@@ -38,7 +98,6 @@ public class TestDeserialize {
 		public Person() {
 		}
 
-		@ConstructorProperties({"testEnum", "name"})
 		public Person(TestEnum testEnum, String name) {
 			this.testEnum = testEnum;
 			this.name = name;

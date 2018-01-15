@@ -32,7 +32,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         @JsonFormat(with={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES })
         public Role role;
     }
-    
+
     // [databind#1438]
     static class InsensitiveCreator
     {
@@ -108,5 +108,20 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         final String json = aposToQuotes("{'VALUE':3}");
         InsensitiveCreator bean = INSENSITIVE_MAPPER.readValue(json, InsensitiveCreator.class);
         assertEquals(3, bean.v);
+    }
+
+    // And allow config overrides too
+    public void testCaseInsensitiveWithClassFormat() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(Role.class)
+            .setFormat(JsonFormat.Value.empty()
+                    .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        Role role = mapper.readValue
+                (aposToQuotes("{'id':'12','name':'Foo'}"),
+                        Role.class);
+        assertNotNull(role);
+        assertEquals("12", role.ID);
+        assertEquals("Foo", role.Name);
     }
 }

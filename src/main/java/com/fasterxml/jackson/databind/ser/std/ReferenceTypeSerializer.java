@@ -442,26 +442,27 @@ public abstract class ReferenceTypeSerializer<T>
      * serializer.
      */
     private final JsonSerializer<Object> _findCachedSerializer(SerializerProvider provider,
-            Class<?> type) throws JsonMappingException
+            Class<?> rawType) throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _dynamicSerializers.serializerFor(type);
+        JsonSerializer<Object> ser = _dynamicSerializers.serializerFor(rawType);
         if (ser == null) {
-            ser = _findSerializer(provider, type, _property);
+            // NOTE: call this instead of `map._findAndAddDynamic(...)` (which in turn calls
+            // `findAndAddSecondarySerializer`) since we may need to apply unwrapper
+            // too, before caching. But calls made are the same
+            if (_referredType.hasGenericTypes()) {
+                // [databind#1673] Must ensure we will resolve all available type information
+                //  so as not to miss generic declaration of, say, `List<GenericPojo>`...
+                JavaType fullType = provider.constructSpecializedType(_referredType, rawType);
+                ser = provider.findValueSerializer(fullType, _property);
+            } else {
+                ser = provider.findValueSerializer(rawType, _property);
+            }
             if (_unwrapper != null) {
                 ser = ser.unwrappingSerializer(_unwrapper);
             }
-            _dynamicSerializers = _dynamicSerializers.newWith(type, ser);
+            _dynamicSerializers = _dynamicSerializers.newWith(rawType, ser);
         }
         return ser;
-    }
-
-    private final JsonSerializer<Object> _findSerializer(SerializerProvider provider,
-            Class<?> type, BeanProperty prop) throws JsonMappingException
-    {
-        // 13-Mar-2017, tatu: Used to call `findTypeValueSerializer()`, but contextualization
-        //   not working for that case for some reason
-//        return provider.findTypedValueSerializer(type, true, prop);
-        return provider.findValueSerializer(type, prop);
     }
 
     private final JsonSerializer<Object> _findSerializer(SerializerProvider provider,
@@ -469,6 +470,8 @@ public abstract class ReferenceTypeSerializer<T>
     {
         // 13-Mar-2017, tatu: Used to call `findTypeValueSerializer()`, but contextualization
         //   not working for that case for some reason
+        // 15-Jan-2017, tatu: ... possibly because we need to access "secondary" serializer,
+        //   not primary (primary being one for Reference type itself, not value)
 //        return provider.findTypedValueSerializer(type, true, prop);
         return provider.findValueSerializer(type, prop);
     }

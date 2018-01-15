@@ -1,19 +1,17 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.atomic.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Unit tests for verifying serialization of simple basic non-structured
- * types; primitives (and/or their wrappers), Strings.
+ * Unit tests for verifying serialization of {@link java.util.concurrent.AtomicReference}
+ * and other atomic types, via various settings.
  */
 public class AtomicTypeSerializationTest
     extends BaseMapTest
@@ -36,6 +34,34 @@ public class AtomicTypeSerializationTest
 
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy*MM*dd")
         public AtomicReference<Date> date2;
+    }
+
+    // [databind#1673]
+    static class ContainerA {
+        public AtomicReference<Strategy> strategy =
+                new AtomicReference<>((Strategy) new Foo(42));
+    }
+
+    static class ContainerB {
+        public AtomicReference<List<Strategy>> strategy;
+        {
+            List<Strategy> list = new ArrayList<>();
+            list.add(new Foo(42));
+            strategy = new AtomicReference<>(list);
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+    @JsonSubTypes({ @JsonSubTypes.Type(name = "Foo", value = Foo.class) })
+    interface Strategy { }
+
+    static class Foo implements Strategy {
+        public int foo;
+
+        @JsonCreator
+        Foo(@JsonProperty("foo") int foo) {
+            this.foo = foo;
+        }
     }
 
     /*
@@ -90,5 +116,23 @@ public class AtomicTypeSerializationTest
         assertEquals(aposToQuotes(
                 "{'date1':'1970+01+01','date2':'1970*01*01','date':'1970/01/01'}"),
                 json);
+    }
+
+    // [databind#1673]
+    public void testPolymorphicReferenceSimple() throws Exception
+    {
+        final String EXPECTED = "{\"type\":\"Foo\",\"foo\":42}";
+        String json = MAPPER.writeValueAsString(new ContainerA());
+        assertEquals("{\"strategy\":" + EXPECTED + "}", json);
+    }
+
+    // [databind#1673]
+    public void testPolymorphicReferenceListOf() throws Exception
+    {
+        final String EXPECTED = "{\"type\":\"Foo\",\"foo\":42}";
+        // Reproduction of issue seen with scala.Option and java8 Optional types:
+        // https://github.com/FasterXML/jackson-module-scala/issues/346#issuecomment-336483326
+        String json = MAPPER.writeValueAsString(new ContainerB());
+        assertEquals("{\"strategy\":[" + EXPECTED + "]}", json);
     }
 }

@@ -728,3 +728,8 @@ Peter Jurkovic (peterjurkovic@github)
 alinakovalenko@github:
   * Reported #1844: Map "deep" merge only adds new items, but not override existing values
    (2.9.3)
+
+Pier-Luc Whissell (pwhissell@github):
+  * Reported #1673: Serialising generic value classes via Reference Types (like Optional) fails
+    to include type information
+   (2.9.4)

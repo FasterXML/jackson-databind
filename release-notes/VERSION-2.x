@@ -5,6 +5,9 @@ Project: jackson-databind
 
 2.9.4 (not yet released)
 
+#1673: Serialising generic value classes via Reference Types (like Optional) fails
+  to include type information
+ (reported by Pier-Luc W)
 #1729: Integer bounds verification when calling `TokenBuffer.getIntValue()`
  (reported by Kevin G)
 #1854: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`

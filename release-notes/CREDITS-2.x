@@ -708,6 +708,30 @@ Tim Bartley (tbartley@github)
     from generic base class
    (2.9.1)
 
+Luís Cleto (luiscleto@github)
+  * Suggested 1768: Improve `TypeFactory.constructFromCanonical()` to work with
+   `java.lang.reflect.Type.getTypeName()` format
+   (2.9.2)
+
+Vincent Demay (vdemay@github)
+  * Reported #1793: `java.lang.NullPointerException` in `ObjectArraySerializer.acceptJsonFormatVisitor()`
+    for array value with `@JsonValue`
+   (2.9.2)
+
+Peter Jurkovic (peterjurkovic@github)
+  * Reported #1823: ClassNameIdResolver doesn't handle resolve Collections$SingletonMap,
+    Collections$SingletonSet
+   (2.9.3)
+
+alinakovalenko@github:
+  * Reported #1844: Map "deep" merge only adds new items, but not override existing values
+   (2.9.3)
+
+Pier-Luc Whissell (pwhissell@github):
+  * Reported #1673: Serialising generic value classes via Reference Types (like Optional) fails
+    to include type information
+   (2.9.4)
+
 Rob Winch (rwinch@github)
   * Reported #1868: Class name handling for JDK unmodifiable Collection types changed
    (2.9.4)

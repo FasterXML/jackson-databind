@@ -20,6 +20,8 @@ Project: jackson-databind
 #1870: Remove `final` on inherited methods in `BuilderBasedDeserializer` to allow
   overriding by subclasses
   (requested by Ville K)
+#1878: `@JsonBackReference` property is always ignored when deserializing since 2.9.0
+ (reported by reda-alaoui@github)
 
 2.9.3 (09-Dec-2017)
 

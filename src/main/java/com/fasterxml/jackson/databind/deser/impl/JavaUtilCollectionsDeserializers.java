@@ -34,9 +34,27 @@ public abstract class JavaUtilCollectionsDeserializers
 
     private final static Class<?> CLASS_AS_ARRAYS_LIST = Arrays.asList(null, null).getClass();
 
-    private final static Class<?> CLASS_SINGLETON_SET = Collections.singleton(Boolean.TRUE).getClass();
-    private final static Class<?> CLASS_SINGLETON_LIST = Collections.singletonList(Boolean.TRUE).getClass();
-    private final static Class<?> CLASS_SINGLETON_MAP = Collections.singletonMap("a", "b").getClass();
+    private final static Class<?> CLASS_SINGLETON_SET;
+    private final static Class<?> CLASS_SINGLETON_LIST;
+    private final static Class<?> CLASS_SINGLETON_MAP;
+
+    private final static Class<?> CLASS_UNMODIFIABLE_SET;
+    private final static Class<?> CLASS_UNMODIFIABLE_LIST;
+    private final static Class<?> CLASS_UNMODIFIABLE_MAP;
+
+    static {
+        Set<?> set = Collections.singleton(Boolean.TRUE);
+        CLASS_SINGLETON_SET = set.getClass();
+        CLASS_UNMODIFIABLE_SET = Collections.unmodifiableSet(set).getClass();
+
+        List<?> list = Collections.singletonList(Boolean.TRUE);
+        CLASS_SINGLETON_LIST = list.getClass();
+        CLASS_UNMODIFIABLE_LIST = Collections.unmodifiableList(list).getClass();
+
+        Map<?,?> map = Collections.singletonMap("a", "b");
+        CLASS_SINGLETON_MAP = map.getClass();
+        CLASS_UNMODIFIABLE_MAP = Collections.unmodifiableMap(map).getClass();
+    }
 
     public static JsonDeserializer<?> findForCollection(DeserializationContext ctxt,
             JavaType type)
@@ -46,11 +64,15 @@ public abstract class JavaUtilCollectionsDeserializers
 
         // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays` need bit of help...
         if (type.hasRawClass(CLASS_AS_ARRAYS_LIST)) {
-            conv = converter(TYPE_AS_LIST, type);
+            conv = converter(TYPE_AS_LIST, type, List.class);
         } else if (type.hasRawClass(CLASS_SINGLETON_LIST)) {
-            conv = converter(TYPE_SINGLETON_LIST, type);
+            conv = converter(TYPE_SINGLETON_LIST, type, List.class);
         } else if (type.hasRawClass(CLASS_SINGLETON_SET)) {
-            conv = converter(TYPE_SINGLETON_SET, type);
+            conv = converter(TYPE_SINGLETON_SET, type, Set.class);
+        } else if (type.hasRawClass(CLASS_UNMODIFIABLE_LIST)) {
+            conv = converter(TYPE_UNMODIFIABLE_LIST, type, List.class);
+        } else if (type.hasRawClass(CLASS_UNMODIFIABLE_SET)) {
+            conv = converter(TYPE_UNMODIFIABLE_SET, type, Set.class);
         } else {
             return null;
         }
@@ -65,36 +87,19 @@ public abstract class JavaUtilCollectionsDeserializers
 
         // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays` need bit of help...
         if (type.hasRawClass(CLASS_SINGLETON_MAP)) {
-            conv = converter(TYPE_SINGLETON_MAP, type);
+            conv = converter(TYPE_SINGLETON_MAP, type, Map.class);
+        } else if (type.hasRawClass(CLASS_UNMODIFIABLE_MAP)) {
+            conv = converter(TYPE_UNMODIFIABLE_MAP, type, Map.class);
         } else {
             return null;
         }
         return new StdDelegatingDeserializer<Object>(conv);
     }
     
-    static JavaUtilCollectionsConverter converter(int kind, JavaType concreteType)
+    static JavaUtilCollectionsConverter converter(int kind,
+            JavaType concreteType, Class<?> rawSuper)
     {
-        JavaType inputType;
-
-        switch (kind) {
-        case TYPE_SINGLETON_SET:
-        case TYPE_UNMODIFIABLE_SET:
-            inputType = concreteType.findSuperType(Set.class);
-            break;
-
-        case TYPE_SINGLETON_MAP:
-        case TYPE_UNMODIFIABLE_MAP:
-            inputType = concreteType.findSuperType(Map.class);
-            break;
-
-        case TYPE_SINGLETON_LIST:
-        case TYPE_UNMODIFIABLE_LIST:
-        case TYPE_AS_LIST:
-        default:
-            inputType = concreteType.findSuperType(List.class);
-            break;
-        }
-        return new JavaUtilCollectionsConverter(kind, inputType);
+        return new JavaUtilCollectionsConverter(kind, concreteType.findSuperType(rawSuper));
     }
 
     /**

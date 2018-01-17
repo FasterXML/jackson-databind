@@ -52,9 +52,13 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
             return ob.toString();
         }
         // allow coercions for other scalar types
-        String text = p.getValueAsString();
-        if (text != null) {
-            return text;
+        // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
+        //   "real" scalar
+        if (t.isScalarValue()) {
+            String text = p.getValueAsString();
+            if (text != null) {
+                return text;
+            }
         }
         return (String) ctxt.handleUnexpectedToken(_valueClass, p);
     }

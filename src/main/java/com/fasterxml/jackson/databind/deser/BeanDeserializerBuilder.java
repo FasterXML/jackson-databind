@@ -192,12 +192,15 @@ public class BeanDeserializerBuilder
         //    access set early; unfortunate, but since it works....
         prop.fixAccess(_config);
         _backRefProperties.put(referenceName, prop);
-        // also: if we had property with same name, actually remove it
+        // 16-Jan-2018, tatu: As per [databind#1878] we may want to leave it as is, to allow
+        //    population for cases of "wrong direction", traversing parent first
+        //   If this causes problems should probably instead include in "ignored properties" list
+        //   Alternatively could also extend annotation to allow/disallow explicit value from input
+        /*
         if (_properties != null) {
             _properties.remove(prop.getName());
         }
-        // ??? 23-Jul-2012, tatu: Should it be included in list of all properties?
-        //   For now, won't add, since it is inferred, not explicit...
+        */
     }
 
     public void addInjectable(PropertyName propName, JavaType propType,

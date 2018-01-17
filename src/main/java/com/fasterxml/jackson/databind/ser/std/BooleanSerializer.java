@@ -127,5 +127,5 @@ public final class BooleanSerializer
             }
             return this;
         }
-}
+    }
 }

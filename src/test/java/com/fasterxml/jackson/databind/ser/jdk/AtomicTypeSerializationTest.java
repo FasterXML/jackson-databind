@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Unit tests for verifying serialization of {@link java.util.concurrent.AtomicReference}
+ * Unit tests for verifying serialization of {@link java.util.concurrent.atomic.AtomicReference}
  * and other atomic types, via various settings.
  */
 public class AtomicTypeSerializationTest

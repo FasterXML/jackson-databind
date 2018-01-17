@@ -863,8 +863,10 @@ public abstract class BasicSerializerFactory
     {
         // [databind#865]: Allow serialization "as POJO" -- note: to undo, declare
         //   serialization as `Shape.NATURAL` instead; that's JSON Object too.
-        JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-        if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
+        JsonFormat.Value formatOverride = prov.getDefaultPropertyFormat(Map.Entry.class);
+        JsonFormat.Value formatFromAnnotation = beanDesc.findExpectedFormat(null);
+        JsonFormat.Value format = JsonFormat.Value.merge(formatFromAnnotation, formatOverride);
+        if (format.getShape() == JsonFormat.Shape.OBJECT) {
             return null;
         }
         MapEntrySerializer ser = new MapEntrySerializer(valueType, keyType, valueType,

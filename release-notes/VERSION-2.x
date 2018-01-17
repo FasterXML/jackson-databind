@@ -22,6 +22,8 @@ Project: jackson-databind
   (requested by Ville K)
 #1878: `@JsonBackReference` property is always ignored when deserializing since 2.9.0
  (reported by reda-alaoui@github)
+#1895: Per-type config override "JsonFormat.Shape.OBJECT" for Map.Entry not working
+ (reported by mcortella@github)
 
 2.9.3 (09-Dec-2017)
 

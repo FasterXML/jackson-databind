@@ -99,35 +99,11 @@ public class MapEntryFormatTest extends BaseMapTest
     
     /*
     /**********************************************************
-    /* Test methods
+    /* Test methods, basic
     /**********************************************************
      */
     
     private final ObjectMapper MAPPER = newObjectMapper();
-
-    public void testAsNaturalRoundtrip() throws Exception
-    {
-        BeanWithMapEntry input = new BeanWithMapEntry("foo" ,"bar");
-        String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'entry':{'foo':'bar'}}"), json);
-        BeanWithMapEntry result = MAPPER.readValue(json, BeanWithMapEntry.class);
-        assertEquals("foo", result.entry.getKey());
-        assertEquals("bar", result.entry.getValue());
-    }
-    // should work via class annotation
-    public void testAsObjectRoundtrip() throws Exception
-    {
-        MapEntryAsObject input = new MapEntryAsObject("foo" ,"bar");
-        String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'key':'foo','value':'bar'}"), json);
-
-        // 16-Oct-2016, tatu: Happens to work by default because it's NOT basic
-        //   `Map.Entry` but subtype.
-        
-        MapEntryAsObject result = MAPPER.readValue(json, MapEntryAsObject.class);
-        assertEquals("foo", result.getKey());
-        assertEquals("bar", result.getValue());
-    }
 
     public void testInclusion() throws Exception
     {
@@ -158,5 +134,46 @@ public class MapEntryFormatTest extends BaseMapTest
                 MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", "")));
         assertEquals(aposToQuotes("{}"),
                 MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", null)));
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, as-Object (Shape)
+    /**********************************************************
+     */
+
+    public void testAsNaturalRoundtrip() throws Exception
+    {
+        BeanWithMapEntry input = new BeanWithMapEntry("foo" ,"bar");
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'entry':{'foo':'bar'}}"), json);
+        BeanWithMapEntry result = MAPPER.readValue(json, BeanWithMapEntry.class);
+        assertEquals("foo", result.entry.getKey());
+        assertEquals("bar", result.entry.getValue());
+    }
+    // should work via class annotation
+    public void testAsObjectRoundtrip() throws Exception
+    {
+        MapEntryAsObject input = new MapEntryAsObject("foo" ,"bar");
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'key':'foo','value':'bar'}"), json);
+
+        // 16-Oct-2016, tatu: Happens to work by default because it's NOT basic
+        //   `Map.Entry` but subtype.
+        
+        MapEntryAsObject result = MAPPER.readValue(json, MapEntryAsObject.class);
+        assertEquals("foo", result.getKey());
+        assertEquals("bar", result.getValue());
+    }
+
+    // [databind#1895]
+    public void testDefaultShapeOverride() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(Map.Entry.class)
+            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT));
+        Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
+        assertEquals(aposToQuotes("{'key':'foo','value':'bar'}"),
+                mapper.writeValueAsString(input));
     }
 }

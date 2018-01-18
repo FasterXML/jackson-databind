@@ -635,6 +635,18 @@ nonAnnotatedParamIndex, ctor);
             ctxt.reportBadTypeDefinition(beanDesc,
                     "No argument left as delegating for Creator %s: exactly one required", candidate);
         }
+        // 17-Jan-2018, tatu: as per [databind#1853] need to ensure we will distinguish
+        //   "well-known" single-arg variants (String, int/long, boolean) from "generic" delegating...
+        if (argCount == 1) {
+            _handleSingleArgumentCreator(creators, candidate.creator(), true, true);
+            // one more thing: sever link to creator property, to avoid possible later
+            // problems with "unresolved" constructor property
+            BeanPropertyDefinition paramDef = candidate.propertyDef(0);
+            if (paramDef != null) {
+                ((POJOPropertyBuilder) paramDef).removeConstructors();
+            }
+            return;
+        }
         creators.addDelegatingCreator(candidate.creator(), true, properties, ix);
     }
 
@@ -691,7 +703,7 @@ nonAnnotatedParamIndex, ctor);
         // Looks like there's bit of magic regarding 1-parameter creators; others simpler:
         if (1 != candidate.paramCount()) {
             // Ok: for delegates, we want one and exactly one parameter without
-            // injection AND  without name
+            // injection AND without name
             int oneNotInjected = candidate.findOnlyParamWithoutInjection();
             if (oneNotInjected >= 0) {
                 // getting close; but most not have name
@@ -945,7 +957,7 @@ nonAnnotatedParamIndex, ctor);
                 if ((namedCount + injectCount) == argCount) {
                     creators.addPropertyCreator(factory, false, properties);
                 } else if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
-                    // [712] secondary: all but one injectable, one un-annotated (un-named)
+                    // secondary: all but one injectable, one un-annotated (un-named)
                     creators.addDelegatingCreator(factory, false, properties, 0);
                 } else { // otherwise, epic fail
                     ctxt.reportBadTypeDefinition(beanDesc,

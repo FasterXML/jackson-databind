@@ -732,6 +732,11 @@ Pier-Luc Whissell (pwhissell@github):
     to include type information
    (2.9.4)
 
+Alexander Skvortcov (askvortcov@github)
+  * Reported #1853: Deserialise from Object (using Creator methods) returns field name
+    instead of value
+   (2.9.4)
+
 Rob Winch (rwinch@github)
   * Reported #1868: Class name handling for JDK unmodifiable Collection types changed
    (2.9.4)

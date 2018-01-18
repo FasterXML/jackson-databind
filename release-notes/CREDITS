@@ -733,3 +733,8 @@ Pier-Luc Whissell (pwhissell@github):
   * Reported #1673: Serialising generic value classes via Reference Types (like Optional) fails
     to include type information
    (2.9.4)
+
+Alexander Skvortcov (askvortcov@github)
+  * Reported #1853: Deserialise from Object (using Creator methods) returns field name
+    instead of value
+   (2.9.4)

@@ -132,8 +132,7 @@ public class CreatorCollector {
         _creators[C_DEFAULT] = _fixAccess(creator);
     }
 
-    public void addStringCreator(AnnotatedWithParams creator,
-            boolean explicit) {
+    public void addStringCreator(AnnotatedWithParams creator, boolean explicit) {
         verifyNonDup(creator, C_STRING, explicit);
     }
 
@@ -145,13 +144,11 @@ public class CreatorCollector {
         verifyNonDup(creator, C_LONG, explicit);
     }
 
-    public void addDoubleCreator(AnnotatedWithParams creator,
-            boolean explicit) {
+    public void addDoubleCreator(AnnotatedWithParams creator, boolean explicit) {
         verifyNonDup(creator, C_DOUBLE, explicit);
     }
 
-    public void addBooleanCreator(AnnotatedWithParams creator,
-            boolean explicit) {
+    public void addBooleanCreator(AnnotatedWithParams creator, boolean explicit) {
         verifyNonDup(creator, C_BOOLEAN, explicit);
     }
 
@@ -171,7 +168,8 @@ public class CreatorCollector {
     }
 
     public void addPropertyCreator(AnnotatedWithParams creator,
-            boolean explicit, SettableBeanProperty[] properties) {
+            boolean explicit, SettableBeanProperty[] properties)
+    {
         if (verifyNonDup(creator, C_PROPS, explicit)) {
             // Better ensure we have no duplicate names either...
             if (properties.length > 1) {

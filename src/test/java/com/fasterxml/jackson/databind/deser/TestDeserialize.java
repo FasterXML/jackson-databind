@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.beans.ConstructorProperties;
 import java.io.IOException;

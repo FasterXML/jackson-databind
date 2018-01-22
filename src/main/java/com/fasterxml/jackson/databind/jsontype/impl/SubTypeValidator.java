@@ -50,6 +50,10 @@ public class SubTypeValidator
         // [databind#1855]: more 3rd party
         s.add("org.apache.tomcat.dbcp.dbcp2.BasicDataSource");
         s.add("com.sun.org.apache.bcel.internal.util.ClassLoader");
+        // [databind#1899]: more 3rd party
+        s.add("org.hibernate.jmx.StatisticsService");
+        s.add("org.apache.ibatis.datasource.jndi.JndiDataSourceFactory");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

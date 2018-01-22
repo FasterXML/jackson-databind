@@ -5,9 +5,11 @@ Project: jackson-databind
 
 2.8.11.1 (not yet released)
 
-#1872 `NullPointerException` in `SubTypeValidator.validateSubType` when
+#1872: `NullPointerException` in `SubTypeValidator.validateSubType` when
   validating Spring interface
  (reported by Rob W)
+#1899: Another two gadgets to exploit default typing issue in jackson-databind
+ (reported by OneSourceCat@github)
 
 2.8.11 (24-Dec-2017)
 

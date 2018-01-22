@@ -11,67 +11,50 @@ public class ReadOnlyDeser1890Test
     extends BaseMapTest
 {
     public static class PersonAnnotations {
+        public String name;
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        private TestEnum testEnum;
-        private String name;
+        private TestEnum testEnum = TestEnum.DEFAULT;
 
-        public PersonAnnotations() { }
+        PersonAnnotations() { }
 
         @ConstructorProperties({"testEnum", "name"})
         public PersonAnnotations(TestEnum testEnum, String name) {
-             this.testEnum = testEnum;
-             this.name = name;
+            this.testEnum = testEnum;
+            this.name = name;
         }
 
         public TestEnum getTestEnum() {
-             return testEnum;
+            return testEnum;
         }
 
         public void setTestEnum(TestEnum testEnum) {
-             this.testEnum = testEnum;
-        }
-
-        public String getName() {
-             return name;
-        }
-
-        public void setName(String name) {
-             this.name = name;
+            this.testEnum = testEnum;
         }
    }
 
-   public static class Person {
+    public static class Person {
+        public String name;
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        private TestEnum testEnum;
-        private String name;
+        private TestEnum testEnum = TestEnum.DEFAULT;
 
-        public Person() {
-        }
+        Person() { }
 
         public Person(TestEnum testEnum, String name) {
-             this.testEnum = testEnum;
-             this.name = name;
+            this.testEnum = testEnum;
+            this.name = name;
         }
 
         public TestEnum getTestEnum() {
-             return testEnum;
+            return testEnum;
         }
 
         public void setTestEnum(TestEnum testEnum) {
-             this.testEnum = testEnum;
-        }
-
-        public String getName() {
-             return name;
-        }
-
-        public void setName(String name) {
-             this.name = name;
+            this.testEnum = testEnum;
         }
    }
 
    enum TestEnum{
-        TEST
+       DEFAULT, TEST;
    }
 
    /*
@@ -84,25 +67,27 @@ public class ReadOnlyDeser1890Test
 
    public void testDeserializeAnnotationsOneField() throws IOException {
        PersonAnnotations person = MAPPER.readValue("{\"testEnum\":\"\"}", PersonAnnotations.class);
-       assertNull(person.getTestEnum());
+       assertEquals(TestEnum.DEFAULT, person.getTestEnum());
+       assertNull(person.name);
    }
 
    public void testDeserializeAnnotationsTwoFields() throws IOException {
        PersonAnnotations person = MAPPER.readValue("{\"testEnum\":\"\",\"name\":\"changyong\"}",
                PersonAnnotations.class);
-       assertNull(person.getTestEnum());
-       assertEquals("changyong", person.getName());
+       assertEquals(TestEnum.DEFAULT, person.getTestEnum());
+       assertEquals("changyong", person.name);
    }
 
    public void testDeserializeOneField() throws IOException {
        Person person = MAPPER.readValue("{\"testEnum\":\"\"}", Person.class);
-       assertNull(person.getTestEnum());
+       assertEquals(TestEnum.DEFAULT, person.getTestEnum());
+       assertNull(person.name);
    }
 
    public void testDeserializeTwoFields() throws IOException {
        Person person = MAPPER.readValue("{\"testEnum\":\"\",\"name\":\"changyong\"}",
                Person.class);
-       assertNull(person.getTestEnum());
-       assertEquals("changyong", person.getName());
+       assertEquals(TestEnum.DEFAULT, person.getTestEnum());
+       assertEquals("changyong", person.name);
    }
 }

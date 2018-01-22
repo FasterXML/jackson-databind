@@ -583,7 +583,6 @@ public class NumberDeserializers
                 } catch (IllegalArgumentException iae) { }
                 return (Long) ctxt.handleWeirdStringValue(_valueClass, text,
                         "not a valid Long value");
-                // fall-through
             case JsonTokenId.ID_NULL:
                 return (Long) _coerceNullToken(ctxt, _primitive);
             case JsonTokenId.ID_START_ARRAY:

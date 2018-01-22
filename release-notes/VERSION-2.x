@@ -26,6 +26,8 @@ Project: jackson-databind
  (reported by reda-alaoui@github)
 #1895: Per-type config override "JsonFormat.Shape.OBJECT" for Map.Entry not working
  (reported by mcortella@github)
+#1899: Another two gadgets to exploit default typing issue in jackson-databind
+ (reported by OneSourceCat@github)
 
 2.9.3 (09-Dec-2017)
 

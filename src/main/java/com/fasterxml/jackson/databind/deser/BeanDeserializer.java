@@ -565,6 +565,10 @@ public class BeanDeserializer
             if (buffer.readIdProperty(propName)) {
                 continue;
             }
+            if(_ignorableProps != null && _ignorableProps.contains(propName)){
+                continue;
+            }
+
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {

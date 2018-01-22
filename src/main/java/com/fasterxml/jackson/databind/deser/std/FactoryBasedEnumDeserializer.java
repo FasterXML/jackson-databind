@@ -177,7 +177,7 @@ class FactoryBasedEnumDeserializer
     	try {
     		return prop.deserialize(p, ctxt);
     	} catch (Exception e) {
-    		wrapAndThrow(e, _valueClass.getClass(), prop.getName(), ctxt);
+    		wrapAndThrow(e, _valueClass, prop.getName(), ctxt);
     		// never gets here, unless caller declines to throw an exception
     		return null;
     	}

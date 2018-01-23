@@ -1,5 +1,4 @@
-Project: jackson-databind
-------------------------------------------------------------------------
+Project: jackson-databin------------------------------------------------------------------------
 === Releases === 
 ------------------------------------------------------------------------
 
@@ -28,6 +27,8 @@ Project: jackson-databind
  (reported by mcortella@github)
 #1899: Another two gadgets to exploit default typing issue in jackson-databind
  (reported by OneSourceCat@github)
+#1907: Remove `getClass()` from `_valueType` argument for error reporting
+ (reported by Joe S)
 
 2.9.3 (09-Dec-2017)
 

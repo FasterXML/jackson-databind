@@ -132,7 +132,7 @@ public class PropertyValueBuffer
         }
         if (value == null && _context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             return _context.reportInputMismatch(prop, String.format(
-                "Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
+                "Null value for creator property '%s' at index %d; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
                 prop.getName(), prop.getCreatorIndex()));
         }
         return value;

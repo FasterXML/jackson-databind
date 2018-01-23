@@ -740,5 +740,7 @@ Alexander Skvortcov (askvortcov@github)
    (2.9.4)
 
 Joe Schafer (jschaf@github)
+  * Reported #1906: Add string format specifier for error message in `PropertyValueBuffer`
+   (2.9.4)
   * Reported #1907: Remove `getClass()` from `_valueType` argument for error reporting
    (2.9.4)

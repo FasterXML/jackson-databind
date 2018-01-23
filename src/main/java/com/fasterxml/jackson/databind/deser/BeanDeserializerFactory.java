@@ -464,7 +464,6 @@ public class BeanDeserializerFactory
                 .getDefaultPropertyIgnorals(beanDesc.getBeanClass(),
                         beanDesc.getClassInfo());
         Set<String> ignored;
-
         if (ignorals != null) {
             boolean ignoreAny = ignorals.getIgnoreUnknown();
             builder.setIgnoreUnknownProperties(ignoreAny);
@@ -497,7 +496,6 @@ public class BeanDeserializerFactory
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
                 beanDesc, builder, beanDesc.findProperties(), ignored);
-
         // After which we can let custom code change the set
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {

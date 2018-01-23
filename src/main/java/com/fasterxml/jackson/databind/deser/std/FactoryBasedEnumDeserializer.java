@@ -173,18 +173,17 @@ class FactoryBasedEnumDeserializer
     // ************ Got the below methods from BeanDeserializer ********************//
 
     protected final Object _deserializeWithErrorWrapping(JsonParser p, DeserializationContext ctxt,
-    		SettableBeanProperty prop) throws IOException {
-    	try {
-    		return prop.deserialize(p, ctxt);
-    	} catch (Exception e) {
-    		wrapAndThrow(e, _valueClass.getClass(), prop.getName(), ctxt);
-    		// never gets here, unless caller declines to throw an exception
-    		return null;
-    	}
+            SettableBeanProperty prop) throws IOException
+    {
+        try {
+            return prop.deserialize(p, ctxt);
+        } catch (Exception e) {
+            return wrapAndThrow(e, handledType(), prop.getName(), ctxt);
+        }
     }
 
-    public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-    		throws IOException
+    protected Object wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+            throws IOException
     {
         throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
     }

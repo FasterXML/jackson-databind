@@ -643,6 +643,8 @@ Kevin Gallardo (newkek@github)
   * Reported #1658: Infinite recursion when deserializing a class extending a Map,
     with a recursive value type
    (2.8.10)
+  * Reported #1729: Integer bounds verification when calling `TokenBuffer.getIntValue()`
+   (2.9.4)
 
 Lukas Euler
   * Reported #1735: Missing type checks when using polymorphic type ids
@@ -737,6 +739,6 @@ Alexander Skvortcov (askvortcov@github)
     instead of value
    (2.9.4)
 
-Rob Winch (rwinch@github)
-  * Reported #1868: Class name handling for JDK unmodifiable Collection types changed
+Joe Schafer (jschaf@github)
+  * Reported #1907: Remove `getClass()` from `_valueType` argument for error reporting
    (2.9.4)

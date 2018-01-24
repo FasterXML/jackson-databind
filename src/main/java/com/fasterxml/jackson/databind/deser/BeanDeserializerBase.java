@@ -432,8 +432,7 @@ public abstract class BeanDeserializerBase
      * This is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationContext ctxt)
-        throws JsonMappingException
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
         ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
@@ -441,6 +440,18 @@ public abstract class BeanDeserializerBase
 
         if (_valueInstantiator.canCreateFromObjectWith()) {
             creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+
+            // 22-Jan-2018, tatu: May need to propagate "ignorable" status (from `Access.READ_ONLY`
+            //     or perhaps class-ignorables) into Creator properties too. Can not just delete,
+            //     at this point, but is needed for further processing down the line
+            if (_ignorableProps != null) {
+                for (int i = 0, end = creatorProps.length; i < end; ++i) {
+                    SettableBeanProperty prop  = creatorProps[i];
+                    if (_ignorableProps.contains(prop.getName())) {
+                        creatorProps[i].markAsIgnorable();
+                    }
+                }
+            }
         } else {
             creatorProps = null;
         }
@@ -451,6 +462,8 @@ public abstract class BeanDeserializerBase
         //   types (see [databind#1575] f.ex).
         // First loop: find deserializer if not yet known, but do not yet
         // contextualize (since that can lead to problems with self-references)
+        // 22-Jan-2018, tatu: NOTE! Need not check for `isIgnorable` as that can
+        //   only happen for props in `creatorProps`
 
         for (SettableBeanProperty prop : _beanProperties) {
             if (!prop.hasValueDeserializer()) {
@@ -524,7 +537,7 @@ public abstract class BeanDeserializerBase
             }
         }
         // "any setter" may also need to be resolved now
-        if (_anySetter != null && !_anySetter.hasValueDeserializer()) {
+        if ((_anySetter != null) && !_anySetter.hasValueDeserializer()) {
             _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
                     _anySetter.getType(), _anySetter.getProperty()));
         }

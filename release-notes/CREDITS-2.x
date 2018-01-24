@@ -738,3 +738,9 @@ Alexander Skvortcov (askvortcov@github)
   * Reported #1853: Deserialise from Object (using Creator methods) returns field name
     instead of value
    (2.9.4)
+
+Joe Schafer (jschaf@github)
+  * Reported #1906: Add string format specifier for error message in `PropertyValueBuffer`
+   (2.9.4)
+  * Reported #1907: Remove `getClass()` from `_valueType` argument for error reporting
+   (2.9.4)

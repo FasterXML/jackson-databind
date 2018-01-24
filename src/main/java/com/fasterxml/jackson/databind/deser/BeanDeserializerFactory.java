@@ -482,6 +482,8 @@ public class BeanDeserializerFactory
         if (anySetter != null) {
             builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
         } else {
+            // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
+            //   properties regardless, for now only consider unless there's any setter...
             Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
             if (ignored2 != null) {
                 for (String propName : ignored2) {
@@ -509,10 +511,9 @@ public class BeanDeserializerFactory
         for (BeanPropertyDefinition propDef : propDefs) {
             SettableBeanProperty prop = null;
             
-            /* 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
-             *   we need to do linkage (as per [databind#318]), and so need to start with
-             *   other types, and only then create constructor parameter, if any.
-             */
+            // 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
+            //   we need to do linkage (as per [databind#318]), and so need to start with
+            //   other types, and only then create constructor parameter, if any.
             if (propDef.hasSetter()) {
                 AnnotatedMethod setter = propDef.getSetter();
                 JavaType propertyType = setter.getParameterType(0);
@@ -526,7 +527,13 @@ public class BeanDeserializerFactory
                 AnnotatedMethod getter = propDef.getGetter();
                 if (getter != null) {
                     if (useGettersAsSetters && _isSetterlessType(getter.getRawType())) {
-                        prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
+                        // 23-Jan-2018, tatu: As per [databind#1805], need to ensure we don't
+                        //   accidentally sneak in getter-as-setter for `READ_ONLY` properties
+                        if (builder.hasIgnorable(propDef.getName())) {
+                            ;
+                        } else {
+                            prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
+                        }
                     } else if (!propDef.hasConstructorParameter()) {
                         PropertyMetadata md = propDef.getMetadata();
                         // 25-Oct-2016, tatu: If merging enabled, might not need setter.

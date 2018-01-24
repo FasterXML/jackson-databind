@@ -367,7 +367,7 @@ public class AnySetterTest
         assertEquals(integerGeneric.getDynamicallyMappedProperties(), integerGenericMap);
     }
 
-	/*
+    /*
     /**********************************************************
     /* Private helper methods
     /**********************************************************

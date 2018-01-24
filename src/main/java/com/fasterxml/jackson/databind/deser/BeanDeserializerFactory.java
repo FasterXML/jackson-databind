@@ -371,9 +371,7 @@ public class BeanDeserializerFactory
         // (and assume there won't be any back references)
 
         // But then let's decorate things a bit
-        /* To resolve [JACKSON-95], need to add "initCause" as setter
-         * for exceptions (sub-classes of Throwable).
-         */
+        // Need to add "initCause" as setter for exceptions (sub-classes of Throwable).
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
             SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
@@ -381,10 +379,8 @@ public class BeanDeserializerFactory
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
                     am.getParameterType(0));
             if (prop != null) {
-                /* 21-Aug-2011, tatus: We may actually have found 'cause' property
-                 *   to set... but let's replace it just in case,
-                 *   otherwise can end up with odd errors.
-                 */
+                // 21-Aug-2011, tatus: We may actually have found 'cause' property
+                //   to set... but let's replace it just in case, otherwise can end up with odd errors.
                 builder.addOrReplaceProperty(prop, true);
             }
         }
@@ -393,10 +389,10 @@ public class BeanDeserializerFactory
         builder.addIgnorable("localizedMessage");
         // Java 7 also added "getSuppressed", skip if we have such data:
         builder.addIgnorable("suppressed");
-        /* As well as "message": it will be passed via constructor,
-         * as there's no 'setMessage()' method
-         */
-        builder.addIgnorable("message");
+        // As well as "message": it will be passed via constructor,
+        // as there's no 'setMessage()' method
+        // 23-Jan-2018, tatu: ... although there MAY be Creator Property... which is problematic
+//        builder.addIgnorable("message");
 
         // update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {

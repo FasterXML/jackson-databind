@@ -47,18 +47,18 @@ public class BeanDeserializerBuilder
     /* Accumulated information about properties
     /**********************************************************
      */
-    
+
     /**
      * Properties to deserialize collected so far.
      */
     final protected Map<String, SettableBeanProperty> _properties
         = new LinkedHashMap<String, SettableBeanProperty>();
-    
+
     /**
      * Value injectors for deserialization
      */
     protected List<ValueInjector> _injectables;
-    
+
     /**
      * Back-reference properties this bean contains (if any)
      */
@@ -69,7 +69,7 @@ public class BeanDeserializerBuilder
      * purposes (meaning no exception is thrown, value is just skipped).
      */
     protected HashSet<String> _ignorableProps;
-    
+
     /**
      * Object that will handle value instantiation for the bean type.
      */
@@ -80,7 +80,7 @@ public class BeanDeserializerBuilder
      * bean type.
      */
     protected ObjectIdReader _objectIdReader;
-    
+
     /**
      * Fallback setter used for handling any properties that are not
      * mapped to regular setters. If setter is not null, it will be
@@ -110,7 +110,7 @@ public class BeanDeserializerBuilder
     /* Life-cycle: construction
     /**********************************************************
      */
-    
+
     public BeanDeserializerBuilder(BeanDescription beanDesc,
             DeserializationContext ctxt)
     { 
@@ -137,10 +137,10 @@ public class BeanDeserializerBuilder
         _ignorableProps = src._ignorableProps;        
         _valueInstantiator = src._valueInstantiator;
         _objectIdReader = src._objectIdReader;
-        
+
         _anySetter = src._anySetter;
         _ignoreAllUnknown = src._ignoreAllUnknown;
-        
+
         _buildMethod = src._buildMethod;
         _builderConfig = src._builderConfig;
     }

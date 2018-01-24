@@ -1,10 +1,10 @@
-------------------------------------------------------------------------
 Project: jackson-databind
+
+------------------------------------------------------------------------
+=== Releases === 
 ------------------------------------------------------------------------
 
-=== Releases === 
-
-2.9.4 (not yet released)
+2.9.4 (24-Jan-2018)
 
 #1382: `@JsonProperty(access=READ_ONLY)` unxepected behaviour with `Collections`
  (reported by hexfaker@github)

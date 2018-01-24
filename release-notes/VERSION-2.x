@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.9.4 (not yet released)
 
+#1382: `@JsonProperty(access=READ_ONLY)` unxepected behaviour with `Collections`
+ (reported by hexfaker@github)
 #1673: Serialising generic value classes via Reference Types (like Optional) fails
   to include type information
  (reported by Pier-Luc W)

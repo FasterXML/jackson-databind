@@ -122,7 +122,8 @@ public class ThrowableDeserializer
             // Maybe it's "message"?
             String propName = p.currentName();
             p.nextToken();
-            if (PROP_NAME_MESSAGE.equals(propName)) {
+            final boolean isMessage = PROP_NAME_MESSAGE.equals(propName);
+            if (isMessage) {
                 if (hasStringCreator) {
                     throwable = _valueInstantiator.createFromString(ctxt, p.getValueAsString());
                     // any pending values?
@@ -145,6 +146,9 @@ public class ThrowableDeserializer
                 _anySetter.deserializeAndSet(p, ctxt, throwable, propName);
                 continue;
             }
+            // 23-Jan-2018, tatu: One concern would be `message`, but without any-setter or single-String-ctor
+            //   (or explicit constructor). We could just ignore it but for now, let it fail
+
             // Unknown: let's call handler method
             handleUnknownProperty(p, ctxt, throwable, propName);
         }

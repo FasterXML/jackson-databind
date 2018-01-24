@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.filter;
 
 import java.beans.ConstructorProperties;
 import java.io.IOException;
@@ -67,14 +67,16 @@ public class ReadOnlyDeser1890Test
 
    public void testDeserializeAnnotationsOneField() throws IOException {
        PersonAnnotations person = MAPPER.readValue("{\"testEnum\":\"\"}", PersonAnnotations.class);
-       assertEquals(TestEnum.DEFAULT, person.getTestEnum());
+       // can not remain as is, so becomes `null`
+       assertEquals(null, person.getTestEnum());
        assertNull(person.name);
    }
 
    public void testDeserializeAnnotationsTwoFields() throws IOException {
        PersonAnnotations person = MAPPER.readValue("{\"testEnum\":\"\",\"name\":\"changyong\"}",
                PersonAnnotations.class);
-       assertEquals(TestEnum.DEFAULT, person.getTestEnum());
+       // can not remain as is, so becomes `null`
+       assertEquals(null, person.getTestEnum());
        assertEquals("changyong", person.name);
    }
 

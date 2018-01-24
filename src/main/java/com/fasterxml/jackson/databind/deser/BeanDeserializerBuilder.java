@@ -44,18 +44,18 @@ public class BeanDeserializerBuilder
     /* Accumulated information about properties
     /**********************************************************
      */
-    
+
     /**
      * Properties to deserialize collected so far.
      */
     final protected Map<String, SettableBeanProperty> _properties
         = new LinkedHashMap<String, SettableBeanProperty>();
-    
+
     /**
      * Value injectors for deserialization
      */
     protected List<ValueInjector> _injectables;
-    
+
     /**
      * Back-reference properties this bean contains (if any)
      */
@@ -66,7 +66,7 @@ public class BeanDeserializerBuilder
      * purposes (meaning no exception is thrown, value is just skipped).
      */
     protected HashSet<String> _ignorableProps;
-    
+
     /**
      * Object that will handle value instantiation for the bean type.
      */
@@ -77,7 +77,7 @@ public class BeanDeserializerBuilder
      * bean type.
      */
     protected ObjectIdReader _objectIdReader;
-    
+
     /**
      * Fallback setter used for handling any properties that are not
      * mapped to regular setters. If setter is not null, it will be
@@ -107,7 +107,7 @@ public class BeanDeserializerBuilder
     /* Life-cycle: construction
     /**********************************************************
      */
-    
+
     public BeanDeserializerBuilder(BeanDescription beanDesc,
             DeserializationContext ctxt)
     { 
@@ -134,10 +134,10 @@ public class BeanDeserializerBuilder
         _ignorableProps = src._ignorableProps;        
         _valueInstantiator = src._valueInstantiator;
         _objectIdReader = src._objectIdReader;
-        
+
         _anySetter = src._anySetter;
         _ignoreAllUnknown = src._ignoreAllUnknown;
-        
+
         _buildMethod = src._buildMethod;
         _builderConfig = src._builderConfig;
     }
@@ -324,6 +324,13 @@ public class BeanDeserializerBuilder
         return _builderConfig;
     }
 
+    /**
+     * @since 2.9.4
+     */
+    public boolean hasIgnorable(String name) {
+        return (_ignorableProps != null) && _ignorableProps.contains(name);
+    }
+
     /*
     /**********************************************************
     /* Build method(s)
@@ -336,18 +343,15 @@ public class BeanDeserializerBuilder
      */
     public JsonDeserializer<?> build()
     {
-        _fixAccess(_properties.values());
-        Collection<SettableBeanProperty> props;
+        Collection<SettableBeanProperty> props = _properties.values();
+        _fixAccess(props);
         if (_objectIdReader != null) {
             // 18-Nov-2012, tatu: May or may not have annotations for id property;
             //   but no easy access. But hard to see id property being optional,
             //   so let's consider required at this point.
             props = _addIdProp(_properties,
                     new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
-        } else {
-            props = _properties.values();
         }
-
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
                 _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
                 _collectAliases(props));

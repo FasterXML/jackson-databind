@@ -171,8 +171,7 @@ public class CreatorCollector
                     String name = properties[i].getName();
                     // Need to consider Injectables, which may not have
                     // a name at all, and need to be skipped
-                    if (name.length() == 0
-                            && properties[i].getInjectableValueId() != null) {
+                    if (name.isEmpty() && (properties[i].getInjectableValueId() != null)) {
                         continue;
                     }
                     Integer old = names.put(name, Integer.valueOf(i));

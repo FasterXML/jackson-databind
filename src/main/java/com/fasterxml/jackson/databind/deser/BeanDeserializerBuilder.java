@@ -327,6 +327,13 @@ public class BeanDeserializerBuilder
         return _builderConfig;
     }
 
+    /**
+     * @since 2.9.4
+     */
+    public boolean hasIgnorable(String name) {
+        return (_ignorableProps != null) && _ignorableProps.contains(name);
+    }
+
     /*
     /**********************************************************
     /* Build method(s)

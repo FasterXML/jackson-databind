@@ -721,7 +721,7 @@ public class POJOPropertiesCollector
                 }
                 // otherwise just remove ones marked to be ignored
                 prop.removeIgnored();
-                if (!_forSerialization && !prop.couldDeserialize()) {
+                if (!prop.couldDeserialize()) {
                     _collectIgnorals(prop.getName());
                 }
             }
@@ -742,7 +742,7 @@ public class POJOPropertiesCollector
             POJOPropertyBuilder prop = it.next();
             // 26-Jan-2017, tatu: [databind#935]: need to denote removal of
             JsonProperty.Access acc = prop.removeNonVisible(inferMutators);
-            if (!_forSerialization && (acc == JsonProperty.Access.READ_ONLY)) {
+            if (acc == JsonProperty.Access.READ_ONLY) {
                 _collectIgnorals(prop.getName());
             }
         }

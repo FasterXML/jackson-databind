@@ -69,10 +69,13 @@ public final class PropertyBasedCreator
         if (addAliases) {
             final DeserializationConfig config = ctxt.getConfig();
             for (SettableBeanProperty prop : creatorProps) {
-                List<PropertyName> aliases = prop.findAliases(config);
-                if (!aliases.isEmpty()) {
-                    for (PropertyName pn : aliases) {
-                        _propertyLookup.put(pn.getSimpleName(), prop);
+                // 22-Jan-2018, tatu: ignorable entries should be ignored, even if got aliases
+                if (!prop.isIgnorable()) {
+                    List<PropertyName> aliases = prop.findAliases(config);
+                    if (!aliases.isEmpty()) {
+                        for (PropertyName pn : aliases) {
+                            _propertyLookup.put(pn.getSimpleName(), prop);
+                        }
                     }
                 }
             }
@@ -81,7 +84,10 @@ public final class PropertyBasedCreator
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
             _propertiesInOrder[i] = prop;
-            _propertyLookup.put(prop.getName(), prop);
+            // 22-Jan-2018, tatu: ignorable entries should be skipped
+            if (!prop.isIgnorable()) {
+                _propertyLookup.put(prop.getName(), prop);
+            }
         }
     }
 

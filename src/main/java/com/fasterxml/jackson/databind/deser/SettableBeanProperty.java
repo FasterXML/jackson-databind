@@ -325,6 +325,16 @@ public abstract class SettableBeanProperty
         ;
     }
 
+    /**
+     * @since 2.9.4
+     */
+    public void markAsIgnorable() { }
+
+    /**
+     * @since 2.9.4
+     */
+    public boolean isIgnorable() { return false; }
+
     /*
     /**********************************************************
     /* BeanProperty impl

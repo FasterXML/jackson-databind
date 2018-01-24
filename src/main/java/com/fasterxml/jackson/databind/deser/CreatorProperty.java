@@ -44,11 +44,6 @@ public class CreatorProperty
     protected final Object _injectableValueId;
 
     /**
-     * @since 2.1
-     */
-    protected final int _creatorIndex;
-
-    /**
      * In special cases, when implementing "updateValue", we cannot use
      * constructors or factory methods, but have to fall back on using a
      * setter (or mutable field property). If so, this refers to that fallback
@@ -60,6 +55,22 @@ public class CreatorProperty
      * @since 2.3
      */
     protected SettableBeanProperty _fallbackSetter;
+
+    /**
+     * @since 2.1
+     */
+    protected final int _creatorIndex;
+
+    /**
+     * Marker flag that may have to be set during construction, to indicate that
+     * although property may have been constructed and added as a placeholder,
+     * it represents something that should be ignored during deserialization.
+     * This mostly concerns Creator properties which may not be easily deleted
+     * during processing.
+     *
+     * @since 2.9.4
+     */
+    protected boolean _ignorable;
 
     /**
      * @param name Name of the logical property
@@ -94,18 +105,20 @@ public class CreatorProperty
     protected CreatorProperty(CreatorProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
-        _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
         _fallbackSetter = src._fallbackSetter;
+        _creatorIndex = src._creatorIndex;
+        _ignorable = src._ignorable;
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
-        _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
         _fallbackSetter = src._fallbackSetter;
+        _creatorIndex = src._creatorIndex;
+        _ignorable = src._ignorable;
     }
 
     @Override
@@ -142,6 +155,22 @@ public class CreatorProperty
     public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
         _fallbackSetter = fallbackSetter;
     }
+
+    @Override
+    public void markAsIgnorable() {
+        _ignorable = true;
+    }
+
+    @Override
+    public boolean isIgnorable() {
+        return _ignorable;
+    }
+
+    /*
+    /**********************************************************
+    /* Injection support
+    /**********************************************************
+     */
 
     /**
      * Method that can be called to locate value to be injected for this

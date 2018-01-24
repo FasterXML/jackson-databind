@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser.filter;
+package com.fasterxml.jackson.databind.deser.filter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.*;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 /**
  * Failing test related to [databind#95]
  */
-public class ReadOnlyProperties95Test extends BaseMapTest
+public class ReadOnlyDeser95Test extends BaseMapTest
 {
     @JsonIgnoreProperties(value={ "computed" }, allowGetters=true)
     static class ReadOnlyBean

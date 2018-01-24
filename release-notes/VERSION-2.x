@@ -1,7 +1,8 @@
+------------------------------------------------------------------------
 Project: jackson-databind
 ------------------------------------------------------------------------
+
 === Releases === 
-------------------------------------------------------------------------
 
 2.9.4 (not yet released)
 
@@ -28,6 +29,12 @@ Project: jackson-databind
  (reported by reda-alaoui@github)
 #1895: Per-type config override "JsonFormat.Shape.OBJECT" for Map.Entry not working
  (reported by mcortella@github)
+#1899: Another two gadgets to exploit default typing issue in jackson-databind
+ (reported by OneSourceCat@github)
+#1906: Add string format specifier for error message in `PropertyValueBuffer`
+ (reported by Joe S)
+#1907: Remove `getClass()` from `_valueType` argument for error reporting
+ (reported by Joe S)
 
 2.9.3 (09-Dec-2017)
 
@@ -192,9 +199,11 @@ Project: jackson-databind
 
 2.8.11.1 (not yet released)
 
-#1872 `NullPointerException` in `SubTypeValidator.validateSubType` when
+#1872: `NullPointerException` in `SubTypeValidator.validateSubType` when
   validating Spring interface
  (reported by Rob W)
+#1899: Another two gadgets to exploit default typing issue in jackson-databind
+ (reported by OneSourceCat@github)
 
 2.8.11 (24-Dec-2017)
 

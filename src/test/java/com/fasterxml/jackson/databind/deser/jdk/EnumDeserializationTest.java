@@ -345,20 +345,21 @@ public class EnumDeserializationTest
 
     public void testAllowUnknownEnumValuesForEnumSets() throws Exception
     {
-        ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        EnumSet<TestEnum> result = reader.forType(new TypeReference<EnumSet<TestEnum>>() { })
+        EnumSet<TestEnum> result = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .forType(new TypeReference<EnumSet<TestEnum>>() { })
                 .readValue("[\"NO-SUCH-VALUE\"]");
         assertEquals(0, result.size());
     }
-    
+
     public void testAllowUnknownEnumValuesAsMapKeysReadAsNull() throws Exception
     {
-        ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        ClassWithEnumMapKey result = reader.forType(ClassWithEnumMapKey.class)
+        ClassWithEnumMapKey result = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .forType(ClassWithEnumMapKey.class)
                 .readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}");
-        assertTrue(result.map.containsKey(null));
+        // 25-Jan-2018, tatu: as per [databind#1883], we upgrade it to `EnumMap`, which won't accept nulls...
+        assertEquals(0, result.map.size());
     }
-    
+
     public void testDoNotAllowUnknownEnumValuesAsMapKeysWhenReadAsNullDisabled() throws Exception
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL));

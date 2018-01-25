@@ -18,6 +18,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
  (reported by timo-schmid@github)
 #1789: Add `createGenerator` methods in `ObjectMapper`, `ObjectWriter`
 #1790: Add `createParser` methods in `ObjectMapper`, `ObjectReader`
+#1883: Add "abstract type mapping" for deserialization from `Map<ENUMTYPE,V>`
+  into `EnumMap` (and `Set<ENUMTYPE>` to `EnumSet<EnumType>`) 
 #1888: Merge `ResolvableSerializer` into `JsonSerializer`, `ResolvableDeserializer`
  into `JsonDeserializer`
 #1889: Merge `ContextualSerializer` into `JsonSerializer`, `ContextualDeserializer`

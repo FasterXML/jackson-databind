@@ -214,7 +214,6 @@ public class TestEnumSerialization
         assertEquals("\"c2\"", sw.toString());
     }
 
-    // Test [JACKSON-214]
     public void testSubclassedEnums() throws Exception
     {
         assertEquals("\"B\"", MAPPER.writeValueAsString(EnumWithSubClass.B));

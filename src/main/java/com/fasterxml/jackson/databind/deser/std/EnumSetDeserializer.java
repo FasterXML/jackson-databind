@@ -30,8 +30,6 @@ public class EnumSetDeserializer
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
-     *
-     * @since 2.7
      */
     protected final Boolean _unwrapSingle;
 
@@ -55,9 +53,6 @@ public class EnumSetDeserializer
         _unwrapSingle = null;
     }
 
-    /**
-     * @since 2.7
-     */
     @SuppressWarnings("unchecked" )
     protected EnumSetDeserializer(EnumSetDeserializer base,
             JsonDeserializer<?> deser, Boolean unwrapSingle) {

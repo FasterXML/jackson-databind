@@ -169,9 +169,8 @@ public class EnumMapDeserializationTest extends BaseMapTest
                 .readerFor(new TypeReference<Map<TestEnumWithDefault,String>>() { })
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue("{\"unknown\":\"value\"}");
-        // 04-Jan-2017, tatu: Not sure if this is weird or not, but since `null`s are typically
-        //    ok for "regular" JDK Maps...
-        assertEquals(1, value2.size());
-        assertEquals("value", value2.get(null));
+        // 25-Jan-2018, tatu: as per [databind#1883], we upgrade it to `EnumMap`, which won't accept nulls...
+        assertEquals(0, value2.size());
+        assertEquals(EnumMap.class, value2.getClass());
     }
 }

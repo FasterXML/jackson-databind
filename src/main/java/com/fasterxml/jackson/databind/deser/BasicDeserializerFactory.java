@@ -41,7 +41,7 @@ public abstract class BasicDeserializerFactory
 {
     private final static Class<?> CLASS_OBJECT = Object.class;
     private final static Class<?> CLASS_STRING = String.class;
-    private final static Class<?> CLASS_CHAR_BUFFER = CharSequence.class;
+    private final static Class<?> CLASS_CHAR_SEQUENCE = CharSequence.class;
     private final static Class<?> CLASS_ITERABLE = Iterable.class;
     private final static Class<?> CLASS_MAP_ENTRY = Map.Entry.class;
 
@@ -973,7 +973,7 @@ nonAnnotatedParamIndex, ctor);
     {
         // otherwise either 'simple' number, String, or general delegate:
         Class<?> type = ctor.getRawParameterType(0);
-        if (type == String.class || type == CharSequence.class) {
+        if (type == String.class || type == CLASS_CHAR_SEQUENCE) {
             if (isCreator || isVisible) {
                 creators.addStringCreator(ctor, isCreator);
             }
@@ -1770,7 +1770,7 @@ nonAnnotatedParamIndex, ctor);
             }
             return new UntypedObjectDeserializer(lt, mt);
         }
-        if (rawType == CLASS_STRING || rawType == CLASS_CHAR_BUFFER) {
+        if (rawType == CLASS_STRING || rawType == CLASS_CHAR_SEQUENCE) {
             return StringDeserializer.instance;
         }
         if (rawType == CLASS_ITERABLE) {

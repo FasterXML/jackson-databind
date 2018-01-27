@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * As a fallback, we may need to use this serializer for other
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @SuppressWarnings("serial")
 public class NumberSerializer
     extends StdScalarSerializer<Number>
-    implements ContextualSerializer
 {
     /**
      * Static instance that is only to be used for {@link java.lang.Number}.

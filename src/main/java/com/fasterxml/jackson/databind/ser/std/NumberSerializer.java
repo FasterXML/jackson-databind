@@ -5,11 +5,13 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * As a fallback, we may need to use this serializer for other
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 @SuppressWarnings("serial")
 public class NumberSerializer
     extends StdScalarSerializer<Number>
+    implements ContextualSerializer
 {
     /**
      * Static instance that is only to be used for {@link java.lang.Number}.
@@ -35,6 +38,21 @@ public class NumberSerializer
         super(rawType, false);
         // since this will NOT be constructed for Integer or Long, only case is:
         _isInt = (rawType == BigInteger.class);
+    }
+
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider prov,
+            BeanProperty property) throws JsonMappingException
+    {
+        JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
+        if (format != null) {
+            switch (format.getShape()) {
+            case STRING:
+                return ToStringSerializer.instance;
+            default:
+            }
+        }
+        return this;
     }
 
     @Override

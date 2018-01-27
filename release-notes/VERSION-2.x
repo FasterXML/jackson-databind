@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.5 (not released yet)
+
+#1911: Allow serialization of `BigDecimal` as String, using
+  `@JsonFormat(shape=Shape.String)`, config overrides
+ (suggested by cen1@github)
+
 2.9.4 (24-Jan-2018)
 
 #1382: `@JsonProperty(access=READ_ONLY)` unxepected behaviour with `Collections`

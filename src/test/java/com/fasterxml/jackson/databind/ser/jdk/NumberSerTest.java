@@ -19,10 +19,19 @@ public class NumberSerTest extends BaseMapTest
 
     static class IntWrapper {
         public int i;
-
         public IntWrapper(int value) { i = value; }
     }
-    
+
+    static class DoubleWrapper {
+        public double value;
+        public DoubleWrapper(double v) { value = v; }
+    }
+
+    static class BigDecimalWrapper {
+        public BigDecimal value;
+        public BigDecimalWrapper(BigDecimal v) { value = v; }
+    }
+
     static class IntAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         @JsonProperty("value")
@@ -39,6 +48,16 @@ public class NumberSerTest extends BaseMapTest
         public double value = -0.5;
     }
 
+    static class BigIntegerAsString {
+        @JsonFormat(shape=JsonFormat.Shape.STRING)
+        public BigInteger value = BigInteger.valueOf(123456L);
+    }
+
+    static class BigDecimalAsString {
+        @JsonFormat(shape=JsonFormat.Shape.STRING)
+        public BigDecimal value = BigDecimal.valueOf(0.25);
+    }
+    
     static class NumberWrapper {
         // ensure it will use `Number` as statically force type, when looking for serializer
         @JsonSerialize(as=Number.class)
@@ -87,6 +106,8 @@ public class NumberSerTest extends BaseMapTest
         assertEquals(aposToQuotes("{'value':'3'}"), MAPPER.writeValueAsString(new IntAsString()));
         assertEquals(aposToQuotes("{'value':'4'}"), MAPPER.writeValueAsString(new LongAsString()));
         assertEquals(aposToQuotes("{'value':'-0.5'}"), MAPPER.writeValueAsString(new DoubleAsString()));
+        assertEquals(aposToQuotes("{'value':'0.25'}"), MAPPER.writeValueAsString(new BigDecimalAsString()));
+        assertEquals(aposToQuotes("{'value':'123456'}"), MAPPER.writeValueAsString(new BigIntegerAsString()));
     }
 
     public void testConfigOverridesForNumbers() throws Exception
@@ -94,8 +115,17 @@ public class NumberSerTest extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(Integer.TYPE) // for `int`
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+        mapper.configOverride(Double.TYPE) // for `double`
+            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+        mapper.configOverride(BigDecimal.class)
+            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+
         assertEquals(aposToQuotes("{'i':'3'}"),
                 mapper.writeValueAsString(new IntWrapper(3)));
+        assertEquals(aposToQuotes("{'value':'0.75'}"),
+                mapper.writeValueAsString(new DoubleWrapper(0.75)));
+        assertEquals(aposToQuotes("{'value':'-0.5'}"),
+                mapper.writeValueAsString(new BigDecimalWrapper(BigDecimal.valueOf(-0.5))));
     }
 
     public void testNumberType() throws Exception

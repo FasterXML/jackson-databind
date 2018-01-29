@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -230,45 +229,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
      */
 
     /**
-     * Method that can be called to see if this serializer provider
-     * can find a serializer for an instance of given class.
-     *<p>
-     * Note that no Exceptions are thrown, including unchecked ones:
-     * implementations are to swallow exceptions if necessary.
-     */
-    public boolean hasSerializerFor(Class<?> cls, AtomicReference<Throwable> cause)
-    {
-        // 07-Nov-2015, tatu: One special case, Object.class; will work only if
-        //   empty beans are allowed or custom serializer registered. Easiest to
-        //   check here.
-        if (cls == Object.class) {
-            if (!_config.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
-                return true;
-            }
-        }
-        
-        try {
-            JsonSerializer<?> ser = _findExplicitUntypedSerializer(cls);
-            return (ser != null);
-        } catch (JsonMappingException e) {
-            if (cause != null) {
-                cause.set(e);
-            }
-        } catch (RuntimeException e) {
-            if (cause == null) { // earlier behavior
-                throw e;
-            }
-            cause.set(e);
-        }
-        return false;
-    }
-
-    /**
      * Accessor for the {@link JsonGenerator} currently in use for serializing
      * content. Null for blueprint instances; non-null for actual active
      * provider instances.
-     *
-     * @since 2.8
      */
     @Override
     public JsonGenerator getGenerator() {

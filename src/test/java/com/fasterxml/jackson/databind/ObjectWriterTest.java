@@ -120,12 +120,6 @@ public class ObjectWriterTest
         assertEquals(aposToQuotes("{'type':'B','b':-5}"), json);
     }
 
-    public void testCanSerialize() throws Exception
-    {
-        assertTrue(MAPPER.writer().canSerialize(String.class));
-        assertTrue(MAPPER.writer().canSerialize(String.class, null));
-    }
-
     public void testNoPrefetch() throws Exception
     {
         ObjectWriter w = MAPPER.writer()

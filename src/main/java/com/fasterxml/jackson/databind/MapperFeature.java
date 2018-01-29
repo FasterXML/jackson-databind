@@ -46,9 +46,9 @@ public enum MapperFeature implements ConfigFeature
      * precedence than setters, so they are only used if no
      * setter is found for the Map/Collection property.
      *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default since 3.0 (with 2.x was enabled)
      */
-    USE_GETTERS_AS_SETTERS(true),
+    USE_GETTERS_AS_SETTERS(false),
 
     /**
      * Feature that determines how <code>transient</code> modifier for fields

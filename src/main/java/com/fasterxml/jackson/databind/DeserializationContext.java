@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -535,26 +534,6 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
-    /**
-     * Method for checking whether we could find a deserializer
-     * for given type.
-     */
-    public boolean hasValueDeserializerFor(JavaType type, AtomicReference<Throwable> cause) {
-        try {
-            return _cache.hasValueDeserializerFor(this, _factory, type);
-        } catch (JsonMappingException e) {
-            if (cause != null) {
-                cause.set(e);
-            }
-        } catch (RuntimeException e) {
-            if (cause == null) { // earlier behavior
-                throw e;
-            }
-            cause.set(e);
-        }
-        return false;
-    }
-    
     /**
      * Method for finding a value deserializer, and creating a contextual
      * version if necessary, for value reached via specified property.

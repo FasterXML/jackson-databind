@@ -8,7 +8,6 @@ import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
@@ -2571,46 +2570,8 @@ public class ObjectMapper
             throw new IllegalArgumentException(e.getMessage(), e);
         }
         return (T) result;
-    } 
-
-    /*
-    /**********************************************************
-    /* Public API, accessors
-    /**********************************************************
-     */
-
-    /**
-     * Method that can be called to check whether mapper thinks
-     * it could deserialize an Object of given type.
-     * Check is done by checking whether a registered deserializer can
-     * be found or built for the type; if not (either by no mapping being
-     * found, or through an <code>Exception</code> being thrown, false
-     * is returned.
-     *<p>
-     * <b>NOTE</b>: in case an exception is thrown during course of trying
-     * co construct matching deserializer, it will be effectively swallowed.
-     * If you want access to that exception, call
-     * {@link #canDeserialize(JavaType, AtomicReference)} instead.
-     *
-     * @return True if mapper can find a serializer for instances of
-     *  given class (potentially serializable), false otherwise (not
-     *  serializable)
-     */
-    public boolean canDeserialize(JavaType type)
-    {
-        return createDeserializationContext().hasValueDeserializerFor(type, null);
     }
 
-    /**
-     * Method similar to {@link #canDeserialize(JavaType)} but that can return
-     * actual {@link Throwable} that was thrown when trying to construct
-     * serializer: this may be useful in figuring out what the actual problem is.
-     */
-    public boolean canDeserialize(JavaType type, AtomicReference<Throwable> cause)
-    {
-        return createDeserializationContext().hasValueDeserializerFor(type, cause);
-    }
-    
     /*
     /**********************************************************
     /* Public API, deserialization,

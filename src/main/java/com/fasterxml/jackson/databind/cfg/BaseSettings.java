@@ -21,17 +21,12 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 public final class BaseSettings
     implements java.io.Serializable
 {
-    // for 2.6
     private static final long serialVersionUID = 1L;
 
     /**
      * We will use a default TimeZone as the baseline.
      */
     private static final TimeZone DEFAULT_TIMEZONE = 
-            //  TimeZone.getDefault()
-            /* [databind#915] 05-Nov-2015, tatu: Changed to UTC, from earlier
-             * baseline of GMT (up to 2.6)
-             */
             TimeZone.getTimeZone("UTC");
     
     /*

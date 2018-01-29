@@ -58,8 +58,6 @@ public enum MapperFeature implements ConfigFeature
      * Feature is disabled by default, meaning that existence of `transient`
      * for a field does not necessarily lead to ignoral of getters or setters
      * but just ignoring the use of field for access.
-     *
-     * @since 2.6
      */
     PROPAGATE_TRANSIENT_MARKER(false),
 
@@ -83,8 +81,6 @@ public enum MapperFeature implements ConfigFeature
      * explicitly annotated for such use.
      *<p>
      * Feature is enabled by default, for backwards compatibility reasons.
-     *
-     * @since 2.2
      */
     ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
 
@@ -101,8 +97,6 @@ public enum MapperFeature implements ConfigFeature
      * bean-style naming) or explicitly annotated.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.2
      */
     INFER_PROPERTY_MUTATORS(true),
 
@@ -120,8 +114,6 @@ public enum MapperFeature implements ConfigFeature
      * for deserialization.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.9
      */
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 
@@ -170,8 +162,6 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default, for legacy reasons (it was the behavior
      * until 2.6)
-     *
-     * @since 2.7
      */
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
 
@@ -262,8 +252,6 @@ public enum MapperFeature implements ConfigFeature
      * letters. Overhead for names that are already lower-case should be negligible however.
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.5
      */
     ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
 
@@ -275,8 +263,6 @@ public enum MapperFeature implements ConfigFeature
      * explicit override) do not need to match.
      * <p>
      * Feature is disabled by default.
-     *
-     * @since 2.9
      */
     ACCEPT_CASE_INSENSITIVE_ENUMS(false),
 
@@ -289,8 +275,6 @@ public enum MapperFeature implements ConfigFeature
      * If disabled, wrapper name is only used for wrapping (if anything).
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.1
      */
     USE_WRAPPER_NAME_AS_PROPERTY_NAME(false),
 
@@ -300,8 +284,6 @@ public enum MapperFeature implements ConfigFeature
      * be re-named by a {@link PropertyNamingStrategy}, if one is configured.
      * <p>
      * Feature is disabled by default.
-     *
-     * @since 2.7
      */
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
 
@@ -328,8 +310,6 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default (for backwards compatibility since this was the
      * default behavior)
-     *
-     * @since 2.9
      */
     ALLOW_COERCION_OF_SCALARS(true),
 
@@ -353,8 +333,6 @@ public enum MapperFeature implements ConfigFeature
      * this feature is enabled).
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.5
      */
     IGNORE_DUPLICATE_MODULE_REGISTRATIONS(true),
 
@@ -367,8 +345,6 @@ public enum MapperFeature implements ConfigFeature
      * Feature is disabled by default since non-mergeable property types are ignored
      * even if defaults call for merging, and usually explicit per-type or per-property
      * settings for such types should result in an exception.
-     *
-     * @since 2.9
      */
     IGNORE_MERGE_FOR_UNMERGEABLE(true)
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -72,7 +73,7 @@ public class TestDefaultForMaps
     {
         ObjectMapper serMapper = new ObjectMapper();
 
-        TypeResolverBuilder<?> serializerTyper = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+        TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
         serializerTyper = serializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(true));
         serializerTyper = serializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
         serMapper.setDefaultTyping(serializerTyper);
@@ -87,7 +88,7 @@ public class TestDefaultForMaps
 
         // Then deserialize: need separate mapper to initialize type id resolver appropriately
         ObjectMapper deserMapper = new ObjectMapper();
-        TypeResolverBuilder<?> deserializerTyper = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+        TypeResolverBuilder<?> deserializerTyper = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
         deserializerTyper = deserializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(false));
         deserializerTyper = deserializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
         deserMapper.setDefaultTyping(deserializerTyper);

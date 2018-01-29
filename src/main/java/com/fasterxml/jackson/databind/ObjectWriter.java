@@ -5,7 +5,6 @@ import java.text.*;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
@@ -1050,18 +1049,6 @@ public class ObjectWriter
 
     public void acceptJsonFormatVisitor(Class<?> rawType, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
         acceptJsonFormatVisitor(_config.constructType(rawType), visitor);
-    }
-
-    public boolean canSerialize(Class<?> type) {
-        return _serializerProvider().hasSerializerFor(type, null);
-    }
-
-    /**
-     * Method for checking whether instances of given type can be serialized,
-     * and optionally why (as per {@link Throwable} returned).
-     */
-    public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
-        return _serializerProvider().hasSerializerFor(type, cause);
     }
 
     /*

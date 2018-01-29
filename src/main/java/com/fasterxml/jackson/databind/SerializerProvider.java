@@ -1338,36 +1338,6 @@ public abstract class SerializerProvider
                 rootType, ClassUtil.classNameOf(value)));
     }
 
-    /**
-     * Method that will try to find a serializer, either from cache
-     * or by constructing one; but will not return an "unknown" serializer
-     * if this cannot be done but rather returns null.
-     *
-     * @return Serializer if one can be found, null if not.
-     */
-    protected JsonSerializer<Object> _findExplicitUntypedSerializer(Class<?> runtimeType)
-        throws JsonMappingException
-    {        
-        // Fast lookup from local lookup thingy works?
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(runtimeType);
-        if (ser == null) {
-            // If not, maybe shared map already has it?
-            ser = _serializerCache.untypedValueSerializer(runtimeType);
-            if (ser == null) {
-                ser = _createAndCacheUntypedSerializer(runtimeType);
-            }
-        }
-        /* 18-Sep-2014, tatu: This is unfortunate patch over related change
-         *    that pushes creation of "unknown type" serializer deeper down
-         *    in BeanSerializerFactory; as a result, we need to "undo" creation
-         *    here.
-         */
-        if (isUnknownTypeSerializer(ser)) {
-            return null;
-        }
-        return ser;
-    }
-
     /*
     /**********************************************************
     /* Low-level methods for actually constructing and initializing

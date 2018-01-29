@@ -271,35 +271,6 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals("[1,2]", m.writer().without(SerializationFeature.INDENT_OUTPUT)
                 .writeValueAsString(input));
     }
-    
-    // For [databind#703], [databind#978]
-    public void testNonSerializabilityOfObject()
-    {
-        ObjectMapper m = new ObjectMapper();
-        assertFalse(m.canSerialize(Object.class));
-        // but this used to pass, incorrectly, second time around
-        assertFalse(m.canSerialize(Object.class));
-
-        // [databind#978]: Different answer if empty Beans ARE allowed
-        m = new ObjectMapper();
-        m.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        assertTrue(m.canSerialize(Object.class));
-        assertTrue(MAPPER.writer().without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .canSerialize(Object.class));
-        assertFalse(MAPPER.writer().with(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .canSerialize(Object.class));
-    }
-
-    // for [databind#756]
-    public void testEmptyBeanSerializability()
-    {
-        // with default settings, error
-        assertFalse(MAPPER.writer().with(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .canSerialize(EmptyBean.class));
-        // but with changes
-        assertTrue(MAPPER.writer().without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                .canSerialize(EmptyBean.class));
-    }
 
     // for [databind#898]
     public void testSerializerProviderAccess() throws Exception

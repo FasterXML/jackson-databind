@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.creators.jdk8;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

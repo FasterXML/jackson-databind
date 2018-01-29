@@ -2581,34 +2581,6 @@ public class ObjectMapper
 
     /**
      * Method that can be called to check whether mapper thinks
-     * it could serialize an instance of given Class.
-     * Check is done
-     * by checking whether a serializer can be found for the type.
-     *<p>
-     * NOTE: since this method does NOT throw exceptions, but internal
-     * processing may, caller usually has little information as to why
-     * serialization would fail. If you want access to internal {@link Exception},
-     * call {@link #canSerialize(Class, AtomicReference)} instead.
-     *
-     * @return True if mapper can find a serializer for instances of
-     *  given class (potentially serializable), false otherwise (not
-     *  serializable)
-     */
-    public boolean canSerialize(Class<?> type) {
-        return _serializerProvider().hasSerializerFor(type, null);
-    }
-
-    /**
-     * Method similar to {@link #canSerialize(Class)} but that can return
-     * actual {@link Throwable} that was thrown when trying to construct
-     * serializer: this may be useful in figuring out what the actual problem is.
-     */
-    public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
-        return _serializerProvider().hasSerializerFor(type, cause);
-    }
-    
-    /**
-     * Method that can be called to check whether mapper thinks
      * it could deserialize an Object of given type.
      * Check is done by checking whether a registered deserializer can
      * be found or built for the type; if not (either by no mapping being

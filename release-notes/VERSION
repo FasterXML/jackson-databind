@@ -25,4 +25,5 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1889: Merge `ContextualSerializer` into `JsonSerializer`, `ContextualDeserializer`
  into `JsonDeserializer`
 #1916: Change `MapperFeature.USE_GETTERS_AS_SETTERS)` default to `false`
+#1917: Remove `canSerialize` and `canDeserialize` methods from `ObjectMapper`
 - Remove `MappingJsonFactory`

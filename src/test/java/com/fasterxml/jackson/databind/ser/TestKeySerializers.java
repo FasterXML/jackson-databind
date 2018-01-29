@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class TestKeySerializers extends BaseMapTest
@@ -208,7 +209,7 @@ public class TestKeySerializers extends BaseMapTest
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
         mapper.registerModule(mod);
 
-        TypeResolverBuilder<?> typer = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
         typer = typer.init(JsonTypeInfo.Id.NAME, null);
         typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
         //typer = typer.typeProperty(TYPE_FIELD);

@@ -24,8 +24,8 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.*;
+import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.*;
@@ -174,94 +174,6 @@ public class ObjectMapper
          * This does NOT apply to {@link TreeNode} and its subtypes.
          */
         NON_FINAL
-    }
-
-    /**
-     * Customized {@link TypeResolverBuilder} that provides type resolver builders
-     * used with so-called "default typing"
-     * (see {@link ObjectMapper#enableDefaultTyping()} for details).
-     *<p>
-     * Type resolver construction is based on configuration: implementation takes care
-     * of only providing builders in cases where type information should be applied.
-     * This is important since build calls may be sent for any and all types, and
-     * type information should NOT be applied to all of them.
-     */
-    public static class DefaultTypeResolverBuilder
-        extends StdTypeResolverBuilder
-        implements java.io.Serializable
-    {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Definition of what types is this default typer valid for.
-         */
-        protected final DefaultTyping _appliesFor;
-
-        public DefaultTypeResolverBuilder(DefaultTyping t) {
-            _appliesFor = t;
-        }
-
-        @Override
-        public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
-                JavaType baseType, Collection<NamedType> subtypes)
-        {
-            return useForType(baseType) ? super.buildTypeDeserializer(config, baseType, subtypes) : null;
-        }
-
-        @Override
-        public TypeSerializer buildTypeSerializer(SerializationConfig config,
-                JavaType baseType, Collection<NamedType> subtypes)
-        {
-            return useForType(baseType) ? super.buildTypeSerializer(config, baseType, subtypes) : null;            
-        }
-
-        /**
-         * Method called to check if the default type handler should be
-         * used for given type.
-         * Note: "natural types" (String, Boolean, Integer, Double) will never
-         * use typing; that is both due to them being concrete and final,
-         * and since actual serializers and deserializers will also ignore any
-         * attempts to enforce typing.
-         */
-        public boolean useForType(JavaType t)
-        {
-            // 03-Oct-2016, tatu: As per [databind#1395], need to skip
-            //  primitive types too, regardless
-            if (t.isPrimitive()) {
-                return false;
-            }
-
-            switch (_appliesFor) {
-            case NON_CONCRETE_AND_ARRAYS:
-                while (t.isArrayType()) {
-                    t = t.getContentType();
-                }
-                // fall through
-            case OBJECT_AND_NON_CONCRETE:
-                // 19-Apr-2016, tatu: ReferenceType like Optional also requires similar handling:
-                while (t.isReferenceType()) {
-                    t = t.getReferencedType();
-                }
-                return t.isJavaLangObject()
-                        || (!t.isConcrete()
-                                // [databind#88] Should not apply to JSON tree models:
-                                && !TreeNode.class.isAssignableFrom(t.getRawClass()));
-
-            case NON_FINAL:
-                while (t.isArrayType()) {
-                    t = t.getContentType();
-                }
-                // 19-Apr-2016, tatu: ReferenceType like Optional also requires similar handling:
-                while (t.isReferenceType()) {
-                    t = t.getReferencedType();
-                }
-                // [databind#88] Should not apply to JSON tree models:
-                return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
-            default:
-            //case JAVA_LANG_OBJECT:
-                return t.isJavaLangObject();
-            }
-        }
     }
 
     /*
@@ -436,7 +348,7 @@ public class ObjectMapper
      * (should very quickly converge to zero after startup), let's
      * explicitly define a low concurrency setting.
      *<p>
-     * Since version 1.5, these may are either "raw" deserializers (when
+     * These may are either "raw" deserializers (when
      * no type information is needed for base type), or type-wrapped
      * deserializers (if it is needed)
      */

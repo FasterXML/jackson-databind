@@ -359,8 +359,6 @@ public enum DeserializationFeature implements ConfigFeature
      * to be equivalent of JSON null.
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.5
      */
     ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT(false),
 
@@ -373,8 +371,6 @@ public enum DeserializationFeature implements ConfigFeature
      * will be thrown.
      *<p>
      * Feature is enabled by default.
-     * 
-     * @since 2.6
      */
     ACCEPT_FLOAT_AS_INT(true),
 
@@ -401,8 +397,6 @@ public enum DeserializationFeature implements ConfigFeature
      * cases).
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.0
      */
     READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
 
@@ -413,8 +407,6 @@ public enum DeserializationFeature implements ConfigFeature
      * If enabled, but no predefined default Enum value is specified, an exception will be thrown as well.
      *<p>
      * Feature is disabled by default.
-     *
-     * @since 2.8
      */
     READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE(false),
 
@@ -430,8 +422,6 @@ public enum DeserializationFeature implements ConfigFeature
      * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
      * Feature is enabled by default, to support most accurate time values possible.
-     * 
-     * @since 2.2
      */
     READ_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
 
@@ -454,8 +444,6 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Taking above into account, this feature is supported only by extension modules for
      * Joda and Java 8 date/tyime datatypes.
-     * 
-     * @since 2.2
      */
     ADJUST_DATES_TO_CONTEXT_TIME_ZONE(true),
 
@@ -476,8 +464,6 @@ public enum DeserializationFeature implements ConfigFeature
      * feature: only consider that if there are actual perceived problems.
      *<p>
      * Feature is enabled by default.
-     * 
-     * @since 2.1
      */
     EAGER_DESERIALIZER_FETCH(true)
     

@@ -35,12 +35,10 @@ public class PersonTest extends BaseMapTest
         }
 
         public String getNickname() {
-
             return nickname;
         }
 
         public void setNickname(String nickname) {
-
             this.nickname = nickname;
         }
     }    

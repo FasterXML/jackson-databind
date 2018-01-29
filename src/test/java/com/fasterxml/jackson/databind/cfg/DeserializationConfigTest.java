@@ -18,7 +18,7 @@ public class DeserializationConfigTest extends BaseMapTest
 
         // Expected defaults:
         assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
-        assertTrue(cfg.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
+        assertFalse(cfg.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)); // 3.0
         assertTrue(cfg.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS));
 
         assertFalse(cfg.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));

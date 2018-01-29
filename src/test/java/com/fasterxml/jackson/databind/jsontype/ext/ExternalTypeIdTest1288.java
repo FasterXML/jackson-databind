@@ -16,9 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 public class ExternalTypeIdTest1288 extends BaseMapTest
 {
     public static class ClassesWithoutBuilder {
-        
         public static class CreditCardDetails implements PaymentDetails {
-            
             protected String cardHolderFirstName;
             protected String cardHolderLastName;
             protected String number;
@@ -33,51 +31,49 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             
             protected String description;
 
-            public void setCardHolderFirstName (String cardHolderFirstName) {
+            public void setCardHolderFirstName(String cardHolderFirstName) {
                 this.cardHolderFirstName = cardHolderFirstName;
             }
 
-            public void setCardHolderLastName (String cardHolderLastName) {
+            public void setCardHolderLastName(String cardHolderLastName) {
                 this.cardHolderLastName = cardHolderLastName;
             }
 
-            public void setNumber (String number) {
+            public void setNumber(String number) {
                 this.number = number;
             }
 
-            public void setExpiryDate (String expiryDate) {
+            public void setExpiryDate(String expiryDate) {
                 this.expiryDate = expiryDate;
             }
 
-            public void setCsc (int csc) {
+            public void setCsc(int csc) {
                 this.csc = csc;
             }
 
-            public void setAddress (String address) {
+            public void setAddress(String address) {
                 this.address = address;
             }
 
-            public void setZipCode (String zipCode) {
+            public void setZipCode(String zipCode) {
                 this.zipCode = zipCode;
             }
 
-            public void setCity (String city) {
+            public void setCity(String city) {
                 this.city = city;
             }
 
-            public void setProvince (String province) {
+            public void setProvince(String province) {
                 this.province = province;
             }
 
-            public void setCountryCode (String countryCode) {
+            public void setCountryCode(String countryCode) {
                 this.countryCode = countryCode;
             }
 
-            public void setDescription (String description) {
+            public void setDescription(String description) {
                 this.description = description;
             }
-            
-            
         }
         
         public static class EncryptedCreditCardDetails implements PaymentDetails {
@@ -86,11 +82,11 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             
             protected String name;
 
-            public void setPaymentInstrumentID (UUID paymentInstrumentID) {
+            public void setPaymentInstrumentID(UUID paymentInstrumentID) {
                 this.paymentInstrumentID = paymentInstrumentID;
             }
 
-            public void setName (String name) {
+            public void setName(String name) {
                 this.name = name;
             }
 
@@ -102,22 +98,22 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             
             private final Class<? extends PaymentDetails> clazz;
             
-            FormOfPayment (final Class<? extends PaymentDetails> clazz) {
+            FormOfPayment(final Class<? extends PaymentDetails> clazz) {
                 this.clazz = clazz;
             }
             
             @SuppressWarnings ("unchecked")
-            public <T extends PaymentDetails> Class<T> getDetailsClass () {
+            public <T extends PaymentDetails> Class<T> getDetailsClass() {
                 return (Class<T>) this.clazz;
             }
             
-            public static FormOfPayment fromDetailsClass (Class<PaymentDetails> detailsClass) {
+            public static FormOfPayment fromDetailsClass(Class<PaymentDetails> detailsClass) {
                 for (FormOfPayment fop : FormOfPayment.values ()) {
                     if (fop.clazz == detailsClass) {
                         return fop;
                     }
                 }
-                throw new IllegalArgumentException ("not found");
+                throw new IllegalArgumentException("not found");
             }
         }
         
@@ -133,45 +129,45 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             
             PaymentDetails paymentDetails;
 
-            public void setFormOfPayment (FormOfPayment formOfPayment) {
+            public void setFormOfPayment(FormOfPayment formOfPayment) {
                 this.formOfPayment = formOfPayment;
             }
 
-            @JsonTypeInfo (use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "form_of_payment", visible = true)
-            @JsonTypeIdResolver (PaymentDetailsTypeIdResolver.class)
-            public void setPaymentDetails (PaymentDetails paymentDetails) {
+            @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "form_of_payment", visible = true)
+            @JsonTypeIdResolver(PaymentDetailsTypeIdResolver.class)
+            public void setPaymentDetails(PaymentDetails paymentDetails) {
                 this.paymentDetails = paymentDetails;
             }
             
         }
         
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
-            @SuppressWarnings ("unchecked")
+            @SuppressWarnings("unchecked")
             @Override
-            public String idFromValue (Object value) {
+            public String idFromValue(Object value) {
                 if (! (value instanceof PaymentDetails)) {
                     return null;
                 }
-                return FormOfPayment.fromDetailsClass ((Class<PaymentDetails>) value.getClass ()).name ();
+                return FormOfPayment.fromDetailsClass((Class<PaymentDetails>) value.getClass ()).name ();
             }
             
             @Override
-            public String idFromValueAndType (Object value, Class<?> suggestedType) {
+            public String idFromValueAndType(Object value, Class<?> suggestedType) {
                 return this.idFromValue (value);
             }
 
             @Override
-            public JavaType typeFromId (DatabindContext context, String id) {
+            public JavaType typeFromId(DatabindContext context, String id) {
                 return context.getTypeFactory().constructType(FormOfPayment.valueOf(id).getDetailsClass ());
             }
 
             @Override
-            public String getDescForKnownTypeIds () {
+            public String getDescForKnownTypeIds() {
                 return "PaymentDetails";
             }
             
             @Override
-            public Id getMechanism () {
+            public Id getMechanism() {
                 return JsonTypeInfo.Id.CUSTOM;
             }
         }
@@ -194,14 +190,15 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
                 private String province;
                 private String countryCode;
                 
-                public CompanyCreditCardDetailsBuilder address (final String a) {
+                public CompanyCreditCardDetailsBuilder address(final String a) {
                     address = a;
                     return this;
                 }
                 
                 @Override
                 public CreditCardDetails build() {
-                    return new CreditCardDetails (this.cardHolderFirstName, this.cardHolderLastName, this.number, this.expiryDate, this.csc, this.address, this.zipCode, this.city,
+                    return new CreditCardDetails (this.cardHolderFirstName, this.cardHolderLastName, this.number,
+                            this.expiryDate, this.csc, this.address, this.zipCode, this.city,
                             this.province, this.countryCode, "COMPANY CREDIT CARD");
                 }
                 
@@ -210,42 +207,42 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder cardHolderLastName (final String cardHolderLastName) {
+                public CompanyCreditCardDetailsBuilder cardHolderLastName(final String cardHolderLastName) {
                     this.cardHolderLastName = cardHolderLastName;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder city (final String city) {
+                public CompanyCreditCardDetailsBuilder city(final String city) {
                     this.city = city;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder countryCode (final String countryCode) {
+                public CompanyCreditCardDetailsBuilder countryCode(final String countryCode) {
                     this.countryCode = countryCode;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder csc (final int csc) {
+                public CompanyCreditCardDetailsBuilder csc(final int csc) {
                     this.csc = csc;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder expiryDate (final String expiryDate) {
+                public CompanyCreditCardDetailsBuilder expiryDate(final String expiryDate) {
                     this.expiryDate = expiryDate;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder number (final String number) {
+                public CompanyCreditCardDetailsBuilder number(final String number) {
                     this.number = number;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder province (final String province) {
+                public CompanyCreditCardDetailsBuilder province(final String province) {
                     this.province = province;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder zipCode (final String zipCode) {
+                public CompanyCreditCardDetailsBuilder zipCode(final String zipCode) {
                     this.zipCode = zipCode;
                     return this;
                 }
@@ -265,69 +262,69 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
                 private String countryCode;
                 private String description;
                 
-                public IndividualCreditCardDetailsBuilder address (final String address) {
+                public IndividualCreditCardDetailsBuilder address(final String address) {
                     this.address = address;
                     return this;
                 }
                 
                 @Override
                 public CreditCardDetails build () {
-                    return new CreditCardDetails (this.cardHolderFirstName, this.cardHolderLastName, this.number, this.expiryDate, this.csc, this.address, this.zipCode, this.city,
+                    return new CreditCardDetails (this.cardHolderFirstName, this.cardHolderLastName, this.number,
+                            this.expiryDate, this.csc, this.address, this.zipCode, this.city,
                             this.province, this.countryCode, this.description);
                 }
                 
-                public IndividualCreditCardDetailsBuilder cardHolderFirstName (final String cardHolderFirstName) {
+                public IndividualCreditCardDetailsBuilder cardHolderFirstName(final String cardHolderFirstName) {
                     this.cardHolderFirstName = cardHolderFirstName;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder cardHolderLastName (final String cardHolderLastName) {
+                public IndividualCreditCardDetailsBuilder cardHolderLastName(final String cardHolderLastName) {
                     this.cardHolderLastName = cardHolderLastName;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder city (final String city) {
+                public IndividualCreditCardDetailsBuilder city(final String city) {
                     this.city = city;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder countryCode (final String countryCode) {
+                public IndividualCreditCardDetailsBuilder countryCode(final String countryCode) {
                     this.countryCode = countryCode;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder csc (final int csc) {
+                public IndividualCreditCardDetailsBuilder csc(final int csc) {
                     this.csc = csc;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder description (final String description) {
+                public IndividualCreditCardDetailsBuilder description(final String description) {
                     this.description = description;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder expiryDate (final String expiryDate) {
+                public IndividualCreditCardDetailsBuilder expiryDate(final String expiryDate) {
                     this.expiryDate = expiryDate;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder number (final String number) {
+                public IndividualCreditCardDetailsBuilder number(final String number) {
                     this.number = number;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder province (final String p) {
+                public IndividualCreditCardDetailsBuilder province(final String p) {
                     province = p;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder zipCode (final String z) {
+                public IndividualCreditCardDetailsBuilder zipCode(final String z) {
                     zipCode = z;
                     return this;
                 }
-                
             }
-            
+
             protected final String cardHolderFirstName;
             protected final String cardHolderLastName;
             protected final String number;
@@ -342,8 +339,9 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             
             protected final String description;
             
-            public CreditCardDetails (final String cardHolderFirstName, final String cardHolderLastName, final String number, final String expiryDate, final int csc,
-                    final String address, final String zipCode, final String city, final String province, final String countryCode, final String description) {
+            public CreditCardDetails(final String cardHolderFirstName, final String cardHolderLastName,
+                    final String number, final String expiryDate, final int csc, final String address,
+                    final String zipCode, final String city, final String province, final String countryCode, final String description) {
                 super ();
                 this.cardHolderFirstName = cardHolderFirstName;
                 this.cardHolderLastName = cardHolderLastName;
@@ -358,8 +356,8 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
                 this.description = description;
             }
         }
-        
-        @JsonDeserialize (builder = EncryptedCreditCardDetails.InstrumentedCreditCardBuilder.class)
+
+        @JsonDeserialize(builder = EncryptedCreditCardDetails.InstrumentedCreditCardBuilder.class)
         public static class EncryptedCreditCardDetails implements PaymentDetails {
             @JsonPOJOBuilder (withPrefix = "")
             public static class InstrumentedCreditCardBuilder implements Builder {
@@ -367,16 +365,16 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
                 private String name;
                 
                 @Override
-                public EncryptedCreditCardDetails build () {
-                    return new EncryptedCreditCardDetails (this.paymentInstrumentID, this.name);
+                public EncryptedCreditCardDetails build() {
+                    return new EncryptedCreditCardDetails(this.paymentInstrumentID, this.name);
                 }
                 
-                public InstrumentedCreditCardBuilder name (final String name) {
+                public InstrumentedCreditCardBuilder name(final String name) {
                     this.name = name;
                     return this;
                 }
                 
-                public InstrumentedCreditCardBuilder paymentInstrumentID (final UUID paymentInstrumentID) {
+                public InstrumentedCreditCardBuilder paymentInstrumentID(final UUID paymentInstrumentID) {
                     this.paymentInstrumentID = paymentInstrumentID;
                     return this;
                 }
@@ -385,7 +383,7 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             protected final UUID paymentInstrumentID;
             protected final String name;
 
-            private EncryptedCreditCardDetails (final UUID paymentInstrumentID, final String name) {
+            private EncryptedCreditCardDetails(final UUID paymentInstrumentID, final String name) {
                 super ();
                 this.paymentInstrumentID = paymentInstrumentID;
                 this.name = name;
@@ -394,7 +392,7 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
         
         public enum FormOfPayment {
             INDIVIDUAL_CREDIT_CARD (CreditCardDetails.IndividualCreditCardDetailsBuilder.class), COMPANY_CREDIT_CARD (
-                    CreditCardDetails.CompanyCreditCardDetailsBuilder.class), INSTRUMENTED_CREDIT_CARD (EncryptedCreditCardDetails.InstrumentedCreditCardBuilder.class);
+                    CreditCardDetails.CompanyCreditCardDetailsBuilder.class), INSTRUMENTED_CREDIT_CARD(EncryptedCreditCardDetails.InstrumentedCreditCardBuilder.class);
             
             private final Class<? extends PaymentDetails.Builder> builderClass;
             
@@ -403,17 +401,17 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             }
             
             @SuppressWarnings ("unchecked")
-            public <T extends PaymentDetails> Class<T> getDetailsClass () {
-                return (Class<T>) this.builderClass.getEnclosingClass ();
+            public <T extends PaymentDetails> Class<T> getDetailsClass() {
+                return (Class<T>) this.builderClass.getEnclosingClass();
             }
             
-            public static FormOfPayment fromDetailsClass (Class<PaymentDetails> detailsClass) {
+            public static FormOfPayment fromDetailsClass(Class<PaymentDetails> detailsClass) {
                 for (FormOfPayment fop : FormOfPayment.values ()) {
                     if (fop.builderClass.getEnclosingClass () == detailsClass) {
                         return fop;
                     }
                 }
-                throw new IllegalArgumentException ("not found");
+                throw new IllegalArgumentException("not found");
             }
         }
         
@@ -429,23 +427,23 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             @JsonPOJOBuilder (withPrefix = "")
             @JsonPropertyOrder ({ "form_of_payment", "payment_details" })
             public static class Builder {
-                private FormOfPayment  formOfPayment;
+                private FormOfPayment formOfPayment;
                 private PaymentDetails paymentDetails;
                 
-                public PaymentMean build () {
+                public PaymentMean build() {
                     return new PaymentMean (this.formOfPayment, this.paymentDetails);
                 }
                 
                 // if you annotate with @JsonIgnore, it works, but the value
                 // disappears in the constructor
-                public Builder formOfPayment (final FormOfPayment val) {
+                public Builder formOfPayment(final FormOfPayment val) {
                     this.formOfPayment = val;
                     return this;
                 }
 
                 @JsonTypeInfo (use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "form_of_payment", visible = true)
                 @JsonTypeIdResolver (PaymentDetailsTypeIdResolver.class)
-                public Builder paymentDetails (final PaymentDetails val) {
+                public Builder paymentDetails(final PaymentDetails val) {
                     this.paymentDetails = val;
                     return this;
                 }
@@ -455,10 +453,10 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
                 return new Builder();
             }
 
-            protected final FormOfPayment  formOfPayment;
+            protected final FormOfPayment formOfPayment;
             protected final PaymentDetails paymentDetails;
 
-            private PaymentMean (final FormOfPayment formOfPayment, final PaymentDetails paymentDetails) {
+            private PaymentMean(final FormOfPayment formOfPayment, final PaymentDetails paymentDetails) {
                 super ();
                 this.formOfPayment = formOfPayment;
                 this.paymentDetails = paymentDetails;
@@ -468,30 +466,30 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
             @SuppressWarnings ("unchecked")
             @Override
-            public String idFromValue (Object value) {
+            public String idFromValue(Object value) {
                 if (! (value instanceof PaymentDetails)) {
                     return null;
                 }
-                return FormOfPayment.fromDetailsClass ((Class<PaymentDetails>) value.getClass ()).name ();
+                return FormOfPayment.fromDetailsClass((Class<PaymentDetails>) value.getClass ()).name ();
             }
             
             @Override
-            public String idFromValueAndType (Object value, Class<?> suggestedType) {
-                return this.idFromValue (value);
+            public String idFromValueAndType(Object value, Class<?> suggestedType) {
+                return this.idFromValue(value);
             }
 
             @Override
-            public JavaType typeFromId (DatabindContext context, String id) {
+            public JavaType typeFromId(DatabindContext context, String id) {
                 return context.getTypeFactory().constructType(FormOfPayment.valueOf (id).getDetailsClass ());
             }
             
             @Override
-            public String getDescForKnownTypeIds () {
+            public String getDescForKnownTypeIds() {
                 return "PaymentDetails";
             }
             
             @Override
-            public Id getMechanism () {
+            public Id getMechanism() {
                 return JsonTypeInfo.Id.CUSTOM;
             }
         }

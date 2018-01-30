@@ -175,6 +175,24 @@ public class ObjectMapper
         NON_FINAL
     }
 
+    /**
+     * Base implementation for "Vanilla" {@link ObjectMapper}, used with JSON backend
+     * as well as for some of simpler formats that do not require mapper level overrides.
+     *
+     * @since 3.0
+     */
+    public class Builder extends MapperBuilder<ObjectMapper, Builder>
+    {
+        public Builder(TokenStreamFactory tsf) {
+            super(tsf);
+        }
+
+        @Override
+        public ObjectMapper build() {
+            return new ObjectMapper();
+        }
+    }
+
     /*
     /**********************************************************
     /* Internal constants, singletons
@@ -463,6 +481,57 @@ public class ObjectMapper
                 new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, _jsonFactory) : dc;
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
+    }
+
+    public ObjectMapper(Builder builder)
+    {
+        _jsonFactory = builder.streamFactory();
+        _subtypeResolver = new StdSubtypeResolver();
+        RootNameLookup rootNames = new RootNameLookup();
+        // and default type factory is shared one
+        _typeFactory = TypeFactory.defaultInstance();
+
+        SimpleMixInResolver mixins = new SimpleMixInResolver(null);
+        _mixIns = mixins;
+        BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
+        _configOverrides = new ConfigOverrides();
+        _serializationConfig = new SerializationConfig(base,
+                    _subtypeResolver, mixins, rootNames, _configOverrides);
+        _deserializationConfig = new DeserializationConfig(base,
+                    _subtypeResolver, mixins, rootNames, _configOverrides);
+
+        // Some overrides we may need
+        final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
+        if (needOrder ^ _serializationConfig.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)) {
+            configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, needOrder);
+        }
+
+        /*
+        _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl(_jsonFactory) : sp;
+        _deserializationContext = (dc == null) ?
+                new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, _jsonFactory) : dc;
+                */
+        _serializerProvider = new DefaultSerializerProvider.Impl(_jsonFactory) ;
+        _deserializationContext = new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, _jsonFactory);
+
+        // Default serializer factory is stateless, can just assign
+        _serializerFactory = BeanSerializerFactory.instance;
+    }
+
+    /**
+     * Short-cut for:
+     *<pre>
+     *   return builder(new JsonFactory());
+     *</pre>
+     *
+     * @since 3.0
+     */
+    public Builder builder() {
+        return new Builder(new JsonFactory());
+    }
+
+    public Builder builder(TokenStreamFactory streamFactory) {
+        return new Builder(streamFactory);
     }
 
     /**

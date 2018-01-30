@@ -194,9 +194,10 @@ public class TestWithGenerics extends BaseMapTest
 
     public void testJackson430() throws Exception
     {
-        ObjectMapper om = new ObjectMapper();
 //        om.getSerializationConfig().setSerializationInclusion( Inclusion.NON_NULL );
-        om.setSerializerFactory( new CustomJsonSerializerFactory() );
+        ObjectMapper om = ObjectMapper.builder()
+                .serializerFactory(new CustomJsonSerializerFactory())
+                .build();
         MyClass mc = new MyClass();
         mc.params.add(new MyParam<Integer>(1));
 

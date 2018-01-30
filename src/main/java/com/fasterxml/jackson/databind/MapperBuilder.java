@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -38,6 +40,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected final TokenStreamFactory _streamFactory;
 
     protected TypeFactory _typeFactory;
+
+    protected SubtypeResolver _subtypeResolver;
 
     /*
     /**********************************************************
@@ -80,10 +84,15 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected MapperBuilder(TokenStreamFactory streamFactory)
     {
         _streamFactory = streamFactory;
+
         _typeFactory = TypeFactory.defaultInstance();
+        _subtypeResolver = null;
 
         _serializerFactory = BeanSerializerFactory.instance;
+        _serializerProvider = null;
+
         _deserializerFactory = BeanDeserializerFactory.instance;
+        _deserializationContext = null;
 
         //        _mapperFeatures = MapperFeature;
     }
@@ -91,7 +100,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected MapperBuilder(MapperBuilder<?,?> base)
     {
         _streamFactory = base._streamFactory;
+
         _typeFactory = base._typeFactory;
+        _subtypeResolver = base._subtypeResolver;
 
         _serializerFactory = base._serializerFactory;
         _serializerProvider = base._serializerProvider;
@@ -119,13 +130,24 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _typeFactory;
     }
 
+    public SubtypeResolver subtypeResolver() {
+        return (_subtypeResolver != null) ? _subtypeResolver : defaultSubtypeResolver();
+    }
+
+    /**
+     * Overridable method for changing default {@link SubtypeResolver} prototype
+     * to use.
+     */
+    protected SubtypeResolver defaultSubtypeResolver() {
+        return new StdSubtypeResolver();
+    }
+
     public SerializerFactory serializerFactory() {
         return _serializerFactory;
     }
 
     public DefaultSerializerProvider serializerProvider() {
-        return (_serializerProvider != null) ? _serializerProvider
-                : defaultSerializerProvider();
+        return (_serializerProvider != null) ? _serializerProvider : defaultSerializerProvider();
     }
 
     /**
@@ -168,6 +190,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B typeFactory(TypeFactory f) {
         _typeFactory = f;
+        return _this();
+    }
+
+    public B subtypeResolver(SubtypeResolver r) {
+        _subtypeResolver = r;
         return _this();
     }
 

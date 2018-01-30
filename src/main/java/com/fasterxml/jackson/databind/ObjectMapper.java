@@ -181,7 +181,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public class Builder extends MapperBuilder<ObjectMapper, Builder>
+    public static class Builder extends MapperBuilder<ObjectMapper, Builder>
     {
         public Builder(TokenStreamFactory tsf) {
             super(tsf);
@@ -189,7 +189,7 @@ public class ObjectMapper
 
         @Override
         public ObjectMapper build() {
-            return new ObjectMapper();
+            return new ObjectMapper(this);
         }
     }
 
@@ -301,7 +301,7 @@ public class ObjectMapper
      * mappers and readers need to access additional API defined by
      * {@link DefaultSerializerProvider}
      */
-    protected DefaultSerializerProvider _serializerProvider;
+    protected final DefaultSerializerProvider _serializerProvider;
 
     /**
      * Serializer factory used for constructing serializers.
@@ -488,7 +488,7 @@ public class ObjectMapper
         _serializerProvider = builder.serializerProvider();
         _deserializationContext = builder.deserializationContext();
         _serializerFactory = builder.serializerFactory();
-        
+
         _subtypeResolver = new StdSubtypeResolver();
         RootNameLookup rootNames = new RootNameLookup();
 
@@ -516,7 +516,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public Builder builder() {
+    public static Builder builder() {
         return new Builder(new JsonFactory());
     }
 
@@ -944,15 +944,6 @@ public class ObjectMapper
     /* Configuration: ser/deser factory, provider access
     /**********************************************************
      */
-    
-    /**
-     * Method for setting specific {@link SerializerFactory} to use
-     * for constructing (bean) serializers.
-     */
-    public ObjectMapper setSerializerFactory(SerializerFactory f) {
-        _serializerFactory = f;
-        return this;
-    }
 
     /**
      * Method for getting current {@link SerializerFactory}.
@@ -963,16 +954,6 @@ public class ObjectMapper
      */
     public SerializerFactory getSerializerFactory() {
         return _serializerFactory;
-    }
-
-    /**
-     * Method for setting "blueprint" {@link SerializerProvider} instance
-     * to use as the base for actual provider instances to use for handling
-     * caching of {@link JsonSerializer} instances.
-     */
-    public ObjectMapper setSerializerProvider(DefaultSerializerProvider p) {
-        _serializerProvider = p;
-        return this;
     }
 
     /**

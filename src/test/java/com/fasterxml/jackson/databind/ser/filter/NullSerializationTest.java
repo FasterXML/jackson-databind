@@ -93,20 +93,21 @@ public class NullSerializationTest
     {
         DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl(new JsonFactory());
         sp.setNullValueSerializer(new NullSerializer());
-        ObjectMapper m = new ObjectMapper();
-        m.setSerializerProvider(sp);
+        ObjectMapper m = ObjectMapper.builder()
+                .serializerProvider(sp)
+                .build();
         assertEquals("\"foobar\"", m.writeValueAsString(null));
     }
 
     public void testCustomNulls() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setSerializerProvider(new MyNullProvider());
+        ObjectMapper m = ObjectMapper.builder()
+                .serializerProvider(new MyNullProvider())
+                .build();
         assertEquals("{\"name\":\"foobar\"}", m.writeValueAsString(new Bean1()));
         assertEquals("{\"type\":null}", m.writeValueAsString(new Bean2()));
     }
 
-    // #281
     public void testCustomNullForTrees() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
@@ -118,8 +119,9 @@ public class NullSerializationTest
         // but then we can customize it:
         DefaultSerializerProvider prov = new MyNullProvider();
         prov.setNullValueSerializer(new NullSerializer());
-        ObjectMapper m = new ObjectMapper();
-        m.setSerializerProvider(prov);
+        ObjectMapper m = ObjectMapper.builder()
+                .serializerProvider(prov)
+                .build();
         assertEquals("{\"a\":\"foobar\"}", m.writeValueAsString(root));
     }
 

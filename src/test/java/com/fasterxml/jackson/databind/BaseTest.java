@@ -347,7 +347,7 @@ public abstract class BaseTest
     protected JsonParser createParserUsingReader(String input)
         throws IOException, JsonParseException
     {
-        return SHARED_MAPPER.createParser(new StringReader(input));
+        return objectMapper().createParser(new StringReader(input));
     }
 
     protected JsonParser createParserUsingStream(String input, String encoding)
@@ -365,7 +365,7 @@ public abstract class BaseTest
             data = input.getBytes(encoding);
         }
         InputStream is = new ByteArrayInputStream(data);
-        return SHARED_MAPPER.createParser(is);
+        return objectMapper().createParser(is);
     }
 
     /*

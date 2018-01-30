@@ -47,10 +47,11 @@ public class TestSetterlessProperties
     /**********************************************************
      */
 
-    public void testSimpleSetterlessCollectionOk()
-        throws Exception
+    public void testSimpleSetterlessCollectionOk() throws Exception
     {
-        CollectionBean result = new ObjectMapper().readValue
+        CollectionBean result = new ObjectMapper()
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .readValue
             ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
         List<String> l = result._values;
         assertEquals(2, l.size());
@@ -62,13 +63,9 @@ public class TestSetterlessProperties
      * Let's also verify that disabling the feature makes
      * deserialization fail for setterless bean
      */
-    public void testSimpleSetterlessCollectionFailure()
-        throws Exception
+    public void testSimpleSetterlessCollectionFailure() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        // by default, it should be enabled
-        assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
-        m.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
         assertFalse(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
 
         // and now this should fail
@@ -77,17 +74,17 @@ public class TestSetterlessProperties
                 ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
             fail("Expected an exception");
         } catch (JsonMappingException e) {
-            /* Not a good exception, ideally could suggest a need for
-             * a setter...?
-             */
+            // Not a good exception, ideally could suggest a need for
+            // a setter...?
             verifyException(e, "Unrecognized field");
         }
     }
 
-    public void testSimpleSetterlessMapOk()
-        throws Exception
+    public void testSimpleSetterlessMapOk() throws Exception
     {
-        MapBean result = new ObjectMapper().readValue
+        MapBean result = new ObjectMapper()
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .readValue
             ("{\"values\":{ \"a\": 15, \"b\" : -3 }}", MapBean.class);
         Map<String,Integer> m = result._values;
         assertEquals(2, m.size());

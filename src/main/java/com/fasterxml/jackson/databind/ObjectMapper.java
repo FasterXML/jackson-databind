@@ -391,7 +391,7 @@ public class ObjectMapper
      * but does not support JAXB annotations.
      */
     public ObjectMapper() {
-        this(null, null, null);
+        this(new JsonFactory(), null, null);
     }
 
     /**
@@ -447,14 +447,9 @@ public class ObjectMapper
      *    actual context objects; if null, will construct standard
      *    {@link DeserializationContext}
      */
-    public ObjectMapper(TokenStreamFactory jf,
+    protected ObjectMapper(TokenStreamFactory jf,
             DefaultSerializerProvider sp, DefaultDeserializationContext dc)
     {
-        // 06-OCt-2017, tatu: Should probably change dependency one of these days...
-        //   but not today.
-        if (jf == null) {
-            jf = new JsonFactory();
-        }
         _jsonFactory = jf;
         _subtypeResolver = new StdSubtypeResolver();
         RootNameLookup rootNames = new RootNameLookup();
@@ -485,11 +480,17 @@ public class ObjectMapper
 
     public ObjectMapper(Builder builder)
     {
+        // General framework factories
         _jsonFactory = builder.streamFactory();
+        _typeFactory = builder.getTypeFactory();
+
+        // Ser/deser framework factories
+        _serializerProvider = builder.serializerProvider();
+        _deserializationContext = builder.deserializationContext();
+        _serializerFactory = builder.serializerFactory();
+        
         _subtypeResolver = new StdSubtypeResolver();
         RootNameLookup rootNames = new RootNameLookup();
-        // and default type factory is shared one
-        _typeFactory = TypeFactory.defaultInstance();
 
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
@@ -505,17 +506,6 @@ public class ObjectMapper
         if (needOrder ^ _serializationConfig.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)) {
             configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, needOrder);
         }
-
-        /*
-        _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl(_jsonFactory) : sp;
-        _deserializationContext = (dc == null) ?
-                new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, _jsonFactory) : dc;
-                */
-        _serializerProvider = new DefaultSerializerProvider.Impl(_jsonFactory) ;
-        _deserializationContext = new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, _jsonFactory);
-
-        // Default serializer factory is stateless, can just assign
-        _serializerFactory = BeanSerializerFactory.instance;
     }
 
     /**

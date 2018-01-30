@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.*;
@@ -216,8 +217,9 @@ public class TestNamingStrategyCustom extends BaseMapTest
 
     public void testWithGetterAsSetter() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(new CStyleStrategy());
+        ObjectMapper mapper = new ObjectMapper()
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .setPropertyNamingStrategy(new CStyleStrategy());
         SetterlessWithValue input = new SetterlessWithValue().add(3);
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"value_list\":[{\"int_value\":3}]}", json);

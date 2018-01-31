@@ -86,7 +86,6 @@ public class TestSerConfig
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
         // and finally, ensure we could override introspectors
-        cfg = cfg.with((ClassIntrospector) null); // no way to verify tho
         cfg = cfg.with((AnnotationIntrospector) null);
         assertNull(cfg.getAnnotationIntrospector());
     }

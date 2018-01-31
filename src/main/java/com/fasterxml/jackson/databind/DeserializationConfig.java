@@ -85,11 +85,11 @@ public final class DeserializationConfig
     /**
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
-    public DeserializationConfig(BaseSettings base,
+    public DeserializationConfig(BaseSettings base, ClassIntrospector classIntrospector,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
-        super(base, str, mixins, rootNames, configOverrides);
+        super(base, classIntrospector, str, mixins, rootNames, configOverrides);
         _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
         _problemHandlers = null;
         _parserFeatures = 0;

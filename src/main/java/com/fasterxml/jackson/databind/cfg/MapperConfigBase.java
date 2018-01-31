@@ -34,6 +34,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**********************************************************
      */
 
+    protected final ClassIntrospector _classIntrospector;
+
     /**
      * Mix-in annotation mappings to use, if any: immutable,
      * cannot be changed once defined.
@@ -94,11 +96,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
      */
-    protected MapperConfigBase(BaseSettings base,
+    protected MapperConfigBase(BaseSettings base, ClassIntrospector classIntrospector,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
         super(base, DEFAULT_MAPPER_FEATURES);
+        _classIntrospector = classIntrospector;
         _mixIns = mixins;
         _subtypeResolver = str;
         _rootNames = rootNames;
@@ -114,6 +117,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             ConfigOverrides configOverrides)
     {
         super(src);
+        _classIntrospector = src._classIntrospector;
         _mixIns = mixins;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = rootNames;
@@ -130,6 +134,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src)
     {
         super(src);
+        _classIntrospector = src._classIntrospector;
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = src._rootNames;
@@ -142,6 +147,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
     {
         super(src, base);
+        _classIntrospector = src._classIntrospector;
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = src._rootNames;
@@ -154,6 +160,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
     {
         super(src, mapperFeatures);
+        _classIntrospector = src._classIntrospector;
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = src._rootNames;
@@ -165,6 +172,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
         super(src);
+        _classIntrospector = src._classIntrospector;
         _mixIns = src._mixIns;
         _subtypeResolver = str;
         _rootNames = src._rootNames;
@@ -176,6 +184,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, PropertyName rootName) {
         super(src);
+        _classIntrospector = src._classIntrospector;
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = src._rootNames;
@@ -188,6 +197,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
     {
         super(src);
+        _classIntrospector = src._classIntrospector;
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = src._rootNames;
@@ -200,6 +210,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins)
     {
         super(src);
+        _classIntrospector = src._classIntrospector;
         _mixIns = mixins;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = src._rootNames;
@@ -212,6 +223,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, ContextAttributes attr)
     {
         super(src);
+        _classIntrospector = src._classIntrospector;
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = src._rootNames;
@@ -320,18 +332,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     public final T withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
         return _withBase(_base.withInsertedAnnotationIntrospector(ai));
-    }
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link ClassIntrospector}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public final T with(ClassIntrospector ci) {
-        return _withBase(_base.with(ci));
     }
 
     /**
@@ -479,8 +479,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * @param rootName to use: if null, means "use default" (clear setting);
      *   if empty String ("") means that no root name wrapping is used;
      *   otherwise defines root name to use.
-     *   
-     * @since 2.6
      */
     public abstract T withRootName(PropertyName rootName);
 
@@ -512,6 +510,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /* Simple accessors
     /**********************************************************
      */
+
+    @Override
+    public ClassIntrospector getClassIntrospector() {
+        return _classIntrospector;
+    }
 
     /**
      * Accessor for object used for finding out all reachable subtypes

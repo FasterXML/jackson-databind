@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -205,24 +204,6 @@ public class ObjectMapper
     private final static JavaType JSON_NODE_TYPE =
             SimpleType.constructUnsafe(JsonNode.class);
 //            TypeFactory.defaultInstance().constructType(JsonNode.class);
-
-    // 16-May-2009, tatu: Ditto ^^^
-    protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
-
-    /**
-     * Base settings contain defaults used for all {@link ObjectMapper}
-     * instances.
-     */
-    protected final static BaseSettings DEFAULT_BASE = new BaseSettings(
-            null, // cannot share global ClassIntrospector any more (2.5+)
-            DEFAULT_ANNOTATION_INTROSPECTOR,
-             null, TypeFactory.defaultInstance(),
-            null, StdDateFormat.instance, null,
-            Locale.getDefault(),
-            null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
-            Base64Variants.getDefaultVariant(),
-            JsonNodeFactory.instance
-    );
 
     /*
     /**********************************************************
@@ -458,11 +439,12 @@ public class ObjectMapper
 
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
-        BaseSettings base = DEFAULT_BASE.with(defaultClassIntrospector());
+        BaseSettings base = BaseSettings.std();
         _configOverrides = new ConfigOverrides();
-        _serializationConfig = new SerializationConfig(base,
+        ClassIntrospector ci = defaultClassIntrospector();
+        _serializationConfig = new SerializationConfig(base, ci,
                     _subtypeResolver, mixins, rootNames, _configOverrides);
-        _deserializationConfig = new DeserializationConfig(base,
+        _deserializationConfig = new DeserializationConfig(base, ci,
                     _subtypeResolver, mixins, rootNames, _configOverrides);
 
         // Some overrides we may need
@@ -482,8 +464,8 @@ public class ObjectMapper
     {
         // General framework factories
         _jsonFactory = builder.streamFactory();
-        _typeFactory = builder.typeFactory();
-
+        BaseSettings base = builder.baseSettings();
+        _typeFactory = base.getTypeFactory();
         // Ser/deser framework factories
         _serializerProvider = builder.serializerProvider();
         _deserializationContext = builder.deserializationContext();
@@ -494,14 +476,13 @@ public class ObjectMapper
 
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
-        BaseSettings base = DEFAULT_BASE.with(_typeFactory)
-                .with(defaultClassIntrospector());
         _configOverrides = new ConfigOverrides();
         // 30-Jan-2018, tatu: Note that we need to weave in TypeFactory
-        _serializationConfig = new SerializationConfig(base,
+        ClassIntrospector ci = builder.classIntrospector();
+        _serializationConfig = new SerializationConfig(base, ci,
                 _subtypeResolver, mixins, rootNames, _configOverrides)
                 .with(_typeFactory);
-        _deserializationConfig = new DeserializationConfig(base,
+        _deserializationConfig = new DeserializationConfig(base, ci,
                 _subtypeResolver, mixins, rootNames, _configOverrides)
                 .with(_typeFactory);
 
@@ -745,8 +726,11 @@ public class ObjectMapper
 
             @Override
             public void setClassIntrospector(ClassIntrospector ci) {
+                // !!! TODO
+                /*
                 _deserializationConfig = _deserializationConfig.with(ci);
                 _serializationConfig = _serializationConfig.with(ci);
+                */
             }
 
             @Override

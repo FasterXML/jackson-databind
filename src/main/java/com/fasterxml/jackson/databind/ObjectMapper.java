@@ -252,7 +252,7 @@ public class ObjectMapper
      * Thing used for registering sub-types, resolving them to
      * super/sub-types as needed.
      */
-    protected SubtypeResolver _subtypeResolver;
+    protected final SubtypeResolver _subtypeResolver;
 
     /**
      * Currently active per-type configuration overrides, accessed by
@@ -458,7 +458,7 @@ public class ObjectMapper
 
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
-        BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
+        BaseSettings base = DEFAULT_BASE.with(defaultClassIntrospector());
         _configOverrides = new ConfigOverrides();
         _serializationConfig = new SerializationConfig(base,
                     _subtypeResolver, mixins, rootNames, _configOverrides);
@@ -489,12 +489,13 @@ public class ObjectMapper
         _deserializationContext = builder.deserializationContext();
         _serializerFactory = builder.serializerFactory();
 
-        _subtypeResolver = new StdSubtypeResolver();
+        _subtypeResolver = builder.subtypeResolver();
         RootNameLookup rootNames = new RootNameLookup();
 
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
-        BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
+        BaseSettings base = DEFAULT_BASE.with(_typeFactory)
+                .with(defaultClassIntrospector());
         _configOverrides = new ConfigOverrides();
         // 30-Jan-2018, tatu: Note that we need to weave in TypeFactory
         _serializationConfig = new SerializationConfig(base,
@@ -1114,16 +1115,6 @@ public class ObjectMapper
      */
     public SubtypeResolver getSubtypeResolver() {
         return _subtypeResolver;
-    }
-
-    /**
-     * Method for setting custom subtype resolver to use.
-     */
-    public ObjectMapper setSubtypeResolver(SubtypeResolver str) {
-        _subtypeResolver = str;
-        _deserializationConfig = _deserializationConfig.with(str);
-        _serializationConfig = _serializationConfig.with(str);
-        return this;
     }
 
     /**

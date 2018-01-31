@@ -331,7 +331,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * if directly calling this method.
      */
     public final T with(ClassIntrospector ci) {
-        return _withBase(_base.withClassIntrospector(ci));
+        return _withBase(_base.with(ci));
     }
 
     /**
@@ -390,7 +390,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * to use.
      */
     public final T with(TypeFactory tf) {
-        return _withBase( _base.withTypeFactory(tf));
+        return _withBase(_base.with(tf));
     }
 
     /**
@@ -398,7 +398,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * {@link TypeResolverBuilder} to use.
      */
     public final T with(TypeResolverBuilder<?> trb) {
-        return _withBase(_base.withTypeResolverBuilder(trb));
+        return _withBase(_base.with(trb));
     }
 
     /**
@@ -410,7 +410,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * if directly calling this method.
      */
     public final T with(PropertyNamingStrategy pns) {
-        return _withBase(_base.withPropertyNamingStrategy(pns));
+        return _withBase(_base.with(pns));
     }
 
     /**
@@ -422,7 +422,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * if directly calling this method.
      */
     public final T with(HandlerInstantiator hi) {
-        return _withBase(_base.withHandlerInstantiator(hi));
+        return _withBase(_base.with(hi));
     }
 
     /*
@@ -447,7 +447,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: non-final since <code>SerializationConfig</code> needs to override this
      */
     public T with(DateFormat df) {
-        return _withBase(_base.withDateFormat(df));
+        return _withBase(_base.with(df));
     }
 
     /**

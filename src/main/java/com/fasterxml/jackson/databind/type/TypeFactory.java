@@ -84,30 +84,23 @@ public final class TypeFactory
     // and as to String... well, for now, ignore its super types
     protected final static SimpleType CORE_TYPE_STRING = new SimpleType(CLS_STRING);
 
-    // @since 2.7
     protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(CLS_OBJECT);
 
     /**
      * Cache {@link Comparable} because it is both parameteric (relatively costly to
      * resolve) and mostly useless (no special handling), better handle directly
-     *
-     * @since 2.7
      */
     protected final static SimpleType CORE_TYPE_COMPARABLE = new SimpleType(CLS_COMPARABLE);
 
     /**
      * Cache {@link Enum} because it is parametric AND self-referential (costly to
      * resolve) and useless in itself (no special handling).
-     *
-     * @since 2.7
      */
     protected final static SimpleType CORE_TYPE_ENUM = new SimpleType(CLS_ENUM);
 
     /**
      * Cache {@link Class} because it is nominally parametric, but has no really
      * useful information.
-     *
-     * @since 2.7
      */
     protected final static SimpleType CORE_TYPE_CLASS = new SimpleType(CLS_CLASS);
 
@@ -147,9 +140,6 @@ public final class TypeFactory
         this(null);
     }
 
-    /**
-     * @since 2.8
-     */
     protected TypeFactory(SimpleLookupCache<Object,JavaType> typeCache) {
         if (typeCache == null) {
             typeCache = new SimpleLookupCache<Object,JavaType>(16, 200);
@@ -198,8 +188,6 @@ public final class TypeFactory
      * Mutant factory method that will construct new {@link TypeFactory} with
      * identical settings except for different cache; most likely one with
      * bigger maximum size.
-     *
-     * @since 2.8
      */
     public TypeFactory withCache(SimpleLookupCache<Object,JavaType> cache)  {
         return new TypeFactory(cache, _parser, _modifiers, _classLoader);
@@ -219,8 +207,6 @@ public final class TypeFactory
      * if you know there is a problem with retention of type definitions;
      * the most likely (and currently only known) problem is retention
      * of {@link Class} instances via {@link JavaType} reference.
-     * 
-     * @since 2.4.1
      */
     public void clearCache() {
         _typeCache.clear();
@@ -268,8 +254,6 @@ public final class TypeFactory
     /**
      * Low-level lookup method moved from {@link com.fasterxml.jackson.databind.util.ClassUtil},
      * to allow for overriding of lookup functionality in environments like OSGi.
-     *
-     * @since 2.6
      */
     public Class<?> findClass(String className) throws ClassNotFoundException
     {
@@ -494,10 +478,6 @@ public final class TypeFactory
      * less-specific type of given type. Usually this is as simple as simply
      * finding super-type with type erasure of <code>superClass</code>, but
      * there may be need for some additional work-arounds.
-     *
-     * @param superClass
-     *
-     * @since 2.7
      */
     public JavaType constructGeneralizedType(JavaType baseType, Class<?> superClass)
     {
@@ -1033,8 +1013,6 @@ s     */
      * no generic parameters are passed. Default implementation may check
      * pre-constructed values for "well-known" types, but if none found
      * will simply call {@link #_newSimpleType}
-     *
-     * @since 2.7
      */
     protected JavaType _constructSimple(Class<?> raw, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces)
@@ -1052,8 +1030,6 @@ s     */
      * Factory method that is to create a new {@link SimpleType} with no
      * checks whatsoever. Default implementation calls the single argument
      * constructor of {@link SimpleType}.
-     *
-     * @since 2.7
      */
     protected JavaType _newSimpleType(Class<?> raw, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces)
@@ -1062,11 +1038,6 @@ s     */
     }
 
     protected JavaType _unknownType() {
-        /* 15-Sep-2015, tatu: Prior to 2.7, we constructed new instance for each call.
-         *    This may have been due to potential mutability of the instance; but that
-         *    should not be issue any more, and creation is somewhat wasteful. So let's
-         *    try reusing singleton/flyweight instance.
-         */
         return CORE_TYPE_OBJECT;
     }
 
@@ -1074,8 +1045,6 @@ s     */
      * Helper method called to see if requested, non-generic-parameterized
      * type is one of common, "well-known" types, instances of which are
      * pre-constructed and do not need dynamic caching.
-     *
-     * @since 2.7
      */
     protected JavaType _findWellKnownSimple(Class<?> clz) {
         if (clz.isPrimitive()) {

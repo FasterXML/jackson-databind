@@ -22,7 +22,7 @@ public class TestTypeModifiers extends BaseMapTest
     /**********************************************************
      */
 
-    static class ModifierModule extends SimpleModule
+    private static class ModifierModule extends SimpleModule
     {
         public ModifierModule() {
             super("test", Version.unknownVersion());
@@ -170,10 +170,10 @@ public class TestTypeModifiers extends BaseMapTest
     static class MyCollectionSerializer extends JsonSerializer<MyCollectionLikeType>
     {
         @Override
-        public void serialize(MyCollectionLikeType value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            jgen.writeStartArray();
-            jgen.writeNumber(value.value);
-            jgen.writeEndArray();
+        public void serialize(MyCollectionLikeType value, JsonGenerator g, SerializerProvider provider) throws IOException {
+            g.writeStartArray();
+            g.writeNumber(value.value);
+            g.writeEndArray();
         }
     }
     static class MyCollectionDeserializer extends JsonDeserializer<MyCollectionLikeType>
@@ -188,7 +188,7 @@ public class TestTypeModifiers extends BaseMapTest
         }        
     }
 
-    static class MyTypeModifier extends TypeModifier
+    private static class MyTypeModifier extends TypeModifier
     {
         @Override
         public JavaType modifyType(JavaType type, Type jdkType, TypeBindings bindings, TypeFactory typeFactory)
@@ -212,15 +212,21 @@ public class TestTypeModifiers extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MY_TYPE_MAPPER = ObjectMapper.builder()
+            .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
+            .build();
+
+    private final ObjectMapper MAPPER_WITH_MODIFIER = ObjectMapper.builder()
+            .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
+            .build()
+            .registerModule(new ModifierModule());
+
     /**
      * Basic test for ensuring that we can get "xxx-like" types recognized.
      */
     public void testMapLikeTypeConstruction() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
-
-        JavaType type = mapper.constructType(MyMapLikeType.class);
+        JavaType type = MY_TYPE_MAPPER.constructType(MyMapLikeType.class);
         assertTrue(type.isMapLikeType());
         // also, must have resolved type info
         JavaType param = ((MapLikeType) type).getKeyType();
@@ -233,10 +239,7 @@ public class TestTypeModifiers extends BaseMapTest
     
     public void testCollectionLikeTypeConstruction() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
-
-        JavaType type = mapper.constructType(MyCollectionLikeType.class);
+        JavaType type = MY_TYPE_MAPPER.constructType(MyCollectionLikeType.class);
         assertTrue(type.isCollectionLikeType());
         JavaType param = ((CollectionLikeType) type).getContentType();
         assertNotNull(param);
@@ -245,40 +248,25 @@ public class TestTypeModifiers extends BaseMapTest
 
     public void testCollectionLikeSerialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
-        mapper.registerModule(new ModifierModule());
-        assertEquals("[19]", mapper.writeValueAsString(new MyCollectionLikeType(19)));
+        assertEquals("[19]", MAPPER_WITH_MODIFIER.writeValueAsString(new MyCollectionLikeType(19)));
     }
 
     public void testMapLikeSerialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
-        mapper.registerModule(new ModifierModule());
         // Due to custom serializer, should get:
-        assertEquals("{\"x\":\"xxx:3\"}", mapper.writeValueAsString(new MyMapLikeType("x", 3)));
+        assertEquals("{\"x\":\"xxx:3\"}", MAPPER_WITH_MODIFIER.writeValueAsString(new MyMapLikeType("x", 3)));
     }
-
 
     public void testCollectionLikeDeserialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
-        mapper.registerModule(new ModifierModule());
-        // !!! TBI
-        MyMapLikeType result = mapper.readValue("{\"a\":13}", MyMapLikeType.class);
+        MyMapLikeType result = MAPPER_WITH_MODIFIER.readValue("{\"a\":13}", MyMapLikeType.class);
         assertEquals("a", result.getKey());
         assertEquals(Integer.valueOf(13), result.getValue());
     }
 
     public void testMapLikeDeserialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
-        mapper.registerModule(new ModifierModule());
-        // !!! TBI
-        MyCollectionLikeType result = mapper.readValue("[-37]", MyCollectionLikeType.class);
+        MyCollectionLikeType result = MAPPER_WITH_MODIFIER.readValue("[-37]", MyCollectionLikeType.class);
         assertEquals(Integer.valueOf(-37), result.getValue());
     }
 }

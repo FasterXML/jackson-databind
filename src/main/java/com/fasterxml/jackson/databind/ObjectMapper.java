@@ -241,7 +241,7 @@ public class ObjectMapper
      * needed to allow modules to add more custom type handling
      * (mostly to support types of non-Java JVM languages)
      */
-    protected TypeFactory _typeFactory;
+    protected /*final*/ TypeFactory _typeFactory;
 
     /**
      * Provider for values to inject in deserialized POJOs.
@@ -408,7 +408,7 @@ public class ObjectMapper
      */
     protected ObjectMapper(ObjectMapper src)
     {
-        _jsonFactory = src._jsonFactory.copy();
+        _jsonFactory = src._jsonFactory; // stream factories now immutable
         _subtypeResolver = src._subtypeResolver;
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
@@ -482,7 +482,7 @@ public class ObjectMapper
     {
         // General framework factories
         _jsonFactory = builder.streamFactory();
-        _typeFactory = builder.getTypeFactory();
+        _typeFactory = builder.typeFactory();
 
         // Ser/deser framework factories
         _serializerProvider = builder.serializerProvider();
@@ -496,10 +496,13 @@ public class ObjectMapper
         _mixIns = mixins;
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
         _configOverrides = new ConfigOverrides();
+        // 30-Jan-2018, tatu: Note that we need to weave in TypeFactory
         _serializationConfig = new SerializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, _configOverrides);
+                _subtypeResolver, mixins, rootNames, _configOverrides)
+                .with(_typeFactory);
         _deserializationConfig = new DeserializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, _configOverrides);
+                _subtypeResolver, mixins, rootNames, _configOverrides)
+                .with(_typeFactory);
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();

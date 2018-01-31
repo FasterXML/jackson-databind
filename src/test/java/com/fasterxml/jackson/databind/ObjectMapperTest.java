@@ -106,9 +106,8 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
         assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
 
-        // // Also, underlying JsonFactory instances should be distinct
-        
-        assertNotSame(m.tokenStreamFactory(), m2.tokenStreamFactory());
+        // 30-Jan-2018, tatu: With 3.0, stream factories are immutable so
+        assertSame(m.tokenStreamFactory(), m2.tokenStreamFactory());
 
         // [databind#122]: Need to ensure mix-ins are not shared
         assertEquals(0, m.getSerializationConfig().mixInCount());

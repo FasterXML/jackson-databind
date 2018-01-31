@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -218,6 +219,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     public B typeFactory(TypeFactory f) {
+        _baseSettings = _baseSettings.with(f);
+        return _this();
+    }
+
+    protected B nodeFactory(JsonNodeFactory f) {
         _baseSettings = _baseSettings.with(f);
         return _this();
     }

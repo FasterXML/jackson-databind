@@ -1429,16 +1429,6 @@ public class ObjectMapper
     }
 
     /**
-     * Method for specifying {@link JsonNodeFactory} to use for
-     * constructing root level tree nodes (via method
-     * {@link #createObjectNode}
-     */
-    public ObjectMapper setNodeFactory(JsonNodeFactory f) {
-        _deserializationConfig = _deserializationConfig.with(f);
-        return this;
-    }
-
-    /**
      * Method for adding specified {@link DeserializationProblemHandler}
      * to be used for handling specific problems during deserialization.
      */

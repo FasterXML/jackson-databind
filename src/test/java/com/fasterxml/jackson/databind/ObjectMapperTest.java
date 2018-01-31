@@ -49,7 +49,7 @@ public class ObjectMapperTest extends BaseMapTest
     @SuppressWarnings("serial")
     static class NoCopyMapper extends ObjectMapper { }
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     /*
     /**********************************************************
@@ -189,11 +189,12 @@ public class ObjectMapperTest extends BaseMapTest
 
     public void testProps()
     {
-        ObjectMapper m = new ObjectMapper();
         // should have default factory
-        assertNotNull(m.getNodeFactory());
+        assertNotNull(MAPPER.getNodeFactory());
         JsonNodeFactory nf = new JsonNodeFactory(true);
-        m.setNodeFactory(nf);
+        ObjectMapper m = ObjectMapper.builder()
+                .nodeFactory(nf)
+                .build();
         assertNull(m.getInjectableValues());
         assertSame(nf, m.getNodeFactory());
     }

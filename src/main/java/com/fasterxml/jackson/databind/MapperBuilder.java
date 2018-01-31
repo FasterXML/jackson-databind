@@ -126,7 +126,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************
-    /* Accessors
+    /* Accessors, general
     /**********************************************************
      */
 
@@ -136,6 +136,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public TokenStreamFactory streamFactory() {
         return _streamFactory;
+    }
+
+    public TypeFactory typeFactory() {
+        return _baseSettings.getTypeFactory();
     }
 
     public ClassIntrospector classIntrospector() {
@@ -161,6 +165,12 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return new StdSubtypeResolver();
     }
 
+    /*
+    /**********************************************************
+    /* Accessors, serialization
+    /**********************************************************
+     */
+
     public SerializerFactory serializerFactory() {
         return _serializerFactory;
     }
@@ -176,6 +186,12 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected DefaultSerializerProvider defaultSerializerProvider() {
         return new DefaultSerializerProvider.Impl(_streamFactory);
     }
+
+    /*
+    /**********************************************************
+    /* Accessors, deserialization
+    /**********************************************************
+     */
 
     public DeserializerFactory deserializerFactory() {
         return _deserializerFactory;
@@ -194,12 +210,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return new DefaultDeserializationContext.Impl(deserializerFactory(),
                 _streamFactory);
     }
-
-    /*
-    /**********************************************************
-    /* Changing simple features
-    /**********************************************************
-     */
 
     /*
     /**********************************************************

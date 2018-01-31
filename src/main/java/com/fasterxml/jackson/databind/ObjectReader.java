@@ -162,7 +162,7 @@ public class ObjectReader
         _config = config;
         _context = mapper._deserializationContext;
         _rootDeserializers = mapper._rootDeserializers;
-        _parserFactory = mapper._jsonFactory;
+        _parserFactory = mapper._streamFactory;
         _valueType = valueType;
         _valueToUpdate = valueToUpdate;
         _schema = schema;

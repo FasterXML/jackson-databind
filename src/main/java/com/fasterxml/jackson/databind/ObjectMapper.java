@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.*;
@@ -215,7 +214,7 @@ public class ObjectMapper
      * Factory used to create {@link JsonParser} and {@link JsonGenerator}
      * instances as necessary.
      */
-    protected final TokenStreamFactory _jsonFactory;
+    protected final TokenStreamFactory _streamFactory;
 
     /**
      * Specific factory used for creating {@link JavaType} instances;
@@ -389,7 +388,7 @@ public class ObjectMapper
      */
     protected ObjectMapper(ObjectMapper src)
     {
-        _jsonFactory = src._jsonFactory; // stream factories now immutable
+        _streamFactory = src._streamFactory; // stream factories now immutable
         _subtypeResolver = src._subtypeResolver;
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
@@ -422,53 +421,36 @@ public class ObjectMapper
      * {@link JsonGenerator}s, and uses given providers for accessing
      * serializers and deserializers.
      * 
-     * @param jf TokenStreamFactory to use: if null, a new {@link JsonFactory} will be constructed
+     * @param streamFactory TokenStreamFactory to use: if null, a new {@link JsonFactory} will be constructed
      * @param sp SerializerProvider to use: if null, a {@link SerializerProvider} will be constructed
      * @param dc Blueprint deserialization context instance to use for creating
      *    actual context objects; if null, will construct standard
      *    {@link DeserializationContext}
      */
-    protected ObjectMapper(TokenStreamFactory jf,
+    protected ObjectMapper(TokenStreamFactory streamFactory,
             DefaultSerializerProvider sp, DefaultDeserializationContext dc)
     {
-        _jsonFactory = jf;
-        _subtypeResolver = new StdSubtypeResolver();
-        RootNameLookup rootNames = new RootNameLookup();
-        // and default type factory is shared one
-        _typeFactory = TypeFactory.defaultInstance();
-
-        SimpleMixInResolver mixins = new SimpleMixInResolver(null);
-        _mixIns = mixins;
-        BaseSettings base = BaseSettings.std();
-        _configOverrides = new ConfigOverrides();
-        ClassIntrospector ci = defaultClassIntrospector();
-        _serializationConfig = new SerializationConfig(base, ci,
-                    _subtypeResolver, mixins, rootNames, _configOverrides);
-        _deserializationConfig = new DeserializationConfig(base, ci,
-                    _subtypeResolver, mixins, rootNames, _configOverrides);
-
-        // Some overrides we may need
-        final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
-        if (needOrder ^ _serializationConfig.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)) {
-            configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, needOrder);
-        }
-        
-        _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl(_jsonFactory) : sp;
-        _deserializationContext = (dc == null) ?
-                new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, _jsonFactory) : dc;
-        // Default serializer factory is stateless, can just assign
-        _serializerFactory = BeanSerializerFactory.instance;
+        this(new Builder(streamFactory),
+                ((sp == null) ? new DefaultSerializerProvider.Impl(streamFactory) : sp),
+                ((dc == null) ? new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, streamFactory) : dc)
+        );
     }
 
     public ObjectMapper(Builder builder)
     {
+        this(builder, builder.serializerProvider(), builder.deserializationContext());
+    }
+
+    public ObjectMapper(Builder builder,
+            DefaultSerializerProvider sp, DefaultDeserializationContext dc)            
+    {
         // General framework factories
-        _jsonFactory = builder.streamFactory();
+        _streamFactory = builder.streamFactory();
         BaseSettings base = builder.baseSettings();
         _typeFactory = base.getTypeFactory();
         // Ser/deser framework factories
-        _serializerProvider = builder.serializerProvider();
-        _deserializationContext = builder.deserializationContext();
+        _serializerProvider = sp;
+        _deserializationContext = dc;
         _serializerFactory = builder.serializerFactory();
 
         _subtypeResolver = builder.subtypeResolver();
@@ -487,7 +469,7 @@ public class ObjectMapper
                 .with(_typeFactory);
 
         // Some overrides we may need
-        final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
+        final boolean needOrder = _streamFactory.requiresPropertyOrdering();
         if (needOrder ^ _serializationConfig.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)) {
             configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, needOrder);
         }
@@ -507,14 +489,6 @@ public class ObjectMapper
 
     public Builder builder(TokenStreamFactory streamFactory) {
         return new Builder(streamFactory);
-    }
-
-    /**
-     * Overridable helper method used to construct default {@link ClassIntrospector}
-     * to use.
-     */
-    protected ClassIntrospector defaultClassIntrospector() {
-        return new BasicClassIntrospector();
     }
 
     /*
@@ -725,15 +699,6 @@ public class ObjectMapper
             }
 
             @Override
-            public void setClassIntrospector(ClassIntrospector ci) {
-                // !!! TODO
-                /*
-                _deserializationConfig = _deserializationConfig.with(ci);
-                _serializationConfig = _serializationConfig.with(ci);
-                */
-            }
-
-            @Override
             public void insertAnnotationIntrospector(AnnotationIntrospector ai) {
                 _deserializationConfig = _deserializationConfig.withInsertedAnnotationIntrospector(ai);
                 _serializationConfig = _serializationConfig.withInsertedAnnotationIntrospector(ai);
@@ -919,7 +884,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public TokenStreamFactory tokenStreamFactory() { return _jsonFactory; }
+    public TokenStreamFactory tokenStreamFactory() { return _streamFactory; }
 
     /**
      * @deprecated Since 3.0 use {@link #tokenStreamFactory()} instead.
@@ -1491,23 +1456,6 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * Method that allows overriding of the underlying {@link DeserializationConfig}
-     * object.
-     * It is added as a fallback method that may be used if no other configuration
-     * modifier method works: it should not be used if there are alternatives,
-     * and its use is generally discouraged.
-     *<p>
-     * <b>NOTE</b>: only use this method if you know what you are doing -- it allows
-     * by-passing some of checks applied to other configuration methods.
-     * Also keep in mind that as with all configuration of {@link ObjectMapper},
-     * this is only thread-safe if done before calling any deserialization methods.
-     */
-    public ObjectMapper setConfig(DeserializationConfig config) {
-        _deserializationConfig = config;
-        return this;
-    }
-
     /*
     /**********************************************************
     /* Configuration, serialization
@@ -1542,23 +1490,6 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * Method that allows overriding of the underlying {@link SerializationConfig}
-     * object, which contains serialization-specific configuration settings.
-     * It is added as a fallback method that may be used if no other configuration
-     * modifier method works: it should not be used if there are alternatives,
-     * and its use is generally discouraged.
-     *<p>
-     * <b>NOTE</b>: only use this method if you know what you are doing -- it allows
-     * by-passing some of checks applied to other configuration methods.
-     * Also keep in mind that as with all configuration of {@link ObjectMapper},
-     * this is only thread-safe if done before calling any serialization methods.
-     */
-    public ObjectMapper setConfig(SerializationConfig config) {
-        _serializationConfig = config;
-        return this;
-    }
-    
     /*
     /**********************************************************
     /* Configuration, other
@@ -1586,7 +1517,7 @@ public class ObjectMapper
         // arbitrary choice but let's do:
         return _serializationConfig.getDateFormat();
     }
-    
+
     /**
      * Method for configuring {@link HandlerInstantiator} to use for creating
      * instances of handlers (such as serializers, deserializers, type and type
@@ -1820,15 +1751,15 @@ public class ObjectMapper
      *</pre>
      */
     public boolean isEnabled(JsonFactory.Feature f) {
-        return _jsonFactory.isEnabled(f);
+        return _streamFactory.isEnabled(f);
     }
 
     public boolean isEnabled(JsonParser.Feature f) {
-        return _deserializationConfig.isEnabled(f, _jsonFactory);
+        return _deserializationConfig.isEnabled(f, _streamFactory);
     }
 
     public boolean isEnabled(JsonGenerator.Feature f) {
-        return _serializationConfig.isEnabled(f, _jsonFactory);
+        return _serializationConfig.isEnabled(f, _streamFactory);
     }
 
     /*
@@ -1848,7 +1779,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(File src) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, src));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
     }
 
     /**
@@ -1861,7 +1792,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(URL src) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, src));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
     }
 
     /**
@@ -1874,7 +1805,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(InputStream in) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, in));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, in));
     }
 
     /**
@@ -1887,7 +1818,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(Reader r) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, r));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, r));
     }
 
     /**
@@ -1900,7 +1831,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] data) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, data));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, data));
     }
 
     /**
@@ -1913,7 +1844,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, data, offset, len));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, data, offset, len));
     }
 
     /**
@@ -1926,7 +1857,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(String content) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
     /**
@@ -1939,7 +1870,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
     /**
@@ -1952,7 +1883,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content, offset, len));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content, offset, len));
     }
 
     /**
@@ -1965,7 +1896,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(DataInput content) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content));
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
     /**
@@ -1978,7 +1909,7 @@ public class ObjectMapper
      */
     public JsonParser createNonBlockingByteArrayParser() throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return ctxt.assignAndReturnParser(_jsonFactory.createNonBlockingByteArrayParser(ctxt));
+        return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteArrayParser(ctxt));
     }
 
     /*
@@ -1997,7 +1928,7 @@ public class ObjectMapper
      * @since 3.0
      */
     public JsonGenerator createGenerator(OutputStream out) throws IOException {
-        return _jsonFactory.createGenerator(_serializerProvider(), out);
+        return _streamFactory.createGenerator(_serializerProvider(), out);
     }
 
     /**
@@ -2009,7 +1940,7 @@ public class ObjectMapper
      * @since 3.0
      */
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
-        return _jsonFactory.createGenerator(_serializerProvider(), out, enc);
+        return _streamFactory.createGenerator(_serializerProvider(), out, enc);
     }
 
     /**
@@ -2021,7 +1952,7 @@ public class ObjectMapper
      * @since 3.0
      */
     public JsonGenerator createGenerator(Writer w) throws IOException {
-        return _jsonFactory.createGenerator(_serializerProvider(), w);
+        return _streamFactory.createGenerator(_serializerProvider(), w);
     }
 
     /**
@@ -2034,7 +1965,7 @@ public class ObjectMapper
      */
     public JsonGenerator createGenerator(File f, JsonEncoding enc)
         throws IOException {
-        return _jsonFactory.createGenerator(_serializerProvider(), f, enc);
+        return _streamFactory.createGenerator(_serializerProvider(), f, enc);
     }
 
     /**
@@ -2046,7 +1977,7 @@ public class ObjectMapper
      * @since 3.0
      */
     public JsonGenerator createGenerator(DataOutput out) throws IOException {
-        return _jsonFactory.createGenerator(_serializerProvider(), out);
+        return _streamFactory.createGenerator(_serializerProvider(), out);
     }
 
     /*
@@ -2274,7 +2205,7 @@ public class ObjectMapper
     public JsonNode readTree(InputStream in) throws IOException
     {
         DeserializationContext ctxt = createDeserializationContext();
-        return _readTreeAndClose(ctxt, _jsonFactory.createParser(ctxt, in));
+        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, in));
     }
 
     /**
@@ -2302,7 +2233,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(Reader r) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
-        return _readTreeAndClose(ctxt, _jsonFactory.createParser(ctxt, r));
+        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, r));
     }
 
     /**
@@ -2330,7 +2261,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(String content) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
-        return _readTreeAndClose(ctxt, _jsonFactory.createParser(ctxt, content));
+        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
     }
 
     /**
@@ -2351,7 +2282,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(byte[] content) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
-        return _readTreeAndClose(ctxt, _jsonFactory.createParser(ctxt, content));
+        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
     }
     
     /**
@@ -2378,7 +2309,7 @@ public class ObjectMapper
         throws IOException, JsonProcessingException
     {
         DeserializationContext ctxt = createDeserializationContext();
-        return _readTreeAndClose(ctxt, _jsonFactory.createParser(ctxt, file));
+        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, file));
     }
 
     /**
@@ -2403,7 +2334,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(URL source) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
-        return _readTreeAndClose(ctxt, _jsonFactory.createParser(ctxt, source));
+        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, source));
     }
 
     /*
@@ -2613,7 +2544,7 @@ public class ObjectMapper
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return (T) _readMapAndClose(ctxt, _jsonFactory.createParser(ctxt, src),
+        return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
                 _typeFactory.constructType(valueType));
     } 
 
@@ -2634,7 +2565,7 @@ public class ObjectMapper
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return (T) _readMapAndClose(ctxt, _jsonFactory.createParser(ctxt, src),
+        return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
                 _typeFactory.constructType(valueTypeRef));
     } 
 
@@ -2655,7 +2586,7 @@ public class ObjectMapper
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
-        return (T) _readMapAndClose(ctxt, _jsonFactory.createParser(ctxt, src), valueType);
+        return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src), valueType);
     }
 
     /**
@@ -2676,7 +2607,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     } 
 
     /**
@@ -2697,7 +2628,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")
@@ -2706,7 +2637,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), valueType);
+                _streamFactory.createParser(ctxt, src), valueType);
     } 
 
     /**
@@ -2727,7 +2658,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, content), _typeFactory.constructType(valueType));
+                _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueType));
     } 
 
     /**
@@ -2748,7 +2679,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, content), _typeFactory.constructType(valueTypeRef));
+                _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueTypeRef));
     } 
 
     /**
@@ -2769,7 +2700,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, content), valueType);
+                _streamFactory.createParser(ctxt, content), valueType);
     }
 
     @SuppressWarnings("unchecked")
@@ -2778,7 +2709,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2787,7 +2718,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
 
     @SuppressWarnings("unchecked")
@@ -2796,7 +2727,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), valueType);
+                _streamFactory.createParser(ctxt, src), valueType);
     }
 
     @SuppressWarnings("unchecked")
@@ -2805,7 +2736,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2814,7 +2745,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
 
     @SuppressWarnings("unchecked")
@@ -2823,7 +2754,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), valueType);
+                _streamFactory.createParser(ctxt, src), valueType);
     }
 
     @SuppressWarnings("unchecked")
@@ -2832,7 +2763,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
 
     @SuppressWarnings("unchecked")
@@ -2842,7 +2773,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src, offset, len), _typeFactory.constructType(valueType));
+                _streamFactory.createParser(ctxt, src, offset, len), _typeFactory.constructType(valueType));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2851,7 +2782,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2861,7 +2792,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src, offset, len), _typeFactory.constructType(valueTypeRef));
+                _streamFactory.createParser(ctxt, src, offset, len), _typeFactory.constructType(valueTypeRef));
     }
 
     @SuppressWarnings("unchecked")
@@ -2870,7 +2801,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), valueType);
+                _streamFactory.createParser(ctxt, src), valueType);
     }
 
     @SuppressWarnings("unchecked")
@@ -2880,7 +2811,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src, offset, len), valueType);
+                _streamFactory.createParser(ctxt, src, offset, len), valueType);
     } 
 
     @SuppressWarnings("unchecked")
@@ -2888,7 +2819,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
 
     @SuppressWarnings("unchecked")
@@ -2896,7 +2827,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(ctxt, src), valueType);
+                _streamFactory.createParser(ctxt, src), valueType);
     }
 
     /*
@@ -2915,7 +2846,7 @@ public class ObjectMapper
     {
         DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
-                _jsonFactory.createGenerator(prov, resultFile, JsonEncoding.UTF8), value);
+                _streamFactory.createGenerator(prov, resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -2934,7 +2865,7 @@ public class ObjectMapper
     {
         DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
-                _jsonFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
+                _streamFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
     }
 
     public void writeValue(DataOutput out, Object value)
@@ -2942,7 +2873,7 @@ public class ObjectMapper
     {
         DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
-                _jsonFactory.createGenerator(prov, out), value);
+                _streamFactory.createGenerator(prov, out), value);
     }
 
     /**
@@ -2959,7 +2890,7 @@ public class ObjectMapper
         throws IOException, JsonGenerationException, JsonMappingException
     {
         DefaultSerializerProvider prov = _serializerProvider();
-        _configAndWriteValue(prov, _jsonFactory.createGenerator(prov, w), value);
+        _configAndWriteValue(prov, _streamFactory.createGenerator(prov, w), value);
     }
 
     /**
@@ -2973,10 +2904,10 @@ public class ObjectMapper
         throws JsonProcessingException
     {
         // alas, we have to pull the recycler directly here...
-        SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
+        SegmentedStringWriter sw = new SegmentedStringWriter(_streamFactory._getBufferRecycler());
         DefaultSerializerProvider prov = _serializerProvider();
         try {
-            _configAndWriteValue(prov, _jsonFactory.createGenerator(prov, sw), value);
+            _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -2997,10 +2928,10 @@ public class ObjectMapper
         throws JsonProcessingException
     {
         DefaultSerializerProvider prov = _serializerProvider();
-        ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
+        ByteArrayBuilder bb = new ByteArrayBuilder(_streamFactory._getBufferRecycler());
         try {
             _configAndWriteValue(prov,
-                    _jsonFactory.createGenerator(prov, bb, JsonEncoding.UTF8), value);
+                    _streamFactory.createGenerator(prov, bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -3908,9 +3839,9 @@ public class ObjectMapper
     protected void _verifySchemaType(FormatSchema schema)
     {
         if (schema != null) {
-            if (!_jsonFactory.canUseSchema(schema)) {
+            if (!_streamFactory.canUseSchema(schema)) {
                     throw new IllegalArgumentException("Cannot use FormatSchema of type "+schema.getClass().getName()
-                            +" for format "+_jsonFactory.getFormatName());
+                            +" for format "+_streamFactory.getFormatName());
             }
         }
     }

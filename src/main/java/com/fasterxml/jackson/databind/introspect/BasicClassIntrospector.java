@@ -24,8 +24,6 @@ public class BasicClassIntrospector
      * This is strictly performance optimization to reduce what is
      * usually one-time cost, but seems useful for some cases considering
      * simplicity.
-     *
-     * @since 2.4
      */
     protected final static BasicBeanDescription STRING_DESC;
     static {
@@ -57,8 +55,6 @@ public class BasicClassIntrospector
     /**
      * Looks like 'forClassAnnotations()' gets called so frequently that we
      * should consider caching to avoid some of the lookups.
-     * 
-     * @since 2.5
      */
     protected final SimpleLookupCache<JavaType,BasicBeanDescription> _cachedFCA;
 
@@ -248,9 +244,8 @@ public class BasicClassIntrospector
         if (pkgName != null) {
             if (pkgName.startsWith("java.lang")
                     || pkgName.startsWith("java.util")) {
-                /* 23-Sep-2014, tatu: Should we be conservative here (minimal number
-                 *    of matches), or ambitious? Let's do latter for now.
-                 */
+                // 23-Sep-2014, tatu: Should we be conservative here (minimal number
+                //    of matches), or ambitious? Let's do latter for now.
                 if (Collection.class.isAssignableFrom(raw)
                         || Map.class.isAssignableFrom(raw)) {
                     return true;
@@ -269,17 +264,11 @@ public class BasicClassIntrospector
         return null;
     }
 
-    /**
-     * @since 2.9
-     */
     protected AnnotatedClass _resolveAnnotatedClass(MapperConfig<?> config,
             JavaType type, MixInResolver r) {
         return AnnotatedClassResolver.resolve(config, type, r);
     }
 
-    /**
-     * @since 2.9
-     */
     protected AnnotatedClass _resolveAnnotatedWithoutSuperTypes(MapperConfig<?> config,
             JavaType type, MixInResolver r) {
         return AnnotatedClassResolver.resolveWithoutSuperTypes(config, type, r);

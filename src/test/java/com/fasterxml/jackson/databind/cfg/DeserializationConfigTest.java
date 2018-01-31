@@ -98,7 +98,6 @@ public class DeserializationConfigTest extends BaseMapTest
         ObjectMapper m = new ObjectMapper();
         DeserializationConfig cfg = m.getDeserializationConfig();
         // and finally, ensure we could override introspectors
-        cfg = cfg.with((ClassIntrospector) null); // no way to verify tho
         cfg = cfg.with((AnnotationIntrospector) null);
         assertNull(cfg.getAnnotationIntrospector());
     }

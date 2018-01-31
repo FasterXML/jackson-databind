@@ -209,10 +209,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /* Configuration: introspectors, mix-ins
     /**********************************************************
      */
-    
-    public ClassIntrospector getClassIntrospector() {
-        return _base.getClassIntrospector();
-    }
+
+    public abstract ClassIntrospector getClassIntrospector();
 
     /**
      * Method for getting {@link AnnotationIntrospector} configured

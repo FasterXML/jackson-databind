@@ -30,26 +30,28 @@ public class StdSubtypeResolver
      */
 
     @Override    
-    public void registerSubtypes(NamedType... types) {
+    public StdSubtypeResolver registerSubtypes(NamedType... types) {
         if (_registeredSubtypes == null) {
             _registeredSubtypes = new LinkedHashSet<NamedType>();
         }
         for (NamedType type : types) {
             _registeredSubtypes.add(type);
         }
+        return this;
     }
 
     @Override
-    public void registerSubtypes(Class<?>... classes) {
+    public StdSubtypeResolver registerSubtypes(Class<?>... classes) {
         NamedType[] types = new NamedType[classes.length];
         for (int i = 0, len = classes.length; i < len; ++i) {
             types[i] = new NamedType(classes[i]);
         }
         registerSubtypes(types);
+        return this;
     }
 
     @Override // since 2.9
-    public void registerSubtypes(Collection<Class<?>> subtypes) {
+    public StdSubtypeResolver registerSubtypes(Collection<Class<?>> subtypes) {
         int len = subtypes.size();
         NamedType[] types = new NamedType[len];
         int i = 0;
@@ -57,6 +59,7 @@ public class StdSubtypeResolver
             types[i++] = new NamedType(subtype);
         }
         registerSubtypes(types);
+        return this;
     }
 
     /*

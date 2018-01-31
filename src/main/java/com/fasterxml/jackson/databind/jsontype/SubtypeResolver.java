@@ -24,11 +24,11 @@ public abstract class SubtypeResolver
      * names); for type entries without name, non-qualified class name
      * as used as name (unless overridden by annotation).
      */
-    public abstract void registerSubtypes(NamedType... types);
+    public abstract SubtypeResolver registerSubtypes(NamedType... types);
 
-    public abstract void registerSubtypes(Class<?>... classes);
+    public abstract SubtypeResolver registerSubtypes(Class<?>... classes);
 
-    public abstract void registerSubtypes(Collection<Class<?>> subtypes);
+    public abstract SubtypeResolver registerSubtypes(Collection<Class<?>> subtypes);
     
     /*
     /**********************************************************

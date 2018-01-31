@@ -95,9 +95,8 @@ public final class SerializationConfig
     /**
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
-    public SerializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+    public SerializationConfig(BaseSettings base, SubtypeResolver str,
+            SimpleMixInResolver mixins, RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
         super(base, str, mixins, rootNames, configOverrides);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
@@ -111,8 +110,6 @@ public final class SerializationConfig
 
     /**
      * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
-     *
-     * @since 2.9
      */
     protected SerializationConfig(SerializationConfig src,
             SimpleMixInResolver mixins, RootNameLookup rootNames,

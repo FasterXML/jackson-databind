@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.databind.*;
 
-import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 
 public class ConfigObjectsTest extends BaseMapTest
@@ -12,13 +11,16 @@ public class ConfigObjectsTest extends BaseMapTest
 
     public void testSubtypeResolver() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        SubtypeResolver res = mapper.getSubtypeResolver();
-        assertTrue(res instanceof StdSubtypeResolver);
-
-        StdSubtypeResolver repl = new StdSubtypeResolver();
-        repl.registerSubtypes(Sub.class);
-        mapper.setSubtypeResolver(repl);
+        ObjectMapper vanilla = new ObjectMapper();
+        StdSubtypeResolver repl = new StdSubtypeResolver()
+            .registerSubtypes(Sub.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .subtypeResolver(repl)
+                .build();
         assertSame(repl, mapper.getSubtypeResolver());
+        assertNotSame(vanilla, mapper.getSubtypeResolver());
+
+        assertSame(repl, mapper.getDeserializationConfig().getSubtypeResolver());
+        assertSame(repl, mapper.getSerializationConfig().getSubtypeResolver());
     }
 }

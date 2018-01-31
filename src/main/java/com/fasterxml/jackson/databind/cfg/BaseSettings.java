@@ -154,7 +154,7 @@ public final class BaseSettings
     /**********************************************************
      */
     
-    public BaseSettings withClassIntrospector(ClassIntrospector ci) {
+    public BaseSettings with(ClassIntrospector ci) {
         if (_classIntrospector == ci) {
             return this;
         }
@@ -180,7 +180,7 @@ public final class BaseSettings
         return withAnnotationIntrospector(AnnotationIntrospectorPair.create(_annotationIntrospector, ai));
     }
 
-    public BaseSettings withPropertyNamingStrategy(PropertyNamingStrategy pns) {
+    public BaseSettings with(PropertyNamingStrategy pns) {
         if (_propertyNamingStrategy == pns) {
             return this;
         }
@@ -189,7 +189,7 @@ public final class BaseSettings
                 _timeZone, _defaultBase64, _nodeFactory);
     }
 
-    public BaseSettings withTypeFactory(TypeFactory tf) {
+    public BaseSettings with(TypeFactory tf) {
         if (_typeFactory == tf) {
             return this;
         }
@@ -198,7 +198,7 @@ public final class BaseSettings
                 _timeZone, _defaultBase64, _nodeFactory);
     }
 
-    public BaseSettings withTypeResolverBuilder(TypeResolverBuilder<?> typer) {
+    public BaseSettings with(TypeResolverBuilder<?> typer) {
         if (_typeResolverBuilder == typer) {
             return this;
         }
@@ -207,7 +207,7 @@ public final class BaseSettings
                 _timeZone, _defaultBase64, _nodeFactory);
     }
     
-    public BaseSettings withDateFormat(DateFormat df) {
+    public BaseSettings with(DateFormat df) {
         if (_dateFormat == df) {
             return this;
         }
@@ -221,7 +221,7 @@ public final class BaseSettings
                 _timeZone, _defaultBase64, _nodeFactory);
     }
 
-    public BaseSettings withHandlerInstantiator(HandlerInstantiator hi) {
+    public BaseSettings with(HandlerInstantiator hi) {
         if (_handlerInstantiator == hi) {
             return this;
         }

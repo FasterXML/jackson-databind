@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 
 /**
  * Unit tests for checking handling of SerializationConfig.

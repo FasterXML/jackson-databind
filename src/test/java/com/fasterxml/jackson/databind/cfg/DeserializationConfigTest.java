@@ -5,7 +5,6 @@ import java.util.Collections;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 
 public class DeserializationConfigTest extends BaseMapTest
 {

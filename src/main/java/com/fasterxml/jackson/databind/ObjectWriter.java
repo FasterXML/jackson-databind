@@ -90,7 +90,7 @@ public class ObjectWriter
         _config = config;
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
-        _generatorFactory = mapper._jsonFactory;
+        _generatorFactory = mapper._streamFactory;
         _generatorSettings = (pp == null) ? GeneratorSettings.empty
                 : new GeneratorSettings(pp, null, null, null);
 
@@ -111,7 +111,7 @@ public class ObjectWriter
         _config = config;
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
-        _generatorFactory = mapper._jsonFactory;
+        _generatorFactory = mapper._streamFactory;
 
         _generatorSettings = GeneratorSettings.empty;
         _prefetch = Prefetch.empty;
@@ -127,7 +127,7 @@ public class ObjectWriter
 
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
-        _generatorFactory = mapper._jsonFactory;
+        _generatorFactory = mapper._streamFactory;
 
         _generatorSettings = (s == null) ? GeneratorSettings.empty
                 : new GeneratorSettings(null, s, null, null);

@@ -126,7 +126,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _streamFactory;
     }
 
-    public TypeFactory getTypeFactory() {
+    public TypeFactory typeFactory() {
         return _typeFactory;
     }
 

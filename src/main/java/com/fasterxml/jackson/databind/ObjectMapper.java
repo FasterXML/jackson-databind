@@ -1595,7 +1595,7 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link MapperConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(MapperFeature... f) {
@@ -1629,7 +1629,7 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} feature.
+     * Method for enabling specified {@link SerializationConfig} feature.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper enable(SerializationFeature f) {
@@ -1638,7 +1638,7 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for enabling specified {@link SerializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper enable(SerializationFeature first,
@@ -1648,7 +1648,7 @@ public class ObjectMapper
     }
     
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link SerializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(SerializationFeature f) {
@@ -1657,7 +1657,7 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link SerializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(SerializationFeature first,
@@ -1710,7 +1710,7 @@ public class ObjectMapper
     }
     
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(DeserializationFeature feature) {
@@ -1719,7 +1719,7 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(DeserializationFeature first,

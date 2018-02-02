@@ -470,12 +470,12 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public static Builder builder() {
-        return new Builder(new JsonFactory());
+    public static ObjectMapper.Builder builder() {
+        return new ObjectMapper.Builder(new JsonFactory());
     }
 
-    public Builder builder(TokenStreamFactory streamFactory) {
-        return new Builder(streamFactory);
+    public ObjectMapper.Builder builder(TokenStreamFactory streamFactory) {
+        return new ObjectMapper.Builder(streamFactory);
     }
 
     /*

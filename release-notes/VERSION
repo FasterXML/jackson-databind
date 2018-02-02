@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.9.3 (not yet released)
+
+#1872 `NullPointerException` in `SubTypeValidator.validateSubType` when
+  validating Spring interface
+ (reported by Rob W)
+
 2.7.9.2 (20-Dec-2017)
 
 #1607: @JsonIdentityReference not used when setup on class only

@@ -501,8 +501,9 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
         final String asJson1 = "{\"form_of_payment\":\"INDIVIDUAL_CREDIT_CARD\", \"payment_details\":{\"card_holder_first_name\":\"John\", \"card_holder_last_name\":\"Doe\",  \"number\":\"XXXXXXXXXXXXXXXX\", \"expiry_date\":\"MM/YY\","
                 + "\"csc\":666,\"address\":\"10 boulevard de Sebastopol\",\"zip_code\":\"75001\",\"city\":\"Paris\",\"province\":\"Ile-de-France\",\"country_code\":\"FR\",\"description\":\"John Doe personal credit card\"}}";
         final String asJson2 = "{\"form_of_payment\":\"INSTRUMENTED_CREDIT_CARD\",\"payment_details\":{\"payment_instrument_id\":\"00000000-0000-0000-0000-000000000000\", \"name\":\"Mr John Doe encrypted credit card\"}}";
-        final ObjectMapper objectMapper = new ObjectMapper ().setPropertyNamingStrategy (PropertyNamingStrategy.SNAKE_CASE);
-
+        final ObjectMapper objectMapper = ObjectMapper.builder()
+                .propertyNamingStrategy (PropertyNamingStrategy.SNAKE_CASE)
+                .build();
         ClassesWithoutBuilder.PaymentMean ob1 = objectMapper.readValue (asJson1, ClassesWithoutBuilder.PaymentMean.class);
         assertNotNull(ob1);
         ClassesWithBuilder.PaymentMean ob2 = objectMapper.readValue (asJson2, ClassesWithBuilder.PaymentMean.class);

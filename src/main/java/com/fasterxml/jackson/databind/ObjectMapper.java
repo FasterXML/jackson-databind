@@ -1089,31 +1089,14 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.with(deserializerAI);
         return this;
     }
-    
+
     /**
      * Method for setting custom property naming strategy to use.
      */
+    @Deprecated
     public ObjectMapper setPropertyNamingStrategy(PropertyNamingStrategy s) {
         _serializationConfig = _serializationConfig.with(s);
         _deserializationConfig = _deserializationConfig.with(s);
-        return this;
-    }
-
-    public PropertyNamingStrategy getPropertyNamingStrategy() {
-        // arbitrary choice but let's do:
-        return _serializationConfig.getPropertyNamingStrategy();
-    }
-
-    /**
-     * Method for specifying {@link PrettyPrinter} to use when "default pretty-printing"
-     * is enabled (by enabling {@link SerializationFeature#INDENT_OUTPUT})
-     * 
-     * @param pp Pretty printer to use by default.
-     * 
-     * @return This mapper, useful for call-chaining
-     */
-    public ObjectMapper setDefaultPrettyPrinter(PrettyPrinter pp) {
-        _serializationConfig = _serializationConfig.withDefaultPrettyPrinter(pp);
         return this;
     }
 

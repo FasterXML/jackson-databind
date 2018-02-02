@@ -45,18 +45,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected BaseSettings _baseSettings;
 
-    /*
-    /**********************************************************
-    /* Factories for framework itself, general
-    /**********************************************************
-     */
-
     /**
      * Underlying stream factory
      */
     protected final TokenStreamFactory _streamFactory;
 
-    
+    /*
+    /**********************************************************
+    /* Handlers, introspection
+    /**********************************************************
+     */
+
     /**
      * Introspector used to figure out Bean properties needed for bean serialization
      * and deserialization. Overridable so that it is possible to change low-level
@@ -71,7 +70,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /* Factories for serialization
     /**********************************************************
      */
-    
+
     protected SerializerFactory _serializerFactory;
 
     /**
@@ -90,7 +89,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     protected DeserializerFactory _deserializerFactory;
-    
+
     /**
      * Prototype (about same as factory) to use for creating per-operation contexts.
      */
@@ -461,7 +460,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************
-    /* Changing factories, general
+    /* Changing factories/handlers, general
     /**********************************************************
      */
 
@@ -494,6 +493,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B subtypeResolver(SubtypeResolver r) {
         _subtypeResolver = r;
+        return _this();
+    }
+
+    public B propertyNamingStrategy(PropertyNamingStrategy s) {
+        _baseSettings = _baseSettings.with(s);
         return _this();
     }
 

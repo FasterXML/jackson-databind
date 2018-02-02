@@ -40,9 +40,10 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
     // for [databind#806]
     public void testImplicitNameWithNamingStrategy() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
-            .setAnnotationIntrospector(new MyParamIntrospector())
-            .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+        ObjectMapper mapper = ObjectMapper.builder()
+                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .build()
+                .setAnnotationIntrospector(new MyParamIntrospector())
             ;
         XY value = mapper.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);
         assertNotNull(value);

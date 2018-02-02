@@ -147,7 +147,6 @@ public class UnknownPropertyDeserTest
     public void testUnknownHandlingIgnoreWithHandler() throws Exception
     {
         ObjectMapper mapper = newObjectMapper();
-        mapper.clearProblemHandlers();
         mapper.addHandler(new MyHandler());
         TestBean result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
         assertNotNull(result);
@@ -163,8 +162,8 @@ public class UnknownPropertyDeserTest
     public void testUnknownHandlingIgnoreWithHandlerAndObjectReader() throws Exception
     {
         ObjectMapper mapper = newObjectMapper();
-        mapper.clearProblemHandlers();
-        TestBean result = mapper.readerFor(TestBean.class).withHandler(new MyHandler()).readValue(new StringReader(JSON_UNKNOWN_FIELD));
+        TestBean result = mapper.readerFor(TestBean.class).withHandler(new MyHandler())
+                .readValue(new StringReader(JSON_UNKNOWN_FIELD));
         assertNotNull(result);
         assertEquals(1, result._a);
         assertEquals(-1, result._b);

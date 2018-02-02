@@ -65,7 +65,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************
-    /* Factories for framework itself, serialization
+    /* Factories for serialization
     /**********************************************************
      */
     
@@ -76,9 +76,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     protected DefaultSerializerProvider _serializerProvider;
 
+    protected FilterProvider _filterProvider;
+
     /*
     /**********************************************************
-    /* Factories for framework itself, deserialization
+    /* Factories for deserialization
     /**********************************************************
      */
 
@@ -144,40 +146,43 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected MapperBuilder(TokenStreamFactory streamFactory)
     {
+        _streamFactory = streamFactory;
         _baseSettings = BaseSettings.std();
 
         _mapperFeatures = DEFAULT_MAPPER_FEATURES;
         _serFeatures = DEFAULT_SER_FEATURES;
         _deserFeatures = DEFAULT_DESER_FEATURES;
-
-        _streamFactory = streamFactory;
+        // Some overrides we may need based on format
+        if (streamFactory.requiresPropertyOrdering()) {
+            _mapperFeatures |= MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.getMask();
+        }
 
         _classIntrospector = null;
         _subtypeResolver = null;
 
         _serializerFactory = BeanSerializerFactory.instance;
         _serializerProvider = null;
+        _filterProvider = null;
 
         _deserializerFactory = BeanDeserializerFactory.instance;
         _deserializationContext = null;
-        //        _mapperFeatures = MapperFeature;
     }
 
     protected MapperBuilder(MapperBuilder<?,?> base)
     {
+        _streamFactory = base._streamFactory;
         _baseSettings = base._baseSettings;
 
         _mapperFeatures = base._mapperFeatures;
         _serFeatures = base._serFeatures;
         _deserFeatures = base._deserFeatures;
 
-        _streamFactory = base._streamFactory;
-
         _classIntrospector = base._classIntrospector;
         _subtypeResolver = base._subtypeResolver;
 
         _serializerFactory = base._serializerFactory;
         _serializerProvider = base._serializerProvider;
+        _filterProvider = base._filterProvider;
 
         _deserializerFactory = base._deserializerFactory;
         _deserializationContext = base._deserializationContext;
@@ -280,6 +285,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return new DefaultSerializerProvider.Impl(_streamFactory);
     }
 
+    public FilterProvider filterProvider() {
+        return _filterProvider;
+    }
+    
     /*
     /**********************************************************
     /* Accessors, deserialization
@@ -435,6 +444,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B serializerProvider(DefaultSerializerProvider prov) {
         _serializerProvider = prov;
+        return _this();
+    }
+
+    /**
+     * Method for configuring this mapper to use specified {@link FilterProvider} for
+     * mapping Filter Ids to actual filter instances.
+     *<p>
+     * Note that usually it is better to use method in {@link ObjectWriter}, but sometimes
+     * this method is more convenient. For example, some frameworks only allow configuring
+     * of ObjectMapper instances and not {@link ObjectWriter}s.
+     */
+    public B filterProvider(FilterProvider prov) {
+        _filterProvider = prov;
         return _this();
     }
 

@@ -436,12 +436,12 @@ public class ObjectMapper
         );
     }
 
-    public ObjectMapper(Builder builder)
+    public ObjectMapper(MapperBuilder<?,?> builder)
     {
         this(builder, builder.serializerProvider(), builder.deserializationContext());
     }
 
-    public ObjectMapper(Builder builder,
+    public ObjectMapper(MapperBuilder<?,?> builder,
             DefaultSerializerProvider sp, DefaultDeserializationContext dc)            
     {
         // General framework factories

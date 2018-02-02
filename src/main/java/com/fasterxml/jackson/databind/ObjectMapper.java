@@ -1631,11 +1631,11 @@ public class ObjectMapper
     }
 
     public boolean isEnabled(JsonParser.Feature f) {
-        return _deserializationConfig.isEnabled(f, _streamFactory);
+        return _deserializationConfig.isEnabled(f);
     }
 
     public boolean isEnabled(JsonGenerator.Feature f) {
-        return _serializationConfig.isEnabled(f, _streamFactory);
+        return _serializationConfig.isEnabled(f);
     }
 
     /*

@@ -56,12 +56,13 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testParserFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
+
         assertNotSame(config, config.with(JsonParser.Feature.ALLOW_COMMENTS));
         assertNotSame(config, config.withFeatures(JsonParser.Feature.ALLOW_COMMENTS,
                 JsonParser.Feature.ALLOW_MISSING_VALUES));
 
-        assertNotSame(config, config.without(JsonParser.Feature.ALLOW_COMMENTS));
-        assertNotSame(config, config.withoutFeatures(JsonParser.Feature.ALLOW_COMMENTS,
+        assertSame(config, config.without(JsonParser.Feature.ALLOW_COMMENTS));
+        assertSame(config, config.withoutFeatures(JsonParser.Feature.ALLOW_COMMENTS,
                 JsonParser.Feature.ALLOW_MISSING_VALUES));
     }
 

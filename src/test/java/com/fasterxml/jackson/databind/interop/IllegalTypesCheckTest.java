@@ -2,9 +2,13 @@ package com.fasterxml.jackson.databind.interop;
 
 import org.springframework.jacksontest.BogusApplicationContext;
 import org.springframework.jacksontest.BogusPointcutAdvisor;
+import org.springframework.jacksontest.GrantedAuthority;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Test case(s) to guard against handling of types that are illegal to handle
@@ -22,6 +26,10 @@ public class IllegalTypesCheckTest extends BaseMapTest
                 include = JsonTypeInfo.As.WRAPPER_ARRAY)
         public Object v;
     }
+
+    static class Authentication1872 {
+         public List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+    }
     
     /*
     /**********************************************************
@@ -30,7 +38,7 @@ public class IllegalTypesCheckTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     // // // Tests for [databind#1599]
 
     public void testXalanTypes1599() throws Exception
@@ -94,6 +102,17 @@ public class IllegalTypesCheckTest extends BaseMapTest
     }
     */
 
+        // // // Tests for [databind#1872]
+    public void testJDKTypes1872() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+
+        String json = aposToQuotes(String.format("{'@class':'%s','authorities':['java.util.ArrayList',[]]}",
+                Authentication1872.class.getName()));
+        Authentication1872 result = mapper.readValue(json, Authentication1872.class);
+        assertNotNull(result);
+    }
     private void _testIllegalType(Class<?> nasty) throws Exception {
         _testIllegalType(nasty.getName());
     }

@@ -233,16 +233,18 @@ public class TestHandlerInstantiation extends BaseMapTest
 
     public void testDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setHandlerInstantiator(new MyInstantiator("abc:"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .handlerInstantiator(new MyInstantiator("abc:"))
+                .build();
         MyBean result = mapper.readValue(quote("123"), MyBean.class);
         assertEquals("abc:123", result.value);
     }
 
     public void testKeyDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setHandlerInstantiator(new MyInstantiator("abc:"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .handlerInstantiator(new MyInstantiator("abc:"))
+                .build();
         MyMap map = mapper.readValue("{\"a\":\"b\"}", MyMap.class);
         // easiest to test by just serializing...
         assertEquals("{\"KEY\":\"b\"}", mapper.writeValueAsString(map));
@@ -250,15 +252,17 @@ public class TestHandlerInstantiation extends BaseMapTest
     
     public void testSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setHandlerInstantiator(new MyInstantiator("xyz:"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .handlerInstantiator(new MyInstantiator("xyz:"))
+                .build();
         assertEquals(quote("xyz:456"), mapper.writeValueAsString(new MyBean("456")));
     }
 
     public void testTypeIdResolver() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setHandlerInstantiator(new MyInstantiator("foobar"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .handlerInstantiator(new MyInstantiator("foobar"))
+                .build();
         String json = mapper.writeValueAsString(new TypeIdBeanWrapper(new TypeIdBean(123)));
         // should now use our custom id scheme:
         assertEquals("{\"bean\":[\"!!!\",{\"x\":123}]}", json);

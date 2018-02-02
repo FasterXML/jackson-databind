@@ -85,9 +85,10 @@ public class SqlDateSerializationTest extends BaseMapTest
     
     public void testPatternWithSqlDate() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // `java.sql.Date` applies system default zone (and not UTC)
-        mapper.setTimeZone(TimeZone.getDefault());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .defaultTimeZone(TimeZone.getDefault())
+                .build();
 
         Person i = new Person();
         i.dateOfBirth = java.sql.Date.valueOf("1980-04-14");

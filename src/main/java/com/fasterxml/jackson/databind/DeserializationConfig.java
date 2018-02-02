@@ -83,22 +83,6 @@ public final class DeserializationConfig
      */
 
     /**
-     * Constructor used by ObjectMapper to create default configuration object instance.
-     */
-    public DeserializationConfig(BaseSettings base, ClassIntrospector classIntrospector,
-            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
-    {
-        super(base, classIntrospector, str, mixins, rootNames, configOverrides);
-        _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
-        _problemHandlers = null;
-        _parserFeatures = 0;
-        _parserFeaturesToChange = 0;
-        _formatReadFeatures = 0;
-        _formatReadFeaturesToChange = 0;
-    }
-
-    /**
      * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
      */
     protected DeserializationConfig(DeserializationConfig src,
@@ -114,11 +98,30 @@ public final class DeserializationConfig
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
     }
 
+    /**
+     * @since 3.0
+     */
+    public DeserializationConfig(MapperBuilder<?,?> b,
+            int mapperFeatures, int deserFeatures,
+            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
+    {
+        super(b.baseSettings(), mapperFeatures,
+                b.classIntrospector(), b.subtypeResolver(),
+                mixins, rootNames, configOverrides);
+        _deserFeatures = deserFeatures;
+        _problemHandlers = null;
+        _parserFeatures = 0;
+        _parserFeaturesToChange = 0;
+        _formatReadFeatures = 0;
+        _formatReadFeaturesToChange = 0;
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, secondary constructors to support
     /* "mutant factories", with single property changes
-    /**********************************************************
+    /**********************************************************************
      */
 
     private DeserializationConfig(DeserializationConfig src,

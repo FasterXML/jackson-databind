@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
 
 import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -94,23 +93,6 @@ public final class SerializationConfig
      */
 
     /**
-     * Constructor used by ObjectMapper to create default configuration object instance.
-     */
-    public SerializationConfig(BaseSettings base, ClassIntrospector classIntrospector,
-            SubtypeResolver str,
-            SimpleMixInResolver mixins, RootNameLookup rootNames, ConfigOverrides configOverrides)
-    {
-        super(base, classIntrospector, str, mixins, rootNames, configOverrides);
-        _serFeatures = collectFeatureDefaults(SerializationFeature.class);
-        _filterProvider = null;
-        _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
-        _generatorFeatures = 0;
-        _generatorFeaturesToChange = 0;
-        _formatWriteFeatures = 0;
-        _formatWriteFeaturesToChange = 0;
-    }
-
-    /**
      * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
      */
     protected SerializationConfig(SerializationConfig src,
@@ -125,6 +107,25 @@ public final class SerializationConfig
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
         _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public SerializationConfig(MapperBuilder<?,?> b,
+            int mapperFeatures, int serFeatures,
+            SimpleMixInResolver mixins, RootNameLookup rootNames, ConfigOverrides configOverrides)
+    {
+        super(b.baseSettings(), mapperFeatures,
+                b.classIntrospector(), b.subtypeResolver(),
+                mixins, rootNames, configOverrides);
+        _serFeatures = serFeatures;
+        _filterProvider = null;
+        _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
+        _generatorFeatures = 0;
+        _generatorFeaturesToChange = 0;
+        _formatWriteFeatures = 0;
+        _formatWriteFeaturesToChange = 0;
     }
 
     /*

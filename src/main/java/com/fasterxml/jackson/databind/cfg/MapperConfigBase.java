@@ -26,7 +26,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 {
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
-    private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
+    protected final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
     /**********************************************************
@@ -96,11 +96,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
      */
-    protected MapperConfigBase(BaseSettings base, ClassIntrospector classIntrospector,
+    protected MapperConfigBase(BaseSettings base, int mapperFeatures,
+            ClassIntrospector classIntrospector,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
-        super(base, DEFAULT_MAPPER_FEATURES);
+        super(base, mapperFeatures);
         _classIntrospector = classIntrospector;
         _mixIns = mixins;
         _subtypeResolver = str;

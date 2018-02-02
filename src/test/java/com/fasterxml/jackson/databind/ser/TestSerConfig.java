@@ -89,13 +89,6 @@ public class TestSerConfig
         assertNull(cfg.getAnnotationIntrospector());
     }
 
-    public void testMisc()
-    {
-        ObjectMapper m = new ObjectMapper();
-        m.setDateFormat(null); // just to execute the code path
-        assertNotNull(m.getSerializationConfig().toString()); // ditto
-    }
-
     public void testIndentation() throws Exception
     {
         Map<String,Integer> map = new HashMap<String,Integer>();
@@ -178,7 +171,6 @@ public class TestSerConfig
 
     public void testDateFormatConfig() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         TimeZone tz1 = TimeZone.getTimeZone("America/Los_Angeles");
         TimeZone tz2 = TimeZone.getTimeZone("Central Standard Time");
 
@@ -189,7 +181,10 @@ public class TestSerConfig
             fail("Should not be equal");
         }
 
-        mapper.setTimeZone(tz1);
+        ObjectMapper mapper = ObjectMapper.builder()
+            .defaultTimeZone(tz1)
+            .build();
+
         assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
         assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
 
@@ -199,8 +194,12 @@ public class TestSerConfig
         
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         f.setTimeZone(tz2);
-        mapper.setDateFormat(f);
 
+        mapper = ObjectMapper.builder()
+                .defaultTimeZone(tz1)
+                .defaultDateFormat(f)
+                .build();
+        
         // should not change the timezone tho
         assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
         assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());

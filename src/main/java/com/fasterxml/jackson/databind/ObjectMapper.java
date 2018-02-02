@@ -456,17 +456,10 @@ public class ObjectMapper
         _subtypeResolver = builder.subtypeResolver();
         RootNameLookup rootNames = new RootNameLookup();
 
-        SimpleMixInResolver mixins = new SimpleMixInResolver(null);
-        _mixIns = mixins;
+        _mixIns = new SimpleMixInResolver(null);
         _configOverrides = new ConfigOverrides();
-        // 30-Jan-2018, tatu: Note that we need to weave in TypeFactory
-        ClassIntrospector ci = builder.classIntrospector();
-        _serializationConfig = new SerializationConfig(base, ci,
-                _subtypeResolver, mixins, rootNames, _configOverrides)
-                .with(_typeFactory);
-        _deserializationConfig = new DeserializationConfig(base, ci,
-                _subtypeResolver, mixins, rootNames, _configOverrides)
-                .with(_typeFactory);
+        _serializationConfig = builder.buildSerializationConfig(_mixIns, rootNames, _configOverrides);
+        _deserializationConfig = builder.buildDeserializationConfig(_mixIns, rootNames, _configOverrides);
 
         // Some overrides we may need
         final boolean needOrder = _streamFactory.requiresPropertyOrdering();
@@ -594,7 +587,6 @@ public class ObjectMapper
 
             @Override
             public Object getOwner() {
-                // why do we need the cast here?!?
                 return ObjectMapper.this;
             }
 
@@ -1466,62 +1458,12 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * Method that will configure default {@link Base64Variant} that
-     * <code>byte[]</code> serializers and deserializers will use.
-     * 
-     * @param v Base64 variant to use
-     * 
-     * @return This mapper, for convenience to allow chaining
-     */
-    public ObjectMapper setBase64Variant(Base64Variant v) {
-        _serializationConfig = _serializationConfig.with(v);
-        _deserializationConfig = _deserializationConfig.with(v);
-        return this;
-    }
-
     /*
     /**********************************************************
     /* Configuration, other
     /**********************************************************
      */
 
-    /**
-     * Method for configuring the default {@link DateFormat} to use when serializing time
-     * values as Strings, and deserializing from JSON Strings.
-     * This is preferably to directly modifying {@link SerializationConfig} and
-     * {@link DeserializationConfig} instances.
-     * If you need per-request configuration, use {@link #writer(DateFormat)} to
-     * create properly configured {@link ObjectWriter} and use that; this because
-     * {@link ObjectWriter}s are thread-safe whereas ObjectMapper itself is only
-     * thread-safe when configuring methods (such as this one) are NOT called.
-     */
-    public ObjectMapper setDateFormat(DateFormat dateFormat)
-    {
-        _deserializationConfig = _deserializationConfig.with(dateFormat);
-        _serializationConfig = _serializationConfig.with(dateFormat);
-        return this;
-    }
-
-    public DateFormat getDateFormat() {
-        // arbitrary choice but let's do:
-        return _serializationConfig.getDateFormat();
-    }
-
-    /**
-     * Method for configuring {@link HandlerInstantiator} to use for creating
-     * instances of handlers (such as serializers, deserializers, type and type
-     * id resolvers), given a class.
-     *
-     * @param hi Instantiator to use; if null, use the default implementation
-     */
-    public ObjectMapper setHandlerInstantiator(HandlerInstantiator hi)
-    {
-        _deserializationConfig = _deserializationConfig.with(hi);
-        _serializationConfig = _serializationConfig.with(hi);
-        return this;
-    }
-    
     /**
      * Method for configuring {@link InjectableValues} which used to find
      * values to inject.
@@ -1531,31 +1473,8 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * @since 2.6
-     */
     public InjectableValues getInjectableValues() {
         return _injectableValues;
-    }
-
-    /**
-     * Method for overriding default locale to use for formatting.
-     * Default value used is {@link Locale#getDefault()}.
-     */
-    public ObjectMapper setLocale(Locale l) {
-        _deserializationConfig = _deserializationConfig.with(l);
-        _serializationConfig = _serializationConfig.with(l);
-        return this;
-    }
-
-    /**
-     * Method for overriding default TimeZone to use for formatting.
-     * Default value used is UTC (NOT default TimeZone of JVM).
-     */
-    public ObjectMapper setTimeZone(TimeZone tz) {
-        _deserializationConfig = _deserializationConfig.with(tz);
-        _serializationConfig = _serializationConfig.with(tz);
-        return this;
     }
 
     /*

@@ -32,10 +32,11 @@ public class ContextualOptionalTest extends BaseMapTest
 
     public void testContextualOptionals() throws Exception
     {
-        final ObjectMapper mapper = newObjectMapper();
         SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        mapper.setDateFormat(df);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .defaultDateFormat(df)
+                .build();
         ContextualOptionals input = new ContextualOptionals();
         input.date = Optional.ofNullable(new Date(0L));
         input.date1 = Optional.ofNullable(new Date(0L));

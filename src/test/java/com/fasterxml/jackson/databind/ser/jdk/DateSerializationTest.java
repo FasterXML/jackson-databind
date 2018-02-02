@@ -126,9 +126,10 @@ public class DateSerializationTest
      */
     public void testDateISO8601_customTZ() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = ObjectMapper.builder()
+                .defaultTimeZone(TimeZone.getTimeZone("GMT+2"))
+                .build();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        mapper.setTimeZone(TimeZone.getTimeZone("GMT+2"));
 
         serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+02:00");
         serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T02:00:00.000+02:00");
@@ -146,9 +147,10 @@ public class DateSerializationTest
         dateFormat = dateFormat.withColonInTimeZone(false);
         assertFalse(dateFormat.isColonIncludedInTimeZone());
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = ObjectMapper.builder()
+                .defaultDateFormat(dateFormat)
+                .build();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        mapper.setDateFormat(dateFormat);
         
         serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+0000");
         serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+0000");
@@ -156,13 +158,14 @@ public class DateSerializationTest
 
     public void testDateOther() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
-        mapper.setDateFormat(df);
-        mapper.setTimeZone(TimeZone.getTimeZone("PST"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .defaultDateFormat(df)
+                .defaultTimeZone(TimeZone.getTimeZone("PST"))
+                .build();
 
         // let's hit epoch start, offset by a bit
-        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"), "1969-12-31X16:00:00");
+        serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"), "1969-12-31X16:00:00");
     }
 
     public void testTimeZone() throws IOException
@@ -243,16 +246,21 @@ public class DateSerializationTest
      */
     public void testWithTimeZoneOverride() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"));
-        mapper.setTimeZone(TimeZone.getTimeZone("PST"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"))
+                .defaultTimeZone(TimeZone.getTimeZone("PST"))
+                .build();
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
+        
         // pacific time is GMT-8; so midnight becomes 16:00 previous day:
         serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
 
         // Let's also verify that Locale won't matter too much...
-        mapper.setLocale(Locale.FRANCE);
+        mapper = ObjectMapper.builder()
+                .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"))
+                .defaultTimeZone(TimeZone.getTimeZone("PST"))
+                .defaultLocale(Locale.FRANCE)
+                .build();
         serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
 
         // Also: should be able to dynamically change timezone:
@@ -313,8 +321,9 @@ public class DateSerializationTest
     // [databind#1648]: contextual default format should be used
     public void testFormatWithoutPattern() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss"))
+                .build();
         String json = mapper.writeValueAsString(new DateAsDefaultBeanWithTimezone(0L));
         assertEquals(aposToQuotes("{'date':'1970-01-01X01:00:00'}"), json);
     }

@@ -470,11 +470,13 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public static ObjectMapper.Builder builder() {
-        return new ObjectMapper.Builder(new JsonFactory());
+    @SuppressWarnings("unchecked")
+    public static <M extends ObjectMapper, B extends MapperBuilder<M,B>> MapperBuilder<M,B> builder() {
+//      public static <M extends ObjectMapper> MapperBuilder<> builder() {
+        return (MapperBuilder<M,B>) new ObjectMapper.Builder(new JsonFactory());
     }
 
-    public ObjectMapper.Builder builder(TokenStreamFactory streamFactory) {
+    public static ObjectMapper.Builder builder(TokenStreamFactory streamFactory) {
         return new ObjectMapper.Builder(streamFactory);
     }
 

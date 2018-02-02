@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -33,6 +34,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected final static int DEFAULT_MAPPER_FEATURES = MapperConfig.collectFeatureDefaults(MapperFeature.class);
     protected final static int DEFAULT_SER_FEATURES = MapperConfig.collectFeatureDefaults(SerializationFeature.class);
     protected final static int DEFAULT_DESER_FEATURES = MapperConfig.collectFeatureDefaults(DeserializationFeature.class);
+
+    protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
 
     /*
     /**********************************************************
@@ -77,6 +80,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected DefaultSerializerProvider _serializerProvider;
 
     protected FilterProvider _filterProvider;
+
+    protected PrettyPrinter _defaultPrettyPrinter;
 
     /*
     /**********************************************************
@@ -124,19 +129,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected int _generatorFeatures;
 
     /**
-     * Bitflag of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable
+     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
      */
-    protected int _generatorFeaturesToChange;
-
-    /**
-     * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
-     */
-    protected int _formatWriteFeatures;
-
-    /**
-     * Bitflag of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable
-     */
-    protected int _formatWriteFeaturesToChange;
+    protected int _parserFeatures;
 
     /*
     /**********************************************************
@@ -149,13 +144,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _streamFactory = streamFactory;
         _baseSettings = BaseSettings.std();
 
+        _parserFeatures = streamFactory.getParserFeatures();
+        _generatorFeatures = streamFactory.getGeneratorFeatures();
+
         _mapperFeatures = DEFAULT_MAPPER_FEATURES;
-        _serFeatures = DEFAULT_SER_FEATURES;
-        _deserFeatures = DEFAULT_DESER_FEATURES;
         // Some overrides we may need based on format
         if (streamFactory.requiresPropertyOrdering()) {
             _mapperFeatures |= MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.getMask();
         }
+        _deserFeatures = DEFAULT_DESER_FEATURES;
+        _serFeatures = DEFAULT_SER_FEATURES;
 
         _classIntrospector = null;
         _subtypeResolver = null;
@@ -173,6 +171,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _streamFactory = base._streamFactory;
         _baseSettings = base._baseSettings;
 
+        _parserFeatures = base._parserFeatures;
+        _generatorFeatures = base._deserFeatures;
+        
         _mapperFeatures = base._mapperFeatures;
         _serFeatures = base._serFeatures;
         _deserFeatures = base._deserFeatures;
@@ -202,14 +203,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public SerializationConfig buildSerializationConfig(SimpleMixInResolver mixins,
             RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
-        return new SerializationConfig(this, _mapperFeatures, _serFeatures,
+        return new SerializationConfig(this,
+                _mapperFeatures, _serFeatures, _generatorFeatures,
                 mixins, rootNames, configOverrides);
     }
 
     public DeserializationConfig buildDeserializationConfig(SimpleMixInResolver mixins,
             RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
-        return new DeserializationConfig(this, _mapperFeatures, _deserFeatures,
+        return new DeserializationConfig(this,
+                _mapperFeatures, _deserFeatures, _parserFeatures,
                 mixins, rootNames, configOverrides);
     }
 
@@ -289,6 +292,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _filterProvider;
     }
     
+    public PrettyPrinter defaultPrettyPrinter() {
+        if (_defaultPrettyPrinter == null) {
+            _defaultPrettyPrinter = _defaultPrettyPrinter();
+        }
+        return _defaultPrettyPrinter;
+    }
+
+    protected PrettyPrinter _defaultPrettyPrinter() {
+        return DEFAULT_PRETTY_PRINTER;
+    }
+
     /*
     /**********************************************************
     /* Accessors, deserialization
@@ -368,7 +382,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         }
         return _this();
     }
-    
+
     public B enable(DeserializationFeature... features) {
         for (DeserializationFeature f : features) {
             _deserFeatures |= f.getMask();
@@ -389,6 +403,58 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             _deserFeatures |= feature.getMask();
         } else {
             _deserFeatures &= ~feature.getMask();
+        }
+        return _this();
+    }
+
+    /*
+    /**********************************************************
+    /* Changing features: parser, generator
+    /**********************************************************
+     */
+
+    public B enable(JsonParser.Feature... features) {
+        for (JsonParser.Feature f : features) {
+            _parserFeatures |= f.getMask();
+        }
+        return _this();
+    }
+
+    public B disable(JsonParser.Feature... features) {
+        for (JsonParser.Feature f : features) {
+            _parserFeatures &= ~f.getMask();
+        }
+        return _this();
+    }
+
+    public B configure(JsonParser.Feature feature, boolean state) {
+        if (state) {
+            _parserFeatures |= feature.getMask();
+        } else {
+            _parserFeatures &= ~feature.getMask();
+        }
+        return _this();
+    }
+
+    public B enable(JsonGenerator.Feature... features) {
+        for (JsonGenerator.Feature f : features) {
+            _generatorFeatures |= f.getMask();
+        }
+        return _this();
+    }
+
+    public B disable(JsonGenerator.Feature... features) {
+        for (JsonGenerator.Feature f : features) {
+            _generatorFeatures &= ~f.getMask();
+        }
+        return _this();
+    }
+
+    public B configure(JsonGenerator.Feature feature, boolean state) {
+        if (state) {
+            _generatorFeatures |= feature.getMask();
+        } else {
+            _generatorFeatures &= ~feature.getMask();
         }
         return _this();
     }
@@ -457,6 +523,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B filterProvider(FilterProvider prov) {
         _filterProvider = prov;
+        return _this();
+    }
+
+    public B defaultPrettyPrinter(PrettyPrinter pp) {
+        _defaultPrettyPrinter = pp;
         return _this();
     }
 

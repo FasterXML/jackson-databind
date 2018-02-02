@@ -120,7 +120,7 @@ public final class SerializationConfig
                 b.classIntrospector(), b.subtypeResolver(),
                 mixins, rootNames, configOverrides);
         _serFeatures = serFeatures;
-        _filterProvider = null;
+        _filterProvider = b.filterProvider();
         _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
         _generatorFeatures = 0;
         _generatorFeaturesToChange = 0;

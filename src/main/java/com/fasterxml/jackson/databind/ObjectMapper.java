@@ -460,12 +460,6 @@ public class ObjectMapper
         _configOverrides = new ConfigOverrides();
         _serializationConfig = builder.buildSerializationConfig(_mixIns, rootNames, _configOverrides);
         _deserializationConfig = builder.buildDeserializationConfig(_mixIns, rootNames, _configOverrides);
-
-        // Some overrides we may need
-        final boolean needOrder = _streamFactory.requiresPropertyOrdering();
-        if (needOrder ^ _serializationConfig.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)) {
-            configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, needOrder);
-        }
     }
 
     /**
@@ -1426,35 +1420,6 @@ public class ObjectMapper
      */
     public ObjectMapper addHandler(DeserializationProblemHandler h) {
         _deserializationConfig = _deserializationConfig.withHandler(h);
-        return this;
-    }
-
-    /**
-     * Method for removing all registered {@link DeserializationProblemHandler}s
-     * instances from this mapper.
-     */
-    public ObjectMapper clearProblemHandlers() {
-        _deserializationConfig = _deserializationConfig.withNoProblemHandlers();
-        return this;
-    }
-
-    /*
-    /**********************************************************
-    /* Configuration, serialization
-    /**********************************************************
-     */
-
-    /**
-     * Method for configuring this mapper to use specified {@link FilterProvider} for
-     * mapping Filter Ids to actual filter instances.
-     *<p>
-     * Note that usually it is better to use method {@link #writer(FilterProvider)};
-     * however, sometimes
-     * this method is more convenient. For example, some frameworks only allow configuring
-     * of ObjectMapper instances and not {@link ObjectWriter}s.
-     */
-    public ObjectMapper setFilterProvider(FilterProvider filterProvider) {
-        _serializationConfig = _serializationConfig.withFilters(filterProvider);
         return this;
     }
 

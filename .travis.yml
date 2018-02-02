@@ -2,8 +2,8 @@ language: java
 
 # Since Jackson 2.7, build requires jdk7, although module itself works on jdk6 still (for now)
 jdk:
-  - oraclejdk7
-  - oraclejdk8
+  - openjdk7
+  - openjdk8
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
 # http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html
@@ -14,7 +14,6 @@ after_success: "mvn source:jar javadoc:jar deploy --settings target/travis/setti
 branches:
   only:
     - master
-    - "2.6"
     - "2.7"
 
 env:

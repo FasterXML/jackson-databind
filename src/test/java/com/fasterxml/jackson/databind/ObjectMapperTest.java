@@ -249,8 +249,9 @@ public class ObjectMapperTest extends BaseMapTest
     // For [databind#689]
     public void testCustomDefaultPrettyPrinter() throws Exception
     {
-        final ObjectMapper m = new ObjectMapper();
         final int[] input = new int[] { 1, 2 };
+
+        ObjectMapper m = new ObjectMapper();
 
         // without anything else, compact:
         assertEquals("[1,2]", m.writeValueAsString(input));
@@ -262,7 +263,10 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals("[ 1, 2 ]", m.writer().withDefaultPrettyPrinter().writeValueAsString(input));
 
         // but then with our custom thingy...
-        m.setDefaultPrettyPrinter(new FooPrettyPrinter());
+        m = ObjectMapper.builder()
+                .defaultPrettyPrinter(new FooPrettyPrinter())
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
         assertEquals("[1 , 2]", m.writeValueAsString(input));
         assertEquals("[1 , 2]", m.writerWithDefaultPrettyPrinter().writeValueAsString(input));
         assertEquals("[1 , 2]", m.writer().withDefaultPrettyPrinter().writeValueAsString(input));
@@ -312,7 +316,6 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(exp, bytes.toString("UTF-8"));
     }
 
-    // since 2.8
     @SuppressWarnings("unchecked")
     public void testDataInputViaMapper() throws Exception
     {

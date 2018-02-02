@@ -49,7 +49,7 @@ public final class SerializationConfig
 
     /*
     /**********************************************************
-    /* Serialization features 
+    /* Feature flags
     /**********************************************************
      */
 
@@ -57,12 +57,6 @@ public final class SerializationConfig
      * Set of {@link SerializationFeature}s enabled.
      */
     protected final int _serFeatures;
-
-    /*
-    /**********************************************************
-    /* Generator features: generic, format-specific
-    /**********************************************************
-     */
 
     /**
      * States of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable.

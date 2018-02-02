@@ -174,15 +174,17 @@ public class TestNamingStrategyCustom extends BaseMapTest
     
     public void testSimpleGetters() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(new PrefixStrategy());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .propertyNamingStrategy(new PrefixStrategy())
+                .build();
         assertEquals("{\"Get-key\":123}", mapper.writeValueAsString(new GetterBean()));
     }
 
     public void testSimpleSetters() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(new PrefixStrategy());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .propertyNamingStrategy(new PrefixStrategy())
+                .build();
         SetterBean bean = mapper.readValue("{\"Set-key\":13}", SetterBean.class);
         assertEquals(13, bean.value);
     }
@@ -190,8 +192,9 @@ public class TestNamingStrategyCustom extends BaseMapTest
     public void testSimpleFields() throws Exception
     {
         // First serialize
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(new PrefixStrategy());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .propertyNamingStrategy(new PrefixStrategy())
+                .build();
         String json = mapper.writeValueAsString(new FieldBean(999));
         assertEquals("{\"Field-key\":999}", json);
 
@@ -203,8 +206,9 @@ public class TestNamingStrategyCustom extends BaseMapTest
     public void testCStyleNaming() throws Exception
     {
         // First serialize
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(new CStyleStrategy());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .propertyNamingStrategy(new CStyleStrategy())
+                .build();
         String json = mapper.writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
         assertEquals("{\"first_name\":\"Joe\",\"last_name\":\"Sixpack\",\"age\":42}", json);
         
@@ -217,9 +221,10 @@ public class TestNamingStrategyCustom extends BaseMapTest
 
     public void testWithGetterAsSetter() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = ObjectMapper.builder()
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
-                .setPropertyNamingStrategy(new CStyleStrategy());
+                .propertyNamingStrategy(new CStyleStrategy())
+                .build();
         SetterlessWithValue input = new SetterlessWithValue().add(3);
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"value_list\":[{\"int_value\":3}]}", json);
@@ -232,8 +237,9 @@ public class TestNamingStrategyCustom extends BaseMapTest
 
     public void testLowerCase() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(new LcStrategy());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .propertyNamingStrategy(new LcStrategy())
+                .build();
 //        mapper.disable(DeserializationConfig.DeserializationFeature.USE_GETTERS_AS_SETTERS);
         RenamedCollectionBean result = mapper.readValue("{\"thevalues\":[\"a\"]}",
                 RenamedCollectionBean.class);
@@ -245,8 +251,9 @@ public class TestNamingStrategyCustom extends BaseMapTest
     // @JsonNaming / [databind#45]
     public void testPerClassAnnotation() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(new LcStrategy());
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .propertyNamingStrategy(new LcStrategy())
+                .build();
         BeanWithPrefixNames input = new BeanWithPrefixNames();
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"Get-a\":3}", json);

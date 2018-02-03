@@ -28,7 +28,7 @@ public class SimpleSerializers
     extends Serializers.Base
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 8531646511998456779L;
+    private static final long serialVersionUID = 3;
 
     /**
      * Class-based mappings that are used both for exact and
@@ -43,8 +43,6 @@ public class SimpleSerializers
 
     /**
      * Flag to help find "generic" enum serializer, if one has been registered.
-     * 
-     * @since 2.3
      */
     protected boolean _hasEnumSerializer = false;
     
@@ -56,9 +54,6 @@ public class SimpleSerializers
     
     public SimpleSerializers() { }
 
-    /**
-     * @since 2.1
-     */
     public SimpleSerializers(List<JsonSerializer<?>> sers) {
         addSerializers(sers);
     }
@@ -72,7 +67,7 @@ public class SimpleSerializers
      * 
      * @param ser
      */
-    public void addSerializer(JsonSerializer<?> ser)
+    public SimpleSerializers addSerializer(JsonSerializer<?> ser)
     {
         // Interface to match?
         Class<?> cls = ser.handledType();
@@ -82,22 +77,22 @@ public class SimpleSerializers
                     +" or make serializer extend 'com.fasterxml.jackson.databind.ser.std.StdSerializer'"); 
         }
         _addSerializer(cls, ser);
+        return this;
     }
 
-    public <T> void addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
+    public <T> SimpleSerializers addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
         _addSerializer(type, ser);
+        return this;
     }
 
-    /**
-     * @since 2.1
-     */
-    public void addSerializers(List<JsonSerializer<?>> sers) {
+    public SimpleSerializers addSerializers(List<JsonSerializer<?>> sers) {
         for (JsonSerializer<?> ser : sers) {
             addSerializer(ser);
         }
+        return this;
     }
-    
+
     /*
     /**********************************************************
     /* Serializers implementation

@@ -458,8 +458,6 @@ public abstract class DeserializationContext
     /**
      * Bulk access method for getting the bit mask of all {@link DeserializationFeature}s
      * that are enabled.
-     *
-     * @since 2.6
      */
     public final int getDeserializationFeatures() {
         return _featureFlags;

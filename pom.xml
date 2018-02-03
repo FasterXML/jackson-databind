@@ -60,7 +60,10 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
+<!-- 02-Feb-2018, tatu: Ought to work. Does not. 
       <version>2.0.0-beta.5</version>
+-->
+      <version>1.7.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -29,31 +29,45 @@ public class StackTraceElementDeserializer
 
             while ((t = p.nextValue()) != JsonToken.END_OBJECT) {
                 String propName = p.currentName();
-                // TODO: with Java 8, convert to switch
-                if ("className".equals(propName)) {
+
+                switch (propName) {
+                case "className":
                     className = p.getText();
-                } else if ("classLoaderName".equals(propName)) {
+                    break;
+                case "classLoaderName":
                     classLoaderName = p.getText();
-                } else if ("fileName".equals(propName)) {
+                    break;
+                case "fileName":
                     fileName = p.getText();
-                } else if ("lineNumber".equals(propName)) {
+                    break;
+                case "lineNumber":
                     if (t.isNumeric()) {
                         lineNumber = p.getIntValue();
                     } else {
                         lineNumber = _parseIntPrimitive(p, ctxt);
                     }
-                } else if ("methodName".equals(propName)) {
+                    break;
+                case "methodName":
                     methodName = p.getText();
-                } else if ("nativeMethod".equals(propName)) {
-                    // no setter, not passed via constructor: ignore
-                } else if ("moduleName".equals(propName)) {
+                    break;
+                case "moduleName":
                     moduleName = p.getText();
-                } else if ("moduleVersion".equals(propName)) {
+                    break;
+                case "moduleVersion":
                     moduleVersion = p.getText();
-                } else if ("declaringClass".equals(propName)) {
+                    break;
+
+                    // and then fluff we can't use:
+                
+                case "nativeMethod":
+                    // no setter, not passed via constructor: ignore
+                case "declaringClass":
                     // 01-Nov-2017: [databind#1794] Not sure if we should but... let's prune it for now
-                    ;
-                } else {
+                case "format":
+                    // 02-Feb-2018, tatu: Java 9 apparently adds "format" somehow...
+                    break;
+                
+                default:
                     handleUnknownProperty(p, ctxt, _valueClass, propName);
                 }
                 p.skipChildren(); // just in case we might get structured values

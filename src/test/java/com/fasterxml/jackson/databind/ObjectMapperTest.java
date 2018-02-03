@@ -78,12 +78,11 @@ public class ObjectMapperTest extends BaseMapTest
     // [databind#28]: ObjectMapper.copy()
     public void testCopy() throws Exception
     {
-        ObjectMapper m = new ObjectMapper(JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
-                .build());
-        assertTrue(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        ObjectMapper m = ObjectMapper.builder(JsonFactory.builder()
+                .with(JsonParser.Feature.ALLOW_COMMENTS).build()
+                ).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
         assertTrue(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         InjectableValues inj = new InjectableValues.Std();
         m.setInjectableValues(inj);
@@ -92,8 +91,6 @@ public class ObjectMapperTest extends BaseMapTest
         
         ObjectMapper m2 = m.copy();
         assertFalse(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
-        m2.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        assertTrue(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         assertSame(inj, m2.getInjectableValues());
 
         // but should NOT change the original
@@ -101,9 +98,6 @@ public class ObjectMapperTest extends BaseMapTest
 
         // nor vice versa:
         assertFalse(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
-        assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
-        m.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        assertTrue(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
         assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
 
         // 30-Jan-2018, tatu: With 3.0, stream factories are immutable so

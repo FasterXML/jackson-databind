@@ -306,8 +306,9 @@ public class JDKStringLikeTypesTest extends BaseMapTest
     
     public void testUUID() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
-        
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
         // first, couple of generated UUIDs:
         for (String value : new String[] {
@@ -318,9 +319,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
                 "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
                 "00000007-0000-0000-0000-000000000000"
         }) {
-            
-            mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-            
             UUID uuid = UUID.fromString(value);
             assertEquals(uuid,
                     mapper.readValue(quote(value), UUID.class));

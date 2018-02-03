@@ -194,16 +194,18 @@ public class TestPOJOAsArray extends BaseMapTest
      */
 
     public void testSerializeAsArrayWithSingleProperty() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .build();
         String json = mapper.writeValueAsString(new SingleBean());
         assertEquals("\"foo\"", json);
     }
 
     public void testBeanAsArrayUnwrapped() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
         SingleBean result = mapper.readValue("[\"foobar\"]", SingleBean.class);
         assertNotNull(result);
         assertEquals("foobar", result.name);

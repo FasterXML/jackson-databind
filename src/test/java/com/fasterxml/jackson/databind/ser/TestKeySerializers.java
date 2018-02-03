@@ -227,11 +227,12 @@ public class TestKeySerializers extends BaseMapTest
     public void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(mod)
-            .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build()
+                .registerModule(mod)
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             ;
 
         Map<ABC,BAR<?>> stuff = new HashMap<ABC,BAR<?>>();

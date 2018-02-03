@@ -79,9 +79,9 @@ public class TestGenerics
     
     public void testGenericWrapperWithSingleElementArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         Wrapper<SimpleBean> result = mapper.readValue
             ("[{\"value\": [{ \"x\" : 13 }] }]",
              new TypeReference<Wrapper<SimpleBean>>() { });
@@ -122,8 +122,9 @@ public class TestGenerics
     //[Issue#381]
     public void testMultipleWrappersSingleValueArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
 
         // First, numeric wrapper
         Wrapper<Boolean> result = mapper.readValue
@@ -160,12 +161,12 @@ public class TestGenerics
         SimpleBean bean = (SimpleBean) contents;
         assertEquals(9, bean.x);
     }
-    
-    // [Issue#381]
+
     public void testArrayOfGenericWrappersSingleValueArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         
         Wrapper<SimpleBean>[] result = mapper.readValue
             ("[ {\"value\": [ { \"x\" : [ 9 ] } ] } ]",

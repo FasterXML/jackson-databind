@@ -181,12 +181,12 @@ public class MapDeserializationTest
         assertNull(map.get("null"));
         assertEquals(5, map.size());
     }
-    
-    // [JACKSON-620]: allow "" to mean 'null' for Maps
+
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        ObjectMapper m = ObjectMapper.builder()
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .build();
         Map<?,?> result = m.readValue(quote(""), Map.class);
         assertNull(result);
     }

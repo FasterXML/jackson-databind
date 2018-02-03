@@ -253,8 +253,9 @@ public class EnumDeserializationTest
     public void testToStringEnums() throws Exception
     {
         // can't reuse global one due to reconfig
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
+        ObjectMapper m = ObjectMapper.builder()
+                .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .build();
         LowerCaseEnum value = m.readValue("\"c\"", LowerCaseEnum.class);
         assertEquals(LowerCaseEnum.C, value);
     }
@@ -374,8 +375,9 @@ public class EnumDeserializationTest
     // [databind#141]: allow mapping of empty String into null
     public void testEnumsWithEmpty() throws Exception
     {
-       final ObjectMapper mapper = new ObjectMapper();
-       mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+       final ObjectMapper mapper = ObjectMapper.builder()
+               .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+               .build();
        TestEnum result = mapper.readValue("\"\"", TestEnum.class);
        assertNull(result);
     }
@@ -392,15 +394,16 @@ public class EnumDeserializationTest
 
     // [databind#381]
     public void testUnwrappedEnum() throws Exception {
-        final ObjectMapper mapper = newObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         assertEquals(TestEnum.JACKSON, mapper.readValue("[" + quote("JACKSON") + "]", TestEnum.class));
     }
     
     public void testUnwrappedEnumException() throws Exception {
-        final ObjectMapper mapper = newObjectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         try {
             Object v = mapper.readValue("[" + quote("JACKSON") + "]",
                     TestEnum.class);
@@ -471,48 +474,54 @@ public class EnumDeserializationTest
     }
     
     public void testEnumWithDefaultAnnotation() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("\"foo\"", EnumWithDefaultAnno.class);
         assertSame(EnumWithDefaultAnno.OTHER, myEnum);
     }
 
     public void testEnumWithDefaultAnnotationUsingIndexInBound1() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("1", EnumWithDefaultAnno.class);
         assertSame(EnumWithDefaultAnno.B, myEnum);
     }
 
     public void testEnumWithDefaultAnnotationUsingIndexInBound2() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("2", EnumWithDefaultAnno.class);
         assertSame(EnumWithDefaultAnno.OTHER, myEnum);
     }
 
     public void testEnumWithDefaultAnnotationUsingIndexSameAsLength() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("3", EnumWithDefaultAnno.class);
         assertSame(EnumWithDefaultAnno.OTHER, myEnum);
     }
 
     public void testEnumWithDefaultAnnotationUsingIndexOutOfBound() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .build();
 
         EnumWithDefaultAnno myEnum = mapper.readValue("4", EnumWithDefaultAnno.class);
         assertSame(EnumWithDefaultAnno.OTHER, myEnum);
     }
 
     public void testEnumWithDefaultAnnotationWithConstructor() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .build();
 
         EnumWithDefaultAnnoAndConstructor myEnum = mapper.readValue("\"foo\"", EnumWithDefaultAnnoAndConstructor.class);
         assertNull("When using a constructor, the default value annotation shouldn't be used.", myEnum);

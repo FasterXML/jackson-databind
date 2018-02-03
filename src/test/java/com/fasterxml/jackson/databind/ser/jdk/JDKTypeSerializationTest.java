@@ -41,7 +41,7 @@ public class JDKTypeSerializationTest
     public void testBigDecimalAsPlainString() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
-                .with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
                 .build());
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";

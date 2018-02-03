@@ -84,7 +84,7 @@ public class FullStreamReadTest extends BaseMapTest
 
         ObjectMapper strictWithComments = new ObjectMapper(
                 strict.tokenStreamFactory().rebuild()
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
                 .build());
         _verifyArray(strictWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));
         _verifyCollection(strictWithComments.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class));

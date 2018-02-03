@@ -46,7 +46,7 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
     public void testObjectIdWithRepeatedChild() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
-                .without(JsonGenerator.Feature.AUTO_CLOSE_CONTENT).build());
+                .disable(JsonGenerator.Feature.AUTO_CLOSE_CONTENT).build());
         // to keep output faithful to original, prevent auto-closing...
 
         // Equivalent to Spring _embedded for Bean w/ List property

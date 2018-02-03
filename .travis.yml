@@ -1,11 +1,9 @@
 language: java
 
 # Jackson 3.x only compiles on Java 8 and above so...
-# 06-Oct-2017, tatu: One test fails on Java 9, no time to figure out why,
-#    comment it out for now
 jdk:
   - openjdk8
-#  - oraclejdk9
+  - openjdk9
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
 # http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html

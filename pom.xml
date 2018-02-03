@@ -29,6 +29,8 @@
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- but imports should work fine with defaults -->
 
+    <version.powermock>2.0.0-beta.5</version.powermock>
+
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
@@ -59,17 +61,20 @@
       -->
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-<!-- 02-Feb-2018, tatu: Ought to work. Does not. 
-      <version>2.0.0-beta.5</version>
--->
-      <version>1.7.3</version>
+      <artifactId>powermock-core</artifactId>
+      <version>${version.powermock}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>1.7.3</version>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>${version.powermock}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito2</artifactId>
+      <version>${version.powermock}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -38,9 +38,10 @@ public class TestMixinMerging extends BaseMapTest
     // for [databind#515]
     public void testDisappearingMixins515() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
-                .disable(MapperFeature.INFER_PROPERTY_MUTATORS);
-        mapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
+                .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .build();
         mapper.setVisibility(PropertyAccessor.FIELD, Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE);

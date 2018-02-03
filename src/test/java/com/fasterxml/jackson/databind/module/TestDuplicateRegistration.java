@@ -40,17 +40,13 @@ public class TestDuplicateRegistration extends BaseMapTest
         assertEquals(1, module.regCount);
 
         // but may be allowed by changing setting
-        mapper.disable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
-        mapper.registerModule(module);
-        assertEquals(2, module.regCount);
-
-        // and ditto for a new instance
-        ObjectMapper mapper2 = new ObjectMapper();
-        mapper2.disable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
+        ObjectMapper mapper2 = ObjectMapper.builder()
+                .disable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS)
+                .build();
         MyModule module2 = new MyModule();
-        mapper.registerModule(module2);
-        mapper.registerModule(module2);
-        mapper.registerModule(module2);
+        mapper2.registerModule(module2);
+        mapper2.registerModule(module2);
+        mapper2.registerModule(module2);
         assertEquals(3, module2.regCount);
     }
 }

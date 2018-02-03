@@ -63,12 +63,12 @@ public class TestCreators541 extends BaseMapTest
 
     public void testCreator541() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);  
+        ObjectMapper mapper = ObjectMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build()
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         final String JSON = "{\n"
                 + "    \"foo\": {\n"

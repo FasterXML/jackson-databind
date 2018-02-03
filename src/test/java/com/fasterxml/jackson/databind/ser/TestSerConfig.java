@@ -107,8 +107,9 @@ public class TestSerConfig
         Map<String,Object> result = writeAndMap(MAPPER, new AnnoBean());
         assertEquals(2, result.size());
 
-        ObjectMapper m2 = new ObjectMapper();
-        m2.configure(MapperFeature.USE_ANNOTATIONS, false);
+        ObjectMapper m2 = ObjectMapper.builder()
+                .configure(MapperFeature.USE_ANNOTATIONS, false)
+                .build();
         result = writeAndMap(m2, new AnnoBean());
         assertEquals(1, result.size());
     }
@@ -164,8 +165,9 @@ public class TestSerConfig
 
     public void testNoAccessOverrides() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+        ObjectMapper m = ObjectMapper.builder()
+                .disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)
+                .build();
         assertEquals("{\"x\":1}", m.writeValueAsString(new SimpleBean()));
     }
 

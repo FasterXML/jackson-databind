@@ -24,8 +24,9 @@ public class AccessFixTest extends BaseMapTest
     public void testCauseOfThrowableIgnoral() throws Exception
     {
         final SecurityManager origSecMan = System.getSecurityManager();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS)
+                .build();
         try {
             System.setSecurityManager(new CauseBlockingSecurityManager());
             _testCauseOfThrowableIgnoral(mapper);

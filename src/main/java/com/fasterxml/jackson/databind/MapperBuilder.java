@@ -172,7 +172,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         _parserFeatures = base._parserFeatures;
         _generatorFeatures = base._deserFeatures;
-        
+
         _mapperFeatures = base._mapperFeatures;
         _serFeatures = base._serFeatures;
         _deserFeatures = base._deserFeatures;
@@ -351,9 +351,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public B configure(MapperFeature feature, boolean state)
     {
         if (state) {
-            _serFeatures |= feature.getMask();
+            _mapperFeatures |= feature.getMask();
         } else {
-            _serFeatures &= ~feature.getMask();
+            _mapperFeatures &= ~feature.getMask();
         }
         return _this();
     }
@@ -611,7 +611,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /* Other helper methods
     /**********************************************************
      */
-    
+
     // silly convenience cast method we need
     @SuppressWarnings("unchecked")
     protected final B _this() { return (B) this; }

@@ -29,11 +29,12 @@ public class RequireSetterForGetter736Test extends BaseMapTest
     // for [databind#736]
     public void testNeedForSetters() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper(); 
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)
+                .build();
         mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY);
         mapper.setVisibility(PropertyAccessor.SETTER, Visibility.PUBLIC_ONLY);
-        mapper.enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS);
         DataB dataB = new DataB();
 
         String json = mapper.writeValueAsString(dataB);

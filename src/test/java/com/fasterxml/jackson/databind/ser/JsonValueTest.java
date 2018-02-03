@@ -240,8 +240,9 @@ public class JsonValueTest
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writeValueAsString(new ValueWrapper()));
 
         // then static
-        ObjectMapper staticMapper = new ObjectMapper();
-        staticMapper.configure(MapperFeature.USE_STATIC_TYPING, true);
+        ObjectMapper staticMapper = ObjectMapper.builder()
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
         assertEquals("{\"a\":\"a\"}", staticMapper.writeValueAsString(new ValueWrapper()));
     }
 

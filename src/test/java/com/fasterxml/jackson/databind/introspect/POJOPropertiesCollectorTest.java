@@ -427,8 +427,9 @@ public class POJOPropertiesCollectorTest
     public void testUseAnnotationsFalse() throws Exception
     {
         // note: need a separate mapper, need to reconfigure
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(MapperFeature.USE_ANNOTATIONS, false);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .disable(MapperFeature.USE_ANNOTATIONS)
+                .build();
         BasicBeanDescription beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Jackson703.class));
         assertNotNull(beanDesc);
 

@@ -370,9 +370,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testExplicitRename() throws Exception
     {
         ObjectMapper m = ObjectMapper.builder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
                 .build();
-        m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
         // by default, renaming will not take place on explicitly named fields
         assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
                 m.writeValueAsString(new ExplicitBean()));

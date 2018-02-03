@@ -131,8 +131,9 @@ public class TestPropertyConflicts extends BaseMapTest
     }
 
     public void testIssue541() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build();
         Bean541 data = mapper.readValue("{\"str\":\"the string\"}", Bean541.class);
         if (data == null) {
             throw new IllegalStateException("data is null");

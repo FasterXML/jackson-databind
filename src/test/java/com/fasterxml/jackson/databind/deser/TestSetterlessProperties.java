@@ -49,8 +49,9 @@ public class TestSetterlessProperties
 
     public void testSimpleSetterlessCollectionOk() throws Exception
     {
-        CollectionBean result = new ObjectMapper()
+        CollectionBean result = ObjectMapper.builder()
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build()
                 .readValue
             ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
         List<String> l = result._values;
@@ -82,8 +83,9 @@ public class TestSetterlessProperties
 
     public void testSimpleSetterlessMapOk() throws Exception
     {
-        MapBean result = new ObjectMapper()
+        MapBean result = ObjectMapper.builder()
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build()
                 .readValue
             ("{\"values\":{ \"a\": 15, \"b\" : -3 }}", MapBean.class);
         Map<String,Integer> m = result._values;
@@ -92,11 +94,11 @@ public class TestSetterlessProperties
         assertEquals(Integer.valueOf(-3), m.get("b"));
     }
 
-    public void testSimpleSetterlessMapFailure()
-        throws Exception
+    public void testSimpleSetterlessMapFailure() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
+        ObjectMapper m = ObjectMapper.builder()
+                .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build();
         // so this should fail now without a setter
         try {
             m.readValue
@@ -112,8 +114,9 @@ public class TestSetterlessProperties
      */
     public void testSetterlessPrecedence() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_GETTERS_AS_SETTERS, true);
+        ObjectMapper m = ObjectMapper.builder()
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build();
         Dual value = m.readValue("{\"list\":[1,2,3]}, valueType)", Dual.class);
         assertNotNull(value);
         assertEquals(3, value.values.size());

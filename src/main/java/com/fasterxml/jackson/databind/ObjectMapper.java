@@ -1433,18 +1433,7 @@ public class ObjectMapper
     /**********************************************************
      */
 
-    /**
-     * Method for checking whether given {@link MapperFeature} is enabled.
-     */
-    public boolean isEnabled(MapperFeature f) {
-        // ok to use either one, should be kept in sync
-        return _serializationConfig.isEnabled(f);
-    }
-    
-    /**
-     * Method for changing state of an on/off mapper feature for
-     * this mapper instance.
-     */
+    @Deprecated
     public ObjectMapper configure(MapperFeature f, boolean state) {
         _serializationConfig = state ?
                 _serializationConfig.with(f) : _serializationConfig.without(f);
@@ -1453,39 +1442,25 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * Method for enabling specified {@link MapperConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
+    @Deprecated
     public ObjectMapper enable(MapperFeature... f) {
         _deserializationConfig = _deserializationConfig.with(f);
         _serializationConfig = _serializationConfig.with(f);
         return this;
     }
 
-    /**
-     * Method for disabling specified {@link MapperConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
+    @Deprecated
     public ObjectMapper disable(MapperFeature... f) {
         _deserializationConfig = _deserializationConfig.without(f);
         _serializationConfig = _serializationConfig.without(f);
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, simple features: SerializationFeature
     /**********************************************************
      */
-
-    /**
-     * Method for checking whether given serialization-specific
-     * feature is enabled.
-     */
-    public boolean isEnabled(SerializationFeature f) {
-        return _serializationConfig.isEnabled(f);
-    }
 
     /**
      * Method for changing state of an on/off serialization feature for
@@ -1542,14 +1517,6 @@ public class ObjectMapper
      */
 
     /**
-     * Method for checking whether given deserialization-specific
-     * feature is enabled.
-     */
-    public boolean isEnabled(DeserializationFeature f) {
-        return _deserializationConfig.isEnabled(f);
-    }
-
-    /**
      * Method for changing state of an on/off deserialization feature for
      * this object mapper.
      */
@@ -1603,12 +1570,6 @@ public class ObjectMapper
     /**********************************************************
      */
 
-    /**
-     * Convenience method, equivalent to:
-     *<pre>
-     *  tokenStreamFactory().isEnabled(f);
-     *</pre>
-     */
     public boolean isEnabled(JsonFactory.Feature f) {
         return _streamFactory.isEnabled(f);
     }
@@ -1618,6 +1579,30 @@ public class ObjectMapper
     }
 
     public boolean isEnabled(JsonGenerator.Feature f) {
+        return _serializationConfig.isEnabled(f);
+    }
+
+    /**
+     * Method for checking whether given {@link MapperFeature} is enabled.
+     */
+    public boolean isEnabled(MapperFeature f) {
+        // ok to use either one, should be kept in sync
+        return _serializationConfig.isEnabled(f);
+    }
+
+    /**
+     * Method for checking whether given deserialization-specific
+     * feature is enabled.
+     */
+    public boolean isEnabled(DeserializationFeature f) {
+        return _deserializationConfig.isEnabled(f);
+    }
+
+    /**
+     * Method for checking whether given serialization-specific
+     * feature is enabled.
+     */
+    public boolean isEnabled(SerializationFeature f) {
         return _serializationConfig.isEnabled(f);
     }
 

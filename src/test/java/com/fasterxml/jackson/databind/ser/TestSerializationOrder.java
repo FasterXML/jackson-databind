@@ -129,19 +129,21 @@ public class TestSerializationOrder
 
     public void testOrderWithFeature() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .build();
         assertEquals("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}",
-                m.writeValueAsString(new BeanFor459()));
+                mapper.writeValueAsString(new BeanFor459()));
     }
 
     // [Issue#311]
 
     public void testAlphaAndCreatorOrdering() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
-        String json = m.writeValueAsString(new BeanForGH311(2, 1));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .build();
+        String json = mapper.writeValueAsString(new BeanForGH311(2, 1));
         assertEquals("{\"a\":1,\"b\":2}", json);
     }
 }

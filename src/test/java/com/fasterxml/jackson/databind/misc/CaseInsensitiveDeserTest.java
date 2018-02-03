@@ -51,13 +51,11 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    private final ObjectMapper INSENSITIVE_MAPPER = new ObjectMapper();
-    {
-        INSENSITIVE_MAPPER.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
-        
-    }
+    private final ObjectMapper INSENSITIVE_MAPPER = ObjectMapper.builder()
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+            .build();
 
-// [databind#566]
+    // [databind#566]
     public void testCaseInsensitiveDeserialization() throws Exception
     {
         final String JSON = "{\"Value1\" : {\"nAme\" : \"fruit\", \"vALUe\" : \"apple\"}, \"valUE2\" : {\"NAME\" : \"color\", \"value\" : \"red\"}}";

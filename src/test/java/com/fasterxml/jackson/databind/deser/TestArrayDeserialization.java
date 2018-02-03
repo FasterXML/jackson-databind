@@ -183,22 +183,24 @@ public class TestArrayDeserialization
         }
     }
 
-    // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
+    // allow "" to mean 'null' for Arrays, List and Maps
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        ObjectMapper m = ObjectMapper.builder()
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .build();
         assertNull(m.readValue(quote(""), Object[].class));
         assertNull( m.readValue(quote(""), String[].class));
         assertNull( m.readValue(quote(""), int[].class));
     }
 
-    // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
+    // allow "" to mean 'null' for Arrays, List and Maps
     public void testFromEmptyString2() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        m.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        ObjectMapper m = ObjectMapper.builder()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
+                        DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
         Product p = m.readValue("{\"thelist\":\"\"}", Product.class);
         assertNotNull(p);
         assertNull(p.thelist);

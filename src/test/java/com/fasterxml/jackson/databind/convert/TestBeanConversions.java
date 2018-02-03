@@ -163,23 +163,26 @@ public class TestBeanConversions
     // should work regardless of wrapping...
     public void testWrapping() throws Exception
     {
-        ObjectMapper wrappingMapper = new ObjectMapper();
-        wrappingMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        ObjectMapper wrappingMapper = ObjectMapper.builder()
+                .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+                .enable(SerializationFeature.WRAP_ROOT_VALUE)
+                .build();
 
         // conversion is ok, even if it's bogus one
         _convertAndVerifyPoint(wrappingMapper);
 
         // also: ok to have mismatched settings, since as per [JACKSON-710], should
         // not actually use wrapping internally in these cases
-        wrappingMapper = new ObjectMapper();
-        wrappingMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.disable(SerializationFeature.WRAP_ROOT_VALUE);
+        wrappingMapper = ObjectMapper.builder()
+            .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+            .disable(SerializationFeature.WRAP_ROOT_VALUE)
+            .build();
         _convertAndVerifyPoint(wrappingMapper);
 
-        wrappingMapper = new ObjectMapper();
-        wrappingMapper.disable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        wrappingMapper = ObjectMapper.builder()
+                .disable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+                .enable(SerializationFeature.WRAP_ROOT_VALUE)
+                .build();
         _convertAndVerifyPoint(wrappingMapper);
     }
 

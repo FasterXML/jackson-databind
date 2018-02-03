@@ -1516,54 +1516,25 @@ public class ObjectMapper
     /**********************************************************
      */
 
-    /**
-     * Method for changing state of an on/off deserialization feature for
-     * this object mapper.
-     */
+    @Deprecated
     public ObjectMapper configure(DeserializationFeature f, boolean state) {
         _deserializationConfig = state ?
                 _deserializationConfig.with(f) : _deserializationConfig.without(f);
         return this;
     }
 
-    /**
-     * Method for enabling specified {@link DeserializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
+    @Deprecated
     public ObjectMapper enable(DeserializationFeature feature) {
         _deserializationConfig = _deserializationConfig.with(feature);
         return this;
     }
 
-    /**
-     * Method for enabling specified {@link DeserializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
-    public ObjectMapper enable(DeserializationFeature first,
-            DeserializationFeature... f) {
-        _deserializationConfig = _deserializationConfig.with(first, f);
-        return this;
-    }
-    
-    /**
-     * Method for disabling specified {@link DeserializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
+    @Deprecated
     public ObjectMapper disable(DeserializationFeature feature) {
         _deserializationConfig = _deserializationConfig.without(feature);
         return this;
     }
 
-    /**
-     * Method for disabling specified {@link DeserializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
-    public ObjectMapper disable(DeserializationFeature first,
-            DeserializationFeature... f) {
-        _deserializationConfig = _deserializationConfig.without(first, f);
-        return this;
-    }
-    
     /*
     /**********************************************************
     /* Configuration, accessing features

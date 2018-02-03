@@ -176,8 +176,9 @@ public class UnknownPropertyDeserTest
      */
     public void testUnknownHandlingIgnoreWithFeature() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
         TestBean result = null;
         try {
             result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);

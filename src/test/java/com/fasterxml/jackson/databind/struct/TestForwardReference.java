@@ -14,9 +14,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 public class TestForwardReference extends BaseMapTest {
 
-	private final ObjectMapper MAPPER = new ObjectMapper()
-			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+	private final ObjectMapper MAPPER = ObjectMapper.builder()
+			.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 			.enable(SerializationFeature.INDENT_OUTPUT)
+			.build()
 			.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 	/** Tests that we can read a hierarchical structure with forward references*/

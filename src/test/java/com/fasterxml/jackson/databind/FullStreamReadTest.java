@@ -39,8 +39,9 @@ public class FullStreamReadTest extends BaseMapTest
     public void testMapperFailOnTrailing() throws Exception
     {
         // but things change if we enforce checks
-        ObjectMapper strict = newObjectMapper()
-                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+        ObjectMapper strict = ObjectMapper.builder()
+                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                .build();
         assertTrue(strict.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
         // some still ok

@@ -79,7 +79,7 @@ public class ObjectMapperTest extends BaseMapTest
     public void testCopy() throws Exception
     {
         ObjectMapper m = ObjectMapper.builder(JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS).build()
+                .enable(JsonParser.Feature.ALLOW_COMMENTS).build()
                 ).disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
         assertTrue(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
@@ -288,7 +288,7 @@ public class ObjectMapperTest extends BaseMapTest
     {
         // ensure we have "fresh" instance to start with
         ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS).build());
+                .enable(JsonParser.Feature.ALLOW_COMMENTS).build());
         assertTrue(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
 
         ObjectMapper copy = mapper.copy();

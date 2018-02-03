@@ -365,7 +365,7 @@ public class NumberNodesTest extends NodeTestBase
     public void testBigDecimalAsPlain() throws Exception
     {
         ObjectMapper mapper = ObjectMapper.builder(JsonFactory.builder()
-                .with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
                 .build())
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .build();

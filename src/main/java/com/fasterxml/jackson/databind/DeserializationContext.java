@@ -219,22 +219,6 @@ public abstract class DeserializationContext
         _attributes = config.getAttributes();
     }
 
-    /**
-     * Copy-constructor for use with <code>copy()</code> by {@link ObjectMapper#copy()}
-     */
-    protected DeserializationContext(DeserializationContext src) {
-        _cache = new DeserializerCache();
-        _factory = src._factory;
-        _streamFactory = src._streamFactory;
-
-        _config = src._config;
-        _featureFlags = src._featureFlags;
-        _view = src._view;
-        _schema = src._schema;
-
-        _injectableValues = null;
-    }
-
     /*
     /**********************************************************
     /* DatabindContext implementation

@@ -66,29 +66,7 @@ Simplest usage is of form:
   int age = root.at("/personal/age").getValueAsInt(); 
 </pre>
  *<p> 
- * Mapper instances are fully thread-safe provided that ALL configuration of the
- * instance occurs before ANY read or write calls. If configuration of a mapper instance
- * is modified after first usage, changes may or may not take effect, and configuration
- * calls themselves may fail.
- * If you need to use different configuration, you have two main possibilities:
- *<ul>
- * <li>Construct and use {@link ObjectReader} for reading, {@link ObjectWriter} for writing.
- *    Both types are fully immutable and you can freely create new instances with different
- *    configuration using either factory methods of {@link ObjectMapper}, or readers/writers
- *    themselves. Construction of new {@link ObjectReader}s and {@link ObjectWriter}s is
- *    a very light-weight operation so it is usually appropriate to create these on per-call
- *    basis, as needed, for configuring things like optional indentation of JSON.
- *  </li>
- * <li>If the specific kind of configurability is not available via {@link ObjectReader} and
- *   {@link ObjectWriter}, you may need to use multiple {@link ObjectMapper} instead (for example:
- *   you cannot change mix-in annotations on-the-fly; or, set of custom (de)serializers).
- *   To help with this usage, you may want to use method {@link #copy()} which creates a clone
- *   of the mapper with specific configuration, and allows configuration of the copied instance
- *   before it gets used. Note that {@link #copy} operation is as expensive as constructing
- *   a new {@link ObjectMapper} instance: if possible, you should still pool and reuse mappers
- *   if you intend to use them for multiple operations.
- *  </li>
- * </ul>
+ * Mapper instances are fully thread-safe as of Jackson 3.0.
  *<p>
  * Note on caching: root-level deserializers are always cached, and accessed
  * using full (generics-aware) type information. This is different from
@@ -381,38 +359,6 @@ public class ObjectMapper
      */
     public ObjectMapper(TokenStreamFactory jf) {
         this(jf, null, null);
-    }
-
-    /**
-     * Copy-constructor, mostly used to support {@link #copy}.
-     */
-    protected ObjectMapper(ObjectMapper src)
-    {
-        _streamFactory = src._streamFactory; // stream factories now immutable
-        _subtypeResolver = src._subtypeResolver;
-        _typeFactory = src._typeFactory;
-        _injectableValues = src._injectableValues;
-        _configOverrides = src._configOverrides.copy();
-        _mixIns = src._mixIns.copy();
-
-        RootNameLookup rootNames = new RootNameLookup();
-        _serializationConfig = new SerializationConfig(src._serializationConfig,
-                _mixIns, rootNames, _configOverrides);
-        _deserializationConfig = new DeserializationConfig(src._deserializationConfig,
-                _mixIns, rootNames,  _configOverrides);
-        _serializerProvider = src._serializerProvider.copy();
-        _deserializationContext = src._deserializationContext.copy();
-
-        // Default serializer factory is stateless, can just assign
-        _serializerFactory = src._serializerFactory;
-
-        // as per [databind#922], [databind#1078] make sure to copy registered modules as appropriate
-        Set<Object> reg = src._registeredModuleTypes;
-        if (reg == null) {
-            _registeredModuleTypes = null;
-        } else {
-            _registeredModuleTypes = new LinkedHashSet<Object>(reg);
-        }
     }
 
     /**

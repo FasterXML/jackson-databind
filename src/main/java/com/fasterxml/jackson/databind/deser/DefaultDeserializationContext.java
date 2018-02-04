@@ -57,20 +57,6 @@ public abstract class DefaultDeserializationContext
         super(src, factory);
     }
 
-    protected DefaultDeserializationContext(DefaultDeserializationContext src) {
-        super(src);
-    }
-    
-    /**
-     * Method needed to ensure that {@link ObjectMapper#copy} will work
-     * properly; specifically, that caches are cleared, but settings
-     * will otherwise remain identical; and that no sharing of state
-     * occurs.
-     */
-    public DefaultDeserializationContext copy() {
-        throw new IllegalStateException("DefaultDeserializationContext sub-class not overriding copy()");
-    }
-
     public DefaultDeserializationContext assignParser(JsonParser p) {
         _parser = p;
         return this;
@@ -323,18 +309,10 @@ public abstract class DefaultDeserializationContext
             super(src, config, schema, values);
         }
 
-        protected Impl(Impl src) { super(src); }
-        
         protected Impl(Impl src, DeserializerFactory factory) {
             super(src, factory);
         }
 
-        @Override
-        public DefaultDeserializationContext copy() {
-            ClassUtil.verifyMustOverride(Impl.class, this, "copy");
-           return new Impl(this);
-        }
-        
         @Override
         public DefaultDeserializationContext createInstance(DeserializationConfig config,
                 FormatSchema schema, InjectableValues values) {

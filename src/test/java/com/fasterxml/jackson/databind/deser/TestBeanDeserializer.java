@@ -3,11 +3,10 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.BeanDeserializer;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -139,7 +138,92 @@ public class TestBeanDeserializer extends BaseMapTest
             context.addBeanDeserializerModifier(new Issue476DeserializerModifier());
         }        
     }
-    
+
+    public static class Issue1912Bean {
+        public Issue1912SubBean subBean;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) // This is need to populate _propertyBasedCreator on BeanDeserializerBase
+        public Issue1912Bean(@JsonProperty("subBean") Issue1912SubBean subBean) {
+            this.subBean = subBean;
+        }
+    }
+    public static class Issue1912SubBean {
+        public String a;
+
+        public Issue1912SubBean() { }
+
+        public Issue1912SubBean(String a) {
+            this.a = a;
+        }
+    }
+
+    public static class Issue1912CustomBeanDeserializer extends JsonDeserializer<Issue1912Bean> {
+        private BeanDeserializer defaultDeserializer;
+
+        public Issue1912CustomBeanDeserializer(BeanDeserializer defaultDeserializer) {
+            this.defaultDeserializer = defaultDeserializer;
+        }
+
+        @Override
+        public Issue1912Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            // this is need on some cases, this populate _propertyBasedCreator
+            defaultDeserializer.resolve(ctxt);
+
+            p.nextFieldName(); // read subBean
+            p.nextToken(); // read start object
+
+            Issue1912SubBean subBean = (Issue1912SubBean) defaultDeserializer.findProperty("subBean").deserialize(p, ctxt);
+
+            return new Issue1912Bean(subBean);
+        }
+    }
+
+    public static class Issue1912CustomPropertyDeserializer extends JsonDeserializer<Issue1912SubBean> {
+
+        @Override
+        public Issue1912SubBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            p.nextFieldName(); // read "a"
+            Issue1912SubBean object = new Issue1912SubBean(p.nextTextValue() + "_custom");
+            p.nextToken();
+            return object;
+        }
+    }
+    public static class Issue1912UseAddOrReplacePropertyDeserializerModifier extends BeanDeserializerModifier {
+
+        @Override
+        public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+            if (beanDesc.getBeanClass() == Issue1912Bean.class) {
+                return new Issue1912CustomBeanDeserializer((BeanDeserializer) deserializer);
+            }
+            return super.modifyDeserializer(config, beanDesc, deserializer);
+        }
+
+        @Override
+        public BeanDeserializerBuilder updateBuilder(DeserializationConfig config, BeanDescription beanDesc, BeanDeserializerBuilder builder) {
+            if (beanDesc.getBeanClass() == Issue1912Bean.class) {
+                Iterator<SettableBeanProperty> props = builder.getProperties();
+                while (props.hasNext()) {
+                    SettableBeanProperty prop = props.next();
+                    SettableBeanProperty propWithCustomDeserializer = prop.withValueDeserializer(new Issue1912CustomPropertyDeserializer());
+                    builder.addOrReplaceProperty(propWithCustomDeserializer, true);
+                }
+            }
+
+            return builder;
+        }
+    }
+    public class Issue1912Module extends SimpleModule {
+
+        public Issue1912Module() {
+            super("Issue1912Module", Version.unknownVersion());
+        }
+
+        @Override
+        public void setupModule(SetupContext context) {
+            context.addBeanDeserializerModifier(new Issue1912UseAddOrReplacePropertyDeserializerModifier());
+        }
+    }
+
     // [Issue#121], arrays, collections, maps
 
     enum EnumABC { A, B, C; }
@@ -380,4 +464,11 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("ABCDEF", result);
     }
 
+    public void testAddOrReplacePropertyIsUsedOnDeserialization() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Issue1912Module());
+
+        Issue1912Bean result = mapper.readValue("{\"subBean\": {\"a\":\"foo\"}}", Issue1912Bean.class);
+        assertEquals("foo_custom", result.subBean.a);
+    }
 }

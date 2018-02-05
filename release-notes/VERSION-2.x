@@ -9,6 +9,9 @@ Project: jackson-databind
 #1911: Allow serialization of `BigDecimal` as String, using
   `@JsonFormat(shape=Shape.String)`, config overrides
  (suggested by cen1@github)
+#1912: `BeanDeserializerModifier.updateBuilder()` not work to set custom
+  deserializer on a property (since 2.9.0)
+ (contributed by Deblock T)
 
 2.9.4 (24-Jan-2018)
 

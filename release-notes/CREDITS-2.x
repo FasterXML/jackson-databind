@@ -744,3 +744,8 @@ Joe Schafer (jschaf@github)
    (2.9.4)
   * Reported #1907: Remove `getClass()` from `_valueType` argument for error reporting
    (2.9.4)
+
+Deblock Thomas (deblockt@github)
+  * Reported, contributed fix for #1912: `BeanDeserializerModifier.updateBuilder()` does not
+    work to set custom  deserializer on a property (since 2.9.0)
+ (contributed by Deblock T)

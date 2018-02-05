@@ -1041,7 +1041,7 @@ public abstract class BeanDeserializerBase
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
                 null : _beanProperties.findDefinition(propertyName);
-        if (_neitherNull(prop, _propertyBasedCreator)) {
+        if (prop == null && _propertyBasedCreator != null) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyName);
         }
         return prop;
@@ -1059,12 +1059,12 @@ public abstract class BeanDeserializerBase
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
                 null : _beanProperties.findDefinition(propertyIndex);
-        if (_neitherNull(prop, _propertyBasedCreator)) {
+        if (prop == null && _propertyBasedCreator != null) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyIndex);
         }
         return prop;
     }
-    
+
     /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
      * managed- and back-reference pairs.

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.cfg;
 
 import java.text.DateFormat;
 import java.util.Locale;
@@ -6,10 +6,8 @@ import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
-import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -326,7 +324,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _deserializerFactory;
     }
 
-    protected DefaultDeserializationContext deserializationContext() {
+    public DefaultDeserializationContext deserializationContext() {
         if (_deserializationContext == null) {
             _deserializationContext = _defaultDeserializationContext();
         }
@@ -483,7 +481,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    protected B nodeFactory(JsonNodeFactory f) {
+    public B nodeFactory(JsonNodeFactory f) {
         _baseSettings = _baseSettings.with(f);
         return _this();
     }

@@ -76,16 +76,6 @@ public abstract class DefaultSerializerProvider
     public abstract DefaultSerializerProvider createInstance(SerializationConfig config,
             GeneratorSettings genSettings, SerializerFactory jsf);
 
-    /**
-     * Method needed to ensure that {@link ObjectMapper#copy} will work
-     * properly; specifically, that caches are cleared, but settings
-     * will otherwise remain identical; and that no sharing of state
-     * occurs.
-     */
-    public DefaultSerializerProvider copy() {
-        throw new IllegalStateException("DefaultSerializerProvider sub-class not overriding copy()");
-    }
-
     /*
     /**********************************************************
     /* Abstract method impls, factory methods
@@ -538,15 +528,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         protected Impl(SerializerProvider src, SerializationConfig config,
                 GeneratorSettings genSettings, SerializerFactory f) {
             super(src, config, genSettings, f);
-        }
-
-        @Override
-        public DefaultSerializerProvider copy()
-        {
-            if (getClass() != Impl.class) {
-                return super.copy();
-            }
-            return new Impl(this);
         }
 
         @Override

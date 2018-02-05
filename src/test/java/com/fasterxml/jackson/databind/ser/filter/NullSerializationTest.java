@@ -42,12 +42,6 @@ public class NullSerializationTest
             super(base, config, genSettings, jsf);
         }
 
-        // not really a proper impl, but has to do
-        @Override
-        public DefaultSerializerProvider copy() {
-            return this;
-        }
-        
         @Override
         public DefaultSerializerProvider createInstance(SerializationConfig config,
                 GeneratorSettings genSettings, SerializerFactory jsf) {

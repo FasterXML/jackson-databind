@@ -155,9 +155,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         _parserFeatures = streamFactory.getParserFeatures();
         _generatorFeatures = streamFactory.getGeneratorFeatures();
+        _formatParserFeatures = streamFactory.getFormatParserFeatures();
+        _formatGeneratorFeatures = streamFactory.getFormatGeneratorFeatures();
 
-        // NOTE: format parser/generator features MUST be set by sub-class!
-        
         _mapperFeatures = DEFAULT_MAPPER_FEATURES;
         // Some overrides we may need based on format
         if (streamFactory.requiresPropertyOrdering()) {

@@ -261,7 +261,7 @@ public abstract class BeanDeserializerBase
 
         _vanillaProcessing = src._vanillaProcessing;
     }
- 
+
     protected BeanDeserializerBase(BeanDeserializerBase src, NameTransformer unwrapper)
     {
         super(src._beanType);
@@ -415,7 +415,7 @@ public abstract class BeanDeserializerBase
      * Fluent factory for creating a variant that can handle
      * POJO output as a JSON Array. Implementations may ignore this request
      * if no such input is possible.
-     * 
+     *
      * @since 2.1
      */
     protected abstract BeanDeserializerBase asArrayDeserializer();
@@ -644,7 +644,7 @@ public abstract class BeanDeserializerBase
      *<p>
      * NOTE: returned deserializer is NOT yet contextualized, caller needs to take
      * care to do that.
-     * 
+     *
      * @since 2.2
      */
     protected JsonDeserializer<Object> findConvertingDeserializer(DeserializationContext ctxt,
@@ -665,7 +665,7 @@ public abstract class BeanDeserializerBase
         }
         return null;
     }
-    
+
     /**
      * Although most of post-processing is done in resolve(), we only get
      * access to referring property's annotations here; and this is needed
@@ -1026,7 +1026,7 @@ public abstract class BeanDeserializerBase
      * Accessor for finding properties that represents values to pass
      * through property-based creator method (constructor or
      * factory method)
-     * 
+     *
      * @since 2.0
      */
     public Iterator<SettableBeanProperty> creatorProperties()
@@ -1047,14 +1047,14 @@ public abstract class BeanDeserializerBase
      * Accessor for finding the property with given name, if POJO
      * has one. Name used is the external name, i.e. name used
      * in external data representation (JSON).
-     * 
+     *
      * @since 2.0
      */
     public SettableBeanProperty findProperty(String propertyName)
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
                 null : _beanProperties.find(propertyName);
-        if (_neitherNull(prop, _propertyBasedCreator)) {
+        if (prop == null && _propertyBasedCreator != null) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyName);
         }
         return prop;
@@ -1067,14 +1067,14 @@ public abstract class BeanDeserializerBase
      * since properties are not directly indexable; however, for most
      * instances difference is not significant as number of properties
      * is low.
-     * 
+     *
      * @since 2.3
      */
     public SettableBeanProperty findProperty(int propertyIndex)
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
                 null : _beanProperties.find(propertyIndex);
-        if (_neitherNull(prop, _propertyBasedCreator)) {
+        if (prop == null && _propertyBasedCreator != null) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyIndex);
         }
         return prop;
@@ -1113,7 +1113,7 @@ public abstract class BeanDeserializerBase
      *
      * @param original Property to replace
      * @param replacement Property to replace it with
-     * 
+     *
      * @since 2.1
      */
     public void replaceProperty(SettableBeanProperty original,
@@ -1585,7 +1585,7 @@ public abstract class BeanDeserializerBase
     /**
      * Method called when an explicitly ignored property (one specified with a
      * name to match, either by property annotation or class annotation) is encountered.
-     * 
+     *
      * @since 2.3
      */
     protected void handleIgnoredProperty(JsonParser p, DeserializationContext ctxt,

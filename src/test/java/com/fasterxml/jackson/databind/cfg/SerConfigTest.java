@@ -67,11 +67,14 @@ public class SerConfigTest extends BaseMapTest
     public void testFormatFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
-        assertNotSame(config, config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT));
-        assertNotSame(config, config.withFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
-                BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
-        assertNotSame(config, config.without(BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
-        assertNotSame(config, config.withoutFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
+        SerializationConfig config2 = config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT);
+        assertNotSame(config, config2);
+        SerializationConfig config3 = config.withFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
+                BogusFormatFeature.FF_ENABLED_BY_DEFAULT);
+        assertNotSame(config, config3);
+
+        assertNotSame(config3, config3.without(BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
+        assertNotSame(config3, config3.withoutFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
                 BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
     }
 }

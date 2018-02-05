@@ -69,11 +69,14 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testFormatFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
-        assertNotSame(config, config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT));
-        assertNotSame(config, config.withFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
-                BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
-        assertNotSame(config, config.without(BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
-        assertNotSame(config, config.withoutFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
+        DeserializationConfig config2 = config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT);
+        assertNotSame(config, config2);
+        DeserializationConfig config3 = config.withFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
+                BogusFormatFeature.FF_ENABLED_BY_DEFAULT);
+        assertNotSame(config, config3);
+
+        assertNotSame(config3, config3.without(BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
+        assertNotSame(config3, config3.withoutFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
                 BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
     }
 

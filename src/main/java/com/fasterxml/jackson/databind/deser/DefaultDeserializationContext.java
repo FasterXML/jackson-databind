@@ -68,9 +68,9 @@ public abstract class DefaultDeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract methods impls, Object Id
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -180,9 +180,9 @@ public abstract class DefaultDeserializationContext
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract methods impls, other factory methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     @SuppressWarnings("unchecked")
@@ -198,9 +198,8 @@ public abstract class DefaultDeserializationContext
         if (deserDef instanceof JsonDeserializer) {
             deser = (JsonDeserializer<?>) deserDef;
         } else {
-            /* Alas, there's no way to force return type of "either class
-             * X or Y" -- need to throw an exception after the fact
-             */
+            // Alas, there's no way to force return type of "either class
+            // X or Y" -- need to throw an exception after the fact
             if (!(deserDef instanceof Class)) {
                 throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
             }
@@ -264,9 +263,9 @@ public abstract class DefaultDeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -283,9 +282,9 @@ public abstract class DefaultDeserializationContext
             FormatSchema schema, InjectableValues values);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* And then the concrete implementation class
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

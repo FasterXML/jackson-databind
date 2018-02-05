@@ -123,14 +123,24 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     /**
+     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
+     */
+    protected int _parserFeatures;
+
+    /**
      * States of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable.
      */
     protected int _generatorFeatures;
 
     /**
-     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
+     * Optional per-format parser feature flags.
      */
-    protected int _parserFeatures;
+    protected int _formatParserFeatures;
+
+    /**
+     * Optional per-format generator feature flags.
+     */
+    protected int _formatGeneratorFeatures;
 
     /*
     /**********************************************************
@@ -146,6 +156,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _parserFeatures = streamFactory.getParserFeatures();
         _generatorFeatures = streamFactory.getGeneratorFeatures();
 
+        // NOTE: format parser/generator features MUST be set by sub-class!
+        
         _mapperFeatures = DEFAULT_MAPPER_FEATURES;
         // Some overrides we may need based on format
         if (streamFactory.requiresPropertyOrdering()) {
@@ -170,12 +182,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _streamFactory = base._streamFactory;
         _baseSettings = base._baseSettings;
 
-        _parserFeatures = base._parserFeatures;
-        _generatorFeatures = base._deserFeatures;
-
         _mapperFeatures = base._mapperFeatures;
         _serFeatures = base._serFeatures;
         _deserFeatures = base._deserFeatures;
+
+        _parserFeatures = base._parserFeatures;
+        _generatorFeatures = base._deserFeatures;
+        _formatParserFeatures = base._formatParserFeatures;
+        _formatGeneratorFeatures = base._formatGeneratorFeatures;
 
         _classIntrospector = base._classIntrospector;
         _subtypeResolver = base._subtypeResolver;
@@ -203,7 +217,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
         return new SerializationConfig(this,
-                _mapperFeatures, _serFeatures, _generatorFeatures,
+                _mapperFeatures, _serFeatures, _generatorFeatures, _formatGeneratorFeatures,
                 mixins, rootNames, configOverrides);
     }
 
@@ -211,7 +225,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
         return new DeserializationConfig(this,
-                _mapperFeatures, _deserFeatures, _parserFeatures,
+                _mapperFeatures, _deserFeatures, _parserFeatures, _formatParserFeatures,
                 mixins, rootNames, configOverrides);
     }
 

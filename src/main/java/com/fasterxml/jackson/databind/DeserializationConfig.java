@@ -24,12 +24,12 @@ public final class DeserializationConfig
     extends MapperConfigBase<DeserializationFeature, DeserializationConfig>
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 2;
+    private static final long serialVersionUID = 3;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configured helper objects
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -40,9 +40,9 @@ public final class DeserializationConfig
     protected final LinkedNode<DeserializationProblemHandler> _problemHandlers;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization features 
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -51,9 +51,9 @@ public final class DeserializationConfig
     protected final int _deserFeatures;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parser features: generic, format-specific
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -64,17 +64,12 @@ public final class DeserializationConfig
     /**
      * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
      */
-    protected final int _formatReadFeatures;
-
-    /**
-     * Bitflag of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable
-     */
-    protected final int _formatReadFeaturesToChange;
+    protected final int _formatParserFeatures;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, primary constructors for new instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -88,15 +83,14 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
 
     /**
      * @since 3.0
      */
-    public DeserializationConfig(MapperBuilder<?,?> b,
-            int mapperFeatures, int deserFeatures, int parserFeatures,
+    public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
+            int deserFeatures, int parserFeatures, int formatParserFeatures,
             SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
@@ -106,8 +100,7 @@ public final class DeserializationConfig
         _deserFeatures = deserFeatures;
         _problemHandlers = null;
         _parserFeatures = parserFeatures;
-        _formatReadFeatures = 0;
-        _formatReadFeaturesToChange = 0;
+        _formatParserFeatures = formatParserFeatures;
     }
 
     /*
@@ -119,14 +112,13 @@ public final class DeserializationConfig
 
     private DeserializationConfig(DeserializationConfig src,
             int mapperFeatures, int deserFeatures, int parserFeatures,
-            int formatFeatures, int formatFeatureMask)
+            int formatParserFeatures)
     {
         super(src, mapperFeatures);
         _deserFeatures = deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = parserFeatures;
-        _formatReadFeatures = formatFeatures;
-        _formatReadFeaturesToChange = formatFeatureMask;
+        _formatParserFeatures = formatParserFeatures;
     }
     
     /**
@@ -139,8 +131,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
 
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
@@ -149,8 +140,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
     
     private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
@@ -159,8 +149,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
 
     private DeserializationConfig(DeserializationConfig src,
@@ -170,8 +159,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
 
     private DeserializationConfig(DeserializationConfig src, PropertyName rootName)
@@ -180,8 +168,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
 
     private DeserializationConfig(DeserializationConfig src, Class<?> view)
@@ -190,8 +177,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
 
     protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
@@ -200,8 +186,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
 
     protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins)
@@ -210,17 +195,16 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _formatParserFeatures = src._formatParserFeatures;
     }
 
     // for unit tests only:
     protected BaseSettings getBaseSettings() { return _base; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, general factory methods from MapperConfig(Base)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -231,13 +215,13 @@ public final class DeserializationConfig
     @Override
     protected final DeserializationConfig _withMapperFeatures(int mapperFeatures) {
         return new DeserializationConfig(this, mapperFeatures, _deserFeatures, _parserFeatures,
-                _formatReadFeatures, _formatReadFeaturesToChange);
+                _formatParserFeatures);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, specific factory methods from MapperConfig
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -268,9 +252,9 @@ public final class DeserializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, DeserializationFeature-based factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -282,7 +266,7 @@ public final class DeserializationConfig
         int newDeserFeatures = (_deserFeatures | feature.getMask());
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures, _parserFeatures,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+                    _formatParserFeatures);
     }
 
     /**
@@ -298,7 +282,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures, _parserFeatures,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+                    _formatParserFeatures);
     }
 
     /**
@@ -313,8 +297,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+                    _parserFeatures, _formatParserFeatures);
     }
     
     /**
@@ -326,8 +309,7 @@ public final class DeserializationConfig
         int newDeserFeatures = _deserFeatures & ~feature.getMask();
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+                    _parserFeatures, _formatParserFeatures);
     }
 
     /**
@@ -343,7 +325,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures, _parserFeatures,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+                    _formatParserFeatures);
     }
 
     /**
@@ -357,14 +339,14 @@ public final class DeserializationConfig
             newDeserFeatures &= ~f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures, _parserFeatures,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this, _mapperFeatures,
+                    newDeserFeatures, _parserFeatures, _formatParserFeatures);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, JsonParser.Feature-based factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -375,8 +357,8 @@ public final class DeserializationConfig
     {
         int newSet = _parserFeatures | feature.getMask();
         return (_parserFeatures == newSet)? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures, newSet,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this,  _mapperFeatures,
+                    _deserFeatures, newSet, _formatParserFeatures);
     }
 
     /**
@@ -391,7 +373,7 @@ public final class DeserializationConfig
         }
         return (_parserFeatures == newSet) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures, newSet,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+                    _formatParserFeatures);
     }
     
     /**
@@ -403,7 +385,7 @@ public final class DeserializationConfig
         int newSet = _parserFeatures & ~feature.getMask();
         return (_parserFeatures == newSet) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures, newSet,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+                    _formatParserFeatures);
     }
 
     /**
@@ -417,8 +399,8 @@ public final class DeserializationConfig
             newSet &= ~f.getMask();
         }
         return (_parserFeatures == newSet)? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures, newSet,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this, _mapperFeatures,
+                    _deserFeatures, newSet, _formatParserFeatures);
     }
 
     /*
@@ -433,15 +415,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig with(FormatFeature feature)
     {
-        int newSet = _formatReadFeatures | feature.getMask();
-        int newMask = _formatReadFeaturesToChange | feature.getMask();
-
-        if ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) {
-            return this;
-        }
-        return new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures,
-                    newSet, newMask);
+        int newSet = _formatParserFeatures | feature.getMask();
+        return (_formatParserFeatures == newSet) ? this
+                : new DeserializationConfig(this,  _mapperFeatures,
+                        _deserFeatures, _parserFeatures,  newSet);
     }
 
     /**
@@ -450,31 +427,25 @@ public final class DeserializationConfig
      */
     public DeserializationConfig withFeatures(FormatFeature... features)
     {
-        int newSet = _formatReadFeatures;
-        int newMask = _formatReadFeaturesToChange;
+        int newSet = _formatParserFeatures;
         for (FormatFeature f : features) {
-            int mask = f.getMask();
-            newSet |= mask;
-            newMask |= mask;
+            newSet |= f.getMask();
         }
-        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures,
-                    newSet, newMask);
+        return (_formatParserFeatures == newSet) ? this
+                : new DeserializationConfig(this, _mapperFeatures,
+                        _deserFeatures, _parserFeatures, newSet);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
      */
     public DeserializationConfig without(FormatFeature feature)
     {
-        int newSet = _formatReadFeatures & ~feature.getMask();
-        int newMask = _formatReadFeaturesToChange | feature.getMask();
-        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures,
-                    newSet, newMask);
+        int newSet = _formatParserFeatures & ~feature.getMask();
+        return (_formatParserFeatures == newSet) ? this
+                : new DeserializationConfig(this, _mapperFeatures,
+                        _deserFeatures, _parserFeatures, newSet);
     }
 
     /**
@@ -483,17 +454,13 @@ public final class DeserializationConfig
      */
     public DeserializationConfig withoutFeatures(FormatFeature... features)
     {
-        int newSet = _formatReadFeatures;
-        int newMask = _formatReadFeaturesToChange;
+        int newSet = _formatParserFeatures;
         for (FormatFeature f : features) {
-            int mask = f.getMask();
-            newSet &= ~mask;
-            newMask |= mask;
+            newSet &= ~f.getMask();
         }
-        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures,
-                    newSet, newMask);
+        return (_formatParserFeatures == newSet) ? this
+                : new DeserializationConfig(this,  _mapperFeatures,
+                        _deserFeatures, _parserFeatures, newSet);
     }    
 
     /*
@@ -545,7 +512,7 @@ public final class DeserializationConfig
      * @since 3.0
      */
     public int getFormatReadFeatures(int defaults) {
-        return (defaults & ~_formatReadFeaturesToChange) | _formatReadFeatures;
+        return _formatParserFeatures;
     }
 
     /*

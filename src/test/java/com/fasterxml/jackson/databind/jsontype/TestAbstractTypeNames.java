@@ -98,8 +98,9 @@ public class TestAbstractTypeNames  extends BaseMapTest
     // Testing [JACKSON-498], partial fix
     public void testEmptyCollection() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .configure(SerializationFeature.INDENT_OUTPUT, true)
+                .build();
         List<User>friends = new ArrayList<User>();
         friends.add(new DefaultUser("Joe Hildebrandt", null));
         friends.add(new DefaultEmployee("Richard Nasr",null,"MDA"));

@@ -51,10 +51,9 @@ public class InnerClassCreatorTest extends BaseMapTest
         }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
-    {
-        MAPPER.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    }
+    private final ObjectMapper MAPPER = ObjectMapper.builder()
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .build();
 
     // Used to trigger `ArrayIndexOutOfBoundsException` for missing creator property index
     public void testIssue1501() throws Exception

@@ -157,8 +157,9 @@ public class TestSerConfig
 
         // and also with ObjectMapper itself
         sw = new StringWriter();
-        ObjectMapper m2 = new ObjectMapper();
-        m2.enable(SerializationFeature.INDENT_OUTPUT);
+        ObjectMapper m2 = ObjectMapper.builder()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
         m2.writeValue(sw, input);
         assertEquals(INDENTED, sw.toString());
     }

@@ -251,20 +251,23 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     public void testEmptyBean() throws Exception
     {
         // First, with annotations
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true)
+                .build();
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
 
-        mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper = ObjectMapper.builder()
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .build();
         json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
 
         // and then with defaults
-        mapper = new ObjectMapper();
+        mapper = ObjectMapper.builder()
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .build();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         json = mapper.writeValueAsString(new EmptyNonFinal());
         assertEquals("[\"com.fasterxml.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
     }

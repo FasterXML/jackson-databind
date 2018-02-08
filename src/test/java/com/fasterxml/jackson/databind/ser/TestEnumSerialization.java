@@ -252,8 +252,9 @@ public class TestEnumSerialization
     // [JACKSON-212]
     public void testToStringEnum() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+        ObjectMapper m = ObjectMapper.builder()
+                .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+                .build();
         assertEquals("\"b\"", m.writeValueAsString(LowerCaseEnum.B));
 
         // [databind#749] but should also be able to dynamically disable
@@ -264,8 +265,9 @@ public class TestEnumSerialization
 
     public void testToStringEnumWithEnumMap() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        ObjectMapper m =ObjectMapper.builder()
+                .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .build();
         EnumMap<LowerCaseEnum,String> enums = new EnumMap<LowerCaseEnum,String>(LowerCaseEnum.class);
         enums.put(LowerCaseEnum.C, "value");
         assertEquals("{\"c\":\"value\"}", m.writeValueAsString(enums));
@@ -301,11 +303,12 @@ public class TestEnumSerialization
         assertEquals(quote("B"), m.writeValueAsString(TestEnum.B));
 
         // but we can change (dynamically, too!) it to be number-based
-        m.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
+        m = ObjectMapper.builder()
+                .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                .build();
         assertEquals("1", m.writeValueAsString(TestEnum.B));
     }
 
-    // [JACKSON-757]
     public void testAnnotationsOnEnumCtor() throws Exception
     {
         assertEquals(quote("V1"), MAPPER.writeValueAsString(OK.V1));

@@ -147,7 +147,7 @@ public class TestViewsSerialization2 extends BaseMapTest
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .disable( SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .build();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL );
         return mapper;
     }
 

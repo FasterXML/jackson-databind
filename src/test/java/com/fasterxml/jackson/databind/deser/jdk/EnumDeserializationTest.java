@@ -291,8 +291,9 @@ public class EnumDeserializationTest
 
     public void testEnumsWithIndex() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
+        ObjectMapper m = ObjectMapper.builder()
+                .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                .build();
         String json = m.writeValueAsString(TestEnum.RULES);
         assertEquals(String.valueOf(TestEnum.RULES.ordinal()), json);
         TestEnum result = m.readValue(json, TestEnum.class);

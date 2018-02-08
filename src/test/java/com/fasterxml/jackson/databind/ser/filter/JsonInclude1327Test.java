@@ -32,7 +32,7 @@ public class JsonInclude1327Test
     // for [databind#1327]
     public void testClassDefaultsForEmpty() throws Exception {
         ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
 
         final String jsonString = om.writeValueAsString(new Issue1327BeanEmpty());
 
@@ -43,7 +43,7 @@ public class JsonInclude1327Test
 
     public void testClassDefaultsForAlways() throws Exception {
         ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
         final String jsonString = om.writeValueAsString(new Issue1327BeanAlways());
 

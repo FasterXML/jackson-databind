@@ -142,7 +142,7 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testSerOptDefault() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = Optional.empty();
-		String value = newObjectMapper().setSerializationInclusion(
+		String value = newObjectMapper().setDefaultPropertyInclusion(
 				JsonInclude.Include.ALWAYS).writeValueAsString(data);
 		assertEquals("{\"myString\":null}", value);
 	}
@@ -150,7 +150,7 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testSerOptNull() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = null;
-		String value = newObjectMapper().setSerializationInclusion(
+		String value = newObjectMapper().setDefaultPropertyInclusion(
 				JsonInclude.Include.NON_NULL).writeValueAsString(data);
 		assertEquals("{}", value);
 	}
@@ -158,7 +158,7 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testSerOptNonEmpty() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = null;
-		String value = newObjectMapper().setSerializationInclusion(
+		String value = newObjectMapper().setDefaultPropertyInclusion(
 				JsonInclude.Include.NON_EMPTY).writeValueAsString(data);
 		assertEquals("{}", value);
 	}

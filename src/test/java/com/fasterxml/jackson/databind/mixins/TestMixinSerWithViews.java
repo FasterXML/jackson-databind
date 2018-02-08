@@ -195,7 +195,7 @@ public class TestMixinSerWithViews
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .build()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
     
         Map<Class<?>, Class<?>> sourceMixins = new HashMap<Class<?>, Class<?>>( );
         sourceMixins.put( SimpleTestData.class, TestDataJAXBMixin.class );

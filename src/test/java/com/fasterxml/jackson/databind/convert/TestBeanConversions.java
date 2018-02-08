@@ -260,10 +260,12 @@ public class TestBeanConversions
             verifyException(e, "no properties discovered");
         }
         
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .build();
         try {
-            assertEquals("{}", mapper.writeValueAsString(plaino));
+            assertEquals("{}", mapper.writer()
+                    .writeValueAsString(plaino));
         } catch (Exception e) {
             throw (Exception) e.getCause();
         }

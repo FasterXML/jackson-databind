@@ -48,7 +48,7 @@ public class OptionalnclusionTest extends BaseMapTest
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = newObjectMapper().setSerializationInclusion(
+        String value = newObjectMapper().setDefaultPropertyInclusion(
                 JsonInclude.Include.NON_EMPTY).writeValueAsString(data);
         assertEquals("{}", value);
     }
@@ -57,7 +57,7 @@ public class OptionalnclusionTest extends BaseMapTest
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = newObjectMapper().setSerializationInclusion(
+        String value = newObjectMapper().setDefaultPropertyInclusion(
                 JsonInclude.Include.NON_DEFAULT).writeValueAsString(data);
         assertEquals("{}", value);
     }
@@ -66,7 +66,7 @@ public class OptionalnclusionTest extends BaseMapTest
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = newObjectMapper().setSerializationInclusion(
+        String value = newObjectMapper().setDefaultPropertyInclusion(
                 JsonInclude.Include.NON_ABSENT).writeValueAsString(data);
         assertEquals("{}", value);
     }

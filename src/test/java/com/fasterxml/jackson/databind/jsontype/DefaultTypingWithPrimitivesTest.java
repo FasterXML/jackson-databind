@@ -23,13 +23,14 @@ public class DefaultTypingWithPrimitivesTest extends BaseMapTest
         mapData.put("longAsField", data);
 
         // Configure Jackson to preserve types
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
         StdTypeResolverBuilder resolver = new StdTypeResolverBuilder();
         resolver.init(JsonTypeInfo.Id.CLASS, null);
         resolver.inclusion(JsonTypeInfo.As.PROPERTY);
         resolver.typeProperty("__t");
         mapper.setDefaultTyping(resolver);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         // Serialize
         String json = mapper.writeValueAsString(mapData);

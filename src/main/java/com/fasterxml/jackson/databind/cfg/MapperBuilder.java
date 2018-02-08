@@ -93,6 +93,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     protected DefaultDeserializationContext _deserializationContext;
 
+    /**
+     * Provider for values to inject in deserialized POJOs.
+     */
+    protected InjectableValues _injectableValues;
+
     /*
     /**********************************************************
     /* Feature flags: ser, deser
@@ -173,6 +178,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         _deserializerFactory = BeanDeserializerFactory.instance;
         _deserializationContext = null;
+        _injectableValues = null;
     }
 
     protected MapperBuilder(MapperBuilder<?,?> base)
@@ -198,6 +204,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         _deserializerFactory = base._deserializerFactory;
         _deserializationContext = base._deserializationContext;
+        _injectableValues = base._injectableValues;
     }
 
     /*
@@ -338,6 +345,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected DefaultDeserializationContext _defaultDeserializationContext() {
         return new DefaultDeserializationContext.Impl(deserializerFactory(),
                 _streamFactory);
+    }
+
+    public InjectableValues injectableValues() {
+        return _injectableValues;
     }
 
     /*
@@ -558,8 +569,13 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    protected B deserializationContext(DefaultDeserializationContext ctxt) {
+    public B deserializationContext(DefaultDeserializationContext ctxt) {
         _deserializationContext = ctxt;
+        return _this();
+    }
+
+    public B injectableValues(InjectableValues v) {
+        _injectableValues = v;
         return _this();
     }
 

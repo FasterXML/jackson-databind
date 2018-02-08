@@ -105,10 +105,10 @@ public class TestCreatorsDelegating extends BaseMapTest
     // As per [JACKSON-711]: should also work with delegate model (single non-annotated arg)
     public void testWithCtorAndDelegate() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-            .addValue(String.class, "Pooka")
-            );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .injectableValues(new InjectableValues.Std()
+                        .addValue(String.class, "Pooka"))
+                .build();
         CtorBean711 bean = null;
         try {
             bean = mapper.readValue("38", CtorBean711.class);
@@ -121,10 +121,10 @@ public class TestCreatorsDelegating extends BaseMapTest
 
     public void testWithFactoryAndDelegate() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-            .addValue(String.class, "Fygar")
-            );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .injectableValues(new InjectableValues.Std()
+                        .addValue(String.class, "Fygar"))
+                .build();
         FactoryBean711 bean = null;
         try {
             bean = mapper.readValue("38", FactoryBean711.class);

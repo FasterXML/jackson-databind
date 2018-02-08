@@ -232,7 +232,7 @@ public class TestKeySerializers extends BaseMapTest
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build()
                 .registerModule(mod)
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
             ;
 
         Map<ABC,BAR<?>> stuff = new HashMap<ABC,BAR<?>>();

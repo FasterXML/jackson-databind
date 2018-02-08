@@ -128,7 +128,7 @@ public class OptionalNumbersTest extends BaseMapTest
     public void testOptionalLongSerializeFilter() throws Exception
     {
         ObjectMapper mapper = newObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
         assertEquals(aposToQuotes("{'value':123}"),
                 mapper.writeValueAsString(new OptionalLongBean(123L)));
         // absent is not strictly null so
@@ -137,7 +137,7 @@ public class OptionalNumbersTest extends BaseMapTest
 
         // however:
         mapper = newObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
         assertEquals(aposToQuotes("{'value':456}"),
                 mapper.writeValueAsString(new OptionalLongBean(456L)));
         assertEquals(aposToQuotes("{}"),

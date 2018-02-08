@@ -181,14 +181,12 @@ public class TestTypedSerialization
      */
     public void testEmptyBean() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        ObjectMapper m = ObjectMapper.builder()
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .build();
         assertEquals("{\"@type\":\"empty\"}", m.writeValueAsString(new Empty()));
     }
 
-    /**
-     * Unit test for [JACKSON-543]
-     */
     public void testTypedMaps() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

@@ -168,7 +168,7 @@ public class OptionalTest extends BaseMapTest
     public void testExcludeIfOptionalAbsent() throws Exception
     {
         ObjectMapper mapper = newObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
         assertEquals(aposToQuotes("{'value':'foo'}"),
                 mapper.writeValueAsString(new OptionalStringBean("foo")));
         // absent is not strictly null so
@@ -177,7 +177,7 @@ public class OptionalTest extends BaseMapTest
 
         // however:
         mapper = newObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
         assertEquals(aposToQuotes("{'value':'foo'}"),
                 mapper.writeValueAsString(new OptionalStringBean("foo")));
         assertEquals(aposToQuotes("{}"),
@@ -215,7 +215,7 @@ public class OptionalTest extends BaseMapTest
     public void testCustomSerializerIfOptionalAbsent() throws Exception
     {
         ObjectMapper mapper = newObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
         assertEquals(aposToQuotes("{'value':'FOO'}"),
                 mapper.writeValueAsString(new CaseChangingStringWrapper("foo")));
         // absent is not strictly null so
@@ -224,7 +224,7 @@ public class OptionalTest extends BaseMapTest
 
         // however:
         mapper = newObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
         assertEquals(aposToQuotes("{'value':'FOO'}"),
                 mapper.writeValueAsString(new CaseChangingStringWrapper("foo")));
         assertEquals(aposToQuotes("{}"),

@@ -179,7 +179,7 @@ public class TestJsonSerialize2
     public void testEmptyInclusionContainers() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
-        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        ObjectMapper inclMapper = new ObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
         ListWrapper<String> list = new ListWrapper<String>();
         assertEquals("{\"list\":[]}", defMapper.writeValueAsString(list));

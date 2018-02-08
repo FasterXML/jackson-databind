@@ -204,7 +204,7 @@ public class ObjectMapper
     /**
      * Provider for values to inject in deserialized POJOs.
      */
-    protected InjectableValues _injectableValues;
+    protected final InjectableValues _injectableValues;
 
     /**
      * Thing used for registering sub-types, resolving them to
@@ -393,13 +393,19 @@ public class ObjectMapper
         // General framework factories
         _streamFactory = builder.streamFactory();
         BaseSettings base = builder.baseSettings();
+
+        // general type handling
         _typeFactory = base.getTypeFactory();
+        _subtypeResolver = builder.subtypeResolver();
+        
         // Ser/deser framework factories
         _serializerProvider = sp;
-        _deserializationContext = dc;
         _serializerFactory = builder.serializerFactory();
 
-        _subtypeResolver = builder.subtypeResolver();
+        _deserializationContext = dc;
+        _deserializationContext = dc;
+        _injectableValues = builder.injectableValues();
+
         RootNameLookup rootNames = new RootNameLookup();
 
         _mixIns = new SimpleMixInResolver(null);
@@ -1018,16 +1024,6 @@ public class ObjectMapper
     /* Configuration: global-default/per-type override settings
     /**********************************************************
      */
-    
-    /**
-     * Convenience method, equivalent to calling:
-     *<pre>
-     *  setPropertyInclusion(JsonInclude.Value.construct(incl, incl));
-     *</pre>
-     */
-    public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
-        return setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));
-    }
 
     /**
      * Method for setting default POJO property inclusion strategy for serialization,
@@ -1046,8 +1042,7 @@ public class ObjectMapper
      *</pre>
      */
     public ObjectMapper setDefaultPropertyInclusion(JsonInclude.Include incl) {
-        _configOverrides.setDefaultInclusion(JsonInclude.Value.construct(incl, incl));
-        return this;
+        return setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));
     }
 
     /**
@@ -1327,15 +1322,6 @@ public class ObjectMapper
     /**********************************************************
      */
 
-    /**
-     * Method for configuring {@link InjectableValues} which used to find
-     * values to inject.
-     */
-    public ObjectMapper setInjectableValues(InjectableValues injectableValues) {
-        _injectableValues = injectableValues;
-        return this;
-    }
-
     public InjectableValues getInjectableValues() {
         return _injectableValues;
     }
@@ -1356,14 +1342,14 @@ public class ObjectMapper
     }
 
     @Deprecated
-    public ObjectMapper enable(MapperFeature... f) {
+    public ObjectMapper enable(MapperFeature f) {
         _deserializationConfig = _deserializationConfig.with(f);
         _serializationConfig = _serializationConfig.with(f);
         return this;
     }
 
     @Deprecated
-    public ObjectMapper disable(MapperFeature... f) {
+    public ObjectMapper disable(MapperFeature f) {
         _deserializationConfig = _deserializationConfig.without(f);
         _serializationConfig = _serializationConfig.without(f);
         return this;
@@ -1375,54 +1361,25 @@ public class ObjectMapper
     /**********************************************************
      */
 
-    /**
-     * Method for changing state of an on/off serialization feature for
-     * this object mapper.
-     */
+    @Deprecated
     public ObjectMapper configure(SerializationFeature f, boolean state) {
         _serializationConfig = state ?
                 _serializationConfig.with(f) : _serializationConfig.without(f);
         return this;
     }
 
-    /**
-     * Method for enabling specified {@link SerializationConfig} feature.
-     * Modifies and returns this instance; no new object is created.
-     */
+    @Deprecated
     public ObjectMapper enable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.with(f);
         return this;
     }
 
-    /**
-     * Method for enabling specified {@link SerializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
-    public ObjectMapper enable(SerializationFeature first,
-            SerializationFeature... f) {
-        _serializationConfig = _serializationConfig.with(first, f);
-        return this;
-    }
-    
-    /**
-     * Method for disabling specified {@link SerializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
+    @Deprecated
     public ObjectMapper disable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.without(f);
         return this;
     }
 
-    /**
-     * Method for disabling specified {@link SerializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
-    public ObjectMapper disable(SerializationFeature first,
-            SerializationFeature... f) {
-        _serializationConfig = _serializationConfig.without(first, f);
-        return this;
-    }
-    
     /*
     /**********************************************************
     /* Configuration, simple features: DeserializationFeature

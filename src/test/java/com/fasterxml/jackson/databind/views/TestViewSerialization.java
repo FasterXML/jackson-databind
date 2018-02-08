@@ -182,7 +182,7 @@ public class TestViewSerialization
     public void test868() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_DEFAULT);
         String json = mapper.writerWithView(OtherView.class).writeValueAsString(new Foo());
         assertEquals(json, "{}");
     }    

@@ -172,7 +172,9 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals("[1,2]", m.writeValueAsString(input));
 
         // or with default, get... defaults:
-        m.enable(SerializationFeature.INDENT_OUTPUT);
+        m = ObjectMapper.builder()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
         assertEquals("[ 1, 2 ]", m.writeValueAsString(input));
         assertEquals("[ 1, 2 ]", m.writerWithDefaultPrettyPrinter().writeValueAsString(input));
         assertEquals("[ 1, 2 ]", m.writer().withDefaultPrettyPrinter().writeValueAsString(input));

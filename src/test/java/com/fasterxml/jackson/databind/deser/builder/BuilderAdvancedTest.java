@@ -50,10 +50,10 @@ public class BuilderAdvancedTest extends BaseMapTest
     
     public void testWithInjectable() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-            .addValue(String.class, "stuffValue")
-            );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .injectableValues(new InjectableValues.Std()
+                        .addValue(String.class, "stuffValue"))
+                .build();
         InjectableXY bean = mapper.readValue(aposToQuotes("{'y':3,'x':7}"),
                 InjectableXY.class);
         assertEquals(8, bean._x);

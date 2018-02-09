@@ -103,6 +103,11 @@ public abstract class Module
         public Version getMapperVersion();
 
         /**
+         * @since 3.0
+         */
+        public String getFormatName();
+
+        /**
          * Fallback access method that allows modules to refer to the
          * {@link ObjectMapper} that provided this context.
          * It should NOT be needed by most modules; and ideally should
@@ -128,18 +133,15 @@ public abstract class Module
          * NOTE: since it is possible that other modules might change or replace
          * TypeFactory, use of this method adds order-dependency for registrations.
          */
-        public TypeFactory getTypeFactory();
-        
+        public TypeFactory typeFactory();
+
+        public TokenStreamFactory tokenStreamFactory();
+
         public boolean isEnabled(MapperFeature f);
-        
         public boolean isEnabled(DeserializationFeature f);
-
         public boolean isEnabled(SerializationFeature f);
-
         public boolean isEnabled(JsonFactory.Feature f);
-        
         public boolean isEnabled(JsonParser.Feature f);
-
         public boolean isEnabled(JsonGenerator.Feature f);
 
         /*

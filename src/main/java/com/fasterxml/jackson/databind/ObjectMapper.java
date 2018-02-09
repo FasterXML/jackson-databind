@@ -506,7 +506,17 @@ public class ObjectMapper
             }
 
             @Override
-            public TypeFactory getTypeFactory() {
+            public String getFormatName() {
+                return _streamFactory.getFormatName();
+            }
+
+            @Override
+            public TokenStreamFactory tokenStreamFactory() {
+                return _streamFactory;
+            }
+            
+            @Override
+            public TypeFactory typeFactory() {
                 return _typeFactory;
             }
             

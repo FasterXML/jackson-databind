@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-
+import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.node.*;
@@ -76,7 +76,7 @@ public class ObjectMapperTest extends BaseMapTest
     {
         ObjectMapper m = new ObjectMapper();
         SerializationConfig config = m.getSerializationConfig();
-        assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion());
+        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
         assertEquals(JsonSetter.Value.empty(), config.getDefaultSetterInfo());
         assertNull(config.getDefaultMergeable());
         VisibilityChecker<?> defaultVis = config.getDefaultVisibilityChecker();

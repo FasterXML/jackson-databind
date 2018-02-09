@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collections;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 
@@ -108,8 +107,8 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testMisc() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
-        assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion());
-        assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion(String.class));
+        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
+        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion(String.class));
 
         assertSame(config, config.withRootName((PropertyName) null)); // defaults to 'none'
 

@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collections;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -17,8 +15,8 @@ public class SerConfigTest extends BaseMapTest
         SerializationConfig config = MAPPER.getSerializationConfig();
         assertTrue(config.hasSerializationFeatures(SerializationFeature.FAIL_ON_EMPTY_BEANS.getMask()));
         assertFalse(config.hasSerializationFeatures(SerializationFeature.CLOSE_CLOSEABLE.getMask()));
-        assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion());
-        assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion(String.class));
+        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
+        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion(String.class));
         assertFalse(config.useRootWrapping());
 
         // if no changes then same config object

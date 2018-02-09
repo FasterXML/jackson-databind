@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 /**
  * Container for individual {@link ConfigOverride} values.
- * 
- * @since 2.8
  */
 public class ConfigOverrides
     implements java.io.Serializable
@@ -17,30 +15,26 @@ public class ConfigOverrides
     private static final long serialVersionUID = 1L;
 
     /**
+     * Convenience value used as the default root setting.
+     *
+     * @since 3.0
+     */
+    public final static JsonInclude.Value INCLUDE_ALL
+        = JsonInclude.Value.construct(JsonInclude.Include.ALWAYS, JsonInclude.Include.ALWAYS);
+    
+    /**
      * Per-type override definitions
      */
     protected Map<Class<?>, MutableConfigOverride> _overrides;
 
     // // // Global defaulting
 
-    /**
-     * @since 2.9
-     */
     protected JsonInclude.Value _defaultInclusion;
 
-    /**
-     * @since 2.9
-     */
     protected JsonSetter.Value _defaultSetterInfo;
 
-    /**
-     * @since 2.9
-     */
     protected VisibilityChecker<?> _visibilityChecker;
 
-    /**
-     * @since 2.9
-     */
     protected Boolean _defaultMergeable;
 
     /*
@@ -51,8 +45,7 @@ public class ConfigOverrides
 
     public ConfigOverrides() {
         this(null,
-                // !!! TODO: change to (ALWAYS, ALWAYS)?
-                JsonInclude.Value.empty(),
+                INCLUDE_ALL,
                 JsonSetter.Value.empty(),
                 VisibilityChecker.Std.defaultInstance(),
                 null
@@ -129,37 +122,22 @@ public class ConfigOverrides
         return _defaultMergeable;
     }
 
-    /**
-     * @since 2.9
-     */
     public VisibilityChecker<?> getDefaultVisibility() {
         return _visibilityChecker;
     }
 
-    /**
-     * @since 2.9
-     */
     public void setDefaultInclusion(JsonInclude.Value v) {
         _defaultInclusion = v;
     }
 
-    /**
-     * @since 2.9
-     */
     public void setDefaultSetterInfo(JsonSetter.Value v) {
         _defaultSetterInfo = v;
     }
 
-    /**
-     * @since 2.9
-     */
     public void setDefaultMergeable(Boolean v) {
         _defaultMergeable = v;
     }
 
-    /**
-     * @since 2.9
-     */
     public void setDefaultVisibility(VisibilityChecker<?> v) {
         _visibilityChecker = v;
     }

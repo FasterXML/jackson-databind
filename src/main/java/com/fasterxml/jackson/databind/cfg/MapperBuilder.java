@@ -48,6 +48,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     protected final TokenStreamFactory _streamFactory;
 
+    protected final ConfigOverrides _configOverrides;
+    
     /*
     /**********************************************************
     /* Handlers, introspection
@@ -155,6 +157,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     {
         _streamFactory = streamFactory;
         _baseSettings = BaseSettings.std();
+        _configOverrides = new ConfigOverrides();
 
         _parserFeatures = streamFactory.getParserFeatures();
         _generatorFeatures = streamFactory.getGeneratorFeatures();
@@ -185,6 +188,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     {
         _streamFactory = base._streamFactory;
         _baseSettings = base._baseSettings;
+        _configOverrides = base._configOverrides;
 
         _mapperFeatures = base._mapperFeatures;
         _serFeatures = base._serFeatures;
@@ -219,19 +223,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public abstract M build();
 
     public SerializationConfig buildSerializationConfig(SimpleMixInResolver mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
+            RootNameLookup rootNames)
     {
         return new SerializationConfig(this,
                 _mapperFeatures, _serFeatures, _generatorFeatures, _formatGeneratorFeatures,
-                mixins, rootNames, configOverrides);
+                mixins, rootNames, _configOverrides);
     }
 
     public DeserializationConfig buildDeserializationConfig(SimpleMixInResolver mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
+            RootNameLookup rootNames)
     {
         return new DeserializationConfig(this,
                 _mapperFeatures, _deserFeatures, _parserFeatures, _formatParserFeatures,
-                mixins, rootNames, configOverrides);
+                mixins, rootNames, _configOverrides);
     }
 
     /*
@@ -242,6 +246,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public BaseSettings baseSettings() {
         return _baseSettings;
+    }
+
+    public ConfigOverrides configOverrides() {
+        return _configOverrides;
     }
 
     public TokenStreamFactory streamFactory() {

@@ -70,11 +70,10 @@ public class TestRootType
     /**********************************************************
      */
 
-    final ObjectMapper WRAP_ROOT_MAPPER = new ObjectMapper();
-    {
-        WRAP_ROOT_MAPPER.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-    }
-    
+    final ObjectMapper WRAP_ROOT_MAPPER = ObjectMapper.builder()
+            .enable(SerializationFeature.WRAP_ROOT_VALUE)
+            .build();
+
     @SuppressWarnings("unchecked")
     public void testSuperClass() throws Exception
     {

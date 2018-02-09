@@ -39,25 +39,28 @@ public class SerializationFeaturesTest
     /**********************************************************
      */
 
-    // Test for [JACKSON-282]
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     @SuppressWarnings("resource")
     public void testCloseCloseable() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         // default should be disabled:
         CloseableBean bean = new CloseableBean();
-        m.writeValueAsString(bean);
+        MAPPER.writeValueAsString(bean);
         assertFalse(bean.wasClosed);
 
         // but can enable it:
-        m.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
         bean = new CloseableBean();
-        m.writeValueAsString(bean);
+        MAPPER.writer()
+            .with(SerializationFeature.CLOSE_CLOSEABLE)
+            .writeValueAsString(bean);
         assertTrue(bean.wasClosed);
 
         // also: let's ensure that ObjectWriter won't interfere with it
         bean = new CloseableBean();
-        m.writerFor(CloseableBean.class).writeValueAsString(bean);
+        MAPPER.writerFor(CloseableBean.class)
+            .with(SerializationFeature.CLOSE_CLOSEABLE)
+            .writeValueAsString(bean);
         assertTrue(bean.wasClosed);
     }
 
@@ -70,8 +73,10 @@ public class SerializationFeaturesTest
         assertEquals(quote("abc"), m.writeValueAsString(chars));
         
         // new feature: serialize as JSON array:
-        m.configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, true);
-        assertEquals("[\"a\",\"b\",\"c\"]", m.writeValueAsString(chars));
+        assertEquals("[\"a\",\"b\",\"c\"]",
+                m.writer()
+                .with(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)
+                .writeValueAsString(chars));
     }
 
     public void testFlushingAutomatic() throws IOException
@@ -93,8 +98,9 @@ public class SerializationFeaturesTest
     public void testFlushingNotAutomatic() throws IOException
     {
         // but should not occur if configured otherwise
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, false);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, false)
+                .build();
         StringWriter sw = new StringWriter();
         JsonGenerator g = mapper.createGenerator(sw);
 

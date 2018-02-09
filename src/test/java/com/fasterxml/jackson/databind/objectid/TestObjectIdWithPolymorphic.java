@@ -131,9 +131,10 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
 
     public void testIssue811() throws Exception
     {
-        ObjectMapper om = new ObjectMapper();
-        om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
-        om.enable(SerializationFeature.INDENT_OUTPUT);
+        ObjectMapper om = ObjectMapper.builder()
+                .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX,
+                        SerializationFeature.INDENT_OUTPUT)
+                .build();
         om.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class");
     
         Process p = new Process();

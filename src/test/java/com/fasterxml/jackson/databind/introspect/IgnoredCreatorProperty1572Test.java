@@ -59,7 +59,7 @@ public class IgnoredCreatorProperty1572Test extends BaseMapTest
     public void testIgnoredCtorParam() throws Exception
     {
         final ObjectMapper mapper = ObjectMapper.builder()
-                .setAnnotationIntrospector(new ImplicitNames())
+                .annotationIntrospector(new ImplicitNames())
                 .build();
         String JSON = aposToQuotes("{'innerTest': {\n"
                 +"'str':'str',\n"

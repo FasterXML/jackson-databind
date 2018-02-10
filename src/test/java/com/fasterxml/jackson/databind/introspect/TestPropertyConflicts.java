@@ -117,7 +117,7 @@ public class TestPropertyConflicts extends BaseMapTest
     public void testInferredNameConflictsWithGetters() throws Exception
     {
         ObjectMapper mapper = ObjectMapper.builder()
-                .setAnnotationIntrospector(new InferingIntrospector())
+                .annotationIntrospector(new InferingIntrospector())
                 .build();
         String json = mapper.writeValueAsString(new Infernal());
         assertEquals(aposToQuotes("{'name':'Bob'}"), json);
@@ -126,7 +126,7 @@ public class TestPropertyConflicts extends BaseMapTest
     public void testInferredNameConflictsWithSetters() throws Exception
     {
         ObjectMapper mapper = ObjectMapper.builder()
-                .setAnnotationIntrospector(new InferingIntrospector())
+                .annotationIntrospector(new InferingIntrospector())
                 .build();
         Infernal inf = mapper.readValue(aposToQuotes("{'stuff':'Bob'}"), Infernal.class);
         assertNotNull(inf);

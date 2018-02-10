@@ -224,7 +224,7 @@ public class TestPOJOAsArray extends BaseMapTest
 
         // but override should change it:
         ObjectMapper mapper2 = ObjectMapper.builder()
-                .setAnnotationIntrospector(new ForceArraysIntrospector())
+                .annotationIntrospector(new ForceArraysIntrospector())
                 .build();
         assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
 

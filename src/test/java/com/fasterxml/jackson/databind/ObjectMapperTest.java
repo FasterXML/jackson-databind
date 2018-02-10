@@ -75,7 +75,7 @@ public class ObjectMapperTest extends BaseMapTest
     public void testCopyOfConfigOverrides() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        SerializationConfig config = m.getSerializationConfig();
+        SerializationConfig config = m.serializationConfig();
         assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
         assertEquals(JsonSetter.Value.empty(), config.getDefaultSetterInfo());
         assertNull(config.getDefaultMergeable());
@@ -119,20 +119,20 @@ public class ObjectMapperTest extends BaseMapTest
         
         // sort-alphabetically is disabled by default:
         assertFalse(m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
-        SerializationConfig sc = m.getSerializationConfig();
+        SerializationConfig sc = m.serializationConfig();
         assertFalse(sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertFalse(sc.shouldSortPropertiesAlphabetically());
-        DeserializationConfig dc = m.getDeserializationConfig();
+        DeserializationConfig dc = m.deserializationConfig();
         assertFalse(dc.shouldSortPropertiesAlphabetically());
 
         // but when enabled, should be visible:
         m = ObjectMapper.builder()
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .build();
-        sc = m.getSerializationConfig();
+        sc = m.serializationConfig();
         assertTrue(sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(sc.shouldSortPropertiesAlphabetically());
-        dc = m.getDeserializationConfig();
+        dc = m.deserializationConfig();
         // and not just via SerializationConfig, but also via DeserializationConfig
         assertTrue(dc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(dc.shouldSortPropertiesAlphabetically());

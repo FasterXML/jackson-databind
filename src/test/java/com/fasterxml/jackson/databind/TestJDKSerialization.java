@@ -76,13 +76,13 @@ public class TestJDKSerialization extends BaseMapTest
     
     public void testConfigs() throws IOException
     {
-        byte[] base = jdkSerialize(MAPPER.getDeserializationConfig().getBaseSettings());
+        byte[] base = jdkSerialize(MAPPER.deserializationConfig().getBaseSettings());
         assertNotNull(jdkDeserialize(base));
 
         // first things first: underlying BaseSettings
         
-        DeserializationConfig origDC = MAPPER.getDeserializationConfig();
-        SerializationConfig origSC = MAPPER.getSerializationConfig();
+        DeserializationConfig origDC = MAPPER.deserializationConfig();
+        SerializationConfig origSC = MAPPER.serializationConfig();
         byte[] dcBytes = jdkSerialize(origDC);
         byte[] scBytes = jdkSerialize(origSC);
 

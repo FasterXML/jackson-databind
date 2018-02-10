@@ -8,6 +8,7 @@ import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
@@ -393,8 +394,12 @@ public class ObjectMapper
         // General framework factories
         _streamFactory = builder.streamFactory();
         BaseSettings base = builder.baseSettings();
-        _configOverrides = builder.configOverrides();
-
+        // bit tricky as we do NOT want to expose simple accessors (to a mutable thing)
+        {
+            final AtomicReference<ConfigOverrides> ref = new AtomicReference<>();
+            builder.withAllConfigOverrides(overrides -> ref.set(overrides));
+            _configOverrides = ref.get();
+        }
         // general type handling
         _typeFactory = base.getTypeFactory();
         _subtypeResolver = builder.subtypeResolver();
@@ -651,11 +656,6 @@ public class ObjectMapper
             public void addDeserializationProblemHandler(DeserializationProblemHandler handler) {
                 addHandler(handler);
             }
-
-            @Override
-            public void setNamingStrategy(PropertyNamingStrategy naming) {
-                setPropertyNamingStrategy(naming);
-            }
         });
         return this;
     }
@@ -765,7 +765,7 @@ public class ObjectMapper
      * by accessing an instance and calling methods: this will simply create
      * new instance of config object.
      */
-    public SerializationConfig getSerializationConfig() {
+    public SerializationConfig serializationConfig() {
         return _serializationConfig;
     }
 
@@ -778,7 +778,7 @@ public class ObjectMapper
      * by accessing an instance and calling methods: this will simply create
      * new instance of config object.
      */
-    public DeserializationConfig getDeserializationConfig() {
+    public DeserializationConfig deserializationConfig() {
         return _deserializationConfig;
     }
 
@@ -802,12 +802,6 @@ public class ObjectMapper
      * @since 3.0
      */
     public TokenStreamFactory tokenStreamFactory() { return _streamFactory; }
-
-    /**
-     * @deprecated Since 3.0 use {@link #tokenStreamFactory()} instead.
-     */
-    @Deprecated // since 3.0
-    public TokenStreamFactory getFactory() { return tokenStreamFactory(); }
 
     /*
     /**********************************************************
@@ -983,49 +977,10 @@ public class ObjectMapper
         return _subtypeResolver;
     }
 
-    /**
-     * Method for setting {@link AnnotationIntrospector} used by this
-     * mapper instance for both serialization and deserialization.
-     * Note that doing this will replace the current introspector, which
-     * may lead to unavailability of core Jackson annotations.
-     * If you want to combine handling of multiple introspectors,
-     * have a look at {@link com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair}.
-     * 
-     * @see com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
-     */
+    @Deprecated
     public ObjectMapper setAnnotationIntrospector(AnnotationIntrospector ai) {
         _serializationConfig = _serializationConfig.with(ai);
         _deserializationConfig = _deserializationConfig.with(ai);
-        return this;
-    }
-
-    /**
-     * Method for changing {@link AnnotationIntrospector} instances used
-     * by this mapper instance for serialization and deserialization,
-     * specifying them separately so that different introspection can be
-     * used for different aspects
-     * 
-     * @param serializerAI {@link AnnotationIntrospector} to use for configuring
-     *    serialization
-     * @param deserializerAI {@link AnnotationIntrospector} to use for configuring
-     *    deserialization
-     * 
-     * @see com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
-     */
-    public ObjectMapper setAnnotationIntrospectors(AnnotationIntrospector serializerAI,
-            AnnotationIntrospector deserializerAI) {
-        _serializationConfig = _serializationConfig.with(serializerAI);
-        _deserializationConfig = _deserializationConfig.with(deserializerAI);
-        return this;
-    }
-
-    /**
-     * Method for setting custom property naming strategy to use.
-     */
-    @Deprecated
-    public ObjectMapper setPropertyNamingStrategy(PropertyNamingStrategy s) {
-        _serializationConfig = _serializationConfig.with(s);
-        _deserializationConfig = _deserializationConfig.with(s);
         return this;
     }
 
@@ -2046,7 +2001,7 @@ public class ObjectMapper
     public void writeValue(JsonGenerator g, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        SerializationConfig config = getSerializationConfig();
+        SerializationConfig config = serializationConfig();
         // 04-Oct-2017, tatu: Generator should come properly configured and we should not
         //   change its state in any way, I think (at least with Jackson 3.0)
         /*
@@ -2075,7 +2030,7 @@ public class ObjectMapper
     public void writeTree(JsonGenerator g, TreeNode rootNode)
         throws IOException, JsonProcessingException
     {
-        SerializationConfig config = getSerializationConfig();
+        SerializationConfig config = serializationConfig();
         _serializerProvider(config).serializeValue(g, rootNode);
         if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
             g.flush();
@@ -2089,7 +2044,7 @@ public class ObjectMapper
     public void writeTree(JsonGenerator g, JsonNode rootNode)
         throws IOException, JsonProcessingException
     {
-        SerializationConfig config = getSerializationConfig();
+        SerializationConfig config = serializationConfig();
         _serializerProvider(config).serializeValue(g, rootNode);
         if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
             g.flush();
@@ -2195,7 +2150,7 @@ public class ObjectMapper
         }
         // 06-Oct-2017, tatu: `convertValue()` disables root value wrapping so
         //   do it here too
-        SerializationConfig config = getSerializationConfig()
+        SerializationConfig config = serializationConfig()
             .without(SerializationFeature.WRAP_ROOT_VALUE);
         DefaultSerializerProvider prov = _serializerProvider(config);
         TokenBuffer buf = TokenBuffer.forValueConversion(prov);
@@ -2711,7 +2666,7 @@ public class ObjectMapper
      * with default settings.
      */
     public ObjectWriter writer() {
-        return _newWriter(getSerializationConfig());
+        return _newWriter(serializationConfig());
     }
 
     /**
@@ -2720,7 +2675,7 @@ public class ObjectMapper
      * mapper instance has).
      */
     public ObjectWriter writer(SerializationFeature feature) {
-        return _newWriter(getSerializationConfig().with(feature));
+        return _newWriter(serializationConfig().with(feature));
     }
 
     /**
@@ -2730,7 +2685,7 @@ public class ObjectMapper
      */
     public ObjectWriter writer(SerializationFeature first,
             SerializationFeature... other) {
-        return _newWriter(getSerializationConfig().with(first, other));
+        return _newWriter(serializationConfig().with(first, other));
     }
     
     /**
@@ -2739,7 +2694,7 @@ public class ObjectMapper
      * null passed, using timestamp (64-bit number.
      */
     public ObjectWriter writer(DateFormat df) {
-        return _newWriter(getSerializationConfig().with(df));
+        return _newWriter(serializationConfig().with(df));
     }
     
     /**
@@ -2747,7 +2702,7 @@ public class ObjectMapper
      * serialize objects using specified JSON View (filter).
      */
     public ObjectWriter writerWithView(Class<?> serializationView) {
-        return _newWriter(getSerializationConfig().withView(serializationView));
+        return _newWriter(serializationConfig().withView(serializationView));
     }
     
     /**
@@ -2760,7 +2715,7 @@ public class ObjectMapper
      * more than once this avoids addition per-value serializer lookups.
      */
     public ObjectWriter writerFor(Class<?> rootType) {
-        return _newWriter(getSerializationConfig(),
+        return _newWriter(serializationConfig(),
                 ((rootType == null) ? null :_typeFactory.constructType(rootType)),
                 /*PrettyPrinter*/null);
     }
@@ -2775,7 +2730,7 @@ public class ObjectMapper
      * more than once this avoids addition per-value serializer lookups.
      */
     public ObjectWriter writerFor(TypeReference<?> rootType) {
-        return _newWriter(getSerializationConfig(),
+        return _newWriter(serializationConfig(),
                 ((rootType == null) ? null : _typeFactory.constructType(rootType)),
                 /*PrettyPrinter*/null);
     }
@@ -2790,7 +2745,7 @@ public class ObjectMapper
      * more than once this avoids addition per-value serializer lookups.
      */
     public ObjectWriter writerFor(JavaType rootType) {
-        return _newWriter(getSerializationConfig(), rootType, /*PrettyPrinter*/null);
+        return _newWriter(serializationConfig(), rootType, /*PrettyPrinter*/null);
     }
 
     /**
@@ -2798,7 +2753,7 @@ public class ObjectMapper
      * serialize objects using the default pretty printer for indentation
      */
     public ObjectWriter writerWithDefaultPrettyPrinter() {
-        SerializationConfig config = getSerializationConfig();
+        SerializationConfig config = serializationConfig();
         return _newWriter(config,
                 /*root type*/ null, config.getDefaultPrettyPrinter());
     }
@@ -2808,7 +2763,7 @@ public class ObjectMapper
      * serialize objects using specified filter provider.
      */
     public ObjectWriter writer(FilterProvider filterProvider) {
-        return _newWriter(getSerializationConfig().withFilters(filterProvider));
+        return _newWriter(serializationConfig().withFilters(filterProvider));
     }
     
     /**
@@ -2820,7 +2775,7 @@ public class ObjectMapper
      */
     public ObjectWriter writer(FormatSchema schema) {
         _verifySchemaType(schema);
-        return _newWriter(getSerializationConfig(), schema);
+        return _newWriter(serializationConfig(), schema);
     }
 
     /**
@@ -2828,7 +2783,7 @@ public class ObjectMapper
      * use specified Base64 encoding variant for Base64-encoded binary data.
      */
     public ObjectWriter writer(Base64Variant defaultBase64) {
-        return _newWriter(getSerializationConfig().with(defaultBase64));
+        return _newWriter(serializationConfig().with(defaultBase64));
     }
 
     /**
@@ -2836,7 +2791,7 @@ public class ObjectMapper
      * use specified character escaping details for output.
      */
     public ObjectWriter writer(CharacterEscapes escapes) {
-        return _newWriter(getSerializationConfig()).with(escapes);
+        return _newWriter(serializationConfig()).with(escapes);
     }
 
     /**
@@ -2844,7 +2799,7 @@ public class ObjectMapper
      * use specified default attributes.
      */
     public ObjectWriter writer(ContextAttributes attrs) {
-        return _newWriter(getSerializationConfig().with(attrs));
+        return _newWriter(serializationConfig().with(attrs));
     }
 
     /*
@@ -2860,7 +2815,7 @@ public class ObjectMapper
      * without defining expected value type.
      */
     public ObjectReader reader() {
-        return _newReader(getDeserializationConfig()).with(_injectableValues);
+        return _newReader(deserializationConfig()).with(_injectableValues);
     }
 
     /**
@@ -2871,7 +2826,7 @@ public class ObjectMapper
      * without defining expected value type.
      */
     public ObjectReader reader(DeserializationFeature feature) {
-        return _newReader(getDeserializationConfig().with(feature));
+        return _newReader(deserializationConfig().with(feature));
     }
 
     /**
@@ -2883,7 +2838,7 @@ public class ObjectMapper
      */
     public ObjectReader reader(DeserializationFeature first,
             DeserializationFeature... other) {
-        return _newReader(getDeserializationConfig().with(first, other));
+        return _newReader(deserializationConfig().with(first, other));
     }
     
     /**
@@ -2898,7 +2853,7 @@ public class ObjectMapper
      */
     public ObjectReader readerForUpdating(Object valueToUpdate) {
         JavaType t = _typeFactory.constructType(valueToUpdate.getClass());
-        return _newReader(getDeserializationConfig(), t, valueToUpdate,
+        return _newReader(deserializationConfig(), t, valueToUpdate,
                 null, _injectableValues);
     }
 
@@ -2907,7 +2862,7 @@ public class ObjectMapper
      * read or update instances of specified type
      */
     public ObjectReader readerFor(JavaType type) {
-        return _newReader(getDeserializationConfig(), type, null,
+        return _newReader(deserializationConfig(), type, null,
                 null, _injectableValues);
     }
 
@@ -2916,7 +2871,7 @@ public class ObjectMapper
      * read or update instances of specified type
      */
     public ObjectReader readerFor(Class<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+        return _newReader(deserializationConfig(), _typeFactory.constructType(type), null,
                 null, _injectableValues);
     }
 
@@ -2925,7 +2880,7 @@ public class ObjectMapper
      * read or update instances of specified type
      */
     public ObjectReader readerFor(TypeReference<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+        return _newReader(deserializationConfig(), _typeFactory.constructType(type), null,
                 null, _injectableValues);
     }
 
@@ -2934,7 +2889,7 @@ public class ObjectMapper
      * use specified {@link JsonNodeFactory} for constructing JSON trees.
      */
     public ObjectReader reader(JsonNodeFactory f) {
-        return _newReader(getDeserializationConfig()).with(f);
+        return _newReader(deserializationConfig()).with(f);
     }
 
     /**
@@ -2946,7 +2901,7 @@ public class ObjectMapper
      */
     public ObjectReader reader(FormatSchema schema) {
         _verifySchemaType(schema);
-        return _newReader(getDeserializationConfig(), null, null,
+        return _newReader(deserializationConfig(), null, null,
                 schema, _injectableValues);
     }
 
@@ -2957,7 +2912,7 @@ public class ObjectMapper
      * @param injectableValues Injectable values to use
      */
     public ObjectReader reader(InjectableValues injectableValues) {
-        return _newReader(getDeserializationConfig(), null, null,
+        return _newReader(deserializationConfig(), null, null,
                 null, injectableValues);
     }
 
@@ -2966,7 +2921,7 @@ public class ObjectMapper
      * deserialize objects using specified JSON View (filter).
      */
     public ObjectReader readerWithView(Class<?> view) {
-        return _newReader(getDeserializationConfig().withView(view));
+        return _newReader(deserializationConfig().withView(view));
     }
 
     /**
@@ -2974,7 +2929,7 @@ public class ObjectMapper
      * use specified Base64 encoding variant for Base64-encoded binary data.
      */
     public ObjectReader reader(Base64Variant defaultBase64) {
-        return _newReader(getDeserializationConfig().with(defaultBase64));
+        return _newReader(deserializationConfig().with(defaultBase64));
     }
 
     /**
@@ -2982,7 +2937,7 @@ public class ObjectMapper
      * use specified default attributes.
      */
     public ObjectReader reader(ContextAttributes attrs) {
-        return _newReader(getDeserializationConfig().with(attrs));
+        return _newReader(deserializationConfig().with(attrs));
     }
 
     /*
@@ -3074,7 +3029,7 @@ public class ObjectMapper
 
         // inlined 'writeValue' with minor changes:
         // first: disable wrapping when writing
-        SerializationConfig config = getSerializationConfig()
+        SerializationConfig config = serializationConfig()
                 .without(SerializationFeature.WRAP_ROOT_VALUE);
         DefaultSerializerProvider prov = _serializerProvider(config);
         TokenBuffer buf = TokenBuffer.forValueConversion(prov);
@@ -3149,7 +3104,7 @@ public class ObjectMapper
         if ((valueToUpdate == null) || (overrides == null)) {
             return valueToUpdate;
         }
-        SerializationConfig config = getSerializationConfig()
+        SerializationConfig config = serializationConfig()
                 .without(SerializationFeature.WRAP_ROOT_VALUE);
         DefaultSerializerProvider prov = _serializerProvider(config);
         TokenBuffer buf = TokenBuffer.forValueConversion(prov);
@@ -3231,7 +3186,7 @@ public class ObjectMapper
 
     protected DefaultSerializerProvider _serializerProvider() {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
-        return _serializerProvider.createInstance(getSerializationConfig(),
+        return _serializerProvider.createInstance(serializationConfig(),
                 GeneratorSettings.empty(), _serializerFactory);
     }
 
@@ -3316,7 +3271,7 @@ public class ObjectMapper
         try (JsonParser p = p0) {
             final JavaType valueType = JSON_NODE_TYPE;
 
-            DeserializationConfig cfg = getDeserializationConfig();
+            DeserializationConfig cfg = deserializationConfig();
 
             // 27-Oct-2016, tatu: Need to inline `_initForReading()` due to
             //   special requirements by tree reading (no fail on eof)
@@ -3392,13 +3347,13 @@ public class ObjectMapper
      * Can be overridden if a custom context is needed.
      */
     protected DefaultDeserializationContext createDeserializationContext(JsonParser p) {
-        return _deserializationContext.createInstance(getDeserializationConfig(),
+        return _deserializationContext.createInstance(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues)
                 .assignParser(p);
     }
 
     protected DefaultDeserializationContext createDeserializationContext() {
-        return _deserializationContext.createInstance(getDeserializationConfig(),
+        return _deserializationContext.createInstance(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues);
     }
 

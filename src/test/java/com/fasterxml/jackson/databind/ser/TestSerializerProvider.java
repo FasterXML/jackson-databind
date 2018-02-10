@@ -18,7 +18,7 @@ public class TestSerializerProvider
     public void testFindExplicit() throws JsonMappingException
     {
         ObjectMapper mapper = new ObjectMapper();
-        SerializationConfig config = mapper.getSerializationConfig();
+        SerializationConfig config = mapper.serializationConfig();
         SerializerFactory f = new BeanSerializerFactory(null);
         GeneratorSettings genSettings =  GeneratorSettings.empty();
         DefaultSerializerProvider prov = new DefaultSerializerProvider.Impl(new JsonFactory())

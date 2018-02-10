@@ -186,18 +186,19 @@ public class TestJacksonAnnotationIntrospector
     {
         ObjectMapper mapper = new ObjectMapper();
         JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(mapper.getSerializationConfig(),
+        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(mapper.serializationConfig(),
                 TypeResolverBean.class);
         JavaType baseType = TypeFactory.defaultInstance().constructType(TypeResolverBean.class);
-        TypeResolverBuilder<?> rb = ai.findTypeResolver(mapper.getDeserializationConfig(), ac, baseType);
+        TypeResolverBuilder<?> rb = ai.findTypeResolver(mapper.deserializationConfig(), ac, baseType);
         assertNotNull(rb);
         assertSame(DummyBuilder.class, rb.getClass());
     }
 
     public void testEnumHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new LcEnumIntrospector());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .setAnnotationIntrospector(new LcEnumIntrospector())
+                .build();
         assertEquals("\"value1\"", mapper.writeValueAsString(EnumExample.VALUE1));
         EnumExample result = mapper.readValue(quote("value1"), EnumExample.class);
         assertEquals(EnumExample.VALUE1, result);

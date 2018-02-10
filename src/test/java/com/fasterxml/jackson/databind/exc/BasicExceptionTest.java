@@ -28,7 +28,7 @@ public class BasicExceptionTest extends BaseMapTest
         p.close();
 
         // and via factory method:
-        BeanDescription beanDef = MAPPER.getSerializationConfig().introspectClassAnnotations(getClass());
+        BeanDescription beanDef = MAPPER.serializationConfig().introspectClassAnnotations(getClass());
         e = InvalidDefinitionException.from(p, "Testing",
                 beanDef, (BeanPropertyDefinition) null);
         assertEquals(beanDef.getType(), e.getType());

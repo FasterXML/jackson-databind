@@ -12,7 +12,7 @@ public class SerConfigTest extends BaseMapTest
 
     public void testSerConfig() throws Exception
     {
-        SerializationConfig config = MAPPER.getSerializationConfig();
+        SerializationConfig config = MAPPER.serializationConfig();
         assertTrue(config.hasSerializationFeatures(SerializationFeature.FAIL_ON_EMPTY_BEANS.getMask()));
         assertFalse(config.hasSerializationFeatures(SerializationFeature.CLOSE_CLOSEABLE.getMask()));
         assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
@@ -48,7 +48,7 @@ public class SerConfigTest extends BaseMapTest
 
     public void testGeneratorFeatures() throws Exception
     {
-        SerializationConfig config = MAPPER.getSerializationConfig();
+        SerializationConfig config = MAPPER.serializationConfig();
         assertFalse(config.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
         assertNotSame(config, config.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
         SerializationConfig newConfig = config.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII,
@@ -64,7 +64,7 @@ public class SerConfigTest extends BaseMapTest
 
     public void testFormatFeatures() throws Exception
     {
-        SerializationConfig config = MAPPER.getSerializationConfig();
+        SerializationConfig config = MAPPER.serializationConfig();
         SerializationConfig config2 = config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT);
         assertNotSame(config, config2);
         SerializationConfig config3 = config.withFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,

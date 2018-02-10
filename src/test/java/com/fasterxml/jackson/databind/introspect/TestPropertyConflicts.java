@@ -116,16 +116,18 @@ public class TestPropertyConflicts extends BaseMapTest
 
     public void testInferredNameConflictsWithGetters() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .setAnnotationIntrospector(new InferingIntrospector())
+                .build();
         String json = mapper.writeValueAsString(new Infernal());
         assertEquals(aposToQuotes("{'name':'Bob'}"), json);
     }
     
     public void testInferredNameConflictsWithSetters() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .setAnnotationIntrospector(new InferingIntrospector())
+                .build();
         Infernal inf = mapper.readValue(aposToQuotes("{'stuff':'Bob'}"), Infernal.class);
         assertNotNull(inf);
     }

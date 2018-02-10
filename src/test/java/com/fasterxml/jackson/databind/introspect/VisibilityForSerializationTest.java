@@ -137,7 +137,7 @@ public class VisibilityForSerializationTest
         om.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
         
         JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
-        BeanDescription desc = (BeanDescription) om.getSerializationConfig().introspect(javaType);
+        BeanDescription desc = (BeanDescription) om.serializationConfig().introspect(javaType);
         List<BeanPropertyDefinition> props = desc.findProperties();
         if (props.size() != 1) {
             fail("Should find 1 property, not "+props.size()+"; properties = "+props);

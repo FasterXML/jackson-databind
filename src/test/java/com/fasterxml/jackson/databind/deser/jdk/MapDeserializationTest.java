@@ -373,7 +373,7 @@ public class MapDeserializationTest
     public void testCalendarMap() throws Exception
     {
         // 18-Jun-2015, tatu: Should be safest to use default timezone that mapper would use
-        TimeZone tz = MAPPER.getSerializationConfig().getTimeZone();        
+        TimeZone tz = MAPPER.serializationConfig().getTimeZone();
         Calendar c = Calendar.getInstance(tz);
 
         c.setTimeInMillis(123456000L);

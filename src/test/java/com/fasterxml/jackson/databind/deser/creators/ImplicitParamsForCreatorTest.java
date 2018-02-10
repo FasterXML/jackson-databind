@@ -39,8 +39,9 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
 
     public void testNonSingleArgCreator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .setAnnotationIntrospector(new MyParamIntrospector())
+                .build();
         XY value = mapper.readValue(aposToQuotes("{'paramName0':1,'paramName1':2}"), XY.class);
         assertNotNull(value);
         assertEquals(1, value.x);

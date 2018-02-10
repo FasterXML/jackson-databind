@@ -82,7 +82,7 @@ public class SerializationFeaturesTest
     public void testFlushingAutomatic() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE));
+        assertTrue(mapper.serializationConfig().isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE));
         // default is to flush after writeValue()
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, Integer.valueOf(13));

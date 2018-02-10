@@ -20,7 +20,7 @@ public class ConfigObjectsTest extends BaseMapTest
         assertSame(repl, mapper.getSubtypeResolver());
         assertNotSame(vanilla, mapper.getSubtypeResolver());
 
-        assertSame(repl, mapper.getDeserializationConfig().getSubtypeResolver());
-        assertSame(repl, mapper.getSerializationConfig().getSubtypeResolver());
+        assertSame(repl, mapper.deserializationConfig().getSubtypeResolver());
+        assertSame(repl, mapper.serializationConfig().getSubtypeResolver());
     }
 }

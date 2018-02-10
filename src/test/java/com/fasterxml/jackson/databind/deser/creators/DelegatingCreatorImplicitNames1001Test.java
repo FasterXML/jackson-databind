@@ -83,7 +83,7 @@ public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
     public void testWithNamedParameters() throws Exception
     {
         ObjectMapper sut = ObjectMapper.builder()
-            .setAnnotationIntrospector(new CreatorNameIntrospector())
+            .annotationIntrospector(new CreatorNameIntrospector())
             .build();
 
         D d = D.make("abc:def");

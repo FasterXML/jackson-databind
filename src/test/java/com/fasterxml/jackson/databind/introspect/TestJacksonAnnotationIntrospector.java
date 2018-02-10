@@ -197,7 +197,7 @@ public class TestJacksonAnnotationIntrospector
     public void testEnumHandling() throws Exception
     {
         ObjectMapper mapper = ObjectMapper.builder()
-                .setAnnotationIntrospector(new LcEnumIntrospector())
+                .annotationIntrospector(new LcEnumIntrospector())
                 .build();
         assertEquals("\"value1\"", mapper.writeValueAsString(EnumExample.VALUE1));
         EnumExample result = mapper.readValue(quote("value1"), EnumExample.class);

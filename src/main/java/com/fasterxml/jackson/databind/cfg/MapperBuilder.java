@@ -529,7 +529,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *
      * @see com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
      */
-    public B setAnnotationIntrospector(AnnotationIntrospector intr) {
+    public B annotationIntrospector(AnnotationIntrospector intr) {
         _baseSettings = _baseSettings.withAnnotationIntrospector(intr);
         return _this();
     }

@@ -223,8 +223,9 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals("{\"value\":{\"x\":1,\"y\":2}}", MAPPER.writeValueAsString(new A()));
 
         // but override should change it:
-        ObjectMapper mapper2 = new ObjectMapper();
-        mapper2.setAnnotationIntrospector(new ForceArraysIntrospector());
+        ObjectMapper mapper2 = ObjectMapper.builder()
+                .setAnnotationIntrospector(new ForceArraysIntrospector())
+                .build();
         assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
 
         // and allow reading back, too

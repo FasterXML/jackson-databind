@@ -32,8 +32,9 @@ public class ManualReadPerfWithMedia extends ObjectReaderTestBase
         input.addPhoto(new MediaItem.Photo("http://a.com", "title1", 200, 100, MediaItem.Size.LARGE));
         input.addPhoto(new MediaItem.Photo("http://b.org", "title2", 640, 480, MediaItem.Size.SMALL));
 
-        ObjectMapper m1 = new ObjectMapper();
-        m1.setAnnotationIntrospector(new NoFormatIntrospector());
+        ObjectMapper m1 = ObjectMapper.builder()
+                .setAnnotationIntrospector(new NoFormatIntrospector())
+                .build();
         ObjectMapper m2 = new ObjectMapper();
         new ManualReadPerfWithRecord().testFromBytes(m1, "JSON-as-Object", input, MediaItem.class,
                 m2, "JSON-as-Array", input, MediaItem.class);

@@ -53,12 +53,11 @@ public class TestCreators421 extends BaseMapTest
     /**********************************************************
      */
 
-    // [Issue#421]
     public void testMultiCtor421() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector());
-
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .setAnnotationIntrospector(new MyParamIntrospector())
+                .build();
         MultiCtor bean = mapper.readValue(aposToQuotes("{'a':'123','b':'foo'}"), MultiCtor.class);
         assertNotNull(bean);
         assertEquals("123", bean._a);

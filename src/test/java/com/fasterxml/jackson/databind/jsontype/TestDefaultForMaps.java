@@ -115,7 +115,7 @@ public class TestDefaultForMaps
         subtypes.add(new NamedType(ArrayList.class, "AList"));
         subtypes.add(new NamedType(HashMap.class, "HMap"));
         ObjectMapper mapper = new ObjectMapper();
-        return TypeNameIdResolver.construct(mapper.getDeserializationConfig(),
+        return TypeNameIdResolver.construct(mapper.deserializationConfig(),
                 TypeFactory.defaultInstance().constructType(Object.class), subtypes, forSerialization, !forSerialization);
     }
 

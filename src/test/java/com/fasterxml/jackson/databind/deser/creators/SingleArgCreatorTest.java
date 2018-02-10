@@ -155,8 +155,9 @@ public class SingleArgCreatorTest extends BaseMapTest
 
     public void testSingleStringArgWithImplicitName() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .setAnnotationIntrospector(new MyParamIntrospector("value"))
+                .build();
         StringyBean bean = mapper.readValue(quote("foobar"), StringyBean.class);
         assertEquals("foobar", bean.getValue());
     }    
@@ -164,8 +165,9 @@ public class SingleArgCreatorTest extends BaseMapTest
     // [databind#714]
     public void testSingleImplicitlyNamedNotDelegating() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .setAnnotationIntrospector(new MyParamIntrospector("value"))
+                .build();
         StringyBeanWithProps bean = mapper.readValue("{\"value\":\"x\"}", StringyBeanWithProps.class);
         assertEquals("x", bean.getValue());
     }    
@@ -197,8 +199,9 @@ public class SingleArgCreatorTest extends BaseMapTest
     // [databind#1383]
     public void testSingleImplicitDelegating() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .setAnnotationIntrospector(new MyParamIntrospector("value"))
+                .build();
         SingleArgWithImplicit bean = mapper.readValue(aposToQuotes("{'x':1,'y':2}"),
                 SingleArgWithImplicit.class);
         XY v = bean.getFoobar();

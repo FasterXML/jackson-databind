@@ -67,7 +67,7 @@ public class TestSerConfig
     
     public void testDefaults()
     {
-        SerializationConfig cfg = MAPPER.getSerializationConfig();
+        SerializationConfig cfg = MAPPER.serializationConfig();
 
         // First, defaults:
         assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
@@ -83,7 +83,7 @@ public class TestSerConfig
 
     public void testOverrideIntrospectors()
     {
-        SerializationConfig cfg = MAPPER.getSerializationConfig();
+        SerializationConfig cfg = MAPPER.serializationConfig();
         // and finally, ensure we could override introspectors
         cfg = cfg.with((AnnotationIntrospector) null);
         assertNull(cfg.getAnnotationIntrospector());
@@ -188,8 +188,8 @@ public class TestSerConfig
             .defaultTimeZone(tz1)
             .build();
 
-        assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
-        assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
+        assertEquals(tz1, mapper.serializationConfig().getTimeZone());
+        assertEquals(tz1, mapper.deserializationConfig().getTimeZone());
 
         // also better stick via reader/writer as well
         assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
@@ -204,8 +204,8 @@ public class TestSerConfig
                 .build();
         
         // should not change the timezone tho
-        assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
-        assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
+        assertEquals(tz1, mapper.serializationConfig().getTimeZone());
+        assertEquals(tz1, mapper.deserializationConfig().getTimeZone());
         assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
         assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
     }

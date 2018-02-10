@@ -16,7 +16,7 @@ public class BeanDescriptionTest extends BaseMapTest
     
     public void testClassDesc() throws Exception
     {
-        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(DocumentedBean.class));
+        BeanDescription beanDesc = MAPPER.deserializationConfig().introspect(MAPPER.constructType(DocumentedBean.class));
         assertEquals(CLASS_DESC, beanDesc.findClassDescription());
     }
 }

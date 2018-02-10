@@ -263,7 +263,7 @@ public class EnumDeserializationTest
     public void testNumbersToEnums() throws Exception
     {
         // by default numbers are fine:
-        assertFalse(MAPPER.getDeserializationConfig().isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
+        assertFalse(MAPPER.deserializationConfig().isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
         TestEnum value = MAPPER.readValue("1", TestEnum.class);
         assertSame(TestEnum.RULES, value);
 

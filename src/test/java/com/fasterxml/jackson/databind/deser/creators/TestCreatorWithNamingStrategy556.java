@@ -59,10 +59,8 @@ public class TestCreatorWithNamingStrategy556
     
     private final ObjectMapper MAPPER = ObjectMapper.builder()
             .propertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
+            .setAnnotationIntrospector(new MyParamIntrospector())
             .build();
-    {
-        MAPPER.setAnnotationIntrospector(new MyParamIntrospector());
-    }
 
     private final static String CTOR_JSON = aposToQuotes("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
     

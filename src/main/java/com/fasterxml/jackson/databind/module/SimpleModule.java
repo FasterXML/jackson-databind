@@ -516,9 +516,6 @@ public class SimpleModule
         if (_subtypes != null && _subtypes.size() > 0) {
             context.registerSubtypes(_subtypes.toArray(new NamedType[_subtypes.size()]));
         }
-        if (_namingStrategy != null) {
-            context.setNamingStrategy(_namingStrategy);
-        }
         if (_mixins != null) {
             for (Map.Entry<Class<?>,Class<?>> entry : _mixins.entrySet()) {
                 context.setMixInAnnotations(entry.getKey(), entry.getValue());

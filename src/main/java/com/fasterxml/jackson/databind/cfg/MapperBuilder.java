@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import java.text.DateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -34,6 +35,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected final static int DEFAULT_DESER_FEATURES = MapperConfig.collectFeatureDefaults(DeserializationFeature.class);
 
     protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
+
+    protected final static BaseSettings DEFAULT_BASE_SETTINGS = BaseSettings.std();
 
     /*
     /**********************************************************
@@ -156,7 +159,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected MapperBuilder(TokenStreamFactory streamFactory)
     {
         _streamFactory = streamFactory;
-        _baseSettings = BaseSettings.std();
+        _baseSettings = DEFAULT_BASE_SETTINGS;
         _configOverrides = new ConfigOverrides();
 
         _parserFeatures = streamFactory.getParserFeatures();
@@ -248,16 +251,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _baseSettings;
     }
 
-    public ConfigOverrides configOverrides() {
-        return _configOverrides;
-    }
-
     public TokenStreamFactory streamFactory() {
         return _streamFactory;
     }
 
     public TypeFactory typeFactory() {
         return _baseSettings.getTypeFactory();
+    }
+
+    public AnnotationIntrospector annotationIntrospector() {
+        return _baseSettings.getAnnotationIntrospector();
     }
 
     public ClassIntrospector classIntrospector() {
@@ -491,9 +494,45 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************
+    /* Changing settings, config overrides
+    /**********************************************************
+     */
+
+    /**
+     * Method for changing config overrides for specific type, through
+     * callback to specific handler.
+     */
+    public B withConfigOverrides(Class<?> forType,
+            Consumer<MutableConfigOverride> handler) {
+        handler.accept(_configOverrides.findOrCreateOverride(forType));
+        return _this();
+    }
+
+    public B withAllConfigOverrides(Consumer<ConfigOverrides> handler) {
+        handler.accept(_configOverrides);
+        return _this();
+    }
+
+    /*
+    /**********************************************************
     /* Changing factories/handlers, general
     /**********************************************************
      */
+
+    /**
+     * Method for replacing {@link AnnotationIntrospector} used by the
+     * mapper instance to be built.
+     * Note that doing this will replace the current introspector, which
+     * may lead to unavailability of core Jackson annotations.
+     * If you want to combine handling of multiple introspectors,
+     * have a look at {@link com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair}.
+     *
+     * @see com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
+     */
+    public B setAnnotationIntrospector(AnnotationIntrospector intr) {
+        _baseSettings = _baseSettings.withAnnotationIntrospector(intr);
+        return _this();
+    }
 
     public B typeFactory(TypeFactory f) {
         _baseSettings = _baseSettings.with(f);

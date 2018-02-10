@@ -45,7 +45,7 @@ public class TestTypeNames extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         Collection<NamedType> subtypes = new StdSubtypeResolver().collectAndResolveSubtypesByTypeId(
-                mapper.getDeserializationConfig(),
+                mapper.deserializationConfig(),
                 // note: `null` is fine here as `AnnotatedMember`:
                 null,
                 mapper.constructType(Base1616.class));

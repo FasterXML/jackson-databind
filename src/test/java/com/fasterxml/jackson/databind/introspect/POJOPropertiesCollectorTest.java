@@ -417,10 +417,10 @@ public class POJOPropertiesCollectorTest
     {
         BasicBeanDescription beanDesc;
         // first with serialization
-        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
+        beanDesc = MAPPER.serializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
         assertNotNull(beanDesc);
         // then with deserialization
-        beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
+        beanDesc = MAPPER.deserializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
         assertNotNull(beanDesc);
     }
 
@@ -430,7 +430,7 @@ public class POJOPropertiesCollectorTest
         ObjectMapper mapper = ObjectMapper.builder()
                 .disable(MapperFeature.USE_ANNOTATIONS)
                 .build();
-        BasicBeanDescription beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Jackson703.class));
+        BasicBeanDescription beanDesc = mapper.serializationConfig().introspect(mapper.constructType(Jackson703.class));
         assertNotNull(beanDesc);
 
         Jackson703 bean = new Jackson703();
@@ -440,7 +440,7 @@ public class POJOPropertiesCollectorTest
 
     public void testJackson744() throws Exception
     {
-        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect
+        BeanDescription beanDesc = MAPPER.deserializationConfig().introspect
                 (MAPPER.constructType(Issue744Bean.class));
         assertNotNull(beanDesc);
         AnnotatedMember setter = beanDesc.findAnySetterAccessor();
@@ -453,19 +453,19 @@ public class POJOPropertiesCollectorTest
     public void testPropertyDesc() throws Exception
     {
         // start via deser
-        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
+        BeanDescription beanDesc = MAPPER.deserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, true, false, "13");
         // and then via ser:
-        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
+        beanDesc = MAPPER.serializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, true, false, "13");
     }
 
     // [databind#438]: Support @JsonProperty.index
     public void testPropertyIndex() throws Exception
     {
-        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
+        BeanDescription beanDesc = MAPPER.deserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, false, true, "13");
-        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
+        beanDesc = MAPPER.serializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, false, true, "13");
     }
 
@@ -540,10 +540,10 @@ public class POJOPropertiesCollectorTest
         BasicClassIntrospector bci = new BasicClassIntrospector();
         // no real difference between serialization, deserialization, at least here
         if (forSerialization) {
-            return bci.collectProperties(m0.getSerializationConfig(),
+            return bci.collectProperties(m0.serializationConfig(),
                     m0.constructType(cls), null, true, "set");
         }
-        return bci.collectProperties(m0.getDeserializationConfig(),
+        return bci.collectProperties(m0.deserializationConfig(),
                 m0.constructType(cls), null, false, "set");
     }
 }

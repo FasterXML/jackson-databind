@@ -12,7 +12,7 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testFeatureDefaults()
     {
         ObjectMapper m = new ObjectMapper();
-        DeserializationConfig cfg = m.getDeserializationConfig();
+        DeserializationConfig cfg = m.deserializationConfig();
 
         // Expected defaults:
         assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
@@ -27,7 +27,7 @@ public class DeserializationConfigTest extends BaseMapTest
 
     public void testBasicFeatures() throws Exception
     {
-        DeserializationConfig config = MAPPER.getDeserializationConfig();
+        DeserializationConfig config = MAPPER.deserializationConfig();
         assertTrue(config.hasDeserializationFeatures(DeserializationFeature.EAGER_DESERIALIZER_FETCH.getMask()));
         assertFalse(config.hasDeserializationFeatures(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY.getMask()));
         assertTrue(config.hasSomeOfFeatures(DeserializationFeature.EAGER_DESERIALIZER_FETCH.getMask()
@@ -54,7 +54,7 @@ public class DeserializationConfigTest extends BaseMapTest
 
     public void testParserFeatures() throws Exception
     {
-        DeserializationConfig config = MAPPER.getDeserializationConfig();
+        DeserializationConfig config = MAPPER.deserializationConfig();
 
         assertNotSame(config, config.with(JsonParser.Feature.ALLOW_COMMENTS));
         assertNotSame(config, config.withFeatures(JsonParser.Feature.ALLOW_COMMENTS,
@@ -67,7 +67,7 @@ public class DeserializationConfigTest extends BaseMapTest
 
     public void testFormatFeatures() throws Exception
     {
-        DeserializationConfig config = MAPPER.getDeserializationConfig();
+        DeserializationConfig config = MAPPER.deserializationConfig();
         DeserializationConfig config2 = config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT);
         assertNotSame(config, config2);
         DeserializationConfig config3 = config.withFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
@@ -98,7 +98,7 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testOverrideIntrospectors()
     {
         ObjectMapper m = new ObjectMapper();
-        DeserializationConfig cfg = m.getDeserializationConfig();
+        DeserializationConfig cfg = m.deserializationConfig();
         // and finally, ensure we could override introspectors
         cfg = cfg.with((AnnotationIntrospector) null);
         assertNull(cfg.getAnnotationIntrospector());
@@ -106,7 +106,7 @@ public class DeserializationConfigTest extends BaseMapTest
 
     public void testMisc() throws Exception
     {
-        DeserializationConfig config = MAPPER.getDeserializationConfig();
+        DeserializationConfig config = MAPPER.deserializationConfig();
         assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
         assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion(String.class));
 

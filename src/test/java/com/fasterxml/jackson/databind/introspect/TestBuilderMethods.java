@@ -49,7 +49,7 @@ public class TestBuilderMethods extends BaseMapTest
     {
         BasicClassIntrospector bci = new BasicClassIntrospector();
         // no real difference between serialization, deserialization, at least here
-        return bci.collectProperties(mapper.getSerializationConfig(),
+        return bci.collectProperties(mapper.serializationConfig(),
                 mapper.constructType(cls), null, false, prefix);
     }
     

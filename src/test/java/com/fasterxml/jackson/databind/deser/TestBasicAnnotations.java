@@ -190,7 +190,7 @@ public class TestBasicAnnotations
     public void testAnnotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
-        assertTrue(MAPPER.getDeserializationConfig().isEnabled(MapperFeature.USE_ANNOTATIONS));
+        assertTrue(MAPPER.deserializationConfig().isEnabled(MapperFeature.USE_ANNOTATIONS));
         // with annotations, property is renamed
         AnnoBean bean = MAPPER.readValue("{ \"y\" : 0 }", AnnoBean.class);
         assertEquals(0, bean.value);

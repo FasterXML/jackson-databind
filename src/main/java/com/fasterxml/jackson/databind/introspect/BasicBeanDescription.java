@@ -406,7 +406,7 @@ anyField.getName()));
         if (_annotationIntrospector == null) {
             return null;
         }
-        return _createConverter(_annotationIntrospector.findSerializationConverter(_classInfo));
+        return _createConverter(_annotationIntrospector.findSerializationConverter(_config, _classInfo));
     }
 
     /**
@@ -603,7 +603,8 @@ anyField.getName()));
         if (_annotationIntrospector == null) {
             return null;
         }
-        return _createConverter(_annotationIntrospector.findDeserializationConverter(_classInfo));
+        return _createConverter(_annotationIntrospector
+                .findDeserializationConverter(_config, _classInfo));
     }
 
     @Override

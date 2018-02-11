@@ -639,7 +639,7 @@ public abstract class BeanDeserializerBase
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
-            Object convDef = intr.findDeserializationConverter(prop.getMember());
+            Object convDef = intr.findDeserializationConverter(ctxt.getConfig(), prop.getMember());
             if (convDef != null) {
                 Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
                 JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());

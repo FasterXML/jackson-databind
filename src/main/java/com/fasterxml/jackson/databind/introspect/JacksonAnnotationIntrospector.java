@@ -688,13 +688,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findSerializationConverter(Annotated a) {
+    public Object findSerializationConverter(MapperConfig<?> config, Annotated a) {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.converter(), Converter.None.class);
     }
 
     @Override
-    public Object findSerializationContentConverter(AnnotatedMember a) {
+    public Object findSerializationContentConverter(MapperConfig<?> config, AnnotatedMember a) {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.contentConverter(), Converter.None.class);
     }
@@ -1029,14 +1029,14 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findDeserializationConverter(Annotated a)
+    public Object findDeserializationConverter(MapperConfig<?> config, Annotated a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.converter(), Converter.None.class);
     }
 
     @Override
-    public Object findDeserializationContentConverter(AnnotatedMember a)
+    public Object findDeserializationContentConverter(MapperConfig<?> config, AnnotatedMember a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.contentConverter(), Converter.None.class);

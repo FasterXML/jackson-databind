@@ -357,7 +357,7 @@ public abstract class BeanSerializerBase
         if (intr != null) {
             AnnotatedMember m = prop.getMember();
             if (m != null) {
-                Object convDef = intr.findSerializationConverter(m);
+                Object convDef = intr.findSerializationConverter(provider.getConfig(), m);
                 if (convDef != null) {
                     Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getOutputType(provider.getTypeFactory());

@@ -530,7 +530,7 @@ public abstract class BasicSerializerFactory
             Annotated a)
         throws JsonMappingException
     {
-        Object convDef = prov.getAnnotationIntrospector().findSerializationConverter(a);
+        Object convDef = prov.getAnnotationIntrospector().findSerializationConverter(prov.getConfig(), a);
         if (convDef == null) {
             return null;
         }

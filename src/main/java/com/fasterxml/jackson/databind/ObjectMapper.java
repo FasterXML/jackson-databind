@@ -205,7 +205,7 @@ public class ObjectMapper
     /**
      * Provider for values to inject in deserialized POJOs.
      */
-    protected final InjectableValues _injectableValues;
+    protected InjectableValues _injectableValues;
 
     /**
      * Thing used for registering sub-types, resolving them to
@@ -1286,6 +1286,13 @@ public class ObjectMapper
     /* Configuration, other
     /**********************************************************
      */
+
+    // 10-Feb-2018, tatu: Should not be needed but alas OSGi module relies on it
+    @Deprecated
+    public ObjectMapper setInjectableValues(InjectableValues v) {
+        _injectableValues = v;
+        return this;
+    }
 
     public InjectableValues getInjectableValues() {
         return _injectableValues;

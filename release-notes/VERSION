@@ -9,6 +9,7 @@ Project: jackson-databind
 #1872 `NullPointerException` in `SubTypeValidator.validateSubType` when
   validating Spring interface
  (reported by Rob W)
+#1931: Two more `c3p0` gadgets to exploit default typing issue
 
 2.7.9.2 (20-Dec-2017)
 

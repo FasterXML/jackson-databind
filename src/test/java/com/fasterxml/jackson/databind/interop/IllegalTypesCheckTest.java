@@ -6,6 +6,7 @@ import org.springframework.jacksontest.GrantedAuthority;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
+import com.mchange.v2.c3p0.jacksontest.ComboPooledDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +87,7 @@ public class IllegalTypesCheckTest extends BaseMapTest
 
     // 17-Aug-2017, tatu: Ideally would test handling of 3rd party types, too,
     //    but would require adding dependencies. This may be practical when
-    //    checking done by module, but for now let's not do that for databind.
+    //    checking done by separate module, but for now let's not do that for databind.
 
     /*
     public void testSpringTypes1737() throws Exception
@@ -94,15 +95,9 @@ public class IllegalTypesCheckTest extends BaseMapTest
         _testIllegalType("org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor");
         _testIllegalType("org.springframework.beans.factory.config.PropertyPathFactoryBean");
     }
-
-    public void testC3P0Types1737() throws Exception
-    {
-        _testIllegalType("com.mchange.v2.c3p0.JndiRefForwardingDataSource");
-        _testIllegalType("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource");
-    }
     */
 
-        // // // Tests for [databind#1872]
+    // // // Tests for [databind#1872]
     public void testJDKTypes1872() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -113,6 +108,13 @@ public class IllegalTypesCheckTest extends BaseMapTest
         Authentication1872 result = mapper.readValue(json, Authentication1872.class);
         assertNotNull(result);
     }
+
+    // [databind#1931]
+    public void testC3P0Types() throws Exception
+    {
+        _testIllegalType(ComboPooledDataSource.class); // [databind#1931]
+    }
+
     private void _testIllegalType(Class<?> nasty) throws Exception {
         _testIllegalType(nasty.getName());
     }

@@ -12,6 +12,7 @@ Project: jackson-databind
 #1912: `BeanDeserializerModifier.updateBuilder()` not work to set custom
   deserializer on a property (since 2.9.0)
  (contributed by Deblock T)
+#1931: Two more `c3p0` gadgets to exploit default typing issue
 
 2.9.4 (24-Jan-2018)
 
@@ -213,6 +214,7 @@ Project: jackson-databind
  (reported by Rob W)
 #1899: Another two gadgets to exploit default typing issue in jackson-databind
  (reported by OneSourceCat@github)
+#1931: Two more `c3p0` gadgets to exploit default typing issue
 
 2.8.11 (24-Dec-2017)
 

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.9.3 (not yet released)
+2.7.9.3 (11-Feb-2018)
 
 #1872 `NullPointerException` in `SubTypeValidator.validateSubType` when
   validating Spring interface

@@ -338,15 +338,15 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Object findSerializationConverter(Annotated a) {
-        Object r = _primary.findSerializationConverter(a);
-        return (r == null) ? _secondary.findSerializationConverter(a) : r;
+    public Object findSerializationConverter(MapperConfig<?> config, Annotated a) {
+        Object r = _primary.findSerializationConverter(config, a);
+        return (r == null) ? _secondary.findSerializationConverter(config, a) : r;
     }
 
     @Override
-    public Object findSerializationContentConverter(AnnotatedMember a) {
-        Object r = _primary.findSerializationContentConverter(a);
-        return (r == null) ? _secondary.findSerializationContentConverter(a) : r;
+    public Object findSerializationContentConverter(MapperConfig<?> config, AnnotatedMember a) {
+        Object r = _primary.findSerializationContentConverter(config, a);
+        return (r == null) ? _secondary.findSerializationContentConverter(config, a) : r;
     }
 
     @Override
@@ -576,20 +576,19 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Object findDeserializationConverter(Annotated a) {
-        Object ob = _primary.findDeserializationConverter(a);
-        return (ob == null) ? _secondary.findDeserializationConverter(a) : ob;
+    public Object findDeserializationConverter(MapperConfig<?> config, Annotated a) {
+        Object ob = _primary.findDeserializationConverter(config, a);
+        return (ob == null) ? _secondary.findDeserializationConverter(config, a) : ob;
     }
 
     @Override
-    public Object findDeserializationContentConverter(AnnotatedMember a) {
-        Object ob = _primary.findDeserializationContentConverter(a);
-        return (ob == null) ? _secondary.findDeserializationContentConverter(a) : ob;
+    public Object findDeserializationContentConverter(MapperConfig<?> config, AnnotatedMember a) {
+        Object ob = _primary.findDeserializationContentConverter(config, a);
+        return (ob == null) ? _secondary.findDeserializationContentConverter(config, a) : ob;
     }
 
     // // // Deserialization: type refinements
 
-    // since 2.7
     @Override
     public JavaType refineDeserializationType(MapperConfig<?> config,
             Annotated a, JavaType baseType) throws JsonMappingException

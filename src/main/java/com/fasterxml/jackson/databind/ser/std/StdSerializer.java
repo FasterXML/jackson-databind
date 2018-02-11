@@ -360,7 +360,7 @@ public abstract class StdSerializer<T>
         if (_neitherNull(intr, prop)) {
             AnnotatedMember m = prop.getMember();
             if (m != null) {
-                Object convDef = intr.findSerializationContentConverter(m);
+                Object convDef = intr.findSerializationContentConverter(provider.getConfig(), m);
                 if (convDef != null) {
                     Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getOutputType(provider.getTypeFactory());

@@ -451,7 +451,7 @@ public final class DeserializerCache
             Annotated a)
         throws JsonMappingException
     {
-        Object convDef = ctxt.getAnnotationIntrospector().findDeserializationConverter(a);
+        Object convDef = ctxt.getAnnotationIntrospector().findDeserializationConverter(ctxt.getConfig(), a);
         if (convDef == null) {
             return null;
         }

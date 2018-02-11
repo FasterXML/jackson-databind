@@ -619,7 +619,7 @@ public abstract class AnnotationIntrospector
      * 
      * @param a Annotated property (field, method) or class to check for annotations
      */
-    public Object findSerializationConverter(Annotated a) {
+    public Object findSerializationConverter(MapperConfig<?> config, Annotated a) {
         return null;
     }
 
@@ -639,7 +639,7 @@ public abstract class AnnotationIntrospector
      * 
      * @param a Annotated property (field, method) to check.
      */
-    public Object findSerializationContentConverter(AnnotatedMember a) {
+    public Object findSerializationContentConverter(MapperConfig<?> config, AnnotatedMember a) {
         return null;
     }
 
@@ -831,7 +831,7 @@ public abstract class AnnotationIntrospector
      * 
      * @param a Annotated property (field, method) or class to check for annotations
      */
-    public Object findDeserializationConverter(Annotated a) {
+    public Object findDeserializationConverter(MapperConfig<?> config, Annotated a) {
         return null;
     }
 
@@ -851,7 +851,7 @@ public abstract class AnnotationIntrospector
      * 
      * @param a Annotated property (field, method) to check.
      */
-    public Object findDeserializationContentConverter(AnnotatedMember a) {
+    public Object findDeserializationContentConverter(MapperConfig<?> config, AnnotatedMember a) {
         return null;
     }
 
@@ -865,7 +865,7 @@ public abstract class AnnotationIntrospector
      * Method called to find out possible type refinements to use
      * for deserialization.
      */
-    public JavaType refineDeserializationType(final MapperConfig<?> config,
+    public JavaType refineDeserializationType(MapperConfig<?> config,
             final Annotated a, final JavaType baseType) throws JsonMappingException
     {
         return baseType;

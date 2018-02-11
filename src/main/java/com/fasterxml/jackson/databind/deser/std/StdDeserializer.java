@@ -939,8 +939,6 @@ public abstract class StdDeserializer<T>
      * 
      * @param existingDeserializer (optional) configured content
      *    serializer if one already exists.
-     * 
-     * @since 2.2
      */
     protected JsonDeserializer<?> findConvertingContentDeserializer(DeserializationContext ctxt,
             BeanProperty prop, JsonDeserializer<?> existingDeserializer)
@@ -950,7 +948,7 @@ public abstract class StdDeserializer<T>
         if (_neitherNull(intr, prop)) {
             AnnotatedMember member = prop.getMember();
             if (member != null) {
-                Object convDef = intr.findDeserializationContentConverter(member);
+                Object convDef = intr.findDeserializationContentConverter(ctxt.getConfig(), member);
                 if (convDef != null) {
                     Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());

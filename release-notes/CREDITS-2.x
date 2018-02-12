@@ -749,3 +749,7 @@ Deblock Thomas (deblockt@github)
   * Reported, contributed fix for #1912: `BeanDeserializerModifier.updateBuilder()` does not
     work to set custom  deserializer on a property (since 2.9.0)
  (contributed by Deblock T)
+
+lilei@venusgroup.com.cn:
+  * Reported #1931: Two more `c3p0` gadgets to exploit default typing issue
+   (2.9.5)

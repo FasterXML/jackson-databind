@@ -345,11 +345,11 @@ public class MapSerializer
 
         // First: if we have a property, may have property-annotation overrides
         if (_neitherNull(propertyAcc, intr)) {
-            Object serDef = intr.findKeySerializer(propertyAcc);
+            Object serDef = intr.findKeySerializer(provider.getConfig(), propertyAcc);
             if (serDef != null) {
                 keySer = provider.serializerInstance(propertyAcc, serDef);
             }
-            serDef = intr.findContentSerializer(propertyAcc);
+            serDef = intr.findContentSerializer(provider.getConfig(), propertyAcc);
             if (serDef != null) {
                 ser = provider.serializerInstance(propertyAcc, serDef);
             }

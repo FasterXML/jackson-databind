@@ -28,7 +28,7 @@ public class IntrospectorPairTest extends BaseMapTest
         }
 
         @Override
-        public JsonInclude.Value findPropertyInclusion(Annotated a) {
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Annotated a) {
             return JsonInclude.Value.empty()
                     .withContentInclusion(JsonInclude.Include.ALWAYS)
                     .withValueInclusion(JsonInclude.Include.NON_ABSENT);
@@ -42,7 +42,7 @@ public class IntrospectorPairTest extends BaseMapTest
         }
 
         @Override
-        public JsonInclude.Value findPropertyInclusion(Annotated a) {
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Annotated a) {
             return JsonInclude.Value.empty()
                     .withContentInclusion(JsonInclude.Include.NON_EMPTY)
                     .withValueInclusion(JsonInclude.Include.USE_DEFAULTS);
@@ -64,12 +64,12 @@ public class IntrospectorPairTest extends BaseMapTest
         }
 
         @Override
-        public Object findDeserializer(Annotated am) {
+        public Object findDeserializer(MapperConfig<?> config, Annotated am) {
             return _deserializer;
         }
 
         @Override
-        public Object findSerializer(Annotated am) {
+        public Object findSerializer(MapperConfig<?> config, Annotated am) {
             return _serializer;
         }
     }
@@ -96,7 +96,7 @@ public class IntrospectorPairTest extends BaseMapTest
         }
 
         @Override
-        public JsonInclude.Value findPropertyInclusion(Annotated a) {
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Annotated a) {
             return JsonInclude.Value.empty()
                     .withContentInclusion(JsonInclude.Include.NON_EMPTY)
                     .withValueInclusion(JsonInclude.Include.USE_DEFAULTS);
@@ -363,19 +363,19 @@ public class IntrospectorPairTest extends BaseMapTest
         AnnotationIntrospector nop2 = new IntrospectorWithHandlers(null, JsonSerializer.None.class);
 
         assertSame(serString,
-                new AnnotationIntrospectorPair(intr1, intr2).findSerializer(null));
+                new AnnotationIntrospectorPair(intr1, intr2).findSerializer(null, null));
         assertSame(serToString,
-                new AnnotationIntrospectorPair(intr2, intr1).findSerializer(null));
+                new AnnotationIntrospectorPair(intr2, intr1).findSerializer(null, null));
 
         // also: no-op instance should not block real one, regardless
         assertSame(serString,
-                new AnnotationIntrospectorPair(nop, intr1).findSerializer(null));
+                new AnnotationIntrospectorPair(nop, intr1).findSerializer(null, null));
         assertSame(serString,
-                new AnnotationIntrospectorPair(nop2, intr1).findSerializer(null));
+                new AnnotationIntrospectorPair(nop2, intr1).findSerializer(null, null));
 
         // nor should no-op result in non-null result
-        assertNull(new AnnotationIntrospectorPair(nop, nop2).findSerializer(null));
-        assertNull(new AnnotationIntrospectorPair(nop2, nop).findSerializer(null));
+        assertNull(new AnnotationIntrospectorPair(nop, nop2).findSerializer(null, null));
+        assertNull(new AnnotationIntrospectorPair(nop2, nop).findSerializer(null, null));
     }
 
     public void testFindDeserializer() throws Exception
@@ -389,18 +389,18 @@ public class IntrospectorPairTest extends BaseMapTest
         AnnotationIntrospector nop2 = new IntrospectorWithHandlers(JsonDeserializer.None.class, null);
 
         assertSame(deserString,
-                new AnnotationIntrospectorPair(intr1, intr2).findDeserializer(null));
+                new AnnotationIntrospectorPair(intr1, intr2).findDeserializer(null, null));
         assertSame(deserObject,
-                new AnnotationIntrospectorPair(intr2, intr1).findDeserializer(null));
+                new AnnotationIntrospectorPair(intr2, intr1).findDeserializer(null, null));
         // also: no-op instance should not block real one, regardless
         assertSame(deserString,
-                new AnnotationIntrospectorPair(nop, intr1).findDeserializer(null));
+                new AnnotationIntrospectorPair(nop, intr1).findDeserializer(null, null));
         assertSame(deserString,
-                new AnnotationIntrospectorPair(nop2, intr1).findDeserializer(null));
+                new AnnotationIntrospectorPair(nop2, intr1).findDeserializer(null, null));
 
         // nor should no-op result in non-null result
-        assertNull(new AnnotationIntrospectorPair(nop, nop2).findDeserializer(null));
-        assertNull(new AnnotationIntrospectorPair(nop2, nop).findDeserializer(null));
+        assertNull(new AnnotationIntrospectorPair(nop, nop2).findDeserializer(null, null));
+        assertNull(new AnnotationIntrospectorPair(nop2, nop).findDeserializer(null, null));
     }
 
     /*
@@ -496,8 +496,8 @@ public class IntrospectorPairTest extends BaseMapTest
     public void testInclusionMerging() throws Exception
     {
         // argument is ignored by test introspectors, may be null
-        JsonInclude.Value v12 = introPair12.findPropertyInclusion(null);
-        JsonInclude.Value v21 = introPair21.findPropertyInclusion(null);
+        JsonInclude.Value v12 = introPair12.findPropertyInclusion(null, null);
+        JsonInclude.Value v21 = introPair21.findPropertyInclusion(null, null);
 
         assertEquals(JsonInclude.Include.ALWAYS, v12.getContentInclusion());
         assertEquals(JsonInclude.Include.NON_ABSENT, v12.getValueInclusion());

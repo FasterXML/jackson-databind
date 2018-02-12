@@ -33,11 +33,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * longer chains of introspectors by linking multiple pairs.
  * Currently most likely combination is that of using the default
  * Jackson provider, along with JAXB annotation introspector.
- *<p>
- * Note: up until 2.0, this class was an inner class of
- * {@link AnnotationIntrospector}; moved here for convenience.
- * 
- * @since 2.1
  */
 public class AnnotationIntrospectorPair
     extends AnnotationIntrospector
@@ -280,50 +275,50 @@ public class AnnotationIntrospectorPair
     // // // Serialization: general annotations
 
     @Override
-    public Object findSerializer(Annotated am) {
-        Object r = _primary.findSerializer(am);
+    public Object findSerializer(MapperConfig<?> config, Annotated am) {
+        Object r = _primary.findSerializer(config, am);
         if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
             return r;
         }
-        return _explicitClassOrOb(_secondary.findSerializer(am),
+        return _explicitClassOrOb(_secondary.findSerializer(config, am),
                 JsonSerializer.None.class);
     }
     
     @Override
-    public Object findKeySerializer(Annotated a) {
-        Object r = _primary.findKeySerializer(a);
+    public Object findKeySerializer(MapperConfig<?> config, Annotated a) {
+        Object r = _primary.findKeySerializer(config, a);
         if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
             return r;
         }
-        return _explicitClassOrOb(_secondary.findKeySerializer(a),
+        return _explicitClassOrOb(_secondary.findKeySerializer(config, a),
                 JsonSerializer.None.class);
     }
 
     @Override
-    public Object findContentSerializer(Annotated a) {
-        Object r = _primary.findContentSerializer(a);
+    public Object findContentSerializer(MapperConfig<?> config, Annotated a) {
+        Object r = _primary.findContentSerializer(config, a);
         if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
             return r;
         }
-        return _explicitClassOrOb(_secondary.findContentSerializer(a),
+        return _explicitClassOrOb(_secondary.findContentSerializer(config, a),
                 JsonSerializer.None.class);
     }
     
     @Override
-    public Object findNullSerializer(Annotated a) {
-        Object r = _primary.findNullSerializer(a);
+    public Object findNullSerializer(MapperConfig<?> config, Annotated a) {
+        Object r = _primary.findNullSerializer(config, a);
         if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
             return r;
         }
-        return _explicitClassOrOb(_secondary.findNullSerializer(a),
+        return _explicitClassOrOb(_secondary.findNullSerializer(config, a),
                 JsonSerializer.None.class);
     }
 
     @Override
-    public JsonInclude.Value findPropertyInclusion(Annotated a)
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Annotated a)
     {
-        JsonInclude.Value v2 = _secondary.findPropertyInclusion(a);
-        JsonInclude.Value v1 = _primary.findPropertyInclusion(a);
+        JsonInclude.Value v2 = _secondary.findPropertyInclusion(config, a);
+        JsonInclude.Value v1 = _primary.findPropertyInclusion(config, a);
 
         if (v2 == null) { // shouldn't occur but
             return v1;
@@ -332,9 +327,9 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public JsonSerialize.Typing findSerializationTyping(Annotated a) {
-        JsonSerialize.Typing r = _primary.findSerializationTyping(a);
-        return (r == null) ? _secondary.findSerializationTyping(a) : r;
+    public JsonSerialize.Typing findSerializationTyping(MapperConfig<?> config, Annotated a) {
+        JsonSerialize.Typing r = _primary.findSerializationTyping(config, a);
+        return (r == null) ? _secondary.findSerializationTyping(config, a) : r;
     }
 
     @Override
@@ -450,7 +445,7 @@ public class AnnotationIntrospectorPair
         return JsonProperty.Access.AUTO;
     }
 
-    @Override // since 2.7
+    @Override
     public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config,
             AnnotatedMethod setter1, AnnotatedMethod setter2)
     {
@@ -463,7 +458,7 @@ public class AnnotationIntrospectorPair
 
     // // // Serialization: type refinements
 
-    @Override // since 2.7
+    @Override
     public JavaType refineSerializationType(MapperConfig<?> config,
             Annotated a, JavaType baseType) throws JsonMappingException
     {
@@ -545,32 +540,32 @@ public class AnnotationIntrospectorPair
     // // // Deserialization: general annotations
 
     @Override
-    public Object findDeserializer(Annotated a) {
-        Object r = _primary.findDeserializer(a);
+    public Object findDeserializer(MapperConfig<?> config, Annotated a) {
+        Object r = _primary.findDeserializer(config, a);
         if (_isExplicitClassOrOb(r, JsonDeserializer.None.class)) {
             return r;
         }
-        return _explicitClassOrOb(_secondary.findDeserializer(a),
+        return _explicitClassOrOb(_secondary.findDeserializer(config, a),
                 JsonDeserializer.None.class);
     }
 
     @Override
-    public Object findKeyDeserializer(Annotated a) {
-        Object r = _primary.findKeyDeserializer(a);
+    public Object findKeyDeserializer(MapperConfig<?> config, Annotated a) {
+        Object r = _primary.findKeyDeserializer(config, a);
         if (_isExplicitClassOrOb(r, KeyDeserializer.None.class)) {
             return r;
         }
-        return _explicitClassOrOb(_secondary.findKeyDeserializer(a),
+        return _explicitClassOrOb(_secondary.findKeyDeserializer(config, a),
                 KeyDeserializer.None.class);
     }
 
     @Override
-    public Object findContentDeserializer(Annotated am) {
-        Object r = _primary.findContentDeserializer(am);
+    public Object findContentDeserializer(MapperConfig<?> config, Annotated am) {
+        Object r = _primary.findContentDeserializer(config, am);
         if (_isExplicitClassOrOb(r, JsonDeserializer.None.class)) {
             return r;
         }
-        return _explicitClassOrOb(_secondary.findContentDeserializer(am),
+        return _explicitClassOrOb(_secondary.findContentDeserializer(config, am),
                 JsonDeserializer.None.class);
                 
     }
@@ -600,21 +595,21 @@ public class AnnotationIntrospectorPair
     // // // Deserialization: class annotations
 
     @Override
-    public Object findValueInstantiator(AnnotatedClass ac) {
-        Object result = _primary.findValueInstantiator(ac);
-        return (result == null) ? _secondary.findValueInstantiator(ac) : result;
+    public Object findValueInstantiator(MapperConfig<?> config, AnnotatedClass ac) {
+        Object result = _primary.findValueInstantiator(config, ac);
+        return (result == null) ? _secondary.findValueInstantiator(config, ac) : result;
     }
 
     @Override
-    public Class<?> findPOJOBuilder(AnnotatedClass ac) {
-        Class<?> result = _primary.findPOJOBuilder(ac);
-        return (result == null) ? _secondary.findPOJOBuilder(ac) : result;
+    public Class<?> findPOJOBuilder(MapperConfig<?> config, AnnotatedClass ac) {
+        Class<?> result = _primary.findPOJOBuilder(config, ac);
+        return (result == null) ? _secondary.findPOJOBuilder(config, ac) : result;
     }
 
     @Override
-    public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac) {
-        JsonPOJOBuilder.Value result = _primary.findPOJOBuilderConfig(ac);
-        return (result == null) ? _secondary.findPOJOBuilderConfig(ac) : result;
+    public JsonPOJOBuilder.Value findPOJOBuilderConfig(MapperConfig<?> config, AnnotatedClass ac) {
+        JsonPOJOBuilder.Value result = _primary.findPOJOBuilderConfig(config, ac);
+        return (result == null) ? _secondary.findPOJOBuilderConfig(config, ac) : result;
     }
 
     // // // Deserialization: method annotations

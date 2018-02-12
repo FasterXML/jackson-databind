@@ -606,7 +606,7 @@ public class JacksonAnnotationIntrospector
     */
 
     @Override
-    public Object findSerializer(Annotated a)
+    public Object findSerializer(MapperConfig<?> config, Annotated a)
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
@@ -631,7 +631,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findKeySerializer(Annotated a)
+    public Object findKeySerializer(MapperConfig<?> config, Annotated a)
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
@@ -645,7 +645,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findContentSerializer(Annotated a)
+    public Object findContentSerializer(MapperConfig<?> config, Annotated a)
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
@@ -659,7 +659,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findNullSerializer(Annotated a)
+    public Object findNullSerializer(MapperConfig<?> config, Annotated a)
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
@@ -673,7 +673,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public JsonInclude.Value findPropertyInclusion(Annotated a)
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Annotated a)
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
         JsonInclude.Value value = (inc == null) ? JsonInclude.Value.empty() : JsonInclude.Value.from(inc);
@@ -681,7 +681,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public JsonSerialize.Typing findSerializationTyping(Annotated a)
+    public JsonSerialize.Typing findSerializationTyping(MapperConfig<?> config, Annotated a)
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         return (ann == null) ? null : ann.typing();
@@ -988,7 +988,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public Object findDeserializer(Annotated a)
+    public Object findDeserializer(MapperConfig<?> config, Annotated a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {
@@ -1002,7 +1002,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findKeyDeserializer(Annotated a)
+    public Object findKeyDeserializer(MapperConfig<?> config, Annotated a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {
@@ -1015,7 +1015,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findContentDeserializer(Annotated a)
+    public Object findContentDeserializer(MapperConfig<?> config, Annotated a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {
@@ -1116,7 +1116,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public Object findValueInstantiator(AnnotatedClass ac)
+    public Object findValueInstantiator(MapperConfig<?> config, AnnotatedClass ac)
     {
         JsonValueInstantiator ann = _findAnnotation(ac, JsonValueInstantiator.class);
         // no 'null' marker yet, so:
@@ -1124,14 +1124,14 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<?> findPOJOBuilder(AnnotatedClass ac)
+    public Class<?> findPOJOBuilder(MapperConfig<?> config, AnnotatedClass ac)
     {
         JsonDeserialize ann = _findAnnotation(ac, JsonDeserialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.builder());
     }
 
     @Override
-    public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac)
+    public JsonPOJOBuilder.Value findPOJOBuilderConfig(MapperConfig<?> config, AnnotatedClass ac)
     {
         JsonPOJOBuilder ann = _findAnnotation(ac, JsonPOJOBuilder.class);
         return (ann == null) ? null : new JsonPOJOBuilder.Value(ann);

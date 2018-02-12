@@ -418,7 +418,7 @@ anyField.getName()));
     @Override
     public JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue) {
         if (_annotationIntrospector != null) {
-            JsonInclude.Value incl = _annotationIntrospector.findPropertyInclusion(_classInfo);
+            JsonInclude.Value incl = _annotationIntrospector.findPropertyInclusion(_config, _classInfo);
             if (incl != null) {
                 return (defValue == null) ? incl : defValue.withOverrides(incl);
             }
@@ -586,25 +586,23 @@ anyField.getName()));
 
     @Override
     public Class<?> findPOJOBuilder() {
-        return (_annotationIntrospector == null) ?
-    			null : _annotationIntrospector.findPOJOBuilder(_classInfo);
+        return (_annotationIntrospector == null) ? null
+                : _annotationIntrospector.findPOJOBuilder(_config, _classInfo);
     }
 
     @Override
     public JsonPOJOBuilder.Value findPOJOBuilderConfig()
     {
-        return (_annotationIntrospector == null) ?
-                null : _annotationIntrospector.findPOJOBuilderConfig(_classInfo);
+        return (_annotationIntrospector == null) ? null
+                : _annotationIntrospector.findPOJOBuilderConfig(_config, _classInfo);
     }
 
     @Override
     public Converter<Object,Object> findDeserializationConverter()
     {
-        if (_annotationIntrospector == null) {
-            return null;
-        }
-        return _createConverter(_annotationIntrospector
-                .findDeserializationConverter(_config, _classInfo));
+        return (_annotationIntrospector == null) ? null
+                :  _createConverter(_annotationIntrospector
+                        .findDeserializationConverter(_config, _classInfo));
     }
 
     @Override

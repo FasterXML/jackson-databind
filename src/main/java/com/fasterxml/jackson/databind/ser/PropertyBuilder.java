@@ -228,7 +228,7 @@ public class PropertyBuilder
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress, views);
 
         // How about custom null serializer?
-        Object serDef = _annotationIntrospector.findNullSerializer(am);
+        Object serDef = _annotationIntrospector.findNullSerializer(_config, am);
         if (serDef != null) {
             bpw.assignNullSerializer(prov.serializerInstance(am, serDef));
         }
@@ -284,7 +284,7 @@ public class PropertyBuilder
             declaredType = secondary;
         }
         // If using static typing, declared type is known to be the type...
-        JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(a);
+        JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(_config, a);
         if ((typing != null) && (typing != JsonSerialize.Typing.DEFAULT_TYPING)) {
             useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
         }

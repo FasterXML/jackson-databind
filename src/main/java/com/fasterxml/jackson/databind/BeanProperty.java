@@ -242,7 +242,7 @@ public interface BeanProperty extends FullyNamed
             if ((intr == null) || (_member == null)) {
                 return v0;
             }
-            JsonInclude.Value v = intr.findPropertyInclusion(_member);
+            JsonInclude.Value v = intr.findPropertyInclusion(config, _member);
             if (v == null) {
                 return v0;
             }

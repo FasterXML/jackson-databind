@@ -13,6 +13,7 @@ Project: jackson-databind
   deserializer on a property (since 2.9.0)
  (contributed by Deblock T)
 #1931: Two more `c3p0` gadgets to exploit default typing issue
+ (reported by lilei@venusgroup.com.cn)
 
 2.9.4 (24-Jan-2018)
 

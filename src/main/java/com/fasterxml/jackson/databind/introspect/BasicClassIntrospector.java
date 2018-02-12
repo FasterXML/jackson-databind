@@ -189,7 +189,8 @@ public class BasicClassIntrospector
     {
         AnnotatedClass ac = _resolveAnnotatedClass(config, type, r);
         AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
-        JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
+        JsonPOJOBuilder.Value builderConfig = (ai == null) ? null
+                : ai.findPOJOBuilderConfig(config, ac);
         String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
         return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
     }

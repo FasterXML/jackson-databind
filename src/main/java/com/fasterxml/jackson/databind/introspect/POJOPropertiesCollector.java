@@ -260,7 +260,7 @@ public class POJOPropertiesCollector
      * Method for finding Class to use as POJO builder, if any.
      */
     public Class<?> findPOJOBuilderClass() {
-        return _annotationIntrospector.findPOJOBuilder(_classDef);
+        return _annotationIntrospector.findPOJOBuilder(_config, _classDef);
     }
     
     // for unit tests:

@@ -79,10 +79,9 @@ public class StringArraySerializer
             BeanProperty property)
         throws JsonMappingException
     {
-        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
-         *    checking here since we finally know for sure the property,
-         *    and it may have overrides
-         */
+        // 29-Sep-2012, tatu: Actually, we need to do much more contextual
+        //    checking here since we finally know for sure the property,
+        //    and it may have overrides
         JsonSerializer<?> ser = null;
 
         // First: if we have a property, may have property-annotation overrides
@@ -90,7 +89,7 @@ public class StringArraySerializer
             final AnnotationIntrospector ai = provider.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                Object serDef = ai.findContentSerializer(m);
+                Object serDef = ai.findContentSerializer(provider.getConfig(), m);
                 if (serDef != null) {
                     ser = provider.serializerInstance(m, serDef);
                 }

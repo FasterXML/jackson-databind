@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
@@ -420,7 +421,7 @@ public final class DeserializerCache
             Annotated ann)
         throws JsonMappingException
     {
-        Object deserDef = ctxt.getAnnotationIntrospector().findDeserializer(ann);
+        Object deserDef = ctxt.getAnnotationIntrospector().findDeserializer(ctxt.getConfig(), ann);
         if (deserDef == null) {
             return null;
         }
@@ -481,6 +482,7 @@ public final class DeserializerCache
         if (intr == null) {
             return type;
         }
+        final MapperConfig<?> config = ctxt.getConfig();
 
         // First things first: find explicitly annotated deserializer(s)
 
@@ -491,7 +493,7 @@ public final class DeserializerCache
             //   (not 100% why or how, but this does seem to get called more than once, which
             //   is not good: for now, let's just avoid errors)
             if (keyType != null && keyType.getValueHandler() == null) {
-                Object kdDef = intr.findKeyDeserializer(a);
+                Object kdDef = intr.findKeyDeserializer(config, a);
                 if (kdDef != null) {
                     KeyDeserializer kd = ctxt.keyDeserializerInstance(a, kdDef);
                     if (kd != null) {
@@ -504,7 +506,7 @@ public final class DeserializerCache
         JavaType contentType = type.getContentType();
         if (contentType != null) {
             if (contentType.getValueHandler() == null) { // as with above, avoid resetting (which would trigger exception)
-                Object cdDef = intr.findContentDeserializer(a);
+                Object cdDef = intr.findContentDeserializer(config, a);
                 if (cdDef != null) {
                     JsonDeserializer<?> cd = null;
                     if (cdDef instanceof JsonDeserializer<?>) {
@@ -524,7 +526,7 @@ public final class DeserializerCache
 
         // And after handlers, possible type refinements
         // (note: could possibly avoid this if explicit deserializer was invoked?)
-        type = intr.refineDeserializationType(ctxt.getConfig(), a, type);
+        type = intr.refineDeserializationType(config, a, type);
         
         return type;
     }

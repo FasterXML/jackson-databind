@@ -677,7 +677,7 @@ public class POJOPropertyBuilder
         // 17-Aug-2016, tatu: Do NOT include global, or per-type defaults, because
         //    not all of this information (specifically, enclosing type's settings)
         //    is available here
-        JsonInclude.Value v = _annotationIntrospector.findPropertyInclusion(a);
+        JsonInclude.Value v = _annotationIntrospector.findPropertyInclusion(_config, a);
         return (v == null) ? JsonInclude.Value.empty() : v;
     }
 

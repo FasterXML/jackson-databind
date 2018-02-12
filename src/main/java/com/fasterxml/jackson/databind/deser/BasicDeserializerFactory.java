@@ -247,7 +247,7 @@ public abstract class BasicDeserializerFactory
         ValueInstantiator instantiator = null;
         // Check @JsonValueInstantiator before anything else
         AnnotatedClass ac = beanDesc.getClassInfo();
-        Object instDef = ctxt.getAnnotationIntrospector().findValueInstantiator(ac);
+        Object instDef = ctxt.getAnnotationIntrospector().findValueInstantiator(ctxt.getConfig(), ac);
         if (instDef != null) {
             instantiator = _valueInstantiatorInstance(config, ac, instDef);
         }
@@ -2034,7 +2034,7 @@ nonAnnotatedParamIndex, ctor);
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
-            Object deserDef = intr.findDeserializer(ann);
+            Object deserDef = intr.findDeserializer(ctxt.getConfig(), ann);
             if (deserDef != null) {
                 return ctxt.deserializerInstance(ann, deserDef);
             }
@@ -2053,7 +2053,7 @@ nonAnnotatedParamIndex, ctor);
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
-            Object deserDef = intr.findKeyDeserializer(ann);
+            Object deserDef = intr.findKeyDeserializer(ctxt.getConfig(), ann);
             if (deserDef != null) {
                 return ctxt.keyDeserializerInstance(ann, deserDef);
             }
@@ -2067,7 +2067,7 @@ nonAnnotatedParamIndex, ctor);
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
-            Object deserDef = intr.findContentDeserializer(ann);
+            Object deserDef = intr.findContentDeserializer(ctxt.getConfig(), ann);
             if (deserDef != null) {
                 return ctxt.deserializerInstance(ann, deserDef);
             }
@@ -2096,7 +2096,7 @@ nonAnnotatedParamIndex, ctor);
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
             if (keyType != null) {
-                Object kdDef = intr.findKeyDeserializer(member);
+                Object kdDef = intr.findKeyDeserializer(ctxt.getConfig(), member);
                 KeyDeserializer kd = ctxt.keyDeserializerInstance(member, kdDef);
                 if (kd != null) {
                     type = ((MapLikeType) type).withKeyValueHandler(kd);
@@ -2106,7 +2106,7 @@ nonAnnotatedParamIndex, ctor);
         }
 
         if (type.hasContentType()) { // that is, is either container- or reference-type
-            Object cdDef = intr.findContentDeserializer(member);
+            Object cdDef = intr.findContentDeserializer(ctxt.getConfig(), member);
             JsonDeserializer<?> cd = ctxt.deserializerInstance(member, cdDef);
             if (cd != null) {
                 type = type.withContentValueHandler(cd);

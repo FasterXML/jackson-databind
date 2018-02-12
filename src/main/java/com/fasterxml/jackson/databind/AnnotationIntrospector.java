@@ -554,7 +554,7 @@ public abstract class AnnotationIntrospector
      * <code>Class&lt;JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public Object findSerializer(Annotated am) {
+    public Object findSerializer(MapperConfig<?> config, Annotated am) {
         return null;
     }
 
@@ -565,7 +565,7 @@ public abstract class AnnotationIntrospector
      * <code>Class&lt;JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public Object findKeySerializer(Annotated am) {
+    public Object findKeySerializer(MapperConfig<?> config, Annotated am) {
         return null;
     }
 
@@ -577,7 +577,7 @@ public abstract class AnnotationIntrospector
      * <code>Class&lt;JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public Object findContentSerializer(Annotated am) {
+    public Object findContentSerializer(MapperConfig<?> config, Annotated am) {
         return null;
     }
 
@@ -585,7 +585,7 @@ public abstract class AnnotationIntrospector
      * Method for getting a serializer definition for serializer to use
      * for nulls (null values) of associated property or type.
      */
-    public Object findNullSerializer(Annotated am) {
+    public Object findNullSerializer(MapperConfig<?> config, Annotated am) {
         return null;
     }
 
@@ -597,7 +597,7 @@ public abstract class AnnotationIntrospector
      *
      * @return Typing mode to use, if annotation is found; null otherwise
      */
-    public JsonSerialize.Typing findSerializationTyping(Annotated a) {
+    public JsonSerialize.Typing findSerializationTyping(MapperConfig<?> config, Annotated a) {
         return null;
     }
 
@@ -649,7 +649,7 @@ public abstract class AnnotationIntrospector
      * In case of class, acts as the default for properties POJO contains; for properties
      * acts as override for class defaults and possible global defaults.
      */
-    public JsonInclude.Value findPropertyInclusion(Annotated a) {
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Annotated a) {
         return JsonInclude.Value.empty();
     }
 
@@ -783,7 +783,7 @@ public abstract class AnnotationIntrospector
      * <code>Class&lt;JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public Object findDeserializer(Annotated am) {
+    public Object findDeserializer(MapperConfig<?> config, Annotated am) {
         return null;
     }
 
@@ -795,7 +795,7 @@ public abstract class AnnotationIntrospector
      * <code>Class&lt;JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public Object findKeyDeserializer(Annotated am) {
+    public Object findKeyDeserializer(MapperConfig<?> config, Annotated am) {
         return null;
     }
 
@@ -808,7 +808,7 @@ public abstract class AnnotationIntrospector
      * <code>Class&lt;JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public Object findContentDeserializer(Annotated am) {
+    public Object findContentDeserializer(MapperConfig<?> config, Annotated am) {
         return null;
     }
 
@@ -882,7 +882,7 @@ public abstract class AnnotationIntrospector
      * type (class): return value can either be an instance of
      * instantiator, or class of instantiator to create.
      */
-    public Object findValueInstantiator(AnnotatedClass ac) {
+    public Object findValueInstantiator(MapperConfig<?> config, AnnotatedClass ac) {
         return null;
     }
 
@@ -897,11 +897,11 @@ public abstract class AnnotationIntrospector
      * that builders have state, and a separate instance needs
      * to be created for each deserialization call.
      */
-    public Class<?> findPOJOBuilder(AnnotatedClass ac) {
+    public Class<?> findPOJOBuilder(MapperConfig<?> config, AnnotatedClass ac) {
         return null;
     }
 
-    public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac) {
+    public JsonPOJOBuilder.Value findPOJOBuilderConfig(MapperConfig<?> config, AnnotatedClass ac) {
         return null;
     }
 

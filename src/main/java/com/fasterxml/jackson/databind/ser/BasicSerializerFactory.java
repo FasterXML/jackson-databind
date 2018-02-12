@@ -499,7 +499,7 @@ public abstract class BasicSerializerFactory
             Annotated a)
         throws JsonMappingException
     {
-        Object serDef = prov.getAnnotationIntrospector().findSerializer(a);
+        Object serDef = prov.getAnnotationIntrospector().findSerializer(prov.getConfig(), a);
         if (serDef == null) {
             return null;
         }
@@ -1209,7 +1209,7 @@ public abstract class BasicSerializerFactory
         throws JsonMappingException
     {
         AnnotationIntrospector intr = prov.getAnnotationIntrospector();
-        Object serDef = intr.findKeySerializer(a);
+        Object serDef = intr.findKeySerializer(prov.getConfig(), a);
         if (serDef != null) {
             return prov.serializerInstance(a, serDef);
         }
@@ -1226,7 +1226,7 @@ public abstract class BasicSerializerFactory
         throws JsonMappingException
     {
         AnnotationIntrospector intr = prov.getAnnotationIntrospector();
-        Object serDef = intr.findContentSerializer(a);
+        Object serDef = intr.findContentSerializer(prov.getConfig(), a);
         if (serDef != null) {
             return prov.serializerInstance(a, serDef);
         }
@@ -1259,7 +1259,7 @@ public abstract class BasicSerializerFactory
             return false;
         }
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        JsonSerialize.Typing t = intr.findSerializationTyping(beanDesc.getClassInfo());
+        JsonSerialize.Typing t = intr.findSerializationTyping(config, beanDesc.getClassInfo());
         if (t != null && t != JsonSerialize.Typing.DEFAULT_TYPING) {
             return (t == JsonSerialize.Typing.STATIC);
         }

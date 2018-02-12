@@ -59,7 +59,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                Object serDef = intr.findContentSerializer(m);
+                Object serDef = intr.findContentSerializer(serializers.getConfig(), m);
                 if (serDef != null) {
                     ser = serializers.serializerInstance(m, serDef);
                 }

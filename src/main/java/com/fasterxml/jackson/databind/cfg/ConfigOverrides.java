@@ -2,8 +2,10 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 /**
@@ -106,7 +108,7 @@ public class ConfigOverrides
 
     /*
     /**********************************************************
-    /* Global defaults access
+    /* Global defaults accessors
     /**********************************************************
      */
 
@@ -126,20 +128,35 @@ public class ConfigOverrides
         return _visibilityChecker;
     }
 
-    public void setDefaultInclusion(JsonInclude.Value v) {
+    /*
+    /**********************************************************
+    /* Global defaults mutators
+    /**********************************************************
+     */
+
+    public ConfigOverrides setDefaultInclusion(JsonInclude.Value v) {
         _defaultInclusion = v;
+        return this;
     }
 
-    public void setDefaultSetterInfo(JsonSetter.Value v) {
+    public ConfigOverrides setDefaultSetterInfo(JsonSetter.Value v) {
         _defaultSetterInfo = v;
+        return this;
     }
 
-    public void setDefaultMergeable(Boolean v) {
+    public ConfigOverrides setDefaultMergeable(Boolean v) {
         _defaultMergeable = v;
+        return this;
     }
 
-    public void setDefaultVisibility(VisibilityChecker<?> v) {
+    public ConfigOverrides setDefaultVisibility(VisibilityChecker<?> v) {
         _visibilityChecker = v;
+        return this;
+    }
+
+    public ConfigOverrides setDefaultVisibility(JsonAutoDetect.Value vis) {
+        _visibilityChecker = VisibilityChecker.Std.construct(vis);
+        return this;
     }
 
     /*
@@ -147,7 +164,7 @@ public class ConfigOverrides
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected Map<Class<?>, MutableConfigOverride> _newMap() {
         return new HashMap<Class<?>, MutableConfigOverride>();
     }

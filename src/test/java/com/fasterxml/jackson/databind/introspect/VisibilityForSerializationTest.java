@@ -91,8 +91,10 @@ public class VisibilityForSerializationTest
 
         // Then auto-detection disabled. But note: we MUST create a new
         // mapper, since old version of serializer may be cached by now
-        m = new ObjectMapper();
-        m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
+        m = ObjectMapper.builder()
+                .changeDefaultVisibility(vc ->
+                    vc.withVisibility(PropertyAccessor.GETTER, Visibility.NONE))
+                .build();
         result = writeAndMap(m, new GetterClass());
         assertEquals(1, result.size());
         assertTrue(result.containsKey("x"));
@@ -107,7 +109,10 @@ public class VisibilityForSerializationTest
         assertTrue(result.containsKey("x"));
 
         // And then class-level auto-detection enabling, should override defaults
-        m.setVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY);
+        m = ObjectMapper.builder()
+                .changeDefaultVisibility(vc ->
+                    vc.withVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY))
+                .build();
 
         result = writeAndMap(m, new EnabledGetterClass());
         assertEquals(2, result.size());
@@ -117,10 +122,12 @@ public class VisibilityForSerializationTest
 
     public void testPerClassAutoDetectionForIsGetter() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = ObjectMapper.builder()
+                .changeDefaultVisibility(vc ->
         // class level should override
-        m.setVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY);
-        m.setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE);
+                vc.withVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY)
+                    .withVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE))
+                .build();
 
         Map<String,Object> result = writeAndMap(m, new EnabledIsGetterClass());
         assertEquals(0, result.size());
@@ -132,9 +139,10 @@ public class VisibilityForSerializationTest
         ObjectMapper om = ObjectMapper.builder()
                 .disable(MapperFeature.USE_GETTERS_AS_SETTERS, MapperFeature.INFER_PROPERTY_MUTATORS)
                 .enable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, MapperFeature.USE_ANNOTATIONS)
+                .changeDefaultVisibility(vc ->
+                    vc.withVisibility(PropertyAccessor.ALL, Visibility.NONE))
                 .build();
         // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).
-        om.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
         
         JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
         BeanDescription desc = (BeanDescription) om.serializationConfig().introspect(javaType);

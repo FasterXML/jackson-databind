@@ -360,8 +360,10 @@ public class POJOPropertiesCollectorTest
 
     public void testGlobalVisibilityForGetters()
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
+        ObjectMapper m = ObjectMapper.builder()
+                .changeDefaultVisibility(vc ->
+                    vc.withVisibility(PropertyAccessor.GETTER, Visibility.NONE))
+                .build();
         POJOPropertiesCollector coll = collector(m, SimpleGetterVisibility.class, true);
         // should be 1, expect that we disabled getter auto-detection, so
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();

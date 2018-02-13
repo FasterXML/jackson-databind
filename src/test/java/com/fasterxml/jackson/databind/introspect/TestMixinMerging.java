@@ -41,10 +41,11 @@ public class TestMixinMerging extends BaseMapTest
         ObjectMapper mapper = ObjectMapper.builder()
                 .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
                 .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .changeDefaultVisibility(vc -> vc
+                        .withVisibility(PropertyAccessor.FIELD, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.GETTER, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE))
                 .build();
-        mapper.setVisibility(PropertyAccessor.FIELD, Visibility.NONE);
-        mapper.setVisibility(PropertyAccessor.GETTER, Visibility.NONE);
-        mapper.setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE);
         SimpleModule module = new SimpleModule("Test");
         module.setMixInAnnotation(Person.class, PersonMixin.class);        
         mapper.registerModule(module);

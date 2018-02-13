@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 public class MultiArgConstructorTest extends BaseMapTest
 {
@@ -89,17 +90,17 @@ public class MultiArgConstructorTest extends BaseMapTest
         assertEquals(-99, bean._a);
         assertEquals(222, bean.c);
     }
-    
+
     // but let's also ensure that it is possible to prevent use of that constructor
     // with different visibility
     public void testMultiArgNotVisible() throws Exception
     {
         final ObjectMapper mapper = ObjectMapper.builder()
                 .annotationIntrospector(new MyParamIntrospector())
+                .changeDefaultVisibility(vc -> VisibilityChecker.Std.construct
+                        (JsonAutoDetect.Value.noOverrides()
+                        .withCreatorVisibility(Visibility.NONE)))
                 .build();
-        mapper.setDefaultVisibility(
-                JsonAutoDetect.Value.noOverrides()
-                    .withCreatorVisibility(Visibility.NONE));
         try {
             /*MultiArgCtorBean bean =*/ mapper.readValue(aposToQuotes("{'b':13,  'a':-99}"),
                 MultiArgCtorBean.class);

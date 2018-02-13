@@ -922,52 +922,7 @@ public class ObjectMapper
      * (method, field, constructor) can be auto-detected or not.
      */
     public VisibilityChecker<?> getVisibilityChecker() {
-        return _serializationConfig.getDefaultVisibilityChecker();
-    }
-
-    /**
-     * Method for setting currently configured default {@link VisibilityChecker},
-     * object used for determining whether given property element
-     * (method, field, constructor) can be auto-detected or not.
-     * This default checker is used as the base visibility:
-     * per-class overrides (both via annotations and per-type config overrides)
-     * can further change these settings.
-     */
-    public ObjectMapper setVisibility(VisibilityChecker<?> vc) {
-        _configOverrides.setDefaultVisibility(vc);
-        return this;
-    }
-
-    /**
-     * Convenience method that allows changing configuration for
-     * underlying {@link VisibilityChecker}s, to change details of what kinds of
-     * properties are auto-detected.
-     * Basically short cut for doing:
-     *<pre>
-     *  mapper.setVisibilityChecker(
-     *     mapper.getVisibilityChecker().withVisibility(forMethod, visibility)
-     *  );
-     *</pre>
-     * one common use case would be to do:
-     *<pre>
-     *  mapper.setVisibility(JsonMethod.FIELD, Visibility.ANY);
-     *</pre>
-     * which would make all member fields serializable without further annotations,
-     * instead of just public fields (default setting).
-     * 
-     * @param forMethod Type of property descriptor affected (field, getter/isGetter,
-     *     setter, creator)
-     * @param visibility Minimum visibility to require for the property descriptors of type
-     * 
-     * @return Modified mapper instance (that is, "this"), to allow chaining
-     *    of configuration calls
-     */
-    public ObjectMapper setVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility)
-    {
-        VisibilityChecker<?> vc = _configOverrides.getDefaultVisibility();
-        vc = vc.withVisibility(forMethod, visibility);
-        _configOverrides.setDefaultVisibility(vc);
-        return this;
+        return _configOverrides.getDefaultVisibility();
     }
 
     /**
@@ -1017,17 +972,6 @@ public class ObjectMapper
      */
     public ObjectMapper setDefaultSetterInfo(JsonSetter.Value v) {
         _configOverrides.setDefaultSetterInfo(v);
-        return this;
-    }
-
-    /**
-     * Method for setting auto-detection visibility definition
-     * defaults, which are in effect unless overridden by
-     * annotations (like <code>JsonAutoDetect</code>) or per-type
-     * visibility overrides.
-     */
-    public ObjectMapper setDefaultVisibility(JsonAutoDetect.Value vis) {
-        _configOverrides.setDefaultVisibility(VisibilityChecker.Std.construct(vis));
         return this;
     }
 

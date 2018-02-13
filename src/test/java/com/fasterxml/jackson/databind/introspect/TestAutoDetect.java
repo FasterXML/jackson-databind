@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 public class TestAutoDetect
     extends BaseMapTest
@@ -65,10 +64,9 @@ public class TestAutoDetect
         assertEquals("abc", bean.a);
 
         // then by increasing visibility requirement:
-        m = new ObjectMapper();
-        VisibilityChecker<?> vc = m.getVisibilityChecker();
-        vc = vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY);
-        m.setVisibility(vc);
+        m = ObjectMapper.builder()
+                .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY))
+                .build();
         try {
             m.readValue("\"abc\"", ProtectedBean.class);
             fail("Expected exception for missing constructor");
@@ -93,10 +91,9 @@ public class TestAutoDetect
         }
 
         // except if we lower requirement
-        m = new ObjectMapper();
-        VisibilityChecker<?> vc = m.getVisibilityChecker();
-        vc = vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.ANY);
-        m.setVisibility(vc);
+        m = ObjectMapper.builder()
+                .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.ANY))
+                .build();
         bean = m.readValue(quote("xyz"), PrivateBeanAnnotated.class);
         assertEquals("xyz", bean.a);
     }

@@ -233,13 +233,15 @@ public class TestJsonSerialize
 
     public void testWithIsGetter() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE)
-        .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
-        .setVisibility(PropertyAccessor.CREATOR, Visibility.NONE)
-        .setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE)
-        .setVisibility(PropertyAccessor.SETTER, Visibility.NONE);        
-        final String JSON = m.writeValueAsString(new Response());
-        assertEquals(aposToQuotes("{'a':'x','something':true}"), JSON);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .changeDefaultVisibility(vc -> vc
+                        .withVisibility(PropertyAccessor.GETTER, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.FIELD, Visibility.ANY)
+                        .withVisibility(PropertyAccessor.CREATOR, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.SETTER, Visibility.NONE))
+                .build();
+        assertEquals(aposToQuotes("{'a':'x','something':true}"),
+                mapper.writeValueAsString(new Response()));
     }
 }

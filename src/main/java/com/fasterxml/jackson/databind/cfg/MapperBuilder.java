@@ -2,8 +2,10 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.text.DateFormat;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -508,8 +511,32 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /**
+     * Method for changing various aspects of configuration overrides.
+     */
     public B withAllConfigOverrides(Consumer<ConfigOverrides> handler) {
         handler.accept(_configOverrides);
+        return _this();
+    }
+
+    /**
+     * Method for changing currently configured default {@link VisibilityChecker},
+     * object used for determining whether given property element
+     * (method, field, constructor) can be auto-detected or not.
+     * Checker to modify is used for all POJO types for which there is no specific
+     * per-type checker.
+     *
+     * @param handler Function that is given current default visibility checker and that
+     *    needs to return either checker as is, or a new instance created using one or more of
+     *    {@code withVisibility} (and similar) calls.
+     */
+    public B changeDefaultVisibility(Function<VisibilityChecker<?>,VisibilityChecker<?>> handler) {
+        VisibilityChecker<?> oldV = _configOverrides.getDefaultVisibility();
+        VisibilityChecker<?> newV = handler.apply(oldV);
+        if (newV != oldV) {
+            Objects.requireNonNull(newV, "Can not assign null default VisibilityChecker");
+            _configOverrides.setDefaultVisibility(newV);
+        }
         return _this();
     }
 

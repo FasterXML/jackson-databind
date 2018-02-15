@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 public class ScalarCoercionTest extends BaseMapTest
 {
     private final ObjectMapper COERCING_MAPPER = ObjectMapper.builder()
-            .enable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+            .enable(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 
     private final ObjectMapper NOT_COERCING_MAPPER = ObjectMapper.builder()
-            .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+            .disable(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 
     /*
@@ -189,7 +189,7 @@ public class ScalarCoercionTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce ");
             verifyException(e, " for type `");
-            verifyException(e, "enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow");
+            verifyException(e, "enable `DeserializationFeature.ALLOW_COERCION_OF_SCALARS` to allow");
         }
     }
 }

@@ -745,8 +745,8 @@ public abstract class StdDeserializer<T>
         Enum<?> feat;
         boolean enable;
 
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        if (!ctxt.isEnabled(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = DeserializationFeature.ALLOW_COERCION_OF_SCALARS;
             enable = true;
         } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
             feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
@@ -768,8 +768,8 @@ public abstract class StdDeserializer<T>
         Enum<?> feat;
         boolean enable;
 
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        if (!ctxt.isEnabled(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = DeserializationFeature.ALLOW_COERCION_OF_SCALARS;
             enable = true;
         } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
             feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
@@ -798,8 +798,8 @@ public abstract class StdDeserializer<T>
         Enum<?> feat;
         boolean enable;
 
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        if (!ctxt.isEnabled(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = DeserializationFeature.ALLOW_COERCION_OF_SCALARS;
             enable = true;
         } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
             feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
@@ -815,16 +815,16 @@ public abstract class StdDeserializer<T>
     // @since 2.9
     protected final void _verifyNullForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
     {
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+        if (!ctxt.isEnabled(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)) {
             String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
-            _reportFailedNullCoerce(ctxt, true, MapperFeature.ALLOW_COERCION_OF_SCALARS, strDesc);
+            _reportFailedNullCoerce(ctxt, true, DeserializationFeature.ALLOW_COERCION_OF_SCALARS, strDesc);
         }
     }
 
     // @since 2.9
     protected void _verifyStringForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
     {
-        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        DeserializationFeature feat = DeserializationFeature.ALLOW_COERCION_OF_SCALARS;
         if (!ctxt.isEnabled(feat)) {
             ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" %s (enable `%s.%s` to allow)",
                 str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
@@ -834,7 +834,7 @@ public abstract class StdDeserializer<T>
     // @since 2.9
     protected void _verifyNumberForScalarCoercion(DeserializationContext ctxt, JsonParser p) throws IOException
     {
-        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        DeserializationFeature feat = DeserializationFeature.ALLOW_COERCION_OF_SCALARS;
         if (!ctxt.isEnabled(feat)) {
             // 31-Mar-2017, tatu: Since we don't know (or this deep, care) about exact type,
             //   access as a String: may require re-encoding by parser which should be fine
@@ -858,8 +858,6 @@ public abstract class StdDeserializer<T>
      * on coerce failure.
      *
      * @return Message with backtick-enclosed name of type this deserializer supports
-     *
-     * @since 2.9
      */
     protected String _coercedTypeDesc() {
         boolean structured;

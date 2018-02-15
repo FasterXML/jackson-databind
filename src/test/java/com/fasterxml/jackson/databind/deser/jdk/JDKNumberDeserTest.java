@@ -132,7 +132,7 @@ public class JDKNumberDeserTest extends BaseMapTest
         }
 
         ObjectMapper noCoerceMapper = ObjectMapper.builder()
-                .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+                .disable(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
                 .build();
         try {
             noCoerceMapper.readValue(NULL_JSON, Integer.TYPE);

@@ -52,9 +52,9 @@ public abstract class BasicSerializerFactory
     implements java.io.Serializable
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, lookup tables/maps
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -63,17 +63,8 @@ public abstract class BasicSerializerFactory
      * use the class name, and keep things simple and efficient.
      */
     protected final static HashMap<String, JsonSerializer<?>> _concrete;
-    
-    /**
-     * Actually it may not make much sense to eagerly instantiate all
-     * kinds of serializers: so this Map actually contains class references,
-     * not instances
-     */
-    protected final static HashMap<String, Class<? extends JsonSerializer<?>>> _concreteLazy;
 
     static {
-        HashMap<String, Class<? extends JsonSerializer<?>>> concLazy
-            = new HashMap<String, Class<? extends JsonSerializer<?>>>();
         HashMap<String, JsonSerializer<?>> concrete
             = new HashMap<String, JsonSerializer<?>>();
 
@@ -81,7 +72,7 @@ public abstract class BasicSerializerFactory
         /* String and string-like types (note: date types explicitly
          * not included -- can use either textual or numeric serialization)
          */
-        concrete.put(String.class.getName(), new StringSerializer());
+        concrete.put(String.class.getName(), StringSerializer.instance);
         final ToStringSerializer sls = ToStringSerializer.instance;
         concrete.put(StringBuffer.class.getName(), sls);
         concrete.put(StringBuilder.class.getName(), sls);
@@ -95,37 +86,20 @@ public abstract class BasicSerializerFactory
 
         // Other numbers, more complicated
         concrete.put(BigInteger.class.getName(), new NumberSerializer(BigInteger.class));
-        concrete.put(BigDecimal.class.getName(),new NumberSerializer(BigDecimal.class));
+        concrete.put(BigDecimal.class.getName(), new NumberSerializer(BigDecimal.class));
 
         // Other discrete non-container types:
         // First, Date/Time zoo:
         concrete.put(Calendar.class.getName(), CalendarSerializer.instance);
         concrete.put(java.util.Date.class.getName(), DateSerializer.instance);
 
-        // And then other standard non-structured JDK types
-        for (Map.Entry<Class<?>,Object> en : StdJdkSerializers.all()) {
-            Object value = en.getValue();
-            if (value instanceof JsonSerializer<?>) {
-                concrete.put(en.getKey().getName(), (JsonSerializer<?>) value);
-            } else {
-                @SuppressWarnings("unchecked")
-                Class<? extends JsonSerializer<?>> cls = (Class<? extends JsonSerializer<?>>) value;
-                concLazy.put(en.getKey().getName(), cls);
-            }
-        }
-
-        // Jackson-specific type(s)
-        // (Q: can this ever be sub-classed?)
-        concLazy.put(TokenBuffer.class.getName(), TokenBufferSerializer.class);
-
         _concrete = concrete;
-        _concreteLazy = concLazy;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -315,17 +289,11 @@ public abstract class BasicSerializerFactory
             SerializationConfig config, BeanDescription beanDesc,
             boolean staticTyping)
     {
-        Class<?> raw = type.getRawClass();
-        String clsName = raw.getName();
-        JsonSerializer<?> ser = _concrete.get(clsName);
+        final Class<?> raw = type.getRawClass();
+        JsonSerializer<?> ser = StdJdkSerializers.find(raw);
         if (ser == null) {
-            Class<? extends JsonSerializer<?>> serClass = _concreteLazy.get(clsName);
-            if (serClass != null) {
-                // 07-Jan-2017, tatu: Should never fail (since we control constructors),
-                //   but if it does will throw `IllegalArgumentException` with description,
-                //   which we could catch, re-title.
-                return ClassUtil.createInstance(serClass, false);
-            }
+            final String clsName = raw.getName();
+            ser = _concrete.get(clsName);
         }
         return ser;
     }
@@ -343,8 +311,6 @@ public abstract class BasicSerializerFactory
      *    based on that property
      *  </li>
      *</ul>
-     *
-     * @since 2.0
      */
     protected final JsonSerializer<?> findSerializerByAnnotations(SerializerProvider prov, 
             JavaType type, BeanDescription beanDesc)
@@ -447,10 +413,10 @@ public abstract class BasicSerializerFactory
         if (DoubleStream.class.isAssignableFrom(raw)) {
             return DoubleStreamSerializer.INSTANCE;
         }
-        // 17-Sep-2017, tatu: With 3.0, this JDK7 type may be added here too.
-        // NOTE: not concrete, can not just add via StdJdkSerializers.
+        // NOTE: not concrete, can not just add directly via StdJdkSerializers. Also, requires
+        // bit of trickery wrt class name for polymorphic...
         if (Path.class.isAssignableFrom(raw)) {
-            return new NioPathSerializer();
+            return StringLikeSerializer.find(Path.class);
         }
         // Then check for optional/external serializers 
         JsonSerializer<?> ser = OptionalHandlerFactory.instance.findSerializer(prov.getConfig(),

@@ -19,13 +19,12 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  */
 @JacksonStdImpl
 public final class StringSerializer
-// NOTE: generic parameter changed from String to Object in 2.6, to avoid
-//   use of bridge methods
-// In 2.9, removed use of intermediate type `NonTypedScalarSerializerBase`
     extends StdScalarSerializer<Object>
 {
     private static final long serialVersionUID = 1L;
 
+    public final static StringSerializer instance = new StringSerializer();
+    
     public StringSerializer() { super(String.class, false); }
 
     @Override

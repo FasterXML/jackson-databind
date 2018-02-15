@@ -6,9 +6,6 @@ import java.nio.file.Paths;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 
-/**
- * @since 2.7
- */
 public class TestJava7Types extends BaseMapTest
 {
     public void testPathRoundtrip() throws Exception

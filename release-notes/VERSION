@@ -9,6 +9,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 #1058: Add a way to pass std and format-specific parser/generator flags during
   parser/generation construction
+#1600: Serializing locale with underscore, not standard hyphen
+ (requested by Alexander K)
 #1762: `StdDateFormat`: serialize time offset using colon
 #1772: Remove `MapperFeature. USE_STD_BEAN_NAMING`
 #1773: Remove `MapperFeature.AUTO_DETECT_xxx` features

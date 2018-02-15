@@ -15,14 +15,13 @@ public class StdJdkDeserializers
     private final static HashSet<String> _classNames = new HashSet<String>();
     static {
         // note: can skip primitive types; other ways to check them:
-        Class<?>[] types = new Class<?>[] {
-                UUID.class,
-                AtomicBoolean.class,
-                StackTraceElement.class,
-                ByteBuffer.class
-        };
-        for (Class<?> cls : types) { _classNames.add(cls.getName()); }
-        for (Class<?> cls : FromStringDeserializer.types()) { _classNames.add(cls.getName()); }
+        _classNames.add(UUID.class.getName());
+        _classNames.add(AtomicBoolean.class.getName());
+        _classNames.add(StackTraceElement.class.getName());
+        _classNames.add(ByteBuffer.class.getName());
+        for (Class<?> cls : FromStringDeserializer.types()) {
+            _classNames.add(cls.getName());
+        }
     }
 
     public static JsonDeserializer<?> find(Class<?> rawType, String clsName)

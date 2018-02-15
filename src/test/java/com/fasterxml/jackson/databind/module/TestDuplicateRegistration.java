@@ -32,7 +32,7 @@ public class TestDuplicateRegistration extends BaseMapTest
     {
         // by default, duplicate registration should be prevented
         ObjectMapper mapper = new ObjectMapper();
-        assertTrue(mapper.isEnabled(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS));
+        assertTrue(mapper.isEnabled(MapperFeature.PREVENT_MULTIPLE_MODULE_REGISTRATIONS));
         MyModule module = new MyModule();
         mapper.registerModule(module);
         mapper.registerModule(module);
@@ -41,7 +41,7 @@ public class TestDuplicateRegistration extends BaseMapTest
 
         // but may be allowed by changing setting
         ObjectMapper mapper2 = ObjectMapper.builder()
-                .disable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS)
+                .disable(MapperFeature.PREVENT_MULTIPLE_MODULE_REGISTRATIONS)
                 .build();
         MyModule module2 = new MyModule();
         mapper2.registerModule(module2);

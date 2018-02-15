@@ -293,13 +293,13 @@ public class ObjectMapper
      */
 
     /**
-     * Set of module types (as per {@link Module#getTypeId()} that have been
-     * registered; kept track of iff {@link MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS}
+     * Set of module types (as per {@link Module#getRegistrationId()} that have been
+     * registered; kept track of iff {@link MapperFeature#PREVENT_MULTIPLE_MODULE_REGISTRATIONS}
      * is enabled, so that duplicate registration calls can be ignored
      * (to avoid adding same handlers multiple times, mostly).
      */
     protected Set<Object> _registeredModuleTypes;
-    
+
     /*
     /**********************************************************
     /* Caching
@@ -467,8 +467,8 @@ public class ObjectMapper
      */
     public ObjectMapper registerModule(Module module)
     {
-        if (isEnabled(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS)) {
-            Object typeId = module.getTypeId();
+        if (isEnabled(MapperFeature.PREVENT_MULTIPLE_MODULE_REGISTRATIONS)) {
+            Object typeId = module.getRegistrationId();
             if (typeId != null) {
                 if (_registeredModuleTypes == null) {
                     // plus let's keep them in order too, easier to debug or expose

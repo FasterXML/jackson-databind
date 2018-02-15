@@ -1,8 +1,15 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.ServiceLoader;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -55,7 +62,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected final TokenStreamFactory _streamFactory;
 
     protected final ConfigOverrides _configOverrides;
-    
+
+    /*
+    /**********************************************************
+    /* Modules
+    /**********************************************************
+     */
+
+    /**
+     * Modules registered for addition, indexed by registration id.
+     */
+    protected Map<Object, Module> _modules;
+
     /*
     /**********************************************************
     /* Handlers, introspection
@@ -541,9 +559,134 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Module registration, discovery, access
+    /**********************************************************************
+     */
+
+    /**
+     * Method that will drop all modules added (via {@link #addModule} and similar
+     * calls) to this builder.
+     */
+    public B removeAllModules() {
+        _modules = null;
+        return _this();
+    }
+
+    /**
+     * Method will add given module to be registered when mapper is built, possibly
+     * replacing an earlier instance of the module (as specified by its
+     * {@link Module#getRegistrationId()}), if
+     * {@link MapperFeature#PREVENT_MULTIPLE_MODULE_REGISTRATIONS} is enabled.
+     */
+    public B addModule(Module module)
+    {
+        if (module.getModuleName() == null) {
+            throw new IllegalArgumentException("Module without defined name");
+        }
+        if (module.version() == null) {
+            throw new IllegalArgumentException("Module without defined version");
+        }
+        final boolean preventDups = MapperFeature.PREVENT_MULTIPLE_MODULE_REGISTRATIONS.enabledIn(_mapperFeatures);
+        // If dups are ok we still need a key, but just need to ensure it is unique so:
+        final Object moduleId = preventDups ? module.getRegistrationId() : new Object();
+        if (_modules == null) {
+            _modules = new LinkedHashMap<>();
+        } else if (preventDups) {
+            _modules.remove(moduleId);
+        }
+        _modules.put(moduleId, module);
+        return _this();
+    }
+
+    public B addModules(Module... modules)
+    {
+        for (Module module : modules) {
+            addModule(module);
+        }
+        return _this();
+    }
+
+    public B addModules(Iterable<? extends Module> modules)
+    {
+        for (Module module : modules) {
+            addModule(module);
+        }
+        return _this();
+    }
+
+    /**
+     * Method for locating available methods, using JDK {@link ServiceLoader}
+     * facility, along with module-provided SPI.
+     *<p>
+     * Note that method does not do any caching, so calls should be considered
+     * potentially expensive.
+     */
+    public static List<Module> findModules() {
+        return findModules(null);
+    }
+
+    /**
+     * Method for locating available methods, using JDK {@link ServiceLoader}
+     * facility, along with module-provided SPI.
+     *<p>
+     * Note that method does not do any caching, so calls should be considered
+     * potentially expensive.
+     */
+    public static List<Module> findModules(ClassLoader classLoader)
+    {
+        ArrayList<Module> modules = new ArrayList<Module>();
+        ServiceLoader<Module> loader = secureGetServiceLoader(Module.class, classLoader);
+        for (Module module : loader) {
+            modules.add(module);
+        }
+        return modules;
+    }
+
+    private static <T> ServiceLoader<T> secureGetServiceLoader(final Class<T> clazz, final ClassLoader classLoader) {
+        final SecurityManager sm = System.getSecurityManager();
+        if (sm == null) {
+            return (classLoader == null) ?
+                    ServiceLoader.load(clazz) : ServiceLoader.load(clazz, classLoader);
+        }
+        return AccessController.doPrivileged(new PrivilegedAction<ServiceLoader<T>>() {
+            @Override
+            public ServiceLoader<T> run() {
+                return (classLoader == null) ?
+                        ServiceLoader.load(clazz) : ServiceLoader.load(clazz, classLoader);
+            }
+        });
+    }
+
+    /**
+     * Convenience method that is functionally equivalent to:
+     *<code>
+     *   addModules(builder.findModules());
+     *</code>
+     *<p>
+     * As with {@link #findModules()}, no caching is done for modules, so care
+     * needs to be taken to either create and share a single mapper instance;
+     * or to cache introspected set of modules.
+     */
+    public B findAndAddModules() {
+        return addModules(findModules());
+    }
+
+    /**
+     * "Accessor" method that will expose set of registered modules, in addition
+     * order, to given handler.
+     */
+    public B withModules(Consumer<Module> handler) {
+        if (_modules != null) {
+            _modules.values().forEach(handler);
+        }
+        return _this();
+    }
+
+    /*
+    /**********************************************************************
     /* Changing factories/handlers, general
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -587,12 +587,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         if (module.version() == null) {
             throw new IllegalArgumentException("Module without defined version");
         }
-        final boolean preventDups = MapperFeature.PREVENT_MULTIPLE_MODULE_REGISTRATIONS.enabledIn(_mapperFeatures);
         // If dups are ok we still need a key, but just need to ensure it is unique so:
-        final Object moduleId = preventDups ? module.getRegistrationId() : new Object();
+        final Object moduleId = module.getRegistrationId();
         if (_modules == null) {
             _modules = new LinkedHashMap<>();
-        } else if (preventDups) {
+        } else {
+            // Important: since order matters, we won't try to simply replace existing one.
+            // Could do in different order (put, and only re-order if there was old value),
+            // but simple does it for now.
             _modules.remove(moduleId);
         }
         _modules.put(moduleId, module);

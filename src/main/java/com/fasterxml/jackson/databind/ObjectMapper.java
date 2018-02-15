@@ -467,18 +467,16 @@ public class ObjectMapper
      */
     public ObjectMapper registerModule(Module module)
     {
-        if (isEnabled(MapperFeature.PREVENT_MULTIPLE_MODULE_REGISTRATIONS)) {
-            Object typeId = module.getRegistrationId();
-            if (typeId != null) {
-                if (_registeredModuleTypes == null) {
-                    // plus let's keep them in order too, easier to debug or expose
-                    // in registration order if that matter
-                    _registeredModuleTypes = new LinkedHashSet<Object>();
-                }
-                // try adding; if already had it, should skip
-                if (!_registeredModuleTypes.add(typeId)) {
-                    return this;
-                }
+        Object typeId = module.getRegistrationId();
+        if (typeId != null) {
+            if (_registeredModuleTypes == null) {
+                // plus let's keep them in order too, easier to debug or expose
+                // in registration order if that matter
+                _registeredModuleTypes = new LinkedHashSet<Object>();
+            }
+            // try adding; if already had it, should skip
+            if (!_registeredModuleTypes.add(typeId)) {
+                return this;
             }
         }
         

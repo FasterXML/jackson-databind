@@ -320,24 +320,6 @@ public enum MapperFeature implements ConfigFeature
      */
 
     /**
-     * Feature that determines whether multiple registrations of same module
-     * are prevented or not: if enabled, later registrations of "same" module
-     * will replace earlier ones (or, be ignored, depending on exact call);
-     * If disabled, no checking is done and all registrations are processed in
-     * order they are made.
-     *<p>
-     * Definition of "same module" is based on using {@link Module#getRegistrationId()};
-     * modules with same <code>registration id</code> are considered same for
-     * purposes of duplicate registration.
-     *<p>
-     * Feature is enabled by default so that only one instance of "same" module is allowed
-     * and latest addition sticks (in case they are configured differently).
-     *
-     * @since 3.0
-     */
-    PREVENT_MULTIPLE_MODULE_REGISTRATIONS(true),
-
-    /**
      * Setting that determines what happens if an attempt is made to explicitly
      * "merge" value of a property, where value does not support merging; either
      * merging is skipped and new value is created (<code>true</code>) or

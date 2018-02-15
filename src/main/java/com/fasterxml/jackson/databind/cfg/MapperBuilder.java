@@ -3,14 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.ServiceLoader;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -72,7 +65,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Modules registered for addition, indexed by registration id.
      */
-    protected Map<Object, Module> _modules;
+    protected Map<Object, com.fasterxml.jackson.databind.Module> _modules;
 
     /*
     /**********************************************************
@@ -579,7 +572,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * {@link Module#getRegistrationId()}), if
      * {@link MapperFeature#PREVENT_MULTIPLE_MODULE_REGISTRATIONS} is enabled.
      */
-    public B addModule(Module module)
+    public B addModule(com.fasterxml.jackson.databind.Module module)
     {
         if (module.getModuleName() == null) {
             throw new IllegalArgumentException("Module without defined name");
@@ -601,17 +594,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    public B addModules(Module... modules)
+    public B addModules(com.fasterxml.jackson.databind.Module... modules)
     {
-        for (Module module : modules) {
+        for (com.fasterxml.jackson.databind.Module module : modules) {
             addModule(module);
         }
         return _this();
     }
 
-    public B addModules(Iterable<? extends Module> modules)
+    public B addModules(Iterable<? extends com.fasterxml.jackson.databind.Module> modules)
     {
-        for (Module module : modules) {
+        for (com.fasterxml.jackson.databind.Module module : modules) {
             addModule(module);
         }
         return _this();
@@ -624,7 +617,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
      */
-    public static List<Module> findModules() {
+    public static List<com.fasterxml.jackson.databind.Module> findModules() {
         return findModules(null);
     }
 
@@ -635,11 +628,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
      */
-    public static List<Module> findModules(ClassLoader classLoader)
+    public static List<com.fasterxml.jackson.databind.Module> findModules(ClassLoader classLoader)
     {
-        ArrayList<Module> modules = new ArrayList<Module>();
-        ServiceLoader<Module> loader = secureGetServiceLoader(Module.class, classLoader);
-        for (Module module : loader) {
+        ArrayList<com.fasterxml.jackson.databind.Module> modules = new ArrayList<>();
+        ServiceLoader<com.fasterxml.jackson.databind.Module> loader = secureGetServiceLoader(com.fasterxml.jackson.databind.Module.class, classLoader);
+        for (com.fasterxml.jackson.databind.Module module : loader) {
             modules.add(module);
         }
         return modules;
@@ -678,7 +671,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * "Accessor" method that will expose set of registered modules, in addition
      * order, to given handler.
      */
-    public B withModules(Consumer<Module> handler) {
+    public B withModules(Consumer<com.fasterxml.jackson.databind.Module> handler) {
         if (_modules != null) {
             _modules.values().forEach(handler);
         }

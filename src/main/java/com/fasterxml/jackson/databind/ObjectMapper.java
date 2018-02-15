@@ -166,7 +166,11 @@ public class ObjectMapper
 
         @Override
         public ObjectMapper build() {
-            return new ObjectMapper(this);
+            ObjectMapper m = new ObjectMapper(this);
+            if (_modules != null) {
+                m.registerModules(_modules.values());
+            }
+            return m;
         }
     }
 
@@ -658,15 +662,7 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * Convenience method for registering specified modules in order;
-     * functionally equivalent to:
-     *<pre>
-     *   for (Module module : modules) {
-     *      registerModule(module);
-     *   }
-     *</pre>
-     */
+    @Deprecated
     public ObjectMapper registerModules(Module... modules)
     {
         for (Module module : modules) {
@@ -675,15 +671,7 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * Convenience method for registering specified modules in order;
-     * functionally equivalent to:
-     *<pre>
-     *   for (Module module : modules) {
-     *      registerModule(module);
-     *   }
-     *</pre>
-     */
+    @Deprecated
     public ObjectMapper registerModules(Iterable<? extends Module> modules)
     {
         for (Module module : modules) {
@@ -691,25 +679,11 @@ public class ObjectMapper
         }
         return this;
     }
-    
-    /**
-     * Method for locating available methods, using JDK {@link ServiceLoader}
-     * facility, along with module-provided SPI.
-     *<p>
-     * Note that method does not do any caching, so calls should be considered
-     * potentially expensive.
-     */
+    @Deprecated
     public static List<Module> findModules() {
         return findModules(null);
     }
-
-    /**
-     * Method for locating available methods, using JDK {@link ServiceLoader}
-     * facility, along with module-provided SPI.
-     *<p>
-     * Note that method does not do any caching, so calls should be considered
-     * potentially expensive.
-     */
+    @Deprecated
     public static List<Module> findModules(ClassLoader classLoader)
     {
         ArrayList<Module> modules = new ArrayList<Module>();
@@ -734,17 +708,7 @@ public class ObjectMapper
             }
         });
     }
-
-    /**
-     * Convenience method that is functionally equivalent to:
-     *<code>
-     *   mapper.registerModules(mapper.findModules());
-     *</code>
-     *<p>
-     * As with {@link #findModules()}, no caching is done for modules, so care
-     * needs to be taken to either create and share a single mapper instance;
-     * or to cache introspected set of modules.
-     */
+    @Deprecated
     public ObjectMapper findAndRegisterModules() {
         return registerModules(findModules());
     }

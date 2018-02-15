@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
@@ -218,22 +219,24 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testSimpleEnumSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new SimpleEnumSerializer());
         // for fun, call "multi-module" registration
-        mapper.registerModules(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
     }
 
     public void testSimpleInterfaceSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new BaseSerializer());
         // and another variant here too
         List<SimpleModule> mods = Arrays.asList(mod);
-        mapper.registerModules(mods);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModules(mods)
+                .build();
         assertEquals(quote("Base:1"), mapper.writeValueAsString(new Impl1()));
         assertEquals(quote("Base:2"), mapper.writeValueAsString(new Impl2()));
     }
@@ -331,7 +334,7 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testAutoDiscovery() throws Exception
     {
-        List<?> mods = ObjectMapper.findModules();
+        List<?> mods = MapperBuilder.findModules();
         assertEquals(0, mods.size());
     }
 }

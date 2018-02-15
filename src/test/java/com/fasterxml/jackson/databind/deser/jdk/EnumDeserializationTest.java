@@ -428,7 +428,7 @@ public class EnumDeserializationTest
 
         // [databind#1690]: unless prevented
         final ObjectMapper mapper = ObjectMapper.builder()
-                .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+                .disable(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
                 .build();
         try {
             en = mapper.readValue(quote("1"), TestEnum.class);

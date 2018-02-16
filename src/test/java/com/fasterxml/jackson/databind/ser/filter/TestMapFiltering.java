@@ -263,10 +263,11 @@ public class TestMapFiltering extends BaseMapTest
     public void testMapViaTypeOverride() throws Exception
     {
         // basic Map<String,String> subclass:
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Map.class)
-            .setInclude(JsonInclude.Value.empty()
-                .withContentInclusion(JsonInclude.Include.NON_EMPTY));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(Map.class,
+                        o -> o.setInclude(JsonInclude.Value.empty()
+                                .withContentInclusion(JsonInclude.Include.NON_EMPTY)))
+                .build();
         assertEquals(aposToQuotes("{'a':'b'}"), mapper.writeValueAsString(
                 new StringMap497()
                     .add("foo", "")

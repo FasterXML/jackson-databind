@@ -417,10 +417,11 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    @SuppressWarnings("unchecked")
-    public static <M extends ObjectMapper, B extends MapperBuilder<M,B>> MapperBuilder<M,B> builder() {
+//    @SuppressWarnings("unchecked")
+//    public static <M extends ObjectMapper, B extends MapperBuilder<M,B>> MapperBuilder<M,B> builder() {
 //      public static <M extends ObjectMapper> MapperBuilder<> builder() {
-        return (MapperBuilder<M,B>) new ObjectMapper.Builder(new JsonFactory());
+    public static ObjectMapper.Builder builder() {
+        return new ObjectMapper.Builder(new JsonFactory());
     }
 
     public static ObjectMapper.Builder builder(TokenStreamFactory streamFactory) {
@@ -1089,6 +1090,7 @@ public class ObjectMapper
      * {@link java.util.Date} (possibly further overridden by per-property
      * annotations)
      */
+    @Deprecated
     public MutableConfigOverride configOverride(Class<?> type) {
         return _configOverrides.findOrCreateOverride(type);
     }

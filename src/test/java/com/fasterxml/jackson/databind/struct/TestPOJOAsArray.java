@@ -254,9 +254,10 @@ public class TestPOJOAsArray extends BaseMapTest
 
     public void testWithConfigOverrides() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(NonAnnotatedXY.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .withConfigOverride(NonAnnotatedXY.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY)))
+                .build();
         String json = mapper.writeValueAsString(new NonAnnotatedXY(2, 3));
         assertEquals("[2,3]", json);
 

@@ -118,8 +118,10 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(0, config.loc.b); // not passed, nor merge from original
 
         // but with type-overrides
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configOverride(AB.class).setMergeable(true);
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(AB.class,
+                        o -> o.setMergeable(true))
+                .build();
         config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged

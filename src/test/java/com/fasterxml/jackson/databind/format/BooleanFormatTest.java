@@ -56,9 +56,10 @@ public class BooleanFormatTest extends BaseMapTest
     {
         assertEquals(aposToQuotes("{'b':true}"),
                 MAPPER.writeValueAsString(new BooleanWrapper(true)));
-        ObjectMapper m = newObjectMapper();
-        m.configOverride(Boolean.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
+        ObjectMapper m = objectMapperBuilder()
+                .withConfigOverride(Boolean.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER)))
+                .build();
         assertEquals(aposToQuotes("{'b':1}"),
                 m.writeValueAsString(new BooleanWrapper(true)));
     }

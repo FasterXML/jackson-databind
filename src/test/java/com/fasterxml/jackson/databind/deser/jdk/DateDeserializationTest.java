@@ -747,9 +747,10 @@ public class DateDeserializationTest
         }
 
         // similarly with Date...
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(java.util.Date.class)
-            .setFormat(JsonFormat.Value.forLeniency(Boolean.FALSE));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(java.util.Date.class,
+                        o -> o.setFormat(JsonFormat.Value.forLeniency(Boolean.FALSE)))
+                .build();
         try {
             mapper.readValue(quote("2015-11-32"), java.util.Date.class);
             fail("Should not pass with invalid (with strict) date value");

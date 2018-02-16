@@ -516,7 +516,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Method for changing config overrides for specific type, through
      * callback to specific handler.
      */
-    public B withConfigOverrides(Class<?> forType,
+    public B withConfigOverride(Class<?> forType,
             Consumer<MutableConfigOverride> handler) {
         handler.accept(_configOverrides.findOrCreateOverride(forType));
         return _this();

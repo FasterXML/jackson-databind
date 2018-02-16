@@ -111,10 +111,11 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     // And allow config overrides too
     public void testCaseInsensitiveWithClassFormat() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Role.class)
-            .setFormat(JsonFormat.Value.empty()
-                    .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(Role.class,
+                        o -> o.setFormat(JsonFormat.Value.empty()
+                                .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)))
+                .build();
         Role role = mapper.readValue
                 (aposToQuotes("{'id':'12','name':'Foo'}"),
                         Role.class);

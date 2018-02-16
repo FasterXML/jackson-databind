@@ -5,8 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
+import com.fasterxml.jackson.databind.introspect.MixInResolver;
 
 public class TestMixinSerForMethods
     extends BaseMapTest
@@ -150,21 +149,23 @@ public class TestMixinSerForMethods
     // [databind#688]
     public void testCustomResolver() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setMixInResolver(new ClassIntrospector.MixInResolver() {
-            @Override
-            public Class<?> findMixInClassFor(Class<?> target) {
-                if (target == EmptyBean.class) {
-                    return MixInForSimple.class;
-                }
-                return null;
-            }
+        ObjectMapper mapper = ObjectMapper.builder()
+                .mixInOverrides(new MixInResolver() {
+                    @Override
+                    public Class<?> findMixInClassFor(Class<?> target) {
+                        if (target == EmptyBean.class) {
+                            return MixInForSimple.class;
+                        }
+                        return null;
+                    }
+        
+                    @Override
+                    public MixInResolver copy() {
+                        return this;
+                    }
+                })
+                .build();
 
-            @Override
-            public MixInResolver copy() {
-                return this;
-            }
-        });
         Map<String,Object> result = writeAndMap(mapper, new SimpleBean());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(42), result.get("x"));

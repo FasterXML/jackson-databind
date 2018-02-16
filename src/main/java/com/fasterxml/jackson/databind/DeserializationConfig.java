@@ -76,7 +76,7 @@ public final class DeserializationConfig
      * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
      */
     protected DeserializationConfig(DeserializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            MixInHandler mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
         super(src, mixins, rootNames, configOverrides);
@@ -91,7 +91,7 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
             int deserFeatures, int parserFeatures, int formatParserFeatures,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            MixInHandler mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
         super(b.baseSettings(), mapperFeatures,
@@ -189,7 +189,7 @@ public final class DeserializationConfig
         _formatParserFeatures = src._formatParserFeatures;
     }
 
-    protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins)
+    protected DeserializationConfig(DeserializationConfig src, MixInHandler mixins)
     {
         super(src, mixins);
         _deserFeatures = src._deserFeatures;

@@ -14,7 +14,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
+import com.fasterxml.jackson.databind.introspect.MixInResolver;
+import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
@@ -42,9 +43,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected final static BaseSettings DEFAULT_BASE_SETTINGS = BaseSettings.std();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic settings
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected BaseSettings _baseSettings;
@@ -54,12 +55,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     protected final TokenStreamFactory _streamFactory;
 
+    /**
+     * Various configuration setting overrides, both global base settings
+     * and per-class overrides.
+     */
     protected final ConfigOverrides _configOverrides;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Modules
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -68,9 +73,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected Map<Object, com.fasterxml.jackson.databind.Module> _modules;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Handlers, introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -82,10 +87,15 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected SubtypeResolver _subtypeResolver;
 
+    /**
+     * Handler responsible for resolving mix-in classes registered, if any.
+     */
+    protected MixInHandler _mixInHandler;
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factories for serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected SerializerFactory _serializerFactory;
@@ -100,9 +110,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected PrettyPrinter _defaultPrettyPrinter;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factories for deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected DeserializerFactory _deserializerFactory;
@@ -118,9 +128,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected InjectableValues _injectableValues;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Feature flags: ser, deser
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -139,9 +149,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected int _deserFeatures;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Feature flags: generation, parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -165,9 +175,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected int _formatGeneratorFeatures;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected MapperBuilder(TokenStreamFactory streamFactory)
@@ -191,6 +201,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         _classIntrospector = null;
         _subtypeResolver = null;
+        _mixInHandler = null;
 
         _serializerFactory = BeanSerializerFactory.instance;
         _serializerProvider = null;
@@ -218,6 +229,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         _classIntrospector = base._classIntrospector;
         _subtypeResolver = base._subtypeResolver;
+        _mixInHandler = base._mixInHandler;
 
         _serializerFactory = base._serializerFactory;
         _serializerProvider = base._serializerProvider;
@@ -229,9 +241,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Build methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -239,7 +251,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public abstract M build();
 
-    public SerializationConfig buildSerializationConfig(SimpleMixInResolver mixins,
+    public SerializationConfig buildSerializationConfig(MixInHandler mixins,
             RootNameLookup rootNames)
     {
         return new SerializationConfig(this,
@@ -247,7 +259,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 mixins, rootNames, _configOverrides);
     }
 
-    public DeserializationConfig buildDeserializationConfig(SimpleMixInResolver mixins,
+    public DeserializationConfig buildDeserializationConfig(MixInHandler mixins,
             RootNameLookup rootNames)
     {
         return new DeserializationConfig(this,
@@ -256,9 +268,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors, general
-    /**********************************************************
+    /**********************************************************************
      */
 
     public BaseSettings baseSettings() {
@@ -306,10 +318,25 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return new StdSubtypeResolver();
     }
 
+    public MixInHandler mixInHandler() {
+        if (_mixInHandler == null) {
+            _mixInHandler = _defaultMixInHandler();
+        }
+        return _mixInHandler;
+    }
+
+    /**
+     * Overridable method for changing default {@link StdMixInResolver} prototype
+     * to use.
+     */
+    protected MixInHandler _defaultMixInHandler() {
+        return new MixInHandler(null);
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     public SerializerFactory serializerFactory() {
@@ -347,9 +374,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors, deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     public DeserializerFactory deserializerFactory() {
@@ -377,9 +404,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Changing features: mapper, ser, deser
-    /**********************************************************
+    /**********************************************************************
      */
 
     public B enable(MapperFeature... features) {
@@ -455,9 +482,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Changing features: parser, generator
-    /**********************************************************
+    /**********************************************************************
      */
 
     public B enable(JsonParser.Feature... features) {
@@ -507,9 +534,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Changing settings, config overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -737,10 +764,30 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /**
+     * Method that may be used to completely change mix-in handling by providing
+     * alternate {@link MixInHandler} implementation.
+     * Most of the time this is NOT the method you want to call, and rather are looking
+     * for {@link #mixInOverrides}.
+     */
+    public B mixInHandler(MixInHandler h) {
+        _mixInHandler = h;
+        return _this();
+    }
+
+    /**
+     * Method that allows defining "override" mix-in resolver: something that is checked first,
+     * before simple mix-in definitions.
+     */
+    public B mixInOverrides(MixInResolver r) {
+        _mixInHandler = mixInHandler().withOverrides(r);
+        return _this();
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Changing factories, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     public B serializerFactory(SerializerFactory f) {
@@ -772,9 +819,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Changing factories, deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     public B deserializerFactory(DeserializerFactory f) {
@@ -793,9 +840,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Changing settings, date/time
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -829,9 +876,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Changing settings, formatting
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -848,9 +895,48 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Mix-ins
+    /**********************************************************************
+     */
+
+    /**
+     * Method to use for defining mix-in annotations to use for augmenting
+     * annotations that processable (serializable / deserializable)
+     * classes have.
+     * This convenience method is equivalent to iterating over all entries
+     * and calling {@link #addMixIn} with `key` and `value` of each entry.
+     */
+    public B addMixIns(Map<Class<?>, Class<?>> sourceMixins)
+    {
+        mixInHandler().addLocalDefinitions(sourceMixins);
+        return _this();
+    }
+
+    /**
+     * Method to use for defining mix-in annotations to use for augmenting
+     * annotations that classes have, for purpose of configuration serialization
+     * and/or deserialization processing.
+     * Mixing in is done when introspecting class annotations and properties.
+     * Annotations from "mixin" class (and its supertypes)
+     * will <b>override</b>
+     * annotations that target classes (and their super-types) have.
+     *<p>
+     * Note that standard mixin handler implementations will only allow a single mix-in
+     * source class per target, so if there was a previous mix-in defined target it will
+     * be cleared. This also means that you can remove mix-in definition by specifying
+     * {@code mixinSource} of {@code null}
+     */
+    public B addMixIn(Class<?> target, Class<?> mixinSource)
+    {
+        mixInHandler().addLocalDefinition(target, mixinSource);
+        return _this();
+    }
+
+    /*
+    /**********************************************************************
     /* Other helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     // silly convenience cast method we need

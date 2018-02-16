@@ -78,15 +78,16 @@ public class TestMixinSerForFields
 
     public void testMultipleFieldMixIns() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         // ordering here shouldn't matter really...
         HashMap<Class<?>,Class<?>> mixins = new HashMap<Class<?>,Class<?>>();
         mixins.put(SubClass.class, MixIn.class);
         mixins.put(BaseClass.class, MixIn2.class);
-        mapper.setMixIns(mixins);
 
-        Map<String,Object> result;
-        result = writeAndMap(mapper, new SubClass("1", "2"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIns(mixins)
+                .build();
+
+        Map<String,Object> result = writeAndMap(mapper, new SubClass("1", "2"));
         assertEquals(1, result.size());
         // 'a' should be suppressed; 'b' mapped to 'banana'
         assertEquals("2", result.get("banana"));

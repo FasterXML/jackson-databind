@@ -159,7 +159,7 @@ public abstract class BaseTest
     }
     
     protected static ObjectMapper.Builder objectMapperBuilder() {
-        return ObjectMapper.builder();
+        return ObjectMapper.jsonBuilder();
     }
 
     /*

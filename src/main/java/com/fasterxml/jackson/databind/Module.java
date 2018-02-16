@@ -48,8 +48,7 @@ public abstract class Module
     /**
      * Method that returns an id that may be used to determine if two {@link Module}
      * instances are considered to be of same type, for purpose of preventing
-     * multiple registrations of "same" module
-     * (see {@link com.fasterxml.jackson.databind.MapperFeature#PREVENT_MULTIPLE_MODULE_REGISTRATIONS})
+     * multiple registrations of "same" module,
      *<p>
      * Default implementation returns value of class name ({@link Class#getName}).
      *

@@ -569,8 +569,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Method will add given module to be registered when mapper is built, possibly
      * replacing an earlier instance of the module (as specified by its
-     * {@link Module#getRegistrationId()}), if
-     * {@link MapperFeature#PREVENT_MULTIPLE_MODULE_REGISTRATIONS} is enabled.
+     * {@link Module#getRegistrationId()}).
+     * Actual registration occurs in addition order (considering last add to count,
+     * in case of re-registration for same id) when {@link #build()} is called.
      */
     public B addModule(com.fasterxml.jackson.databind.Module module)
     {

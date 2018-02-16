@@ -106,10 +106,11 @@ public class TestAutoDetect
         assertEquals(aposToQuotes("{'field':2,'value':3}"),
                 MAPPER.writeValueAsString(input));
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Feature1347SerBean.class)
-            .setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.GETTER,
-                            Visibility.NONE));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(Feature1347SerBean.class,
+                        o -> o.setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.GETTER,
+                            Visibility.NONE)))
+                .build();
         assertEquals(aposToQuotes("{'field':2}"),
                 mapper.writeValueAsString(input));
     }
@@ -129,10 +130,11 @@ public class TestAutoDetect
         }
 
         // but when instructed to ignore setter, should work
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Feature1347DeserBean.class)
-            .setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.SETTER,
-                        Visibility.NONE));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(Feature1347DeserBean.class,
+                        o -> o.setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.SETTER,
+                                Visibility.NONE)))
+                .build();
         Feature1347DeserBean result = mapper.readValue(JSON, Feature1347DeserBean.class);
         assertEquals(3, result.value);
     }

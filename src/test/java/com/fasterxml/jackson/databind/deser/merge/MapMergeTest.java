@@ -183,10 +183,11 @@ public class MapMergeTest extends BaseMapTest
 
     public void testDisabledMergeByType() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
         // disable merging for "untyped", that is, `Object.class`
-        mapper.configOverride(Object.class)
-            .setMergeable(false);
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(Object.class,
+                        o -> o.setMergeable(false))
+                .build();
 
         HashMap<String,Object> input = new HashMap<>();
         input.put("list", new ArrayList<>(Arrays.asList("a")));
@@ -199,10 +200,11 @@ public class MapMergeTest extends BaseMapTest
         // and for extra points, disable by default but ENABLE for type,
         // which should once again allow merging
 
-        mapper = newObjectMapper();
+        mapper = objectMapperBuilder()
+                .withConfigOverride(Object.class,
+                        o -> o.setMergeable(true))
+                .build();
         mapper.setDefaultMergeable(false);
-        mapper.configOverride(Object.class)
-            .setMergeable(true);
 
         input = new HashMap<>();
         input.put("list", new ArrayList<>(Arrays.asList("x")));

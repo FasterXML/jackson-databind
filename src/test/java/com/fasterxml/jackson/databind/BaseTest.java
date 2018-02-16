@@ -158,6 +158,10 @@ public abstract class BaseTest
         return new ObjectMapper();
     }
     
+    protected static ObjectMapper.Builder objectMapperBuilder() {
+        return ObjectMapper.builder();
+    }
+
     /*
     /**********************************************************
     /* Pass-through to remove need for static import

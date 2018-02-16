@@ -124,9 +124,10 @@ public class IgnorePropsForSerTest
 
     public void testIgnoreViaConfigOverride() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Point.class)
-            .setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("x"));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(Point.class,
+                        o -> o.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("x")))
+                .build();
         assertEquals("{\"y\":3}", mapper.writeValueAsString(new Point(2, 3)));
     }
 }

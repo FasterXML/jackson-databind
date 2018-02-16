@@ -83,9 +83,10 @@ public class MergeWithNullTest extends BaseMapTest
 
         // First: via specific type override
         // important! We'll specify for value type to be merged
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configOverride(AB.class)
-            .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(AB.class,
+                        o -> o.setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP)))
+                .build();
         config = mapper.readerForUpdating(new ConfigDefault(137, -3))
                 .readValue(aposToQuotes("{'loc':null}"));
         assertNotNull(config.loc);

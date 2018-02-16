@@ -41,20 +41,21 @@ public class TestDuplicateRegistration extends BaseMapTest
     public void testDuplicateRegistration() throws Exception
     {
         // by default, duplicate registration should be prevented
-        ObjectMapper mapper = new ObjectMapper();
         AtomicInteger counter = new AtomicInteger();
-        mapper.registerModule(new MyModule(counter, "id"));
-        mapper.registerModule(new MyModule(counter, "id"));
-        mapper.registerModule(new MyModule(counter, "id"));
+        /*ObjectMapper mapper =*/ ObjectMapper.builder()
+                .addModule(new MyModule(counter, "id"))
+                .addModule(new MyModule(counter, "id"))
+                .addModule(new MyModule(counter, "id"))
+                .build();
         assertEquals(1, counter.get());
 
-        // but may be allowed by changing setting
-        ObjectMapper mapper2 = ObjectMapper.builder()
-                .build();
+        // but may be allowed by using non-identical id
         AtomicInteger counter2 = new AtomicInteger();
-        mapper2.registerModule(new MyModule(counter2, "id1"));
-        mapper2.registerModule(new MyModule(counter2, "id2"));
-        mapper2.registerModule(new MyModule(counter2, "id3"));
+        /*ObjectMapper mapper2 =*/ ObjectMapper.builder()
+                .addModule(new MyModule(counter2, "id1"))
+                .addModule(new MyModule(counter2, "id2"))
+                .addModule(new MyModule(counter2, "id3"))
+                .build();
         assertEquals(3, counter2.get());
     }
 }

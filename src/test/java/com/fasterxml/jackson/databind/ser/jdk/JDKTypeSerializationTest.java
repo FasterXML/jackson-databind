@@ -95,9 +95,10 @@ public class JDKTypeSerializationTest
         InetAddress input = InetAddress.getByName("google.com");
         assertEquals(quote("google.com"), MAPPER.writeValueAsString(input));
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(InetAddress.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(InetAddress.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER)))
+                .build();
         String json = mapper.writeValueAsString(input);
         assertEquals(quote(input.getHostAddress()), json);
 

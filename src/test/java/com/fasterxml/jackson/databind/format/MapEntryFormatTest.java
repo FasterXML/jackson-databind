@@ -169,9 +169,10 @@ public class MapEntryFormatTest extends BaseMapTest
     // [databind#1895]
     public void testDefaultShapeOverride() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Map.Entry.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT));
+        ObjectMapper mapper = objectMapperBuilder()
+                .withConfigOverride(Map.Entry.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
+                .build();
         Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
         assertEquals(aposToQuotes("{'key':'foo','value':'bar'}"),
                 mapper.writeValueAsString(input));

@@ -166,8 +166,8 @@ public class AnnotationIntrospectorPair
     */
     
     @Override
-    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
-        VisibilityChecker<?> checker)
+    public VisibilityChecker findAutoDetectVisibility(AnnotatedClass ac,
+        VisibilityChecker checker)
     {
         /* Note: to have proper priorities, we must actually call delegatees
          * in reverse order:

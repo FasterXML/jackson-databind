@@ -79,11 +79,9 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
         assertEquals(JsonSetter.Value.empty(), config.getDefaultSetterInfo());
         assertNull(config.getDefaultMergeable());
-        VisibilityChecker<?> defaultVis = m.getVisibilityChecker();
-        assertEquals(VisibilityChecker.Std.class, defaultVis.getClass());
 
         // change
-        VisibilityChecker<?> customVis = VisibilityChecker.Std.defaultInstance()
+        VisibilityChecker customVis = VisibilityChecker.defaultInstance()
                 .withFieldVisibility(Visibility.ANY);
         m = ObjectMapper.builder()
                 .changeDefaultVisibility(vc -> customVis)

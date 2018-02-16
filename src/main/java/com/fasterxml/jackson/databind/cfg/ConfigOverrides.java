@@ -35,7 +35,7 @@ public class ConfigOverrides
 
     protected JsonSetter.Value _defaultSetterInfo;
 
-    protected VisibilityChecker<?> _visibilityChecker;
+    protected VisibilityChecker _visibilityChecker;
 
     protected Boolean _defaultMergeable;
 
@@ -49,7 +49,7 @@ public class ConfigOverrides
         this(null,
                 INCLUDE_ALL,
                 JsonSetter.Value.empty(),
-                VisibilityChecker.Std.defaultInstance(),
+                VisibilityChecker.defaultInstance(),
                 null
         );
     }
@@ -57,7 +57,7 @@ public class ConfigOverrides
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl,
             JsonSetter.Value defSetter,
-            VisibilityChecker<?> defVisibility,
+            VisibilityChecker defVisibility,
             Boolean defMergeable) {
         _overrides = overrides;
         _defaultInclusion = defIncl;
@@ -124,7 +124,7 @@ public class ConfigOverrides
         return _defaultMergeable;
     }
 
-    public VisibilityChecker<?> getDefaultVisibility() {
+    public VisibilityChecker getDefaultVisibility() {
         return _visibilityChecker;
     }
 
@@ -149,13 +149,13 @@ public class ConfigOverrides
         return this;
     }
 
-    public ConfigOverrides setDefaultVisibility(VisibilityChecker<?> v) {
+    public ConfigOverrides setDefaultVisibility(VisibilityChecker v) {
         _visibilityChecker = v;
         return this;
     }
 
     public ConfigOverrides setDefaultVisibility(JsonAutoDetect.Value vis) {
-        _visibilityChecker = VisibilityChecker.Std.construct(vis);
+        _visibilityChecker = VisibilityChecker.construct(vis);
         return this;
     }
 

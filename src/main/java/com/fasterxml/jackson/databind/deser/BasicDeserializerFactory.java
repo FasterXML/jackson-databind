@@ -320,7 +320,7 @@ public abstract class BasicDeserializerFactory
         
         // need to construct suitable visibility checker:
         final DeserializationConfig config = ctxt.getConfig();
-        VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
+        VisibilityChecker vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
                 beanDesc.getClassInfo());
 
         /* 24-Sep-2014, tatu: Tricky part first; need to merge resolved property information
@@ -418,7 +418,7 @@ index, owner, defs[index], propDef);
      */
 
     protected void _addConstructorCreators(DeserializationContext ctxt,
-            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
+            BeanDescription beanDesc, VisibilityChecker vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
             Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
@@ -605,7 +605,7 @@ nonAnnotatedParamIndex, ctor);
     }
 
     protected void _addFactoryCreators(DeserializationContext ctxt,
-            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
+            BeanDescription beanDesc, VisibilityChecker vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
             Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
@@ -917,7 +917,7 @@ nonAnnotatedParamIndex, ctor);
     }
 
     private void _checkImplicitlyNamedConstructors(DeserializationContext ctxt,
-            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
+            BeanDescription beanDesc, VisibilityChecker vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
             List<AnnotatedWithParams> implicitCtors) throws JsonMappingException
     {

@@ -272,8 +272,8 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
-        VisibilityChecker<?> checker)
+    public VisibilityChecker findAutoDetectVisibility(AnnotatedClass ac,
+        VisibilityChecker checker)
     {
         JsonAutoDetect ann = _findAnnotation(ac, JsonAutoDetect.class);
         if (ann == null) {

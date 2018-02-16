@@ -856,7 +856,7 @@ public class ObjectMapper
      * object used for determining whether given property element
      * (method, field, constructor) can be auto-detected or not.
      */
-    public VisibilityChecker<?> getVisibilityChecker() {
+    public VisibilityChecker getVisibilityChecker() {
         return _configOverrides.getDefaultVisibility();
     }
 

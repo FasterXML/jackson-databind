@@ -541,9 +541,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *    needs to return either checker as is, or a new instance created using one or more of
      *    {@code withVisibility} (and similar) calls.
      */
-    public B changeDefaultVisibility(Function<VisibilityChecker<?>,VisibilityChecker<?>> handler) {
-        VisibilityChecker<?> oldV = _configOverrides.getDefaultVisibility();
-        VisibilityChecker<?> newV = handler.apply(oldV);
+    public B changeDefaultVisibility(Function<VisibilityChecker,VisibilityChecker> handler) {
+        VisibilityChecker oldV = _configOverrides.getDefaultVisibility();
+        VisibilityChecker newV = handler.apply(oldV);
         if (newV != oldV) {
             Objects.requireNonNull(newV, "Can not assign null default VisibilityChecker");
             _configOverrides.setDefaultVisibility(newV);

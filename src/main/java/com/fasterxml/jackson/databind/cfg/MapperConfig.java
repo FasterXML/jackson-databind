@@ -447,7 +447,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * can further override active checker used (using
      * {@link JsonAutoDetect} annotation)
      */
-    public abstract VisibilityChecker<?> getDefaultVisibilityChecker();
+    public abstract VisibilityChecker getDefaultVisibilityChecker();
 
     /**
      * Accessor for object used for determining whether specific property elements
@@ -457,7 +457,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * then modified by possible class annotation (see {@link JsonAutoDetect})
      * and/or per-type config override (see {@link ConfigOverride#getVisibility()}).
      */
-    public abstract VisibilityChecker<?> getDefaultVisibilityChecker(Class<?> baseType,
+    public abstract VisibilityChecker getDefaultVisibilityChecker(Class<?> baseType,
             AnnotatedClass actualClass);
 
     /**

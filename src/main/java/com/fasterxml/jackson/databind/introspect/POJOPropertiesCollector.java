@@ -47,13 +47,10 @@ public class POJOPropertiesCollector
      */
     protected final AnnotatedClass _classDef;
 
-    protected final VisibilityChecker<?> _visibilityChecker;
+    protected final VisibilityChecker _visibilityChecker;
 
     protected final AnnotationIntrospector _annotationIntrospector;
 
-    /**
-     * @since 2.9
-     */
     protected final boolean _useAnnotations;
 
     /**

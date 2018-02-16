@@ -97,7 +97,7 @@ public class MultiArgConstructorTest extends BaseMapTest
     {
         final ObjectMapper mapper = ObjectMapper.builder()
                 .annotationIntrospector(new MyParamIntrospector())
-                .changeDefaultVisibility(vc -> VisibilityChecker.Std.construct
+                .changeDefaultVisibility(vc -> VisibilityChecker.construct
                         (JsonAutoDetect.Value.noOverrides()
                         .withCreatorVisibility(Visibility.NONE)))
                 .build();

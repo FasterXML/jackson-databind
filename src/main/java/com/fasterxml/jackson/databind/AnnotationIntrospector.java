@@ -281,10 +281,10 @@ public abstract class AnnotationIntrospector
      * (if no annotations are found), or build and return a derived instance (using
      * checker's build methods).
      */
-    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac, VisibilityChecker<?> checker) {
+    public VisibilityChecker findAutoDetectVisibility(AnnotatedClass ac, VisibilityChecker checker) {
         return checker;
     }
-    
+
     /*
     /**********************************************************
     /* Annotations for Polymorphic type handling

@@ -8,9 +8,9 @@ import com.fasterxml.jackson.core.Base64Variant;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
+import com.fasterxml.jackson.databind.introspect.MixInResolver;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
+import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -40,7 +40,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * Mix-in annotation mappings to use, if any: immutable,
      * cannot be changed once defined.
      */
-    protected final SimpleMixInResolver _mixIns;
+    protected final MixInHandler _mixIns;
 
     /**
      * Registered concrete subtypes that can be used instead of (or
@@ -98,7 +98,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected MapperConfigBase(BaseSettings base, int mapperFeatures,
             ClassIntrospector classIntrospector,
-            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
+            SubtypeResolver str, MixInHandler mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
         super(base, mapperFeatures);
@@ -114,7 +114,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            MixInHandler mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
         super(src);
@@ -208,7 +208,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = src._configOverrides;
     }
 
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins)
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, MixInHandler mixins)
     {
         super(src);
         _classIntrospector = src._classIntrospector;

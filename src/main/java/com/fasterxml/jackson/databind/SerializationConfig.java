@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.Instantiatable;
 
 import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
+import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
@@ -78,7 +78,7 @@ public final class SerializationConfig
      * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
      */
     protected SerializationConfig(SerializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            MixInHandler mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
         super(src, mixins, rootNames, configOverrides);
@@ -94,7 +94,7 @@ public final class SerializationConfig
      */
     public SerializationConfig(MapperBuilder<?,?> b,
             int mapperFeatures, int serFeatures, int genFeatures, int formatWriteFeatures,
-            SimpleMixInResolver mixins, RootNameLookup rootNames, ConfigOverrides configOverrides)
+            MixInHandler mixins, RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
         super(b.baseSettings(), mapperFeatures,
                 b.classIntrospector(), b.subtypeResolver(),
@@ -184,7 +184,7 @@ public final class SerializationConfig
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
-    protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins)
+    protected SerializationConfig(SerializationConfig src, MixInHandler mixins)
     {
         super(src, mixins);
         _serFeatures = src._serFeatures;

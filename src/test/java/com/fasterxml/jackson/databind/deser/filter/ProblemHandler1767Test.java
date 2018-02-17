@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 
 public class ProblemHandler1767Test extends BaseMapTest
 {
-    static class IntHandler
-            extends DeserializationProblemHandler
+    static class IntHandler extends DeserializationProblemHandler
     {
         @Override
         public Object handleWeirdStringValue(DeserializationContext ctxt,
@@ -35,11 +34,11 @@ public class ProblemHandler1767Test extends BaseMapTest
     }
 
     public void testPrimitivePropertyWithHandler() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.addHandler(new IntHandler());
+        final ObjectMapper mapper = objectMapperBuilder()
+                .addHandler(new IntHandler())
+                .build();
         TestBean result = mapper.readValue(aposToQuotes("{'a': 'not-a-number'}"), TestBean.class);
         assertNotNull(result);
         assertEquals(1, result.a);
     }
-    
 }

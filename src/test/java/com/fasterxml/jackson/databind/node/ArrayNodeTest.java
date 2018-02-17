@@ -94,7 +94,7 @@ public class ArrayNodeTest
 
     public void testDirectCreation2() throws IOException
     {
-        JsonNodeFactory f = objectMapper().getNodeFactory();
+        JsonNodeFactory f = objectMapper().nodeFactory();
         ArrayList<JsonNode> list = new ArrayList<>();
         list.add(f.booleanNode(true));
         list.add(f.textNode("foo"));
@@ -162,7 +162,7 @@ public class ArrayNodeTest
 
     public void testNullAdds()
     {
-        JsonNodeFactory f = objectMapper().getNodeFactory();
+        JsonNodeFactory f = objectMapper().nodeFactory();
         ArrayNode array = f.arrayNode(14);
 
         array.add((BigDecimal) null);
@@ -185,7 +185,7 @@ public class ArrayNodeTest
 
     public void testNullInserts()
     {
-        JsonNodeFactory f = objectMapper().getNodeFactory();
+        JsonNodeFactory f = objectMapper().nodeFactory();
         ArrayNode array = f.arrayNode(3);
 
         array.insert(0, (BigDecimal) null);

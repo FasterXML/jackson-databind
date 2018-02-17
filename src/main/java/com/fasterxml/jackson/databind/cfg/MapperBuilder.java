@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -176,6 +177,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
+    /* Misc other configuratoon
+    /**********************************************************************
+     */
+
+    /**
+     * Optional handlers that application may register to try to work-around
+     * various problem situations during deserialization
+     */
+    protected LinkedNode<DeserializationProblemHandler> _problemHandlers;
+    
+    /*
+    /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
@@ -210,6 +223,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _deserializerFactory = BeanDeserializerFactory.instance;
         _deserializationContext = null;
         _injectableValues = null;
+
+        _problemHandlers = null;
     }
 
     protected MapperBuilder(MapperBuilder<?,?> base)
@@ -238,6 +253,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _deserializerFactory = base._deserializerFactory;
         _deserializationContext = base._deserializationContext;
         _injectableValues = base._injectableValues;
+
+        _problemHandlers = base._problemHandlers;
     }
 
     /*
@@ -335,7 +352,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Accessors, serialization
+    /* Accessors, serialization factories, related
     /**********************************************************************
      */
 
@@ -375,7 +392,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Accessors, deserialization
+    /* Accessors, deserialization factories, related
     /**********************************************************************
      */
 
@@ -403,6 +420,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _injectableValues;
     }
 
+    public LinkedNode<DeserializationProblemHandler> deserializationProblemHandlers() {
+        return _problemHandlers;
+    }
+    
     /*
     /**********************************************************************
     /* Changing features: mapper, ser, deser
@@ -820,7 +841,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Changing factories, deserialization
+    /* Changing factories, related, deserialization
     /**********************************************************************
      */
 
@@ -839,6 +860,27 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /**
+     * Method used for adding a {@link DeserializationProblemHandler} for this
+     * builder, at the head of the list (meaning it has priority over handler
+     * registered earlier).
+     */
+    public B addHandler(DeserializationProblemHandler h) {
+        if (!LinkedNode.contains(_problemHandlers, h)) {
+            _problemHandlers = new LinkedNode<>(h, _problemHandlers);
+        }
+        return _this();
+    }
+
+    /**
+     * Method that may be used to remove all {@link DeserializationProblemHandler}s added
+     * to this builder (if any).
+     */
+    public B clearProblemHandlers() {
+        _problemHandlers = null;
+        return _this();
+    }
+    
     /*
     /**********************************************************************
     /* Changing settings, date/time
@@ -896,7 +938,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Mix-ins
+    /* Changing Mix-ins
     /**********************************************************************
      */
 

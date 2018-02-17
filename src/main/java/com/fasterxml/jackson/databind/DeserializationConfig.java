@@ -75,6 +75,7 @@ public final class DeserializationConfig
     /**
      * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
      */
+    /*
     protected DeserializationConfig(DeserializationConfig src,
             MixInHandler mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
@@ -85,6 +86,7 @@ public final class DeserializationConfig
         _parserFeatures = src._parserFeatures;
         _formatParserFeatures = src._formatParserFeatures;
     }
+*/
 
     /**
      * @since 3.0
@@ -98,7 +100,7 @@ public final class DeserializationConfig
                 b.classIntrospector(), b.subtypeResolver(),
                 mixins, rootNames, configOverrides);
         _deserFeatures = deserFeatures;
-        _problemHandlers = null;
+        _problemHandlers = b.deserializationProblemHandlers();
         _parserFeatures = parserFeatures;
         _formatParserFeatures = formatParserFeatures;
     }
@@ -464,9 +466,9 @@ public final class DeserializationConfig
     }    
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, deserialization-specific factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -476,11 +478,9 @@ public final class DeserializationConfig
     public DeserializationConfig withHandler(DeserializationProblemHandler h)
     {
         // Sanity check: let's prevent adding same handler multiple times
-        if (LinkedNode.contains(_problemHandlers, h)) {
-            return this;
-        }
-        return new DeserializationConfig(this,
-                new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers));
+        return LinkedNode.contains(_problemHandlers, h) ? this
+                : new DeserializationConfig(this,
+                        new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers));
     }
 
     /**
@@ -488,17 +488,15 @@ public final class DeserializationConfig
      * existing handler(s) with different one(s)
      */
     public DeserializationConfig withNoProblemHandlers() {
-        if (_problemHandlers == null) {
-            return this;
-        }
-        return new DeserializationConfig(this,
-                (LinkedNode<DeserializationProblemHandler>) null);
+        return (_problemHandlers == null) ? this
+                : new DeserializationConfig(this,
+                        (LinkedNode<DeserializationProblemHandler>) null);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Support for ObjectReadContext
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -516,9 +514,9 @@ public final class DeserializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* MapperConfig implementation/overrides: other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -573,9 +571,9 @@ public final class DeserializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -587,9 +585,9 @@ public final class DeserializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -612,26 +610,21 @@ public final class DeserializationConfig
         return (T) getClassIntrospector().forCreation(this, type, this);
     }
 
-    /**
-     * @since 2.0
-     */
     @SuppressWarnings("unchecked")
     public <T extends BeanDescription> T introspectForBuilder(JavaType type) {
         return (T) getClassIntrospector().forDeserializationWithBuilder(this, type, this);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Support for polymorphic type handling
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
      * Helper method that is needed to properly handle polymorphic referenced
      * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
      * or various "optional" types.
-     * 
-     * @since 2.4
      */
     public TypeDeserializer findTypeDeserializer(JavaType baseType)
         throws JsonMappingException

@@ -808,12 +808,7 @@ public class ObjectMapper
     }
 
     // For testing only:
-    public int mixInCount() {
-        return _mixIns.localSize();
-    }
-
-    // For testing only:
-    public MixInResolver mixInResolver() {
+    public MixInHandler mixInHandler() {
         return _mixIns;
     }
     
@@ -822,15 +817,6 @@ public class ObjectMapper
     /* Configuration, introspection
     /**********************************************************
      */
-
-    /**
-     * Method for accessing currently configured visibility checker;
-     * object used for determining whether given property element
-     * (method, field, constructor) can be auto-detected or not.
-     */
-    public VisibilityChecker getVisibilityChecker() {
-        return _configOverrides.getDefaultVisibility();
-    }
 
     /**
      * Method for accessing subtype resolver in use.
@@ -1080,13 +1066,7 @@ public class ObjectMapper
         return _typeFactory;
     }
 
-    /**
-     * Method that can be used to override {@link TypeFactory} instance
-     * used by this mapper.
-     *<p>
-     * Note: will also set {@link TypeFactory} that deserialization and
-     * serialization config objects use.
-     */
+    @Deprecated
     public ObjectMapper setTypeFactory(TypeFactory f)
     {
         _typeFactory = f;
@@ -1120,7 +1100,7 @@ public class ObjectMapper
      *   getDeserializationConfig().getNodeFactory()
      *</pre>
      */
-    public JsonNodeFactory getNodeFactory() {
+    public JsonNodeFactory nodeFactory() {
         return _deserializationConfig.getNodeFactory();
     }
 
@@ -1128,6 +1108,7 @@ public class ObjectMapper
      * Method for adding specified {@link DeserializationProblemHandler}
      * to be used for handling specific problems during deserialization.
      */
+    @Deprecated
     public ObjectMapper addHandler(DeserializationProblemHandler h) {
         _deserializationConfig = _deserializationConfig.withHandler(h);
         return this;
@@ -1629,7 +1610,7 @@ public class ObjectMapper
         DeserializationContext ctxt = createDeserializationContext(p);
         JsonNode n = (JsonNode) _readValue(ctxt, p, JSON_NODE_TYPE);
         if (n == null) {
-            n = getNodeFactory().nullNode();
+            n = nodeFactory().nullNode();
         }
         @SuppressWarnings("unchecked")
         T result = (T) n;
@@ -2276,8 +2257,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] src, int offset, int len, 
-                               Class<T> valueType)
+    public <T> T readValue(byte[] src, int offset, int len, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
@@ -2295,8 +2275,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(byte[] src, int offset, int len,
-                           TypeReference valueTypeRef)
+    public <T> T readValue(byte[] src, int offset, int len, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();

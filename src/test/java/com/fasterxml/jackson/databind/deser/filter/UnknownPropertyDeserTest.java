@@ -146,8 +146,9 @@ public class UnknownPropertyDeserTest
      */
     public void testUnknownHandlingIgnoreWithHandler() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
-        mapper.addHandler(new MyHandler());
+        ObjectMapper mapper = objectMapperBuilder()
+                .addHandler(new MyHandler())
+                .build();
         TestBean result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
         assertNotNull(result);
         assertEquals(1, result._a);
@@ -270,14 +271,16 @@ public class UnknownPropertyDeserTest
 
     public void testIssue987() throws Exception
     {
-        ObjectMapper jsonMapper = newObjectMapper();
-        jsonMapper.addHandler(new DeserializationProblemHandler() {
-            @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException, JsonProcessingException {
-                p.skipChildren();
-                return true;
-            }
-        });
+        ObjectMapper jsonMapper = objectMapperBuilder()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
+                            JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
+                        p.skipChildren();
+                        return true;
+                    }
+                })
+                .build();
 
         String input = "[{\"aProperty\":\"x\",\"unknown\":{\"unknown\":{}}}]";
         List<Bean987> deserializedList = jsonMapper.readValue(input,

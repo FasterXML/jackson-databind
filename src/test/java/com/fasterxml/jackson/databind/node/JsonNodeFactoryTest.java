@@ -11,7 +11,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
 
     public void testSimpleCreation()
     {
-        JsonNodeFactory f = MAPPER.getNodeFactory();
+        JsonNodeFactory f = MAPPER.nodeFactory();
         JsonNode n;
 
         n = f.numberNode((byte) 4);

@@ -328,7 +328,7 @@ public class SimpleModuleTest extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         // no real annotations, but nominally add ones from 'String' to 'Object', just for testing
         mapper.registerModule(new TestModule626(Object.class, String.class));
-        Class<?> found = mapper.mixInResolver().findMixInClassFor(Object.class);
+        Class<?> found = mapper.mixInHandler().findMixInClassFor(Object.class);
         assertEquals(String.class, found);
     }
 

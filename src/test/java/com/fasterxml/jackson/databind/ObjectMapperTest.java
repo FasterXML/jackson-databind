@@ -92,7 +92,6 @@ public class ObjectMapperTest extends BaseMapTest
         JsonSetter.Value customSetter = JsonSetter.Value.forValueNulls(Nulls.SKIP);
         m.setDefaultSetterInfo(customSetter);
         m.setDefaultMergeable(Boolean.TRUE);
-        assertSame(customVis, m.getVisibilityChecker());
     }
 
     /*
@@ -104,13 +103,13 @@ public class ObjectMapperTest extends BaseMapTest
     public void testProps()
     {
         // should have default factory
-        assertNotNull(MAPPER.getNodeFactory());
+        assertNotNull(MAPPER.nodeFactory());
         JsonNodeFactory nf = new JsonNodeFactory(true);
         ObjectMapper m = ObjectMapper.builder()
                 .nodeFactory(nf)
                 .build();
         assertNull(m.getInjectableValues());
-        assertSame(nf, m.getNodeFactory());
+        assertSame(nf, m.nodeFactory());
     }
 
     // Test to ensure that we can check property ordering defaults...

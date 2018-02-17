@@ -180,7 +180,7 @@ But let's look at a simple teaser to whet your appetite.
 JsonFactory f = mapper.getFactory(); // may alternatively construct directly too
 
 // First: write simple JSON output
-File jsonFile = new JsonFile("test.json");
+File jsonFile = new File("test.json");
 JsonGenerator g = f.createGenerator(jsonFile);
 // write JSON: { "message" : "Hello world!" }
 g.writeStartObject();

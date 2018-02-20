@@ -198,10 +198,11 @@ public class TestContextualSerialization extends BaseMapTest
     // (method, field) annotations.
     public void testMethodAnnotations() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         assertEquals("{\"value\":\"see:foobar\"}", mapper.writeValueAsString(new ContextualBean("foobar")));
     }
 
@@ -209,29 +210,32 @@ public class TestContextualSerialization extends BaseMapTest
     // for enclosing class.
     public void testClassAnnotations() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         assertEquals("{\"value\":\"Voila->xyz\"}", mapper.writeValueAsString(new BeanWithClassConfig("xyz")));
     }
 
     public void testWrappedBean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         assertEquals("{\"wrapped\":{\"value\":\"see:xyz\"}}", mapper.writeValueAsString(new ContextualBeanWrapper("xyz")));
     }
     
     // Serializer should get passed property context even if contained in an array.
     public void testMethodAnnotationInArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         ContextualArrayBean beans = new ContextualArrayBean("123");
         assertEquals("{\"beans\":[\"array->123\"]}", mapper.writeValueAsString(beans));
     }
@@ -239,10 +243,11 @@ public class TestContextualSerialization extends BaseMapTest
     // Serializer should get passed property context even if contained in a Collection.
     public void testMethodAnnotationInList() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         ContextualListBean beans = new ContextualListBean("abc");
         assertEquals("{\"beans\":[\"list->abc\"]}", mapper.writeValueAsString(beans));
     }
@@ -250,10 +255,11 @@ public class TestContextualSerialization extends BaseMapTest
     // Serializer should get passed property context even if contained in a Collection.
     public void testMethodAnnotationInMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         ContextualMapBean map = new ContextualMapBean();
         map.beans.put("first", "In Map");
         assertEquals("{\"beans\":{\"first\":\"map->In Map\"}}", mapper.writeValueAsString(map));

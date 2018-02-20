@@ -38,6 +38,8 @@ public class TestMixinMerging extends BaseMapTest
     // for [databind#515]
     public void testDisappearingMixins515() throws Exception
     {
+        SimpleModule module = new SimpleModule("Test");
+        module.setMixInAnnotation(Person.class, PersonMixin.class);        
         ObjectMapper mapper = ObjectMapper.builder()
                 .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
                 .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
@@ -45,11 +47,8 @@ public class TestMixinMerging extends BaseMapTest
                         .withVisibility(PropertyAccessor.FIELD, Visibility.NONE)
                         .withVisibility(PropertyAccessor.GETTER, Visibility.NONE)
                         .withVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE))
+                .addModule(module)
                 .build();
-        SimpleModule module = new SimpleModule("Test");
-        module.setMixInAnnotation(Person.class, PersonMixin.class);        
-        mapper.registerModule(module);
-
         assertEquals("{\"city\":\"Seattle\"}", mapper.writeValueAsString(new PersonImpl()));
     }
 }

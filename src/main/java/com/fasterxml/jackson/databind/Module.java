@@ -3,14 +3,9 @@ package com.fasterxml.jackson.databind;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
-
+import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
-import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.fasterxml.jackson.databind.deser.Deserializers;
-import com.fasterxml.jackson.databind.deser.KeyDeserializers;
-import com.fasterxml.jackson.databind.deser.ValueInstantiators;
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -107,7 +102,7 @@ public abstract class Module
 
         /**
          * Fallback access method that allows modules to refer to the
-         * {@link ObjectMapper} that provided this context.
+         * {@link MapperBuilder} that provided this context.
          * It should NOT be needed by most modules; and ideally should
          * not be used -- however, there may be cases where this may
          * be necessary due to various design constraints.
@@ -117,10 +112,11 @@ public abstract class Module
          * to allow access to new features in cases where Module API
          * has not yet been extended, or there are oversights.
          *<p>
-         * Return value is chosen to not leak dependency to {@link ObjectMapper};
-         * however, instance will always be of that type.
-         * This is why return value is declared generic, to allow caller to
-         * specify context to often avoid casting.
+         * Return value is chosen to force casting, to make caller aware that
+         * this is a fallback accessor, used only when everything else fails:
+         * type is, however, guaranteed to be {@link MapperBuilder} (and more
+         * specifally format-specific subtype that mapper constructed, in case
+         * format-specific access is needed).
          */
         public Object getOwner();
 
@@ -138,7 +134,7 @@ public abstract class Module
         public boolean isEnabled(MapperFeature f);
         public boolean isEnabled(DeserializationFeature f);
         public boolean isEnabled(SerializationFeature f);
-        public boolean isEnabled(JsonFactory.Feature f);
+        public boolean isEnabled(TokenStreamFactory.Feature f);
         public boolean isEnabled(JsonParser.Feature f);
         public boolean isEnabled(JsonGenerator.Feature f);
 
@@ -178,14 +174,14 @@ public abstract class Module
          * @param d Object that can be called to find deserializer for types supported
          *   by module (null returned for non-supported types)
          */
-        public void addDeserializers(Deserializers d);
+        public SetupContext addDeserializers(Deserializers d);
 
         /**
          * Method that module can use to register additional deserializers to use for
          * handling Map key values (which are separate from value deserializers because
          * they are always serialized from String values)
          */
-        public void addKeyDeserializers(KeyDeserializers s);
+        public SetupContext addKeyDeserializers(KeyDeserializers s);
         
         /**
          * Method that module can use to register additional serializers to use for
@@ -194,36 +190,44 @@ public abstract class Module
          * @param s Object that can be called to find serializer for types supported
          *   by module (null returned for non-supported types)
          */
-        public void addSerializers(Serializers s);
+        public SetupContext addSerializers(Serializers s);
 
         /**
          * Method that module can use to register additional serializers to use for
          * handling Map key values (which are separate from value serializers because
          * they must write <code>JsonToken.FIELD_NAME</code> instead of String value).
          */
-        public void addKeySerializers(Serializers s);
+        public SetupContext addKeySerializers(Serializers s);
 
         /*
-        /**********************************************************
-        /* Handler registration; other
-        /**********************************************************
+        /******************************************************************
+        /* Handler registration, annotation introspectors
+        /******************************************************************
          */
-        
-        /**
-         * Method that module can use to register additional modifier objects to
-         * customize configuration and construction of bean deserializers.
-         * 
-         * @param mod Modifier to register
-         */
-        public void addBeanDeserializerModifier(BeanDeserializerModifier mod);
 
         /**
-         * Method that module can use to register additional modifier objects to
-         * customize configuration and construction of bean serializers.
+         * Method for registering specified {@link AnnotationIntrospector} as the highest
+         * priority introspector (will be chained with existing introspector(s) which
+         * will be used as fallbacks for cases this introspector does not handle)
          * 
-         * @param mod Modifier to register
+         * @param ai Annotation introspector to register.
          */
-        public void addBeanSerializerModifier(BeanSerializerModifier mod);
+        public SetupContext insertAnnotationIntrospector(AnnotationIntrospector ai);
+
+        /**
+         * Method for registering specified {@link AnnotationIntrospector} as the lowest
+         * priority introspector, chained with existing introspector(s) and called
+         * as fallback for cases not otherwise handled.
+         * 
+         * @param ai Annotation introspector to register.
+         */
+        public SetupContext appendAnnotationIntrospector(AnnotationIntrospector ai);
+
+        /*
+        /******************************************************************
+        /* Type handling
+        /******************************************************************
+         */
 
         /**
          * Method that module can use to register additional
@@ -232,7 +236,7 @@ public abstract class Module
          * 
          * @param resolver Resolver to add.
          */
-        public void addAbstractTypeResolver(AbstractTypeResolver resolver);
+        public SetupContext addAbstractTypeResolver(AbstractTypeResolver resolver);
 
         /**
          * Method that module can use to register additional
@@ -241,7 +245,54 @@ public abstract class Module
          * 
          * @param modifier to add
          */
-        public void addTypeModifier(TypeModifier modifier);
+        public SetupContext addTypeModifier(TypeModifier modifier);
+
+        /**
+         * Method for registering specified classes as subtypes (of supertype(s)
+         * they have)
+         */
+        public SetupContext registerSubtypes(Class<?>... subtypes);
+
+        /**
+         * Method for registering specified classes as subtypes (of supertype(s)
+         * they have), using specified type names.
+         */
+        public SetupContext registerSubtypes(NamedType... subtypes);
+
+        /**
+         * Method for registering specified classes as subtypes (of supertype(s)
+         * they have)
+         */
+        public SetupContext registerSubtypes(Collection<Class<?>> subtypes);
+        
+        /*
+        /******************************************************************
+        /* Handler registration, other
+        /******************************************************************
+         */
+
+        /**
+         * Add a deserialization problem handler
+         *
+         * @param handler The deserialization problem handler
+         */
+        public SetupContext addHandler(DeserializationProblemHandler handler);
+
+        /**
+         * Method that module can use to register additional modifier objects to
+         * customize configuration and construction of bean deserializers.
+         * 
+         * @param mod Modifier to register
+         */
+        public SetupContext addDeserializerModifier(BeanDeserializerModifier mod);
+
+        /**
+         * Method that module can use to register additional modifier objects to
+         * customize configuration and construction of bean serializers.
+         * 
+         * @param mod Modifier to register
+         */
+        public SetupContext addSerializerModifier(BeanSerializerModifier mod);
 
         /**
          * Method that module can use to register additional {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s,
@@ -251,44 +302,8 @@ public abstract class Module
          * @param instantiators Object that can provide {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s for
          *    constructing POJO values during deserialization
          */
-        public void addValueInstantiators(ValueInstantiators instantiators);
+        public SetupContext addValueInstantiators(ValueInstantiators instantiators);
 
-        /**
-         * Method for registering specified {@link AnnotationIntrospector} as the highest
-         * priority introspector (will be chained with existing introspector(s) which
-         * will be used as fallbacks for cases this introspector does not handle)
-         * 
-         * @param ai Annotation introspector to register.
-         */
-        public void insertAnnotationIntrospector(AnnotationIntrospector ai);
-
-        /**
-         * Method for registering specified {@link AnnotationIntrospector} as the lowest
-         * priority introspector, chained with existing introspector(s) and called
-         * as fallback for cases not otherwise handled.
-         * 
-         * @param ai Annotation introspector to register.
-         */
-        public void appendAnnotationIntrospector(AnnotationIntrospector ai);
-
-        /**
-         * Method for registering specified classes as subtypes (of supertype(s)
-         * they have)
-         */
-        public void registerSubtypes(Class<?>... subtypes);
-
-        /**
-         * Method for registering specified classes as subtypes (of supertype(s)
-         * they have), using specified type names.
-         */
-        public void registerSubtypes(NamedType... subtypes);
-
-        /**
-         * Method for registering specified classes as subtypes (of supertype(s)
-         * they have)
-         */
-        public void registerSubtypes(Collection<Class<?>> subtypes);
-        
         /**
          * Method used for defining mix-in annotations to use for augmenting
          * specified class or interface.
@@ -307,13 +322,6 @@ public abstract class Module
          * @param mixinSource Class (or interface) whose annotations are to
          *   be "added" to target's annotations, overriding as necessary
          */
-        public void setMixInAnnotations(Class<?> target, Class<?> mixinSource);
-
-        /**
-         * Add a deserialization problem handler
-         *
-         * @param handler The deserialization problem handler
-         */
-        public void addDeserializationProblemHandler(DeserializationProblemHandler handler);
+        public SetupContext setMixIn(Class<?> target, Class<?> mixinSource);
     }
 }

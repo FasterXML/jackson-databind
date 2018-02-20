@@ -53,10 +53,11 @@ public class BeanSerializerModifier1612Test extends BaseMapTest
     {
         SimpleModule mod = new SimpleModule();
         mod.setSerializerModifier(new Modifier1612());
-        ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         try {
-            objectMapper.writeValueAsString(new Bean1612(0, 1, 2d));
+            mapper.writeValueAsString(new Bean1612(0, 1, 2d));
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Failed to construct BeanSerializer");

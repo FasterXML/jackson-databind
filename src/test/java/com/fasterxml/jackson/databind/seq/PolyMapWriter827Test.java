@@ -32,12 +32,11 @@ public class PolyMapWriter827Test extends BaseMapTest
 
     public void testPolyCustomKeySerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("keySerializerModule")
+                        .addKeySerializer(CustomKey.class, new CustomKeySerializer()))
+                .build();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-
-        mapper.registerModule(new SimpleModule("keySerializerModule")
-            .addKeySerializer(CustomKey.class, new CustomKeySerializer()));
-
         Map<CustomKey, String> map = new HashMap<CustomKey, String>();
         CustomKey key = new CustomKey();
         key.a = "foo";

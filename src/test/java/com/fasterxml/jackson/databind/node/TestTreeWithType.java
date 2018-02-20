@@ -108,19 +108,17 @@ public class TestTreeWithType extends BaseMapTest
 
     public void testIssue353() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-
+        SimpleModule testModule = new SimpleModule("MyModule", new Version(1, 0, 0, null, "TEST", "TEST"));
+        testModule.addDeserializer(SavedCookie.class, new SavedCookieDeserializer());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(testModule)
+                .build();
         mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        SavedCookie savedCookie = new SavedCookie("key", "v");
+        String json = mapper.writeValueAsString(savedCookie);
+        SavedCookie out = mapper.readerFor(SavedCookie.class).readValue(json);
 
-         SimpleModule testModule = new SimpleModule("MyModule", new Version(1, 0, 0, null, "TEST", "TEST"));
-         testModule.addDeserializer(SavedCookie.class, new SavedCookieDeserializer());
-         mapper.registerModule(testModule);
-
-         SavedCookie savedCookie = new SavedCookie("key", "v");
-         String json = mapper.writeValueAsString(savedCookie);
-         SavedCookie out = mapper.readerFor(SavedCookie.class).readValue(json);
-
-         assertEquals("key", out.name);
-         assertEquals("v", out.value);
+        assertEquals("key", out.name);
+        assertEquals("v", out.value);
     }
 }

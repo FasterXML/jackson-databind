@@ -218,8 +218,8 @@ public class TestTypeModifiers extends BaseMapTest
 
     private final ObjectMapper MAPPER_WITH_MODIFIER = ObjectMapper.builder()
             .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
-            .build()
-            .registerModule(new ModifierModule());
+            .addModule(new ModifierModule())
+            .build();
 
     /**
      * Basic test for ensuring that we can get "xxx-like" types recognized.

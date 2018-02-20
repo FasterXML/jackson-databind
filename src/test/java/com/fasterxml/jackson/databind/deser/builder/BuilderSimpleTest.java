@@ -391,9 +391,10 @@ public class BuilderSimpleTest extends BaseMapTest
 
     public void testPOJOConfigResolution1557() throws Exception
     {
-        final String json = "{\"value\":1}";
-        MAPPER.registerModule(new NopModule1557());
-        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new NopModule1557())
+                .build();
+        ValueFoo value = mapper.readValue("{\"value\":1}", ValueFoo.class);
         assertEquals(1, value.value);
     }
 }

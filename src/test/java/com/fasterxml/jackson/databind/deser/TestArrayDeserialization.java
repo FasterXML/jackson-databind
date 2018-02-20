@@ -573,10 +573,11 @@ public class TestArrayDeserialization
 
     public void testCustomDeserializers() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule testModule = new SimpleModule("test", Version.unknownVersion());
         testModule.addDeserializer(NonDeserializable[].class, new CustomNonDeserArrayDeserializer());
-        mapper.registerModule(testModule);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(testModule)
+                .build();
         
         NonDeserializable[] result = mapper.readValue("[\"a\"]", NonDeserializable[].class);
         assertNotNull(result);

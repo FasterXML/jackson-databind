@@ -1561,8 +1561,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * and can not be used to construct value of specified type (usually POJO).
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleWeirdNativeValue} should be called which will call this method
-     *
-     * @since 2.9
      */
     public JsonMappingException weirdNativeValueException(Object value, Class<?> instClass)
     {
@@ -1616,9 +1614,6 @@ trailingToken, ClassUtil.nameOf(targetType)
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 
-    /**
-     * @since 2.9
-     */
     public JsonMappingException missingTypeIdException(JavaType baseType,
             String extraDesc) {
         String msg = String.format("Missing type id when trying to resolve subtype of %s",
@@ -1637,11 +1632,9 @@ trailingToken, ClassUtil.nameOf(targetType)
         if (_dateFormat != null) {
             return _dateFormat;
         }
-        /* 24-Feb-2012, tatu: At this point, all timezone configuration
-         *    should have occurred, with respect to default dateformat
-         *    and timezone configuration. But we still better clone
-         *    an instance as formatters may be stateful.
-         */
+        // 24-Feb-2012, tatu: At this point, all timezone configuration should have
+        // occurred, with respect to default date format and time zone configuration. 
+        // But we still better clone an instance as formatters may be stateful.
         DateFormat df = _config.getDateFormat();
         _dateFormat = df = (DateFormat) df.clone();
         return df;

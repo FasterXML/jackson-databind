@@ -162,7 +162,7 @@ public class SimpleModuleTest extends BaseMapTest
 
         @Override
         public void setupModule(SetupContext context) {
-            context.setMixInAnnotations(target, mixin);
+            context.setMixIn(target, mixin);
         }
     }
 
@@ -210,10 +210,11 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testSimpleBeanSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new CustomBeanSerializer());
-        mapper.registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         assertEquals(quote("abcde|5"), mapper.writeValueAsString(new CustomBean("abcde", 5)));
     }
 
@@ -249,10 +250,11 @@ public class SimpleModuleTest extends BaseMapTest
     
     public void testSimpleBeanDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
-        mapper.registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         CustomBean bean = mapper.readValue(quote("xyz|3"), CustomBean.class);
         assertEquals("xyz", bean.str);
         assertEquals(3, bean.num);
@@ -260,10 +262,11 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testSimpleEnumDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addDeserializer(SimpleEnum.class, new SimpleEnumDeserializer());
-        mapper.registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         SimpleEnum result = mapper.readValue(quote("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
     }
@@ -280,17 +283,19 @@ public class SimpleModuleTest extends BaseMapTest
         mod2.setDeserializers(new SimpleDeserializers(desers));
         mod2.addSerializer(CustomBean.class, new CustomBeanSerializer());
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(mod1);
-        mapper.registerModule(mod2);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod1)
+                .addModule(mod2)
+                .build();
         assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
         SimpleEnum result = mapper.readValue(quote("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
 
         // also let's try it with different order of registration, just in case
-        mapper = new ObjectMapper();
-        mapper.registerModule(mod2);
-        mapper.registerModule(mod1);
+        mapper = ObjectMapper.builder()
+                .addModule(mod2)
+                .addModule(mod1)
+                .build();
         assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
         result = mapper.readValue(quote("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
@@ -306,8 +311,9 @@ public class SimpleModuleTest extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.setMixInAnnotation(MixableBean.class, MixInForOrder.class);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         Map<String,Object> props = this.writeAndMap(mapper, new MixableBean());
         assertEquals(3, props.size());
         assertEquals(Integer.valueOf(3), props.get("c"));
@@ -318,16 +324,20 @@ public class SimpleModuleTest extends BaseMapTest
     public void testAccessToMapper() throws Exception
     {
         ContextVerifierModule module = new ContextVerifierModule();        
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(module);
+        // 19-Feb-2018: Will actually fail soon
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
+        assertNotNull(mapper);
     }
 
     // [databind#626]
     public void testMixIns626() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // no real annotations, but nominally add ones from 'String' to 'Object', just for testing
-        mapper.registerModule(new TestModule626(Object.class, String.class));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new TestModule626(Object.class, String.class))
+                .build();
         Class<?> found = mapper.mixInHandler().findMixInClassFor(Object.class);
         assertEquals(String.class, found);
     }

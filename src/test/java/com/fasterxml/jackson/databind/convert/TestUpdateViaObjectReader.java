@@ -218,10 +218,11 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     // [databind#744]
     public void testIssue744() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(DataA.class, new DataADeserializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
 
         DataB db = new DataB();
         db.da.i = 11;

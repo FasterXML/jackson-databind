@@ -15,6 +15,21 @@ public abstract class SubtypeResolver
 {
     /*
     /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+
+    /**
+     * Method that has to create a new instance that contains
+     * same registration information as this instance, but is not
+     * linked to this instance.
+     *
+     * @since 3.0
+     */
+    public abstract SubtypeResolver copy();
+
+    /*
+    /**********************************************************
     /* Methods for registering external subtype definitions
     /**********************************************************
      */
@@ -29,7 +44,7 @@ public abstract class SubtypeResolver
     public abstract SubtypeResolver registerSubtypes(Class<?>... classes);
 
     public abstract SubtypeResolver registerSubtypes(Collection<Class<?>> subtypes);
-    
+
     /*
     /**********************************************************
     /* Subtype resolution

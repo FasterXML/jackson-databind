@@ -47,7 +47,7 @@ public class TestBeanDeserializer extends BaseMapTest
         {
             super.setupModule(context);
             if (modifier != null) {
-                context.addBeanDeserializerModifier(modifier);
+                context.addDeserializerModifier(modifier);
             }
         }
     }
@@ -135,7 +135,7 @@ public class TestBeanDeserializer extends BaseMapTest
         
         @Override
         public void setupModule(SetupContext context) {
-            context.addBeanDeserializerModifier(new Issue476DeserializerModifier());
+            context.addDeserializerModifier(new Issue476DeserializerModifier());
         }        
     }
 
@@ -220,7 +220,7 @@ public class TestBeanDeserializer extends BaseMapTest
 
         @Override
         public void setupModule(SetupContext context) {
-            context.addBeanDeserializerModifier(new Issue1912UseAddOrReplacePropertyDeserializerModifier());
+            context.addDeserializerModifier(new Issue1912UseAddOrReplacePropertyDeserializerModifier());
         }
     }
 
@@ -340,8 +340,9 @@ public class TestBeanDeserializer extends BaseMapTest
     }    
     public void testPropertyRemoval() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ModuleImpl(new RemovingModifier("a")));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new ModuleImpl(new RemovingModifier("a")))
+                .build();
         Bean bean = mapper.readValue("{\"b\":\"2\"}", Bean.class);
         assertEquals("2", bean.b);
         // and 'a' has its default value:
@@ -350,8 +351,9 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testDeserializerReplacement() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ModuleImpl(new ReplacingModifier(new BogusBeanDeserializer("foo", "bar"))));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new ModuleImpl(new ReplacingModifier(new BogusBeanDeserializer("foo", "bar"))))
+                .build();
         Bean bean = mapper.readValue("{\"a\":\"xyz\"}", Bean.class);
         // custom deserializer always produces instance like this:
         assertEquals("foo", bean.a);
@@ -362,8 +364,9 @@ public class TestBeanDeserializer extends BaseMapTest
     {
         final String JSON = "{\"value1\" : {\"name\" : \"fruit\", \"value\" : \"apple\"}, \"value2\" : {\"name\" : \"color\", \"value\" : \"red\"}}";
         
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new Issue476Module());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new Issue476Module())
+                .build();
         mapper.readValue(JSON, Issue476Bean.class);
 
         // there are 2 properties
@@ -391,9 +394,10 @@ public class TestBeanDeserializer extends BaseMapTest
     // [databind#120]
     public void testModifyArrayDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setDeserializerModifier(new ArrayDeserializerModifier()));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setDeserializerModifier(new ArrayDeserializerModifier()))
+                .build();
         Object[] result = mapper.readValue("[1,2]", Object[].class);
         assertEquals(1, result.length);
         assertEquals("foo", result[0]);
@@ -401,10 +405,10 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testModifyCollectionDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setDeserializerModifier(new CollectionDeserializerModifier())
-        );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setDeserializerModifier(new CollectionDeserializerModifier()))
+            .build();
         List<?> result = mapper.readValue("[1,2]", List.class);
         assertEquals(1, result.size());
         assertEquals("foo", result.get(0));
@@ -412,10 +416,10 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testModifyMapDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setDeserializerModifier(new MapDeserializerModifier())
-        );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setDeserializerModifier(new MapDeserializerModifier()))
+                .build();
         Map<?,?> result = mapper.readValue("{\"a\":1,\"b\":2}", Map.class);
         assertEquals(1, result.size());
         assertEquals("foo", result.get("a"));
@@ -423,20 +427,20 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testModifyEnumDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setDeserializerModifier(new EnumDeserializerModifier())
-        );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setDeserializerModifier(new EnumDeserializerModifier()))
+                .build();
         Object result = mapper.readValue(quote("B"), EnumABC.class);
         assertEquals("foo", result);
     }
 
     public void testModifyKeyDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setDeserializerModifier(new KeyDeserializerModifier())
-        );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setDeserializerModifier(new KeyDeserializerModifier()))
+                .build();
         Map<?,?> result = mapper.readValue("{\"a\":1}", Map.class);
         assertEquals(1, result.size());
         assertEquals("foo", result.entrySet().iterator().next().getKey());
@@ -448,9 +452,9 @@ public class TestBeanDeserializer extends BaseMapTest
      */
     public void testModifyStdScalarDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setDeserializerModifier(new BeanDeserializerModifier() {
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setDeserializerModifier(new BeanDeserializerModifier() {
                         @Override
                         public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
                                 BeanDescription beanDesc, JsonDeserializer<?> deser) {
@@ -459,14 +463,16 @@ public class TestBeanDeserializer extends BaseMapTest
                             }
                             return deser;
                         }
-            }));
+                        }))
+                .build();
         Object result = mapper.readValue(quote("abcDEF"), String.class);
         assertEquals("ABCDEF", result);
     }
 
     public void testAddOrReplacePropertyIsUsedOnDeserialization() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new Issue1912Module());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new Issue1912Module())
+                .build();
 
         Issue1912Bean result = mapper.readValue("{\"subBean\": {\"a\":\"foo\"}}", Issue1912Bean.class);
         assertEquals("foo_custom", result.subBean.a);

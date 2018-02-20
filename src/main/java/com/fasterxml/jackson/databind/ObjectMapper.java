@@ -443,7 +443,7 @@ public class ObjectMapper
     /* Versioned impl
     /**********************************************************
      */
-    
+
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
@@ -466,6 +466,7 @@ public class ObjectMapper
      * 
      * @param module Module to register
      */
+    @Deprecated
     public ObjectMapper registerModule(Module module)
     {
         // Let's ensure we have access to name and version information, 
@@ -479,7 +480,6 @@ public class ObjectMapper
         if (version == null) {
             throw new IllegalArgumentException("Module without defined version");
         }
-
         // And then call registration
         module.setupModule(new Module.SetupContext()
         {
@@ -550,96 +550,112 @@ public class ObjectMapper
             // // // Methods for registering handlers: deserializers
 
             @Override
-            public void addDeserializers(Deserializers d) {
+            public Module.SetupContext addDeserializers(Deserializers d) {
                 DeserializerFactory df = _deserializationContext._factory.withAdditionalDeserializers(d);
                 _deserializationContext = _deserializationContext.with(df);
+                return this;
             }
 
             @Override
-            public void addKeyDeserializers(KeyDeserializers d) {
-                DeserializerFactory df = _deserializationContext._factory.withAdditionalKeyDeserializers(d);
+            public Module.SetupContext addKeyDeserializers(KeyDeserializers kd) {
+                DeserializerFactory df = _deserializationContext._factory.withAdditionalKeyDeserializers(kd);
                 _deserializationContext = _deserializationContext.with(df);
+                return this;
             }
 
             @Override
-            public void addBeanDeserializerModifier(BeanDeserializerModifier modifier) {
+            public Module.SetupContext addDeserializerModifier(BeanDeserializerModifier modifier) {
                 DeserializerFactory df = _deserializationContext._factory.withDeserializerModifier(modifier);
                 _deserializationContext = _deserializationContext.with(df);
+                return this;
             }
             
             // // // Methods for registering handlers: serializers
             
             @Override
-            public void addSerializers(Serializers s) {
+            public Module.SetupContext addSerializers(Serializers s) {
                 _serializerFactory = _serializerFactory.withAdditionalSerializers(s);
+                return this;
             }
 
             @Override
-            public void addKeySerializers(Serializers s) {
+            public Module.SetupContext addKeySerializers(Serializers s) {
                 _serializerFactory = _serializerFactory.withAdditionalKeySerializers(s);
+                return this;
             }
             
             @Override
-            public void addBeanSerializerModifier(BeanSerializerModifier modifier) {
+            public Module.SetupContext addSerializerModifier(BeanSerializerModifier modifier) {
                 _serializerFactory = _serializerFactory.withSerializerModifier(modifier);
+                return this;
             }
 
             // // // Methods for registering handlers: other
             
             @Override
-            public void addAbstractTypeResolver(AbstractTypeResolver resolver) {
+            public Module.SetupContext addAbstractTypeResolver(AbstractTypeResolver resolver) {
                 DeserializerFactory df = _deserializationContext._factory.withAbstractTypeResolver(resolver);
                 _deserializationContext = _deserializationContext.with(df);
+                return this;
             }
 
             @Override
-            public void addTypeModifier(TypeModifier modifier) {
+            public Module.SetupContext addTypeModifier(TypeModifier modifier) {
                 TypeFactory f = _typeFactory;
                 f = f.withModifier(modifier);
                 setTypeFactory(f);
+                return this;
             }
 
             @Override
-            public void addValueInstantiators(ValueInstantiators instantiators) {
+            public Module.SetupContext addValueInstantiators(ValueInstantiators instantiators) {
                 DeserializerFactory df = _deserializationContext._factory.withValueInstantiators(instantiators);
                 _deserializationContext = _deserializationContext.with(df);
+                return this;
             }
 
             @Override
-            public void insertAnnotationIntrospector(AnnotationIntrospector ai) {
+            public Module.SetupContext insertAnnotationIntrospector(AnnotationIntrospector ai) {
                 _deserializationConfig = _deserializationConfig.withInsertedAnnotationIntrospector(ai);
                 _serializationConfig = _serializationConfig.withInsertedAnnotationIntrospector(ai);
+                return this;
             }
             
             @Override
-            public void appendAnnotationIntrospector(AnnotationIntrospector ai) {
+            public Module.SetupContext appendAnnotationIntrospector(AnnotationIntrospector ai) {
                 _deserializationConfig = _deserializationConfig.withAppendedAnnotationIntrospector(ai);
                 _serializationConfig = _serializationConfig.withAppendedAnnotationIntrospector(ai);
+                return this;
             }
 
             @Override
-            public void registerSubtypes(Class<?>... subtypes) {
+            public Module.SetupContext registerSubtypes(Class<?>... subtypes) {
                 ObjectMapper.this.registerSubtypes(subtypes);
+                return this;
             }
 
             @Override
-            public void registerSubtypes(NamedType... subtypes) {
+            public Module.SetupContext registerSubtypes(NamedType... subtypes) {
                 ObjectMapper.this.registerSubtypes(subtypes);
+                return this;
             }
 
             @Override
-            public void registerSubtypes(Collection<Class<?>> subtypes) {
+            public Module.SetupContext registerSubtypes(Collection<Class<?>> subtypes) {
                 ObjectMapper.this.registerSubtypes(subtypes);
+                return this;
             }
 
             @Override
-            public void setMixInAnnotations(Class<?> target, Class<?> mixinSource) {
+            public Module.SetupContext setMixIn(Class<?> target, Class<?> mixinSource) {
                 addMixIn(target, mixinSource);
+                return this;
             }
             
             @Override
-            public void addDeserializationProblemHandler(DeserializationProblemHandler handler) {
+            public Module.SetupContext addHandler(DeserializationProblemHandler handler) {
                 addHandler(handler);
+                return this;
             }
         });
         return this;
@@ -662,6 +678,7 @@ public class ObjectMapper
         }
         return this;
     }
+
     @Deprecated
     public static List<Module> findModules() {
         return findModules(null);
@@ -691,10 +708,12 @@ public class ObjectMapper
             }
         });
     }
+    /*
     @Deprecated
     public ObjectMapper findAndRegisterModules() {
         return registerModules(findModules());
     }
+    */
 
     /*
     /**********************************************************

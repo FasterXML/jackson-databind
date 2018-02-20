@@ -183,23 +183,25 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     // also works via modules
     public void testSubtypesViaModule() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.registerSubtypes(SubB.class, SubC.class, SubD.class);
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         PropertyBean result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
 
         // and as per [databind#1653]:
-        mapper = new ObjectMapper();
         module = new SimpleModule();
         List<Class<?>> l = new ArrayList<>();
         l.add(SubB.class);
         l.add(SubC.class);
         l.add(SubD.class);
         module.registerSubtypes(l);
-        mapper.registerModule(module);
+        mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
@@ -307,10 +309,11 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         }
 
         // but then succeed when we register default impl
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addAbstractTypeMapping(SuperTypeWithoutDefault.class, DefaultImpl505.class);
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         SuperTypeWithoutDefault bean = mapper.readValue(JSON, SuperTypeWithoutDefault.class);
         assertNotNull(bean);
         assertEquals(DefaultImpl505.class, bean.getClass());

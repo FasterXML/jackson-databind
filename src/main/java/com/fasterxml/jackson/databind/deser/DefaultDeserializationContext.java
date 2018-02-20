@@ -320,7 +320,7 @@ public abstract class DefaultDeserializationContext
 
         @Override
         public DefaultDeserializationContext with(DeserializerFactory factory) {
-            return new Impl(this, factory);
+            return (factory == this._factory) ? this : new Impl(this, factory);
         }
     }
 }

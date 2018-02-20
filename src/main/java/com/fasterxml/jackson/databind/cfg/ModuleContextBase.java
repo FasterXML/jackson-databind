@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collection;
+import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.core.*;
 
@@ -266,6 +267,16 @@ public class ModuleContextBase
         return this;
     }
 
+    @Override
+    public SetupContext overrideInjectableValues(UnaryOperator<InjectableValues> v) {
+        InjectableValues oldV = _builder.injectableValues();
+        InjectableValues newV = v.apply(oldV);
+        if (newV != oldV) {
+            _builder.injectableValues(newV);
+        }
+        return this;
+    }
+    
     @Override
     public SetupContext setMixIn(Class<?> target, Class<?> mixinSource) {
         _builder.addMixIn(target, mixinSource);

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.util.Collection;
+import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
@@ -86,7 +87,7 @@ public abstract class Module
         /* Simple accessors
         /**********************************************************
          */
-        
+
         /**
          * Method that returns version information about {@link ObjectMapper} 
          * that implements this context. Modules can use this to choose
@@ -160,17 +161,17 @@ public abstract class Module
          * annotations)
          */
         public MutableConfigOverride configOverride(Class<?> type);
-        
+
         /*
         /**********************************************************
-        /* Handler registration; serializers/deserializers
+        /* Handler registration; deserializers, related
         /**********************************************************
          */
         
         /**
          * Method that module can use to register additional deserializers to use for
          * handling types.
-         * 
+         *
          * @param d Object that can be called to find deserializer for types supported
          *   by module (null returned for non-supported types)
          */
@@ -184,9 +185,33 @@ public abstract class Module
         public SetupContext addKeyDeserializers(KeyDeserializers s);
         
         /**
+         * Method that module can use to register additional modifier objects to
+         * customize configuration and construction of bean deserializers.
+         *
+         * @param mod Modifier to register
+         */
+        public SetupContext addDeserializerModifier(BeanDeserializerModifier mod);
+
+        /**
+         * Method that module can use to register additional {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s,
+         * by adding {@link ValueInstantiators} object that gets called when 
+         * instantatiator is needed by a deserializer.
+         * 
+         * @param instantiators Object that can provide {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s for
+         *    constructing POJO values during deserialization
+         */
+        public SetupContext addValueInstantiators(ValueInstantiators instantiators);
+
+        /*
+        /**********************************************************
+        /* Handler registration; serializers, related
+        /**********************************************************
+         */
+
+        /**
          * Method that module can use to register additional serializers to use for
          * handling types.
-         * 
+         *
          * @param s Object that can be called to find serializer for types supported
          *   by module (null returned for non-supported types)
          */
@@ -198,6 +223,14 @@ public abstract class Module
          * they must write <code>JsonToken.FIELD_NAME</code> instead of String value).
          */
         public SetupContext addKeySerializers(Serializers s);
+
+        /**
+         * Method that module can use to register additional modifier objects to
+         * customize configuration and construction of bean serializers.
+         *
+         * @param mod Modifier to register
+         */
+        public SetupContext addSerializerModifier(BeanSerializerModifier mod);
 
         /*
         /******************************************************************
@@ -264,7 +297,7 @@ public abstract class Module
          * they have)
          */
         public SetupContext registerSubtypes(Collection<Class<?>> subtypes);
-        
+ 
         /*
         /******************************************************************
         /* Handler registration, other
@@ -279,30 +312,12 @@ public abstract class Module
         public SetupContext addHandler(DeserializationProblemHandler handler);
 
         /**
-         * Method that module can use to register additional modifier objects to
-         * customize configuration and construction of bean deserializers.
-         * 
-         * @param mod Modifier to register
+         * Replace default {@link InjectableValues} that have been configured to be
+         * used for mapper being built.
+         *
+         * @since 3.0
          */
-        public SetupContext addDeserializerModifier(BeanDeserializerModifier mod);
-
-        /**
-         * Method that module can use to register additional modifier objects to
-         * customize configuration and construction of bean serializers.
-         * 
-         * @param mod Modifier to register
-         */
-        public SetupContext addSerializerModifier(BeanSerializerModifier mod);
-
-        /**
-         * Method that module can use to register additional {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s,
-         * by adding {@link ValueInstantiators} object that gets called when 
-         * instantatiator is needed by a deserializer.
-         * 
-         * @param instantiators Object that can provide {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s for
-         *    constructing POJO values during deserialization
-         */
-        public SetupContext addValueInstantiators(ValueInstantiators instantiators);
+        public SetupContext overrideInjectableValues(UnaryOperator<InjectableValues> v);
 
         /**
          * Method used for defining mix-in annotations to use for augmenting

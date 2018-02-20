@@ -289,10 +289,10 @@ public class JsonValueTest
         assertEquals(quote("value"), MAPPER.writeValueAsString(INPUT));
 
         // but custom serializer should override it
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule()
-            .addSerializer(Bean838.class, new Bean838Serializer())
-            );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule()
+                        .addSerializer(Bean838.class, new Bean838Serializer()))
+                .build();
         assertEquals("42", mapper.writeValueAsString(INPUT));
     }
 }

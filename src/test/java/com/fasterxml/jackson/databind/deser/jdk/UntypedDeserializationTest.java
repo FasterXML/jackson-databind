@@ -236,8 +236,9 @@ public class UntypedDeserializationTest
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
         m.addDeserializer(Number.class, new CustomNumberDeserializer(13));
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
+        final ObjectMapper mapper = ObjectMapper.builder()
+            .addModule(m)
+            .build();
 
         Object ob = mapper.readValue("{\"a\":\"b\", \"nr\":1 }", Object.class);
         assertTrue(ob instanceof Map);
@@ -257,9 +258,9 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
-
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(m)
+                .build();
         // Also: since this is now non-vanilla variant, try more alternatives
         List<?> l = (List<?>) mapper.readValue("[ true, false, 7, 0.5, \"foo\"]", Object.class);
         assertEquals(5, l.size());
@@ -312,9 +313,9 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(List.class, new ListDeserializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(m)
+                .build();
         // And then list...
         Object ob = mapper.readValue("[1, 2, true]", Object.class);
         assertTrue(ob instanceof List<?>);
@@ -329,9 +330,9 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(Map.class, new YMapDeserializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(m)
+                .build();
         // And then list...
         Object ob = mapper.readValue("{\"a\":true}", Object.class);
         assertTrue(ob instanceof Map<?,?>);

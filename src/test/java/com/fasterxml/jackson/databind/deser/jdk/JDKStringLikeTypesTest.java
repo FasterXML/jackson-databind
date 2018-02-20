@@ -228,11 +228,11 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
 
         // and then directly, iff registered
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
-        mapper.registerModule(module);
-        
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
         assertNotNull(elem);
         assertEquals(StackTraceBean.NUM, elem.getLineNumber());

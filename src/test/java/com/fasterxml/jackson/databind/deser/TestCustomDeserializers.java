@@ -267,7 +267,7 @@ public class TestCustomDeserializers
         public void setupModule(SetupContext context)
         {
             super.setupModule(context);
-            context.addBeanDeserializerModifier(new BeanDeserializerModifier() {
+            context.addDeserializerModifier(new BeanDeserializerModifier() {
                 @Override
                 public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
                         BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -356,7 +356,6 @@ public class TestCustomDeserializers
     // [Issue#87]: delegating deserializer
     public void testDelegating() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(Immutable.class,
             new StdDelegatingDeserializer<Immutable>(
@@ -370,8 +369,9 @@ public class TestCustomDeserializers
                     }
                 }
                 ));
-
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         Immutable imm = mapper.readValue("{\"x\":3,\"y\":7}", Immutable.class);
         assertEquals(3, imm.x);
         assertEquals(7, imm.y);
@@ -380,7 +380,6 @@ public class TestCustomDeserializers
     // [databind#623]
     public void testJsonNodeDelegating() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(Immutable.class,
             new StdNodeBasedDeserializer<Immutable>(Immutable.class) {
@@ -391,7 +390,9 @@ public class TestCustomDeserializers
                     return new Immutable(x, y);
                 }
         });
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         Immutable imm = mapper.readValue("{\"x\":-10,\"y\":3}", Immutable.class);
         assertEquals(-10, imm.x);
         assertEquals(3, imm.y);
@@ -410,11 +411,12 @@ public class TestCustomDeserializers
     // [#337]: convenience methods for custom deserializers to use
     public void testContextReadValue() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(Bean375Outer.class, new Bean375OuterDeserializer());
         module.addDeserializer(Bean375Inner.class, new Bean375InnerDeserializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
 
         // First, without property; doubles up value:
         Bean375Outer outer = mapper.readValue("13", Bean375Outer.class);
@@ -438,9 +440,10 @@ public class TestCustomDeserializers
 
     public void testCustomStringDeser() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper().registerModule(
-                new SimpleModule().addDeserializer(String.class, new UCStringDeserializer())
-                );
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule()
+                        .addDeserializer(String.class, new UCStringDeserializer()))
+                .build();
         assertEquals("FOO", mapper.readValue(quote("foo"), String.class));
         StringWrapper sw = mapper.readValue("{\"str\":\"foo\"}", StringWrapper.class);
         assertNotNull(sw);
@@ -449,8 +452,9 @@ public class TestCustomDeserializers
 
     public void testDelegatingDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper().registerModule(
-                new DelegatingModuleImpl());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new DelegatingModuleImpl())
+                .build();
         String str = mapper.readValue(quote("foo"), String.class);
         assertEquals("MY:foo", str);
     }

@@ -173,13 +173,7 @@ public class EnumDeserializationTest
     public static class EnumModule extends SimpleModule {
         @Override
         public void setupModule(SetupContext context) {
-            context.setMixInAnnotations(AnEnum.class, LanguageCodeMixin.class);
-        }
-
-        public static ObjectMapper setupObjectMapper(ObjectMapper mapper) {
-            final EnumModule module = new EnumModule();
-            mapper.registerModule(module);
-            return mapper;
+            context.setMixIn(AnEnum.class, LanguageCodeMixin.class);
         }
     }
 
@@ -385,10 +379,11 @@ public class EnumDeserializationTest
 
     public void testGenericEnumDeserialization() throws Exception
     {
-       final ObjectMapper mapper = new ObjectMapper();
        SimpleModule module = new SimpleModule("foobar");
        module.addDeserializer(Enum.class, new LcEnumDeserializer());
-       mapper.registerModule(module);
+       final ObjectMapper mapper = ObjectMapper.builder()
+               .addModule(module)
+               .build();
        // not sure this is totally safe but...
        assertEquals(TestEnum.JACKSON, mapper.readValue(quote("jackson"), TestEnum.class));
     }
@@ -529,8 +524,9 @@ public class EnumDeserializationTest
     }
 
     public void testExceptionFromCustomEnumKeyDeserializer() throws Exception {
-        ObjectMapper mapper = newObjectMapper()
-                .registerModule(new EnumModule());
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new EnumModule())
+                .build();
         try {
             mapper.readValue("{\"TWO\": \"dumpling\"}",
                     new TypeReference<Map<AnEnum, String>>() {});

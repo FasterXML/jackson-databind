@@ -320,11 +320,12 @@ public class TestEnumSerialization
     public void testGenericEnumSerializer() throws Exception
     {
         // By default, serialize using name
-        ObjectMapper m = new ObjectMapper();
         SimpleModule module = new SimpleModule("foobar");
         module.addSerializer(Enum.class, new LowerCasingEnumSerializer());
-        m.registerModule(module);
-        assertEquals(quote("b"), m.writeValueAsString(TestEnum.B));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
+        assertEquals(quote("b"), mapper.writeValueAsString(TestEnum.B));
     }
 
     // [databind#594]

@@ -160,11 +160,11 @@ public class TestKeySerializers extends BaseMapTest
     public void testCustomForEnum() throws IOException
     {
         // cannot use shared mapper as we are registering a module
-        final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         String json = mapper.writeValueAsString(new ABCMapWrapper());
         assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
     }
@@ -189,12 +189,12 @@ public class TestKeySerializers extends BaseMapTest
         innerMap.put("one", "1");
         map.put(ABC.A, innerMap);
         outerMap.put(Outer.inner, map);
-        final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.setMixInAnnotation(ABC.class, ABCMixin.class);
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         JsonNode tree = mapper.convertValue(outerMap, JsonNode.class);
 
         JsonNode innerNode = tree.get("inner");
@@ -204,11 +204,11 @@ public class TestKeySerializers extends BaseMapTest
 
     // [databind#838]
     public void testUnWrappedMapWithDefaultType() throws Exception{
-        final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
         typer = typer.init(JsonTypeInfo.Id.NAME, null);
         typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
@@ -230,11 +230,10 @@ public class TestKeySerializers extends BaseMapTest
         final ObjectMapper mapper = ObjectMapper.builder()
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .addModule(mod)
                 .build()
-                .registerModule(mod)
                 .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
             ;
-
         Map<ABC,BAR<?>> stuff = new HashMap<ABC,BAR<?>>();
         stuff.put(ABC.B, new BAR<String>("bar"));
         String json = mapper.writerFor(new TypeReference<Map<ABC,BAR<?>>>() {})

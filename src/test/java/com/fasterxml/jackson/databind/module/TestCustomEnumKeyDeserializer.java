@@ -142,7 +142,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 
         @Override
         public void setupModule(SetupContext context) {
-            context.setMixInAnnotations(TestEnum.class, TestEnumMixin.class);
+            context.setMixIn(TestEnum.class, TestEnumMixin.class);
             SimpleSerializers keySerializers = new SimpleSerializers();
             keySerializers.addSerializer(new TestEnumKeySerializer());
             context.addKeySerializers(keySerializers);
@@ -171,9 +171,9 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         ObjectMapper plainObjectMapper = new ObjectMapper();
         JsonNode tree = plainObjectMapper.readTree(aposToQuotes("{'red' : [ 'a', 'b']}"));
 
-        ObjectMapper fancyObjectMapper = new ObjectMapper().registerModule(new TestEnumModule());
-
-        // this line is might throw with Jackson 2.6.2.
+        ObjectMapper fancyObjectMapper = ObjectMapper.builder()
+                .addModule(new TestEnumModule())
+                .build();
         Map<TestEnum, Set<String>> map = fancyObjectMapper.convertValue(tree,
                 new TypeReference<Map<TestEnum, Set<String>>>() { } );
         assertNotNull(map);
@@ -184,8 +184,9 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 //    public void testWithTree749() throws Exception
     public void withTree749() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper().registerModule(new TestEnumModule());
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new TestEnumModule())
+                .build();
         Map<KeyEnum, Object> inputMap = new LinkedHashMap<KeyEnum, Object>();
         Map<TestEnum, Map<String, String>> replacements = new LinkedHashMap<TestEnum, Map<String, String>>();
         Map<String, String> reps = new LinkedHashMap<String, String>();
@@ -213,8 +214,9 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
                 return SuperTypeEnum.valueOf(p.getText());
             }
         });
-        ObjectMapper mapper = new ObjectMapper()
-                .registerModule(simpleModule);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(simpleModule)
+                .build();
 
         SuperType superType = mapper.readValue("{\"someMap\": {\"FOO\": \"bar\"}}",
                 SuperType.class);
@@ -260,8 +262,9 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
                 };
             }
         });
-        ObjectMapper mapper = new ObjectMapper()
-                .registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
 
         // First, enum value as is
         KeyEnum key = mapper.readValue(quote(KeyEnum.replacements.name().toUpperCase()),

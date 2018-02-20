@@ -40,7 +40,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         {
             super.setupModule(context);
             if (modifier != null) {
-                context.addBeanSerializerModifier(modifier);
+                context.addSerializerModifier(modifier);
             }
         }
     }
@@ -256,62 +256,67 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testPropertyRemoval() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SerializerModifierModule(new RemovingModifier("a")));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SerializerModifierModule(new RemovingModifier("a")))
+                .build();
         Bean bean = new Bean();
         assertEquals("{\"b\":\"b\"}", mapper.writeValueAsString(bean));
     }
 
     public void testPropertyReorder() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SerializerModifierModule(new ReorderingModifier()));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SerializerModifierModule(new ReorderingModifier()))
+                .build();
         Bean bean = new Bean();
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", mapper.writeValueAsString(bean));
     }
 
     public void testBuilderReplacement() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SerializerModifierModule(new BuilderModifier(new BogusBeanSerializer(17))));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SerializerModifierModule(new BuilderModifier(new BogusBeanSerializer(17))))
+                .build();
         Bean bean = new Bean();
         assertEquals("17", mapper.writeValueAsString(bean));
     }    
     public void testSerializerReplacement() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SerializerModifierModule(new ReplacingModifier(new BogusBeanSerializer(123))));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SerializerModifierModule(new ReplacingModifier(new BogusBeanSerializer(123))))
+                .build();
         Bean bean = new Bean();
         assertEquals("123", mapper.writeValueAsString(bean));
     }
 
-    // for [JACKSON-670]
     public void testEmptyBean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test", Version.unknownVersion()) {
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test", Version.unknownVersion()) {
             @Override
             public void setupModule(SetupContext context)
             {
                 super.setupModule(context);
-                context.addBeanSerializerModifier(new EmptyBeanModifier());
+                context.addSerializerModifier(new EmptyBeanModifier());
             }
-        });
+                })
+                .build();
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"bogus\":\"foo\"}", json);
     }
 
     public void testEmptyBean539() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test", Version.unknownVersion()) {
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test", Version.unknownVersion()) {
             @Override
             public void setupModule(SetupContext context)
             {
                 super.setupModule(context);
-                context.addBeanSerializerModifier(new EmptyBeanModifier539());
+                context.addSerializerModifier(new EmptyBeanModifier539());
             }
-        });
+                })
+                .build();
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("42", json);
     }
@@ -320,41 +325,46 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testModifyArraySerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setSerializerModifier(new ArraySerializerModifier()));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setSerializerModifier(new ArraySerializerModifier()))
+                .build();
         assertEquals("123", mapper.writeValueAsString(new Integer[] { 1, 2 }));
     }
 
     public void testModifyCollectionSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setSerializerModifier(new CollectionSerializerModifier()));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setSerializerModifier(new CollectionSerializerModifier()))
+                .build();
         assertEquals("123", mapper.writeValueAsString(new ArrayList<Integer>()));
     }
 
     public void testModifyMapSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setSerializerModifier(new MapSerializerModifier()));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setSerializerModifier(new MapSerializerModifier()))
+                .build();
         assertEquals("123", mapper.writeValueAsString(new HashMap<String,String>()));
     }
 
     public void testModifyEnumSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setSerializerModifier(new EnumSerializerModifier()));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setSerializerModifier(new EnumSerializerModifier()))
+                .build();
         assertEquals("123", mapper.writeValueAsString(ABC.C));
     }
 
     public void testModifyKeySerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule("test")
-            .setSerializerModifier(new KeySerializerModifier()));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule("test")
+                        .setSerializerModifier(new KeySerializerModifier()))
+                .build();
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("x", 3);
         assertEquals("{\"foo\":3}", mapper.writeValueAsString(map));

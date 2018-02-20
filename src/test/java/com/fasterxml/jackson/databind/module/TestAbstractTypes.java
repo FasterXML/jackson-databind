@@ -46,23 +46,25 @@ public class TestAbstractTypes extends BaseMapTest
 
     public void testCollectionDefaulting() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         // let's ensure we get hierarchic mapping
         mod.addAbstractTypeMapping(Collection.class, List.class);
         mod.addAbstractTypeMapping(List.class, LinkedList.class);
-        mapper.registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         Collection<?> result = mapper.readValue("[]", Collection.class);
         assertEquals(LinkedList.class, result.getClass());
     }
 
     public void testMapDefaultingBasic() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         // default is HashMap, so:
         mod.addAbstractTypeMapping(Map.class, TreeMap.class);
-        mapper.registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         Map<?,?> result = mapper.readValue("{}", Map.class);
         assertEquals(TreeMap.class, result.getClass());
     }
@@ -70,14 +72,15 @@ public class TestAbstractTypes extends BaseMapTest
     // [databind#700]
     public void testDefaultingRecursive() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
 
         // defaults: LinkedHashMap, ArrayList
         mod.addAbstractTypeMapping(Map.class, TreeMap.class);
         mod.addAbstractTypeMapping(List.class, LinkedList.class);
 
-        mapper.registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         Object result;
 
         result = mapper.readValue("[ {} ]", Object.class);
@@ -98,11 +101,12 @@ public class TestAbstractTypes extends BaseMapTest
 
     public void testInterfaceDefaulting() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         // let's ensure we get hierarchic mapping
         mod.addAbstractTypeMapping(CharSequence.class, MyString.class);
-        mapper.registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         Object result = mapper.readValue(quote("abc"), CharSequence.class);
         assertEquals(MyString.class, result.getClass());
         assertEquals("abc", ((MyString) result).value);
@@ -110,8 +114,9 @@ public class TestAbstractTypes extends BaseMapTest
         // and ditto for POJOs
         mod = new SimpleModule();
         mod.addAbstractTypeMapping(Abstract.class, AbstractImpl.class);
-        mapper = new ObjectMapper()
-                .registerModule(mod);
+        mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         Abstract a = mapper.readValue("{}", Abstract.class);
         assertNotNull(a);
     }

@@ -48,15 +48,14 @@ public class TestExceptionsDuringWriting
     public void testCatchAndRethrow()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test-exceptions", Version.unknownVersion());
         module.addSerializer(Bean.class, new SerializerWithErrors());
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         try {
             StringWriter sw = new StringWriter();
-            /* And just to make things more interesting, let's create
-             * a nested data struct...
-             */
+            // And just to make things more interesting, let's create a nested data struct...
             Bean[] b = { new Bean() };
             List<Bean[]> l = new ArrayList<Bean[]>();
             l.add(b);

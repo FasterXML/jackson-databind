@@ -495,17 +495,17 @@ public class SimpleModule
             context.addValueInstantiators(_valueInstantiators);
         }
         if (_deserializerModifier != null) {
-            context.addBeanDeserializerModifier(_deserializerModifier);
+            context.addDeserializerModifier(_deserializerModifier);
         }
         if (_serializerModifier != null) {
-            context.addBeanSerializerModifier(_serializerModifier);
+            context.addSerializerModifier(_serializerModifier);
         }
         if (_subtypes != null && _subtypes.size() > 0) {
             context.registerSubtypes(_subtypes.toArray(new NamedType[_subtypes.size()]));
         }
         if (_mixins != null) {
             for (Map.Entry<Class<?>,Class<?>> entry : _mixins.entrySet()) {
-                context.setMixInAnnotations(entry.getKey(), entry.getValue());
+                context.setMixIn(entry.getKey(), entry.getValue());
             }
         }
     }

@@ -111,9 +111,9 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
     {
         Issue1756Module m = new Issue1756Module();
         m.addAbstractTypeMapping(Foobar.class, FoobarImpl.class);
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(m)
+                .build();
         final Foobar foobar = mapper.readValue(aposToQuotes("{'bar':'bar', 'foo':'foo'}"),
                 Foobar.class);
         assertNotNull(foobar);

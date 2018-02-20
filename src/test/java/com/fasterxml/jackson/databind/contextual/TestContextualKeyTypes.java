@@ -88,10 +88,11 @@ public class TestContextualKeyTypes extends BaseMapTest
 
     public void testSimpleKeySer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addKeySerializer(String.class, new ContextualKeySerializer("prefix"));
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         Map<String,Object> input = new HashMap<String,Object>();
         input.put("a", Integer.valueOf(3));
         String json = mapper.writerFor(TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, Object.class))
@@ -107,10 +108,11 @@ public class TestContextualKeyTypes extends BaseMapTest
 
     public void testSimpleKeyDeser() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addKeyDeserializer(String.class, new ContextualDeser("???"));
-        mapper.registerModule(module);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(module)
+                .build();
         MapBean result = mapper.readValue("{\"map\":{\"a\":3}}", MapBean.class);
         Map<String,Integer> map = result.map;
         assertNotNull(map);

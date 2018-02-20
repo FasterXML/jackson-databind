@@ -85,33 +85,35 @@ public class TestMixinDeserForCreators
 
     public void testForConstructor() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(BaseClassWithPrivateCtor.class, MixInForPrivate.class);
-        BaseClassWithPrivateCtor result = m.readValue("\"?\"", BaseClassWithPrivateCtor.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIn(BaseClassWithPrivateCtor.class, MixInForPrivate.class)
+                .build();
+        BaseClassWithPrivateCtor result = mapper.readValue("\"?\"", BaseClassWithPrivateCtor.class);
         assertEquals("?...", result._a);
     }
 
     public void testForFactoryAndCtor() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         BaseClass result;
 
         // First: test default behavior: should use constructor
-        result = m.readValue("\"string\"", BaseClass.class);
+        result = new ObjectMapper().readValue("\"string\"", BaseClass.class);
         assertEquals("string...", result._a);
 
         // Then with simple mix-in: should change to use the factory method
-        m = new ObjectMapper();
-        m.addMixIn(BaseClass.class, MixIn.class);
-        result = m.readValue("\"string\"", BaseClass.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIn(BaseClass.class, MixIn.class)
+                .build();
+        result = mapper.readValue("\"string\"", BaseClass.class);
         assertEquals("stringX", result._a);
     }
 
     public void testFactoryMixIn() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(StringWrapper.class, StringWrapperMixIn.class);
-        StringWrapper result = m.readValue("\"a\"", StringWrapper.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIn(StringWrapper.class, StringWrapperMixIn.class)
+                .build();
+        StringWrapper result = mapper.readValue("\"a\"", StringWrapper.class);
         assertEquals("a", result._value);
     }
 }

@@ -51,8 +51,9 @@ public class TestMixinDeserForClass
         /* Then with leaf-level mix-in; without (method) auto-detect, should
          * use field
          */
-        m = new ObjectMapper();
-        m.addMixIn(LeafClass.class, MixIn.class);
+        m = ObjectMapper.builder()
+                .addMixIn(LeafClass.class, MixIn.class)
+                .build();
         result = m.readValue("{\"a\":\"value\"}", LeafClass.class);
         assertEquals("value", result.a);
     }
@@ -62,8 +63,9 @@ public class TestMixinDeserForClass
      */
     public void testClassMixInsMidLevel() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(BaseClass.class, MixIn.class);
+        ObjectMapper m = ObjectMapper.builder()
+                .addMixIn(BaseClass.class, MixIn.class)
+                .build();
         {
             BaseClass result = m.readValue("{\"a\":\"value\"}", BaseClass.class);
             assertEquals("value", result.a);
@@ -81,8 +83,9 @@ public class TestMixinDeserForClass
      */
     public void testClassMixInsForObjectClass() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Object.class, MixIn.class);
+        ObjectMapper m = ObjectMapper.builder()
+                .addMixIn(Object.class, MixIn.class)
+                .build();
         // will be seen for BaseClass
         {
             BaseClass result = m.readValue("{\"a\":\"\"}", BaseClass.class);

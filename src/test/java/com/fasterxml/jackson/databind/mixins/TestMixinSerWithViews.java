@@ -176,8 +176,8 @@ public class TestMixinSerWithViews
         // Property SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION set to false
         ObjectMapper mapper = ObjectMapper.builder()
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .addMixIn(A.class, AMixInAnnotation.class)
                 .build();
-        mapper.addMixIn(A.class, AMixInAnnotation.class);
         String json = mapper.writerWithView(AView.class).writeValueAsString(a);
 
         assertTrue(json.indexOf("\"name\"") > 0);

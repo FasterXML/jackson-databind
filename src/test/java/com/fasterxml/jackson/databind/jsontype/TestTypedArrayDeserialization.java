@@ -100,11 +100,12 @@ public class TestTypedArrayDeserialization
 
     public void testLongArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // use class name, WRAPPER_OBJECT
-        m.addMixIn(long[].class, WrapperMixIn.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIn(long[].class, WrapperMixIn.class)
+                .build();
         String JSON = "{\""+long[].class.getName()+"\":[5, 6, 7]}";
-        long[] value = m.readValue(JSON, long[].class);
+        long[] value = mapper.readValue(JSON, long[].class);
         assertNotNull(value);
         assertEquals(3, value.length);
         assertArrayEquals(new long[] { 5L, 6L, 7L} , value);

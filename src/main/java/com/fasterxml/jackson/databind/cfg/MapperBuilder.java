@@ -5,7 +5,7 @@ import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -260,15 +260,53 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Build methods
+    /* Methods for actual build process
     /**********************************************************************
      */
 
     /**
      * Method to call to create an initialize actual mapper instance
      */
-    public abstract M build();
+    public M build() {
+        MapperBuilderState state = _constructState();
+        if (_modules != null) {
+            _registerModules(_modules.values());
+        }
+        return _constructMapper(state);
+    }
 
+    /**
+     * Method usually called during {@link #build}, to give modules change to
+     * actually make changes, via context we construct (usually by calling
+     * {@link #_constructModuleContext}).
+     */
+    public void _registerModules(Collection<? extends Module> modules) {
+        ModuleContextBase ctxt = _constructModuleContext();
+        for (Module module : _modules.values()) {
+            module.setupModule(ctxt);
+        }
+        ctxt.applyChanges();
+    }
+
+    /**
+     * Method usually called during {@link #build},
+     * after applying all changes, to construct actual typed mapper instance.
+     */
+    public abstract M _constructMapper(MapperBuilderState state);
+
+    public abstract ModuleContextBase _constructModuleContext();
+    
+    public MapperBuilderState _constructState() {
+        // !!! TBI
+        return null;
+    }
+
+    /*
+    /**********************************************************************
+    /* Secondary factory methods
+    /**********************************************************************
+     */
+    
     public SerializationConfig buildSerializationConfig(MixInHandler mixins,
             RootNameLookup rootNames)
     {
@@ -313,7 +351,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /* Accessors, general
     /**********************************************************************
      */
-    
+
     public BaseSettings baseSettings() {
         return _baseSettings;
     }
@@ -613,7 +651,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *    needs to return either checker as is, or a new instance created using one or more of
      *    {@code withVisibility} (and similar) calls.
      */
-    public B changeDefaultVisibility(Function<VisibilityChecker,VisibilityChecker> handler) {
+    public B changeDefaultVisibility(UnaryOperator<VisibilityChecker> handler) {
         VisibilityChecker oldV = _configOverrides.getDefaultVisibility();
         VisibilityChecker newV = handler.apply(oldV);
         if (newV != oldV) {
@@ -756,6 +794,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /* Changing factories/handlers, general
     /**********************************************************************
      */
+
+    public B baseSettings(BaseSettings b) {
+        _baseSettings = b;
+        return _this();
+    }
 
     /**
      * Method for replacing {@link AnnotationIntrospector} used by the

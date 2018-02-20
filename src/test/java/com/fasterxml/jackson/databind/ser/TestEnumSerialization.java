@@ -226,9 +226,10 @@ public class TestEnumSerialization
     public void testEnumsWithJsonValueUsingMixin() throws Exception
     {
         // can't share, as new mix-ins are added
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(TestEnum.class, ToStringMixin.class);
-        assertEquals("\"b\"", m.writeValueAsString(TestEnum.B));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIn(TestEnum.class, ToStringMixin.class)
+                .build();
+        assertEquals("\"b\"", mapper.writeValueAsString(TestEnum.B));
     }
 
     // [databind#601]
@@ -249,7 +250,6 @@ public class TestEnumSerialization
         assertEquals("\"foo\"", MAPPER.writeValueAsString(SerializableEnum.A));
     }
 
-    // [JACKSON-212]
     public void testToStringEnum() throws Exception
     {
         ObjectMapper m = ObjectMapper.builder()
@@ -316,7 +316,6 @@ public class TestEnumSerialization
         assertEquals(quote("V2"), MAPPER.writeValueAsString(NOT_OK2.V2));
     }
 
-    // [Issue#227]
     public void testGenericEnumSerializer() throws Exception
     {
         // By default, serialize using name

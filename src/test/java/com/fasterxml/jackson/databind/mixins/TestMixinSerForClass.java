@@ -78,16 +78,18 @@ public class TestMixinSerForClass
         assertEquals("abc", result.get("a"));
 
         // then with top-level override
-        mapper = new ObjectMapper();
-        mapper.addMixIn(LeafClass.class, MixIn.class);
+        mapper = ObjectMapper.builder()
+                .addMixIn(LeafClass.class, MixIn.class)
+                .build();
         result = writeAndMap(mapper, new LeafClass("abc"));
         assertEquals(2, result.size());
         assertEquals("abc", result.get("a"));
         assertEquals("c", result.get("c"));
 
         // mid-level override; should not have any effect
-        mapper = new ObjectMapper();
-        mapper.addMixIn(BaseClass.class, MixIn.class);
+        mapper = ObjectMapper.builder()
+                .addMixIn(BaseClass.class, MixIn.class)
+                .build();
         result = writeAndMap(mapper, new LeafClass("abc"));
         assertEquals(1, result.size());
         assertEquals("abc", result.get("a"));
@@ -107,8 +109,9 @@ public class TestMixinSerForClass
         assertEquals("c2", result.get("c"));
 
         // then with working mid-level override, which effectively suppresses 'a'
-        mapper = new ObjectMapper();
-        mapper.addMixIn(BaseClass.class, MixInAutoDetect.class);
+        mapper = ObjectMapper.builder()
+                .addMixIn(BaseClass.class, MixInAutoDetect.class)
+                .build();
         result = writeAndMap(mapper, bean);
         assertEquals(1, result.size());
         assertEquals("c2", result.get("c"));

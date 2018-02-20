@@ -902,6 +902,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B deserializerFactory(DeserializerFactory f) {
         _deserializerFactory = f;
+        // 19-Feb-2018, tatu: Hopefully not needed in future but is needed for now
+        if (_deserializationContext != null) {
+            _deserializationContext = _deserializationContext.with(f);
+        }
         return _this();
     }
 

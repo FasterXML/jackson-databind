@@ -48,8 +48,8 @@ public class TestTypeModifierNameResolution extends BaseMapTest
     {
         final ObjectMapper mapper = ObjectMapper.builder()
                 .typeFactory(TypeFactory.defaultInstance().withModifier(new CustomTypeModifier()))
+                .addMixIn(MyType.class, Mixin.class)
                 .build();
-        mapper.addMixIn(MyType.class, Mixin.class);
 
         MyType obj = new MyTypeImpl();
         obj.setData("something");

@@ -68,8 +68,9 @@ public class TestMixinSerForFields
         assertEquals("1", result.get("a"));
 
         // and then with simple mix-in
-        mapper = new ObjectMapper();
-        mapper.addMixIn(BaseClass.class, MixIn.class);
+        mapper = ObjectMapper.builder()
+                .addMixIn(BaseClass.class, MixIn.class)
+                .build();
         result = writeAndMap(mapper, bean);
         assertEquals(2, result.size());
         assertEquals("1", result.get("a"));

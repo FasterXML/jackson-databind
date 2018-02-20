@@ -216,9 +216,10 @@ public class TestMapSerialization extends BaseMapTest
     public void testNullJsonInTypedMap691() throws Exception {
         Map<String, String> map = new HashMap<String, String>();
         map.put("NULL", null);
-    
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Object.class, Mixin691.class);
+
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIn(Object.class, Mixin691.class)
+                .build();
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
     }

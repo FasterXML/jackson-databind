@@ -126,8 +126,9 @@ public class TestTypedDeserialization
     // Test inclusion using wrapper style
     public void testTypeAsWrapper() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithWrapper.class);
+        ObjectMapper m = ObjectMapper.builder()
+                .addMixIn(Animal.class, TypeWithWrapper.class)
+                .build();
         String JSON = "{\".TestTypedDeserialization$Dog\" : "
             +asJSONObjectValueString(m, "name", "Scooby", "boneCount", "6")+" }";
         Animal a = m.readValue(JSON, Animal.class);
@@ -141,8 +142,9 @@ public class TestTypedDeserialization
     // Test inclusion using 2-element array
     public void testTypeAsArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithArray.class);
+        ObjectMapper m = ObjectMapper.builder()
+                .addMixIn(Animal.class, TypeWithArray.class)
+                .build();
         // hmmh. Not good idea to rely on exact output, order may change. But...
         String JSON = "[\""+Dog.class.getName()+"\", "
             +asJSONObjectValueString(m, "name", "Martti", "boneCount", "11")+" ]";

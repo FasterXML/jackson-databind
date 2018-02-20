@@ -101,8 +101,9 @@ public class TestTypedSerialization
      */
     public void testTypeAsWrapper() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithWrapper.class);
+        ObjectMapper m = ObjectMapper.builder()
+                .addMixIn(Animal.class, TypeWithWrapper.class)
+                .build();
         Map<String,Object> result = writeAndMap(m, new Cat("Venla", "black"));
         // should get a wrapper; keyed by minimal class name ("Cat" here)
         assertEquals(1, result.size());
@@ -119,8 +120,9 @@ public class TestTypedSerialization
      */
     public void testTypeAsArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithArray.class);
+        ObjectMapper m = ObjectMapper.builder()
+                .addMixIn(Animal.class, TypeWithArray.class)
+                .build();
         // hmmh. Not good idea to rely on exact output, order may change. But...
         Map<String,Object> result = writeAndMap(m, new AnimalWrapper(new Dog("Amadeus", 7)));
         // First level, wrapper

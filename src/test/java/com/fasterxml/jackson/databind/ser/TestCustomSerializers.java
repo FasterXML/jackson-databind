@@ -156,11 +156,12 @@ public class TestCustomSerializers extends BaseMapTest
 
     public void testCustomization() throws Exception
     {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.addMixIn(Element.class, ElementMixin.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIn(Element.class, ElementMixin.class)
+                .build();
         Element element = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().createElement("el");
         StringWriter sw = new StringWriter();
-        objectMapper.writeValue(sw, element);
+        mapper.writeValue(sw, element);
         assertEquals(sw.toString(), "\"element\"");
     }
 

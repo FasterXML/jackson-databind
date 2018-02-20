@@ -135,23 +135,6 @@ public class SimpleModuleTest extends BaseMapTest
         }
     }
 
-    protected static class ContextVerifierModule extends com.fasterxml.jackson.databind.Module
-    {
-        @Override
-        public String getModuleName() { return "x"; }
-
-        @Override
-        public Version version() { return Version.unknownVersion(); }
-
-        @Override
-        public void setupModule(SetupContext context)
-        {
-            Object c = context.getOwner();
-            assertNotNull(c);
-            assertTrue(c instanceof ObjectMapper);
-        }
-    }
-
     static class TestModule626 extends SimpleModule {
         final Class<?> mixin, target;
         public TestModule626(Class<?> t, Class<?> m) {
@@ -323,8 +306,23 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testAccessToMapper() throws Exception
     {
-        ContextVerifierModule module = new ContextVerifierModule();        
-        // 19-Feb-2018: Will actually fail soon
+        com.fasterxml.jackson.databind.Module module = new com.fasterxml.jackson.databind.Module()
+        {
+            @Override
+            public String getModuleName() { return "x"; }
+
+            @Override
+            public Version version() { return Version.unknownVersion(); }
+
+            @Override
+            public void setupModule(SetupContext context)
+            {
+                Object c = context.getOwner();
+                if (!(c instanceof MapperBuilder<?,?>)) {
+                    throw new RuntimeException("Owner should be a `MapperBuilder` but is not; is: "+c);
+                }
+            }
+        };
         ObjectMapper mapper = ObjectMapper.builder()
                 .addModule(module)
                 .build();

@@ -424,8 +424,9 @@ public class TestCreators
 
     public void testFactoryCreatorWithMixin() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(CreatorBean.class, MixIn.class);
+        ObjectMapper m = ObjectMapper.builder()
+                .addMixIn(CreatorBean.class, MixIn.class)
+                .build();
         CreatorBean bean = m.readValue
             ("{ \"a\" : \"xyz\", \"x\" : 12 }", CreatorBean.class);
         assertEquals(11, bean.x);
@@ -434,8 +435,9 @@ public class TestCreators
 
     public void testFactoryCreatorWithRenamingMixin() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(FactoryBean.class, FactoryBeanMixIn.class);
+        ObjectMapper m = ObjectMapper.builder()
+                .addMixIn(FactoryBean.class, FactoryBeanMixIn.class)
+                .build();
         // override changes property name from "f" to "mixed"
         FactoryBean bean = m.readValue("{ \"mixed\" :  20.5 }", FactoryBean.class);
         assertEquals(20.5, bean.d);

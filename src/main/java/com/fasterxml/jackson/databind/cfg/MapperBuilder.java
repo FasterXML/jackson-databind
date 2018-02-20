@@ -294,8 +294,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public abstract M _constructMapper(MapperBuilderState state);
 
-    public abstract ModuleContextBase _constructModuleContext();
-    
+    public ModuleContextBase _constructModuleContext() {
+        return new ModuleContextBase(this,
+                _configOverrides, baseSettings());
+    }
+
     public MapperBuilderState _constructState() {
         // !!! TBI
         return null;

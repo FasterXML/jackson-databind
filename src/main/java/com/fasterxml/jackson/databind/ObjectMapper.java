@@ -168,12 +168,6 @@ public class ObjectMapper
         public ObjectMapper _constructMapper(MapperBuilderState state) {
             return new ObjectMapper(this);
         }
-
-        @Override
-        public ModuleContextBase _constructModuleContext() {
-            return new ModuleContextBase(this,
-                    _configOverrides, baseSettings());
-        }
     }
 
     /*

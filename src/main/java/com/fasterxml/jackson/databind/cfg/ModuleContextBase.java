@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.Module.SetupContext;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 
 public class ModuleContextBase
-    implements Module.SetupContext
+    implements SetupContext
 {
     // // // Immutable objects we need to access information
 
@@ -146,25 +147,25 @@ public class ModuleContextBase
      */
 
     @Override
-    public Module.SetupContext addDeserializers(Deserializers d) {
+    public SetupContext addDeserializers(Deserializers d) {
         _deserializerFactory = deserializerFactory().withAdditionalDeserializers(d);
         return this;
     }
 
     @Override
-    public Module.SetupContext addKeyDeserializers(KeyDeserializers kd) {
+    public SetupContext addKeyDeserializers(KeyDeserializers kd) {
         _deserializerFactory = deserializerFactory().withAdditionalKeyDeserializers(kd);
         return this;
     }
 
     @Override
-    public Module.SetupContext addDeserializerModifier(BeanDeserializerModifier modifier) {
+    public SetupContext addDeserializerModifier(BeanDeserializerModifier modifier) {
         _deserializerFactory = deserializerFactory().withDeserializerModifier(modifier);
         return this;
     }
 
     @Override
-    public Module.SetupContext addValueInstantiators(ValueInstantiators instantiators) {
+    public SetupContext addValueInstantiators(ValueInstantiators instantiators) {
         _deserializerFactory = deserializerFactory().withValueInstantiators(instantiators);
         return this;
     }
@@ -176,19 +177,19 @@ public class ModuleContextBase
      */
 
     @Override
-    public Module.SetupContext addSerializers(Serializers s) {
+    public SetupContext addSerializers(Serializers s) {
         _serializerFactory = serializerFactory().withAdditionalSerializers(s);
         return this;
     }
 
     @Override
-    public Module.SetupContext addKeySerializers(Serializers s) {
+    public SetupContext addKeySerializers(Serializers s) {
         _serializerFactory = serializerFactory().withAdditionalKeySerializers(s);
         return this;
     }
 
     @Override
-    public Module.SetupContext addSerializerModifier(BeanSerializerModifier modifier) {
+    public SetupContext addSerializerModifier(BeanSerializerModifier modifier) {
         _serializerFactory = serializerFactory().withSerializerModifier(modifier);
         return this;
     }
@@ -200,31 +201,31 @@ public class ModuleContextBase
      */
 
     @Override
-    public Module.SetupContext addAbstractTypeResolver(AbstractTypeResolver resolver) {
+    public SetupContext addAbstractTypeResolver(AbstractTypeResolver resolver) {
         _deserializerFactory = deserializerFactory().withAbstractTypeResolver(resolver);
         return this;
     }
 
     @Override
-    public Module.SetupContext addTypeModifier(TypeModifier modifier) {
+    public SetupContext addTypeModifier(TypeModifier modifier) {
         _builder.addTypeModifier(modifier);
         return this;
     }
 
     @Override
-    public Module.SetupContext registerSubtypes(Class<?>... subtypes) {
+    public SetupContext registerSubtypes(Class<?>... subtypes) {
         _builder.subtypeResolver().registerSubtypes(subtypes);
         return this;
     }
 
     @Override
-    public Module.SetupContext registerSubtypes(NamedType... subtypes) {
+    public SetupContext registerSubtypes(NamedType... subtypes) {
         _builder.subtypeResolver().registerSubtypes(subtypes);
         return this;
     }
 
     @Override
-    public Module.SetupContext registerSubtypes(Collection<Class<?>> subtypes) {
+    public SetupContext registerSubtypes(Collection<Class<?>> subtypes) {
         _builder.subtypeResolver().registerSubtypes(subtypes);
         return this;
     }
@@ -236,13 +237,13 @@ public class ModuleContextBase
      */
 
     @Override
-    public Module.SetupContext insertAnnotationIntrospector(AnnotationIntrospector ai) {
+    public SetupContext insertAnnotationIntrospector(AnnotationIntrospector ai) {
         _baseSettings = _baseSettings.withInsertedAnnotationIntrospector(ai);
         return this;
     }
 
     @Override
-    public Module.SetupContext appendAnnotationIntrospector(AnnotationIntrospector ai) {
+    public SetupContext appendAnnotationIntrospector(AnnotationIntrospector ai) {
         _baseSettings = _baseSettings.withAppendedAnnotationIntrospector(ai);
         return this;
     }
@@ -259,14 +260,14 @@ public class ModuleContextBase
     }
 
     @Override
-    public Module.SetupContext addHandler(DeserializationProblemHandler handler)
+    public SetupContext addHandler(DeserializationProblemHandler handler)
     {
         _builder.addHandler(handler);
         return this;
     }
 
     @Override
-    public Module.SetupContext setMixIn(Class<?> target, Class<?> mixinSource) {
+    public SetupContext setMixIn(Class<?> target, Class<?> mixinSource) {
         _builder.addMixIn(target, mixinSource);
         return this;
     }

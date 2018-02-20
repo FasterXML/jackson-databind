@@ -280,11 +280,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * actually make changes, via context we construct (usually by calling
      * {@link #_constructModuleContext}).
      */
-    public void _registerModules(Collection<? extends Module> modules) {
+    public void _registerModules(Collection<? extends com.fasterxml.jackson.databind.Module> modules) {
         ModuleContextBase ctxt = _constructModuleContext();
-        for (Module module : _modules.values()) {
-            module.setupModule(ctxt);
-        }
+        _modules.values().forEach(m -> m.setupModule(ctxt));
         ctxt.applyChanges();
     }
 

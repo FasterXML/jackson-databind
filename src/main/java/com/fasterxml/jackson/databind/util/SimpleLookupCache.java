@@ -48,9 +48,6 @@ public class SimpleLookupCache<K,V>
         return _map.put(key, value);
     }
 
-    /**
-     * @since 2.5
-     */
     public V putIfAbsent(K key, V value) {
         // not 100% optimal semantically, but better from correctness (never exceeds
         // defined maximum) and close enough all in all:
@@ -79,8 +76,6 @@ public class SimpleLookupCache<K,V>
     /**
      * Ugly hack, to work through the requirement that _value is indeed final,
      * and that JDK serialization won't call ctor(s) if Serializable is implemented.
-     * 
-     * @since 2.1
      */
     protected transient int _jdkSerializeMaxEntries;
 

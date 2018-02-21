@@ -190,6 +190,20 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
+    /* Transient state
+    /**********************************************************************
+     */
+
+    /**
+     * Configuration state after direct access, immediately before registration
+     * of modules (if any) and construction of actual mapper. Retained after
+     * first access, and returned from {@link #saveStateApplyModules()}, to
+     * allow future "rebuild".
+     */
+    protected transient MapperBuilderState _savedState;
+    
+    /*
+    /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
@@ -265,39 +279,37 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     /**
-     * Method to call to create an initialize actual mapper instance
+     * Method to call to create actual mapper instance, usually passing {@code this}
+     * builder to its constructor.
      */
-    public M build() {
-        MapperBuilderState state = _constructState();
-        if (_modules != null) {
-            _registerModules(_modules.values());
+    public abstract M build();
+
+    /**
+     * Method called by mapper being constructed to first save state (delegated to
+     * {@link #_saveState()}), then apply modules (if any), and then return
+     * the saved state (but retain reference to it). If method has been called previously,
+     * it will simply return retained state.
+     */
+    public MapperBuilderState saveStateApplyModules()
+    {
+        if (_savedState == null) {
+            _savedState = _saveState();
+            if (_modules != null) {
+                ModuleContextBase ctxt = _constructModuleContext();
+                _modules.values().forEach(m -> m.setupModule(ctxt));
+                // and since context may buffer some changes, ensure those are flushed:
+                ctxt.applyChanges();
+            }
         }
-        return _constructMapper(state);
+        return _savedState;
     }
-
-    /**
-     * Method usually called during {@link #build}, to give modules change to
-     * actually make changes, via context we construct (usually by calling
-     * {@link #_constructModuleContext}).
-     */
-    public void _registerModules(Collection<? extends com.fasterxml.jackson.databind.Module> modules) {
-        ModuleContextBase ctxt = _constructModuleContext();
-        _modules.values().forEach(m -> m.setupModule(ctxt));
-        ctxt.applyChanges();
-    }
-
-    /**
-     * Method usually called during {@link #build},
-     * after applying all changes, to construct actual typed mapper instance.
-     */
-    public abstract M _constructMapper(MapperBuilderState state);
 
     public ModuleContextBase _constructModuleContext() {
         return new ModuleContextBase(this,
                 _configOverrides, baseSettings());
     }
 
-    public MapperBuilderState _constructState() {
+    public MapperBuilderState _saveState() {
         // !!! TBI
         return null;
     }

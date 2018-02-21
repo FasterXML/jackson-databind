@@ -165,7 +165,7 @@ public class ObjectMapper
         }
 
         @Override
-        public ObjectMapper _constructMapper(MapperBuilderState state) {
+        public ObjectMapper build() {
             return new ObjectMapper(this);
         }
     }
@@ -318,65 +318,53 @@ public class ObjectMapper
         = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.6f, 2);
 
     /*
+    /**********************************************************
+    /* Saved state to allow re-building
+    /**********************************************************
+     */
+
+    /**
+     * Minimal state retained to allow both re-building (by
+     * creating new builder) and JDK serialization of this mapper.
+     *
+     * @since 3.0
+     */
+    final protected MapperBuilderState _savedBuilderState;
+
+    /*
     /**********************************************************************
     /* Life-cycle: constructing instance
     /**********************************************************************
      */
 
     /**
-     * Default constructor, which will construct the default
-     * {@link TokenStreamFactory} as necessary, use
-     * {@link SerializerProvider} as its
-     * {@link SerializerProvider}, and
-     * {@link BeanSerializerFactory} as its
-     * {@link SerializerFactory}.
-     * This means that it
-     * can serialize all standard JDK types, as well as regular
-     * Java Beans (based on method names and Jackson-specific annotations),
-     * but does not support JAXB annotations.
+     * Default constructor, which will construct the default JSON-handling
+     * {@link TokenStreamFactory} as necessary and all other unmodified
+     * default settings, and no additional registered modules.
      */
     public ObjectMapper() {
-        this(new JsonFactory(), null, null);
+        this(new Builder(new JsonFactory()));
     }
 
     /**
      * Constructs instance that uses specified {@link TokenStreamFactory}
      * for constructing necessary {@link JsonParser}s and/or
-     * {@link JsonGenerator}s.
+     * {@link JsonGenerator}s, but without registering additional modules.
      */
-    public ObjectMapper(TokenStreamFactory jf) {
-        this(jf, null, null);
+    public ObjectMapper(TokenStreamFactory streamFactory) {
+        this(new Builder(streamFactory));
     }
 
     /**
-     * Constructs instance that uses specified {@link TokenStreamFactory}
-     * for constructing necessary {@link JsonParser}s and/or
-     * {@link JsonGenerator}s, and uses given providers for accessing
-     * serializers and deserializers.
-     * 
-     * @param streamFactory TokenStreamFactory to use: if null, a new {@link JsonFactory} will be constructed
-     * @param sp SerializerProvider to use: if null, a {@link SerializerProvider} will be constructed
-     * @param dc Blueprint deserialization context instance to use for creating
-     *    actual context objects; if null, will construct standard
-     *    {@link DeserializationContext}
+     * Constructor usually called either by {@link MapperBuilder#build} or
+     * by sub-class constructor: will get all the settings through passed-in
+     * builder, including registration of any modules added to builder.
      */
-    protected ObjectMapper(TokenStreamFactory streamFactory,
-            DefaultSerializerProvider sp, DefaultDeserializationContext dc)
+    protected ObjectMapper(MapperBuilder<?,?> builder)
     {
-        this(new Builder(streamFactory),
-                ((sp == null) ? new DefaultSerializerProvider.Impl(streamFactory) : sp),
-                ((dc == null) ? new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, streamFactory) : dc)
-        );
-    }
+        // First things first: finalize building process:
+        _savedBuilderState = builder.saveStateApplyModules();
 
-    public ObjectMapper(MapperBuilder<?,?> builder)
-    {
-        this(builder, builder.serializerProvider(), builder.deserializationContext());
-    }
-
-    protected ObjectMapper(MapperBuilder<?,?> builder,
-            DefaultSerializerProvider sp, DefaultDeserializationContext dc)            
-    {
         // General framework factories
         _streamFactory = builder.streamFactory();
         BaseSettings base = builder.baseSettings();
@@ -391,11 +379,10 @@ public class ObjectMapper
         _subtypeResolver = builder.subtypeResolver();
         
         // Ser/deser framework factories
-        _serializerProvider = sp;
+        _serializerProvider = builder.serializerProvider();
         _serializerFactory = builder.serializerFactory();
 
-        _deserializationContext = dc;
-        _deserializationContext = dc;
+        _deserializationContext = builder.deserializationContext();
         _injectableValues = builder.injectableValues();
 
         RootNameLookup rootNames = new RootNameLookup();
@@ -482,15 +469,36 @@ public class ObjectMapper
      */
     public TokenStreamFactory tokenStreamFactory() { return _streamFactory; }
 
+    /**
+     * Method that can be used to get hold of {@link JsonNodeFactory}
+     * that this mapper will use when directly constructing
+     * root {@link JsonNode} instances for Trees.
+     *<p>
+     * Note: this is just a shortcut for calling
+     *<pre>
+     *   getDeserializationConfig().getNodeFactory()
+     *</pre>
+     */
+    public JsonNodeFactory nodeFactory() {
+        return _deserializationConfig.getNodeFactory();
+    }
+
+    public InjectableValues getInjectableValues() {
+        return _injectableValues;
+    }
+
+    /**
+     * Method for accessing subtype resolver in use.
+     */
+    public SubtypeResolver getSubtypeResolver() {
+        return _subtypeResolver;
+    }
+
     /*
     /**********************************************************************
     /* Configuration: ser/deser factory, provider access
     /**********************************************************************
      */
-
-    public SerializerFactory getSerializerFactory() {
-        return _serializerFactory;
-    }
 
     public SerializerProvider getSerializerProvider() {
         return _serializerProvider;
@@ -504,7 +512,29 @@ public class ObjectMapper
     public SerializerProvider serializerProviderInstance() {
         return _serializerProvider();
     }
+    
+    /*
+    /**********************************************************************
+    /* Configuration, access to type factory, type resolution
+    /**********************************************************************
+     */
 
+    /**
+     * Accessor for getting currently configured {@link TypeFactory} instance.
+     */
+    public TypeFactory getTypeFactory() {
+        return _typeFactory;
+    }
+
+    /**
+     * Convenience method for constructing {@link JavaType} out of given
+     * type (typically <code>java.lang.Class</code>), but without explicit
+     * context.
+     */
+    public JavaType constructType(Type t) {
+        return _typeFactory.constructType(t);
+    }
+    
     /*
     /**********************************************************************
     /* Configuration: mix-in annotations
@@ -531,19 +561,6 @@ public class ObjectMapper
     // For testing only:
     public MixInHandler mixInHandler() {
         return _mixIns;
-    }
-    
-    /*
-    /**********************************************************************
-    /* Configuration, introspection
-    /**********************************************************************
-     */
-
-    /**
-     * Method for accessing subtype resolver in use.
-     */
-    public SubtypeResolver getSubtypeResolver() {
-        return _subtypeResolver;
     }
 
     /*
@@ -771,65 +788,6 @@ public class ObjectMapper
     @Deprecated
     public MutableConfigOverride configOverride(Class<?> type) {
         return _configOverrides.findOrCreateOverride(type);
-    }
-
-    /*
-    /**********************************************************************
-    /* Configuration, basic type handling
-    /**********************************************************************
-     */
-
-    /**
-     * Accessor for getting currently configured {@link TypeFactory} instance.
-     */
-    public TypeFactory getTypeFactory() {
-        return _typeFactory;
-    }
-
-    /**
-     * Convenience method for constructing {@link JavaType} out of given
-     * type (typically <code>java.lang.Class</code>), but without explicit
-     * context.
-     */
-    public JavaType constructType(Type t) {
-        return _typeFactory.constructType(t);
-    }
-
-    /*
-    /**********************************************************************
-    /* Configuration, deserialization
-    /**********************************************************************
-     */
-
-    /**
-     * Method that can be used to get hold of {@link JsonNodeFactory}
-     * that this mapper will use when directly constructing
-     * root {@link JsonNode} instances for Trees.
-     *<p>
-     * Note: this is just a shortcut for calling
-     *<pre>
-     *   getDeserializationConfig().getNodeFactory()
-     *</pre>
-     */
-    public JsonNodeFactory nodeFactory() {
-        return _deserializationConfig.getNodeFactory();
-    }
-
-    /*
-    /**********************************************************************
-    /* Configuration, other
-    /**********************************************************************
-     */
-
-    // 10-Feb-2018, tatu: Should not be needed but alas OSGi module relies on it
-    @Deprecated
-    public ObjectMapper setInjectableValues(InjectableValues v) {
-        _injectableValues = v;
-        return this;
-    }
-
-    public InjectableValues getInjectableValues() {
-        return _injectableValues;
     }
 
     /*

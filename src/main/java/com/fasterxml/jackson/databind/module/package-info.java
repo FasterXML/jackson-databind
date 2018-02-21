@@ -1,8 +1,7 @@
 /**
  * Package that contains classes and interfaces to help implement
  * custom extension {@link com.fasterxml.jackson.databind.Module}s
- * (which are registered using
- * {@link com.fasterxml.jackson.databind.ObjectMapper#registerModule}.
+ * (which are registered on ObjectMapper via builders}.
  *<p>
  * Note that classes in the package only support registering
  * handlers for non-generic types (types without type

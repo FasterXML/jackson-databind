@@ -22,17 +22,9 @@ public class ModuleContextBase
 
     protected final MapperBuilder<?,?> _builder;
 
-    // // // Factories we need to change/modify
-
-    protected DeserializerFactory _deserializerFactory;
-
-    protected SerializerFactory _serializerFactory;
-
     // // // Other modifiable state
 
     protected final ConfigOverrides _configOverrides;
-
-    protected BaseSettings _baseSettings;
 
     /*
     /**********************************************************************
@@ -41,31 +33,20 @@ public class ModuleContextBase
      */
 
     public ModuleContextBase(MapperBuilder<?,?> b,
-            ConfigOverrides configOverrides, BaseSettings base)
+            ConfigOverrides configOverrides)
     {
         _builder = b;
-
         _configOverrides = configOverrides;
-        _baseSettings = base;
-
-        _deserializerFactory = null;
-        _serializerFactory = null;
     }
 
     /**
      * Method called after all changes have been applied through this context, to
-     * propagate any buffered or pending changes back (some may have been applied
-     * earlier)
+     * propagate buffered or pending changes (if any) back to builder. Note that
+     * base implementation does nothing here; it is only provded in case sub-classes
+     * might need it.
      */
-    public void applyChanges() {
-        if (_deserializerFactory != null) {
-            _builder.deserializerFactory(_deserializerFactory);
-        }
-        if (_serializerFactory != null) {
-            _builder.serializerFactory(_serializerFactory);
-        }
-        // could keep track of changes/no-changes, but for now:
-        _builder.baseSettings(_baseSettings);
+    public void applyChanges(MapperBuilder<?,?> b) {
+        // nothing to apply at base class
     }
 
     /*
@@ -81,7 +62,7 @@ public class ModuleContextBase
 
     @Override
     public String getFormatName() {
-        return streamFactory().getFormatName();
+        return _streamFactory().getFormatName();
     }
 
     /*
@@ -102,7 +83,7 @@ public class ModuleContextBase
 
     @Override
     public TokenStreamFactory tokenStreamFactory() {
-        return streamFactory();
+        return _streamFactory();
     }
 
     /*
@@ -128,7 +109,7 @@ public class ModuleContextBase
 
     @Override
     public boolean isEnabled(TokenStreamFactory.Feature f) {
-        return streamFactory().isEnabled(f);
+        return _streamFactory().isEnabled(f);
     }
 
     @Override
@@ -149,25 +130,25 @@ public class ModuleContextBase
 
     @Override
     public SetupContext addDeserializers(Deserializers d) {
-        _deserializerFactory = deserializerFactory().withAdditionalDeserializers(d);
+        _set(_deserializerFactory().withAdditionalDeserializers(d));
         return this;
     }
 
     @Override
     public SetupContext addKeyDeserializers(KeyDeserializers kd) {
-        _deserializerFactory = deserializerFactory().withAdditionalKeyDeserializers(kd);
+        _set(_deserializerFactory().withAdditionalKeyDeserializers(kd));
         return this;
     }
 
     @Override
     public SetupContext addDeserializerModifier(BeanDeserializerModifier modifier) {
-        _deserializerFactory = deserializerFactory().withDeserializerModifier(modifier);
+        _set(_deserializerFactory().withDeserializerModifier(modifier));
         return this;
     }
 
     @Override
     public SetupContext addValueInstantiators(ValueInstantiators instantiators) {
-        _deserializerFactory = deserializerFactory().withValueInstantiators(instantiators);
+        _set(_deserializerFactory().withValueInstantiators(instantiators));
         return this;
     }
 
@@ -179,19 +160,19 @@ public class ModuleContextBase
 
     @Override
     public SetupContext addSerializers(Serializers s) {
-        _serializerFactory = serializerFactory().withAdditionalSerializers(s);
+        _set(_serializerFactory().withAdditionalSerializers(s));
         return this;
     }
 
     @Override
     public SetupContext addKeySerializers(Serializers s) {
-        _serializerFactory = serializerFactory().withAdditionalKeySerializers(s);
+        _set(_serializerFactory().withAdditionalKeySerializers(s));
         return this;
     }
 
     @Override
     public SetupContext addSerializerModifier(BeanSerializerModifier modifier) {
-        _serializerFactory = serializerFactory().withSerializerModifier(modifier);
+        _set(_serializerFactory().withSerializerModifier(modifier));
         return this;
     }
 
@@ -203,7 +184,7 @@ public class ModuleContextBase
 
     @Override
     public SetupContext addAbstractTypeResolver(AbstractTypeResolver resolver) {
-        _deserializerFactory = deserializerFactory().withAbstractTypeResolver(resolver);
+        _set(_deserializerFactory().withAbstractTypeResolver(resolver));
         return this;
     }
 
@@ -239,13 +220,15 @@ public class ModuleContextBase
 
     @Override
     public SetupContext insertAnnotationIntrospector(AnnotationIntrospector ai) {
-        _baseSettings = _baseSettings.withInsertedAnnotationIntrospector(ai);
+        _builder.baseSettings(_builder.baseSettings()
+                .withInsertedAnnotationIntrospector(ai));
         return this;
     }
 
     @Override
     public SetupContext appendAnnotationIntrospector(AnnotationIntrospector ai) {
-        _baseSettings = _baseSettings.withAppendedAnnotationIntrospector(ai);
+        _builder.baseSettings(_builder.baseSettings()
+                .withAppendedAnnotationIntrospector(ai));
         return this;
     }
 
@@ -289,21 +272,23 @@ public class ModuleContextBase
     /**********************************************************************
      */
 
-    protected TokenStreamFactory streamFactory() {
+    protected TokenStreamFactory _streamFactory() {
         return _builder.streamFactory();
     }
 
-    protected DeserializerFactory deserializerFactory() {
-        if (_deserializerFactory == null) {
-            _deserializerFactory = _builder.deserializerFactory();
-        }
-        return _deserializerFactory;
+    protected DeserializerFactory _deserializerFactory() {
+        return _builder.deserializerFactory();
     }
 
-    protected SerializerFactory serializerFactory() {
-        if (_serializerFactory == null) {
-            _serializerFactory = _builder.serializerFactory();
-        }
-        return _serializerFactory;
+    protected void _set(DeserializerFactory f) {
+        _builder.deserializerFactory(f);
+    }
+
+    protected SerializerFactory _serializerFactory() {
+        return _builder.serializerFactory();
+    }
+
+    protected void _set(SerializerFactory f) {
+        _builder.serializerFactory(f);
     }
 }

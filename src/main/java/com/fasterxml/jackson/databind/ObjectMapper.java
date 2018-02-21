@@ -376,6 +376,7 @@ public class ObjectMapper
         }
         // general type handling
         _typeFactory = base.getTypeFactory();
+
         _subtypeResolver = builder.subtypeResolver();
         
         // Ser/deser framework factories
@@ -744,6 +745,7 @@ public class ObjectMapper
      * Type for given class is determined from appropriate annotation;
      * or if missing, default name (unqualified class name)
      */
+    @Deprecated
     public void registerSubtypes(Class<?>... classes) {
         getSubtypeResolver().registerSubtypes(classes);
     }
@@ -756,38 +758,14 @@ public class ObjectMapper
      * be based on annotations or use default name (unqualified
      * class name).
      */
+    @Deprecated
     public void registerSubtypes(NamedType... types) {
         getSubtypeResolver().registerSubtypes(types);
     }
 
+    @Deprecated
     public void registerSubtypes(Collection<Class<?>> subtypes) {
         getSubtypeResolver().registerSubtypes(subtypes);
-    }
-
-    /*
-    /**********************************************************************
-    /* Configuration, basic type handling
-    /**********************************************************************
-     */
-
-    /**
-     * Accessor for getting a mutable configuration override object for
-     * given type, needed to add or change per-type overrides applied
-     * to properties of given type.
-     * Usage is through returned object by colling "setter" methods, which
-     * directly modify override object and take effect directly.
-     * For example you can do
-     *<pre>
-     *   mapper.configOverride(java.util.Date.class)
-     *       .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd"));
-     *<pre>
-     * to change the default format to use for properties of type
-     * {@link java.util.Date} (possibly further overridden by per-property
-     * annotations)
-     */
-    @Deprecated
-    public MutableConfigOverride configOverride(Class<?> type) {
-        return _configOverrides.findOrCreateOverride(type);
     }
 
     /*
@@ -795,15 +773,6 @@ public class ObjectMapper
     /* Configuration, simple features: MapperFeature
     /**********************************************************************
      */
-
-    @Deprecated
-    public ObjectMapper configure(MapperFeature f, boolean state) {
-        _serializationConfig = state ?
-                _serializationConfig.with(f) : _serializationConfig.without(f);
-        _deserializationConfig = state ?
-                _deserializationConfig.with(f) : _deserializationConfig.without(f);
-        return this;
-    }
 
     @Deprecated
     public ObjectMapper enable(MapperFeature f) {
@@ -819,19 +788,6 @@ public class ObjectMapper
         return this;
     }
 
-    /*
-    /**********************************************************************
-    /* Configuration, simple features: SerializationFeature
-    /**********************************************************************
-     */
-
-    @Deprecated
-    public ObjectMapper configure(SerializationFeature f, boolean state) {
-        _serializationConfig = state ?
-                _serializationConfig.with(f) : _serializationConfig.without(f);
-        return this;
-    }
-
     @Deprecated
     public ObjectMapper enable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.with(f);
@@ -841,19 +797,6 @@ public class ObjectMapper
     @Deprecated
     public ObjectMapper disable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.without(f);
-        return this;
-    }
-
-    /*
-    /**********************************************************************
-    /* Configuration, simple features: DeserializationFeature
-    /**********************************************************************
-     */
-
-    @Deprecated
-    public ObjectMapper configure(DeserializationFeature f, boolean state) {
-        _deserializationConfig = state ?
-                _deserializationConfig.with(f) : _deserializationConfig.without(f);
         return this;
     }
 

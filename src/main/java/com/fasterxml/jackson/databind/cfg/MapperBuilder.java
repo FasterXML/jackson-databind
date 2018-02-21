@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.MixInResolver;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -298,15 +299,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 ModuleContextBase ctxt = _constructModuleContext();
                 _modules.values().forEach(m -> m.setupModule(ctxt));
                 // and since context may buffer some changes, ensure those are flushed:
-                ctxt.applyChanges();
+                ctxt.applyChanges(this);
             }
         }
         return _savedState;
     }
 
     public ModuleContextBase _constructModuleContext() {
-        return new ModuleContextBase(this,
-                _configOverrides, baseSettings());
+        return new ModuleContextBase(this, _configOverrides);
     }
 
     public MapperBuilderState _saveState() {
@@ -1009,7 +1009,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Changing Mix-ins
+    /* Adding Mix-ins
     /**********************************************************************
      */
 
@@ -1063,6 +1063,27 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public B addMixIn(Class<?> target, Class<?> mixinSource)
     {
         mixInHandler().addLocalDefinition(target, mixinSource);
+        return _this();
+    }
+
+    /*
+    /**********************************************************************
+    /* Subtype registration
+    /**********************************************************************
+     */
+
+    public B registerSubtypes(Class<?>... subtypes) {
+        subtypeResolver().registerSubtypes(subtypes);
+        return _this();
+    }
+
+    public B registerSubtypes(NamedType... subtypes) {
+        subtypeResolver().registerSubtypes(subtypes);
+        return _this();
+    }
+
+    public B registerSubtypes(Collection<Class<?>> subtypes) {
+        subtypeResolver().registerSubtypes(subtypes);
         return _this();
     }
 

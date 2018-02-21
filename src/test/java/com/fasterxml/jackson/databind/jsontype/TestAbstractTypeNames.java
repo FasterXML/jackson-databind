@@ -111,10 +111,11 @@ public class TestAbstractTypeNames  extends BaseMapTest
         /* 24-Feb-2011, tatu: For now let's simply require registration of
          *   concrete subtypes; can't think of a way to avoid that for now
          */
-        mapper = new ObjectMapper();
-        mapper.registerSubtypes(DefaultEmployee.class);
-        mapper.registerSubtypes(DefaultUser.class);
-        
+        mapper = ObjectMapper.builder()
+                .registerSubtypes(DefaultEmployee.class,
+                        DefaultUser.class)
+                .build();
+
         User result = mapper.readValue(json, User.class);
         assertNotNull(result);
         assertEquals(DefaultEmployee.class, result.getClass());

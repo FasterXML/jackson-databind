@@ -172,9 +172,10 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     public void testPropertyWithSubtypes() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // must register subtypes
-        mapper.registerSubtypes(SubB.class, SubC.class, SubD.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .registerSubtypes(SubB.class, SubC.class, SubD.class)
+                .build();
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         PropertyBean result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
@@ -214,8 +215,9 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals("{\"@type\":\"TypeB\",\"b\":1}", MAPPER.writeValueAsString(bean));
 
         // but we can override type name here too
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(new NamedType(SubB.class, "typeB"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .registerSubtypes(new NamedType(SubB.class, "typeB"))
+                .build();
         assertEquals("{\"@type\":\"typeB\",\"b\":1}", mapper.writeValueAsString(bean));
 
         // and default name ought to be simple class name; with context
@@ -224,9 +226,9 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     public void testDeserializationNonNamed() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(SubC.class);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .registerSubtypes(SubC.class)
+                .build();
         // default name should be unqualified class name
         SuperType bean = mapper.readValue("{\"@type\":\"TestSubtypes$SubC\", \"c\":1}", SuperType.class);
         assertSame(SubC.class, bean.getClass());
@@ -235,9 +237,10 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     public void testDeserializatioNamed() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(SubB.class);
-        mapper.registerSubtypes(new NamedType(SubD.class, "TypeD"));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .registerSubtypes(SubB.class)
+                .registerSubtypes(new NamedType(SubD.class, "TypeD"))
+                .build();
 
         SuperType bean = mapper.readValue("{\"@type\":\"TypeB\", \"b\":13}", SuperType.class);
         assertSame(SubB.class, bean.getClass());

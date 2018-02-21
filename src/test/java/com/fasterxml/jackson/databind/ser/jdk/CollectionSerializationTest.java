@@ -259,8 +259,9 @@ public class CollectionSerializationTest
         assertEquals("{\"empty\":[]}", MAPPER.writeValueAsString(array));
 
         // note: value of setting may be cached when constructing serializer, need a new instance
-        ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
+        ObjectMapper m = ObjectMapper.builder()
+                .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
+                .build();
         assertEquals("{}", m.writeValueAsString(list));
         assertEquals("{}", m.writeValueAsString(array));
     }

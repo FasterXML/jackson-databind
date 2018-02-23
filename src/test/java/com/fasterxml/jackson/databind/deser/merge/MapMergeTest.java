@@ -51,7 +51,7 @@ public class MapMergeTest extends BaseMapTest
             .build();
 
     private final ObjectMapper MAPPER_SKIP_NULLS = objectMapperBuilder()
-            .changeDefaultNullReads(n -> n.withContentNulls(Nulls.SKIP))
+            .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.SKIP))
             .build();
 
     public void testShallowMapMerging() throws Exception

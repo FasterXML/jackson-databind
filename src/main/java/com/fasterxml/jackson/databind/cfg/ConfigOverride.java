@@ -12,8 +12,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * type of the property. Such overrides have precedence over annotations
  * attached to actual type ({@link java.lang.Class}), but can be further
  * overridden by annotations attached to the property itself.
- *
- * @since 2.8
  */
 public abstract class ConfigOverride
 {
@@ -34,8 +32,6 @@ public abstract class ConfigOverride
      * of POJO in which they are included).
      * Overrides global defaults, per-POJO inclusion defaults (see {#link {@link #_include}}),
      * may be overridden by per-property overrides.
-     *
-     * @since 2.9
      */
     protected JsonInclude.Value _includeAsProperty;
 
@@ -47,15 +43,11 @@ public abstract class ConfigOverride
 
     /**
      * Definitions of setter overrides regarding null handling
-     *
-     * @since 2.9
      */
-    protected JsonSetter.Value _setterInfo;
+    protected JsonSetter.Value _nullHandling;
 
     /**
      * Overrides for auto-detection visibility rules for this type.
-     *
-     * @since 2.9
      */
     protected JsonAutoDetect.Value _visibility;
 
@@ -85,8 +77,6 @@ public abstract class ConfigOverride
 
     /**
      * Accessor for immutable "empty" instance that has no configuration overrides defined.
-     *
-     * @since 2.9
      */
     public static ConfigOverride empty() {
         return Empty.INSTANCE;
@@ -95,9 +85,6 @@ public abstract class ConfigOverride
     public JsonFormat.Value getFormat() { return _format; }
     public JsonInclude.Value getInclude() { return _include; }
 
-    /**
-     * @since 2.9
-     */
     public JsonInclude.Value getIncludeAsProperty() { return _includeAsProperty; }
 
     public JsonIgnoreProperties.Value getIgnorals() { return _ignorals; }
@@ -105,27 +92,16 @@ public abstract class ConfigOverride
     public Boolean getIsIgnoredType() {
         return _isIgnoredType;
     }
-    
-    /**
-     * @since 2.9
-     */
-    public JsonSetter.Value getSetterInfo() { return _setterInfo; }
 
-    /**
-     * @since 2.9
-     */
+    public JsonSetter.Value getNullHandling() { return _nullHandling; }
+
     public JsonAutoDetect.Value getVisibility() { return _visibility; }
 
-    /**
-     * @since 2.9
-     */
     public Boolean getMergeable() { return _mergeable; }
     
     /**
      * Implementation used solely for "empty" instance; has no mutators
      * and is not changed by core functionality.
-     *
-     * @since 2.9
      */
     final static class Empty extends ConfigOverride {
         final static Empty INSTANCE = new Empty();

@@ -83,7 +83,8 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testNodeInEmptyArray() throws Exception {
         Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
         outerMap.put("inner", new ArrayList<String>());
-        ObjectMapper m = new ObjectMapper().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+        ObjectMapper m = ObjectMapper.builder().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)
+                .build();
         JsonNode tree = m.convertValue(outerMap, JsonNode.class);
         
         String json = m.writeValueAsString(tree);

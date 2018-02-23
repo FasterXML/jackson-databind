@@ -4,7 +4,6 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -699,86 +698,6 @@ public class ObjectMapper
     public ObjectMapper setDefaultTyping(TypeResolverBuilder<?> typer) {
         _deserializationConfig = _deserializationConfig.with(typer);
         _serializationConfig = _serializationConfig.with(typer);
-        return this;
-    }
-
-    /*
-    /**********************************************************************
-    /* Subtype resolution
-    /**********************************************************************
-     */
-    
-    /**
-     * Method for registering specified class as a subtype, so that
-     * typename-based resolution can link supertypes to subtypes
-     * (as an alternative to using annotations).
-     * Type for given class is determined from appropriate annotation;
-     * or if missing, default name (unqualified class name)
-     */
-    @Deprecated
-    public void registerSubtypes(Class<?>... classes) {
-        getSubtypeResolver().registerSubtypes(classes);
-    }
-
-    /**
-     * Method for registering specified class as a subtype, so that
-     * typename-based resolution can link supertypes to subtypes
-     * (as an alternative to using annotations).
-     * Name may be provided as part of argument, but if not will
-     * be based on annotations or use default name (unqualified
-     * class name).
-     */
-    @Deprecated
-    public void registerSubtypes(NamedType... types) {
-        getSubtypeResolver().registerSubtypes(types);
-    }
-
-    @Deprecated
-    public void registerSubtypes(Collection<Class<?>> subtypes) {
-        getSubtypeResolver().registerSubtypes(subtypes);
-    }
-
-    /*
-    /**********************************************************************
-    /* Configuration, simple features: MapperFeature
-    /**********************************************************************
-     */
-
-    @Deprecated
-    public ObjectMapper enable(MapperFeature f) {
-        _deserializationConfig = _deserializationConfig.with(f);
-        _serializationConfig = _serializationConfig.with(f);
-        return this;
-    }
-
-    @Deprecated
-    public ObjectMapper disable(MapperFeature f) {
-        _deserializationConfig = _deserializationConfig.without(f);
-        _serializationConfig = _serializationConfig.without(f);
-        return this;
-    }
-
-    @Deprecated
-    public ObjectMapper enable(SerializationFeature f) {
-        _serializationConfig = _serializationConfig.with(f);
-        return this;
-    }
-
-    @Deprecated
-    public ObjectMapper disable(SerializationFeature f) {
-        _serializationConfig = _serializationConfig.without(f);
-        return this;
-    }
-
-    @Deprecated
-    public ObjectMapper enable(DeserializationFeature feature) {
-        _deserializationConfig = _deserializationConfig.with(feature);
-        return this;
-    }
-
-    @Deprecated
-    public ObjectMapper disable(DeserializationFeature feature) {
-        _deserializationConfig = _deserializationConfig.without(feature);
         return this;
     }
 

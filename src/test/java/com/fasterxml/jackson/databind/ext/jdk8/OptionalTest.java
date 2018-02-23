@@ -167,8 +167,9 @@ public class OptionalTest extends BaseMapTest
     // To support [datatype-jdk8#8]
     public void testExcludeIfOptionalAbsent() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
         assertEquals(aposToQuotes("{'value':'foo'}"),
                 mapper.writeValueAsString(new OptionalStringBean("foo")));
         // absent is not strictly null so
@@ -176,8 +177,9 @@ public class OptionalTest extends BaseMapTest
                 mapper.writeValueAsString(new OptionalStringBean(null)));
 
         // however:
-        mapper = newObjectMapper()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
+        mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
+                .build();
         assertEquals(aposToQuotes("{'value':'foo'}"),
                 mapper.writeValueAsString(new OptionalStringBean("foo")));
         assertEquals(aposToQuotes("{}"),
@@ -214,8 +216,9 @@ public class OptionalTest extends BaseMapTest
 
     public void testCustomSerializerIfOptionalAbsent() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
         assertEquals(aposToQuotes("{'value':'FOO'}"),
                 mapper.writeValueAsString(new CaseChangingStringWrapper("foo")));
         // absent is not strictly null so
@@ -223,8 +226,9 @@ public class OptionalTest extends BaseMapTest
                 mapper.writeValueAsString(new CaseChangingStringWrapper(null)));
 
         // however:
-        mapper = newObjectMapper()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
+        mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
+                .build();
         assertEquals(aposToQuotes("{'value':'FOO'}"),
                 mapper.writeValueAsString(new CaseChangingStringWrapper("foo")));
         assertEquals(aposToQuotes("{}"),

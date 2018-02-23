@@ -159,11 +159,11 @@ public class TestWithGenerics extends BaseMapTest
     
     public void testJackson387() throws Exception
     {
-        ObjectMapper om = ObjectMapper.builder()
+        ObjectMapper om = objectMapperBuilder()
                 .enable( SerializationFeature.INDENT_OUTPUT)
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .build();
         om.enableDefaultTyping( ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY );
-        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL );
 
         MyClass mc = new MyClass();
 

@@ -255,9 +255,10 @@ public class TestMapFiltering extends BaseMapTest
     public void testMapViaGlobalNonEmpty() throws Exception
     {
         // basic Map<String,String> subclass:
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDefaultPropertyInclusion(JsonInclude.Value.empty()
-                .withContentInclusion(JsonInclude.Include.NON_EMPTY));
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl
+                        .withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
         assertEquals(aposToQuotes("{'a':'b'}"), mapper.writeValueAsString(
                 new StringMap497()
                     .add("x", "")

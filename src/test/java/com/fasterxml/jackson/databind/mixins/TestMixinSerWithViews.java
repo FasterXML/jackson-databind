@@ -194,12 +194,11 @@ public class TestMixinSerWithViews
         Map<Class<?>, Class<?>> sourceMixins = new HashMap<Class<?>, Class<?>>( );
         sourceMixins.put( SimpleTestData.class, TestDataJAXBMixin.class );
         sourceMixins.put( ComplexTestData.class, TestComplexDataJAXBMixin.class );
-        ObjectMapper mapper = ObjectMapper.builder()
+        return ObjectMapper.builder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .addMixIns(sourceMixins)
-                .build()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
-        return mapper;
+                .build();
     }
 }

@@ -142,24 +142,29 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testSerOptDefault() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = Optional.empty();
-		String value = newObjectMapper().setDefaultPropertyInclusion(
-				JsonInclude.Include.ALWAYS).writeValueAsString(data);
+		String value = objectMapperBuilder().changeDefaultPropertyInclusion(
+		        incl -> incl.withValueInclusion(JsonInclude.Include.ALWAYS))
+		        .build()
+		        .writeValueAsString(data);
 		assertEquals("{\"myString\":null}", value);
 	}
 
 	public void testSerOptNull() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = null;
-		String value = newObjectMapper().setDefaultPropertyInclusion(
-				JsonInclude.Include.NON_NULL).writeValueAsString(data);
+		String value = objectMapperBuilder().changeDefaultPropertyInclusion(
+		        incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+		        .build().writeValueAsString(data);
 		assertEquals("{}", value);
 	}
 
 	public void testSerOptNonEmpty() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = null;
-		String value = newObjectMapper().setDefaultPropertyInclusion(
-				JsonInclude.Include.NON_EMPTY).writeValueAsString(data);
+		String value = objectMapperBuilder().changeDefaultPropertyInclusion(
+		            incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+		        .build()
+		        .writeValueAsString(data);
 		assertEquals("{}", value);
 	}
 

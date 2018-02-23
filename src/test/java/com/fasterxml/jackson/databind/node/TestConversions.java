@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Assert;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -69,7 +70,16 @@ public class TestConversions extends BaseMapTest
 
         public Issue467TmpBean(int i) { x = i; }
     }
-    
+
+    static class Issue709Bean {
+        public byte[] data;
+    }
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="_class")
+    static class LongContainer1940 {
+        public Long longObj;
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -172,10 +182,6 @@ public class TestConversions extends BaseMapTest
         }
     }
 
-    static class Issue709Bean {
-        public byte[] data;
-    }
-    
     /**
      * Simple test to verify that byte[] values can be handled properly when
      * converting, as long as there is metadata (from POJO definitions).
@@ -285,5 +291,12 @@ public class TestConversions extends BaseMapTest
         assertTrue("Expected Object, got "+tree.getNodeType(), tree.isBoolean());
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
     }
-}
 
+    // [databind#1940]: losing of precision due to coercion
+    public void testBufferedLongViaCoercion() throws Exception {
+        long EXP = 1519348261000L;
+        JsonNode tree = MAPPER.readTree("{\"longObj\": "+EXP+".0, \"_class\": \""+LongContainer1940.class.getName()+"\"}");
+        LongContainer1940 obj = MAPPER.treeToValue(tree, LongContainer1940.class);
+        assertEquals(Long.valueOf(EXP), obj.longObj);
+    }
+}

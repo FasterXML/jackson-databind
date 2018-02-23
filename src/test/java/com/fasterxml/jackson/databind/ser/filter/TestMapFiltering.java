@@ -57,6 +57,11 @@ public class TestMapFiltering extends BaseMapTest
     static class TestMapFilter implements PropertyFilter
     {
         @Override
+        public PropertyFilter copy() {
+            return this;
+        }
+        
+        @Override
         public void serializeAsField(Object bean, JsonGenerator g,
                 SerializerProvider provider, PropertyWriter writer)
             throws Exception

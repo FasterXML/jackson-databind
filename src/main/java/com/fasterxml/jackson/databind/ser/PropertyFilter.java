@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import com.fasterxml.jackson.databind.util.Copyable;
 
 /**
  * Interface that defines API for filter objects use (as configured
@@ -19,10 +20,9 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
  * strongly recommended that custom implementations extend
  * {@link com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter},
  * to avoid backwards compatibility issues in case interface needs to change.
- * 
- * @since 2.3
  */
 public interface PropertyFilter
+    extends Copyable<PropertyFilter>
 {
     /**
      * Method called by {@link BeanSerializer} to let the filter decide what to do with

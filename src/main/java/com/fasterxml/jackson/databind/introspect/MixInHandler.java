@@ -99,7 +99,7 @@ public class MixInHandler
     /* MixInResolver API implementation
     /**********************************************************************
      */
-    
+
     @Override
     public MixInHandler copy() {
         MixInResolver overrides = (_overrides == null)

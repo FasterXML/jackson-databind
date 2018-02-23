@@ -29,9 +29,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Immutable config
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final ClassIntrospector _classIntrospector;
@@ -87,9 +87,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected final ConfigOverrides _configOverrides;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

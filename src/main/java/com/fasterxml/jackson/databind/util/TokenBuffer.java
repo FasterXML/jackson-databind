@@ -1637,8 +1637,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return (n instanceof Integer) || (n instanceof Short) || (n instanceof Byte);
         }
 
-        /* 02-Jan-2017, tatu: Modified from method(s) in `ParserBase`
-         */
+        // 02-Jan-2017, tatu: Modified from method(s) in `ParserBase`
         
         protected int _convertNumberToInt(Number n) throws IOException
         {
@@ -1689,7 +1688,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (d < MIN_LONG_D || d > MAX_LONG_D) {
                     reportOverflowLong();
                 }
-                return (int) d;
+                return (long) d;
             } else if (n instanceof BigDecimal) {
                 BigDecimal big = (BigDecimal) n;
                 if (BD_MIN_LONG.compareTo(big) > 0 

@@ -14,6 +14,9 @@ Project: jackson-databind
  (contributed by Deblock T)
 #1931: Two more `c3p0` gadgets to exploit default typing issue
  (reported by lilei@venusgroup.com.cn)
+#1940: `Float` values with integer value beyond `int` lose precision if
+  bound to `long`
+ (reported by Aniruddha M)
 
 2.9.4 (24-Jan-2018)
 
@@ -208,7 +211,7 @@ Project: jackson-databind
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
 
-2.8.11.1 (not yet released)
+2.8.11.1 (11-Feb-2018)
 
 #1872: `NullPointerException` in `SubTypeValidator.validateSubType` when
   validating Spring interface

@@ -28,6 +28,14 @@ public class SimpleBeanPropertyFilter
 
     protected SimpleBeanPropertyFilter() { }
 
+    @Override
+    public PropertyFilter copy() {
+        /* 22-Feb-2018, tatu: Since instances are immutable (no API to change)
+         *   we should be able to avoid actual copying, return instances as they are
+         */
+        return this;
+    }
+
     /**
      * Convenience factory method that will return a "no-op" filter that will
      * simply just serialize all properties that are given, and filter out
@@ -78,8 +86,6 @@ public class SimpleBeanPropertyFilter
     /**
      * Method called to determine whether property will be included
      * (if 'true' returned) or filtered out (if 'false' returned)
-     *
-     * @since 2.3
      */
     protected boolean include(PropertyWriter writer) {
         return true;
@@ -89,8 +95,6 @@ public class SimpleBeanPropertyFilter
      * Method that defines what to do with container elements
      * (values contained in an array or {@link java.util.Collection}:
      * default implementation simply writes them out.
-     * 
-     * @since 2.3
      */
     protected boolean includeElement(Object elementValue) {
         return true;

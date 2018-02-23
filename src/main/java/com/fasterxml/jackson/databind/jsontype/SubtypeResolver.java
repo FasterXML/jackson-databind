@@ -6,16 +6,18 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.util.Copyable;
 
 /**
  * Helper object used for handling registration on resolving of super-types
  * to sub-types.
  */
 public abstract class SubtypeResolver
+    implements Copyable<SubtypeResolver>
 {
     /*
     /**********************************************************
-    /* Life-cycle
+    /* Copyable
     /**********************************************************
      */
 
@@ -26,6 +28,7 @@ public abstract class SubtypeResolver
      *
      * @since 3.0
      */
+    @Override
     public abstract SubtypeResolver copy();
 
     /*

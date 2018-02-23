@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
+import com.fasterxml.jackson.databind.util.Copyable;
+
 /**
  * Interface for objects that providers instances of {@link PropertyFilter}
  * that match given ids. A provider is configured to be used during serialization,
@@ -7,6 +9,7 @@ package com.fasterxml.jackson.databind.ser;
  * annotation on bean class.
  */
 public abstract class FilterProvider
+    implements Copyable<FilterProvider>
 {
     /**
      * Lookup method used to find {@link PropertyFilter} that has specified id.

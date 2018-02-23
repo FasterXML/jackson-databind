@@ -7,12 +7,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.util.Copyable;
 
 /**
  * Container for individual {@link ConfigOverride} values.
  */
 public class ConfigOverrides
-    implements java.io.Serializable
+    implements java.io.Serializable,
+        Copyable<ConfigOverrides>
 {
     private static final long serialVersionUID = 1L;
 
@@ -66,6 +68,7 @@ public class ConfigOverrides
         _defaultMergeable = defMergeable;
     }
 
+    @Override
     public ConfigOverrides copy()
     {
         Map<Class<?>, MutableConfigOverride> newOverrides;

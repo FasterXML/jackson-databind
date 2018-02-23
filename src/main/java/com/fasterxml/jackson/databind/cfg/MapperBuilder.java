@@ -179,7 +179,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Misc other configuratoon
+    /* Misc other configuration
     /**********************************************************************
      */
 

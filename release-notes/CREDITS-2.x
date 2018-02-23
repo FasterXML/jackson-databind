@@ -753,3 +753,8 @@ Deblock Thomas (deblockt@github)
 lilei@venusgroup.com.cn:
   * Reported #1931: Two more `c3p0` gadgets to exploit default typing issue
    (2.9.5)
+
+Aniruddha Maru (maroux@github)
+  * Reported #1940: `Float` values with integer value beyond `int` lose precision if
+    bound to `long`
+   (2.9.5)

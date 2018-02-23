@@ -57,7 +57,7 @@ public class TestMapFiltering extends BaseMapTest
     static class TestMapFilter implements PropertyFilter
     {
         @Override
-        public PropertyFilter copy() {
+        public PropertyFilter snapshot() {
             return this;
         }
         

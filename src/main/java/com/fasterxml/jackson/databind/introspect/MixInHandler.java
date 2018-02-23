@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.type.ClassKey;
 
 /**
@@ -101,9 +102,8 @@ public class MixInHandler
      */
 
     @Override
-    public MixInHandler copy() {
-        MixInResolver overrides = (_overrides == null)
-                ? null : _overrides.copy();
+    public MixInHandler snapshot() {
+        MixInResolver overrides = Snapshottable.takeSnapshot(_overrides);
         Map<ClassKey,Class<?>> mixIns = (_localMixIns == null)
                 ? null : new HashMap<ClassKey,Class<?>>(_localMixIns);
         return new MixInHandler(overrides, mixIns);

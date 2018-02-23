@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.util.Copyable;
+import com.fasterxml.jackson.core.util.Snapshottable;
 
 /**
  * Interface used for decoupling details of how mix-in annotation
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.util.Copyable;
  * @since 3.0 (in 2.x was nested type of {@link ClassIntrospector})
  */
 public interface MixInResolver
-    extends Copyable<MixInResolver>
+    extends Snapshottable<MixInResolver>
 {
     /**
      * Method that will check if there are "mix-in" classes (with mix-in
@@ -25,5 +25,5 @@ public interface MixInResolver
      * If resolver is immutable may simply return `this`.
      */
     @Override
-    public MixInResolver copy();
+    public MixInResolver snapshot();
 }

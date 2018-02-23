@@ -2,8 +2,9 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.ser.*;
-import com.fasterxml.jackson.databind.util.Copyable;
 
 /**
  * Simple {@link FilterProvider} implementation that just stores
@@ -54,19 +55,19 @@ public class SimpleFilterProvider
     }
 
     protected SimpleFilterProvider(SimpleFilterProvider src) {
-        _defaultFilter = Copyable.makeCopy(src._defaultFilter);
+        _defaultFilter = Snapshottable.takeSnapshot(src._defaultFilter);
         _cfgFailOnUnknownId = src._cfgFailOnUnknownId;
         Map<String,PropertyFilter> f = src._filtersById;
         if (f.isEmpty()) {
             _filtersById = new HashMap<>();
         } else {
             _filtersById = new HashMap<>(f.size());
-            f.forEach((k,v) -> _filtersById.put(k, v.copy()));
+            f.forEach((k,v) -> _filtersById.put(k, v.snapshot()));
         }
     }
 
     @Override
-    public SimpleFilterProvider copy() {
+    public SimpleFilterProvider snapshot() {
         return new SimpleFilterProvider(this);
     }
 

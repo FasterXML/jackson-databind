@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.TokenStreamFactory;
+import com.fasterxml.jackson.core.util.Snapshottable;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
-import com.fasterxml.jackson.databind.util.Copyable;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 
 /**
@@ -116,7 +116,7 @@ public abstract class MapperBuilderState
 
         this._baseSettings = src._baseSettings; // immutable
         this._streamFactory = src._streamFactory; // immutable
-        this._configOverrides = Copyable.makeCopy(src._configOverrides);
+        this._configOverrides = Snapshottable.takeSnapshot(src._configOverrides);
 
         // Modules
 
@@ -125,8 +125,8 @@ public abstract class MapperBuilderState
         // Handlers, introspection
 
         this._classIntrospector = src._classIntrospector;
-        this._subtypeResolver = Copyable.makeCopy(src._subtypeResolver);
-        this._mixInHandler = (MixInHandler) Copyable.makeCopy(src._mixInHandler);
+        this._subtypeResolver = Snapshottable.takeSnapshot(src._subtypeResolver);
+        this._mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(src._mixInHandler);
 
         // Factories for serialization
 
@@ -139,7 +139,7 @@ public abstract class MapperBuilderState
 
         this._deserializerFactory = src._deserializerFactory;
         this._deserializationContext = src._deserializationContext;
-        this._injectableValues = Copyable.makeCopy(src._injectableValues);
+        this._injectableValues = Snapshottable.takeSnapshot(src._injectableValues);
         
         // Feature flags
         this._mapperFeatures = src._mapperFeatures;

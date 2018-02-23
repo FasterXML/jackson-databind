@@ -6,15 +6,16 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.fasterxml.jackson.databind.util.Copyable;
 
 /**
  * Container for individual {@link ConfigOverride} values.
  */
 public class ConfigOverrides
     implements java.io.Serializable,
-        Copyable<ConfigOverrides>
+        Snapshottable<ConfigOverrides>
 {
     private static final long serialVersionUID = 1L;
 
@@ -69,7 +70,7 @@ public class ConfigOverrides
     }
 
     @Override
-    public ConfigOverrides copy()
+    public ConfigOverrides snapshot()
     {
         Map<Class<?>, MutableConfigOverride> newOverrides;
         if (_overrides == null) {

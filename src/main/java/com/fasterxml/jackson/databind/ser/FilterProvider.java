@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.databind.util.Copyable;
+import com.fasterxml.jackson.core.util.Snapshottable;
 
 /**
  * Interface for objects that providers instances of {@link PropertyFilter}
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.util.Copyable;
  * annotation on bean class.
  */
 public abstract class FilterProvider
-    implements Copyable<FilterProvider>
+    implements Snapshottable<FilterProvider>
 {
     /**
      * Lookup method used to find {@link PropertyFilter} that has specified id.

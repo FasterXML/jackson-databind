@@ -704,7 +704,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     // Not really relevant here (should not get called)
     @Override
-    public MixInResolver copy() {
+    public MixInResolver snapshot() {
         throw new UnsupportedOperationException();
     }
     

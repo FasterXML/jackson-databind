@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
@@ -671,6 +672,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             Objects.requireNonNull(newV, "Can not assign null default VisibilityChecker");
             _configOverrides.setDefaultVisibility(newV);
         }
+        return _this();
+    }
+
+    public B changeDefaultPropertyInclusion(UnaryOperator<JsonInclude.Value> handler) {
+        JsonInclude.Value oldIncl = _configOverrides.getDefaultInclusion();
+        JsonInclude.Value newIncl = handler.apply(oldIncl);
+        if (newIncl != oldIncl) {
+            Objects.requireNonNull(newIncl, "Can not assign null default Property Inclusion");
+            _configOverrides.setDefaultInclusion(newIncl);
+        }
+        //public ObjectMapper setDefaultPropertyInclusion() {
         return _this();
     }
 

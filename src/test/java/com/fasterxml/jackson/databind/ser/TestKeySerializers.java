@@ -228,11 +228,11 @@ public class TestKeySerializers extends BaseMapTest
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
         final ObjectMapper mapper = ObjectMapper.builder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .addModule(mod)
                 .build()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
             ;
         Map<ABC,BAR<?>> stuff = new HashMap<ABC,BAR<?>>();
         stuff.put(ABC.B, new BAR<String>("bar"));

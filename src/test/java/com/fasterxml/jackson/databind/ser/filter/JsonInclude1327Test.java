@@ -31,9 +31,9 @@ public class JsonInclude1327Test
 
     // for [databind#1327]
     public void testClassDefaultsForEmpty() throws Exception {
-        ObjectMapper om = new ObjectMapper();
-        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
-
+        ObjectMapper om = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
         final String jsonString = om.writeValueAsString(new Issue1327BeanEmpty());
 
         if (jsonString.contains("myList")) {
@@ -42,11 +42,10 @@ public class JsonInclude1327Test
     }
 
     public void testClassDefaultsForAlways() throws Exception {
-        ObjectMapper om = new ObjectMapper();
-        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
-
+        ObjectMapper om = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
         final String jsonString = om.writeValueAsString(new Issue1327BeanAlways());
-
         if (!jsonString.contains("myList")) {
             fail("Should contain `myList` with Include.ALWAYS: "+jsonString);
         }

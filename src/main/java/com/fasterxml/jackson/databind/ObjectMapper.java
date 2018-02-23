@@ -571,26 +571,6 @@ public class ObjectMapper
      */
 
     /**
-     * Method for setting default POJO property inclusion strategy for serialization,
-     * applied for all properties for which there are no per-type or per-property
-     * overrides (via annotations or config overrides).
-     */
-    public ObjectMapper setDefaultPropertyInclusion(JsonInclude.Value incl) {
-        _configOverrides.setDefaultInclusion(incl);
-        return this;
-    }
-
-    /**
-     * Short-cut for:
-     *<pre>
-     *  setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));
-     *</pre>
-     */
-    public ObjectMapper setDefaultPropertyInclusion(JsonInclude.Include incl) {
-        return setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));
-    }
-
-    /**
      * Method for setting default Setter configuration, regarding things like
      * merging, null-handling; used for properties for which there are
      * no per-type or per-property overrides (via annotations or config overrides).

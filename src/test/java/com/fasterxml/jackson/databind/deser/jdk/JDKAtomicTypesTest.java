@@ -136,8 +136,9 @@ public class JDKAtomicTypesTest
     // for [databind#811]
     public void testAbsentExclusion() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
+                .build();
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
         assertEquals(aposToQuotes("{}"),
@@ -146,40 +147,40 @@ public class JDKAtomicTypesTest
 
     public void testSerPropInclusionAlways() throws Exception
     {
-        JsonInclude.Value incl =
-                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDefaultPropertyInclusion(incl);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(
+                        i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS))
+                .build();
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
 
     public void testSerPropInclusionNonNull() throws Exception
     {
-        JsonInclude.Value incl =
-                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDefaultPropertyInclusion(incl);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(
+                        i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL))
+                .build();
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
 
     public void testSerPropInclusionNonAbsent() throws Exception
     {
-        JsonInclude.Value incl =
-                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDefaultPropertyInclusion(incl);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(
+                        i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT))
+                .build();
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
 
     public void testSerPropInclusionNonEmpty() throws Exception
     {
-        JsonInclude.Value incl =
-                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDefaultPropertyInclusion(incl);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(
+                        i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY))
+                .build();
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
@@ -207,13 +208,15 @@ public class JDKAtomicTypesTest
         assertEquals(aposToQuotes("{'value':null}"), mapper.writeValueAsString(input));
 
         // ditto with "no nulls"
-        mapper = new ObjectMapper().setDefaultPropertyInclusion(JsonInclude
-                .Include.NON_NULL);
+        mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
         assertEquals(aposToQuotes("{'value':null}"), mapper.writeValueAsString(input));
 
         // but not with "non empty"
-        mapper = new ObjectMapper().setDefaultPropertyInclusion(JsonInclude
-                .Include.NON_EMPTY);
+        mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
         assertEquals("{}", mapper.writeValueAsString(input));
     }
 
@@ -260,11 +263,10 @@ public class JDKAtomicTypesTest
 
     public void testEmpty1256() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
-
-        String json = mapper.writeValueAsString(new Issue1256Bean());
-        assertEquals("{}", json);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
+                .build();
+        assertEquals("{}", mapper.writeValueAsString(new Issue1256Bean()));
     }
 
     // [databind#1307]

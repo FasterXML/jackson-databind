@@ -48,8 +48,10 @@ public class OptionalnclusionTest extends BaseMapTest
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = newObjectMapper().setDefaultPropertyInclusion(
-                JsonInclude.Include.NON_EMPTY).writeValueAsString(data);
+        String value = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build()
+                .writeValueAsString(data);
         assertEquals("{}", value);
     }
 
@@ -57,8 +59,10 @@ public class OptionalnclusionTest extends BaseMapTest
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = newObjectMapper().setDefaultPropertyInclusion(
-                JsonInclude.Include.NON_DEFAULT).writeValueAsString(data);
+        String value = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
+                .build()
+                .writeValueAsString(data);
         assertEquals("{}", value);
     }
 
@@ -66,8 +70,10 @@ public class OptionalnclusionTest extends BaseMapTest
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = newObjectMapper().setDefaultPropertyInclusion(
-                JsonInclude.Include.NON_ABSENT).writeValueAsString(data);
+        String value = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
+                .build()
+                .writeValueAsString(data);
         assertEquals("{}", value);
     }
 
@@ -83,36 +89,39 @@ public class OptionalnclusionTest extends BaseMapTest
 
     public void testSerPropInclusionAlways() throws Exception
     {
-        JsonInclude.Value incl =
-                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS);
-        ObjectMapper mapper = newObjectMapper().setDefaultPropertyInclusion(incl);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl ->
+                    JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS))
+                .build();
         assertEquals("{\"myData\":true}",
                 mapper.writeValueAsString(OptionalGenericData.construct(Boolean.TRUE)));
     }
 
     public void testSerPropInclusionNonNull() throws Exception
     {
-        JsonInclude.Value incl =
-                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL);
-        ObjectMapper mapper = newObjectMapper().setDefaultPropertyInclusion(incl);
+        ObjectMapper mapper = objectMapperBuilder().changeDefaultPropertyInclusion(
+                    i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL))
+                .build();
         assertEquals("{\"myData\":true}",
                 mapper.writeValueAsString(OptionalGenericData.construct(Boolean.TRUE)));
     }
 
     public void testSerPropInclusionNonAbsent() throws Exception
     {
-        JsonInclude.Value incl =
-                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT);
-        ObjectMapper mapper = newObjectMapper().setDefaultPropertyInclusion(incl);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(
+                        i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT))
+                .build();
         assertEquals("{\"myData\":true}",
                 mapper.writeValueAsString(OptionalGenericData.construct(Boolean.TRUE)));
     }
 
     public void testSerPropInclusionNonEmpty() throws Exception
     {
-        JsonInclude.Value incl =
-                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY);
-        ObjectMapper mapper = newObjectMapper().setDefaultPropertyInclusion(incl);
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(
+                        i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY))
+                .build();
         assertEquals("{\"myData\":true}",
                 mapper.writeValueAsString(OptionalGenericData.construct(Boolean.TRUE)));
     }

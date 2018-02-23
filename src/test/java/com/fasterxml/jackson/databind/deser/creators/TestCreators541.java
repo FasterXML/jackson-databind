@@ -67,9 +67,8 @@ public class TestCreators541 extends BaseMapTest
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
-                .build()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
-
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
         final String JSON = "{\n"
                 + "    \"foo\": {\n"
                 + "        \"0\": {\n"

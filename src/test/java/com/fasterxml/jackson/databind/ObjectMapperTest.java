@@ -83,12 +83,11 @@ public class ObjectMapperTest extends BaseMapTest
         // change
         VisibilityChecker customVis = VisibilityChecker.defaultInstance()
                 .withFieldVisibility(Visibility.ANY);
-        m = ObjectMapper.builder()
+        m = objectMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .changeDefaultVisibility(vc -> customVis)
                 .build();
 
-        JsonInclude.Value customIncl = JsonInclude.Value.empty().withValueInclusion(JsonInclude.Include.NON_DEFAULT);
-        m.setDefaultPropertyInclusion(customIncl);
         JsonSetter.Value customSetter = JsonSetter.Value.forValueNulls(Nulls.SKIP);
         m.setDefaultSetterInfo(customSetter);
         m.setDefaultMergeable(Boolean.TRUE);

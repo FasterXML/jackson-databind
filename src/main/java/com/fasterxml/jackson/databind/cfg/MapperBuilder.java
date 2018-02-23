@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
@@ -675,6 +676,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /**
+     * Method for changing currently default settings for property inclusion, used for determining
+     * whether POJO properties with certain value should be excluded or not: most common case being
+     * exclusion of `null` values.
+     */
     public B changeDefaultPropertyInclusion(UnaryOperator<JsonInclude.Value> handler) {
         JsonInclude.Value oldIncl = _configOverrides.getDefaultInclusion();
         JsonInclude.Value newIncl = handler.apply(oldIncl);
@@ -686,6 +692,22 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /**
+     * Method for changing currently default settings for handling of `null` values during
+     * deserialization, regarding whether they are set as-is, ignored completely, or possible
+     * transformed into "empty" value of the target type (if any).
+     */
+    public B changeDefaultNullReads(UnaryOperator<JsonSetter.Value> handler) {
+        JsonSetter.Value oldIncl = _configOverrides.getDefaultSetterInfo();
+        JsonSetter.Value newIncl = handler.apply(oldIncl);
+        if (newIncl != oldIncl) {
+            Objects.requireNonNull(newIncl, "Can not assign null default SetterInfo");
+            _configOverrides.setDefaultSetterInfo(newIncl);
+        }
+        //public ObjectMapper setDefaultPropertyInclusion() {
+        return _this();
+    }
+    
     /*
     /**********************************************************************
     /* Module registration, discovery, access

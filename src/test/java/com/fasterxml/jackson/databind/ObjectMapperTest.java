@@ -86,10 +86,8 @@ public class ObjectMapperTest extends BaseMapTest
         m = objectMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .changeDefaultVisibility(vc -> customVis)
+                .changeDefaultNullReads(n -> n.withValueNulls(Nulls.SKIP))
                 .build();
-
-        JsonSetter.Value customSetter = JsonSetter.Value.forValueNulls(Nulls.SKIP);
-        m.setDefaultSetterInfo(customSetter);
         m.setDefaultMergeable(Boolean.TRUE);
     }
 

@@ -94,8 +94,9 @@ public class MergeWithNullTest extends BaseMapTest
         assertEquals(-3, config.loc.b);
 
         // Second: by global defaults
-        mapper = newObjectMapper();
-        mapper.setDefaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));
+        mapper = objectMapperBuilder()
+                .changeDefaultNullReads(n -> n.withValueNulls(Nulls.SKIP))
+                .build();
         config = mapper.readerForUpdating(new ConfigDefault(12, 34))
                 .readValue(aposToQuotes("{'loc':null}"));
         assertNotNull(config.loc);

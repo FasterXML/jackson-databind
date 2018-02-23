@@ -70,25 +70,16 @@ public class MutableConfigOverride
         return this;
     }
 
-    /**
-     * @since 2.9
-     */
-    public MutableConfigOverride setSetterInfo(JsonSetter.Value v) {
-        _setterInfo = v;
+    public MutableConfigOverride setNullHandling(JsonSetter.Value v) {
+        _nullHandling = v;
         return this;
     }
 
-    /**
-     * @since 2.9
-     */
     public MutableConfigOverride setVisibility(JsonAutoDetect.Value v) {
         _visibility = v;
         return this;
     }
 
-    /**
-     * @since 2.9
-     */
     public MutableConfigOverride setMergeable(Boolean v) {
         _mergeable = v;
         return this;

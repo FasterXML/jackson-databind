@@ -697,12 +697,12 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * deserialization, regarding whether they are set as-is, ignored completely, or possible
      * transformed into "empty" value of the target type (if any).
      */
-    public B changeDefaultNullReads(UnaryOperator<JsonSetter.Value> handler) {
-        JsonSetter.Value oldIncl = _configOverrides.getDefaultSetterInfo();
+    public B changeDefaultNullHandling(UnaryOperator<JsonSetter.Value> handler) {
+        JsonSetter.Value oldIncl = _configOverrides.getDefaultNullHandling();
         JsonSetter.Value newIncl = handler.apply(oldIncl);
         if (newIncl != oldIncl) {
-            Objects.requireNonNull(newIncl, "Can not assign null default SetterInfo");
-            _configOverrides.setDefaultSetterInfo(newIncl);
+            Objects.requireNonNull(newIncl, "Can not assign null default Null Handling");
+            _configOverrides.setDefaultNullHandling(newIncl);
         }
         //public ObjectMapper setDefaultPropertyInclusion() {
         return _this();

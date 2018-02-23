@@ -643,8 +643,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     @Override
-    public final JsonSetter.Value getDefaultSetterInfo() {
-        return _configOverrides.getDefaultSetterInfo();
+    public final JsonSetter.Value getDefaultNullHandling() {
+        return _configOverrides.getDefaultNullHandling();
     }
 
     @Override

@@ -465,9 +465,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for the baseline setter info used as the global baseline,
      * not considering possible per-type overrides.
      *
+     * @since 3.0
+     *
      * @return Global base settings; never null
      */
-    public abstract JsonSetter.Value getDefaultSetterInfo();
+    public abstract JsonSetter.Value getDefaultNullHandling();
 
     /**
      * Accessor for the baseline merge info used as the global baseline,

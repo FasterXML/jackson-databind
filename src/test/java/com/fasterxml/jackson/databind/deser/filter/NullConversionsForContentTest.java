@@ -56,7 +56,7 @@ public class NullConversionsForContentTest extends BaseMapTest
 
         // but not when overridden globally:
         ObjectMapper mapper = objectMapperBuilder()
-                .changeDefaultNullReads(n -> n.withContentNulls(Nulls.FAIL))
+                .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.FAIL))
                 .build();
         try {
             mapper.readValue(JSON, listType);
@@ -68,7 +68,7 @@ public class NullConversionsForContentTest extends BaseMapTest
         // or configured for type:
         mapper = objectMapperBuilder()
                 .withConfigOverride(List.class,
-                        o -> o.setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL)))
+                        o -> o.setNullHandling(JsonSetter.Value.forContentNulls(Nulls.FAIL)))
                 .build();
         try {
             mapper.readValue(JSON, listType);
@@ -211,7 +211,7 @@ public class NullConversionsForContentTest extends BaseMapTest
 
         // Let's see defaulting in action
         ObjectMapper mapper = objectMapperBuilder()
-                .changeDefaultNullReads(n -> n.withContentNulls(Nulls.AS_EMPTY))
+                .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.AS_EMPTY))
                 .build();
         NullContentUndefined<List<Integer>> result = mapper.readValue(JSON, listType);
         assertEquals(1, result.values.size());
@@ -220,7 +220,7 @@ public class NullConversionsForContentTest extends BaseMapTest
         // or configured for type:
         mapper = objectMapperBuilder()
                 .withConfigOverride(List.class,
-                        o -> o.setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.AS_EMPTY)))
+                        o -> o.setNullHandling(JsonSetter.Value.forContentNulls(Nulls.AS_EMPTY)))
                         .build();
         result = mapper.readValue(JSON, listType);
         assertEquals(1, result.values.size());
@@ -305,7 +305,7 @@ public class NullConversionsForContentTest extends BaseMapTest
 
         // Let's see defaulting in action
         ObjectMapper mapper = objectMapperBuilder()
-                .changeDefaultNullReads(n -> n.withContentNulls(Nulls.SKIP))
+                .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.SKIP))
                 .build();
         NullContentUndefined<List<Long>> result = mapper.readValue(JSON, listType);
         assertEquals(0, result.values.size());
@@ -313,7 +313,7 @@ public class NullConversionsForContentTest extends BaseMapTest
         // or configured for type:
         mapper = objectMapperBuilder()
                 .withConfigOverride(List.class,
-                        o -> o.setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP)))
+                        o -> o.setNullHandling(JsonSetter.Value.forContentNulls(Nulls.SKIP)))
                 .build();
         result = mapper.readValue(JSON, listType);
         assertEquals(0, result.values.size());
@@ -327,7 +327,7 @@ public class NullConversionsForContentTest extends BaseMapTest
 
         ObjectMapper mapper = objectMapperBuilder()
                 // defaults call for fail; but POJO specifies "skip"; latter should win
-                .changeDefaultNullReads(n -> n.withContentNulls(Nulls.FAIL))
+                .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.FAIL))
                 .build();
         NullContentSkip<List<Long>> result = mapper.readValue(JSON, listType);
         assertEquals(0, result.values.size());
@@ -335,7 +335,7 @@ public class NullConversionsForContentTest extends BaseMapTest
         // ditto for per-type defaults
         mapper = objectMapperBuilder()
                 .withConfigOverride(List.class,
-                        o -> o.setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL)))
+                        o -> o.setNullHandling(JsonSetter.Value.forContentNulls(Nulls.FAIL)))
                 .build();
         result = mapper.readValue(JSON, listType);
         assertEquals(0, result.values.size());

@@ -268,13 +268,13 @@ public class POJOPropertyBuilder
             if (needMerge || (valueNulls == null) || (contentNulls == null)) {
                 Class<?> rawType = getRawPrimaryType();
                 ConfigOverride co = _config.getConfigOverride(rawType);
-                JsonSetter.Value setterInfo = co.getSetterInfo();
-                if (setterInfo != null) {
+                JsonSetter.Value nullHandling = co.getNullHandling();
+                if (nullHandling != null) {
                     if (valueNulls == null) {
-                        valueNulls = setterInfo.nonDefaultValueNulls();
+                        valueNulls = nullHandling.nonDefaultValueNulls();
                     }
                     if (contentNulls == null) {
-                        contentNulls = setterInfo.nonDefaultContentNulls();
+                        contentNulls = nullHandling.nonDefaultContentNulls();
                     }
                 }
                 if (needMerge && (acc != null)) {
@@ -289,7 +289,7 @@ public class POJOPropertyBuilder
             }
         }
         if (needMerge || (valueNulls == null) || (contentNulls == null)) {
-            JsonSetter.Value setterInfo = _config.getDefaultSetterInfo();
+            JsonSetter.Value setterInfo = _config.getDefaultNullHandling();
             if (valueNulls == null) {
                 valueNulls = setterInfo.nonDefaultValueNulls();
             }

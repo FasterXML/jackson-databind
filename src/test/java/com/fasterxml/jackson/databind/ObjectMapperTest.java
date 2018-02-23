@@ -77,7 +77,7 @@ public class ObjectMapperTest extends BaseMapTest
         ObjectMapper m = new ObjectMapper();
         SerializationConfig config = m.serializationConfig();
         assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
-        assertEquals(JsonSetter.Value.empty(), config.getDefaultSetterInfo());
+        assertEquals(JsonSetter.Value.empty(), config.getDefaultNullHandling());
         assertNull(config.getDefaultMergeable());
 
         // change
@@ -86,7 +86,7 @@ public class ObjectMapperTest extends BaseMapTest
         m = objectMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .changeDefaultVisibility(vc -> customVis)
-                .changeDefaultNullReads(n -> n.withValueNulls(Nulls.SKIP))
+                .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.SKIP))
                 .build();
         m.setDefaultMergeable(Boolean.TRUE);
     }

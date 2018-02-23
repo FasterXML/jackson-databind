@@ -165,9 +165,10 @@ public class MapMergeTest extends BaseMapTest
 
     public void testDisabledMergeViaGlobal() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
         // disable merging, globally; does not affect main level
-        mapper.setDefaultMergeable(false);
+        ObjectMapper mapper = objectMapperBuilder()
+                .defaultMergeable(false)
+                .build();
 
         HashMap<String,Object> input = new HashMap<>();
         input.put("list", new ArrayList<>(Arrays.asList("a")));
@@ -202,9 +203,8 @@ public class MapMergeTest extends BaseMapTest
         mapper = objectMapperBuilder()
                 .withConfigOverride(Object.class,
                         o -> o.setMergeable(true))
+                .defaultMergeable(Boolean.FALSE)
                 .build();
-        mapper.setDefaultMergeable(false);
-
         input = new HashMap<>();
         input.put("list", new ArrayList<>(Arrays.asList("x")));
 

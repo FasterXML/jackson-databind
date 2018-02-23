@@ -704,10 +704,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             Objects.requireNonNull(newIncl, "Can not assign null default Null Handling");
             _configOverrides.setDefaultNullHandling(newIncl);
         }
-        //public ObjectMapper setDefaultPropertyInclusion() {
         return _this();
     }
-    
+
+    /**
+     * Method for setting default Setter configuration, regarding things like
+     * merging, null-handling; used for properties for which there are
+     * no per-type or per-property overrides (via annotations or config overrides).
+     */
+    public B defaultMergeable(Boolean b) {
+        _configOverrides.setDefaultMergeable(b);
+        return _this();
+    }
+
     /*
     /**********************************************************************
     /* Module registration, discovery, access

@@ -163,7 +163,7 @@ public class TestMixinSerForMethods
                     }
         
                     @Override
-                    public MixInResolver copy() {
+                    public MixInResolver snapshot() {
                         return this;
                     }
                 })

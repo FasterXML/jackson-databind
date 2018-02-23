@@ -28,7 +28,7 @@ public class StdSubtypeResolver
     }
 
     @Override
-    public SubtypeResolver copy() {
+    public SubtypeResolver snapshot() {
         if (_registeredSubtypes == null) {
             return new StdSubtypeResolver();
         }

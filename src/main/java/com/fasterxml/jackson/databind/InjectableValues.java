@@ -2,15 +2,16 @@ package com.fasterxml.jackson.databind;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Copyable;
 
 /**
  * Abstract class that defines API for objects that provide value to
  * "inject" during deserialization. An instance of this object
  */
 public abstract class InjectableValues
-    implements Copyable<InjectableValues>
+    implements Snapshottable<InjectableValues>
 {
     /**
      * Method called to find value identified by id <code>valueId</code> to
@@ -66,7 +67,7 @@ public abstract class InjectableValues
         }
 
         @Override
-        public Std copy() {
+        public Std snapshot() {
             if (_values.isEmpty()) {
                 return new Std();
             }

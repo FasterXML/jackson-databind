@@ -29,10 +29,9 @@ public class SimpleBeanPropertyFilter
     protected SimpleBeanPropertyFilter() { }
 
     @Override
-    public PropertyFilter copy() {
-        /* 22-Feb-2018, tatu: Since instances are immutable (no API to change)
-         *   we should be able to avoid actual copying, return instances as they are
-         */
+    public PropertyFilter snapshot() {
+        // 22-Feb-2018, tatu: Since instances are immutable (no API to change)
+        //   we should be able to avoid actual copying, return instances as they are
         return this;
     }
 

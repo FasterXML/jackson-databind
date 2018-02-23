@@ -87,8 +87,8 @@ public class ObjectMapperTest extends BaseMapTest
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .changeDefaultVisibility(vc -> customVis)
                 .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.SKIP))
+                .defaultMergeable(Boolean.TRUE)
                 .build();
-        m.setDefaultMergeable(Boolean.TRUE);
     }
 
     /*

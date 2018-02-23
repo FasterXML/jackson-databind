@@ -130,8 +130,9 @@ public class PropertyMergeTest extends BaseMapTest
     public void testBeanMergingViaGlobal() throws Exception
     {
         // but with type-overrides
-        ObjectMapper mapper = newObjectMapper()
-                .setDefaultMergeable(true);
+        ObjectMapper mapper = objectMapperBuilder()
+                .defaultMergeable(true)
+                .build();
         NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged

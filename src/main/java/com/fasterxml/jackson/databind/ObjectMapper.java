@@ -541,42 +541,9 @@ public class ObjectMapper
     /**********************************************************************
      */
 
-    /**
-     * Method to use for adding mix-in annotations to use for augmenting
-     * specified class or interface. All annotations from
-     * <code>mixinSource</code> are taken to override annotations
-     * that <code>target</code> (or its supertypes) has.
-     *
-     * @param target Class (or interface) whose annotations to effectively override
-     * @param mixinSource Class (or interface) whose annotations are to
-     *   be "added" to target's annotations, overriding as necessary
-     */
-    @Deprecated
-    public ObjectMapper addMixIn(Class<?> target, Class<?> mixinSource)
-    {
-        _mixIns.addLocalDefinition(target, mixinSource);
-        return this;
-    }
-
     // For testing only:
     public MixInHandler mixInHandler() {
         return _mixIns;
-    }
-
-    /*
-    /**********************************************************************
-    /* Configuration: global-default/per-type override settings
-    /**********************************************************************
-     */
-
-    /**
-     * Method for setting default Setter configuration, regarding things like
-     * merging, null-handling; used for properties for which there are
-     * no per-type or per-property overrides (via annotations or config overrides).
-     */
-    public ObjectMapper setDefaultMergeable(Boolean b) {
-        _configOverrides.setDefaultMergeable(b);
-        return this;
     }
 
     /*

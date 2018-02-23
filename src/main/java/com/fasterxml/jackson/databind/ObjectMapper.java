@@ -575,16 +575,6 @@ public class ObjectMapper
      * merging, null-handling; used for properties for which there are
      * no per-type or per-property overrides (via annotations or config overrides).
      */
-    public ObjectMapper setDefaultSetterInfo(JsonSetter.Value v) {
-        _configOverrides.setDefaultSetterInfo(v);
-        return this;
-    }
-
-    /**
-     * Method for setting default Setter configuration, regarding things like
-     * merging, null-handling; used for properties for which there are
-     * no per-type or per-property overrides (via annotations or config overrides).
-     */
     public ObjectMapper setDefaultMergeable(Boolean b) {
         _configOverrides.setDefaultMergeable(b);
         return this;

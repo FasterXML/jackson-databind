@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.merge;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
 
@@ -51,10 +50,10 @@ public class MapMergeTest extends BaseMapTest
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();
 
-    private final ObjectMapper MAPPER_SKIP_NULLS = newObjectMapper()
-            .setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
-    ;
-    
+    private final ObjectMapper MAPPER_SKIP_NULLS = objectMapperBuilder()
+            .changeDefaultNullReads(n -> n.withContentNulls(Nulls.SKIP))
+            .build();
+
     public void testShallowMapMerging() throws Exception
     {
         final String JSON = aposToQuotes("{'values':{'c':'y','d':null}}");

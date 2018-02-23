@@ -55,8 +55,9 @@ public class NullConversionsForContentTest extends BaseMapTest
         assertNull(result.values.get(0));
 
         // but not when overridden globally:
-        ObjectMapper mapper = newObjectMapper();
-        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL));
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultNullReads(n -> n.withContentNulls(Nulls.FAIL))
+                .build();
         try {
             mapper.readValue(JSON, listType);
             fail("Should not pass");
@@ -209,8 +210,9 @@ public class NullConversionsForContentTest extends BaseMapTest
         TypeReference<?> listType = new TypeReference<NullContentUndefined<List<Integer>>>() { };
 
         // Let's see defaulting in action
-        ObjectMapper mapper = newObjectMapper();
-        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.AS_EMPTY));
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultNullReads(n -> n.withContentNulls(Nulls.AS_EMPTY))
+                .build();
         NullContentUndefined<List<Integer>> result = mapper.readValue(JSON, listType);
         assertEquals(1, result.values.size());
         assertEquals(Integer.valueOf(0), result.values.get(0));
@@ -302,8 +304,9 @@ public class NullConversionsForContentTest extends BaseMapTest
         TypeReference<?> listType = new TypeReference<NullContentUndefined<List<Long>>>() { };
 
         // Let's see defaulting in action
-        ObjectMapper mapper = newObjectMapper();
-        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
+        ObjectMapper mapper = objectMapperBuilder()
+                .changeDefaultNullReads(n -> n.withContentNulls(Nulls.SKIP))
+                .build();
         NullContentUndefined<List<Long>> result = mapper.readValue(JSON, listType);
         assertEquals(0, result.values.size());
 
@@ -322,9 +325,10 @@ public class NullConversionsForContentTest extends BaseMapTest
         final String JSON = aposToQuotes("{'values':[null]}");
         TypeReference<?> listType = new TypeReference<NullContentSkip<List<Long>>>() { };
 
-        ObjectMapper mapper = newObjectMapper();
-        // defaults call for fail; but POJO specifies "skip"; latter should win
-        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL));
+        ObjectMapper mapper = objectMapperBuilder()
+                // defaults call for fail; but POJO specifies "skip"; latter should win
+                .changeDefaultNullReads(n -> n.withContentNulls(Nulls.FAIL))
+                .build();
         NullContentSkip<List<Long>> result = mapper.readValue(JSON, listType);
         assertEquals(0, result.values.size());
 

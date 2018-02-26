@@ -4,6 +4,9 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.7.2 (not yet released)
+#1737: Block more JDK types from polymorphic deserialization
+
 2.6.7.1 (11-Jul-2017)
 
 #1383: Problem with `@JsonCreator` with 1-arg factory-method, implicit param names

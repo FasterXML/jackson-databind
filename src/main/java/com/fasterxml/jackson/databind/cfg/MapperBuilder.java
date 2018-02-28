@@ -58,7 +58,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Underlying stream factory
      */
-    protected final TokenStreamFactory _streamFactory;
+    protected TokenStreamFactory _streamFactory;
 
     /**
      * Various configuration setting overrides, both global base settings

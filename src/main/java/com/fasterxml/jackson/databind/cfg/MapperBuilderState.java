@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.PrettyPrinter;
@@ -25,7 +24,7 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
  * {@link com.fasterxml.jackson.databind.ObjectMapper} isn't constructed.
  * It is passed to mapper to allow "re-building" via newly created builder.
  */
-public abstract class MapperBuilderState
+public class MapperBuilderState
     implements java.io.Serializable // important!
 {
     private static final long serialVersionUID = 3L;
@@ -36,9 +35,19 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
-    protected BaseSettings _baseSettings;
-    protected TokenStreamFactory _streamFactory;
-    protected ConfigOverrides _configOverrides;
+    protected final BaseSettings _baseSettings;
+    protected final TokenStreamFactory _streamFactory;
+    protected final ConfigOverrides _configOverrides;
+
+    /*
+    /**********************************************************************
+    /* Feature flags
+    /**********************************************************************
+     */
+
+    protected final int _mapperFeatures, _serFeatures, _deserFeatures;
+    protected final int _parserFeatures, _generatorFeatures;
+    protected final int _formatParserFeatures, _formatGeneratorFeatures;
 
     /*
     /**********************************************************************
@@ -47,9 +56,9 @@ public abstract class MapperBuilderState
      */
 
     /**
-     * Modules registered in registration order
+     * Modules registered in registration order, if any; `null` if none.
      */
-    protected Object[] _modules;
+    protected final Object[] _modules;
 
     /*
     /**********************************************************************
@@ -57,9 +66,9 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
-    protected ClassIntrospector _classIntrospector;
-    protected SubtypeResolver _subtypeResolver;
-    protected MixInHandler _mixInHandler;
+    protected final ClassIntrospector _classIntrospector;
+    protected final SubtypeResolver _subtypeResolver;
+    protected final MixInHandler _mixInHandler;
 
     /*
     /**********************************************************************
@@ -67,10 +76,10 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
-    protected SerializerFactory _serializerFactory;
-    protected DefaultSerializerProvider _serializerProvider;
-    protected FilterProvider _filterProvider;
-    protected PrettyPrinter _defaultPrettyPrinter;
+    protected final SerializerFactory _serializerFactory;
+    protected final DefaultSerializerProvider _serializerProvider;
+    protected final FilterProvider _filterProvider;
+    protected final PrettyPrinter _defaultPrettyPrinter;
 
     /*
     /**********************************************************************
@@ -78,19 +87,9 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
-    protected DeserializerFactory _deserializerFactory;
-    protected DefaultDeserializationContext _deserializationContext;
-    protected InjectableValues _injectableValues;
-
-    /*
-    /**********************************************************************
-    /* Feature flags:
-    /**********************************************************************
-     */
-
-    protected int _mapperFeatures, _serFeatures, _deserFeatures;
-    protected int _parserFeatures, _generatorFeatures;
-    protected int _formatParserFeatures, _formatGeneratorFeatures;
+    protected final DeserializerFactory _deserializerFactory;
+    protected final DefaultDeserializationContext _deserializationContext;
+    protected final InjectableValues _injectableValues;
 
     /*
     /**********************************************************************
@@ -118,29 +117,6 @@ public abstract class MapperBuilderState
         this._streamFactory = src._streamFactory; // immutable
         this._configOverrides = Snapshottable.takeSnapshot(src._configOverrides);
 
-        // Modules
-
-        _modules = _toArray(src._modules.values());
-
-        // Handlers, introspection
-
-        this._classIntrospector = src._classIntrospector;
-        this._subtypeResolver = Snapshottable.takeSnapshot(src._subtypeResolver);
-        this._mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(src._mixInHandler);
-
-        // Factories for serialization
-
-        this._serializerFactory = src._serializerFactory;
-        this._serializerProvider = src._serializerProvider;
-        this._filterProvider = src._filterProvider;
-        this._defaultPrettyPrinter = src._defaultPrettyPrinter;
-        
-        // Factories for deserialization
-
-        this._deserializerFactory = src._deserializerFactory;
-        this._deserializationContext = src._deserializationContext;
-        this._injectableValues = Snapshottable.takeSnapshot(src._injectableValues);
-        
         // Feature flags
         this._mapperFeatures = src._mapperFeatures;
         this._serFeatures = src._serFeatures;
@@ -150,10 +126,32 @@ public abstract class MapperBuilderState
         this._formatParserFeatures = src._formatParserFeatures;
         this._formatGeneratorFeatures = src._formatGeneratorFeatures;
 
-        // Misc other
+        // Handlers, introspection
+        this._classIntrospector = src._classIntrospector;
+        this._subtypeResolver = Snapshottable.takeSnapshot(src._subtypeResolver);
+        this._mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(src._mixInHandler);
 
+        // Factories for serialization
+        this._serializerFactory = src._serializerFactory;
+        this._serializerProvider = src._serializerProvider;
+        this._filterProvider = src._filterProvider;
+        this._defaultPrettyPrinter = src._defaultPrettyPrinter;
+        
+        // Factories for deserialization
+        this._deserializerFactory = src._deserializerFactory;
+        this._deserializationContext = src._deserializationContext;
+        this._injectableValues = Snapshottable.takeSnapshot(src._injectableValues);
+
+        // Misc other
         // assume our usage of LinkedNode-based list is immutable here (should be)
         this._problemHandlers = src._problemHandlers;
+
+        // Modules
+        if (src._modules == null) {
+            _modules = null;
+        } else {
+            _modules = _toArray(src._modules.values());
+        }
     }
 
     private static Object[] _toArray(Collection<?> coll)
@@ -161,9 +159,6 @@ public abstract class MapperBuilderState
         if (coll == null || coll.isEmpty()) {
             return null;
         }
-        Class<?> raw = coll.iterator().next().getClass();
-        int len = coll.size();
-        Object[] result = (Object[]) Array.newInstance(raw, len);
-        return coll.toArray(result);
+        return coll.toArray(new Object[coll.size()]);
     }
 }

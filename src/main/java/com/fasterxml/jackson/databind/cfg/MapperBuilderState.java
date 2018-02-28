@@ -58,7 +58,7 @@ public class MapperBuilderState
     /**
      * Modules registered in registration order, if any; `null` if none.
      */
-    protected final Object[] _modules;
+    protected final com.fasterxml.jackson.databind.Module[] _modules;
 
     /*
     /**********************************************************************
@@ -154,11 +154,11 @@ public class MapperBuilderState
         }
     }
 
-    private static Object[] _toArray(Collection<?> coll)
+    private static com.fasterxml.jackson.databind.Module[] _toArray(Collection<?> coll)
     {
         if (coll == null || coll.isEmpty()) {
             return null;
         }
-        return coll.toArray(new Object[coll.size()]);
+        return coll.toArray(new com.fasterxml.jackson.databind.Module[coll.size()]);
     }
 }

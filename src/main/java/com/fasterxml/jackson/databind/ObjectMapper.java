@@ -167,6 +167,15 @@ public class ObjectMapper
         public ObjectMapper build() {
             return new ObjectMapper(this);
         }
+
+        @Override
+        protected MapperBuilderState _saveState() {
+            return new MapperBuilderState(this);
+        }
+
+        public Builder(MapperBuilderState state) {
+            super(state);
+        }
     }
 
     /*
@@ -417,6 +426,21 @@ public class ObjectMapper
     
     public static ObjectMapper.Builder builder(TokenStreamFactory streamFactory) {
         return new ObjectMapper.Builder(streamFactory);
+    }
+
+    /**
+     * Method for creating a new {@link MapperBuilder} for constructing differently configured
+     * {@link ObjectMapper} instance, starting with current configuration including base settings
+     * and registered modules.
+     *
+     * @since 3.0
+     */
+    @SuppressWarnings("unchecked")
+    public <M extends ObjectMapper, B extends MapperBuilder<M,B>> MapperBuilder<M,B> rebuild() {
+        // 27-Feb-2018, tatu: since we still have problem with `ObjectMapper` being both API
+        //    and implementation for JSON, need more checking here
+        ClassUtil.verifyMustOverride(ObjectMapper.class, this, "rebuild");
+        return (MapperBuilder<M,B>) new ObjectMapper.Builder(_savedBuilderState);
     }
 
     /*
@@ -2381,7 +2405,7 @@ public class ObjectMapper
      * of container to update) are modified, unless properties themselves indicate that
      * merging should be applied for contents. Such merging can be specified using
      * annotations (see <code>JsonMerge</code>) as well as using "config overrides" (see
-     * {@link #configOverride(Class)} and {@link #setDefaultMergeable(Boolean)}).
+     * {@link MapperBuilder#withConfigOverride} and {@link MapperBuilder#defaultMergeable}).
      *
      * @param valueToUpdate Object to update
      * @param overrides Object to conceptually serialize and merge into value to

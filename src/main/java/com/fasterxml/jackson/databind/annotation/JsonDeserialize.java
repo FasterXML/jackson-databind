@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  *    class and NOT on target POJO class: for example &#64;JsonIgnoreProperties should be on
  *    Builder to prevent "unknown property" errors.
  *  </li>
- * <li>Similarly configuration overrides (see {@link com.fasterxml.jackson.databind.ObjectMapper#configOverride})
+ * <li>Similarly configuration overrides (see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder#withConfigOverride})
  *    should be targeted at Builder class, not target POJO class.
  *  </li>
  * </ul>

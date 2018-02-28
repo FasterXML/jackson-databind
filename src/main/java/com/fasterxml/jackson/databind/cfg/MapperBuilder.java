@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-
+import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
@@ -216,6 +216,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _streamFactory = streamFactory;
         _baseSettings = DEFAULT_BASE_SETTINGS;
         _configOverrides = new ConfigOverrides();
+        _modules = null;
 
         _parserFeatures = streamFactory.getParserFeatures();
         _generatorFeatures = streamFactory.getGeneratorFeatures();
@@ -234,15 +235,64 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _subtypeResolver = null;
         _mixInHandler = null;
 
-        _serializerFactory = BeanSerializerFactory.instance;
+        _serializerFactory = null;
         _serializerProvider = null;
         _filterProvider = null;
 
-        _deserializerFactory = BeanDeserializerFactory.instance;
+        _deserializerFactory = null;
         _deserializationContext = null;
         _injectableValues = null;
 
         _problemHandlers = null;
+    }
+
+    /**
+     * Constructor used to support "rebuild", starting with a previously taken
+     * snapshot, in order to create mappers that start with a known state of
+     * configuration, including a set of modules to register.
+     */
+    protected MapperBuilder(MapperBuilderState state)
+    {
+        _streamFactory = state._streamFactory;
+        _baseSettings = state._baseSettings;
+        _configOverrides = Snapshottable.takeSnapshot(state._configOverrides);
+
+        _parserFeatures = state._parserFeatures;
+        _generatorFeatures = state._generatorFeatures;
+        _formatParserFeatures = state._formatParserFeatures;
+        _formatGeneratorFeatures = state._formatGeneratorFeatures;
+        _mapperFeatures = state._mapperFeatures;
+        _deserFeatures = state._deserFeatures;
+        _serFeatures = state._serFeatures;
+
+        // Handlers, introspection
+        _classIntrospector = state._classIntrospector;
+        _subtypeResolver = Snapshottable.takeSnapshot(state._subtypeResolver);
+        _mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(state._mixInHandler);
+
+        // Factories for serialization
+        _serializerFactory = state._serializerFactory;
+        _serializerProvider = state._serializerProvider;
+        _filterProvider = state._filterProvider;
+        _defaultPrettyPrinter = state._defaultPrettyPrinter;
+
+        // Factories for deserialization
+        _deserializerFactory = state._deserializerFactory;
+        _deserializationContext = state._deserializationContext;
+        _injectableValues = Snapshottable.takeSnapshot(state._injectableValues);
+
+        // Misc other
+        _problemHandlers = state._problemHandlers;
+
+        // Modules
+        if (state._modules == null) {
+            _modules = null;
+        } else {
+            _modules = new LinkedHashMap<>();
+            for (Object mod : state._modules) {
+                addModule((com.fasterxml.jackson.databind.Module) mod);
+            }
+        }
     }
 
     protected MapperBuilder(MapperBuilder<?,?> base)
@@ -307,14 +357,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _savedState;
     }
 
-    public ModuleContextBase _constructModuleContext() {
+    protected ModuleContextBase _constructModuleContext() {
         return new ModuleContextBase(this, _configOverrides);
     }
 
-    public MapperBuilderState _saveState() {
-        // !!! TBI
-        return null;
-    }
+    protected abstract MapperBuilderState _saveState();
 
     /*
     /**********************************************************************
@@ -434,7 +481,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     public SerializerFactory serializerFactory() {
+        if (_serializerFactory == null) {
+            _serializerFactory = _defaultSerializerFactory();
+        }
         return _serializerFactory;
+    }
+
+    protected SerializerFactory _defaultSerializerFactory() {
+        return BeanSerializerFactory.instance;
     }
 
     public DefaultSerializerProvider serializerProvider() {
@@ -474,7 +528,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     public DeserializerFactory deserializerFactory() {
+        if (_deserializerFactory == null) {
+            _deserializerFactory = _defaultDeserializerFactory();
+        }
         return _deserializerFactory;
+    }
+
+    DeserializerFactory _defaultDeserializerFactory() {
+        return BeanDeserializerFactory.instance;
     }
 
     public DefaultDeserializationContext deserializationContext() {

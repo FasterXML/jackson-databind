@@ -23,8 +23,11 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
  * {@link MapperBuilder} before modules are configured and resulting
  * {@link com.fasterxml.jackson.databind.ObjectMapper} isn't constructed.
  * It is passed to mapper to allow "re-building" via newly created builder.
+ *<p>
+ * Note that JDK serialization is supported by switching this object in place
+ * of mapper. This requires some acrobatics on return direction.
  */
-public class MapperBuilderState
+public abstract class MapperBuilderState
     implements java.io.Serializable // important!
 {
     private static final long serialVersionUID = 3L;
@@ -105,7 +108,7 @@ public class MapperBuilderState
 
     /*
     /**********************************************************************
-    /* Life-cycle
+    /* Construction
     /**********************************************************************
      */
 
@@ -161,4 +164,16 @@ public class MapperBuilderState
         }
         return coll.toArray(new com.fasterxml.jackson.databind.Module[coll.size()]);
     }
+
+    /*
+    /**********************************************************************
+    /* JDK deserialization support
+    /**********************************************************************
+     */
+
+    /**
+     * Method required to support JDK deserialization; made `abstract` here to ensure
+     * sub-classes must implement it.
+     */
+    protected abstract Object readResolve();
 }

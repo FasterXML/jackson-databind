@@ -477,12 +477,12 @@ public class ObjectMapper
     // easier, and we go with that.
     // But note that return direction has to be supported, then, by that state object
     // and NOT anything in here.
-    Object writeReplace() {
+    protected Object writeReplace() {
         return _savedBuilderState;
     }
 
     // Just as a sanity check verify there is no attempt at directly instantiating mapper here
-    Object readResolve() {
+    protected Object readResolve() {
         throw new IllegalStateException("Should never deserialize `"+getClass().getName()+"` directly");
     }
 

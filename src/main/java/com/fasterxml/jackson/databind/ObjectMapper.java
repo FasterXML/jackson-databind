@@ -170,11 +170,28 @@ public class ObjectMapper
 
         @Override
         protected MapperBuilderState _saveState() {
-            return new MapperBuilderState(this);
+            return new StateImpl(this);
         }
 
         public Builder(MapperBuilderState state) {
             super(state);
+        }
+
+        /**
+         * We also need actual instance of state as base class can not implement logic
+         * for reinstating mapper (via mapper builder) from state.
+         */
+        static class StateImpl extends MapperBuilderState {
+            private static final long serialVersionUID = 3L;
+
+            public StateImpl(Builder b) {
+                super(b);
+            }
+
+            @Override
+            protected Object readResolve() {
+                return new Builder(this).build();
+            }
         }
     }
 
@@ -341,7 +358,7 @@ public class ObjectMapper
 
     /*
     /**********************************************************************
-    /* Life-cycle: constructing instance
+    /* Life-cycle: legacy constructors
     /**********************************************************************
      */
 
@@ -362,6 +379,12 @@ public class ObjectMapper
     public ObjectMapper(TokenStreamFactory streamFactory) {
         this(new Builder(streamFactory));
     }
+
+    /*
+    /**********************************************************************
+    /* Life-cycle: builder-style construction
+    /**********************************************************************
+     */
 
     /**
      * Constructor usually called either by {@link MapperBuilder#build} or
@@ -441,6 +464,27 @@ public class ObjectMapper
         //    and implementation for JSON, need more checking here
         ClassUtil.verifyMustOverride(ObjectMapper.class, this, "rebuild");
         return (MapperBuilder<M,B>) new ObjectMapper.Builder(_savedBuilderState);
+    }
+
+    /*
+    /**********************************************************************
+    /* Life-cycle: JDK serialization support
+    /**********************************************************************
+     */
+
+    // Logic here is simple: instead of serializing mapper via its contents,
+    // we have pre-packaged `MapperBuilderState` in a way that makes serialization
+    // easier, and we go with that.
+    // But note that return direction has to be supported, then, by that state object
+    // and NOT anything in here.
+
+    Object writeReplace() {
+        return _savedBuilderState;
+    }
+
+    // Just as a sanity check verify there is no attempt at directly instantiating mapper here
+    Object readResolve() {
+        throw new IllegalStateException("Should never deserialize `ObjectMapper` directly");
     }
 
     /*

@@ -102,13 +102,7 @@ public class SimpleModule
      * use actual name and version number information.
      */
     public SimpleModule() {
-        // can't chain when making reference to 'this'
-        // note: generate different name for direct instantiation, sub-classing
-        _name = (getClass() == SimpleModule.class) ?
-                "SimpleModule-"+System.identityHashCode(this)
-                : getClass().getName();
-        _version = Version.unknownVersion();
-        _id = _createId();
+        this((String) null);
     }
 
     /**
@@ -137,11 +131,20 @@ public class SimpleModule
      * @param version Version of the module
      */
     public SimpleModule(String name, Version version) {
-        _name = name;
-        _version = version;
-        _id = _createId();
+        this(name, version, null);
     }
 
+    public SimpleModule(String name, Version version, Object registrationId) {
+        if (name == null) {
+            name = (getClass() == SimpleModule.class) ?
+                    "SimpleModule-"+System.identityHashCode(this)
+                    : getClass().getName();
+        }
+        _name = name;
+        _version = version;
+        _id = (registrationId == null) ? _createId() : registrationId;
+    }
+    
     // 27-Feb-2018, tatu: Need to create Registration Id that never matches any
     //    other id, but is serializable
     protected Object _createId() {

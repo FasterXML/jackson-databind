@@ -1,7 +1,15 @@
-We appreciate issues as very valuable contributions, but just to make sure here are things that are important to do before filing an issue:
+We appreciate issues as very valuable contributions, but just to make sure here are things that are important to do before filing an issue.
 
-* Only report ISSUES (and perhaps request new features)!
-    * Usage Questions should be asked on [Jackson-users](https://groups.google.com/forum/#!search/jackson-users) list -- you are more likely to get help that way (and we will promptly close questions-as-issues)
+First, and foremost: THIS IS NOT A GENERAL-PURPOSES SUPPORT FORUM FOR ASKING QUESTIONS.
+Such a place exixsts at:
+
+    https://groups.google.com/forum/#!search/jackson-users
+
+so please go there for anything other than bug reports and feature/improvement suggestions.
+You are more likely to get help that way (and we will promptly close questions-as-issues)
+
+Also, we would appreciate if you:
+
 * Check to see if this issue has already been reported (quick glance at existing issues)
     * no deep search necessary, just quick sanity check
 * Include version information for Jackson version you use

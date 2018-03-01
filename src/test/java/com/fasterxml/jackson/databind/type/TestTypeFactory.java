@@ -226,6 +226,22 @@ public class TestTypeFactory
         assertEquals("java.util.EnumMap<com.fasterxml.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
                 can);
         assertEquals(t, tf.constructFromCanonical(can));
+
+        // [databind#1941]: allow "raw" types too
+
+        t = tf.constructFromCanonical("java.util.List");
+        assertEquals(List.class, t.getRawClass());
+        assertEquals(CollectionType.class, t.getClass());
+        // 01-Mar-2018, tatu: not 100% should we expect type parameters here...
+        //    But currently we do NOT get any
+        /*
+        assertEquals(1, t.containedTypeCount());
+        assertEquals(Object.class, t.containedType(0).getRawClass());
+        */
+        assertEquals(Object.class, t.getContentType().getRawClass());
+        can = t.toCanonical();
+        assertEquals("java.util.List<java.lang.Object>", can);
+        assertEquals(t, tf.constructFromCanonical(can));
     }
 
     // [databind#1768]

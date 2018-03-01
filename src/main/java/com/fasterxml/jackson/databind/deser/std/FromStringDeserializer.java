@@ -220,6 +220,13 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         public final static int STD_INET_ADDRESS = 11;
         public final static int STD_INET_SOCKET_ADDRESS = 12;
         public final static int STD_STRING_BUILDER = 13;
+        /**
+         * If you are using java's {@linkplain Locale#toString()} serialize Locale 
+         * (split language, country and variant with '_')<br>
+         * You can force jackson deserialize String to Locale with java Locale style.<br>
+         * config: {@linkplain System#setProperty(String, String) System.setProperty("jackson.std.locale.de.java", "not empty")} 
+         */
+        public final static String STD_LOCALE_DE_JAVA = "jackson.std.locale.de.java";
 
         protected final int _kind;
         
@@ -255,6 +262,10 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 return Pattern.compile(value);
             case STD_LOCALE:
                 {
+                    if (!System.getProperty(STD_LOCALE_DE_JAVA, "").isEmpty()) {
+                        return deJavaLocale(value);
+                    }
+
                     int ix = _firstHyphenOrUnderscore(value);
                     if (ix < 0) { // single argument
                         return new Locale(value);
@@ -329,6 +340,31 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 }
             }
             return -1;
+        }
+
+        /** see {@link Locale#toString()}, but ignore extends */
+        private Locale deJavaLocale(String value) {
+            if (value.isEmpty()) {
+                return new Locale("");
+            }
+
+            int extStart = value.indexOf("_#");
+            if (extStart != -1) value = value.substring(0, extStart);
+
+            String language = value, country = "", variant = "";
+            int pos1 = value.indexOf('_');
+            if (pos1 != -1) {
+                language = value.substring(0, pos1++);
+
+                int pos2 = value.indexOf('_', pos1);
+                if (pos2 == -1) {
+                    country = value.substring(pos1);
+                } else {
+                    country = value.substring(pos1, pos2);
+                    variant = value.substring(pos2 + 1);
+                }
+            }
+            return new Locale(language, country, variant);
         }
     }
 }

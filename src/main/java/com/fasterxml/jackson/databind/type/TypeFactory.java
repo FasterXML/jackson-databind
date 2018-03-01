@@ -352,7 +352,7 @@ public final class TypeFactory
         // also: if we start from untyped, not much to save
         do { // bogus loop to be able to break
             if (rawBase == Object.class) {
-                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());
+                newType = _fromClass(null, subclass, EMPTY_BINDINGS);
                 break;
             }
             if (!rawBase.isAssignableFrom(subclass)) {
@@ -363,7 +363,7 @@ public final class TypeFactory
 
             // (1) Original target type has no generics -- just resolve subtype
             if (baseType.getBindings().isEmpty()) {
-                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());     
+                newType = _fromClass(null, subclass, EMPTY_BINDINGS);     
                 break;
             }
             // (2) A small set of "well-known" List/Map subtypes where can take a short-cut
@@ -893,7 +893,7 @@ public final class TypeFactory
         int len = parameterClasses.length;
         JavaType[] pt = new JavaType[len];
         for (int i = 0; i < len; ++i) {
-            pt[i] = _fromClass(null, parameterClasses[i], null);
+            pt[i] = _fromClass(null, parameterClasses[i], EMPTY_BINDINGS);
         }
         return constructParametricType(parametrized, pt);
     }

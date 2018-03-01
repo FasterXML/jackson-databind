@@ -56,7 +56,7 @@ public class TypeParser
             // can be comma that separates types, or closing '>'
             tokens.pushBack(token);
         }
-        return _factory._fromClass(null, base, null);
+        return _factory._fromClass(null, base, TypeBindings.emptyBindings());
     }
 
     protected List<JavaType> parseTypes(MyTokenizer tokens)

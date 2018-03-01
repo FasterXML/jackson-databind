@@ -30,3 +30,5 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1917: Remove `canSerialize` and `canDeserialize` methods from `ObjectMapper`
 #1954: Add Builder pattern for creating configured `ObjectMapper` instances
 - Remove `MappingJsonFactory`
+#1955: Change the way `Module`s configure, interact with `ObjectMapper`
+

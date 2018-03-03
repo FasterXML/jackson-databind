@@ -13,18 +13,32 @@ import com.fasterxml.jackson.databind.util.Annotations;
  */
 public final class AnnotationMap implements Annotations
 {
-    protected HashMap<Class<?>,Annotation> _annotations;
+    protected Map<Class<?>,Annotation> _annotations;
 
+    /*
+    /**********************************************************
+    /* Construction
+    /**********************************************************
+     */
+    
     public AnnotationMap() { }
 
+    public AnnotationMap(Map<Class<?>,Annotation> a) {
+        _annotations = a;
+    }
+
     public static AnnotationMap of(Class<?> type, Annotation value) {
-        HashMap<Class<?>,Annotation> ann = new HashMap<>(4);
+        Map<Class<?>,Annotation> ann = new HashMap<>(4);
         ann.put(type, value);
         return new AnnotationMap(ann);
     }
 
-    AnnotationMap(HashMap<Class<?>,Annotation> a) {
-        _annotations = a;
+    public static AnnotationMap of(Collection<Annotation> rawAnnotations) {
+        Map<Class<?>,Annotation> map = new HashMap<>(rawAnnotations.size());
+        for (Annotation raw : rawAnnotations) {
+            map.put(raw.annotationType(), raw);
+        }
+        return new AnnotationMap(map);
     }
 
     /*
@@ -55,8 +69,6 @@ public final class AnnotationMap implements Annotations
     /**
      * Helper method that can be used for a "bulk" check to see if at least
      * one of given annotation types is included within this map.
-     *
-     * @since 2.7
      */
     @Override
     public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
@@ -75,10 +87,7 @@ public final class AnnotationMap implements Annotations
     /* Other API
     /**********************************************************
      */
-    
-    /**
-     * @since 2.3
-     */
+
     public Iterable<Annotation> annotations() {
         if (_annotations == null || _annotations.size() == 0) {
             return Collections.emptyList();
@@ -111,48 +120,11 @@ public final class AnnotationMap implements Annotations
         return (_annotations == null) ? 0 : _annotations.size();
     }
 
-    /**
-     * Method called to add specified annotation in the Map, but
-     * only if it didn't yet exist.
-     */
-    public boolean addIfNotPresent(Annotation ann)
-    {
-        if (_annotations == null || !_annotations.containsKey(ann.annotationType())) {
-            _add(ann);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Method called to add specified annotation in the Map.
-     * 
-     * @return True if the addition changed the contents, that is, this map did not
-     *   already have specified annotation
-     */
-    public boolean add(Annotation ann) {
-        return _add(ann);
-    }
-
     @Override
     public String toString() {
         if (_annotations == null) {
             return "[null]";
         }
         return _annotations.toString();
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    protected final boolean _add(Annotation ann) {
-        if (_annotations == null) {
-            _annotations = new HashMap<Class<?>,Annotation>();
-        }
-        Annotation previous = _annotations.put(ann.annotationType(), ann);
-        return (previous == null) || !previous.equals(ann);
     }
 }

@@ -823,51 +823,58 @@ public class POJOPropertyBuilder
         _ctorParameters = _trimByVisibility(_ctorParameters);
     }
 
-    @SuppressWarnings("unchecked")
     public void mergeAnnotations(boolean forSerialization)
     {
         if (forSerialization) {
             if (_getters != null) {
-                AnnotationMap ann = _mergeAnnotations(0, _getters, _fields, _ctorParameters, _setters);
+                AnnotationMap ann = _mergeAnnotations(_getters,
+                        _mergeAnnotations(_fields,
+                                _mergeAnnotations(_ctorParameters, _setters)));
                 _getters = _applyAnnotations(_getters, ann);
             } else if (_fields != null) {
-                AnnotationMap ann = _mergeAnnotations(0, _fields, _ctorParameters, _setters);
+                AnnotationMap ann = _mergeAnnotations(_fields,
+                        _mergeAnnotations(_ctorParameters, _setters));
                 _fields = _applyAnnotations(_fields, ann);
             }
         } else { // for deserialization
             if (_ctorParameters != null) {
-                AnnotationMap ann = _mergeAnnotations(0, _ctorParameters, _setters, _fields, _getters);
+                AnnotationMap ann = _mergeAnnotations(_ctorParameters,
+                        _mergeAnnotations(_setters,
+                                _mergeAnnotations(_fields, _getters)));
                 _ctorParameters = _applyAnnotations(_ctorParameters, ann);
             } else if (_setters != null) {
-                AnnotationMap ann = _mergeAnnotations(0, _setters, _fields, _getters);
+                AnnotationMap ann = _mergeAnnotations(_setters,
+                        _mergeAnnotations(_fields, _getters));
                 _setters = _applyAnnotations(_setters, ann);
             } else if (_fields != null) {
-                AnnotationMap ann = _mergeAnnotations(0, _fields, _getters);
+                AnnotationMap ann = _mergeAnnotations(_fields, _getters);
                 _fields = _applyAnnotations(_fields, ann);
             }
         }
     }
 
-    private AnnotationMap _mergeAnnotations(int index,
-            Linked<? extends AnnotatedMember>... nodes)
+    private AnnotationMap _mergeAnnotations(Linked<? extends AnnotatedMember> node1,
+            Linked<? extends AnnotatedMember> node2)
     {
-        AnnotationMap ann = _getAllAnnotations(nodes[index]);
-        while (++index < nodes.length) {
-            if (nodes[index] != null) {
-                return AnnotationMap.merge(ann, _mergeAnnotations(index, nodes));
-            }
-        }
-        return ann;
+        return AnnotationMap.merge(_getAllAnnotations(node1),
+                _getAllAnnotations(node2));
+    }
+
+    private AnnotationMap _mergeAnnotations(Linked<? extends AnnotatedMember> node1,
+            AnnotationMap secondary)
+    {
+        return AnnotationMap.merge(_getAllAnnotations(node1), secondary);
     }
 
     /**
      * Replacement, as per [databind#868], of simple access to annotations, which
-     * does "deep merge" if an as necessary.
-     *<pre>
-     * nodes[index].value.getAllAnnotations()
-     *</pre>
+     * does "deep merge" if an as necessary, across alternate accessors of same type:
+     * most importantly, "is-getter vs regular getter"
      */
-    private <T extends AnnotatedMember> AnnotationMap _getAllAnnotations(Linked<T> node) {
+    private AnnotationMap _getAllAnnotations(Linked<? extends AnnotatedMember> node) {
+        if (node == null) {
+            return null;
+        }
         AnnotationMap ann = node.value.getAllAnnotations();
         if (node.next != null) {
             ann = AnnotationMap.merge(ann, _getAllAnnotations(node.next));
@@ -881,8 +888,6 @@ public class POJOPropertyBuilder
      * and secondary accessors are pruned later on.
      *<p>
      * See [databind#868] for more information.
-     *
-     * @since 2.6
      */
     private <T extends AnnotatedMember> Linked<T> _applyAnnotations(Linked<T> node, AnnotationMap ann) {
         @SuppressWarnings("unchecked")

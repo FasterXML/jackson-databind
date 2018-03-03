@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 
@@ -43,7 +42,8 @@ public abstract class AnnotatedWithParams
      * usually due to a mix-in
      * annotation masking or overriding an annotation 'real' method
      * has.
-     */
+     *
+    @Deprecated // since 3.0
     public final void addOrOverrideParam(int paramIndex, Annotation a)
     {
         AnnotationMap old = _paramAnnotations[paramIndex];
@@ -53,6 +53,7 @@ public abstract class AnnotatedWithParams
         }
         old.add(a);
     }
+    */
 
     /**
      * Method called by parameter object when an augmented instance is created;

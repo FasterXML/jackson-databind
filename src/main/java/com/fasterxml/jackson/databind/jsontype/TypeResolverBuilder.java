@@ -148,8 +148,6 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * 
      * @return Resulting builder instance (usually this builder,
      *   but may be a newly constructed instance for immutable builders}
-     * 
-     * @since 2.0
      */
     public T typeIdVisibility(boolean isVisible);
 }

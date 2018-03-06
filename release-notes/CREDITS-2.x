@@ -758,3 +758,7 @@ Aniruddha Maru (maroux@github)
   * Reported #1940: `Float` values with integer value beyond `int` lose precision if
     bound to `long`
    (2.9.5)
+
+Timur Shakurov (saladinkzn@github)
+  * Reported #1947: `MapperFeature.AUTO_DETECT_XXX` do not work if all disabled
+   (2.9.5)

@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.util.Annotations;
 /**
  * Helper class used to collect annotations to be stored as
  * {@link com.fasterxml.jackson.databind.util.Annotations} (like {@link AnnotationMap}).
- *
- * @since 2.9
  */
 public abstract class AnnotationCollector
 {

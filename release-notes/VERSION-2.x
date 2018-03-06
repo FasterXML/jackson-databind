@@ -20,6 +20,8 @@ Project: jackson-databind
 #1941: `TypeFactory.constructFromCanonical()` throws NPE for Unparameterized
   generic canonical strings
  (reported by ayushgp@github)
+#1947: `MapperFeature.AUTO_DETECT_XXX` do not work if all disabled
+ (reported by Timur S)
 
 2.9.4 (24-Jan-2018)
 

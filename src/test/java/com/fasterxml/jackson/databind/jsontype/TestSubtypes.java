@@ -1,11 +1,17 @@
 package com.fasterxml.jackson.databind.jsontype;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
+
+import java.io.IOException;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -361,5 +367,107 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(3, impl.a);
         assertEquals(5, impl.b);
         assertEquals(9, impl.def);
+    }
+
+    
+    // [databind#1565]: defaultImpl and deserializing a concrete subclass
+
+    public void testDeserializeScenario1ToDefaultImpl() throws JsonProcessingException, IOException {
+        ObjectMapper om = objectMapper();
+        om.readerFor(Scenario1.Sub2.class).readValue("{\"type\":\"sub2\"}"); // no exception should happen
+    }
+
+    public void testDeserializeScenario3ToDefaultImpl() throws JsonProcessingException, IOException {
+        ObjectMapper om = objectMapper();
+        om.readerFor(Scenario3.Sub2.class).readValue("{\"type\":\"sub2\"}"); // no exception should happen
+    }
+
+    public void testDeserializeScenario4ToDefaultImpl() throws JsonProcessingException, IOException {
+        ObjectMapper om = objectMapper();
+        om.readerFor(Scenario4.Sub2.class).readValue("{\"type\":\"sub2\"}"); // no exception should happen
+    }
+
+    public void testDeserializeToUnrelatedDefaultImpl() throws JsonProcessingException, IOException {
+        try {
+            ObjectMapper om = objectMapper();
+            om.readerFor(Scenario2.BaseWithUnrelated.class).readValue("{}");
+            fail("JsonProcessingException was not thrown.");
+        }
+        catch (IllegalArgumentException e) { // should this throw another type of exception?
+        }
+    }
+
+    public void testDeserializeWithWrongDefaultImplOnlyOnLowerBaseClass() throws JsonProcessingException, IOException {
+        try {
+            ObjectMapper om = objectMapper();
+            om.readerFor(Scenario5.Sub1.class).readValue("{\"type\":\"sub1\"}");
+            fail("JsonProcessingException was not thrown.");
+        }
+        catch (IllegalArgumentException e) { // should this throw another type of exception?
+        }
+    }
+
+    /**
+     * A base class with a subs and one of the is default.
+     */
+    static class Scenario1 {
+        @JsonTypeInfo(include=As.PROPERTY, property="type", use=Id.NAME, defaultImpl=Sub1.class)
+        @JsonSubTypes({@Type(name="sub1", value=Sub1.class), @Type(name="sub2", value=Sub2.class)})
+        static abstract class Base {}
+
+        static class Sub1 extends Base {}
+
+        static class Sub2 extends Base {}
+    }
+
+    /**
+     * A base class with an unrelated default class. This is incorrect and should throw errors.
+     */
+    static class Scenario2 {
+        @JsonTypeInfo(include=As.PROPERTY, property="type", use=Id.NAME, defaultImpl=Unrelated.class)
+        static abstract class BaseWithUnrelated {}
+
+        static class Unrelated {}
+    }
+
+    /**
+     * Multiple levels of inheritance. 2 Base classes 3 Subs. Annotations on the higher base class.
+     */
+    static class Scenario3 {
+        @JsonTypeInfo(include=As.PROPERTY, property="type", use=Id.NAME, defaultImpl=Sub1.class)
+        @JsonSubTypes({@Type(name="sub1", value=Sub1.class), @Type(name="sub2", value=Sub2.class), @Type(name="sub3", value=Sub3.class)})
+        static abstract class BaseHigh {}
+        static abstract class BaseLow extends BaseHigh {}
+        static class Sub1 extends BaseLow {}
+        static class Sub2 extends BaseLow {}
+        static class Sub3 extends BaseHigh {}
+    }
+
+    /**
+     * Multiple levels of inheritance. 2 Base classes 3 Subs. Annotations on the lower base class
+     */
+    static class Scenario4 {
+        static abstract class BaseHigh {}
+        @JsonTypeInfo(include=As.PROPERTY, property="type", use=Id.NAME, defaultImpl=Sub1.class)
+        @JsonSubTypes({@Type(name="sub1", value=Sub1.class), @Type(name="sub2", value=Sub2.class)})
+        static abstract class BaseLow extends BaseHigh {}
+        static class Sub1 extends BaseLow {}
+        static class Sub2 extends BaseLow {}
+        static class Sub3 extends BaseHigh {}
+    }
+
+    /**
+     * Multiple levels of inheritance. 2 Base classes 3 Subs. TypeInfo on both higher and lower base class with different defaultImpl.
+     */
+    static class Scenario5 {
+        @JsonTypeInfo(include=As.PROPERTY, property="type", use=Id.NAME, defaultImpl=Sub2.class)
+        @JsonSubTypes({@Type(name="sub1", value=Sub1.class), @Type(name="sub2", value=Sub2.class), @Type(name="sub3", value=Sub3.class)})
+        static abstract class BaseHigh {}
+        @JsonTypeInfo(include=As.PROPERTY, property="type", use=Id.NAME, defaultImpl=Sub3.class)
+        @JsonSubTypes({@Type(name="sub1", value=Sub1.class), @Type(name="sub2", value=Sub2.class)})
+        static abstract class BaseLow extends BaseHigh {}
+        static class Sub1 extends BaseLow {}
+        static class Sub2 extends BaseLow {}
+        static class Sub3 extends BaseHigh {}
     }
 }

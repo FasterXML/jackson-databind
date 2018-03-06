@@ -435,10 +435,10 @@ public class MapDeserializer
             keyStr = p.nextFieldName();
         } else {
             JsonToken t = p.currentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return;
-            }
             if (t != JsonToken.FIELD_NAME) {
+                if (t == JsonToken.END_OBJECT) {
+                    return;
+                }
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
             keyStr = p.currentName();
@@ -571,7 +571,7 @@ public class MapDeserializer
             if (prop != null) {
                 // Last property to set?
                 if (buffer.assignParameter(prop, prop.deserialize(p, ctxt))) {
-                    p.nextToken();
+                    p.nextToken(); // from value to END_OBJECT or FIELD_NAME
                     Map<Object,Object> result;
                     try {
                         result = (Map<Object,Object>)creator.build(ctxt, buffer);

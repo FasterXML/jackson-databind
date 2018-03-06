@@ -236,7 +236,7 @@ public class EnumMapDeserializer
         }
         // Ok: must point to START_OBJECT
         JsonToken t = p.getCurrentToken();
-        if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
+        if ((t != JsonToken.START_OBJECT) && (t != JsonToken.FIELD_NAME) && (t != JsonToken.END_OBJECT)) {
             // (empty) String may be ok however; or single-String-arg ctor
             if (t == JsonToken.VALUE_STRING) {
                 return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
@@ -258,25 +258,37 @@ public class EnumMapDeserializer
 
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        String keyName;
 
-        while ((keyName = p.nextFieldName()) != null) {
+        String keyStr;
+        if (p.isExpectedStartObjectToken()) {
+            keyStr = p.nextFieldName();
+        } else {
+            JsonToken t = p.getCurrentToken();
+            if (t != JsonToken.FIELD_NAME) {
+                if (t == JsonToken.END_OBJECT) {
+                    return result;
+                }
+                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
+            }
+            keyStr = p.getCurrentName();
+        }
+
+        for (; keyStr != null; keyStr = p.nextFieldName()) {
             // but we need to let key deserializer handle it separately, nonetheless
-            Enum<?> key = (Enum<?>) _keyDeserializer.deserializeKey(keyName, ctxt);
+            Enum<?> key = (Enum<?>) _keyDeserializer.deserializeKey(keyStr, ctxt);
+            JsonToken t = p.nextToken();
             if (key == null) {
                 if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                    return (EnumMap<?,?>) ctxt.handleWeirdStringValue(_enumClass, keyName,
+                    return (EnumMap<?,?>) ctxt.handleWeirdStringValue(_enumClass, keyStr,
                             "value not one of declared Enum instance names for %s",
                             _containerType.getKeyType());
                 }
                 // 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                 //  just skip the entry then. But we must skip the value as well, if so.
-                p.nextToken();
                 p.skipChildren();
                 continue;
             }
             // And then the value...
-            JsonToken t = p.nextToken();
             // note: MUST check for nulls separately: deserializers will
             // not handle them (and maybe fail or return bogus data)
             Object value;
@@ -293,7 +305,7 @@ public class EnumMapDeserializer
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
             } catch (Exception e) {
-                return wrapAndThrow(e, result, keyName);
+                return wrapAndThrow(e, result, keyStr);
             }
             result.put(key, value);
         }
@@ -347,6 +359,7 @@ public class EnumMapDeserializer
             if (prop != null) {
                 // Last property to set?
                 if (buffer.assignParameter(prop, prop.deserialize(p, ctxt))) {
+                    p.nextToken(); // from value to END_OBJECT or FIELD_NAME
                     EnumMap<?,?> result;
                     try {
                         result = (EnumMap<?,?>)creator.build(ctxt, buffer);

@@ -14,6 +14,7 @@ Project: jackson-databind
  (contributed by Deblock T)
 #1931: Two more `c3p0` gadgets to exploit default typing issue
  (reported by lilei@venusgroup.com.cn)
+#1932: `EnumMap` cannot deserialize with type inclusion as property
 #1940: `Float` values with integer value beyond `int` lose precision if
   bound to `long`
  (reported by Aniruddha M)

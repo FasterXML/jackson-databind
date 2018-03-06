@@ -672,7 +672,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     {
         VisibilityChecker<?> vchecker = _configOverrides.getDefaultVisibility();
         // then global overrides (disabling)
-        if ((_mapperFeatures & AUTO_DETECT_MASK) != 0) {
+        // 05-Mar-2018, tatu: As per [databind#1947], need to see if any disabled
+        if ((_mapperFeatures & AUTO_DETECT_MASK) != AUTO_DETECT_MASK) {
             if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
                 vchecker = vchecker.withFieldVisibility(Visibility.NONE);
             }

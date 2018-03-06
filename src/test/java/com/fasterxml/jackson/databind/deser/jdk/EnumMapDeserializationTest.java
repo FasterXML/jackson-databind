@@ -3,9 +3,8 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.util.EnumMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
@@ -58,6 +57,21 @@ public class EnumMapDeserializationTest extends BaseMapTest
             super(TestEnum.class);
             a0 = a;
             b0 = b;
+        }
+    }
+
+    // [databind#1859]
+    public enum Enum1859 {
+        A, B, C;
+    }
+
+    static class Pojo1859
+    {
+        public EnumMap<Enum1859, String> values;
+
+        public Pojo1859() { }
+        public Pojo1859(EnumMap<Enum1859, String> v) {
+            values = v;
         }
     }
 
@@ -127,6 +141,38 @@ public class EnumMapDeserializationTest extends BaseMapTest
         assertEquals("jackson", map.get(TestEnum.RULES));
         assertEquals("yes", map.get(TestEnum.OK));
         assertEquals(2, map.size());
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods: polymorphic
+    /**********************************************************
+     */
+
+    // [databind#1859]
+    public void testEnumMapAsPolymorphic() throws Exception
+    {
+        EnumMap<Enum1859, String> enumMap = new EnumMap<>(Enum1859.class);
+        enumMap.put(Enum1859.A, "Test");
+        enumMap.put(Enum1859.B, "stuff");
+        Pojo1859 input = new Pojo1859(enumMap);
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@type");
+
+        // 05-Mar-2018, tatu: Original issue had this; should not make difference:
+         /*
+        TypeResolverBuilder<?> mapTyperAsPropertyType = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+        mapTyperAsPropertyType.init(JsonTypeInfo.Id.CLASS, null);
+        mapTyperAsPropertyType.inclusion(JsonTypeInfo.As.PROPERTY);
+        mapper.setDefaultTyping(mapTyperAsPropertyType);
+         */
+
+        String json = mapper.writeValueAsString(input);
+        Pojo1859 result = mapper.readValue(json, Pojo1859.class);
+        assertNotNull(result);
+        assertNotNull(result.values);
+        assertEquals(2, result.values.size());
     }
 
     /*

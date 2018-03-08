@@ -72,9 +72,9 @@ public class JacksonAnnotationIntrospector
     protected transient SimpleLookupCache<Class<?>,Boolean> _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 48);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Local configuration settings
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -86,9 +86,9 @@ public class JacksonAnnotationIntrospector
     protected boolean _cfgConstructorPropertiesImpliesCreator = true;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JacksonAnnotationIntrospector() { }
@@ -106,9 +106,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -126,9 +126,9 @@ public class JacksonAnnotationIntrospector
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General annotation properties
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -151,9 +151,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override // since 2.7
@@ -204,9 +204,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General class annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -283,9 +283,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General member (field, method/constructor) annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -390,10 +390,10 @@ public class JacksonAnnotationIntrospector
     public Integer findPropertyIndex(Annotated ann) {
         JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
         if (prop != null) {
-          int ix = prop.index();
-          if (ix != JsonProperty.INDEX_UNKNOWN) {
-               return Integer.valueOf(ix);
-          }
+            int ix = prop.index();
+            if (ix != JsonProperty.INDEX_UNKNOWN) {
+                return Integer.valueOf(ix);
+            }
         }
         return null;
     }
@@ -505,44 +505,50 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotations for Polymorphic Type handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
-            AnnotatedClass ac, JavaType baseType)
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config,
+            Annotated ann)
     {
-        return _findTypeResolver(config, ac, baseType);
+        JsonTypeInfo t = _findAnnotation(ann, JsonTypeInfo.class);
+        // will accept `null`, return `null`
+        return JsonTypeInfo.Value.from(t);
+    }
+    
+    @Override
+    public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
+            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
+    {
+        return _findTypeResolver(config, ann, baseType, typeInfo);
     }
 
     @Override
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
-            AnnotatedMember am, JavaType baseType)
+            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
     {
-        /* As per definition of @JsonTypeInfo, should only apply to contents of container
-         * (collection, map) types, not container types themselves:
-         */
-        // 17-Apr-2016, tatu: For 2.7.4 make sure ReferenceType also included
+        // As per definition of @JsonTypeInfo, should only apply to contents of container
+        // (collection, map) types, not container types themselves:
         if (baseType.isContainerType() || baseType.isReferenceType()) {
             return null;
         }
         // No per-member type overrides (yet)
-        return _findTypeResolver(config, am, baseType);
+        return _findTypeResolver(config, ann, baseType, typeInfo);
     }
 
     @Override
     public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
-            AnnotatedMember am, JavaType containerType)
+            Annotated ann, JavaType containerType, JsonTypeInfo.Value typeInfo)
     {
-        /* First: let's ensure property is a container type: caller should have
-         * verified but just to be sure
-         */
+        // First: let's ensure property is a container type: caller should have
+        // verified but just to be sure
         if (containerType.getContentType() == null) {
             throw new IllegalArgumentException("Must call method with a container or reference type (got "+containerType+")");
         }
-        return _findTypeResolver(config, am, containerType);
+        return _findTypeResolver(config, ann, containerType, typeInfo);
     }
     
     @Override
@@ -1244,28 +1250,23 @@ public class JacksonAnnotationIntrospector
      * if given annotated element indicates one is needed.
      */
     protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType)
+            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
     {
         // First: maybe we have explicit type resolver?
         TypeResolverBuilder<?> b;
-        JsonTypeInfo info = _findAnnotation(ann, JsonTypeInfo.class);
         JsonTypeResolver resAnn = _findAnnotation(ann, JsonTypeResolver.class);
         
         if (resAnn != null) {
-            if (info == null) {
+            if (!JsonTypeInfo.Value.isEnabled(typeInfo)) {
                 return null;
             }
-            /* let's not try to force access override (would need to pass
-             * settings through if we did, since that's not doable on some
-             * platforms)
-             */
             b = config.typeResolverBuilderInstance(ann, resAnn.value());
         } else { // if not, use standard one, if indicated by annotations
-            if (info == null) {
+            if (typeInfo == null) {
                 return null;
             }
             // bit special; must return 'marker' to block use of default typing:
-            if (info.use() == JsonTypeInfo.Id.NONE) {
+            if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return _constructNoTypeResolverBuilder();
             }
             b = _constructStdTypeResolverBuilder();
@@ -1277,27 +1278,19 @@ public class JacksonAnnotationIntrospector
         if (idRes != null) {
             idRes.init(baseType);
         }
-        b = b.init(info.use(), idRes);
+        b = b.init(typeInfo.getIdType(), idRes);
         /* 13-Aug-2011, tatu: One complication; external id
          *   only works for properties; so if declared for a Class, we will need
          *   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
          */
-        JsonTypeInfo.As inclusion = info.include();
+        JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
         if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
             inclusion = JsonTypeInfo.As.PROPERTY;
         }
         b = b.inclusion(inclusion);
-        b = b.typeProperty(info.property());
-        Class<?> defaultImpl = info.defaultImpl();
-
-        // 08-Dec-2014, tatu: To deprecate `JsonTypeInfo.None` we need to use other placeholder(s);
-        //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
-        //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
-        //   valid use (cannot instantiate as default)
-        if (!defaultImpl.isAnnotation()) {
-            b = b.defaultImpl(defaultImpl);
-        }
-        b = b.typeIdVisibility(info.visible());
+        b = b.typeProperty(typeInfo.getPropertyName());
+        b = b.defaultImpl(typeInfo.getDefaultImpl());
+        b = b.typeIdVisibility(typeInfo.getIdVisible());
         return b;
     }
 

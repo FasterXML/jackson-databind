@@ -1611,7 +1611,8 @@ nonAnnotatedParamIndex, ctor);
         BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         AnnotatedClass ac = bean.getClassInfo();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType);
+        TypeResolverBuilder<?> b = ai.findTypeResolver(config,
+                ac, baseType, ai.findPolymorphicTypeInfo(config, ac));
 
         /* Ok: if there is no explicit type info handler, we may want to
          * use a default. If so, config object knows what to use.
@@ -1762,7 +1763,9 @@ nonAnnotatedParamIndex, ctor);
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, annotated, baseType);        
+        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config,
+                annotated, baseType,
+                ai.findPolymorphicTypeInfo(config, annotated));
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
             return findTypeDeserializer(config, baseType);
@@ -1789,7 +1792,9 @@ nonAnnotatedParamIndex, ctor);
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config, propertyEntity, containerType);        
+        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config,
+                propertyEntity, containerType,
+                ai.findPolymorphicTypeInfo(config, propertyEntity));
         JavaType contentType = containerType.getContentType();
         // Defaulting: if no annotations on member, check class
         if (b == null) {

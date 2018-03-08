@@ -294,7 +294,8 @@ public class BeanSerializerFactory
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, accessor, baseType);        
+        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config,
+                accessor, baseType, ai.findPolymorphicTypeInfo(config, accessor));
         TypeSerializer typeSer;
 
         // Defaulting: if no annotations on member, check value class
@@ -324,7 +325,8 @@ public class BeanSerializerFactory
     {
         JavaType contentType = containerType.getContentType();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config, accessor, containerType);        
+        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config,
+                accessor, containerType, ai.findPolymorphicTypeInfo(config, accessor));
         TypeSerializer typeSer;
 
         // Defaulting: if no annotations on member, check value class

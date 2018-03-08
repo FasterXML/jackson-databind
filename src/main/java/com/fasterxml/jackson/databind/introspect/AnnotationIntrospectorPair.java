@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -91,9 +92,9 @@ public class AnnotationIntrospectorPair
     }
     
     /*
-    /******************************************************
+    /**********************************************************************
     /* General class annotations
-    /******************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -160,10 +161,10 @@ public class AnnotationIntrospectorPair
     }
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Property auto-detection
-    /******************************************************
-    */
+    /**********************************************************************
+     */
     
     @Override
     public VisibilityChecker findAutoDetectVisibility(AnnotatedClass ac,
@@ -177,40 +178,51 @@ public class AnnotationIntrospectorPair
     }
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Type handling
-    /******************************************************
+    /**********************************************************************
      */
 
     @Override
-    public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
-            AnnotatedClass ac, JavaType baseType)
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config,
+            Annotated ann)
     {
-        TypeResolverBuilder<?> b = _primary.findTypeResolver(config, ac, baseType);
+        JsonTypeInfo.Value v = _primary.findPolymorphicTypeInfo(config, ann);
+        if (v == null) {
+            v = _secondary.findPolymorphicTypeInfo(config, ann);
+        }
+        return v;
+    }
+
+    @Override
+    public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
+            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
+    {
+        TypeResolverBuilder<?> b = _primary.findTypeResolver(config, ann, baseType, typeInfo);
         if (b == null) {
-            b = _secondary.findTypeResolver(config, ac, baseType);
+            b = _secondary.findTypeResolver(config, ann, baseType, typeInfo);
         }
         return b;
     }
 
     @Override
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
-            AnnotatedMember am, JavaType baseType)
+            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
     {
-        TypeResolverBuilder<?> b = _primary.findPropertyTypeResolver(config, am, baseType);
+        TypeResolverBuilder<?> b = _primary.findPropertyTypeResolver(config, ann, baseType, typeInfo);
         if (b == null) {
-            b = _secondary.findPropertyTypeResolver(config, am, baseType);
+            b = _secondary.findPropertyTypeResolver(config, ann, baseType, typeInfo);
         }
         return b;
     }
 
     @Override
     public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
-            AnnotatedMember am, JavaType baseType)
+            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
     {
-        TypeResolverBuilder<?> b = _primary.findPropertyContentTypeResolver(config, am, baseType);
+        TypeResolverBuilder<?> b = _primary.findPropertyContentTypeResolver(config, ann, baseType, typeInfo);
         if (b == null) {
-            b = _secondary.findPropertyContentTypeResolver(config, am, baseType);
+            b = _secondary.findPropertyContentTypeResolver(config, ann, baseType, typeInfo);
         }
         return b;
     }
@@ -237,10 +249,11 @@ public class AnnotationIntrospectorPair
         }
         return name;
     }
+
     /*
-    /******************************************************
+    /**********************************************************************
     /* General member (field, method/constructor) annotations
-    /******************************************************
+    /**********************************************************************
      */
     
     @Override        

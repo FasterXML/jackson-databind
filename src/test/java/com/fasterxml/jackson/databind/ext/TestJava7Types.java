@@ -34,7 +34,9 @@ public class TestJava7Types extends BaseMapTest
         Object[] obs = mapper.readValue(json, Object[].class);
         assertEquals(1, obs.length);
         Object ob = obs[0];
-        assertTrue(ob instanceof Path);
+        if (!(ob instanceof Path)) {
+            fail("Should deserialize as `Path`, got: `"+ob.getClass().getName()+"`");
+        }
 
         assertEquals(input.toString(), ob.toString());
     }

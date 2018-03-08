@@ -42,9 +42,9 @@ public abstract class AnnotationIntrospector
     implements Versioned, java.io.Serializable
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper types
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -92,9 +92,9 @@ public abstract class AnnotationIntrospector
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -111,9 +111,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Access to possibly chained introspectors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -147,18 +147,18 @@ public abstract class AnnotationIntrospector
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Default Versioned impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public abstract Version version();
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Meta-annotations (annotations for annotation types)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -171,9 +171,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotations for Object Id handling
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -196,9 +196,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General class annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -269,9 +269,9 @@ public abstract class AnnotationIntrospector
     public String findClassDescription(AnnotatedClass ac) { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Property auto-detection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -286,11 +286,23 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotations for Polymorphic type handling
-    /**********************************************************
+    /**********************************************************************
     */
-    
+
+    /**
+     * Method for checking whether given Class or Property Accessor specifies
+     * polymorphic type-handling information, to indicate need for polymorphic
+     * handling.
+     *
+     * @since 3.0
+     */
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config,
+            Annotated ann) {
+        return null;
+    }
+
     /**
      * Method for checking if given class has annotations that indicate
      * that specific type resolver is to be used for handling instances.
@@ -300,13 +312,12 @@ public abstract class AnnotationIntrospector
      * {@link #findSubtypes}
      *
      * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param ac Annotated class to check for annotations
      * @param baseType Base java type of value for which resolver is to be found
      * 
      * @return Type resolver builder for given type, if one found; null if none
      */
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
-            AnnotatedClass ac, JavaType baseType) {
+            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo) {
         return null;
     }
 
@@ -319,14 +330,13 @@ public abstract class AnnotationIntrospector
      * {@link #findSubtypes}
      * 
      * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param am Annotated member (field or method) to check for annotations
      * @param baseType Base java type of property for which resolver is to be found
      * 
      * @return Type resolver builder for properties of given entity, if one found;
      *    null if none
      */
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
-            AnnotatedMember am, JavaType baseType) {
+            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo) {
         return null;
     }
 
@@ -341,14 +351,13 @@ public abstract class AnnotationIntrospector
      * {@link #findSubtypes}
      * 
      * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param am Annotated member (field or method) to check for annotations
      * @param containerType Type of property for which resolver is to be found (must be a container type)
      * 
      * @return Type resolver builder for values contained in properties of given entity,
      *    if one found; null if none
      */    
     public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
-            AnnotatedMember am, JavaType containerType) {
+            Annotated ann, JavaType containerType, JsonTypeInfo.Value typeInfo) {
         return null;
     }
 

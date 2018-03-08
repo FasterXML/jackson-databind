@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
@@ -249,10 +250,10 @@ public abstract class BasicSerializerFactory
         BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         AnnotatedClass ac = bean.getClassInfo();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType);
-        /* Ok: if there is no explicit type info handler, we may want to
-         * use a default. If so, config object knows what to use.
-         */
+        JsonTypeInfo.Value typeInfo = ai.findPolymorphicTypeInfo(config, ac);
+        TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType, typeInfo);
+        // Ok: if there is no explicit type info handler, we may want to
+        // use a default. If so, config object knows what to use.
         Collection<NamedType> subtypes = null;
         if (b == null) {
             b = config.getDefaultTyper(baseType);

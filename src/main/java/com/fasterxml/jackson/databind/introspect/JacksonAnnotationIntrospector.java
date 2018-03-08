@@ -1279,10 +1279,9 @@ public class JacksonAnnotationIntrospector
             idRes.init(baseType);
         }
         b = b.init(typeInfo.getIdType(), idRes);
-        /* 13-Aug-2011, tatu: One complication; external id
-         *   only works for properties; so if declared for a Class, we will need
-         *   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
-         */
+        // 13-Aug-2011, tatu: One complication; external id
+        //   only works for properties; so if declared for a Class, we will need
+        //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
         JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
         if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
             inclusion = JsonTypeInfo.As.PROPERTY;

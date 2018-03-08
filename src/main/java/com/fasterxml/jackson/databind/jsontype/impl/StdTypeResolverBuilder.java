@@ -45,11 +45,27 @@ public class StdTypeResolverBuilder
 
     public StdTypeResolverBuilder() { }
 
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
+        if (settings != null) {
+            _idType = settings.getIdType();
+            if (_idType == null) {
+                throw new IllegalArgumentException("idType cannot be null");
+            }
+            _includeAs = settings.getInclusionType();
+            _typeProperty = settings.getPropertyName();
+            _defaultImpl = settings.getDefaultImpl();
+        }
+    }
+
     /**
      * @since 2.9
      */
     protected StdTypeResolverBuilder(JsonTypeInfo.Id idType,
-            JsonTypeInfo.As idAs, String propName) {
+            JsonTypeInfo.As idAs, String propName)
+    {
+        if (idType == null) {
+            throw new IllegalArgumentException("idType cannot be null");
+        }
         _idType = idType;
         _includeAs = idAs;
         _typeProperty = propName;

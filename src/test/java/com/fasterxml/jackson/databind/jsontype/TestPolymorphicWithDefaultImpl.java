@@ -171,6 +171,8 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     // [databind#148]
     public void testDefaultAsVoid() throws Exception
     {
+        // 07-Mar-2018, tatu: Specifically, use of `Void` should infer that unknown type
+        //   values should become `null`s
         Object ob = MAPPER.readerFor(DefaultWithVoidAsDefault.class).readValue("{ }");
         assertNull(ob);
         ob = MAPPER.readerFor(DefaultWithVoidAsDefault.class).readValue("{ \"bogus\":3 }");

@@ -127,6 +127,8 @@ public class StdTypeResolverBuilder
             // 20-Mar-2016, tatu: Can finally add a check for type compatibility BUT
             //   if so, need to add explicit checks for marker types. Not ideal, but
             //   seems like a reasonable compromise.
+            // NOTE: `Void` actually means that for unknown type id we should get `null`
+            //  value -- NOT that there is no default implementation.
             if (_defaultImpl == Void.class) {
                 defaultImpl = config.getTypeFactory().constructType(_defaultImpl);
             } else {

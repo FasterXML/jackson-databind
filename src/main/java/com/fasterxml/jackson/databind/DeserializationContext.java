@@ -1200,8 +1200,6 @@ targetType, goodValue.getClass()));
      *
      * @throws IOException To indicate unrecoverable problem, if resolution cannot
      *    be made to work
-     *
-     * @since 2.8
      */
     public JavaType handleUnknownTypeId(JavaType baseType, String id,
             TypeIdResolver idResolver, String extraDesc) throws IOException
@@ -1230,9 +1228,6 @@ targetType, goodValue.getClass()));
         throw invalidTypeIdException(baseType, id, extraDesc);
     }
 
-    /**
-     * @since 2.9
-     */
     public JavaType handleMissingTypeId(JavaType baseType,
             TypeIdResolver idResolver, String extraDesc) throws IOException
     {

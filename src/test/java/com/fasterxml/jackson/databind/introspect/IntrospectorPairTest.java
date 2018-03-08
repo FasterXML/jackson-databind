@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
@@ -166,21 +166,20 @@ public class IntrospectorPairTest extends BaseMapTest
 
         @Override
         public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
-                AnnotatedClass ac, JavaType baseType)
-        {
+                Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo) {
             return (TypeResolverBuilder<?>) values.get("findTypeResolver");
         }
 
         @Override
         public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
-                AnnotatedMember am, JavaType baseType)
+                Annotated am, JavaType baseType, JsonTypeInfo.Value typeInfo)
         {
             return (TypeResolverBuilder<?>) values.get("findPropertyTypeResolver");
         }
 
         @Override
         public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
-                AnnotatedMember am, JavaType baseType)
+                Annotated am, JavaType baseType, JsonTypeInfo.Value typeInfo)
         {
             return (TypeResolverBuilder<?>) values.get("findPropertyContentTypeResolver");
         }

@@ -631,11 +631,12 @@ public final class DeserializationConfig
     {
         BeanDescription bean = introspectClassAnnotations(baseType.getRawClass());
         AnnotatedClass ac = bean.getClassInfo();
-        TypeResolverBuilder<?> b = getAnnotationIntrospector().findTypeResolver(this, ac, baseType);
+        AnnotationIntrospector ai = getAnnotationIntrospector();
+        TypeResolverBuilder<?> b = ai.findTypeResolver(this, ac, baseType,
+                ai.findPolymorphicTypeInfo(this, ac));
 
-        /* Ok: if there is no explicit type info handler, we may want to
-         * use a default. If so, config object knows what to use.
-         */
+        // Ok: if there is no explicit type info handler, we may want to
+        // use a default. If so, config object knows what to use.
         Collection<NamedType> subtypes = null;
         if (b == null) {
             b = getDefaultTyper(baseType);

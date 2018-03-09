@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -15,8 +15,7 @@ import com.fasterxml.jackson.databind.SerializationConfig;
  * handling type information embedded in JSON to allow for safe
  * polymorphic type handling.
  *<p>
- * Builder is first initialized by calling {@link #init} method, and then
- * configured using 'set' methods like {@link #inclusion}.
+ * Builder is first initialized by calling {@link #init} method.
  * Finally, after calling all configuration methods,
  * {@link #buildTypeSerializer} or {@link #buildTypeDeserializer}
  * will be called to get actual type resolver constructed
@@ -103,35 +102,6 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     /* Methods for configuring resolver to build 
     /**********************************************************
      */
-    
-    /**
-     * Method for specifying mechanism to use for including type metadata
-     * in JSON.
-     * If not explicitly called, setting defaults to
-     * {@link As#PROPERTY}.
-     * 
-     * @param includeAs Mechanism used for including type metadata in JSON
-     * 
-     * @return Resulting builder instance (usually this builder,
-     *   but may be a newly constructed instance for immutable builders}
-     */
-    public T inclusion(As includeAs);
-
-    /**
-     * Method for specifying name of property used for including type
-     * information. Not used for all inclusion mechanisms;
-     * usually only used with {@link As#PROPERTY}.
-     *<p>
-     * If not explicitly called, name of property to use is based on
-     * defaults for {@link com.fasterxml.jackson.annotation.JsonTypeInfo.Id} configured.
-     * 
-     * @param propName Name of JSON property to use for including
-     *    type information
-     * 
-     * @return Resulting builder instance (usually this builder,
-     *   but may be a newly constructed instance for immutable builders}
-     */
-    public T typeProperty(String propName);
 
     /**
      * Method for specifying default implementation to use if type id 
@@ -141,13 +111,4 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *   but may be a newly constructed instance for immutable builders}
      */
     public T defaultImpl(Class<?> defaultImpl);
-
-    /**
-     * Method for specifying whether type id should be visible to
-     * {@link com.fasterxml.jackson.databind.JsonDeserializer}s or not.
-     * 
-     * @return Resulting builder instance (usually this builder,
-     *   but may be a newly constructed instance for immutable builders}
-     */
-    public T typeIdVisibility(boolean isVisible);
 }

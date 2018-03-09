@@ -1278,7 +1278,7 @@ public class JacksonAnnotationIntrospector
         if (idRes != null) {
             idRes.init(baseType);
         }
-        b = b.init(typeInfo.getIdType(), idRes);
+        b = b.init(typeInfo, idRes);
         // 13-Aug-2011, tatu: One complication; external id
         //   only works for properties; so if declared for a Class, we will need
         //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"

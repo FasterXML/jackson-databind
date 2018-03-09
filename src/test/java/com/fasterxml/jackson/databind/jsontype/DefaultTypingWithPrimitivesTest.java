@@ -26,10 +26,8 @@ public class DefaultTypingWithPrimitivesTest extends BaseMapTest
         ObjectMapper mapper = ObjectMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();
-        StdTypeResolverBuilder resolver = new StdTypeResolverBuilder();
-        resolver.init(JsonTypeInfo.Id.CLASS, null);
-        resolver.inclusion(JsonTypeInfo.As.PROPERTY);
-        resolver.typeProperty("__t");
+        StdTypeResolverBuilder resolver = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
+                JsonTypeInfo.As.PROPERTY, "__t");
         mapper.setDefaultTyping(resolver);
 
         // Serialize

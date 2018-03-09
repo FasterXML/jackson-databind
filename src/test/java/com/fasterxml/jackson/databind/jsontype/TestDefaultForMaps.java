@@ -73,9 +73,10 @@ public class TestDefaultForMaps
     {
         ObjectMapper serMapper = new ObjectMapper();
 
-        TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
-        serializerTyper = serializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(true));
-        serializerTyper = serializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
+        TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY);
+//        serializerTyper = serializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(true));
+//        serializerTyper = serializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
         serMapper.setDefaultTyping(serializerTyper);
 
         // Let's start by constructing something to serialize first
@@ -88,9 +89,10 @@ public class TestDefaultForMaps
 
         // Then deserialize: need separate mapper to initialize type id resolver appropriately
         ObjectMapper deserMapper = new ObjectMapper();
-        TypeResolverBuilder<?> deserializerTyper = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
-        deserializerTyper = deserializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(false));
-        deserializerTyper = deserializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
+        TypeResolverBuilder<?> deserializerTyper = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY);
+//        deserializerTyper = deserializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(false));
+//        deserializerTyper = deserializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
         deserMapper.setDefaultTyping(deserializerTyper);
 
         MapHolder result = deserMapper.readValue(json, MapHolder.class);

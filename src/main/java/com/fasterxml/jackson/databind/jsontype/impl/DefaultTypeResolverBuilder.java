@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
@@ -34,8 +35,29 @@ public class DefaultTypeResolverBuilder
      */
     protected final DefaultTyping _appliesFor;
 
-    public DefaultTypeResolverBuilder(DefaultTyping t) {
+    public DefaultTypeResolverBuilder(DefaultTyping t, JsonTypeInfo.As includeAs) {
         _appliesFor = t;
+        _idType = JsonTypeInfo.Id.CLASS;
+        _includeAs = includeAs;
+        _typeProperty = _idType.getDefaultPropertyName();
+    }
+
+    public DefaultTypeResolverBuilder(DefaultTyping t, String propertyName) {
+        _appliesFor = t;
+        _idType = JsonTypeInfo.Id.CLASS;
+        _includeAs = JsonTypeInfo.As.PROPERTY;
+        _typeProperty = propertyName;
+    }
+
+    public DefaultTypeResolverBuilder(DefaultTyping t, JsonTypeInfo.As includeAs,
+            JsonTypeInfo.Id idType, String propertyName) {
+        _appliesFor = t;
+        _idType = idType;
+        _includeAs = includeAs;
+        if (propertyName == null) {
+            propertyName = _idType.getDefaultPropertyName();
+        }
+        _typeProperty = propertyName;
     }
 
     @Override

@@ -676,11 +676,7 @@ public class ObjectMapper
         if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
             throw new IllegalArgumentException("Cannot use includeAs of "+includeAs);
         }
-        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(applicability);
-        // we'll always use full class name, when using defaulting
-        typer = typer.init(JsonTypeInfo.Id.CLASS, null);
-        typer = typer.inclusion(includeAs);
-        return setDefaultTyping(typer);
+        return setDefaultTyping(new DefaultTypeResolverBuilder(applicability, includeAs));
     }
 
     /**
@@ -699,12 +695,7 @@ public class ObjectMapper
      */
     public ObjectMapper enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName)
     {
-        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(applicability);
-        // we'll always use full class name, when using defaulting
-        typer = typer.init(JsonTypeInfo.Id.CLASS, null);
-        typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
-        typer = typer.typeProperty(propertyName);
-        return setDefaultTyping(typer);
+        return setDefaultTyping(new DefaultTypeResolverBuilder(applicability, propertyName));
     }
 
     /**

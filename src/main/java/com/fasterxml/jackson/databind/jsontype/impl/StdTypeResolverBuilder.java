@@ -52,7 +52,7 @@ public class StdTypeResolverBuilder
                 throw new IllegalArgumentException("idType cannot be null");
             }
             _includeAs = settings.getInclusionType();
-            _typeProperty = settings.getPropertyName();
+            _typeProperty = _propName(settings.getPropertyName(), _idType);
             _defaultImpl = settings.getDefaultImpl();
         }
     }
@@ -60,7 +60,7 @@ public class StdTypeResolverBuilder
     /**
      * @since 2.9
      */
-    protected StdTypeResolverBuilder(JsonTypeInfo.Id idType,
+    public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
             JsonTypeInfo.As idAs, String propName)
     {
         if (idType == null) {
@@ -68,24 +68,38 @@ public class StdTypeResolverBuilder
         }
         _idType = idType;
         _includeAs = idAs;
-        _typeProperty = propName;
+        _typeProperty = _propName(propName, _idType);
+    }
+
+    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
+        if (propName == null) {
+            propName = idType.getDefaultPropertyName();
+        }
+        return propName;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
-        return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
+        return new StdTypeResolverBuilder(JsonTypeInfo.Id.NONE, null, null);
     }
 
     @Override
-    public StdTypeResolverBuilder init(JsonTypeInfo.Id idType, TypeIdResolver idRes)
+    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings, TypeIdResolver idRes)
     {
-        // sanity checks
-        if (idType == null) {
+        _idType = settings.getIdType();
+        if (_idType == null) {
             throw new IllegalArgumentException("idType cannot be null");
         }
-        _idType = idType;
         _customIdResolver = idRes;
+        _includeAs = settings.getInclusionType();
+
         // Let's also initialize property name as per idType default
-        _typeProperty = idType.getDefaultPropertyName();
+        _typeProperty = settings.getPropertyName();
+        if (_typeProperty == null) {
+            _typeProperty = _idType.getDefaultPropertyName();
+        }
+        _typeIdVisible = settings.getIdVisible();
+        _defaultImpl = settings.getDefaultImpl();
+        
         return this;
     }
 

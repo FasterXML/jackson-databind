@@ -74,6 +74,11 @@ public class DefaultTypeResolverBuilder
         return useForType(baseType) ? super.buildTypeSerializer(config, baseType, subtypes) : null;            
     }
 
+    public DefaultTypeResolverBuilder typeIdVisibility(boolean isVisible) {
+        _typeIdVisible = isVisible;
+        return this;
+    }
+
     /**
      * Method called to check if the default type handler should be
      * used for given type.

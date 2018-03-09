@@ -210,9 +210,8 @@ public class TestKeySerializers extends BaseMapTest
                 .addModule(mod)
                 .build();
         TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY, JsonTypeInfo.Id.NAME, null);
-        //typer = typer.typeProperty(TYPE_FIELD);
-        typer = typer.typeIdVisibility(true);
+                JsonTypeInfo.As.PROPERTY, JsonTypeInfo.Id.NAME, null)
+            .typeIdVisibility(true);
         mapper.setDefaultTyping(typer);
 
         Map<ABC,String> stuff = new HashMap<ABC,String>();

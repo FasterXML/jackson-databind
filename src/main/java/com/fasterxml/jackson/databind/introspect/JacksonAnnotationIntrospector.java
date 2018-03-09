@@ -1255,13 +1255,13 @@ public class JacksonAnnotationIntrospector
         // First: maybe we have explicit type resolver?
         TypeResolverBuilder<?> b;
         JsonTypeResolver resAnn = _findAnnotation(ann, JsonTypeResolver.class);
-        
         if (resAnn != null) {
-            if (!JsonTypeInfo.Value.isEnabled(typeInfo)) {
+            // 08-Mar-2018, tatu: Should `NONE` block custom one? Or not?
+            if ((typeInfo != null) && (typeInfo.getIdType() == JsonTypeInfo.Id.NONE)) {
                 return null;
             }
             b = config.typeResolverBuilderInstance(ann, resAnn.value());
-        } else { // if not, use standard one, if indicated by annotations
+        } else { // if not, use standard one, but only if indicated by annotations
             if (typeInfo == null) {
                 return null;
             }
@@ -1269,7 +1269,14 @@ public class JacksonAnnotationIntrospector
             if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return _constructNoTypeResolverBuilder();
             }
-            b = _constructStdTypeResolverBuilder();
+            // 13-Aug-2011, tatu: One complication; external id
+            //   only works for properties; so if declared for a Class, we will need
+            //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
+            JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
+            if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
+                typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
+            }
+            b = _constructStdTypeResolverBuilder(typeInfo);
         }
         // Does it define a custom type id resolver?
         JsonTypeIdResolver idResInfo = _findAnnotation(ann, JsonTypeIdResolver.class);
@@ -1279,17 +1286,6 @@ public class JacksonAnnotationIntrospector
             idRes.init(baseType);
         }
         b = b.init(typeInfo, idRes);
-        // 13-Aug-2011, tatu: One complication; external id
-        //   only works for properties; so if declared for a Class, we will need
-        //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
-        JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
-        if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
-            inclusion = JsonTypeInfo.As.PROPERTY;
-        }
-        b = b.inclusion(inclusion);
-        b = b.typeProperty(typeInfo.getPropertyName());
-        b = b.defaultImpl(typeInfo.getDefaultImpl());
-        b = b.typeIdVisibility(typeInfo.getIdVisible());
         return b;
     }
 
@@ -1297,8 +1293,8 @@ public class JacksonAnnotationIntrospector
      * Helper method for constructing standard {@link TypeResolverBuilder}
      * implementation.
      */
-    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder() {
-        return new StdTypeResolverBuilder();
+    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder(JsonTypeInfo.Value typeInfo) {
+        return new StdTypeResolverBuilder(typeInfo);
     }
 
     /**

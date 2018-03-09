@@ -125,7 +125,6 @@ public class TestJacksonAnnotationIntrospector
     @JsonTypeResolver(DummyBuilder.class)
     static class TypeResolverBean { }
 
-    // @since 1.7
     @JsonIgnoreType
     static class IgnoredType { }
 

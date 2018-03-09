@@ -243,13 +243,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Method called to locate a type info handler for types that do not have
      * one explicitly declared via annotations (or other configuration).
-     * If such default handler is configured, it is returned; otherwise
+     * If such a default handler is configured, it is returned; otherwise
      * null is returned.
      */
     public final TypeResolverBuilder<?> getDefaultTyper(JavaType baseType) {
-        return _base.getTypeResolverBuilder();
+        return _base.getDefaultTyper();
     }
-    
+
     public abstract SubtypeResolver getSubtypeResolver();
 
     public final TypeFactory getTypeFactory() {

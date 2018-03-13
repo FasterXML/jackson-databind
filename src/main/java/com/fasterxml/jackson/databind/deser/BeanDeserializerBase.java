@@ -605,8 +605,10 @@ public abstract class BeanDeserializerBase
         }
     }
 
-    private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt, JavaType delegateType,
-            AnnotatedWithParams delegateCreator) throws JsonMappingException {
+    private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt,
+            JavaType delegateType, AnnotatedWithParams delegateCreator)
+                    throws JsonMappingException
+    {
         // Need to create a temporary property to allow contextual deserializers:
         BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
                 delegateType, null, delegateCreator,

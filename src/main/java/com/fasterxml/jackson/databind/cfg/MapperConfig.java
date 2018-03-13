@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -250,6 +251,15 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return _base.getDefaultTyper();
     }
 
+private final static TypeResolverProvider STD_TYPE_RESOLVER_PROVIDER = new TypeResolverProvider();
+
+    /**
+     * @since 3.0
+     */
+    public TypeResolverProvider getTypeResolverProvider() {
+        return STD_TYPE_RESOLVER_PROVIDER;
+    }
+    
     public abstract SubtypeResolver getSubtypeResolver();
 
     public final TypeFactory getTypeFactory() {
@@ -285,9 +295,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: introspection support
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

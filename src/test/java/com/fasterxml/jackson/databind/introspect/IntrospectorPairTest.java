@@ -5,7 +5,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.std.StringSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
@@ -164,35 +162,15 @@ public class IntrospectorPairTest extends BaseMapTest
         /******************************************************
          */
 
-        @Override
-        public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
-                Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo) {
-            return (TypeResolverBuilder<?>) values.get("findTypeResolver");
-        }
-
-        @Override
-        public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
-                Annotated am, JavaType baseType, JsonTypeInfo.Value typeInfo)
-        {
-            return (TypeResolverBuilder<?>) values.get("findPropertyTypeResolver");
-        }
-
-        @Override
-        public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
-                Annotated am, JavaType baseType, JsonTypeInfo.Value typeInfo)
-        {
-            return (TypeResolverBuilder<?>) values.get("findPropertyContentTypeResolver");
-        }
-        
         @SuppressWarnings("unchecked")
         @Override
-        public List<NamedType> findSubtypes(Annotated a)
+        public List<NamedType> findSubtypes(MapperConfig<?> config, Annotated a)
         {
             return (List<NamedType>) values.get("findSubtypes");
         }
 
         @Override
-        public String findTypeName(AnnotatedClass ac) {
+        public String findTypeName(MapperConfig<?> config, AnnotatedClass ac) {
             return (String) values.get("findTypeName");
         }
 
@@ -449,11 +427,11 @@ public class IntrospectorPairTest extends BaseMapTest
                 .add("findTypeName", "type1");
         IntrospectorWithMap intr2 = new IntrospectorWithMap()
                 .add("findTypeName", "type2");
-        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findTypeName(null));
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findTypeName(null, null));
         assertEquals("type1",
-                new AnnotationIntrospectorPair(intr1, intr2).findTypeName(null));
+                new AnnotationIntrospectorPair(intr1, intr2).findTypeName(null, null));
         assertEquals("type2",
-                new AnnotationIntrospectorPair(intr2, intr1).findTypeName(null));
+                new AnnotationIntrospectorPair(intr2, intr1).findTypeName(null, null));
     }
 
     /*

@@ -1,13 +1,12 @@
 package com.fasterxml.jackson.databind;
 
-import java.util.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.*;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.util.ArrayIterator;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
@@ -24,7 +23,28 @@ public final class DeserializationConfig
     extends MapperConfigBase<DeserializationFeature, DeserializationConfig>
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 3;
+    private static final long serialVersionUID = 3L;
+
+    /*
+    /**********************************************************************
+    /* Deserialization, parser, format features 
+    /**********************************************************************
+     */
+
+    /**
+     * Set of {@link DeserializationFeature}s enabled.
+     */
+    protected final int _deserFeatures;
+
+    /**
+     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
+     */
+    protected final int _parserFeatures;
+
+    /**
+     * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
+     */
+    protected final int _formatParserFeatures;
 
     /*
     /**********************************************************************
@@ -39,32 +59,15 @@ public final class DeserializationConfig
      */
     protected final LinkedNode<DeserializationProblemHandler> _problemHandlers;
 
-    /*
-    /**********************************************************************
-    /* Deserialization features 
-    /**********************************************************************
-     */
-
     /**
-     * Set of {@link DeserializationFeature}s enabled.
+     * List of objects that may be able to resolve abstract types to
+     * concrete types. Used by functionality like "mr Bean" to materialize
+     * types as needed, although may be used for other kinds of defaulting
+     * as well.
+     *
+     * @since 3.0
      */
-    protected final int _deserFeatures;
-
-    /*
-    /**********************************************************************
-    /* Parser features: generic, format-specific
-    /**********************************************************************
-     */
-
-    /**
-     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
-     */
-    protected final int _parserFeatures;
-
-    /**
-     * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
-     */
-    protected final int _formatParserFeatures;
+    protected final AbstractTypeResolver[] _abstractTypeResolvers;
 
     /*
     /**********************************************************************
@@ -93,16 +96,17 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
             int deserFeatures, int parserFeatures, int formatParserFeatures,
-            MixInHandler mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+            MixInHandler mixins, RootNameLookup rootNames, ConfigOverrides configOverrides,
+            AbstractTypeResolver[] atrs)
     {
         super(b.baseSettings(), mapperFeatures,
                 b.classIntrospector(), b.subtypeResolver(),
                 mixins, rootNames, configOverrides);
         _deserFeatures = deserFeatures;
-        _problemHandlers = b.deserializationProblemHandlers();
         _parserFeatures = parserFeatures;
         _formatParserFeatures = formatParserFeatures;
+        _problemHandlers = b.deserializationProblemHandlers();
+        _abstractTypeResolvers = atrs;
     }
 
     /*
@@ -118,9 +122,10 @@ public final class DeserializationConfig
     {
         super(src, mapperFeatures);
         _deserFeatures = deserFeatures;
-        _problemHandlers = src._problemHandlers;
         _parserFeatures = parserFeatures;
         _formatParserFeatures = formatParserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
     
     /**
@@ -131,37 +136,32 @@ public final class DeserializationConfig
     {
         super(src, str);
         _deserFeatures = src._deserFeatures;
-        _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
         _formatParserFeatures = src._formatParserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
     {
         super(src, base);
         _deserFeatures = src._deserFeatures;
-        _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
         _formatParserFeatures = src._formatParserFeatures;
-    }
-    
-    private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
-    {
-        super(src);
-        _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     private DeserializationConfig(DeserializationConfig src,
-            LinkedNode<DeserializationProblemHandler> problemHandlers)
+            LinkedNode<DeserializationProblemHandler> problemHandlers,
+            AbstractTypeResolver[] atr)
     {
         super(src);
         _deserFeatures = src._deserFeatures;
-        _problemHandlers = problemHandlers;
         _parserFeatures = src._parserFeatures;
         _formatParserFeatures = src._formatParserFeatures;
+        _problemHandlers = problemHandlers;
+        _abstractTypeResolvers = atr;
     }
 
     private DeserializationConfig(DeserializationConfig src, PropertyName rootName)
@@ -171,6 +171,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
         _formatParserFeatures = src._formatParserFeatures;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     private DeserializationConfig(DeserializationConfig src, Class<?> view)
@@ -180,6 +181,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
         _formatParserFeatures = src._formatParserFeatures;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
@@ -189,6 +191,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
         _formatParserFeatures = src._formatParserFeatures;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     protected DeserializationConfig(DeserializationConfig src, MixInHandler mixins)
@@ -198,6 +201,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
         _formatParserFeatures = src._formatParserFeatures;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     // for unit tests only:
@@ -480,7 +484,8 @@ public final class DeserializationConfig
         // Sanity check: let's prevent adding same handler multiple times
         return LinkedNode.contains(_problemHandlers, h) ? this
                 : new DeserializationConfig(this,
-                        new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers));
+                        new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers),
+                        _abstractTypeResolvers);
     }
 
     /**
@@ -490,7 +495,7 @@ public final class DeserializationConfig
     public DeserializationConfig withNoProblemHandlers() {
         return (_problemHandlers == null) ? this
                 : new DeserializationConfig(this,
-                        (LinkedNode<DeserializationProblemHandler>) null);
+                        (LinkedNode<DeserializationProblemHandler>) null, _abstractTypeResolvers);
     }
 
     /*
@@ -572,6 +577,65 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************************
+    /* Abstract type mapping
+    /**********************************************************************
+     */
+
+    /**
+     * @since 3.0
+     */
+    public boolean hasAbstractTypeResolvers() { return _abstractTypeResolvers.length > 0; }
+
+    /**
+     * @since 3.0
+     */
+    public Iterable<AbstractTypeResolver> abstractTypeResolvers() {
+        return new ArrayIterator<AbstractTypeResolver>(_abstractTypeResolvers);
+    }
+
+    /**
+     * @since 3.0
+     */
+    public JavaType mapAbstractType(JavaType type)
+    {
+        if (!hasAbstractTypeResolvers()) {
+            return type;
+        }
+        // first, general mappings
+        while (true) {
+            JavaType next = _mapAbstractType2(type);
+            if (next == null) {
+                return type;
+            }
+            // Should not have to worry about cycles; but better verify since they will invariably occur... :-)
+            // (also: guard against invalid resolution to a non-related type)
+            Class<?> prevCls = type.getRawClass();
+            Class<?> nextCls = next.getRawClass();
+            if ((prevCls == nextCls) || !prevCls.isAssignableFrom(nextCls)) {
+                throw new IllegalArgumentException("Invalid abstract type resolution from "+type+" to "+next+": latter is not a subtype of former");
+            }
+            type = next;
+        }
+    }
+
+    /**
+     * Method that will find abstract type mapping for specified type, doing a single
+     * lookup through registered abstract type resolvers; will not do recursive lookups.
+     */
+    private JavaType _mapAbstractType2(JavaType type)
+    {
+        Class<?> currClass = type.getRawClass();
+        for (AbstractTypeResolver resolver : abstractTypeResolvers()) {
+            JavaType concrete = resolver.findTypeMapping(this, type);
+            if (ClassUtil.rawClass(concrete) != currClass) {
+                return concrete;
+            }
+        }
+        return null;
+    }
+
+    /*
+    /**********************************************************************
     /* Other configuration
     /**********************************************************************
      */
@@ -583,7 +647,7 @@ public final class DeserializationConfig
     public LinkedNode<DeserializationProblemHandler> getProblemHandlers() {
         return _problemHandlers;
     }
-
+    
     /*
     /**********************************************************************
     /* Introspection methods
@@ -620,7 +684,7 @@ public final class DeserializationConfig
     /* Support for polymorphic type handling
     /**********************************************************************
      */
-    
+
     /**
      * Helper method that is needed to properly handle polymorphic referenced
      * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
@@ -630,22 +694,7 @@ public final class DeserializationConfig
         throws JsonMappingException
     {
         BeanDescription bean = introspectClassAnnotations(baseType.getRawClass());
-        AnnotatedClass ac = bean.getClassInfo();
-        AnnotationIntrospector ai = getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findTypeResolver(this, ac, baseType,
-                ai.findPolymorphicTypeInfo(this, ac));
-
-        // Ok: if there is no explicit type info handler, we may want to
-        // use a default. If so, config object knows what to use.
-        Collection<NamedType> subtypes = null;
-        if (b == null) {
-            b = getDefaultTyper(baseType);
-            if (b == null) {
-                return null;
-            }
-        } else {
-            subtypes = getSubtypeResolver().collectAndResolveSubtypesByTypeId(this, ac);
-        }
-        return b.buildTypeDeserializer(this, baseType, subtypes);
+        return getTypeResolverProvider().findTypeDeserializer(this,
+                bean.getClassInfo(), baseType);
     }
 }

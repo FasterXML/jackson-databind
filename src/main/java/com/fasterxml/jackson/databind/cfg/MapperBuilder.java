@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
@@ -47,6 +48,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected final static BaseSettings DEFAULT_BASE_SETTINGS = BaseSettings.std();
 
+    protected final static AbstractTypeResolver[] NO_ABSTRACT_TYPE_RESOLVERS = new AbstractTypeResolver[0];
+    
     /*
     /**********************************************************************
     /* Basic settings
@@ -116,7 +119,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Factories for deserialization
+    /* Factories etc for deserialization
     /**********************************************************************
      */
 
@@ -131,6 +134,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Provider for values to inject in deserialized POJOs.
      */
     protected InjectableValues _injectableValues;
+
+    /**
+     * Optional handlers that application may register to try to work-around
+     * various problem situations during deserialization
+     */
+    protected LinkedNode<DeserializationProblemHandler> _problemHandlers;
+
+    protected AbstractTypeResolver[] _abstractTypeResolvers;
 
     /*
     /**********************************************************************
@@ -178,18 +189,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Optional per-format generator feature flags.
      */
     protected int _formatGeneratorFeatures;
-
-    /*
-    /**********************************************************************
-    /* Misc other configuration
-    /**********************************************************************
-     */
-
-    /**
-     * Optional handlers that application may register to try to work-around
-     * various problem situations during deserialization
-     */
-    protected LinkedNode<DeserializationProblemHandler> _problemHandlers;
 
     /*
     /**********************************************************************
@@ -244,6 +243,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _injectableValues = null;
 
         _problemHandlers = null;
+        _abstractTypeResolvers = NO_ABSTRACT_TYPE_RESOLVERS;
     }
 
     /**
@@ -280,9 +280,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _deserializerFactory = state._deserializerFactory;
         _deserializationContext = state._deserializationContext;
         _injectableValues = Snapshottable.takeSnapshot(state._injectableValues);
-
-        // Misc other
         _problemHandlers = state._problemHandlers;
+        _abstractTypeResolvers = state._abstractTypeResolvers;
 
         // Modules
         if (state._modules == null) {
@@ -382,7 +381,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     {
         return new DeserializationConfig(this,
                 _mapperFeatures, _deserFeatures, _parserFeatures, _formatParserFeatures,
-                mixins, rootNames, _configOverrides);
+                mixins, rootNames, _configOverrides,
+                _abstractTypeResolvers);
     }
 
     /*
@@ -1053,6 +1053,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B clearProblemHandlers() {
         _problemHandlers = null;
+        return _this();
+    }
+
+    /**
+     * Method for inserting specified {@link AbstractTypeResolver} as the first resolver
+     * in chain of possibly multiple resolvers.
+     */
+    public B addAbstractTypeResolver(AbstractTypeResolver resolver) {
+        if (resolver == null) {
+            throw new IllegalArgumentException("Cannot pass null resolver");
+        }
+        _abstractTypeResolvers = ArrayBuilders.insertInListNoDup(_abstractTypeResolvers, resolver);
         return _this();
     }
 

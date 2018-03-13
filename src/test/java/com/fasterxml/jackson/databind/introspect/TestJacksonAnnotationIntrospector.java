@@ -7,17 +7,15 @@ import java.util.*;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 @SuppressWarnings("serial")
 public class TestJacksonAnnotationIntrospector
@@ -116,15 +114,6 @@ public class TestJacksonAnnotationIntrospector
         }
     }
 
-    public static class DummyBuilder extends StdTypeResolverBuilder
-    //<DummyBuilder>
-    {
-    }
-
-    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
-    @JsonTypeResolver(DummyBuilder.class)
-    static class TypeResolverBean { }
-
     @JsonIgnoreType
     static class IgnoredType { }
 
@@ -179,19 +168,6 @@ public class TestJacksonAnnotationIntrospector
         assertEquals(ex.elementProperty, readEx.elementProperty);
         assertEquals(ex.wrappedElementProperty, readEx.wrappedElementProperty);
         assertEquals(ex.enumProperty, readEx.enumProperty);
-    }
-
-    public void testJsonTypeResolver() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(mapper.serializationConfig(),
-                TypeResolverBean.class);
-        JavaType baseType = TypeFactory.defaultInstance().constructType(TypeResolverBean.class);
-        TypeResolverBuilder<?> rb = ai.findTypeResolver(mapper.deserializationConfig(), ac, baseType,
-                ai.findPolymorphicTypeInfo(mapper.deserializationConfig(), ac));
-        assertNotNull(rb);
-        assertSame(DummyBuilder.class, rb.getClass());
     }
 
     public void testEnumHandling() throws Exception

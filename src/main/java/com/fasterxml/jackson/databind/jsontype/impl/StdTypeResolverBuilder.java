@@ -130,12 +130,6 @@ public class StdTypeResolverBuilder
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
 
-    // as per [#368]
-    // removed when fix [#528]
-    //private IllegalArgumentException _noExisting() {
-    //    return new IllegalArgumentException("Inclusion type "+_includeAs+" not yet supported");
-    //}
-
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
@@ -148,7 +142,6 @@ public class StdTypeResolverBuilder
         }
 
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
-
         JavaType defaultImpl;
 
         if (_defaultImpl == null) {

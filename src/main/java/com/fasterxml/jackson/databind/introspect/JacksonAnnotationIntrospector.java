@@ -9,15 +9,14 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter;
@@ -515,17 +514,23 @@ public class JacksonAnnotationIntrospector
             Annotated ann)
     {
         JsonTypeInfo t = _findAnnotation(ann, JsonTypeInfo.class);
-        // will accept `null`, return `null`
-        return JsonTypeInfo.Value.from(t);
-    }
-    
-    @Override
-    public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
-    {
-        return _findTypeResolver(config, ann, baseType, typeInfo);
+        return (t == null) ? null : JsonTypeInfo.Value.from(t);
     }
 
+    @Override
+    public Object findTypeResolverBuilder(MapperConfig<?> config,
+            Annotated ann) {
+        JsonTypeResolver a = _findAnnotation(ann, JsonTypeResolver.class);
+        return (a == null) ? a : a.value();
+    }
+
+    @Override
+    public Object findTypeIdResolver(MapperConfig<?> config, Annotated ann) {
+        JsonTypeIdResolver a = _findAnnotation(ann, JsonTypeIdResolver.class);
+        return (a == null) ? a : a.value();
+    }
+
+    /*
     @Override
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
@@ -538,7 +543,9 @@ public class JacksonAnnotationIntrospector
         // No per-member type overrides (yet)
         return _findTypeResolver(config, ann, baseType, typeInfo);
     }
+    */
 
+    /*
     @Override
     public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType containerType, JsonTypeInfo.Value typeInfo)
@@ -550,9 +557,10 @@ public class JacksonAnnotationIntrospector
         }
         return _findTypeResolver(config, ann, containerType, typeInfo);
     }
-    
+    */
+
     @Override
-    public List<NamedType> findSubtypes(Annotated a)
+    public List<NamedType> findSubtypes(MapperConfig<?> config, Annotated a)
     {
         JsonSubTypes t = _findAnnotation(a, JsonSubTypes.class);
         if (t == null) return null;
@@ -565,14 +573,14 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override        
-    public String findTypeName(AnnotatedClass ac)
+    public String findTypeName(MapperConfig<?> config, AnnotatedClass ac)
     {
         JsonTypeName tn = _findAnnotation(ac, JsonTypeName.class);
         return (tn == null) ? null : tn.value();
     }
 
     @Override
-    public Boolean isTypeId(AnnotatedMember member) {
+    public Boolean isTypeId(MapperConfig<?> config, AnnotatedMember member) {
         return _hasAnnotation(member, JsonTypeId.class);
     }
 
@@ -710,7 +718,7 @@ public class JacksonAnnotationIntrospector
     /* Serialization: type refinements
     /**********************************************************
      */
-    
+
     @Override
     public JavaType refineSerializationType(final MapperConfig<?> config,
             final Annotated a, final JavaType baseType) throws JsonMappingException
@@ -969,7 +977,7 @@ public class JacksonAnnotationIntrospector
         return null;
     }
 
-    @Override // since 2.9
+    @Override
     public Boolean hasAsValue(Annotated a) {
         JsonValue ann = _findAnnotation(a, JsonValue.class);
         if (ann == null) {
@@ -978,7 +986,7 @@ public class JacksonAnnotationIntrospector
         return ann.value();
     }
 
-    @Override // since 2.9
+    @Override
     public Boolean hasAnyGetter(Annotated a) {
         JsonAnyGetter ann = _findAnnotation(a, JsonAnyGetter.class);
         if (ann == null) {
@@ -1179,7 +1187,7 @@ public class JacksonAnnotationIntrospector
         return JsonSetter.Value.from(_findAnnotation(a, JsonSetter.class));
     }
 
-    @Override // since 2.9
+    @Override
     public Boolean findMergeInfo(Annotated a) {
         JsonMerge ann = _findAnnotation(a, JsonMerge.class);
         return (ann == null) ? null : ann.value().asBoolean();
@@ -1243,66 +1251,6 @@ public class JacksonAnnotationIntrospector
             return PropertyName.construct(localName);
         }
         return PropertyName.construct(localName, namespace);
-    }
-
-    /**
-     * Helper method called to construct and initialize instance of {@link TypeResolverBuilder}
-     * if given annotated element indicates one is needed.
-     */
-    protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
-    {
-        // First: maybe we have explicit type resolver?
-        TypeResolverBuilder<?> b;
-        JsonTypeResolver resAnn = _findAnnotation(ann, JsonTypeResolver.class);
-        if (resAnn != null) {
-            // 08-Mar-2018, tatu: Should `NONE` block custom one? Or not?
-            if ((typeInfo != null) && (typeInfo.getIdType() == JsonTypeInfo.Id.NONE)) {
-                return null;
-            }
-            b = config.typeResolverBuilderInstance(ann, resAnn.value());
-        } else { // if not, use standard one, but only if indicated by annotations
-            if (typeInfo == null) {
-                return null;
-            }
-            // bit special; must return 'marker' to block use of default typing:
-            if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
-                return _constructNoTypeResolverBuilder();
-            }
-            // 13-Aug-2011, tatu: One complication; external id
-            //   only works for properties; so if declared for a Class, we will need
-            //   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
-            JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
-            if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
-                typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
-            }
-            b = _constructStdTypeResolverBuilder(typeInfo);
-        }
-        // Does it define a custom type id resolver?
-        JsonTypeIdResolver idResInfo = _findAnnotation(ann, JsonTypeIdResolver.class);
-        TypeIdResolver idRes = (idResInfo == null) ? null
-                : config.typeIdResolverInstance(ann, idResInfo.value());
-        if (idRes != null) {
-            idRes.init(baseType);
-        }
-        b = b.init(typeInfo, idRes);
-        return b;
-    }
-
-    /**
-     * Helper method for constructing standard {@link TypeResolverBuilder}
-     * implementation.
-     */
-    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder(JsonTypeInfo.Value typeInfo) {
-        return new StdTypeResolverBuilder(typeInfo);
-    }
-
-    /**
-     * Helper method for dealing with "no type info" marker; can't be null
-     * (as it'd be replaced by default typing)
-     */
-    protected StdTypeResolverBuilder _constructNoTypeResolverBuilder() {
-        return StdTypeResolverBuilder.noTypeInfoBuilder();
     }
 
     private boolean _primitiveAndWrapper(Class<?> baseType, Class<?> refinement)

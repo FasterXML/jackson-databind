@@ -320,7 +320,7 @@ public final class DeserializerCache
 
         // First things first: do we need to use abstract type mapping?
         if (type.isAbstract() || type.isMapLikeType() || type.isCollectionLikeType()) {
-            type = factory.mapAbstractType(config, type);
+            type = config.mapAbstractType(type);
         }
         BeanDescription beanDesc = config.introspect(type);
         // Then: does type define explicit deserializer to use, with annotation(s)?

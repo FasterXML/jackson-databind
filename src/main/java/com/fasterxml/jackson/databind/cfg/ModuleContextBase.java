@@ -184,7 +184,7 @@ public class ModuleContextBase
 
     @Override
     public SetupContext addAbstractTypeResolver(AbstractTypeResolver resolver) {
-        _set(_deserializerFactory().withAbstractTypeResolver(resolver));
+        _builder.addAbstractTypeResolver(resolver);
         return this;
     }
 

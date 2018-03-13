@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
@@ -293,6 +291,8 @@ public class BeanSerializerFactory
             SerializationConfig config, AnnotatedMember accessor)
         throws JsonMappingException
     {
+        return config.getTypeResolverProvider().findPropertyTypeSerializer(config, accessor, baseType);
+        /*
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config,
                 accessor, baseType, ai.findPolymorphicTypeInfo(config, accessor));
@@ -300,13 +300,14 @@ public class BeanSerializerFactory
 
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
-            typeSer = createTypeSerializer(config, baseType);
+            typeSer = findTypeSerializer(config, baseType);
         } else {
             Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                     config, accessor, baseType);
             typeSer = b.buildTypeSerializer(config, baseType, subtypes);
         }
         return typeSer;
+        */
     }
 
     /**
@@ -323,21 +324,24 @@ public class BeanSerializerFactory
             SerializationConfig config, AnnotatedMember accessor)
         throws JsonMappingException
     {
-        JavaType contentType = containerType.getContentType();
+        return config.getTypeResolverProvider().findPropertyContentTypeSerializer(config, accessor, containerType);
+        /*
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config,
                 accessor, containerType, ai.findPolymorphicTypeInfo(config, accessor));
         TypeSerializer typeSer;
 
         // Defaulting: if no annotations on member, check value class
+        JavaType contentType = containerType.getContentType();
         if (b == null) {
-            typeSer = createTypeSerializer(config, contentType);
+            typeSer = findTypeSerializer(config, contentType);
         } else {
             Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config,
                     accessor, contentType);
             typeSer = b.buildTypeSerializer(config, contentType, subtypes);
         }
         return typeSer;
+        */
     }
 
     /*
@@ -348,8 +352,6 @@ public class BeanSerializerFactory
 
     /**
      * Method called to construct serializer for serializing specified bean type.
-     * 
-     * @since 2.1
      */
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov,
@@ -408,7 +410,7 @@ public class BeanSerializerFactory
             // copied from BasicSerializerFactory.buildMapSerializer():
             boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
             JavaType valueType = type.getContentType();
-            TypeSerializer typeSer = createTypeSerializer(config, valueType);
+            TypeSerializer typeSer = findTypeSerializer(config, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
             // 23-Feb-2015, tatu: As per [databind#705], need to support custom serializers
             JsonSerializer<?> anySer = findSerializerFromAnnotation(prov, anyGetter);
@@ -726,8 +728,6 @@ public class BeanSerializerFactory
     /**
      * Helper method called to ensure that we do not have "duplicate" type ids.
      * Added to resolve [databind#222]
-     *
-     * @since 2.6
      */
     protected List<BeanPropertyWriter> removeOverlappingTypeIds(SerializerProvider prov,
             BeanDescription beanDesc, BeanSerializerBuilder builder,

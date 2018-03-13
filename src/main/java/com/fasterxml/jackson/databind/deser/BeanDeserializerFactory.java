@@ -169,14 +169,15 @@ public class BeanDeserializerFactory
         }
         return deser;
     }
-    
+
     protected JavaType materializeAbstractType(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
+        final DeserializationConfig config = ctxt.getConfig();
         // May have multiple resolvers, call in precedence order until one returns non-null
-        for (AbstractTypeResolver r : _factoryConfig.abstractTypeResolvers()) {
-            JavaType concrete = r.resolveAbstractType(ctxt.getConfig(), beanDesc);
+        for (AbstractTypeResolver r : config.abstractTypeResolvers()) {
+            JavaType concrete = r.resolveAbstractType(config, beanDesc);
             if (concrete != null) {
                 return concrete;
             }

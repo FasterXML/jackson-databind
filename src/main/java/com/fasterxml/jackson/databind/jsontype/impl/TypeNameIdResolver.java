@@ -99,7 +99,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 // can either throw an exception, or use default name...
                 if (_config.isAnnotationProcessingEnabled()) {
                     BeanDescription beanDesc = _config.introspectClassAnnotations(cls);
-                    name = _config.getAnnotationIntrospector().findTypeName(beanDesc.getClassInfo());
+                    name = _config.getAnnotationIntrospector().findTypeName(_config, beanDesc.getClassInfo());
                 }
                 if (name == null) {
                     // And if still not found, let's choose default?

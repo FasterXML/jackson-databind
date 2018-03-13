@@ -8,7 +8,9 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
+
 import com.fasterxml.jackson.core.JsonLocation;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -22,9 +24,7 @@ import com.fasterxml.jackson.databind.ext.jdk8.OptionalDoubleDeserializer;
 import com.fasterxml.jackson.databind.ext.jdk8.OptionalIntDeserializer;
 import com.fasterxml.jackson.databind.ext.jdk8.OptionalLongDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.*;
 
@@ -87,18 +87,17 @@ public abstract class BasicDeserializerFactory
         _collectionFallbacks.put(Queue.class.getName(), LinkedList.class);
 
         // then JDK 1.6 types:
-        /* 17-May-2013, tatu: [databind#216] Should be fine to use straight Class references EXCEPT
-         *   that some god-forsaken platforms (... looking at you, Android) do not
-         *   include these. So, use "soft" references...
-         */
+        // 17-May-2013, tatu: [databind#216] Should be fine to use straight Class references EXCEPT
+        //   that some god-forsaken platforms (... looking at you, Android) do not
+        //   include these. So, use "soft" references...
         _collectionFallbacks.put("java.util.Deque", LinkedList.class);
         _collectionFallbacks.put("java.util.NavigableSet", TreeSet.class);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Config
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -108,9 +107,9 @@ public abstract class BasicDeserializerFactory
     protected final DeserializerFactoryConfig _factoryConfig;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected BasicDeserializerFactory(DeserializerFactoryConfig config) {
@@ -129,11 +128,11 @@ public abstract class BasicDeserializerFactory
     }
 
     protected abstract DeserializerFactory withConfig(DeserializerFactoryConfig config);
-    
+
     /*
-    /********************************************************
+    /**********************************************************************
     /* Configuration handling: fluent factories
-    /********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -165,15 +164,6 @@ public abstract class BasicDeserializerFactory
 
     /**
      * Convenience method for creating a new factory instance with additional
-     * {@link AbstractTypeResolver}.
-     */
-    @Override
-    public final DeserializerFactory withAbstractTypeResolver(AbstractTypeResolver resolver) {
-        return withConfig(_factoryConfig.withAbstractTypeResolver(resolver));
-    }
-
-    /**
-     * Convenience method for creating a new factory instance with additional
      * {@link ValueInstantiators}.
      */
     @Override
@@ -182,54 +172,9 @@ public abstract class BasicDeserializerFactory
     }
 
     /*
-    /**********************************************************
-    /* DeserializerFactory impl (partial): type mappings
-    /**********************************************************
-     */
-
-    @Override
-    public JavaType mapAbstractType(DeserializationConfig config, JavaType type) throws JsonMappingException
-    {
-        // first, general mappings
-        while (true) {
-            JavaType next = _mapAbstractType2(config, type);
-            if (next == null) {
-                return type;
-            }
-            // Should not have to worry about cycles; but better verify since they will invariably occur... :-)
-            // (also: guard against invalid resolution to a non-related type)
-            Class<?> prevCls = type.getRawClass();
-            Class<?> nextCls = next.getRawClass();
-            if ((prevCls == nextCls) || !prevCls.isAssignableFrom(nextCls)) {
-                throw new IllegalArgumentException("Invalid abstract type resolution from "+type+" to "+next+": latter is not a subtype of former");
-            }
-            type = next;
-        }
-    }
-
-    /**
-     * Method that will find abstract type mapping for specified type, doing a single
-     * lookup through registered abstract type resolvers; will not do recursive lookups.
-     */
-    private JavaType _mapAbstractType2(DeserializationConfig config, JavaType type)
-        throws JsonMappingException
-    {
-        Class<?> currClass = type.getRawClass();
-        if (_factoryConfig.hasAbstractTypeResolvers()) {
-            for (AbstractTypeResolver resolver : _factoryConfig.abstractTypeResolvers()) {
-                JavaType concrete = resolver.findTypeMapping(config, type);
-                if (ClassUtil.rawClass(concrete) != currClass) {
-                    return concrete;
-                }
-            }
-        }
-        return null;
-    }
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonDeserializerFactory impl (partial): ValueInstantiators
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1604,19 +1549,25 @@ nonAnnotatedParamIndex, ctor);
      */
 
     @Override
-    public TypeDeserializer findTypeDeserializer(DeserializationConfig config,
+    public TypeDeserializer findTypeDeserializer(final DeserializationConfig config,
             JavaType baseType)
         throws JsonMappingException
     {
+        BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
+        return config.getTypeResolverProvider().findTypeDeserializer(config,
+                bean.getClassInfo(), baseType);
+
+//      JavaType defaultType = mapAbstractType(config, baseType);
+        
+        /*
         BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         AnnotatedClass ac = bean.getClassInfo();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findTypeResolver(config,
                 ac, baseType, ai.findPolymorphicTypeInfo(config, ac));
 
-        /* Ok: if there is no explicit type info handler, we may want to
-         * use a default. If so, config object knows what to use.
-         */
+        // Ok: if there is no explicit type info handler, we may want to
+        // use a default. If so, config object knows what to use.
         Collection<NamedType> subtypes = null;
         if (b == null) {
             b = config.getDefaultTyper(baseType);
@@ -1635,6 +1586,7 @@ nonAnnotatedParamIndex, ctor);
             }
         }
         return b.buildTypeDeserializer(config, baseType, subtypes);
+        */
     }
 
     /**
@@ -1759,9 +1711,12 @@ nonAnnotatedParamIndex, ctor);
      * @return Type deserializer to use for given base type, if one is needed; null if not.
      */
     public TypeDeserializer findPropertyTypeDeserializer(DeserializationConfig config,
-            JavaType baseType, AnnotatedMember annotated)
+            JavaType baseType, AnnotatedMember accessor)
         throws JsonMappingException
     {
+        return config.getTypeResolverProvider().findPropertyTypeDeserializer(config, accessor, baseType);
+
+        /*
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config,
                 annotated, baseType,
@@ -1774,6 +1729,7 @@ nonAnnotatedParamIndex, ctor);
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 config, annotated, baseType);
         return b.buildTypeDeserializer(config, baseType, subtypes);
+        */
     }
     
     /**
@@ -1785,16 +1741,18 @@ nonAnnotatedParamIndex, ctor);
      * and not for values in container types or root values (or non-container properties)
      * 
      * @param containerType Type of property; must be a container type
-     * @param propertyEntity Field or method that contains container property
+     * @param accessor Field or method that contains container property
      */    
     public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationConfig config,
-            JavaType containerType, AnnotatedMember propertyEntity)
+            JavaType containerType, AnnotatedMember accessor)
         throws JsonMappingException
     {
+        return config.getTypeResolverProvider().findPropertyContentTypeDeserializer(config, accessor, containerType);
+/*
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config,
-                propertyEntity, containerType,
-                ai.findPolymorphicTypeInfo(config, propertyEntity));
+                accessor, containerType,
+                ai.findPolymorphicTypeInfo(config, accessor));
         JavaType contentType = containerType.getContentType();
         // Defaulting: if no annotations on member, check class
         if (b == null) {
@@ -1802,8 +1760,9 @@ nonAnnotatedParamIndex, ctor);
         }
         // but if annotations found, may need to resolve subtypes:
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
-                config, propertyEntity, contentType);
+                config, accessor, contentType);
         return b.buildTypeDeserializer(config, contentType, subtypes);
+        */
     }
 
     /**
@@ -1822,7 +1781,7 @@ nonAnnotatedParamIndex, ctor);
             DeserializationConfig config = ctxt.getConfig();
             JavaType lt, mt;
             
-            if (_factoryConfig.hasAbstractTypeResolvers()) {
+            if (ctxt.getConfig().hasAbstractTypeResolvers()) {
                 lt = _findRemappedType(config, List.class);
                 mt = _findRemappedType(config, Map.class);
             } else {
@@ -1876,8 +1835,10 @@ nonAnnotatedParamIndex, ctor);
         return StdJdkDeserializers.find(rawType, clsName);
     }
 
-    protected JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType) throws JsonMappingException {
-        JavaType type = mapAbstractType(config, config.constructType(rawType));
+    private JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType)
+            throws JsonMappingException
+    {
+        JavaType type = config.mapAbstractType(config.constructType(rawType));
         return (type == null || type.hasRawClass(rawType)) ? null : type;
     }
 

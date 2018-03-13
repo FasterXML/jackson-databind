@@ -13,10 +13,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
@@ -30,8 +27,6 @@ import com.fasterxml.jackson.databind.ext.jdk8.OptionalLongSerializer;
 import com.fasterxml.jackson.databind.ext.jdk8.Jdk8OptionalSerializer;
 import com.fasterxml.jackson.databind.ext.jdk8.Jdk8StreamSerializer;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.ser.std.*;
@@ -244,11 +239,14 @@ public abstract class BasicSerializerFactory
      * types.
      */
     @Override
-    public TypeSerializer createTypeSerializer(SerializationConfig config,
-            JavaType baseType)
+    public TypeSerializer findTypeSerializer(SerializationConfig config,
+            JavaType baseType) throws JsonMappingException
     {
         BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
-        AnnotatedClass ac = bean.getClassInfo();
+        return config.getTypeResolverProvider().findTypeSerializer(config,
+                bean.getClassInfo(), baseType);
+
+        /*
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         JsonTypeInfo.Value typeInfo = ai.findPolymorphicTypeInfo(config, ac);
         TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType, typeInfo);
@@ -266,6 +264,7 @@ public abstract class BasicSerializerFactory
         // 10-Jun-2015, tatu: Since not created for Bean Property, no need for post-processing
         //    wrt EXTERNAL_PROPERTY
         return b.buildTypeSerializer(config, baseType, subtypes);
+        */
     }
 
     /*
@@ -510,9 +509,6 @@ public abstract class BasicSerializerFactory
     /**********************************************************
      */
 
-    /**
-     * @since 2.1
-     */
     protected JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
             JavaType type, BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
@@ -531,7 +527,7 @@ public abstract class BasicSerializerFactory
         
         // Let's see what we can learn about element/content/value type, type serializer for it:
         JavaType elementType = type.getContentType();
-        TypeSerializer elementTypeSerializer = createTypeSerializer(config,
+        TypeSerializer elementTypeSerializer = findTypeSerializer(config,
                 elementType);
 
         // if elements have type serializer, cannot force static typing:
@@ -850,7 +846,7 @@ public abstract class BasicSerializerFactory
             return null;
         }
         MapEntrySerializer ser = new MapEntrySerializer(valueType, keyType, valueType,
-                staticTyping, createTypeSerializer(prov.getConfig(), valueType), null);
+                staticTyping, findTypeSerializer(prov.getConfig(), valueType), null);
 
         final JavaType contentType = ser.getContentType();
         JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
@@ -1011,7 +1007,7 @@ public abstract class BasicSerializerFactory
         TypeSerializer contentTypeSerializer = contentType.getTypeHandler();
         final SerializationConfig config = prov.getConfig();
         if (contentTypeSerializer == null) {
-            contentTypeSerializer = createTypeSerializer(config, contentType);
+            contentTypeSerializer = findTypeSerializer(config, contentType);
         }
         JsonSerializer<Object> contentSerializer = contentType.getValueHandler();
         for (Serializers serializers : customSerializers()) {
@@ -1110,15 +1106,12 @@ public abstract class BasicSerializerFactory
     /**********************************************************
      */
 
-    /**
-     * @since 2.5
-     */
     protected JsonSerializer<?> buildIteratorSerializer(SerializationConfig config,
             JavaType type, BeanDescription beanDesc, boolean staticTyping,
             JavaType valueType)
         throws JsonMappingException
     {
-        return new IteratorSerializer(valueType, staticTyping, createTypeSerializer(config, valueType));
+        return new IteratorSerializer(valueType, staticTyping, findTypeSerializer(config, valueType));
     }
 
     /**
@@ -1129,7 +1122,7 @@ public abstract class BasicSerializerFactory
             JavaType valueType)
         throws JsonMappingException
     {
-        return new IterableSerializer(valueType, staticTyping, createTypeSerializer(config, valueType));
+        return new IterableSerializer(valueType, staticTyping, findTypeSerializer(config, valueType));
     }
 
     protected JsonSerializer<?> buildEnumSerializer(SerializationConfig config,

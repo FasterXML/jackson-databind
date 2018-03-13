@@ -43,9 +43,9 @@ public abstract class DeserializerFactory
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* Configuration handling
-    /********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -68,30 +68,15 @@ public abstract class DeserializerFactory
 
     /**
      * Convenience method for creating a new factory instance with additional
-     * {@link AbstractTypeResolver}.
-     */
-    public abstract DeserializerFactory withAbstractTypeResolver(AbstractTypeResolver resolver);
-
-    /**
-     * Convenience method for creating a new factory instance with additional
      * {@link ValueInstantiators}.
      */
     public abstract DeserializerFactory withValueInstantiators(ValueInstantiators instantiators);
     
     /*
-    /**********************************************************
-    /* Basic DeserializerFactory API:
-    /**********************************************************
+    /**********************************************************************
+    /* Basic DeserializerFactory API
+    /**********************************************************************
      */
-
-    /**
-     * Method that can be called to try to resolve an abstract type
-     * (interface, abstract class) into a concrete type, or at least
-     * something "more concrete" (abstract class instead of interface).
-     * Will either return passed type, or a more specific type.
-     */
-    public abstract JavaType mapAbstractType(DeserializationConfig config, JavaType type)
-        throws JsonMappingException;
 
     /**
      * Method that is to find all creators (constructors, factory methods)
@@ -131,9 +116,6 @@ public abstract class DeserializerFactory
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
-    /**
-     * @since 2.7
-     */
     public abstract JsonDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
             ReferenceType type, BeanDescription beanDesc)
         throws JsonMappingException;

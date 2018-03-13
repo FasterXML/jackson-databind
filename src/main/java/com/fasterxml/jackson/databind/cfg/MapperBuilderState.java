@@ -94,17 +94,13 @@ public abstract class MapperBuilderState
     protected final DefaultDeserializationContext _deserializationContext;
     protected final InjectableValues _injectableValues;
 
-    /*
-    /**********************************************************************
-    /* Misc other configuration
-    /**********************************************************************
-     */
-
     /**
      * Optional handlers that application may register to try to work-around
      * various problem situations during deserialization
      */
-    protected LinkedNode<DeserializationProblemHandler> _problemHandlers;
+    protected final LinkedNode<DeserializationProblemHandler> _problemHandlers;
+
+    protected final AbstractTypeResolver[] _abstractTypeResolvers;
 
     /*
     /**********************************************************************
@@ -144,10 +140,9 @@ public abstract class MapperBuilderState
         this._deserializerFactory = src._deserializerFactory;
         this._deserializationContext = src._deserializationContext;
         this._injectableValues = Snapshottable.takeSnapshot(src._injectableValues);
-
-        // Misc other
         // assume our usage of LinkedNode-based list is immutable here (should be)
         this._problemHandlers = src._problemHandlers;
+        this._abstractTypeResolvers = src._abstractTypeResolvers;
 
         // Modules
         if (src._modules == null) {

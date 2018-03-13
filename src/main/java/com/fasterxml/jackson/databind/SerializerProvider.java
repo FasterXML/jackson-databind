@@ -814,7 +814,7 @@ public abstract class SerializerProvider
 
         // Well, let's just compose from pieces:
         ser = findValueSerializer(valueType, property);
-        TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config,
+        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config,
                 _config.constructType(valueType));
         if (typeSer != null) {
             typeSer = typeSer.forProperty(property);
@@ -859,7 +859,7 @@ public abstract class SerializerProvider
 
         // Well, let's just compose from pieces:
         ser = findValueSerializer(valueType, property);
-        TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config, valueType);
+        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, valueType);
         if (typeSer != null) {
             typeSer = typeSer.forProperty(property);
             ser = new TypeWrappedSerializer(typeSer, ser);
@@ -874,11 +874,9 @@ public abstract class SerializerProvider
      * Method called to get the {@link TypeSerializer} to use for including Type Id necessary
      * for serializing for the given Java class.
      * Useful for schema generators.
-     *
-     * @since 2.6
      */
     public TypeSerializer findTypeSerializer(JavaType javaType) throws JsonMappingException {
-        return _serializerFactory.createTypeSerializer(_config, javaType);
+        return _serializerFactory.findTypeSerializer(_config, javaType);
     }
 
     /**

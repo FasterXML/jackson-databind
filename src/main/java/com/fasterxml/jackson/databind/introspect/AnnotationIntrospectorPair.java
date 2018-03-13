@@ -5,21 +5,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -195,16 +189,25 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
-    {
-        TypeResolverBuilder<?> b = _primary.findTypeResolver(config, ann, baseType, typeInfo);
+    public Object findTypeResolverBuilder(MapperConfig<?> config,
+            Annotated ann) {
+        Object b = _primary.findTypeResolverBuilder(config, ann);
         if (b == null) {
-            b = _secondary.findTypeResolver(config, ann, baseType, typeInfo);
+            b = _secondary.findTypeResolverBuilder(config, ann);
         }
         return b;
     }
 
+    @Override
+    public Object findTypeIdResolver(MapperConfig<?> config, Annotated ann) {
+        Object b = _primary.findTypeIdResolver(config, ann);
+        if (b == null) {
+            b = _secondary.findTypeIdResolver(config, ann);
+        }
+        return b;
+    }
+
+    /*
     @Override
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo)
@@ -226,12 +229,13 @@ public class AnnotationIntrospectorPair
         }
         return b;
     }
+    */
     
     @Override
-    public List<NamedType> findSubtypes(Annotated a)
+    public List<NamedType> findSubtypes(MapperConfig<?> config, Annotated a)
     {
-        List<NamedType> types1 = _primary.findSubtypes(a);
-        List<NamedType> types2 = _secondary.findSubtypes(a);
+        List<NamedType> types1 = _primary.findSubtypes(config, a);
+        List<NamedType> types2 = _secondary.findSubtypes(config, a);
         if (types1 == null || types1.isEmpty()) return types2;
         if (types2 == null || types2.isEmpty()) return types1;
         ArrayList<NamedType> result = new ArrayList<NamedType>(types1.size() + types2.size());
@@ -241,11 +245,11 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public String findTypeName(AnnotatedClass ac)
+    public String findTypeName(MapperConfig<?> config, AnnotatedClass ac)
     {
-        String name = _primary.findTypeName(ac);
+        String name = _primary.findTypeName(config, ac);
         if (name == null || name.length() == 0) {
-            name = _secondary.findTypeName(ac);                
+            name = _secondary.findTypeName(config, ac);                
         }
         return name;
     }
@@ -371,9 +375,9 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Boolean isTypeId(AnnotatedMember member) {
-        Boolean b = _primary.isTypeId(member);
-        return (b == null) ? _secondary.isTypeId(member) : b;
+    public Boolean isTypeId(MapperConfig<?> config, AnnotatedMember member) {
+        Boolean b = _primary.isTypeId(config, member);
+        return (b == null) ? _secondary.isTypeId(config, member) : b;
     }
 
     @Override

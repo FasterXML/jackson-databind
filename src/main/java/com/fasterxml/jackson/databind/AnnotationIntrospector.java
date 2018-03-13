@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -175,7 +174,7 @@ public abstract class AnnotationIntrospector
     /* Annotations for Object Id handling
     /**********************************************************************
      */
-    
+
     /**
      * Method for checking whether given annotated thing
      * (type, or accessor) indicates that values
@@ -298,8 +297,21 @@ public abstract class AnnotationIntrospector
      *
      * @since 3.0
      */
-    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config,
-            Annotated ann) {
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config, Annotated ann) {
+        return null;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public Object findTypeResolverBuilder(MapperConfig<?> config, Annotated ann) {
+        return null;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public Object findTypeIdResolver(MapperConfig<?> config, Annotated ann) {
         return null;
     }
 
@@ -316,10 +328,12 @@ public abstract class AnnotationIntrospector
      * 
      * @return Type resolver builder for given type, if one found; null if none
      */
+    /*
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo) {
         return null;
     }
+    */
 
     /**
      * Method for checking if given property entity (field or method) has annotations
@@ -335,10 +349,12 @@ public abstract class AnnotationIntrospector
      * @return Type resolver builder for properties of given entity, if one found;
      *    null if none
      */
+    /*
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo) {
         return null;
     }
+    */
 
     /**
      * Method for checking if given structured property entity (field or method that
@@ -355,11 +371,13 @@ public abstract class AnnotationIntrospector
      * 
      * @return Type resolver builder for values contained in properties of given entity,
      *    if one found; null if none
-     */    
+     */
+    /*
     public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType containerType, JsonTypeInfo.Value typeInfo) {
         return null;
     }
+    */
 
     /**
      * Method for locating annotation-specified subtypes related to annotated
@@ -370,21 +388,21 @@ public abstract class AnnotationIntrospector
      * 
      * @param a Annotated entity (class, field/method) to check for annotations
      */
-    public List<NamedType> findSubtypes(Annotated a) { return null; }
+    public List<NamedType> findSubtypes(MapperConfig<?> config, Annotated a) { return null; }
 
     /**
      * Method for checking if specified type has explicit name.
      * 
      * @param ac Class to check for type name annotations
      */
-    public String findTypeName(AnnotatedClass ac) { return null; }
+    public String findTypeName(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /**
      * Method for checking whether given accessor claims to represent
      * type id: if so, its value may be used as an override,
      * instead of generated type id.
      */
-    public Boolean isTypeId(AnnotatedMember member) { return null; }
+    public Boolean isTypeId(MapperConfig<?> config, AnnotatedMember member) { return null; }
 
     /*
     /**********************************************************

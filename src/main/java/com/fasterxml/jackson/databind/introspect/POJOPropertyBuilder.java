@@ -626,7 +626,7 @@ public class POJOPropertyBuilder
     public boolean isTypeId() {
         AnnotatedMember m = getPrimaryMember();
         if (m != null) {
-            Boolean b = _annotationIntrospector.isTypeId(m);
+            Boolean b = _annotationIntrospector.isTypeId(_config, m);
             if (b != null) {
                 return b.booleanValue();
             }

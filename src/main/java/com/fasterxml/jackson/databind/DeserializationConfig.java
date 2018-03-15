@@ -99,10 +99,10 @@ public final class DeserializationConfig
      */
 
     private DeserializationConfig(DeserializationConfig src,
-            int mapperFeatures, int deserFeatures, int parserFeatures,
+            int deserFeatures, int parserFeatures,
             int formatParserFeatures)
     {
-        super(src, mapperFeatures);
+        super(src);
         _deserFeatures = deserFeatures;
         _parserFeatures = parserFeatures;
         _formatParserFeatures = formatParserFeatures;
@@ -176,12 +176,6 @@ public final class DeserializationConfig
         return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
     }
 
-    @Override
-    protected final DeserializationConfig _withMapperFeatures(int mapperFeatures) {
-        return new DeserializationConfig(this, mapperFeatures, _deserFeatures, _parserFeatures,
-                _formatParserFeatures);
-    }
-
     /*
     /**********************************************************************
     /* Life-cycle, specific factory methods from MapperConfig
@@ -224,7 +218,7 @@ public final class DeserializationConfig
     {
         int newDeserFeatures = (_deserFeatures | feature.getMask());
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures, _parserFeatures,
+            new DeserializationConfig(this, newDeserFeatures, _parserFeatures,
                     _formatParserFeatures);
     }
 
@@ -240,7 +234,7 @@ public final class DeserializationConfig
             newDeserFeatures |= f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures, _parserFeatures,
+            new DeserializationConfig(this, newDeserFeatures, _parserFeatures,
                     _formatParserFeatures);
     }
 
@@ -255,7 +249,7 @@ public final class DeserializationConfig
             newDeserFeatures |= f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
+            new DeserializationConfig(this, newDeserFeatures,
                     _parserFeatures, _formatParserFeatures);
     }
     
@@ -267,7 +261,7 @@ public final class DeserializationConfig
     {
         int newDeserFeatures = _deserFeatures & ~feature.getMask();
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
+            new DeserializationConfig(this, newDeserFeatures,
                     _parserFeatures, _formatParserFeatures);
     }
 
@@ -283,7 +277,7 @@ public final class DeserializationConfig
             newDeserFeatures &= ~f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures, _parserFeatures,
+            new DeserializationConfig(this, newDeserFeatures, _parserFeatures,
                     _formatParserFeatures);
     }
 
@@ -298,7 +292,7 @@ public final class DeserializationConfig
             newDeserFeatures &= ~f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures,
+            new DeserializationConfig(this,
                     newDeserFeatures, _parserFeatures, _formatParserFeatures);
     }
 
@@ -316,7 +310,7 @@ public final class DeserializationConfig
     {
         int newSet = _parserFeatures | feature.getMask();
         return (_parserFeatures == newSet)? this :
-            new DeserializationConfig(this,  _mapperFeatures,
+            new DeserializationConfig(this,
                     _deserFeatures, newSet, _formatParserFeatures);
     }
 
@@ -331,7 +325,7 @@ public final class DeserializationConfig
             newSet |= f.getMask();
         }
         return (_parserFeatures == newSet) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures, newSet,
+            new DeserializationConfig(this, _deserFeatures, newSet,
                     _formatParserFeatures);
     }
     
@@ -343,7 +337,7 @@ public final class DeserializationConfig
     {
         int newSet = _parserFeatures & ~feature.getMask();
         return (_parserFeatures == newSet) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures, newSet,
+            new DeserializationConfig(this, _deserFeatures, newSet,
                     _formatParserFeatures);
     }
 
@@ -358,8 +352,7 @@ public final class DeserializationConfig
             newSet &= ~f.getMask();
         }
         return (_parserFeatures == newSet)? this :
-            new DeserializationConfig(this, _mapperFeatures,
-                    _deserFeatures, newSet, _formatParserFeatures);
+            new DeserializationConfig(this, _deserFeatures, newSet, _formatParserFeatures);
     }
 
     /*
@@ -376,7 +369,7 @@ public final class DeserializationConfig
     {
         int newSet = _formatParserFeatures | feature.getMask();
         return (_formatParserFeatures == newSet) ? this
-                : new DeserializationConfig(this,  _mapperFeatures,
+                : new DeserializationConfig(this,
                         _deserFeatures, _parserFeatures,  newSet);
     }
 
@@ -391,7 +384,7 @@ public final class DeserializationConfig
             newSet |= f.getMask();
         }
         return (_formatParserFeatures == newSet) ? this
-                : new DeserializationConfig(this, _mapperFeatures,
+                : new DeserializationConfig(this,
                         _deserFeatures, _parserFeatures, newSet);
     }
 
@@ -403,7 +396,7 @@ public final class DeserializationConfig
     {
         int newSet = _formatParserFeatures & ~feature.getMask();
         return (_formatParserFeatures == newSet) ? this
-                : new DeserializationConfig(this, _mapperFeatures,
+                : new DeserializationConfig(this,
                         _deserFeatures, _parserFeatures, newSet);
     }
 
@@ -418,9 +411,9 @@ public final class DeserializationConfig
             newSet &= ~f.getMask();
         }
         return (_formatParserFeatures == newSet) ? this
-                : new DeserializationConfig(this,  _mapperFeatures,
+                : new DeserializationConfig(this,
                         _deserFeatures, _parserFeatures, newSet);
-    }    
+    }
 
     /*
     /**********************************************************************

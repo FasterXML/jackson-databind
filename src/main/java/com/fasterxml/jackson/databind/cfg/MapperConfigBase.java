@@ -5,13 +5,14 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Base64Variant;
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 @SuppressWarnings("serial")
@@ -26,9 +27,16 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     /*
     /**********************************************************************
-    /* Immutable config
+    /* Immutable config, factories
     /**********************************************************************
      */
+
+    /**
+     * Specific factory used for creating {@link JavaType} instances;
+     * needed to allow modules to add more custom type handling
+     * (mostly to support types of non-Java JVM languages)
+     */
+    protected final TypeFactory _typeFactory;
 
     protected final ClassIntrospector _classIntrospector;
 
@@ -36,12 +44,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * @since 3.0
      */
     protected final TypeResolverProvider _typeResolverProvider;
-
-    /**
-     * Mix-in annotation mappings to use, if any: immutable,
-     * cannot be changed once defined.
-     */
-    protected final MixInHandler _mixIns;
 
     /**
      * Registered concrete subtypes that can be used instead of (or
@@ -52,6 +54,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final SubtypeResolver _subtypeResolver;
 
+    /**
+     * Mix-in annotation mappings to use, if any.
+     */
+    protected final MixInHandler _mixIns;
+
+    /*
+    /**********************************************************************
+    /* Immutable config, factories
+    /**********************************************************************
+     */
+    
     /**
      * Explicitly defined root name to use, if any; if empty
      * String, will disable root-name wrapping; if null, will
@@ -103,6 +116,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     {
         super(b.baseSettings(), mapperFeatures);
 
+        _typeFactory = b.typeFactory();
         _classIntrospector = b.classIntrospector();
         _typeResolverProvider = b.typeResolverProvider();
         _subtypeResolver = b.subtypeResolver();
@@ -121,6 +135,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             ConfigOverrides configOverrides)
     {
         super(src);
+        _typeFactory = src._typeFactory;
         _classIntrospector = src._classIntrospector;
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
@@ -140,6 +155,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src)
     {
         super(src);
+        _typeFactory = src._typeFactory;
         _classIntrospector = src._classIntrospector;
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
@@ -155,21 +171,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
     {
         super(src, base);
-        _classIntrospector = src._classIntrospector;
-        _typeResolverProvider = src._typeResolverProvider;
-        _subtypeResolver = src._subtypeResolver;
-
-        _mixIns = src._mixIns;
-        _rootNames = src._rootNames;
-        _rootName = src._rootName;
-        _view = src._view;
-        _attributes = src._attributes;
-        _configOverrides = src._configOverrides;
-    }
-    
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
-    {
-        super(src, mapperFeatures);
+        _typeFactory = src._typeFactory;
         _classIntrospector = src._classIntrospector;
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
@@ -184,6 +186,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, PropertyName rootName) {
         super(src);
+        _typeFactory = src._typeFactory;
         _classIntrospector = src._classIntrospector;
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
@@ -199,6 +202,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
     {
         super(src);
+        _typeFactory = src._typeFactory;
         _classIntrospector = src._classIntrospector;
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
@@ -214,6 +218,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, ContextAttributes attr)
     {
         super(src);
+        _typeFactory = src._typeFactory;
         _classIntrospector = src._classIntrospector;
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
@@ -233,22 +238,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
 
     protected abstract T _withBase(BaseSettings newBase);
-
-    protected abstract T _withMapperFeatures(int mapperFeatures);
-
-    /*
-    /**********************************************************************
-    /* Additional shared fluent factory methods; introspectors
-    /**********************************************************************
-     */
-
-    /**
-     * Fluent factory method that will construct a new instance with
-     * specified {@link JsonNodeFactory}
-     */
-    public final T with(JsonNodeFactory f) {
-        return _withBase(_base.with(f));
-    }
 
     /*
     /**********************************************************************
@@ -305,6 +294,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /* Additional shared fluent factory methods; other
     /**********************************************************************
      */
+
+    /**
+     * Fluent factory method that will construct a new instance with
+     * specified {@link JsonNodeFactory}
+     */
+    public final T with(JsonNodeFactory f) {
+        return _withBase(_base.with(f));
+    }
 
     /**
      * Method for constructing and returning a new instance with different
@@ -372,9 +369,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     /*
     /**********************************************************************
-    /* Simple accessors
+    /* Simple factory access, related
     /**********************************************************************
      */
+
+    @Override
+    public final TypeFactory getTypeFactory() {
+        return _typeFactory;
+    }
 
     @Override
     public ClassIntrospector getClassIntrospector() {
@@ -395,6 +397,27 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final SubtypeResolver getSubtypeResolver() {
         return _subtypeResolver;
     }
+
+    @Override
+    public final JavaType constructType(Class<?> cls) {
+        return getTypeFactory().constructType(cls);
+    }
+
+    @Override
+    public final JavaType constructType(TypeReference<?> valueTypeRef) {
+        return getTypeFactory().constructType(valueTypeRef.getType());
+    }
+
+    @Override
+    public final JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
+        return getTypeFactory().constructSpecializedType(baseType, subclass);
+    }
+
+    /*
+    /**********************************************************************
+    /* Simple config property access
+    /**********************************************************************
+     */
 
     public final PropertyName getFullRootName() {
         return _rootName;

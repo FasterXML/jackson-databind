@@ -398,7 +398,6 @@ public class ObjectMapper
 
         // General framework factories
         _streamFactory = builder.streamFactory();
-        BaseSettings base = builder.baseSettings();
         // bit tricky as we do NOT want to expose simple accessors (to a mutable thing)
         {
             final AtomicReference<ConfigOverrides> ref = new AtomicReference<>();
@@ -406,7 +405,7 @@ public class ObjectMapper
             _configOverrides = ref.get();
         }
         // general type handling
-        _typeFactory = base.getTypeFactory();
+        _typeFactory = builder.typeFactory();
 
         _subtypeResolver = builder.subtypeResolver();
         

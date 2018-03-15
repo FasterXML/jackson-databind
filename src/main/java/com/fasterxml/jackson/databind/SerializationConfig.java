@@ -110,10 +110,10 @@ public final class SerializationConfig
     /**********************************************************************
      */
 
-    private SerializationConfig(SerializationConfig src, int mapperFeatures,
+    private SerializationConfig(SerializationConfig src,
             int serFeatures, int generatorFeatures, int formatWriteFeatures)
     {
-        super(src, mapperFeatures);
+        super(src);
         _serFeatures = serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
@@ -193,12 +193,6 @@ public final class SerializationConfig
     }
 
     @Override
-    protected final SerializationConfig _withMapperFeatures(int mapperFeatures) {
-        return new SerializationConfig(this, mapperFeatures, _serFeatures,
-                        _generatorFeatures, _formatWriteFeatures);
-    }
-
-    @Override
     public SerializationConfig withRootName(PropertyName rootName) {
         if (rootName == null) {
             if (_rootName == null) {
@@ -255,7 +249,7 @@ public final class SerializationConfig
     {
         int newSerFeatures = _serFeatures | feature.getMask();
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures,
+                : new SerializationConfig(this,
                         newSerFeatures, _generatorFeatures, _formatWriteFeatures);
     }
 
@@ -270,7 +264,7 @@ public final class SerializationConfig
             newSerFeatures |= f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures,
+                : new SerializationConfig(this,
                         newSerFeatures, _generatorFeatures, _formatWriteFeatures);
     }
 
@@ -285,7 +279,7 @@ public final class SerializationConfig
             newSerFeatures |= f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures,
+                : new SerializationConfig(this,
                         newSerFeatures, _generatorFeatures, _formatWriteFeatures);
     }
 
@@ -297,7 +291,7 @@ public final class SerializationConfig
     {
         int newSerFeatures = _serFeatures & ~feature.getMask();
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures,
+                : new SerializationConfig(this,
                         newSerFeatures, _generatorFeatures,  _formatWriteFeatures);
     }
 
@@ -312,7 +306,7 @@ public final class SerializationConfig
             newSerFeatures &= ~f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
+                : new SerializationConfig(this, newSerFeatures,
                         _generatorFeatures, _formatWriteFeatures);
     }
 
@@ -327,7 +321,7 @@ public final class SerializationConfig
             newSerFeatures &= ~f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
+                : new SerializationConfig(this, newSerFeatures,
                         _generatorFeatures, _formatWriteFeatures);
     }
 
@@ -345,7 +339,7 @@ public final class SerializationConfig
     {
         int newSet = _generatorFeatures | feature.getMask();
         return (_generatorFeatures == newSet) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures, newSet,
+            new SerializationConfig(this, _serFeatures, newSet,
                     _formatWriteFeatures);
     }
 
@@ -360,7 +354,7 @@ public final class SerializationConfig
             newSet |= f.getMask();
         }
         return (_generatorFeatures == newSet) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures, newSet,
+            new SerializationConfig(this, _serFeatures, newSet,
                     _formatWriteFeatures);
     }
 
@@ -372,7 +366,7 @@ public final class SerializationConfig
     {
         int newSet = _generatorFeatures & ~feature.getMask();
         return (_generatorFeatures == newSet) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures, newSet,
+            new SerializationConfig(this, _serFeatures, newSet,
                     _formatWriteFeatures);
     }
 
@@ -387,7 +381,7 @@ public final class SerializationConfig
             newSet &= ~f.getMask();
         }
         return (_generatorFeatures == newSet) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures, newSet,
+            new SerializationConfig(this, _serFeatures, newSet,
                     _formatWriteFeatures);
     }
 
@@ -405,7 +399,7 @@ public final class SerializationConfig
     {
         int newSet = _formatWriteFeatures | feature.getMask();
         return (_formatWriteFeatures == newSet) ? this :
-            new SerializationConfig(this,  _mapperFeatures,
+            new SerializationConfig(this,
                     _serFeatures, _generatorFeatures, newSet);
     }
 
@@ -420,7 +414,7 @@ public final class SerializationConfig
             newSet |= f.getMask();
         }
         return (_formatWriteFeatures == newSet) ? this :
-            new SerializationConfig(this,  _mapperFeatures,
+            new SerializationConfig(this,
                     _serFeatures, _generatorFeatures, newSet);
     }
 
@@ -432,7 +426,7 @@ public final class SerializationConfig
     {
         int newSet = _formatWriteFeatures & ~feature.getMask();
         return (_formatWriteFeatures == newSet) ? this :
-            new SerializationConfig(this,  _mapperFeatures,
+            new SerializationConfig(this,
                     _serFeatures, _generatorFeatures, newSet);
     }
 
@@ -447,8 +441,7 @@ public final class SerializationConfig
             newSet &= ~f.getMask();
         }
         return (_formatWriteFeatures == newSet) ? this :
-            new SerializationConfig(this,  _mapperFeatures,
-                    _serFeatures, _generatorFeatures, newSet);
+            new SerializationConfig(this, _serFeatures, _generatorFeatures, newSet);
     }
 
     /*

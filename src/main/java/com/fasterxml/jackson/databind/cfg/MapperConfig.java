@@ -65,12 +65,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         _mapperFeatures = mapperFeatures;
     }
 
-    protected MapperConfig(MapperConfig<T> src, int mapperFeatures)
-    {
-        _base = src._base;
-        _mapperFeatures = mapperFeatures;
-    }
-
     protected MapperConfig(MapperConfig<T> src, BaseSettings base)
     {
         _base = base;
@@ -233,9 +227,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
     public abstract SubtypeResolver getSubtypeResolver();
 
-    public final TypeFactory getTypeFactory() {
-        return _base.getTypeFactory();
-    }
+    public abstract TypeFactory getTypeFactory();
 
     /**
      * Helper method that will construct {@link JavaType} for given
@@ -245,9 +237,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *    getTypeFactory().constructType(cls);
      *</pre>
      */
-    public final JavaType constructType(Class<?> cls) {
-        return getTypeFactory().constructType(cls);
-    }
+    public abstract JavaType constructType(Class<?> cls);
 
     /**
      * Helper method that will construct {@link JavaType} for given
@@ -257,13 +247,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *    getTypeFactory().constructType(valueTypeRef);
      *</pre>
      */
-    public final JavaType constructType(TypeReference<?> valueTypeRef) {
-        return getTypeFactory().constructType(valueTypeRef.getType());
-    }
+    public abstract JavaType constructType(TypeReference<?> valueTypeRef);
 
-    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
-        return getTypeFactory().constructSpecializedType(baseType, subclass);
-    }
+    public abstract JavaType constructSpecializedType(JavaType baseType, Class<?> subclass);
 
     /*
     /**********************************************************************

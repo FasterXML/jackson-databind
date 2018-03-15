@@ -85,21 +85,23 @@ public class StdTypeResolverBuilder
     @Override
     public StdTypeResolverBuilder init(JsonTypeInfo.Value settings, TypeIdResolver idRes)
     {
-        _idType = settings.getIdType();
-        if (_idType == null) {
-            throw new IllegalArgumentException("idType cannot be null");
-        }
         _customIdResolver = idRes;
-        _includeAs = settings.getInclusionType();
 
-        // Let's also initialize property name as per idType default
-        _typeProperty = settings.getPropertyName();
-        if (_typeProperty == null) {
-            _typeProperty = _idType.getDefaultPropertyName();
+        if (settings != null) {
+            _idType = settings.getIdType();
+            if (_idType == null) {
+                throw new IllegalArgumentException("idType cannot be null");
+            }
+            _includeAs = settings.getInclusionType();
+    
+            // Let's also initialize property name as per idType default
+            _typeProperty = settings.getPropertyName();
+            if (_typeProperty == null) {
+                _typeProperty = _idType.getDefaultPropertyName();
+            }
+            _typeIdVisible = settings.getIdVisible();
+            _defaultImpl = settings.getDefaultImpl();
         }
-        _typeIdVisible = settings.getIdVisible();
-        _defaultImpl = settings.getDefaultImpl();
-        
         return this;
     }
 

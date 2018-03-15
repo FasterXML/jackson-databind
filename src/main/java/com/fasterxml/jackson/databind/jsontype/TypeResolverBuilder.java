@@ -39,9 +39,9 @@ import com.fasterxml.jackson.databind.SerializationConfig;
 public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -52,9 +52,9 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     public Class<?> getDefaultImpl();
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual builder methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -79,10 +79,9 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
             JavaType baseType, Collection<NamedType> subtypes);
     
     /*
-    /**********************************************************
-    /* Initialization method(s) that must be called before other
-    /* configuration
-    /**********************************************************
+    /**********************************************************************
+    /* Initialization method(s) that must be called before other configuration
+    /**********************************************************************
      */
 
     /**
@@ -98,9 +97,9 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     public T init(JsonTypeInfo.Value settings, TypeIdResolver res);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for configuring resolver to build 
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -23,7 +23,10 @@ import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
  * @since 3.0
  */
 public class TypeResolverProvider
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     protected final static StdTypeResolverBuilder NO_RESOLVER = StdTypeResolverBuilder.noTypeInfoBuilder();
 
     /*

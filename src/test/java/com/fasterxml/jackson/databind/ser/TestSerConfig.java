@@ -81,14 +81,6 @@ public class TestSerConfig
         assertTrue(cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
     }
 
-    public void testOverrideIntrospectors()
-    {
-        SerializationConfig cfg = MAPPER.serializationConfig();
-        // and finally, ensure we could override introspectors
-        cfg = cfg.with((AnnotationIntrospector) null);
-        assertNull(cfg.getAnnotationIntrospector());
-    }
-
     public void testIndentation() throws Exception
     {
         Map<String,Integer> map = new HashMap<String,Integer>();

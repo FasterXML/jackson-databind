@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.MixInResolver;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -30,6 +31,7 @@ import com.fasterxml.jackson.databind.type.TypeModifier;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
  * Since {@link ObjectMapper} instances are immutable in  Jackson 3.x for full thread-safety,
@@ -47,7 +49,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
 
-    protected final static BaseSettings DEFAULT_BASE_SETTINGS = BaseSettings.std();
+    // 16-May-2009, tatu: Ditto ^^^
+    protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
+    
+    protected final static BaseSettings DEFAULT_BASE_SETTINGS = new BaseSettings(
+            DEFAULT_ANNOTATION_INTROSPECTOR,
+             null,
+            null, // no default typing, by default
+            StdDateFormat.instance, null,
+            Locale.getDefault(),
+            null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
+            Base64Variants.getDefaultVariant(),
+            JsonNodeFactory.instance
+    );
 
     protected final static TypeResolverProvider DEFAULT_TYPE_RESOLVER_PROVIDER = new TypeResolverProvider();
 
@@ -90,6 +104,13 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     /**
+     * Specific factory used for creating {@link JavaType} instances;
+     * needed to allow modules to add more custom type handling
+     * (mostly to support types of non-Java JVM languages)
+     */
+    protected TypeFactory _typeFactory;
+
+    /**
      * Introspector used to figure out Bean properties needed for bean serialization
      * and deserialization. Overridable so that it is possible to change low-level
      * details of introspection, like adding new annotation types.
@@ -97,8 +118,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected ClassIntrospector _classIntrospector;
 
     /**
-     * Entity responsible for construction actual type resolvers ({@link TypeSerializer}s,
-     * {@link TypeDeserializer}s).
+     * Entity responsible for construction actual type resolvers
+     * ({@link com.fasterxml.jackson.databind.jsontype.TypeSerializer}s,
+     * {@link com.fasterxml.jackson.databind.jsontype.TypeDeserializer}s).
      */
     protected TypeResolverProvider _typeResolverProvider;
 
@@ -434,10 +456,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _streamFactory;
     }
 
-    public TypeFactory typeFactory() {
-        return _baseSettings.getTypeFactory();
-    }
-
     public AnnotationIntrospector annotationIntrospector() {
         return _baseSettings.getAnnotationIntrospector();
     }
@@ -447,6 +465,20 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /* Accessors, introspection
     /**********************************************************************
      */
+
+    public TypeFactory typeFactory() {
+        if (_typeFactory == null) {
+            _typeFactory = _defaultTypeFactory();
+        }
+        return _typeFactory;
+    }
+
+    /**
+     * Overridable method for changing default {@link SubtypeResolver} instance to use
+     */
+    protected TypeFactory _defaultTypeFactory() {
+        return TypeFactory.defaultInstance();
+    }
 
     public ClassIntrospector classIntrospector() {
         if (_classIntrospector == null) {
@@ -964,18 +996,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    public B typeFactory(TypeFactory f) {
-        _baseSettings = _baseSettings.with(f);
-        return _this();
-    }
-
-    public B addTypeModifier(TypeModifier modifier) {
-        TypeFactory tf = _baseSettings.getTypeFactory()
-                .withModifier(modifier);
-        _baseSettings = _baseSettings.with(tf);
-        return _this();
-    }
-
     public B nodeFactory(JsonNodeFactory f) {
         _baseSettings = _baseSettings.with(f);
         return _this();
@@ -987,6 +1007,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
+    public B typeFactory(TypeFactory f) {
+        _typeFactory = f;
+        return _this();
+    }
+
+    public B addTypeModifier(TypeModifier modifier) {
+        // important! Need to use getter, to force lazy construction if need be
+        _typeFactory = typeFactory()
+                .withModifier(modifier);
+        return _this();
+    }
+
     protected B typeResolverProvider(TypeResolverProvider p) {
         _typeResolverProvider = p;
         return _this();
@@ -994,6 +1026,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B classIntrospector(ClassIntrospector ci) {
         _classIntrospector = ci;
+        return _this();
+    }
+
+    public B subtypeResolver(SubtypeResolver r) {
+        _subtypeResolver = r;
         return _this();
     }
 
@@ -1006,11 +1043,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B handlerInstantiator(HandlerInstantiator hi) {
         _baseSettings = _baseSettings.with(hi);
-        return _this();
-    }
-
-    public B subtypeResolver(SubtypeResolver r) {
-        _subtypeResolver = r;
         return _this();
     }
 

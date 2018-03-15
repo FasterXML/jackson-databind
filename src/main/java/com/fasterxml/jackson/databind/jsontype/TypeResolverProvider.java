@@ -247,7 +247,7 @@ public class TypeResolverProvider
                     typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
                 }
             }
-            b = _constructStdTypeResolverBuilder(typeInfo);
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType);
         }
         // Does it define a custom type id resolver?
         Object customIdResolverOb = ai.findTypeIdResolver(config, ann);
@@ -265,7 +265,8 @@ public class TypeResolverProvider
         return b;
     }
 
-    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder(JsonTypeInfo.Value typeInfo) {
+    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder(MapperConfig<?> config,
+            JsonTypeInfo.Value typeInfo, JavaType baseType) {
         return new StdTypeResolverBuilder(typeInfo);
     }
 }

@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 
 /**
@@ -70,6 +71,7 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
+    protected final TypeFactory _typeFactory;
     protected final ClassIntrospector _classIntrospector;
     protected final TypeResolverProvider _typeResolverProvider;
     protected final SubtypeResolver _subtypeResolver;
@@ -114,38 +116,39 @@ public abstract class MapperBuilderState
     {
         // Basic settings
 
-        this._baseSettings = src._baseSettings; // immutable
-        this._streamFactory = src._streamFactory; // immutable
-        this._configOverrides = Snapshottable.takeSnapshot(src._configOverrides);
+        _baseSettings = src._baseSettings; // immutable
+        _streamFactory = src._streamFactory; // immutable
+        _configOverrides = Snapshottable.takeSnapshot(src._configOverrides);
 
         // Feature flags
-        this._mapperFeatures = src._mapperFeatures;
-        this._serFeatures = src._serFeatures;
-        this._deserFeatures = src._deserFeatures;
-        this._parserFeatures = src._parserFeatures;
-        this._generatorFeatures = src._generatorFeatures;
-        this._formatParserFeatures = src._formatParserFeatures;
-        this._formatGeneratorFeatures = src._formatGeneratorFeatures;
+        _mapperFeatures = src._mapperFeatures;
+        _serFeatures = src._serFeatures;
+        _deserFeatures = src._deserFeatures;
+        _parserFeatures = src._parserFeatures;
+        _generatorFeatures = src._generatorFeatures;
+        _formatParserFeatures = src._formatParserFeatures;
+        _formatGeneratorFeatures = src._formatGeneratorFeatures;
 
         // Handlers, introspection
-        this._classIntrospector = src._classIntrospector;
-        this._typeResolverProvider = src._typeResolverProvider;
-        this._subtypeResolver = Snapshottable.takeSnapshot(src._subtypeResolver);
-        this._mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(src._mixInHandler);
+        _typeFactory = src._typeFactory;
+        _classIntrospector = src._classIntrospector;
+        _typeResolverProvider = src._typeResolverProvider;
+        _subtypeResolver = Snapshottable.takeSnapshot(src._subtypeResolver);
+        _mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(src._mixInHandler);
 
         // Factories for serialization
-        this._serializerFactory = src._serializerFactory;
-        this._serializerProvider = src._serializerProvider;
-        this._filterProvider = src._filterProvider;
-        this._defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _serializerFactory = src._serializerFactory;
+        _serializerProvider = src._serializerProvider;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         
         // Factories for deserialization
-        this._deserializerFactory = src._deserializerFactory;
-        this._deserializationContext = src._deserializationContext;
-        this._injectableValues = Snapshottable.takeSnapshot(src._injectableValues);
+        _deserializerFactory = src._deserializerFactory;
+        _deserializationContext = src._deserializationContext;
+        _injectableValues = Snapshottable.takeSnapshot(src._injectableValues);
         // assume our usage of LinkedNode-based list is immutable here (should be)
-        this._problemHandlers = src._problemHandlers;
-        this._abstractTypeResolvers = src._abstractTypeResolvers;
+        _problemHandlers = src._problemHandlers;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
 
         // Modules
         if (src._modules == null) {

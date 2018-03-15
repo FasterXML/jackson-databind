@@ -261,6 +261,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _deserFeatures = DEFAULT_DESER_FEATURES;
         _serFeatures = DEFAULT_SER_FEATURES;
 
+        _typeFactory = null;
         _classIntrospector = null;
         _typeResolverProvider = null;
         _subtypeResolver = null;
@@ -298,6 +299,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _serFeatures = state._serFeatures;
 
         // Handlers, introspection
+        _typeFactory = state._typeFactory;
         _classIntrospector = state._classIntrospector;
         _typeResolverProvider = state._typeResolverProvider;
         _subtypeResolver = Snapshottable.takeSnapshot(state._subtypeResolver);
@@ -342,6 +344,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _formatParserFeatures = base._formatParserFeatures;
         _formatGeneratorFeatures = base._formatGeneratorFeatures;
 
+        _typeFactory = base._typeFactory;
         _classIntrospector = base._classIntrospector;
         _typeResolverProvider = base._typeResolverProvider;
         _subtypeResolver = base._subtypeResolver;

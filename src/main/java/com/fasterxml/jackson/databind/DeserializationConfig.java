@@ -76,22 +76,6 @@ public final class DeserializationConfig
      */
 
     /**
-     * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
-     */
-    /*
-    protected DeserializationConfig(DeserializationConfig src,
-            MixInHandler mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
-    {
-        super(src, mixins, rootNames, configOverrides);
-        _deserFeatures = src._deserFeatures;
-        _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
-    }
-*/
-
-    /**
      * @since 3.0
      */
     public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
@@ -99,9 +83,7 @@ public final class DeserializationConfig
             MixInHandler mixins, RootNameLookup rootNames, ConfigOverrides configOverrides,
             AbstractTypeResolver[] atrs)
     {
-        super(b.baseSettings(), mapperFeatures,
-                b.classIntrospector(), b.subtypeResolver(),
-                mixins, rootNames, configOverrides);
+        super(b, mapperFeatures, mixins, rootNames, configOverrides);
         _deserFeatures = deserFeatures;
         _parserFeatures = parserFeatures;
         _formatParserFeatures = formatParserFeatures;
@@ -124,20 +106,6 @@ public final class DeserializationConfig
         _deserFeatures = deserFeatures;
         _parserFeatures = parserFeatures;
         _formatParserFeatures = formatParserFeatures;
-        _problemHandlers = src._problemHandlers;
-        _abstractTypeResolvers = src._abstractTypeResolvers;
-    }
-    
-    /**
-     * Copy constructor used to create a non-shared instance with given mix-in
-     * annotation definitions and subtype resolver.
-     */
-    private DeserializationConfig(DeserializationConfig src, SubtypeResolver str)
-    {
-        super(src, str);
-        _deserFeatures = src._deserFeatures;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
@@ -194,16 +162,6 @@ public final class DeserializationConfig
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
-    protected DeserializationConfig(DeserializationConfig src, MixInHandler mixins)
-    {
-        super(src, mixins);
-        _deserFeatures = src._deserFeatures;
-        _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
-        _abstractTypeResolvers = src._abstractTypeResolvers;
-    }
-
     // for unit tests only:
     protected BaseSettings getBaseSettings() { return _base; }
 
@@ -229,11 +187,6 @@ public final class DeserializationConfig
     /* Life-cycle, specific factory methods from MapperConfig
     /**********************************************************************
      */
-
-    @Override
-    public DeserializationConfig with(SubtypeResolver str) {
-        return (_subtypeResolver == str) ? this : new DeserializationConfig(this, str);
-    }
 
     @Override
     public DeserializationConfig withRootName(PropertyName rootName) {
@@ -410,9 +363,9 @@ public final class DeserializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, JsonParser.FormatFeature-based factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

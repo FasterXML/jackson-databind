@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
@@ -48,8 +49,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected final static BaseSettings DEFAULT_BASE_SETTINGS = BaseSettings.std();
 
+    protected final static TypeResolverProvider DEFAULT_TYPE_RESOLVER_PROVIDER = new TypeResolverProvider();
+
     protected final static AbstractTypeResolver[] NO_ABSTRACT_TYPE_RESOLVERS = new AbstractTypeResolver[0];
-    
+
     /*
     /**********************************************************************
     /* Basic settings
@@ -92,6 +95,12 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * details of introspection, like adding new annotation types.
      */
     protected ClassIntrospector _classIntrospector;
+
+    /**
+     * Entity responsible for construction actual type resolvers ({@link TypeSerializer}s,
+     * {@link TypeDeserializer}s).
+     */
+    protected TypeResolverProvider _typeResolverProvider;
 
     protected SubtypeResolver _subtypeResolver;
 
@@ -231,6 +240,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _serFeatures = DEFAULT_SER_FEATURES;
 
         _classIntrospector = null;
+        _typeResolverProvider = null;
         _subtypeResolver = null;
         _mixInHandler = null;
 
@@ -267,6 +277,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         // Handlers, introspection
         _classIntrospector = state._classIntrospector;
+        _typeResolverProvider = state._typeResolverProvider;
         _subtypeResolver = Snapshottable.takeSnapshot(state._subtypeResolver);
         _mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(state._mixInHandler);
 
@@ -310,6 +321,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _formatGeneratorFeatures = base._formatGeneratorFeatures;
 
         _classIntrospector = base._classIntrospector;
+        _typeResolverProvider = base._typeResolverProvider;
         _subtypeResolver = base._subtypeResolver;
         _mixInHandler = base._mixInHandler;
 
@@ -410,7 +422,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Accessors, general
+    /* Accessors, base settings
     /**********************************************************************
      */
 
@@ -430,6 +442,12 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _baseSettings.getAnnotationIntrospector();
     }
 
+    /*
+    /**********************************************************************
+    /* Accessors, introspection
+    /**********************************************************************
+     */
+
     public ClassIntrospector classIntrospector() {
         if (_classIntrospector == null) {
             _classIntrospector = _defaultClassIntrospector();
@@ -442,6 +460,20 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     protected ClassIntrospector _defaultClassIntrospector() {
         return new BasicClassIntrospector();
+    }
+
+    public TypeResolverProvider typeResolverProvider() {
+        if (_typeResolverProvider == null) {
+            _typeResolverProvider = _defaultTypeResolverProvider();
+        }
+        return _typeResolverProvider;
+    }
+
+    /**
+     * Overridable method for changing default {@link TypeResolverProvider} instance to use
+     */
+    protected TypeResolverProvider _defaultTypeResolverProvider() {
+        return new TypeResolverProvider();
     }
 
     public SubtypeResolver subtypeResolver() {
@@ -908,7 +940,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Changing factories/handlers, general
+    /* Changing base settings
     /**********************************************************************
      */
 
@@ -946,6 +978,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B nodeFactory(JsonNodeFactory f) {
         _baseSettings = _baseSettings.with(f);
+        return _this();
+    }
+
+    /*
+    /**********************************************************************
+    /* Changing introspection helpers
+    /**********************************************************************
+     */
+
+    protected B typeResolverProvider(TypeResolverProvider p) {
+        _typeResolverProvider = p;
         return _this();
     }
 

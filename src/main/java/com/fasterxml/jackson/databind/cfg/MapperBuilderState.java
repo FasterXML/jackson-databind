@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.deser.DeserializerFactory;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
@@ -70,6 +71,7 @@ public abstract class MapperBuilderState
      */
 
     protected final ClassIntrospector _classIntrospector;
+    protected final TypeResolverProvider _typeResolverProvider;
     protected final SubtypeResolver _subtypeResolver;
     protected final MixInHandler _mixInHandler;
 
@@ -127,6 +129,7 @@ public abstract class MapperBuilderState
 
         // Handlers, introspection
         this._classIntrospector = src._classIntrospector;
+        this._typeResolverProvider = src._typeResolverProvider;
         this._subtypeResolver = Snapshottable.takeSnapshot(src._subtypeResolver);
         this._mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(src._mixInHandler);
 

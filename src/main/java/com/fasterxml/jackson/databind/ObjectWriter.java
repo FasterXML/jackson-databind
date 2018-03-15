@@ -165,20 +165,6 @@ public class ObjectWriter
         _prefetch = base._prefetch;
     }
 
-    protected ObjectWriter(ObjectWriter base, TokenStreamFactory f)
-    {
-        // may need to override ordering, based on data format capabilities
-        _config = base._config
-            .with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, f.requiresPropertyOrdering());
-
-        _serializerProvider = base._serializerProvider;
-        _serializerFactory = base._serializerFactory;
-        _generatorFactory = f;
-
-        _generatorSettings = base._generatorSettings;
-        _prefetch = base._prefetch;
-    }
-
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
@@ -194,13 +180,6 @@ public class ObjectWriter
     /* writer instances, (re)configuring parser instances.
     /**********************************************************
      */
-
-    /**
-     * Overridable factory method called by various "withXxx()" methods
-     */
-    protected ObjectWriter _new(ObjectWriter base, TokenStreamFactory f) {
-        return new ObjectWriter(base, f);
-    }
 
     /**
      * Overridable factory method called by various "withXxx()" methods
@@ -445,8 +424,6 @@ public class ObjectWriter
      *</code>
      * which will forcibly prevent use of root name wrapping when writing
      * values with this {@link ObjectWriter}.
-     * 
-     * @since 2.6
      */
     public ObjectWriter withoutRootName() {
         return _new(this, _config.withRootName(PropertyName.NO_NAME));
@@ -487,8 +464,6 @@ public class ObjectWriter
     /**
      * Method that will construct a new instance that uses specified default
      * {@link Base64Variant} for base64 encoding
-     * 
-     * @since 2.1
      */
     public ObjectWriter with(Base64Variant b64variant) {
         return _new(this, _config.with(b64variant));
@@ -497,10 +472,6 @@ public class ObjectWriter
     public ObjectWriter with(CharacterEscapes escapes) {
         return _new(_generatorSettings.with(escapes), _prefetch);
     }
-
-    public ObjectWriter with(TokenStreamFactory f) {
-        return (f == _generatorFactory) ? this : _new(this, f);
-    }    
 
     public ObjectWriter with(ContextAttributes attrs) {
         return _new(this, _config.with(attrs));

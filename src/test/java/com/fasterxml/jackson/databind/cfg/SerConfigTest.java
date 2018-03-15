@@ -19,24 +19,12 @@ public class SerConfigTest extends BaseMapTest
         assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion(String.class));
         assertFalse(config.useRootWrapping());
 
-        // if no changes then same config object
-        assertSame(config, config.without());
-        assertSame(config, config.with());
-        assertSame(config, config.with(MAPPER.getSubtypeResolver()));
-
-        // and then change
-        SerializationConfig newConfig = config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-        assertNotSame(config, newConfig);
-        config = newConfig;
-        assertSame(config, config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertNotSame(config, config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false));
-
         assertNotSame(config, config.with(SerializationFeature.INDENT_OUTPUT,
                 SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS));
         
         assertSame(config, config.withRootName((PropertyName) null)); // defaults to 'none'
 
-        newConfig = config.withRootName(PropertyName.construct("foobar"));
+        SerializationConfig newConfig = config.withRootName(PropertyName.construct("foobar"));
         assertNotSame(config, newConfig);
         assertTrue(newConfig.useRootWrapping());
 

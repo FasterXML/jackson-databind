@@ -34,20 +34,6 @@ public class DeserializationConfigTest extends BaseMapTest
                 + DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY.getMask()));
         assertFalse(config.hasSomeOfFeatures(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY.getMask()));
 
-        // if no changes then same config object
-        assertSame(config, config.without());
-        assertSame(config, config.with());
-        assertSame(config, config.with(MAPPER.getSubtypeResolver()));
-
-        // and then change
-        DeserializationConfig newConfig = config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-        assertNotSame(config, newConfig);
-        config = newConfig;
-        
-        // but another attempt with no real change returns same
-        assertSame(config, config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertNotSame(config, config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false));
-
         assertNotSame(config, config.with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT,
                 DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES));
     }
@@ -93,15 +79,6 @@ public class DeserializationConfigTest extends BaseMapTest
         if (max >= 31) { // 31 is actually ok; 32 not
             fail("Max number of DeserializationFeature enums reached: "+max);
         }
-    }
-
-    public void testOverrideIntrospectors()
-    {
-        ObjectMapper m = new ObjectMapper();
-        DeserializationConfig cfg = m.deserializationConfig();
-        // and finally, ensure we could override introspectors
-        cfg = cfg.with((AnnotationIntrospector) null);
-        assertNull(cfg.getAnnotationIntrospector());
     }
 
     public void testMisc() throws Exception

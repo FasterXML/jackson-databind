@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.util.Instantiatable;
 
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
-import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
@@ -96,9 +95,7 @@ public final class SerializationConfig
             int mapperFeatures, int serFeatures, int genFeatures, int formatWriteFeatures,
             MixInHandler mixins, RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
-        super(b.baseSettings(), mapperFeatures,
-                b.classIntrospector(), b.subtypeResolver(),
-                mixins, rootNames, configOverrides);
+        super(b, mapperFeatures, mixins, rootNames, configOverrides);
         _serFeatures = serFeatures;
         _filterProvider = b.filterProvider();
         _defaultPrettyPrinter = b.defaultPrettyPrinter();
@@ -107,21 +104,11 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, secondary constructors to support
     /* "mutant factories", with single property changes
-    /**********************************************************
+    /**********************************************************************
      */
-
-    private SerializationConfig(SerializationConfig src, SubtypeResolver str)
-    {
-        super(src, str);
-        _serFeatures = src._serFeatures;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _formatWriteFeatures = src._formatWriteFeatures;
-    }
 
     private SerializationConfig(SerializationConfig src, int mapperFeatures,
             int serFeatures, int generatorFeatures, int formatWriteFeatures)
@@ -184,16 +171,6 @@ public final class SerializationConfig
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
-    protected SerializationConfig(SerializationConfig src, MixInHandler mixins)
-    {
-        super(src, mixins);
-        _serFeatures = src._serFeatures;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _formatWriteFeatures = src._formatWriteFeatures;
-    }
-
     protected SerializationConfig(SerializationConfig src, PrettyPrinter defaultPP)
     {
         super(src);
@@ -205,9 +182,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, factory methods from MapperConfig(Base)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -234,11 +211,6 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig with(SubtypeResolver str) {
-        return (str == _subtypeResolver)? this : new SerializationConfig(this, str);
-    }
-
-    @Override
     public SerializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new SerializationConfig(this, view);
     }
@@ -249,9 +221,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -270,9 +242,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods for SerializationFeature
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -360,9 +332,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
-    /* Factory methods for JsonGenerator.Feature (2.5)
-    /**********************************************************
+    /**********************************************************************
+    /* Factory methods for JsonGenerator.Feature
+    /**********************************************************************
      */
 
     /**
@@ -420,9 +392,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods for FormatFeature
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -480,9 +452,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     public SerializationConfig withFilters(FilterProvider filterProvider) {
@@ -494,9 +466,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factories for objects configured here
-    /**********************************************************
+    /**********************************************************************
      */
 
     public PrettyPrinter constructDefaultPrettyPrinter() {
@@ -508,9 +480,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Support for ObjectWriteContext
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -528,9 +500,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -590,9 +562,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

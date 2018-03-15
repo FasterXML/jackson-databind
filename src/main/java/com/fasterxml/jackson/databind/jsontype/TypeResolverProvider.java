@@ -265,7 +265,7 @@ public class TypeResolverProvider
         return b;
     }
 
-    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder(MapperConfig<?> config,
+    protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
             JsonTypeInfo.Value typeInfo, JavaType baseType) {
         return new StdTypeResolverBuilder(typeInfo);
     }

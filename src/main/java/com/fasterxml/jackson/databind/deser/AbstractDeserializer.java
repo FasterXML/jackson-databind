@@ -119,7 +119,7 @@ public class AbstractDeserializer
         if (property != null && intr != null) {
             final AnnotatedMember accessor = property.getMember();
             if (accessor != null) {
-                ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+                ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(ctxt.getConfig(), accessor);
                 if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                     JavaType idType;
                     ObjectIdGenerator<?> idGen;
@@ -127,7 +127,7 @@ public class AbstractDeserializer
                     ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
 
                     // 2.1: allow modifications by "id ref" annotations as well:
-                    objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
+                    objectIdInfo = intr.findObjectReferenceInfo(ctxt.getConfig(), accessor, objectIdInfo);
                     Class<?> implClass = objectIdInfo.getGeneratorType();
 
                     if (implClass == ObjectIdGenerators.PropertyGenerator.class) {

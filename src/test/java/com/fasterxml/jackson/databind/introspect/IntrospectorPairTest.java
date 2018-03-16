@@ -148,8 +148,8 @@ public class IntrospectorPairTest extends BaseMapTest
         */
 
         @Override
-        public VisibilityChecker findAutoDetectVisibility(AnnotatedClass ac,
-            VisibilityChecker checker)
+        public VisibilityChecker findAutoDetectVisibility(MapperConfig<?> config,
+                AnnotatedClass ac, VisibilityChecker checker)
         {
             VisibilityChecker vc = (VisibilityChecker) values.get("findAutoDetectVisibility");
             // not really good but:
@@ -391,12 +391,13 @@ public class IntrospectorPairTest extends BaseMapTest
         VisibilityChecker vc = VisibilityChecker.defaultInstance();
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
                 .add("findAutoDetectVisibility", vc);
+        SerializationConfig config = null;
         assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
-                .findAutoDetectVisibility(null, null));
+                .findAutoDetectVisibility(config, null, null));
         assertSame(vc, new AnnotationIntrospectorPair(intr1, NO_ANNOTATIONS)
-                .findAutoDetectVisibility(null, null));
+                .findAutoDetectVisibility(config, null, null));
         assertSame(vc, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1)
-                .findAutoDetectVisibility(null, null));
+                .findAutoDetectVisibility(config, null, null));
     }
 
     /*

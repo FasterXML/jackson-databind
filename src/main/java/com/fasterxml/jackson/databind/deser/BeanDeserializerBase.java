@@ -671,10 +671,10 @@ public abstract class BeanDeserializerBase
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final AnnotatedMember accessor = _neitherNull(property, intr) ? property.getMember() : null;
         if (accessor != null) {
-            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(ctxt.getConfig(), accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                 // 2.1: allow modifications by "id ref" annotations as well:
-                objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
+                objectIdInfo = intr.findObjectReferenceInfo(ctxt.getConfig(), accessor, objectIdInfo);
                 
                 Class<?> implClass = objectIdInfo.getGeneratorType();
                 // Property-based generator is trickier

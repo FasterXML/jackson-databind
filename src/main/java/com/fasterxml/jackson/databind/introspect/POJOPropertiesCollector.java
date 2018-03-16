@@ -246,9 +246,9 @@ public class POJOPropertiesCollector
      */
     public ObjectIdInfo getObjectIdInfo()
     {
-        ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(_classDef);
-        if (info != null) { // 2.1: may also have different defaults for refs:
-            info = _annotationIntrospector.findObjectReferenceInfo(_classDef, info);
+        ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(_config, _classDef);
+        if (info != null) {
+            info = _annotationIntrospector.findObjectReferenceInfo(_config, _classDef, info);
         }
         return info;
     }

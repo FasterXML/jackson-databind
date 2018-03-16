@@ -432,11 +432,11 @@ public abstract class BeanSerializerBase
             if (ignorals != null) {
                 ignoredProps = ignorals.findIgnoredForSerialization();
             }
-            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(config, accessor);
             if (objectIdInfo == null) {
                 // no ObjectId override, but maybe ObjectIdRef?
                 if (oiw != null) {
-                    objectIdInfo = intr.findObjectReferenceInfo(accessor, null);
+                    objectIdInfo = intr.findObjectReferenceInfo(config, accessor, null);
                     if (objectIdInfo != null) {
                         oiw = _objectIdWriter.withAlwaysAsId(objectIdInfo.getAlwaysAsId());
                     }
@@ -446,7 +446,7 @@ public abstract class BeanSerializerBase
                 // to be able to move to SerializerProvider (where it really belongs)
                 
                 // 2.1: allow modifications by "id ref" annotations as well:
-                objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
+                objectIdInfo = intr.findObjectReferenceInfo(config, accessor, objectIdInfo);
                 ObjectIdGenerator<?> gen;
                 Class<?> implClass = objectIdInfo.getGeneratorType();
                 JavaType type = provider.constructType(implClass);

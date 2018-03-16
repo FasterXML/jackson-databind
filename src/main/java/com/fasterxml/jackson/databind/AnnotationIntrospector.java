@@ -183,14 +183,15 @@ public abstract class AnnotationIntrospector
      * having precedence) should include Object Identifier,
      * and if so, specify details of Object Identity used.
      */
-    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
+    public ObjectIdInfo findObjectIdInfo(MapperConfig<?> config, Annotated ann) {
         return null;
     }
 
     /**
      * Method for figuring out additional properties of an Object Identity reference
      */
-    public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
+    public ObjectIdInfo findObjectReferenceInfo(MapperConfig<?> config,
+            Annotated ann, ObjectIdInfo objectIdInfo) {
         return objectIdInfo;
     }
 
@@ -206,9 +207,6 @@ public abstract class AnnotationIntrospector
      * for XML compatibility purposes) for given class, if one
      * is defined. Returns null if no declaration found; can return
      * explicit empty String, which is usually ignored as well as null.
-     *<p> 
-     * NOTE: method signature changed in 2.1, to return {@link PropertyName}
-     * instead of String.
      */
     public PropertyName findRootName(AnnotatedClass ac) {
         return null;
@@ -280,7 +278,8 @@ public abstract class AnnotationIntrospector
      * (if no annotations are found), or build and return a derived instance (using
      * checker's build methods).
      */
-    public VisibilityChecker findAutoDetectVisibility(AnnotatedClass ac, VisibilityChecker checker) {
+    public VisibilityChecker findAutoDetectVisibility(MapperConfig<?> config, 
+            AnnotatedClass ac, VisibilityChecker checker) {
         return checker;
     }
 
@@ -314,70 +313,6 @@ public abstract class AnnotationIntrospector
     public Object findTypeIdResolver(MapperConfig<?> config, Annotated ann) {
         return null;
     }
-
-    /**
-     * Method for checking if given class has annotations that indicate
-     * that specific type resolver is to be used for handling instances.
-     * This includes not only
-     * instantiating resolver builder, but also configuring it based on
-     * relevant annotations (not including ones checked with a call to
-     * {@link #findSubtypes}
-     *
-     * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param baseType Base java type of value for which resolver is to be found
-     * 
-     * @return Type resolver builder for given type, if one found; null if none
-     */
-    /*
-    public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo) {
-        return null;
-    }
-    */
-
-    /**
-     * Method for checking if given property entity (field or method) has annotations
-     * that indicate that specific type resolver is to be used for handling instances.
-     * This includes not only
-     * instantiating resolver builder, but also configuring it based on
-     * relevant annotations (not including ones checked with a call to
-     * {@link #findSubtypes}
-     * 
-     * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param baseType Base java type of property for which resolver is to be found
-     * 
-     * @return Type resolver builder for properties of given entity, if one found;
-     *    null if none
-     */
-    /*
-    public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType baseType, JsonTypeInfo.Value typeInfo) {
-        return null;
-    }
-    */
-
-    /**
-     * Method for checking if given structured property entity (field or method that
-     * has nominal value of Map, Collection or array type) has annotations
-     * that indicate that specific type resolver is to be used for handling type
-     * information of contained values.
-     * This includes not only
-     * instantiating resolver builder, but also configuring it based on
-     * relevant annotations (not including ones checked with a call to
-     * {@link #findSubtypes}
-     * 
-     * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param containerType Type of property for which resolver is to be found (must be a container type)
-     * 
-     * @return Type resolver builder for values contained in properties of given entity,
-     *    if one found; null if none
-     */
-    /*
-    public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
-            Annotated ann, JavaType containerType, JsonTypeInfo.Value typeInfo) {
-        return null;
-    }
-    */
 
     /**
      * Method for locating annotation-specified subtypes related to annotated

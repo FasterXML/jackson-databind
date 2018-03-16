@@ -11,35 +11,9 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public abstract class SerializerFactory
 {
     /*
-    /**********************************************************
-    /* Additional configuration methods
-    /**********************************************************
-     */
-
-    /**
-     * Convenience method for creating a new factory instance with additional serializer
-     * provider; equivalent to calling
-     *<pre>
-     *   withConfig(getConfig().withAdditionalSerializers(additional));
-     *</pre>
-     */
-    public abstract SerializerFactory withAdditionalSerializers(Serializers additional);
-
-    public abstract SerializerFactory withAdditionalKeySerializers(Serializers additional);
-    
-    /**
-     * Convenience method for creating a new factory instance with additional bean
-     * serializer modifier; equivalent to calling
-     *<pre>
-     *   withConfig(getConfig().withSerializerModifier(modifier));
-     *</pre>
-     */
-    public abstract SerializerFactory withSerializerModifier(BeanSerializerModifier modifier);
-    
-    /*
-    /**********************************************************
-    /* Basic SerializerFactory API:
-    /**********************************************************
+    /**********************************************************************
+    /* Basic `SerializerFactory` API
+    /**********************************************************************
      */
 
     /**
@@ -51,7 +25,7 @@ public abstract class SerializerFactory
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
             JavaType baseType)
         throws JsonMappingException;
-    
+
     /**
      * Method called to create a type information serializer for given base type,
      * if one is needed. If not needed (no polymorphic handling configured), should
@@ -80,4 +54,30 @@ public abstract class SerializerFactory
     public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config,
             JavaType type, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException;
+
+    /*
+    /**********************************************************************
+    /* Additional mutant factories for registering serializer overrides
+    /**********************************************************************
+     */
+
+    /**
+     * Convenience method for creating a new factory instance with additional serializer
+     * provider; equivalent to calling
+     *<pre>
+     *   withConfig(getConfig().withAdditionalSerializers(additional));
+     *</pre>
+     */
+    public abstract SerializerFactory withAdditionalSerializers(Serializers additional);
+
+    public abstract SerializerFactory withAdditionalKeySerializers(Serializers additional);
+
+    /**
+     * Convenience method for creating a new factory instance with additional bean
+     * serializer modifier; equivalent to calling
+     *<pre>
+     *   withConfig(getConfig().withSerializerModifier(modifier));
+     *</pre>
+     */
+    public abstract SerializerFactory withSerializerModifier(BeanSerializerModifier modifier);
 }

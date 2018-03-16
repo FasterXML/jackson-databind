@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
@@ -85,10 +86,9 @@ public class NullSerializationTest
 
     public void testOverriddenDefaultNulls() throws Exception
     {
-        DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl(new JsonFactory());
-        sp.setNullValueSerializer(new NullSerializer());
         ObjectMapper m = ObjectMapper.builder()
-                .serializerProvider(sp)
+                .addModule(new SimpleModule()
+                        .setDefaultNullValueSerializer(new NullSerializer()))
                 .build();
         assertEquals("\"foobar\"", m.writeValueAsString(null));
     }
@@ -112,9 +112,10 @@ public class NullSerializationTest
 
         // but then we can customize it:
         DefaultSerializerProvider prov = new MyNullProvider();
-        prov.setNullValueSerializer(new NullSerializer());
         ObjectMapper m = ObjectMapper.builder()
                 .serializerProvider(prov)
+                .addModule(new SimpleModule()
+                        .setDefaultNullValueSerializer(new NullSerializer()))
                 .build();
         assertEquals("{\"a\":\"foobar\"}", m.writeValueAsString(root));
     }

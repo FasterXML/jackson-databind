@@ -59,6 +59,9 @@ public class SimpleModule
     protected SimpleSerializers _keySerializers = null;
     protected SimpleKeyDeserializers _keyDeserializers = null;
 
+    protected JsonSerializer<?> _defaultNullKeySerializer = null;
+    protected JsonSerializer<?> _defaultNullValueSerializer = null;
+    
     /**
      * Lazily-constructed resolver used for storing mappings from
      * abstract classes to more specific implementing classes
@@ -205,6 +208,16 @@ public class SimpleModule
      */
     public SimpleModule setKeyDeserializers(SimpleKeyDeserializers kd) {
         _keyDeserializers = kd;
+        return this;
+    }
+
+    public SimpleModule setDefaultNullKeySerializer(JsonSerializer<?> ser) {
+        _defaultNullKeySerializer = ser;
+        return this;
+    }
+
+    public SimpleModule setDefaultNullValueSerializer(JsonSerializer<?> ser) {
+        _defaultNullValueSerializer = ser;
         return this;
     }
 
@@ -489,6 +502,12 @@ public class SimpleModule
         }
         if (_serializerModifier != null) {
             context.addSerializerModifier(_serializerModifier);
+        }
+        if (_defaultNullKeySerializer != null) {
+            context.overrideDefaultNullKeySerializer(_defaultNullKeySerializer);
+        }
+        if (_defaultNullValueSerializer != null) {
+            context.overrideDefaultNullValueSerializer(_defaultNullValueSerializer);
         }
         if (_subtypes != null && _subtypes.size() > 0) {
             context.registerSubtypes(_subtypes.toArray(new NamedType[_subtypes.size()]));

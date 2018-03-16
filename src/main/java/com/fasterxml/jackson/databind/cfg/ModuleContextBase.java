@@ -176,6 +176,18 @@ public class ModuleContextBase
         return this;
     }
 
+    @Override
+    public SetupContext overrideDefaultNullKeySerializer(JsonSerializer<?> ser) {
+        _set(_serializerFactory().withNullKeySerializer(ser));
+        return this;
+    }
+    
+    @Override
+    public SetupContext overrideDefaultNullValueSerializer(JsonSerializer<?> ser) {
+        _set(_serializerFactory().withNullValueSerializer(ser));
+        return this;
+    }
+
     /*
     /**********************************************************************
     /* Mutators for type handling

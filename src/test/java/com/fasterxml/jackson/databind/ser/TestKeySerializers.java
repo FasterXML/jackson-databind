@@ -171,9 +171,12 @@ public class TestKeySerializers extends BaseMapTest
 
     public void testCustomNullSerializers() throws IOException
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer("NULL-KEY"));
-        mapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer("NULL"));
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new SimpleModule()
+                        .setDefaultNullKeySerializer(new NullKeySerializer("NULL-KEY"))
+                        .setDefaultNullValueSerializer(new NullValueSerializer("NULL"))
+                        )
+                .build();
         Map<String,Integer> input = new HashMap<>();
         input.put(null, 3);
         String json = mapper.writeValueAsString(input);

@@ -27,7 +27,7 @@ public class TestTreeSerialization
     {
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize
-        ObjectNode n = mapper.nodeFactory().objectNode();
+        ObjectNode n = mapper.getNodeFactory().objectNode();
         n.put("number", 15);
         n.put("string", "abc");
         ObjectNode n2 = n.putObject("ob");
@@ -58,8 +58,8 @@ public class TestTreeSerialization
     {
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize
-        ObjectNode n = mapper.nodeFactory().objectNode();
-        n.set("pojo", mapper.nodeFactory().pojoNode("abc"));
+        ObjectNode n = mapper.getNodeFactory().objectNode();
+        n.set("pojo", mapper.getNodeFactory().pojoNode("abc"));
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, n);
         Map<String,Object> result = (Map<String,Object>) mapper.readValue(sw.toString(), Map.class);
@@ -72,8 +72,8 @@ public class TestTreeSerialization
         throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        ObjectNode n = mapper.nodeFactory().objectNode();
-        n.set("pojo", mapper.nodeFactory().pojoNode(new int[] { 1, 2, 3 }));
+        ObjectNode n = mapper.getNodeFactory().objectNode();
+        n.set("pojo", mapper.getNodeFactory().pojoNode(new int[] { 1, 2, 3 }));
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, n);
 
@@ -93,8 +93,8 @@ public class TestTreeSerialization
     {
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize
-        ObjectNode n = mapper.nodeFactory().objectNode();
-        n.set("pojo", mapper.nodeFactory().pojoNode(new Bean()));
+        ObjectNode n = mapper.getNodeFactory().objectNode();
+        n.set("pojo", mapper.getNodeFactory().pojoNode(new Bean()));
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, n);
 

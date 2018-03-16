@@ -55,6 +55,10 @@ public abstract class SerializerFactory
             JavaType type, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException;
 
+    public abstract JsonSerializer<Object> getDefaultNullKeySerializer();
+
+    public abstract JsonSerializer<Object> getDefaultNullValueSerializer();
+
     /*
     /**********************************************************************
     /* Additional mutant factories for registering serializer overrides
@@ -62,22 +66,30 @@ public abstract class SerializerFactory
      */
 
     /**
-     * Convenience method for creating a new factory instance with additional serializer
-     * provider; equivalent to calling
-     *<pre>
-     *   withConfig(getConfig().withAdditionalSerializers(additional));
-     *</pre>
+     * Mutant factory method for creating a new factory instance with additional serializer
+     * provider: provider will get inserted as the first one to be checked.
      */
     public abstract SerializerFactory withAdditionalSerializers(Serializers additional);
 
+    /**
+     * Mutant factory method for creating a new factory instance with additional key serializer
+     * provider: provider will get inserted as the first one to be checked.
+     */
     public abstract SerializerFactory withAdditionalKeySerializers(Serializers additional);
 
     /**
-     * Convenience method for creating a new factory instance with additional bean
-     * serializer modifier; equivalent to calling
-     *<pre>
-     *   withConfig(getConfig().withSerializerModifier(modifier));
-     *</pre>
+     * Mutant factory method for creating a new factory instance with additional serializer modifier:
+     * modifier will get inserted as the first one to be checked.
      */
     public abstract SerializerFactory withSerializerModifier(BeanSerializerModifier modifier);
+
+    /**
+     * @since 3.0
+     */
+    public abstract SerializerFactory withNullValueSerializer(JsonSerializer<?> nvs);
+
+    /**
+     * @since 3.0
+     */
+    public abstract SerializerFactory withNullKeySerializer(JsonSerializer<?> nks);
 }

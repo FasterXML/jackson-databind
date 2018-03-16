@@ -1250,8 +1250,6 @@ public abstract class SerializerProvider
      * Helper method called to indicate problem; default behavior is to construct and
      * throw a {@link JsonMappingException}, but in future may collect more than one
      * and only throw after certain number, or at the end of serialization.
-     *
-     * @since 2.8
      */
     public void reportMappingProblem(Throwable t, String message, Object... msgArgs) throws JsonMappingException {
         message = _format(message, msgArgs);

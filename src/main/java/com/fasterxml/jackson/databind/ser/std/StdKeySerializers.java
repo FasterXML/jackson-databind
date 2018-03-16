@@ -78,8 +78,6 @@ public abstract class StdKeySerializers
     /**
      * Method called if no specified key serializer was located; will return a
      * "default" key serializer.
-     *
-     * @since 2.7
      */
     @SuppressWarnings("unchecked")
     public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,

@@ -29,6 +29,7 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1916: Change `MapperFeature.USE_GETTERS_AS_SETTERS)` default to `false`
 #1917: Remove `canSerialize` and `canDeserialize` methods from `ObjectMapper`
 #1954: Add Builder pattern for creating configured `ObjectMapper` instances
-- Remove `MappingJsonFactory`
 #1955: Change the way `Module`s configure, interact with `ObjectMapper`
-
+#1973: Remove support for "default [Map] key serializer" configuration from
+  `SerializerProvider`
+- Remove `MappingJsonFactory`

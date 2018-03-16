@@ -82,9 +82,9 @@ public abstract class SerializerProvider
     protected final static JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, general
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -153,13 +153,6 @@ public abstract class SerializerProvider
      * The default serializer will simply thrown an exception.
      */
     protected JsonSerializer<Object> _unknownTypeSerializer = DEFAULT_UNKNOWN_SERIALIZER;
-
-    /**
-     * Serializer used to output non-null keys of Maps (which will get
-     * output as JSON Objects), if not null; if null, us the standard
-     * default key serializer.
-     */
-    protected JsonSerializer<Object> _defaulKeySerializer;
 
     /**
      * Serializer used to output a null value. Default implementation
@@ -252,7 +245,6 @@ public abstract class SerializerProvider
 
         _serializerCache = src._serializerCache;
         _unknownTypeSerializer = src._unknownTypeSerializer;
-        _defaulKeySerializer = src._defaulKeySerializer;
         _nullValueSerializer = src._nullValueSerializer;
         _nullKeySerializer = src._nullKeySerializer;
 
@@ -285,7 +277,6 @@ public abstract class SerializerProvider
         _serializerCache = new SerializerCache();
 
         _unknownTypeSerializer = src._unknownTypeSerializer;
-        _defaulKeySerializer = src._defaulKeySerializer;
         _nullValueSerializer = src._nullValueSerializer;
         _nullKeySerializer = src._nullKeySerializer;
 
@@ -385,20 +376,6 @@ public abstract class SerializerProvider
     /* Methods for configuring default settings
     /**********************************************************************
      */
-
-    /**
-     * Method that can be used to specify serializer that will be
-     * used to write JSON property names matching null keys for Java
-     * Maps (which will throw an exception if try write such property
-     * name)
-     */
-    public void setDefaultKeySerializer(JsonSerializer<Object> ks)
-    {
-        if (ks == null) {
-            throw new IllegalArgumentException("Cannot pass null JsonSerializer");
-        }
-        _defaulKeySerializer = ks;
-    }
 
     /**
      * Method that can be used to specify serializer that will be
@@ -886,8 +863,9 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> findKeySerializer(JavaType keyType, BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType, _defaulKeySerializer);
-        // 25-Feb-2011, tatu: As per [JACKSON-519], need to ensure contextuality works here, too
+        // 16-Mar-2018, tatu: Used to have "default key serializer" in 2.x; dropped to let/make
+        //    custom code use Module interface or similar to provide key serializers
+        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType, null);
         return _handleContextualResolvable(ser, property);
     }
 

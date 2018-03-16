@@ -47,8 +47,6 @@ public abstract class SerializerFactory
       * 
       * @param prov Provider that needs to be used to resolve annotation-provided
       *    serializers (but NOT for others)
-      *    
-      * @since 2.1 (earlier versions had method with different signature)
       */
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
             JavaType baseType)

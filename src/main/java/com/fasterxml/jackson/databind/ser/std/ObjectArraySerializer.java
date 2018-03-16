@@ -231,7 +231,7 @@ public class ObjectArraySerializer
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNull(gen);
+                    provider.defaultSerializeNullValue(gen);
                     continue;
                 }
                 Class<?> cc = elem.getClass();
@@ -263,7 +263,7 @@ public class ObjectArraySerializer
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNullValue(jgen);
                     continue;
                 }
                 if (typeSer == null) {
@@ -288,7 +288,7 @@ public class ObjectArraySerializer
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNullValue(jgen);
                     continue;
                 }
                 Class<?> cc = elem.getClass();

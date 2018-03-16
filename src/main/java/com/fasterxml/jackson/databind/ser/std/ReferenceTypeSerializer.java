@@ -360,7 +360,7 @@ public abstract class ReferenceTypeSerializer<T>
         Object value = _getReferencedIfPresent(ref);
         if (value == null) {
             if (_unwrapper == null) {
-                provider.defaultSerializeNull(g);
+                provider.defaultSerializeNullValue(g);
             }
             return;
         }
@@ -383,7 +383,7 @@ public abstract class ReferenceTypeSerializer<T>
         Object value = _getReferencedIfPresent(ref);
         if (value == null) {
             if (_unwrapper == null) {
-                provider.defaultSerializeNull(g);
+                provider.defaultSerializeNullValue(g);
             }
             return;
         }

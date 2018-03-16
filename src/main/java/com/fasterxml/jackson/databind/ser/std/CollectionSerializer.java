@@ -114,7 +114,7 @@ public class CollectionSerializer
             do {
                 Object elem = it.next();
                 if (elem == null) {
-                    provider.defaultSerializeNull(g);
+                    provider.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
                     JsonSerializer<Object> serializer = serializers.serializerFor(cc);
@@ -151,7 +151,7 @@ public class CollectionSerializer
                 Object elem = it.next();
                 try {
                     if (elem == null) {
-                        provider.defaultSerializeNull(g);
+                        provider.defaultSerializeNullValue(g);
                     } else {
                         if (typeSer == null) {
                             ser.serialize(elem, g, provider);

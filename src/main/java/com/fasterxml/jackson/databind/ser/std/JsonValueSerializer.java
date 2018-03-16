@@ -157,7 +157,7 @@ public class JsonValueSerializer
         try {
             Object value = _accessor.getValue(bean);
             if (value == null) {
-                prov.defaultSerializeNull(gen);
+                prov.defaultSerializeNullValue(gen);
                 return;
             }
             JsonSerializer<Object> ser = _valueSerializer;
@@ -186,7 +186,7 @@ public class JsonValueSerializer
             value = _accessor.getValue(bean);
             // and if we got null, can also just write it directly
             if (value == null) {
-                provider.defaultSerializeNull(gen);
+                provider.defaultSerializeNullValue(gen);
                 return;
             }
             JsonSerializer<Object> ser = _valueSerializer;

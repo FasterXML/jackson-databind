@@ -108,7 +108,7 @@ public class POJONode
     public final void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException
     {
         if (_value == null) {
-            serializers.defaultSerializeNull(gen);
+            serializers.defaultSerializeNullValue(gen);
         } else if (_value instanceof JsonSerializable) {
             ((JsonSerializable) _value).serialize(gen, serializers);
         } else {

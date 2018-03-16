@@ -88,7 +88,7 @@ public class IterableSerializer
             do {
                 Object elem = it.next();
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNullValue(jgen);
                     continue;
                 }
                 JsonSerializer<Object> currSerializer = _elementSerializer;

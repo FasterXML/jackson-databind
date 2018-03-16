@@ -196,7 +196,7 @@ public class StringArraySerializer
         for (int i = 0, len = value.length; i < len; ++i) {
             String str = value[i];
             if (str == null) {
-                provider.defaultSerializeNull(gen);
+                provider.defaultSerializeNullValue(gen);
             } else {
                 ser.serialize(value[i], gen, provider);
             }

@@ -190,17 +190,6 @@ public class ObjectMapperTest extends BaseMapTest
                 .writeValueAsString(input));
     }
 
-    // for [databind#898]
-    public void testSerializerProviderAccess() throws Exception
-    {
-        // ensure we have "fresh" instance, just in case
-        ObjectMapper mapper = new ObjectMapper();
-        JsonSerializer<?> ser = mapper.serializerProviderInstance()
-                .findValueSerializer(Bean.class);
-        assertNotNull(ser);
-        assertEquals(Bean.class, ser.handledType());
-    }
-
     public void testDataOutputViaMapper() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

@@ -329,17 +329,6 @@ public class SimpleModuleTest extends BaseMapTest
         assertNotNull(mapper);
     }
 
-    // [databind#626]
-    public void testMixIns626() throws Exception
-    {
-        // no real annotations, but nominally add ones from 'String' to 'Object', just for testing
-        ObjectMapper mapper = ObjectMapper.builder()
-                .addModule(new TestModule626(Object.class, String.class))
-                .build();
-        Class<?> found = mapper.mixInHandler().findMixInClassFor(Object.class);
-        assertEquals(String.class, found);
-    }
-
     public void testAutoDiscovery() throws Exception
     {
         List<?> mods = MapperBuilder.findModules();

@@ -245,26 +245,6 @@ public abstract class BasicSerializerFactory
         BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         return config.getTypeResolverProvider().findTypeSerializer(config,
                 bean.getClassInfo(), baseType);
-
-        /*
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        JsonTypeInfo.Value typeInfo = ai.findPolymorphicTypeInfo(config, ac);
-        TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType, typeInfo);
-        // Ok: if there is no explicit type info handler, we may want to
-        // use a default. If so, config object knows what to use.
-        Collection<NamedType> subtypes = null;
-        if (b == null) {
-            b = config.getDefaultTyper(baseType);
-        } else {
-            subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config, ac);
-        }
-        if (b == null) {
-            return null;
-        }
-        // 10-Jun-2015, tatu: Since not created for Bean Property, no need for post-processing
-        //    wrt EXTERNAL_PROPERTY
-        return b.buildTypeSerializer(config, baseType, subtypes);
-        */
     }
 
     /*

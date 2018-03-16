@@ -794,14 +794,6 @@ public class ObjectWriter
     }
 
     /**
-     * @deprecated Since 3.0 use {@link #generatorFactory()}
-     */
-    @Deprecated
-    public TokenStreamFactory getFactory() {
-        return generatorFactory();
-    }
-
-    /**
      * @deprecated Since 3.0 use {@link #typeFactory}
      */
     @Deprecated

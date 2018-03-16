@@ -62,9 +62,9 @@ public class BeanSerializerFactory
     public final static BeanSerializerFactory instance = new BeanSerializerFactory(null);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: creation, configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -93,23 +93,14 @@ public class BeanSerializerFactory
          *    Instead, let's actually just throw an error if this method is called when subtype
          *    has not properly overridden this method; this to indicate problem as soon as possible.
          */
-        if (getClass() != BeanSerializerFactory.class) {
-            throw new IllegalStateException("Subtype of BeanSerializerFactory ("+getClass().getName()
-                    +") has not properly overridden method 'withAdditionalSerializers': cannot instantiate subtype with "
-                    +"additional serializer definitions");
-        }
+        ClassUtil.verifyMustOverride(BeanSerializerFactory.class, config, "withConfig");
         return new BeanSerializerFactory(config);
     }
 
-    @Override
-    protected Iterable<Serializers> customSerializers() {
-        return _factoryConfig.serializers();
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* SerializerFactory impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -252,10 +243,9 @@ public class BeanSerializerFactory
     }
     
     /*
-    /**********************************************************
-    /* Other public methods that are not part of
-    /* JsonSerializerFactory API
-    /**********************************************************
+    /**********************************************************************
+    /* Other public methods that are not part of `SerializerFactory` API
+    /**********************************************************************
      */
 
     /**
@@ -277,77 +267,10 @@ public class BeanSerializerFactory
         return constructBeanSerializer(prov, beanDesc);
     }
 
-    /**
-     * Method called to create a type information serializer for values of given
-     * non-container property
-     * if one is needed. If not needed (no polymorphic handling configured), should
-     * return null.
-     *
-     * @param baseType Declared type to use as the base type for type information serializer
-     * 
-     * @return Type serializer to use for property values, if one is needed; null if not.
-     */
-    public TypeSerializer findPropertyTypeSerializer(JavaType baseType,
-            SerializationConfig config, AnnotatedMember accessor)
-        throws JsonMappingException
-    {
-        return config.getTypeResolverProvider().findPropertyTypeSerializer(config, accessor, baseType);
-        /*
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config,
-                accessor, baseType, ai.findPolymorphicTypeInfo(config, accessor));
-        TypeSerializer typeSer;
-
-        // Defaulting: if no annotations on member, check value class
-        if (b == null) {
-            typeSer = findTypeSerializer(config, baseType);
-        } else {
-            Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
-                    config, accessor, baseType);
-            typeSer = b.buildTypeSerializer(config, baseType, subtypes);
-        }
-        return typeSer;
-        */
-    }
-
-    /**
-     * Method called to create a type information serializer for values of given
-     * container property
-     * if one is needed. If not needed (no polymorphic handling configured), should
-     * return null.
-     *
-     * @param containerType Declared type of the container to use as the base type for type information serializer
-     * 
-     * @return Type serializer to use for property value contents, if one is needed; null if not.
-     */    
-    public TypeSerializer findPropertyContentTypeSerializer(JavaType containerType,
-            SerializationConfig config, AnnotatedMember accessor)
-        throws JsonMappingException
-    {
-        return config.getTypeResolverProvider().findPropertyContentTypeSerializer(config, accessor, containerType);
-        /*
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config,
-                accessor, containerType, ai.findPolymorphicTypeInfo(config, accessor));
-        TypeSerializer typeSer;
-
-        // Defaulting: if no annotations on member, check value class
-        JavaType contentType = containerType.getContentType();
-        if (b == null) {
-            typeSer = findTypeSerializer(config, contentType);
-        } else {
-            Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config,
-                    accessor, contentType);
-            typeSer = b.buildTypeSerializer(config, contentType, subtypes);
-        }
-        return typeSer;
-        */
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable non-public factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -523,11 +446,11 @@ public class BeanSerializerFactory
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable non-public introspection methods
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Helper method used to skip processing for types that we know
      * cannot be (i.e. are never consider to be) beans: 
@@ -593,11 +516,11 @@ public class BeanSerializerFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable non-public methods for manipulating bean properties
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Overridable method that can filter out properties. Default implementation
      * checks annotations class may have.
@@ -677,10 +600,9 @@ public class BeanSerializerFactory
         while (it.hasNext()) {
             BeanPropertyDefinition property = it.next();
             AnnotatedMember accessor = property.getAccessor();
-            /* 22-Oct-2016, tatu: Looks like this removal is an important part of
-             *    processing, as taking it out will result in a few test failures...
-             *    But should probably be done somewhere else, not here?
-             */
+            // 22-Oct-2016, tatu: Looks like this removal is an important part of
+            //    processing, as taking it out will result in a few test failures...
+            //    But should probably be done somewhere else, not here?
             if (accessor == null) {
                 it.remove();
                 continue;
@@ -688,7 +610,6 @@ public class BeanSerializerFactory
             Class<?> type = property.getRawPrimaryType();
             Boolean result = ignores.get(type);
             if (result == null) {
-                // 21-Apr-2016, tatu: For 2.8, can specify config overrides
                 result = config.getConfigOverride(type).getIsIgnoredType();
                 if (result == null) {
                     BeanDescription desc = config.introspectClassAnnotations(type);
@@ -751,11 +672,11 @@ public class BeanSerializerFactory
         }
         return props;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

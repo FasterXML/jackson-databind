@@ -104,7 +104,7 @@ public final class IndexedListSerializer
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
-                    provider.defaultSerializeNull(g);
+                    provider.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
                     JsonSerializer<Object> serializer = serializers.serializerFor(cc);
@@ -139,7 +139,7 @@ public final class IndexedListSerializer
             Object elem = value.get(i);
             try {
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNullValue(jgen);
                 } else if (typeSer == null) {
                     ser.serialize(elem, jgen, provider);
                 } else {
@@ -166,7 +166,7 @@ public final class IndexedListSerializer
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNullValue(jgen);
                 } else {
                     Class<?> cc = elem.getClass();
                     JsonSerializer<Object> serializer = serializers.serializerFor(cc);

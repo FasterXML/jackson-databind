@@ -69,7 +69,7 @@ public class JSONPObject
         gen.writeRaw('(');
 
         if (_value == null) {
-            provider.defaultSerializeNull(gen);
+            provider.defaultSerializeNullValue(gen);
         } else {
             // NOTE: Escape line-separator characters that break JSONP only if no custom character escapes are set.
             // If custom escapes are in place JSONP-breaking characters will not be escaped and it is recommended to

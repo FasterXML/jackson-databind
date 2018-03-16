@@ -84,7 +84,7 @@ public class IteratorSerializer
         do {
             Object elem = value.next();
             if (elem == null) {
-                provider.defaultSerializeNull(g);
+                provider.defaultSerializeNullValue(g);
             } else if (typeSer == null) {
                 serializer.serialize(elem, g, provider);
             } else {
@@ -102,7 +102,7 @@ public class IteratorSerializer
         do {
             Object elem = value.next();
             if (elem == null) {
-                provider.defaultSerializeNull(g);
+                provider.defaultSerializeNullValue(g);
                 continue;
             }
             Class<?> cc = elem.getClass();

@@ -655,7 +655,7 @@ public class MapSerializer
                 }
                 // And then value
                 if (valueElem == null) {
-                    provider.defaultSerializeNull(gen);
+                    provider.defaultSerializeNullValue(gen);
                     continue;
                 }
                 JsonSerializer<Object> serializer = _valueSerializer;
@@ -753,7 +753,7 @@ public class MapSerializer
             }
             final Object valueElem = entry.getValue();
             if (valueElem == null) {
-                provider.defaultSerializeNull(gen);
+                provider.defaultSerializeNullValue(gen);
             } else {
                 try {
                     if (typeSer == null) {

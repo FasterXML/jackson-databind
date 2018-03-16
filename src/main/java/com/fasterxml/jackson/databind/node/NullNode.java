@@ -48,7 +48,7 @@ public final class NullNode
     public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
-        provider.defaultSerializeNull(g);
+        provider.defaultSerializeNullValue(g);
     }
 
     @Override

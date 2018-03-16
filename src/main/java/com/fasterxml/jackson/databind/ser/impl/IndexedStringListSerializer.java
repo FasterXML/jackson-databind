@@ -98,7 +98,7 @@ public final class IndexedStringListSerializer
             for (; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
-                    provider.defaultSerializeNull(g);
+                    provider.defaultSerializeNullValue(g);
                 } else {
                     g.writeString(str);
                 }

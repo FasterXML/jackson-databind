@@ -161,14 +161,14 @@ public class AnnotationIntrospectorPair
      */
     
     @Override
-    public VisibilityChecker findAutoDetectVisibility(AnnotatedClass ac,
-        VisibilityChecker checker)
+    public VisibilityChecker findAutoDetectVisibility(MapperConfig<?> config,
+            AnnotatedClass ac, VisibilityChecker checker)
     {
         /* Note: to have proper priorities, we must actually call delegatees
          * in reverse order:
          */
-        checker = _secondary.findAutoDetectVisibility(ac, checker);
-        return _primary.findAutoDetectVisibility(ac, checker);
+        checker = _secondary.findAutoDetectVisibility(config, ac, checker);
+        return _primary.findAutoDetectVisibility(config, ac, checker);
     }
 
     /*
@@ -381,16 +381,17 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
-        ObjectIdInfo r = _primary.findObjectIdInfo(ann);
-        return (r == null) ? _secondary.findObjectIdInfo(ann) : r;
+    public ObjectIdInfo findObjectIdInfo(MapperConfig<?> config, Annotated ann) {
+        ObjectIdInfo r = _primary.findObjectIdInfo(config, ann);
+        return (r == null) ? _secondary.findObjectIdInfo(config, ann) : r;
     }
 
     @Override
-    public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
+    public ObjectIdInfo findObjectReferenceInfo(MapperConfig<?> config, 
+            Annotated ann, ObjectIdInfo objectIdInfo) {
         // to give precedence for primary, must start with secondary:
-        objectIdInfo = _secondary.findObjectReferenceInfo(ann, objectIdInfo);
-        objectIdInfo = _primary.findObjectReferenceInfo(ann, objectIdInfo);
+        objectIdInfo = _secondary.findObjectReferenceInfo(config, ann, objectIdInfo);
+        objectIdInfo = _primary.findObjectReferenceInfo(config, ann, objectIdInfo);
         return objectIdInfo;
     }
 

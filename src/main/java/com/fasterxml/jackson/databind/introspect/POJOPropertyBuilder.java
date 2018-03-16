@@ -662,9 +662,9 @@ public class POJOPropertyBuilder
     public ObjectIdInfo findObjectIdInfo() {
         AnnotatedMember m = getPrimaryMember();
         if (m != null) {
-            ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(m);
+            ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(_config, m);
             if (info != null) {
-                return _annotationIntrospector.findObjectReferenceInfo(m, info);
+                return _annotationIntrospector.findObjectReferenceInfo(_config, m, info);
             }
         }
         return null;

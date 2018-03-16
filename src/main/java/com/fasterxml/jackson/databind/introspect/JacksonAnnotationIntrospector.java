@@ -265,14 +265,14 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Property auto-detection
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public VisibilityChecker findAutoDetectVisibility(AnnotatedClass ac,
-        VisibilityChecker checker)
+    public VisibilityChecker findAutoDetectVisibility(MapperConfig<?> config,
+            AnnotatedClass ac, VisibilityChecker checker)
     {
         JsonAutoDetect ann = _findAnnotation(ac, JsonAutoDetect.class);
         if (ann == null) {
@@ -591,7 +591,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
+    public ObjectIdInfo findObjectIdInfo(MapperConfig<?> config, Annotated ann) {
         JsonIdentityInfo info = _findAnnotation(ann, JsonIdentityInfo.class);
         if (info == null || info.generator() == ObjectIdGenerators.None.class) {
             return null;
@@ -602,7 +602,8 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
+    public ObjectIdInfo findObjectReferenceInfo(MapperConfig<?> config, 
+            Annotated ann, ObjectIdInfo objectIdInfo) {
         JsonIdentityReference ref = _findAnnotation(ann, JsonIdentityReference.class);
         if (ref == null) {
             return objectIdInfo;

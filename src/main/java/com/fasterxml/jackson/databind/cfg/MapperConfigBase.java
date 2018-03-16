@@ -521,11 +521,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     @Override
     public final VisibilityChecker getDefaultVisibilityChecker(Class<?> baseType,
-            AnnotatedClass actualClass) {
+            AnnotatedClass actualClass)
+    {
         VisibilityChecker vc = getDefaultVisibilityChecker();
         AnnotationIntrospector intr = getAnnotationIntrospector();
         if (intr != null) {
-            vc = intr.findAutoDetectVisibility(actualClass, vc);
+            vc = intr.findAutoDetectVisibility(this, actualClass, vc);
         }
         ConfigOverride overrides = _configOverrides.findOverride(baseType);
         if (overrides != null) {

@@ -329,12 +329,12 @@ public abstract class DeserializationContext
 
     @Override
     public int getParserFeatures(int defaults) {
-        return _config.getParserFeatures(defaults);
+        return _config.getParserFeatures();
     }
 
     @Override
     public int getFormatReadFeatures(int defaults) {
-        return _config.getFormatReadFeatures(defaults);
+        return _config.getFormatReadFeatures();
     }
 
     /*

@@ -697,9 +697,7 @@ public class ObjectReader
     }
 
     public boolean isEnabled(JsonParser.Feature f) {
-        // !!! 09-Oct-2017, tatu: Actually for full answer we really should check
-        //   what actual combined settings are....
-        return _parserFactory.isEnabled(f);
+        return _config.isEnabled(f);
     }
 
     public DeserializationConfig getConfig() {

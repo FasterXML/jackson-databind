@@ -559,22 +559,12 @@ public class ObjectMapper
      *   getDeserializationConfig().getNodeFactory()
      *</pre>
      */
-    public JsonNodeFactory nodeFactory() {
+    public JsonNodeFactory getNodeFactory() {
         return _deserializationConfig.getNodeFactory();
     }
 
     public InjectableValues getInjectableValues() {
         return _injectableValues;
-    }
-
-    /*
-    /**********************************************************************
-    /* Configuration: ser/deser factory, provider access
-    /**********************************************************************
-     */
-
-    public SerializerProvider getSerializerProvider() {
-        return _serializerProvider;
     }
 
     /*
@@ -1112,7 +1102,7 @@ public class ObjectMapper
         DeserializationContext ctxt = createDeserializationContext(p);
         JsonNode n = (JsonNode) _readValue(ctxt, p, JSON_NODE_TYPE);
         if (n == null) {
-            n = nodeFactory().nullNode();
+            n = getNodeFactory().nullNode();
         }
         @SuppressWarnings("unchecked")
         T result = (T) n;
@@ -2487,6 +2477,12 @@ public class ObjectMapper
         throws JsonMappingException
     {
         acceptJsonFormatVisitor(_typeFactory.constructType(type), visitor);
+    }
+
+    public void acceptJsonFormatVisitor(TypeReference<?> typeRef, JsonFormatVisitorWrapper visitor)
+        throws JsonMappingException
+    {
+        acceptJsonFormatVisitor(_typeFactory.constructType(typeRef), visitor);
     }
 
     /**

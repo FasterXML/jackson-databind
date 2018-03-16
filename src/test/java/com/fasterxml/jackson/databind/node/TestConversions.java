@@ -146,7 +146,7 @@ public class TestConversions extends BaseMapTest
     {
         Calendar c = Calendar.getInstance();
         c.setTime(new java.util.Date(0));
-        ValueNode pojoNode = MAPPER.nodeFactory().pojoNode(c);        
+        ValueNode pojoNode = MAPPER.getNodeFactory().pojoNode(c);        
         Calendar result = MAPPER.treeToValue(pojoNode, Calendar.class);
         assertNotNull(result);
         assertEquals(result.getTimeInMillis(), c.getTimeInMillis());

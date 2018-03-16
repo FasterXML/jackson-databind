@@ -453,14 +453,14 @@ public final class DeserializationConfig
     /**
      * @since 3.0
      */
-    public int getParserFeatures(int defaults) {
+    public int getParserFeatures() {
         return _parserFeatures;
     }
 
     /**
      * @since 3.0
      */
-    public int getFormatReadFeatures(int defaults) {
+    public int getFormatReadFeatures() {
         return _formatParserFeatures;
     }
 

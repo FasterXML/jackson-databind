@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
 import com.fasterxml.jackson.databind.deser.*;
@@ -22,11 +23,11 @@ public abstract class Module
     implements Versioned
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple accessors
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Method that returns a display that can be used by Jackson
      * for informational purposes, as well as in associating extensions with
@@ -55,23 +56,17 @@ public abstract class Module
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: registration
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Method called by {@link ObjectMapper} when module is registered.
      * It is called to let module register functionality it provides,
      * using callback methods passed-in context object exposes.
      */
     public abstract void setupModule(SetupContext context);
-    
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
 
     /**
      * Interface Jackson exposes to modules for purpose of registering
@@ -83,9 +78,9 @@ public abstract class Module
     public static interface SetupContext
     {
         /*
-        /**********************************************************
+        /******************************************************************
         /* Simple accessors
-        /**********************************************************
+        /******************************************************************
          */
 
         /**
@@ -140,9 +135,9 @@ public abstract class Module
         public boolean isEnabled(JsonGenerator.Feature f);
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Mutant accessors
-        /**********************************************************
+        /******************************************************************
          */
 
         /**
@@ -163,9 +158,9 @@ public abstract class Module
         public MutableConfigOverride configOverride(Class<?> type);
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Handler registration; deserializers, related
-        /**********************************************************
+        /******************************************************************
          */
         
         /**
@@ -203,9 +198,9 @@ public abstract class Module
         public SetupContext addValueInstantiators(ValueInstantiators instantiators);
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Handler registration; serializers, related
-        /**********************************************************
+        /******************************************************************
          */
 
         /**
@@ -231,6 +226,24 @@ public abstract class Module
          * @param mod Modifier to register
          */
         public SetupContext addSerializerModifier(BeanSerializerModifier mod);
+
+        /**
+         * Method that module can use to override handler called to write JSON Object key
+         * for {@link java.util.Map} values.
+         *
+         * @param ser Serializer called to write output for JSON Object key of which value
+         *   on Java side is `null`
+         */
+        public SetupContext overrideDefaultNullKeySerializer(JsonSerializer<?> ser);
+
+        /**
+         * Method that module can use to override handler called to write Java `null` as
+         * a value (Property or Map value, Collection/array element).
+         *
+         * @param ser Serializer called to write output for Java `null` as value (as distinct from
+         *    key_
+         */
+        public SetupContext overrideDefaultNullValueSerializer(JsonSerializer<?> ser);
 
         /*
         /******************************************************************

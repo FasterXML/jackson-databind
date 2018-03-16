@@ -100,13 +100,13 @@ public class ObjectMapperTest extends BaseMapTest
     public void testProps()
     {
         // should have default factory
-        assertNotNull(MAPPER.nodeFactory());
+        assertNotNull(MAPPER.getNodeFactory());
         JsonNodeFactory nf = new JsonNodeFactory(true);
         ObjectMapper m = ObjectMapper.builder()
                 .nodeFactory(nf)
                 .build();
         assertNull(m.getInjectableValues());
-        assertSame(nf, m.nodeFactory());
+        assertSame(nf, m.getNodeFactory());
     }
 
     // Test to ensure that we can check property ordering defaults...

@@ -481,14 +481,14 @@ public final class SerializationConfig
     /**
      * @since 3.0
      */
-    public int getGeneratorFeatures(int defaults) {
+    public int getGeneratorFeatures() {
         return _generatorFeatures;
     }
 
     /**
      * @since 3.0
      */
-    public int getFormatWriteFeatures(int defaults) {
+    public int getFormatWriteFeatures() {
         return _formatWriteFeatures;
     }
 

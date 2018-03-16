@@ -158,6 +158,16 @@ public abstract class BasicSerializerFactory
         return withConfig(_factoryConfig.withSerializerModifier(modifier));
     }
 
+    @Override
+    public final SerializerFactory withNullValueSerializer(JsonSerializer<?> nvs) {
+        return withConfig(_factoryConfig.withNullValueSerializer(nvs));
+    }
+
+    @Override
+    public final SerializerFactory withNullKeySerializer(JsonSerializer<?> nks) {
+        return withConfig(_factoryConfig.withNullKeySerializer(nks));
+    }
+
     /*
     /**********************************************************************
     /* `SerializerFactory` impl
@@ -235,6 +245,16 @@ public abstract class BasicSerializerFactory
         BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         return config.getTypeResolverProvider().findTypeSerializer(config,
                 bean.getClassInfo(), baseType);
+    }
+
+    @Override
+    public JsonSerializer<Object> getDefaultNullKeySerializer() {
+        return _factoryConfig.getNullKeySerializer();
+    }
+
+    @Override
+    public JsonSerializer<Object> getDefaultNullValueSerializer() {
+        return _factoryConfig.getNullValueSerializer();
     }
 
     /*

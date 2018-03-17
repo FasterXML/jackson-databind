@@ -171,7 +171,7 @@ public class TestSerConfig
     public void testDateFormatConfig() throws Exception
     {
         TimeZone tz1 = TimeZone.getTimeZone("America/Los_Angeles");
-        TimeZone tz2 = TimeZone.getTimeZone("Central Standard Time");
+        TimeZone tz2 = TimeZone.getTimeZone("CST");
 
         // sanity checks
         assertEquals(tz1, tz1);

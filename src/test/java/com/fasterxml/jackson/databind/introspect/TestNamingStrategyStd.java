@@ -175,8 +175,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     private static ObjectMapper _lcWithUndescoreMapper;
     
     @BeforeClass
-    @Override
-    public void setUp() throws Exception
+    public static void setUpClass() throws Exception
     {
         _lcWithUndescoreMapper = ObjectMapper.builder()
                 .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)

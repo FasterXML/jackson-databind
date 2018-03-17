@@ -112,8 +112,7 @@ public class TestArrayConversions
             verifyException(e, OVERFLOW_MSG_INT);
         }
         // Longs need help of BigInteger...
-        BigInteger biggie = BigInteger.valueOf(Long.MAX_VALUE);
-        biggie.add(BigInteger.ONE);
+        BigInteger biggie = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         List<BigInteger> l = new ArrayList<BigInteger>();
         l.add(biggie);
         try {

@@ -311,7 +311,7 @@ public class MapEntrySerializer
             // Let's not worry about generic types here, actually;
             // unlikely to make any difference, but does add significant overhead
             Class<?> cc = value.getClass();
-            valueSer = _dynamicValueSerializers.serializerFor(cc.getClass());
+            valueSer = _dynamicValueSerializers.serializerFor(cc);
             if (valueSer == null) {
                 try {
                     valueSer = _findAndAddDynamic(_dynamicValueSerializers, cc, prov);

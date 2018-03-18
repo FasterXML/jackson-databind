@@ -153,7 +153,9 @@ public class TestJavaType
     public void testClassKey()
     {
         ClassKey key = new ClassKey(String.class);
-        assertEquals(0, key.compareTo(key));
+        @SuppressWarnings({"SelfComparison", "EqualsWithItself"})
+        int selfComparisonResult = key.compareTo(key);
+        assertEquals(0, selfComparisonResult);
         assertTrue(key.equals(key));
         assertFalse(key.equals(null));
         assertFalse(key.equals("foo"));

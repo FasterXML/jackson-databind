@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 
 public class TestDefaultForArrays extends BaseMapTest
 {
@@ -102,7 +101,7 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArraysOfArrays() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 
         Object value = new Object[][] { new Object[] {} };
         String json = mapper.writeValueAsString(value);

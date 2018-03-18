@@ -5,6 +5,7 @@ import org.junit.Assert;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestDefaultWithCreators
@@ -66,7 +67,7 @@ public class TestDefaultWithCreators
     public void testWithCreators() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
         UrlJob input = new UrlJob(123L, "http://foo", 3);
         String json = mapper.writeValueAsString(input);
         assertNotNull(json);

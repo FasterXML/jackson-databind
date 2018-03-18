@@ -20,7 +20,7 @@ public class TestDefaultForTreeNodes extends BaseMapTest
 
     private final ObjectMapper DEFAULT_MAPPER = new ObjectMapper();
     {
-        DEFAULT_MAPPER.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        DEFAULT_MAPPER.enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
     }
     
     public void testValueAsStringWithDefaultTyping() throws Exception

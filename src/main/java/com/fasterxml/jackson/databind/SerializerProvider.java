@@ -137,14 +137,6 @@ public abstract class SerializerProvider
      */
 
     /**
-     * Serializer that gets called for values of types for which no
-     * serializers can be constructed.
-     *<p>
-     * The default serializer will simply thrown an exception.
-     */
-    protected final JsonSerializer<Object> _unknownTypeSerializer;
-
-    /**
      * Serializer used to (try to) output a null key, due to an entry of
      * {@link java.util.Map} having null key.
      * The default implementation will throw an exception if this happens;
@@ -213,7 +205,6 @@ public abstract class SerializerProvider
 
         _serializationView = null;
         _attributes = null;
-        _unknownTypeSerializer = DEFAULT_UNKNOWN_SERIALIZER;
 
         // not relevant for blueprint instance, could set either way:
         _stdNullValueSerializer = true;
@@ -237,7 +228,6 @@ public abstract class SerializerProvider
         _generatorConfig = generatorConfig;
 
         _serializerCache = src._serializerCache;
-        _unknownTypeSerializer = src._unknownTypeSerializer;
 
         // Default null key, value serializers configured via SerializerFactory:
         _nullKeySerializer = f.getDefaultNullKeySerializer();
@@ -277,7 +267,6 @@ public abstract class SerializerProvider
         // and others initialized to default empty state
         _serializerCache = new SerializerCache();
 
-        _unknownTypeSerializer = src._unknownTypeSerializer;
         _nullValueSerializer = src._nullValueSerializer;
         _nullKeySerializer = src._nullKeySerializer;
 
@@ -889,7 +878,7 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> getUnknownTypeSerializer(Class<?> unknownType) {
         // 23-Apr-2015, tatu: Only return shared instance if nominal type is Object.class
         if (unknownType == Object.class) {
-            return _unknownTypeSerializer;
+            return DEFAULT_UNKNOWN_SERIALIZER;
         }
         // otherwise construct explicit instance with property handled type
         return new UnknownSerializer(unknownType);
@@ -901,13 +890,13 @@ public abstract class SerializerProvider
      * for which no regular serializer was found or constructed.
      */
     public boolean isUnknownTypeSerializer(JsonSerializer<?> ser) {
-        if ((ser == _unknownTypeSerializer) || (ser == null)) {
+        if ((ser == DEFAULT_UNKNOWN_SERIALIZER) || (ser == null)) {
             return true;
         }
         // 23-Apr-2015, tatu: "empty" serializer is trickier; needs to consider
         //    error handling
         if (isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
-            if (ser.getClass() == UnknownSerializer.class) {
+            if (ser instanceof UnknownSerializer) {
                 return true;
             }
         }

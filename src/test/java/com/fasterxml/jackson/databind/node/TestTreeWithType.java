@@ -69,7 +69,7 @@ public class TestTreeWithType extends BaseMapTest
 
     public void testValueAsStringWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 
         Foo foo = new Foo("baz");
         String json = mapper.writeValueAsString(foo);
@@ -83,7 +83,7 @@ public class TestTreeWithType extends BaseMapTest
         final String CLASS = Foo.class.getName();
 
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
         String json = "{\"@class\":\""+CLASS+"\",\"bar\":\"baz\"}";
         JsonNode jsonNode = mapper.readTree(json);
@@ -99,7 +99,7 @@ public class TestTreeWithType extends BaseMapTest
 
     public void testValueToTreeWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 
         Foo foo = new Foo("baz");
         JsonNode jsonNode = mapper.valueToTree(foo);
@@ -113,7 +113,7 @@ public class TestTreeWithType extends BaseMapTest
         ObjectMapper mapper = ObjectMapper.builder()
                 .addModule(testModule)
                 .build();
-        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        mapper.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class");
         SavedCookie savedCookie = new SavedCookie("key", "v");
         String json = mapper.writeValueAsString(savedCookie);
         SavedCookie out = mapper.readerFor(SavedCookie.class).readValue(json);

@@ -36,7 +36,7 @@ public class PolyMapWriter827Test extends BaseMapTest
                 .addModule(new SimpleModule("keySerializerModule")
                         .addKeySerializer(CustomKey.class, new CustomKeySerializer()))
                 .build();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
         Map<CustomKey, String> map = new HashMap<CustomKey, String>();
         CustomKey key = new CustomKey();
         key.a = "foo";

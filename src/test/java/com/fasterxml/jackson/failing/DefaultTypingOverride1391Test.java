@@ -21,7 +21,7 @@ public class DefaultTypingOverride1391Test extends BaseMapTest
     public void testCollectionWithOverride() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper()
-            .enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE,
+            .enableDefaultTypingAsProperty(DefaultTyping.OBJECT_AND_NON_CONCRETE,
                     "$type");
         String json = mapper.writeValueAsString(new ListWrapper());
         assertEquals(aposToQuotes("{'stuff':[]}"), json);

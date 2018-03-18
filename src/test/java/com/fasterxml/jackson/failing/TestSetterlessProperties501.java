@@ -52,7 +52,7 @@ public class TestSetterlessProperties501
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
-        m.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        m.enableDefaultTyping(DefaultTyping.NON_FINAL);
 
         String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
 

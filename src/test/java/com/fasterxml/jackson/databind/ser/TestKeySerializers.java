@@ -212,7 +212,7 @@ public class TestKeySerializers extends BaseMapTest
         ObjectMapper mapper = ObjectMapper.builder()
                 .addModule(mod)
                 .build();
-        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL,
+        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY, JsonTypeInfo.Id.NAME, null)
             .typeIdVisibility(true);
         mapper.setDefaultTyping(typer);

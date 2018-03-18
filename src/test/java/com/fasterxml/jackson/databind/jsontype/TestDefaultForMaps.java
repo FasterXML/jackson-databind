@@ -73,7 +73,7 @@ public class TestDefaultForMaps
     {
         ObjectMapper serMapper = new ObjectMapper();
 
-        TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL,
+        TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
 //        serializerTyper = serializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(true));
 //        serializerTyper = serializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
@@ -89,7 +89,7 @@ public class TestDefaultForMaps
 
         // Then deserialize: need separate mapper to initialize type id resolver appropriately
         ObjectMapper deserMapper = new ObjectMapper();
-        TypeResolverBuilder<?> deserializerTyper = new DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL,
+        TypeResolverBuilder<?> deserializerTyper = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
 //        deserializerTyper = deserializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(false));
 //        deserializerTyper = deserializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
@@ -124,7 +124,7 @@ public class TestDefaultForMaps
     public void testList() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+        mapper.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
         ItemList child = new ItemList();
         child.value = "I am child";
 
@@ -140,7 +140,7 @@ public class TestDefaultForMaps
     public void testMap() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+        mapper.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
         ItemMap child = new ItemMap();
         child.value = "I am child";
 

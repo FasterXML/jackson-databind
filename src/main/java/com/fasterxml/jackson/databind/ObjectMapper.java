@@ -36,11 +36,22 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * either to and from basic POJOs (Plain Old Java Objects), or to and from
  * a general-purpose JSON Tree Model ({@link JsonNode}), as well as
  * related functionality for performing conversions.
- * It is also highly customizable to work both with different styles of JSON
- * content, and to support more advanced Object concepts such as
- * polymorphism and Object identity.
- * <code>ObjectMapper</code> also acts as a factory for more advanced {@link ObjectReader}
- * and {@link ObjectWriter} classes.
+ * In addition to directly reading and writing JSON (and with different underlying
+ * {@link TokenStreamFactory} configuration, other formats), it is also the
+ * mechanism for creating {@link ObjectReader}s and {@link ObjectWriter}s which
+ * offer more advancing reading/writing functionality.
+ *<p>
+ * Construction of mapper instances proceeds either via no-arguments constructor
+ * (producting instance with default configuration); or through one of two build
+ * methods.
+ * First build method is the static {@link #builder}
+ * and second {@link #rebuild()} method method on an existing mapper.
+ * Former starts with default configuration (same as one that no-arguments constructor
+ * created mapper has), and latter starts with configuration of the mapper it is called
+ * on.
+ * In both cases, after configuration (including addition of {@link Module}s) is complete,
+ * instance is created by calling {@link MapperBuilder#build()} method.
+ *<p>
  * Mapper (and {@link ObjectReader}s, {@link ObjectWriter}s it constructs) will
  * use instances of {@link JsonParser} and {@link JsonGenerator}
  * for implementing actual reading/writing of JSON.
@@ -95,61 +106,6 @@ public class ObjectMapper
     /* Helper classes, enums
     /**********************************************************
      */
-
-    /**
-     * Enumeration used with {@link ObjectMapper#enableDefaultTyping()}
-     * to specify what kind of types (classes) default typing should
-     * be used for. It will only be used if no explicit type information
-     * is found, but this enumeration further limits subset of those types.
-     *<p>
-     * Since 2.4 there are special exceptions for JSON Tree model
-     * types (sub-types of {@link TreeNode}: default typing is never
-     * applied to them.
-     * Since 2.8 additional checks are made to avoid attempts at default
-     * typing primitive-valued properties.
-     *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
-     */
-    public enum DefaultTyping {
-        /**
-         * This value means that only properties that have
-         * {@link java.lang.Object} as declared type (including
-         * generic types without explicit type) will use default
-         * typing.
-         */
-        JAVA_LANG_OBJECT,
-        
-        /**
-         * Value that means that default typing will be used for
-         * properties with declared type of {@link java.lang.Object}
-         * or an abstract type (abstract class or interface).
-         * Note that this does <b>not</b> include array types.
-         * This does NOT apply to {@link TreeNode} and its subtypes.
-         */
-        OBJECT_AND_NON_CONCRETE,
-
-        /**
-         * Value that means that default typing will be used for
-         * all types covered by {@link #OBJECT_AND_NON_CONCRETE}
-         * plus all array types for them.
-         * This does NOT apply to {@link TreeNode} and its subtypes.
-         */
-        NON_CONCRETE_AND_ARRAYS,
-        
-        /**
-         * Value that means that default typing will be used for
-         * all non-final types, with exception of small number of
-         * "natural" types (String, Boolean, Integer, Double), which
-         * can be correctly inferred from JSON; as well as for
-         * all arrays of non-final types.
-         * This does NOT apply to {@link TreeNode} and its subtypes.
-         */
-        NON_FINAL
-    }
 
     /**
      * Base implementation for "Vanilla" {@link ObjectMapper}, used with JSON backend
@@ -650,7 +606,7 @@ public class ObjectMapper
         // 18-Sep-2014, tatu: Let's add explicit check to ensure no one tries to
         //   use "As.EXTERNAL_PROPERTY", since that will not work (with 2.5+)
         if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
-            throw new IllegalArgumentException("Cannot use includeAs of "+includeAs);
+            throw new IllegalArgumentException("Cannot use includeAs of "+includeAs+" for Default Typing");
         }
         return setDefaultTyping(new DefaultTypeResolverBuilder(applicability, includeAs));
     }

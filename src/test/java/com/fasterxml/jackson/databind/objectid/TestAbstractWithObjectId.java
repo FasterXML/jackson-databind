@@ -53,7 +53,7 @@ public class TestAbstractWithObjectId extends BaseMapTest
 
         // make an object mapper that will add class info in so deserialisation works
         ObjectMapper om = new ObjectMapper();
-        om.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        om.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class");
 
         // write and print the JSON
         String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(myList);

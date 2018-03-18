@@ -109,7 +109,7 @@ public class TestDefaultForObject
     public void testBeanAsObjectUsingAsProperty() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
+        m.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL,
                 ".hype");
         // note: need to wrap, to get declared as Object
         String json = m.writeValueAsString(new StringBean("abc"));
@@ -141,7 +141,7 @@ public class TestDefaultForObject
         
         // and then that we will succeed with default type info
         m = new ObjectMapper();
-        m.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
+        m.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
         serial = m.writeValueAsString(input);
         AbstractBean[] beans = m.readValue(serial, AbstractBean[].class);
         assertEquals(1, beans.length);
@@ -157,12 +157,12 @@ public class TestDefaultForObject
     {
         ObjectMapper m = new ObjectMapper();
         // first: use "object or abstract" typing: should produce no type info:        
-        m.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
+        m.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
         StringBean bean = new StringBean("x");
         assertEquals("{\"name\":\"x\"}", m.writeValueAsString(bean));
         // then non-final, and voila:
         m = new ObjectMapper();
-        m.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        m.enableDefaultTyping(DefaultTyping.NON_FINAL);
         assertEquals("[\""+StringBean.class.getName()+"\",{\"name\":\"x\"}]",
             m.writeValueAsString(bean));
     }
@@ -170,7 +170,7 @@ public class TestDefaultForObject
     public void testNullValue() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        m.enableDefaultTyping(DefaultTyping.NON_FINAL);
         BeanHolder h = new BeanHolder();
         String json = m.writeValueAsString(h);
         assertNotNull(json);
@@ -248,7 +248,7 @@ public class TestDefaultForObject
     public void testJackson311() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
         String json = mapper.writeValueAsString(new PolymorphicType("hello", 2));
         PolymorphicType value = mapper.readValue(json, PolymorphicType.class);
         assertEquals("hello", value.foo);
@@ -259,7 +259,7 @@ public class TestDefaultForObject
     public void testTokenBuffer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
 
         // Ok, first test JSON Object containing buffer:
         TokenBuffer buf = TokenBuffer.forGeneration();
@@ -317,7 +317,7 @@ public class TestDefaultForObject
     public void testIssue352() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping (ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+        mapper.enableDefaultTyping (DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
         DiscussBean d1 = new DiscussBean();
         d1.subject = "mouse";
         d1.weight=88;
@@ -335,7 +335,7 @@ public class TestDefaultForObject
     public void testFeature432() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, "*CLASS*");
+        mapper.enableDefaultTypingAsProperty(DefaultTyping.OBJECT_AND_NON_CONCRETE, "*CLASS*");
         String json = mapper.writeValueAsString(new BeanHolder(new StringBean("punny")));
         assertEquals("{\"bean\":{\"*CLASS*\":\"com.fasterxml.jackson.databind.jsontype.TestDefaultForObject$StringBean\",\"name\":\"punny\"}}", json);
     }
@@ -344,7 +344,7 @@ public class TestDefaultForObject
     {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
+            mapper.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT,
                     JsonTypeInfo.As.EXTERNAL_PROPERTY);
             fail("Should not have passed");
         } catch (IllegalArgumentException e) {

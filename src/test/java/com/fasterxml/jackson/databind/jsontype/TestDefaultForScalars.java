@@ -78,7 +78,7 @@ public class TestDefaultForScalars
     public void testScalarArrays() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT);
+        m.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT);
         Object[] input = new Object[] {
                 "abc", new Date(1234567), null, Integer.valueOf(456)
         };

@@ -172,7 +172,7 @@ public class OptionalBasicTest extends BaseMapTest
 		final ObjectMapper objectMapper = newObjectMapper();
 		// ENABLE TYPING
 		objectMapper
-				.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
+				.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
 
 		final OptionalData myData = new OptionalData();
 		myData.myString = Optional.ofNullable("abc");

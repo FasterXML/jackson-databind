@@ -158,7 +158,7 @@ public class EnumMapDeserializationTest extends BaseMapTest
         Pojo1859 input = new Pojo1859(enumMap);
 
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@type");
+        mapper.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@type");
 
         // 05-Mar-2018, tatu: Original issue had this; should not make difference:
          /*

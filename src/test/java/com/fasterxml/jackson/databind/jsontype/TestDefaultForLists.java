@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 
 public class TestDefaultForLists
     extends BaseMapTest
@@ -136,7 +135,7 @@ public class TestDefaultForLists
     public void testJackson667() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
         String json = mapper.writeValueAsString(new SetBean("abc"));
         SetBean bean = mapper.readValue(json, SetBean.class);

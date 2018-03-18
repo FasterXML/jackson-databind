@@ -26,7 +26,7 @@ public class ObjectId825Test extends BaseMapTest
 
     private final ObjectMapper DEF_TYPING_MAPPER = new ObjectMapper();
     {
-        DEF_TYPING_MAPPER.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        DEF_TYPING_MAPPER.enableDefaultTyping(DefaultTyping.NON_FINAL);
     }
     
     public void testDeserialize() throws Exception {

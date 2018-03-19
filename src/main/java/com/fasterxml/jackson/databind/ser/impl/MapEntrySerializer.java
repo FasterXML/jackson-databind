@@ -299,7 +299,7 @@ public class MapEntrySerializer
                 try {
                     valueSer = _findAndAddDynamic(_dynamicValueSerializers, cc, prov);
                 } catch (JsonMappingException e) { // Ugh... cannot just throw as-is, so...
-                    return false;
+                    throw new RuntimeJsonMappingException(e);
                 }
             }
         }

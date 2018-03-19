@@ -55,6 +55,13 @@ public abstract class SerializerFactory
             JavaType type, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException;
 
+    /**
+     * Returns serializer used to (try to) output a null key, due to an entry of
+     * {@link java.util.Map} having null key.
+     * The default implementation will throw an exception if this happens;
+     * alternative implementation (like one that would write an Empty String)
+     * can be defined.
+     */
     public abstract JsonSerializer<Object> getDefaultNullKeySerializer();
 
     public abstract JsonSerializer<Object> getDefaultNullValueSerializer();

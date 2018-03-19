@@ -478,7 +478,7 @@ public class MapSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Map<?,?> value)
+    public boolean isEmpty(SerializerProvider prov, Map<?,?> value) throws IOException
     {
         if (value.isEmpty()) {
             return true;

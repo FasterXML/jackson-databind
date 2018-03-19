@@ -3,7 +3,9 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -56,9 +58,9 @@ public abstract class ReferenceTypeSerializer<T>
     protected transient PropertySerializerMap _dynamicSerializers;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Config settings, filtering
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -68,23 +70,19 @@ public abstract class ReferenceTypeSerializer<T>
      * non-null values.
      * Note that inclusion value for Map instance itself is handled by caller (POJO
      * property that refers to the Map value).
-     *
-     * @since 2.9
      */
     protected final Object _suppressableValue;
 
     /**
      * Flag that indicates what to do with `null` values, distinct from
      * handling of {@link #_suppressableValue}
-     *
-     * @since 2.9
      */
     protected final boolean _suppressNulls;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Constructors, factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public ReferenceTypeSerializer(ReferenceType fullType, boolean staticTyping,
@@ -133,9 +131,9 @@ public abstract class ReferenceTypeSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract methods to implement
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -144,8 +142,6 @@ public abstract class ReferenceTypeSerializer<T>
      *<p>
      * NOTE: caller has verified that there are changes, so implementations
      * need NOT check if a new instance is needed.
-     *
-     * @since 2.9
      */
     protected abstract ReferenceTypeSerializer<T> withResolved(BeanProperty prop,
             TypeSerializer vts, JsonSerializer<?> valueSer,
@@ -157,8 +153,6 @@ public abstract class ReferenceTypeSerializer<T>
      *<p>
      * NOTE: caller has verified that there are changes, so implementations
      * need NOT check if a new instance is needed.
-     *
-     * @since 2.9
      */
     public abstract ReferenceTypeSerializer<T> withContentInclusion(Object suppressableValue,
             boolean suppressNulls);
@@ -176,9 +170,9 @@ public abstract class ReferenceTypeSerializer<T>
     protected abstract Object _getReferencedIfPresent(T value);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Contextualization (support for property annotations)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -302,13 +296,13 @@ public abstract class ReferenceTypeSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, T value)
+    public boolean isEmpty(SerializerProvider provider, T value) throws IOException
     {
         // First, absent value (note: null check is just sanity check here)
         if (!_isValuePresent(value)) {
@@ -323,11 +317,7 @@ public abstract class ReferenceTypeSerializer<T>
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            try {
-                ser = _findCachedSerializer(provider, contents.getClass());
-            } catch (JsonMappingException e) { // nasty but necessary
-                throw new RuntimeJsonMappingException(e);
-            }
+            ser = _findCachedSerializer(provider, contents.getClass());
         }
         if (_suppressableValue == MARKER_FOR_EMPTY) {
             return ser.isEmpty(provider, contents);
@@ -340,17 +330,14 @@ public abstract class ReferenceTypeSerializer<T>
         return (_unwrapper != null);
     }
 
-    /**
-     * @since 2.9
-     */
     public JavaType getReferredType() {
         return _referredType;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -406,9 +393,9 @@ public abstract class ReferenceTypeSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection support
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -426,9 +413,9 @@ public abstract class ReferenceTypeSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**

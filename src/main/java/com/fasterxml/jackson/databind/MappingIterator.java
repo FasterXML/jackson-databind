@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.exc.RuntimeJsonMappingException;
 
 /**
  * Iterator exposed by {@link ObjectMapper} when binding sequence of
@@ -17,9 +18,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         new MappingIterator<Object>(null, null, null, null, false, null);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State constants
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -45,9 +46,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     protected final static int STATE_HAS_VALUE = 3;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -92,9 +93,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     protected final boolean _closeParser;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parsing state
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -103,9 +104,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     protected int _state;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -168,9 +169,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic iterator impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -191,9 +192,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         try {
             return nextValue();
         } catch (JsonMappingException e) {
-            throw new RuntimeJsonMappingException(e.getMessage(), e);
+            return _handleMappingException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            return _handleIOException(e);
         }
     }
 
@@ -213,15 +214,11 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API, iteration
-    /**********************************************************
+    /**********************************************************************
      */
 
-
-    /*
-     */
-    
     /**
      * Equivalent of {@link #next} but one that may throw checked
      * exceptions from Jackson due to invalid input.
@@ -283,10 +280,8 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             return value;
         } finally {
             _state = nextState;
-            /* 24-Mar-2015, tatu: As per [#733], need to mark token consumed no
-             *   matter what, to avoid infinite loop for certain failure cases.
-             *   For 2.6 need to improve further.
-             */
+            // 24-Mar-2015, tatu: As per [#733], need to mark token consumed no
+            //   matter what, to avoid infinite loop for certain failure cases.
             _parser.clearCurrentToken();
         }
     }
@@ -296,8 +291,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * this iterator; resulting container will be a {@link java.util.ArrayList}.
      * 
      * @return List of entries read
-     * 
-     * @since 2.2
      */
     public List<T> readAll() throws IOException {
         return readAll(new ArrayList<T>());
@@ -308,8 +301,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * this iterator
      * 
      * @return List of entries read (same as passed-in argument)
-     * 
-     * @since 2.2
      */
     public <L extends List<? super T>> L readAll(L resultList) throws IOException
     {
@@ -322,8 +313,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Convenience method for reading all entries accessible via
      * this iterator
-     * 
-     * @since 2.5
      */
     public <C extends Collection<? super T>> C readAll(C results) throws IOException
     {
@@ -334,15 +323,13 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API, accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Accessor for getting underlying parser this iterator uses.
-     * 
-     * @since 2.2
      */
     public JsonParser getParser() {
         return _parser;
@@ -352,8 +339,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * Accessor for accessing {@link FormatSchema} that the underlying parser
      * (as per {@link #getParser}) is using, if any; only parser of schema-aware
      * formats use schemas.
-     * 
-     * @since 2.2
      */
     public FormatSchema getParserSchema() {
     	return _parser.getSchema();
@@ -366,17 +351,15 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      *</code>
      * 
      * @return Location of the input stream of the underlying parser
-     * 
-     * @since 2.2.1
      */
     public JsonLocation getCurrentLocation() {
         return _parser.getCurrentLocation();
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void _resync() throws IOException

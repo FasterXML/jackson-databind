@@ -1,13 +1,16 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.builder;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-public class BuilderDeserializationTest921
+public class BuilderWithTypeParametersTest
     extends BaseMapTest
 {
     public static class MyPOJO {
@@ -77,7 +80,19 @@ public class BuilderDeserializationTest921
       }
     }
 
-    public void testWithBuilder() throws Exception {
+    public void testWithBuilderInferringBindings() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS);
+        final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
+        final MyGenericPOJO<MyPOJO> deserialized =
+                mapper.readValue(json, new TypeReference<MyGenericPOJO<MyPOJO>>() {});
+        assertEquals(1, deserialized.data.size());
+        Object ob = deserialized.data.get(0);
+        assertNotNull(ob);
+        assertEquals(MyPOJO.class, ob.getClass());
+    }
+
+    public void testWithBuilderWithoutInferringBindings() throws Exception {
       final ObjectMapper mapper = new ObjectMapper();
       final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
       final MyGenericPOJO<MyPOJO> deserialized =
@@ -85,7 +100,7 @@ public class BuilderDeserializationTest921
       assertEquals(1, deserialized.data.size());
       Object ob = deserialized.data.get(0);
       assertNotNull(ob);
-      assertEquals(MyPOJO.class, ob.getClass());
+      assertEquals(LinkedHashMap.class, ob.getClass());
     }
 
     public void testWithCreator() throws Exception {

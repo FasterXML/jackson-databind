@@ -81,8 +81,9 @@ public class BuilderWithTypeParametersTest
     }
 
     public void testWithBuilderInferringBindings() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
+                .build();
         final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
         final MyGenericPOJO<MyPOJO> deserialized =
                 mapper.readValue(json, new TypeReference<MyGenericPOJO<MyPOJO>>() {});

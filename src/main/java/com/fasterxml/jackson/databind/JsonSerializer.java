@@ -53,10 +53,10 @@ public abstract class JsonSerializer<T>
     implements JsonFormatVisitable
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Initialization, with former `ResolvableSerializer`,
     /* `ContextualSerializer`.
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -105,9 +105,9 @@ public abstract class JsonSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Fluent factory methods for constructing decorated versions
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -134,8 +134,6 @@ public abstract class JsonSerializer<T>
      * delegate anything; or it does not want any changes), should either
      * throw {@link UnsupportedOperationException} (if operation does not
      * make sense or is not allowed); or return this serializer as is.
-     * 
-     * @since 2.1
      */
     public JsonSerializer<T> replaceDelegatee(JsonSerializer<?> delegatee) {
         throw new UnsupportedOperationException();
@@ -148,17 +146,15 @@ public abstract class JsonSerializer<T>
      *<p>
      * Default implementation simply returns <code>this</code>; sub-classes that do support
      * filtering will need to create and return new instance if filter changes.
-     *
-     * @since 2.6
      */
     public JsonSerializer<?> withFilterId(Object filterId) {
         return this;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -214,9 +210,9 @@ public abstract class JsonSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -239,7 +235,9 @@ public abstract class JsonSerializer<T>
      *<p>
      * Default implementation will consider only null values to be empty.
      */
-    public boolean isEmpty(SerializerProvider provider, T value) {
+    public boolean isEmpty(SerializerProvider provider, T value)
+        throws IOException
+    {
         return (value == null);
     }
     
@@ -269,8 +267,6 @@ public abstract class JsonSerializer<T>
      * 
      * @return Serializer this serializer delegates calls to, if null;
      *   null otherwise.
-     * 
-     * @since 2.1
      */
     public JsonSerializer<?> getDelegatee() {
         return null;
@@ -283,23 +279,19 @@ public abstract class JsonSerializer<T>
      * {@link com.fasterxml.jackson.databind.ser.BeanPropertyWriter}.
      * Of standard Jackson serializers, only {@link com.fasterxml.jackson.databind.ser.BeanSerializer}
      * exposes properties.
-     *
-     * @since 2.6
      */
     public Iterator<PropertyWriter> properties() {
         return ClassUtil.emptyIterator();
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Default JsonFormatVisitable implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Default implementation simply calls {@link JsonFormatVisitorWrapper#expectAnyFormat(JavaType)}.
-     * 
-     * @since 2.1
      */
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType type)
@@ -309,9 +301,9 @@ public abstract class JsonSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper class(es)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

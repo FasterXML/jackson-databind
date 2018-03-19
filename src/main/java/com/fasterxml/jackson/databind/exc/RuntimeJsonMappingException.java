@@ -1,4 +1,6 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.exc;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Wrapper used when interface does not allow throwing a checked

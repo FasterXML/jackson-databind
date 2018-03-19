@@ -174,7 +174,7 @@ public class StdDelegatingSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Object value)
+    public boolean isEmpty(SerializerProvider prov, Object value) throws IOException
     {
         Object delegateValue = convertValue(value);
         if (delegateValue == null) {

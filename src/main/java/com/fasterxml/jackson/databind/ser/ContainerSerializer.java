@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -16,9 +18,9 @@ public abstract class ContainerSerializer<T>
     extends StdSerializer<T>
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected ContainerSerializer(Class<T> t) {
@@ -59,9 +61,9 @@ public abstract class ContainerSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -82,13 +84,13 @@ public abstract class ContainerSerializer<T>
     public abstract JsonSerializer<?> getContentSerializer();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract methods for sub-classes to implement
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public abstract boolean isEmpty(SerializerProvider prov, T value);
+    public abstract boolean isEmpty(SerializerProvider prov, T value) throws IOException;
 
     /**
      * Method called to determine if the given value (of type handled by

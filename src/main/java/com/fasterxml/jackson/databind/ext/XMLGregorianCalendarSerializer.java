@@ -40,7 +40,7 @@ public class XMLGregorianCalendarSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, XMLGregorianCalendar value) {
+    public boolean isEmpty(SerializerProvider provider, XMLGregorianCalendar value) throws IOException {
         return _delegate.isEmpty(provider, _convert(value));
     }
 

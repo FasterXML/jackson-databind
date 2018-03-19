@@ -1058,6 +1058,8 @@ Máté Rédecsi (rmatesz@github)
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)
+  * Contributed fix for #792: Deserialization Not Working Right with Generic Types and Builders
+  (2.12.0)
 
 Fitz (Joongsoo.Park) (joongsoo@github)
   * Contributed #2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
@@ -1102,3 +1104,7 @@ Simone D'Avico (simonedavico@github)
 Robin Roos (robinroos@github)
   * Contributed #2636: ObjectReader readValue lacks Class<T> argument
  (2.11.0)
+
+Mike Gilbode (gilbode@github)
+  * Reported #792: Deserialization Not Working Right with Generic Types and Builders
+  (2.12.0)

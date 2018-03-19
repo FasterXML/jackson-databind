@@ -300,6 +300,21 @@ public enum MapperFeature implements ConfigFeature
      */
     USE_BASE_TYPE_AS_DEFAULT_IMPL(false),
 
+    /**
+     * Feature that enables inferring builder type bindings from the value type
+     * being deserialized. This requires that the generic type declaration on
+     * the value type match that on the builder exactly: mismatched type declarations
+     * are not necessarily detected by databind.
+     *<p>
+     * Feature is enabled by default which means that deserialization does
+     * support deserializing types via builders with type parameters (generic types).
+     *<p>
+     * See: https://github.com/FasterXML/jackson-databind/issues/921
+     *
+     * @since 2.12
+     */
+    INFER_BUILDER_TYPE_BINDINGS(true),
+
     /*
     /******************************************************
     /* View-related features

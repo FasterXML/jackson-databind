@@ -1043,7 +1043,30 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     public JavaType constructParametricType(Class<?> rawType, JavaType... parameterTypes)
     {
-        return _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
+        return constructParametricType(rawType, TypeBindings.create(rawType, parameterTypes));
+    }
+
+    /**
+     * Factory method for constructing {@link JavaType} that
+     * represents a parameterized type. The type's parameters are
+     * specified as an instance of {@link TypeBindings}. This
+     * is useful if you already have the type's parameters such
+     * as those found on {@link JavaType}. For example, you could
+     * call
+     * <pre>
+     *   return TypeFactory.constructParametricType(ArrayList.class, javaType.getBindings());
+     * </pre>
+     * This effectively applies the parameterized types from one
+     * {@link JavaType} to another class.
+     *
+     * @param rawType Actual type-erased type
+     * @param parameterTypes Type bindings for the raw type
+     *
+     * @since 2.12
+     */
+    public JavaType constructParametricType(Class<?> rawType, TypeBindings parameterTypes)
+    {
+        return _fromClass(null, rawType, parameterTypes);
     }
 
     /**

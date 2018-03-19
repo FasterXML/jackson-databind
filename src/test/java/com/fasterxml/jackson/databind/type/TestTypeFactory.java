@@ -160,7 +160,7 @@ public class TestTypeFactory
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         // first, simple class based
-        JavaType t = tf.constructParametrizedType(ArrayList.class, Collection.class, String.class); // ArrayList<String>
+        final JavaType t = tf.constructParametrizedType(ArrayList.class, Collection.class, String.class); // ArrayList<String>
         assertEquals(CollectionType.class, t.getClass());
         JavaType strC = tf.constructType(String.class);
         assertEquals(1, t.containedTypeCount());
@@ -176,6 +176,13 @@ public class TestTypeFactory
         assertEquals(t, t2.containedType(1));
         assertNull(t2.containedType(2));
 
+        // [databind#921]: using type bindings
+        JavaType t3 = tf.constructParametricType(HashSet.class, t.getBindings()); // HashSet<String>
+        assertEquals(CollectionType.class, t3.getClass());
+        assertEquals(1, t3.containedTypeCount());
+        assertEquals(strC, t3.containedType(0));
+        assertNull(t3.containedType(1));
+
         // and then custom generic type as well
         JavaType custom = tf.constructParametrizedType(SingleArgGeneric.class, SingleArgGeneric.class,
                 String.class);
@@ -184,10 +191,24 @@ public class TestTypeFactory
         assertEquals(strC, custom.containedType(0));
         assertNull(custom.containedType(1));
 
+        // and then custom generic type from TypeBindings ([databind#921])
+        JavaType custom2 = tf.constructParametricType(SingleArgGeneric.class, t.getBindings());
+        assertEquals(SimpleType.class, custom2.getClass());
+        assertEquals(1, custom2.containedTypeCount());
+        assertEquals(strC, custom2.containedType(0));
+        assertNull(custom2.containedType(1));
+
         // should also be able to access variable name:
         assertEquals("X", custom.containedTypeName(0));
+    }
 
-        // And finally, ensure that we can't create invalid combinations
+    @SuppressWarnings("deprecation")
+    public void testInvalidParametricTypes()
+    {
+        final TypeFactory tf = TypeFactory.defaultInstance();
+        final JavaType strC = tf.constructType(String.class);
+
+        // ensure that we can't create invalid combinations
         try {
             // Maps must take 2 type parameters, not just one
             tf.constructParametrizedType(Map.class, Map.class, strC);
@@ -202,7 +223,7 @@ public class TestTypeFactory
             verifyException(e, "Cannot create TypeBindings for class ");
         }
     }
-
+    
     /**
      * Test for checking that canonical name handling works ok
      */

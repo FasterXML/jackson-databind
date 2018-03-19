@@ -138,12 +138,18 @@ public class BeanDeserializerFactory
     }
 
     @Override
-    public JsonDeserializer<Object> createBuilderBasedDeserializer(DeserializationContext ctxt,
-            JavaType valueType, BeanDescription beanDesc, Class<?> builderClass)
-                    throws JsonMappingException
+    public JsonDeserializer<Object> createBuilderBasedDeserializer(
+            DeserializationContext ctxt, JavaType valueType, BeanDescription beanDesc,
+            Class<?> builderClass)
+        throws JsonMappingException
     {
         // First: need a BeanDescription for builder class
-        JavaType builderType = ctxt.constructType(builderClass);
+        JavaType builderType;
+        if (ctxt.isEnabled(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)) {
+            builderType = ctxt.getTypeFactory().constructParametricType(builderClass, valueType.getBindings());
+        } else {
+            builderType = ctxt.constructType(builderClass);
+        }
         BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
         return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
     }

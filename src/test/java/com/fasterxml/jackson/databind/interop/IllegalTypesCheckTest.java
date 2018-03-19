@@ -57,8 +57,9 @@ public class IllegalTypesCheckTest extends BaseMapTest
 +" ]\n"
 +"}"
         );
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping();
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping()
+                .build();
         try {
             mapper.readValue(JSON, Bean1599.class);
             fail("Should not pass");
@@ -101,8 +102,9 @@ public class IllegalTypesCheckTest extends BaseMapTest
     // // // Tests for [databind#1872]
     public void testJDKTypes1872() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
 
         String json = aposToQuotes(String.format("{'@class':'%s','authorities':['java.util.ArrayList',[]]}",
                 Authentication1872.class.getName()));

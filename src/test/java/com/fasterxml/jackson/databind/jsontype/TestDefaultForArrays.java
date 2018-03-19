@@ -10,12 +10,6 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestDefaultForArrays extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     static class ArrayBean {
         public Object[] values;
 
@@ -43,11 +37,12 @@ public class TestDefaultForArrays extends BaseMapTest
      */
     public void testArrayTypingSimple() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+                .build();
         ArrayBean bean = new ArrayBean(new String[0]);
-        String json = m.writeValueAsString(bean);
-        ArrayBean result = m.readValue(json, ArrayBean.class);
+        String json = mapper.writeValueAsString(bean);
+        ArrayBean result = mapper.readValue(json, ArrayBean.class);
         assertNotNull(result.values);
         assertEquals(String[].class, result.values.getClass());
     }
@@ -55,11 +50,12 @@ public class TestDefaultForArrays extends BaseMapTest
     // And let's try it with deeper array as well
     public void testArrayTypingNested() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+                .build();
         ArrayBean bean = new ArrayBean(new String[0][0]);
-        String json = m.writeValueAsString(bean);
-        ArrayBean result = m.readValue(json, ArrayBean.class);
+        String json = mapper.writeValueAsString(bean);
+        ArrayBean result = mapper.readValue(json, ArrayBean.class);
         assertNotNull(result.values);
         assertEquals(String[][].class, result.values.getClass());
     }
@@ -67,41 +63,45 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testNodeInArray() throws Exception
     {
         JsonNode node = new ObjectMapper().readTree("{\"a\":3}");
-
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT)
+                .build();
         Object[] obs = new Object[] { node };
-        String json = m.writeValueAsString(obs);
-        Object[] result = m.readValue(json, Object[].class);
+        String json = mapper.writeValueAsString(obs);
+        Object[] result = mapper.readValue(json, Object[].class);
         assertEquals(1, result.length);
         Object ob = result[0];
         assertTrue(ob instanceof JsonNode);
     }
     
     @SuppressWarnings("deprecation")
-    public void testNodeInEmptyArray() throws Exception {
+    public void testNodeInEmptyArray() throws Exception
+    {
         Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
         outerMap.put("inner", new ArrayList<String>());
-        ObjectMapper m = ObjectMapper.builder().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)
+        ObjectMapper vanillaMapper = ObjectMapper.builder().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)
                 .build();
-        JsonNode tree = m.convertValue(outerMap, JsonNode.class);
+        JsonNode tree = vanillaMapper.convertValue(outerMap, JsonNode.class);
         
-        String json = m.writeValueAsString(tree);
+        String json = vanillaMapper.writeValueAsString(tree);
         assertEquals("{}", json);
         
-        JsonNode node = new ObjectMapper().readTree("{\"a\":[]}");
-        
-        m.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT);
+        JsonNode node = vanillaMapper.readTree("{\"a\":[]}");
+
+        ObjectMapper mapper = vanillaMapper.rebuild()
+                .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT)
+                .build();
         Object[] obs = new Object[] { node };
-        json = m.writeValueAsString(obs);
-        Object[] result = m.readValue(json, Object[].class);
+        json = mapper.writeValueAsString(obs);
+        Object[] result = mapper.readValue(json, Object[].class);
         assertEquals("{}", result[0].toString());
     }
 
     public void testArraysOfArrays() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
 
         Object value = new Object[][] { new Object[] {} };
         String json = mapper.writeValueAsString(value);
@@ -114,17 +114,18 @@ public class TestDefaultForArrays extends BaseMapTest
 
     public void testArrayTypingForPrimitiveArrays() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS);
-        _testArrayTypingForPrimitiveArrays(m, new int[] { 1, 2, 3 });
-        _testArrayTypingForPrimitiveArrays(m, new long[] { 1, 2, 3 });
-        _testArrayTypingForPrimitiveArrays(m, new short[] { 1, 2, 3 });
-        _testArrayTypingForPrimitiveArrays(m, new double[] { 0.5, 5.5, -1.0 });
-        _testArrayTypingForPrimitiveArrays(m, new float[] { 0.5f, 5.5f, -1.0f });
-        _testArrayTypingForPrimitiveArrays(m, new boolean[] { true, false });
-        _testArrayTypingForPrimitiveArrays(m, new byte[] { 1, 2, 3 });
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+                .build();
+        _testArrayTypingForPrimitiveArrays(mapper, new int[] { 1, 2, 3 });
+        _testArrayTypingForPrimitiveArrays(mapper, new long[] { 1, 2, 3 });
+        _testArrayTypingForPrimitiveArrays(mapper, new short[] { 1, 2, 3 });
+        _testArrayTypingForPrimitiveArrays(mapper, new double[] { 0.5, 5.5, -1.0 });
+        _testArrayTypingForPrimitiveArrays(mapper, new float[] { 0.5f, 5.5f, -1.0f });
+        _testArrayTypingForPrimitiveArrays(mapper, new boolean[] { true, false });
+        _testArrayTypingForPrimitiveArrays(mapper, new byte[] { 1, 2, 3 });
 
-        _testArrayTypingForPrimitiveArrays(m, new char[] { 'a', 'b' });
+        _testArrayTypingForPrimitiveArrays(mapper, new char[] { 'a', 'b' });
     }
 
     private void _testArrayTypingForPrimitiveArrays(ObjectMapper mapper, Object v) throws Exception {

@@ -68,8 +68,9 @@ public class TestDefaultForLists
     
     public void testListOfLongs() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
+        ObjectMapper m = ObjectMapper.builder()
+                .enableDefaultTyping()
+                .build();
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
         String json = m.writeValueAsString(input);
         assertEquals("{\"longs\":[\"java.util.ArrayList\",[1,2,3]]}", json);
@@ -90,8 +91,9 @@ public class TestDefaultForLists
      */
     public void testListOfNumbers() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
+        ObjectMapper m = ObjectMapper.builder()
+                .enableDefaultTyping()
+                .build();
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
         String json = m.writeValueAsString(input);
         assertEquals("{\"nums\":[\"java.util.ArrayList\",[[\"java.lang.Long\",1],2,3.0]]}", json);
@@ -106,8 +108,9 @@ public class TestDefaultForLists
 
     public void testDateTypes() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
+        ObjectMapper m = ObjectMapper.builder()
+                .enableDefaultTyping()
+                .build();
         ObjectListBean input = new ObjectListBean();
         List<Object> inputList = new ArrayList<Object>();
         inputList.add(TimeZone.getTimeZone("EST"));
@@ -124,8 +127,9 @@ public class TestDefaultForLists
     
     public void testJackson628() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .build();
         ArrayList<Foo> data = new ArrayList<Foo>();
         String json = mapper.writeValueAsString(data);
         List<?> output = mapper.readValue(json, List.class);
@@ -134,9 +138,10 @@ public class TestDefaultForLists
 
     public void testJackson667() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL,
+                        JsonTypeInfo.As.PROPERTY)
+                .build();
         String json = mapper.writeValueAsString(new SetBean("abc"));
         SetBean bean = mapper.readValue(json, SetBean.class);
         assertNotNull(bean);

@@ -139,8 +139,8 @@ public class ObjectId825BTest extends BaseMapTest
     {
         final ObjectMapper mapper = ObjectMapper.builder()
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
-        mapper.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
 
         String INPUT = aposToQuotes(
 "{\n"+

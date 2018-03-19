@@ -71,13 +71,13 @@ public class TestDefaultForMaps
     
     public void testJackson428() throws Exception
     {
-        ObjectMapper serMapper = new ObjectMapper();
-
         TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
 //        serializerTyper = serializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(true));
 //        serializerTyper = serializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
-        serMapper.setDefaultTyping(serializerTyper);
+        ObjectMapper serMapper = ObjectMapper.builder()
+                .setDefaultTyping(serializerTyper)
+                .build();
 
         // Let's start by constructing something to serialize first
         MapHolder holder = new MapHolder();
@@ -88,13 +88,13 @@ public class TestDefaultForMaps
         String json = serMapper.writeValueAsString(holder);
 
         // Then deserialize: need separate mapper to initialize type id resolver appropriately
-        ObjectMapper deserMapper = new ObjectMapper();
         TypeResolverBuilder<?> deserializerTyper = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
 //        deserializerTyper = deserializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(false));
 //        deserializerTyper = deserializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
-        deserMapper.setDefaultTyping(deserializerTyper);
-
+        ObjectMapper deserMapper = ObjectMapper.builder()
+                .setDefaultTyping(deserializerTyper)
+                .build();
         MapHolder result = deserMapper.readValue(json, MapHolder.class);
         assertNotNull(result);
         Map<?,?> map = result.map;
@@ -123,8 +123,9 @@ public class TestDefaultForMaps
 
     public void testList() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
+                .build();
         ItemList child = new ItemList();
         child.value = "I am child";
 
@@ -139,8 +140,9 @@ public class TestDefaultForMaps
 
     public void testMap() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
+                .build();
         ItemMap child = new ItemMap();
         child.value = "I am child";
 

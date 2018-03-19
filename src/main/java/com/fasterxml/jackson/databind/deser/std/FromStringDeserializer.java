@@ -74,11 +74,11 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             StringBuilder.class,
         };
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializer implementations
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected FromStringDeserializer(Class<?> vc) {
@@ -127,9 +127,9 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializer implementations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -198,16 +198,14 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* A general-purpose implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * "Chameleon" deserializer that works on simple types that are deserialized
      * from a simple String.
-     * 
-     * @since 2.4
      */
     public static class Std extends FromStringDeserializer<Object>
     {

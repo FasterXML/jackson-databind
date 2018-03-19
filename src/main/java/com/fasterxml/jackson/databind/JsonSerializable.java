@@ -48,8 +48,6 @@ public interface JsonSerializable
      * that core Jackson databinding makes use of.
      * Use of this base class is strongly recommended over directly implementing
      * {@link JsonSerializable}.
-     *
-     * @since 2.6
      */
     public abstract static class Base implements JsonSerializable
     {

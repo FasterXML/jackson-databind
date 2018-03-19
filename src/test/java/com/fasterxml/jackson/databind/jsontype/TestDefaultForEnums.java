@@ -42,8 +42,9 @@ public class TestDefaultForEnums
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
         
         // then with type info
-        m = new ObjectMapper();
-        m.enableDefaultTyping();
+        m = ObjectMapper.builder()
+                .enableDefaultTyping()
+                .build();
         json = m.writeValueAsString(bean);
         result = m.readValue(json, TimeUnitBean.class);
 
@@ -52,26 +53,28 @@ public class TestDefaultForEnums
     
     public void testSimpleEnumsInObjectArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping()
+                .build();
         
         // Typing is needed for enums
-        String json = m.writeValueAsString(new Object[] { TestEnum.A });
+        String json = mapper.writeValueAsString(new Object[] { TestEnum.A });
         assertEquals("[[\"com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums$TestEnum\",\"A\"]]", json);
 
         // and let's verify we get it back ok as well:
-        Object[] value = m.readValue(json, Object[].class);
+        Object[] value = mapper.readValue(json, Object[].class);
         assertEquals(1, value.length);
         assertSame(TestEnum.A, value[0]);
     }
 
     public void testSimpleEnumsAsField() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
-        String json = m.writeValueAsString(new EnumHolder(TestEnum.B));
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping()
+                .build();
+        String json = mapper.writeValueAsString(new EnumHolder(TestEnum.B));
         assertEquals("{\"value\":[\"com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums$TestEnum\",\"B\"]}", json);
-        EnumHolder holder = m.readValue(json, EnumHolder.class);
+        EnumHolder holder = mapper.readValue(json, EnumHolder.class);
         assertSame(TestEnum.B, holder.value);
     }
 }

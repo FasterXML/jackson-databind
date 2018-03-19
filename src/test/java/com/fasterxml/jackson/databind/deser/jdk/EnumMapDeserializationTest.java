@@ -157,8 +157,9 @@ public class EnumMapDeserializationTest extends BaseMapTest
         enumMap.put(Enum1859.B, "stuff");
         Pojo1859 input = new Pojo1859(enumMap);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@type");
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@type")
+                .build();
 
         // 05-Mar-2018, tatu: Original issue had this; should not make difference:
          /*

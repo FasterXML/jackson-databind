@@ -131,11 +131,11 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
     public void testIssue811() throws Exception
     {
         ObjectMapper om = ObjectMapper.builder()
+                .enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class")
                 .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX,
                         SerializationFeature.INDENT_OUTPUT)
                 .build();
-        om.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class");
-    
+
         Process p = new Process();
         Scope s = new Scope(p, null);
         FaultHandler fh = new FaultHandler(p);

@@ -92,7 +92,7 @@ public abstract class SerializerProvider
      * View used for currently active serialization, if any.
      * Only set for non-blueprint instances.
      */
-    final protected Class<?> _serializationView;
+    final protected Class<?> _activeView;
 
     /**
      * Configuration to be used by streaming generator when it is constructed.
@@ -135,15 +135,6 @@ public abstract class SerializerProvider
     /* Configuration, specialized serializers
     /**********************************************************************
      */
-
-    /**
-     * Serializer used to (try to) output a null key, due to an entry of
-     * {@link java.util.Map} having null key.
-     * The default implementation will throw an exception if this happens;
-     * alternative implementation (like one that would write an Empty String)
-     * can be defined.
-     */
-    protected final JsonSerializer<Object> _nullKeySerializer;
 
     /**
      * Serializer used to output a null value. Default implementation
@@ -203,12 +194,11 @@ public abstract class SerializerProvider
         // Blueprints doesn't have access to any serializers...
         _knownSerializers = null;
 
-        _serializationView = null;
+        _activeView = null;
         _attributes = null;
 
         // not relevant for blueprint instance, could set either way:
         _stdNullValueSerializer = true;
-        _nullKeySerializer = null;
         _nullValueSerializer = null;
     }
 
@@ -229,8 +219,7 @@ public abstract class SerializerProvider
 
         _serializerCache = src._serializerCache;
 
-        // Default null key, value serializers configured via SerializerFactory:
-        _nullKeySerializer = f.getDefaultNullKeySerializer();
+        // Default null key, value serializers configured via SerializerFactory
         {
             JsonSerializer<Object> ser = f.getDefaultNullValueSerializer();
             if (ser == null) {
@@ -242,7 +231,7 @@ public abstract class SerializerProvider
             _nullValueSerializer = ser;
         }
 
-        _serializationView = config.getActiveView();
+        _activeView = config.getActiveView();
         _attributes = config.getAttributes();
 
         // Non-blueprint instances do have a read-only map; one that doesn't
@@ -260,7 +249,7 @@ public abstract class SerializerProvider
         // since this is assumed to be a blue-print instance, many settings missing:
         _config = null;
         _generatorConfig = null;
-        _serializationView = null;
+        _activeView = src._activeView;
         _serializerFactory = null;
         _knownSerializers = null;
 
@@ -268,7 +257,6 @@ public abstract class SerializerProvider
         _serializerCache = new SerializerCache();
 
         _nullValueSerializer = src._nullValueSerializer;
-        _nullKeySerializer = src._nullKeySerializer;
 
         _stdNullValueSerializer = src._stdNullValueSerializer;
     }
@@ -384,7 +372,7 @@ public abstract class SerializerProvider
     }
 
     @Override
-    public final Class<?> getActiveView() { return _serializationView; }
+    public final Class<?> getActiveView() { return _activeView; }
 
     @Override
     public final boolean canOverrideAccessModifiers() {
@@ -845,7 +833,8 @@ public abstract class SerializerProvider
             BeanProperty property)
         throws JsonMappingException
     {
-        return _nullKeySerializer;
+        // rarely needed (that is, not on critical perf path), delegate to factory
+        return _serializerFactory.getDefaultNullKeySerializer();
     }
 
     /**

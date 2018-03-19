@@ -57,9 +57,9 @@ public abstract class DeserializationContext
     private static final long serialVersionUID = 3L;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, immutable
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -74,9 +74,9 @@ public abstract class DeserializationContext
     final protected TokenStreamFactory _streamFactory;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, changeable via fluent factories
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -87,10 +87,10 @@ public abstract class DeserializationContext
     final protected DeserializerFactory _factory;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration that gets set for instances (not blueprints)
     /* (partly denormalized for performance)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -106,7 +106,7 @@ public abstract class DeserializationContext
     /**
      * Currently active view, if any.
      */
-    final protected Class<?> _view;
+    final protected Class<?> _activeView;
 
     /**
      * Schema for underlying parser to use, if any.
@@ -120,9 +120,9 @@ public abstract class DeserializationContext
     final protected InjectableValues _injectableValues;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State (not for blueprints)
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -133,9 +133,9 @@ public abstract class DeserializationContext
     protected transient JsonParser _parser;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Per-operation reusable helper objects (not for blueprints)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected transient ArrayBuilders _arrayBuilders;
@@ -156,9 +156,9 @@ public abstract class DeserializationContext
     protected LinkedNode<JavaType> _currentType;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected DeserializationContext(DeserializerFactory df,
@@ -179,7 +179,7 @@ public abstract class DeserializationContext
         _featureFlags = 0;
         _config = null;
         _injectableValues = null;
-        _view = null;
+        _activeView = null;
         _attributes = null;
         _schema = null;
     }
@@ -193,7 +193,7 @@ public abstract class DeserializationContext
 
         _config = src._config;
         _featureFlags = src._featureFlags;
-        _view = src._view;
+        _activeView = src._activeView;
         _schema = src._schema;
         _injectableValues = src._injectableValues;
         _attributes = src._attributes;
@@ -212,7 +212,7 @@ public abstract class DeserializationContext
 
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
-        _view = config.getActiveView();
+        _activeView = config.getActiveView();
         _schema = schema;
 
         _injectableValues = injectableValues;
@@ -220,16 +220,16 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* DatabindContext implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public DeserializationConfig getConfig() { return _config; }
 
     @Override
-    public final Class<?> getActiveView() { return _view; }
+    public final Class<?> getActiveView() { return _activeView; }
 
     @Override
     public final boolean canOverrideAccessModifiers() {
@@ -279,9 +279,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Access to per-call state, like generic attributes
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -312,9 +312,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ObjectReadContext impl, config access
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -338,9 +338,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ObjectReadContext impl, Tree creation
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -354,9 +354,9 @@ public abstract class DeserializationContext
     }        
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ObjectReadContext impl, databind
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -416,9 +416,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, config setting accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -511,9 +511,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, pass-through to DeserializerCache
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -586,11 +586,11 @@ public abstract class DeserializationContext
         }
         return kd;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, ObjectId handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -609,9 +609,9 @@ public abstract class DeserializationContext
         throws UnresolvedForwardReference;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, type handling
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -629,8 +629,6 @@ public abstract class DeserializationContext
      * Class instance, the reason being that it may be necessary to work around
      * various ClassLoader limitations, as well as to handle primitive type
      * signatures.
-     *
-     * @since 2.6
      */
     public Class<?> findClass(String className) throws ClassNotFoundException
     {
@@ -639,9 +637,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, helper object recycling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -691,9 +689,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API: handler instantiation
-    /**********************************************************
+    /**********************************************************************
      */
 
     public abstract JsonDeserializer<Object> deserializerInstance(Annotated annotated,
@@ -705,11 +703,10 @@ public abstract class DeserializationContext
         throws JsonMappingException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API: resolving contextual deserializers; called
-    /* by structured deserializers for their value/component
-    /* deserializers
-    /**********************************************************
+    /* by structured deserializers for their value/component deserializers
+    /**********************************************************************
      */
 
     /**
@@ -765,9 +762,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parsing methods that may use reusable/-cyclable objects
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -803,9 +800,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Convenience methods for reading parsed values
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -830,9 +827,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for problem handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -883,8 +880,6 @@ public abstract class DeserializationContext
      * @return Key value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
-     * @since 2.8
      */
     public Object handleWeirdKey(Class<?> keyClass, String keyValue,
             String msg, Object... msgArgs)
@@ -927,8 +922,6 @@ public abstract class DeserializationContext
      * @return Property value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
-     * @since 2.8
      */
     public Object handleWeirdStringValue(Class<?> targetClass, String value,
             String msg, Object... msgArgs)
@@ -971,8 +964,6 @@ public abstract class DeserializationContext
      * @return Property value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
-     * @since 2.8
      */
     public Object handleWeirdNumberValue(Class<?> targetClass, Number value,
             String msg, Object... msgArgs)
@@ -1033,8 +1024,6 @@ targetType, goodValue.getClass()));
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
-     *
-     * @since 2.9 (2.8 had alternate that did not take <code>ValueInstantiator</code>)
      */
     @SuppressWarnings("resource")
     public Object handleMissingInstantiator(Class<?> instClass, ValueInstantiator valueInst,
@@ -1089,8 +1078,6 @@ targetType, goodValue.getClass()));
      * @param t Exception that caused failure
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
-     *
-     * @since 2.8
      */
     public Object handleInstantiationProblem(Class<?> instClass, Object argument,
             Throwable t)
@@ -1127,8 +1114,6 @@ targetType, goodValue.getClass()));
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
-     *
-     * @since 2.8
      */
     public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
         throws IOException
@@ -1148,8 +1133,6 @@ targetType, goodValue.getClass()));
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
-     *
-     * @since 2.8
      */
     public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)
@@ -1256,9 +1239,6 @@ targetType, goodValue.getClass()));
         throw missingTypeIdException(baseType, extraDesc);
     }
 
-    /**
-     * @since 2.9.2
-     */
     protected boolean _isCompatible(Class<?> target, Object value)
     {
         if ((value == null) || target.isInstance(value)) {
@@ -1270,10 +1250,10 @@ targetType, goodValue.getClass()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for problem reporting, in cases where recovery
     /* is not considered possible: input problem
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1283,8 +1263,6 @@ targetType, goodValue.getClass()));
      * Note that this method will throw a {@link JsonMappingException} and no
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
-     * 
-     * @since 2.9
      */
     public void reportWrongTokenException(JsonDeserializer<?> deser,
             JsonToken expToken, String msg, Object... msgArgs)
@@ -1301,8 +1279,6 @@ targetType, goodValue.getClass()));
      * Note that this method will throw a {@link JsonMappingException} and no
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
-     * 
-     * @since 2.9
      */
     public void reportWrongTokenException(JavaType targetType,
             JsonToken expToken, String msg, Object... msgArgs)
@@ -1319,8 +1295,6 @@ targetType, goodValue.getClass()));
      * Note that this method will throw a {@link JsonMappingException} and no
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
-     * 
-     * @since 2.9
      */
     public void reportWrongTokenException(Class<?> targetType,
             JsonToken expToken, String msg, Object... msgArgs)
@@ -1330,9 +1304,6 @@ targetType, goodValue.getClass()));
         throw wrongTokenException(getParser(), targetType, expToken, msg);
     }
 
-    /**
-     * @since 2.8
-     */
     public <T> T reportUnresolvedObjectId(ObjectIdReader oidReader, Object bean)
         throws JsonMappingException
     {
@@ -1344,8 +1315,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
      */
     public <T> T reportInputMismatch(BeanProperty prop,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1358,8 +1327,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
      */
     public <T> T reportInputMismatch(JsonDeserializer<?> src,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1371,8 +1338,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
      */
     public <T> T reportInputMismatch(Class<?> targetType,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1384,8 +1349,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
      */
     public <T> T reportInputMismatch(JavaType targetType,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1451,8 +1414,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Note that if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled,
      * this method will simply return null; otherwise {@link InvalidDefinitionException}
      * will be thrown.
-     *
-     * @since 2.9
      */
     public <T> T reportBadMerge(JsonDeserializer<?> deser) throws JsonMappingException
     {
@@ -1465,10 +1426,10 @@ trailingToken, ClassUtil.nameOf(targetType)
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for constructing semantic exceptions; usually not
     /* to be called directly, call `handleXxx()` instead
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1478,8 +1439,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Note that most of the time this method should NOT be directly called;
      * instead, {@link #reportWrongTokenException} should be called and will
      * call this method as necessary.
-     *
-     * @since 2.9
      */
     public JsonMappingException wrongTokenException(JsonParser p, JavaType targetType,
             JsonToken expToken, String extra)
@@ -1617,11 +1576,19 @@ trailingToken, ClassUtil.nameOf(targetType)
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
+    /**
+     * Helper method to get a non-shared instance of {@link DateFormat} with default
+     * configuration; instance is lazily constructed, reused within same instance of
+     * context (that is, within same life-cycle of <code>readValue()</code> from mapper
+     * or reader). Reuse is safe since access will not occur from multiple threads
+     * (unless caller somehow manages to share context objects across threads which is not
+     * supported).
+     */
     protected DateFormat getDateFormat()
     {
         if (_dateFormat != null) {

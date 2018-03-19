@@ -214,8 +214,9 @@ public class UntypedDeserializationTest
     // Allow 'upgrade' of big integers into Long, BigInteger
     public void testObjectSerializeWithLong() throws IOException
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY)
+                .build();
         final long VALUE = 1337800584532L;
 
         String serialized = "{\"timestamp\":"+VALUE+"}";

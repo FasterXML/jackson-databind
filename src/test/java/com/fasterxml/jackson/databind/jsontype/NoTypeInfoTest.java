@@ -24,8 +24,9 @@ public class NoTypeInfoTest extends BaseMapTest
 
     public void testWithIdNone() throws Exception
     {
-        final ObjectMapper mapper = newObjectMapper();
-        mapper.enableDefaultTyping();
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping()
+                .build();
         // serialize without type info
         String json = mapper.writeValueAsString(new NoType());
         assertEquals("{\"a\":3}", json);

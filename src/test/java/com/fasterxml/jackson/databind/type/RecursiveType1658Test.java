@@ -29,11 +29,11 @@ public class RecursiveType1658Test extends BaseMapTest
     public void testRecursive1658() throws Exception
     {
         Tree<String> t = new Tree<String>(Arrays.asList("hello", "world"));
-        ObjectMapper mapper = new ObjectMapper();
-
         final TypeResolverBuilder<?> typer = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
                 JsonTypeInfo.As.PROPERTY, null);
-        mapper.setDefaultTyping(typer);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .setDefaultTyping(typer)
+                .build();
         String res = mapper.writeValueAsString(t);
         Tree<?> tRead = mapper.readValue(res, Tree.class);
         assertNotNull(tRead);

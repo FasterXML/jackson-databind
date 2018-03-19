@@ -209,13 +209,13 @@ public class TestKeySerializers extends BaseMapTest
     public void testUnWrappedMapWithDefaultType() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        ObjectMapper mapper = ObjectMapper.builder()
-                .addModule(mod)
-                .build();
         TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY, JsonTypeInfo.Id.NAME, null)
             .typeIdVisibility(true);
-        mapper.setDefaultTyping(typer);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .setDefaultTyping(typer)
+                .build();
 
         Map<ABC,String> stuff = new HashMap<ABC,String>();
         stuff.put(ABC.B, "bar");

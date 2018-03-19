@@ -128,8 +128,9 @@ public class TestAbstractTypeNames  extends BaseMapTest
     // [JACKSON-584]: change anonymous non-static inner type into static type:
     public void testInnerClassWithType() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .build();
         String json = mapper.writeValueAsString(new BeanWithAnon());
         BeanWithAnon result = mapper.readValue(json, BeanWithAnon.class);
         assertEquals(BeanWithAnon.class, result.getClass());

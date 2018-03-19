@@ -169,16 +169,16 @@ public class OptionalBasicTest extends BaseMapTest
 	}
 
 	public void testWithTypingEnabled() throws Exception {
-		final ObjectMapper objectMapper = newObjectMapper();
-		// ENABLE TYPING
-		objectMapper
-				.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
+	    final ObjectMapper mapper = ObjectMapper.builder()
+	            // ENABLE TYPING
+	            .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
+	            .build();
 
 		final OptionalData myData = new OptionalData();
 		myData.myString = Optional.ofNullable("abc");
 
-		final String json = objectMapper.writeValueAsString(myData);
-		final OptionalData deserializedMyData = objectMapper.readValue(json,
+		final String json = mapper.writeValueAsString(myData);
+		final OptionalData deserializedMyData = mapper.readValue(json,
 				OptionalData.class);
 		assertEquals(myData.myString, deserializedMyData.myString);
 	}

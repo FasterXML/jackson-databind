@@ -68,9 +68,9 @@ public class TestTreeWithType extends BaseMapTest
     }
 
     public void testValueAsStringWithDefaultTyping() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
         Foo foo = new Foo("baz");
         String json = mapper.writeValueAsString(foo);
 
@@ -82,9 +82,10 @@ public class TestTreeWithType extends BaseMapTest
     {
         final String CLASS = Foo.class.getName();
 
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL,
+                        JsonTypeInfo.As.PROPERTY)
+                .build();
         String json = "{\"@class\":\""+CLASS+"\",\"bar\":\"baz\"}";
         JsonNode jsonNode = mapper.readTree(json);
         assertEquals(jsonNode.get("bar").textValue(), "baz");
@@ -97,10 +98,11 @@ public class TestTreeWithType extends BaseMapTest
         assertEquals(jsonNode.get("bar").textValue(), foo.bar);
     }
 
-    public void testValueToTreeWithDefaultTyping() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-
+    public void testValueToTreeWithDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
         Foo foo = new Foo("baz");
         JsonNode jsonNode = mapper.valueToTree(foo);
         assertEquals(jsonNode.get("bar").textValue(), foo.bar);
@@ -111,9 +113,9 @@ public class TestTreeWithType extends BaseMapTest
         SimpleModule testModule = new SimpleModule("MyModule", new Version(1, 0, 0, null, "TEST", "TEST"));
         testModule.addDeserializer(SavedCookie.class, new SavedCookieDeserializer());
         ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class")
                 .addModule(testModule)
                 .build();
-        mapper.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class");
         SavedCookie savedCookie = new SavedCookie("key", "v");
         String json = mapper.writeValueAsString(savedCookie);
         SavedCookie out = mapper.readerFor(SavedCookie.class).readValue(json);

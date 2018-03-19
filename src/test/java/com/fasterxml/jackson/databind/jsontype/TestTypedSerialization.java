@@ -151,9 +151,10 @@ public class TestTypedSerialization
     public void testInArray() throws Exception
     {
         // ensure we'll use mapper with default configs
-        ObjectMapper m = new ObjectMapper();
-        // ... so this should NOT be needed...
-        m.disableDefaultTyping();
+        ObjectMapper m = ObjectMapper.builder()
+                // ... so this should NOT be needed...
+                .disableDefaultTyping()
+                .build();
         
         Animal[] animals = new Animal[] { new Cat("Miuku", "white"), new Dog("Murre", 9) };
         Map<String,Object> map = new HashMap<String,Object>();

@@ -7,8 +7,6 @@ import java.text.DateFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -23,7 +21,6 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.*;
-import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.*;
@@ -545,118 +542,6 @@ public class ObjectMapper
         return _typeFactory.constructType(t);
     }
 
-    /*
-    /**********************************************************************
-    /* Type information configuration
-    /**********************************************************************
-     */
-
-    /**
-     * Convenience method that is equivalent to calling
-     *<pre>
-     *  enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
-     *</pre>
-     *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
-     */
-    public ObjectMapper enableDefaultTyping() {
-        return enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
-    }
-
-    /**
-     * Convenience method that is equivalent to calling
-     *<pre>
-     *  enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
-     *</pre>
-     *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
-     */
-    public ObjectMapper enableDefaultTyping(DefaultTyping dti) {
-        return enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
-    }
-
-    /**
-     * Method for enabling automatic inclusion of type information, needed
-     * for proper deserialization of polymorphic types (unless types
-     * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}).
-     *<P>
-     * NOTE: use of <code>JsonTypeInfo.As#EXTERNAL_PROPERTY</code> <b>NOT SUPPORTED</b>;
-     * and attempts of do so will throw an {@link IllegalArgumentException} to make
-     * this limitation explicit.
-     *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
-     * 
-     * @param applicability Defines kinds of types for which additional type information
-     *    is added; see {@link DefaultTyping} for more information.
-     */
-    public ObjectMapper enableDefaultTyping(DefaultTyping applicability, JsonTypeInfo.As includeAs)
-    {
-        // 18-Sep-2014, tatu: Let's add explicit check to ensure no one tries to
-        //   use "As.EXTERNAL_PROPERTY", since that will not work (with 2.5+)
-        if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
-            throw new IllegalArgumentException("Cannot use includeAs of "+includeAs+" for Default Typing");
-        }
-        return setDefaultTyping(new DefaultTypeResolverBuilder(applicability, includeAs));
-    }
-
-    /**
-     * Method for enabling automatic inclusion of type information -- needed
-     * for proper deserialization of polymorphic types (unless types
-     * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) --
-     * using "As.PROPERTY" inclusion mechanism and specified property name
-     * to use for inclusion (default being "@class" since default type information
-     * always uses class name as type identifier)
-     *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
-     */
-    public ObjectMapper enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName)
-    {
-        return setDefaultTyping(new DefaultTypeResolverBuilder(applicability, propertyName));
-    }
-
-    /**
-     * Method for disabling automatic inclusion of type information; if so, only
-     * explicitly annotated types (ones with
-     * {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) will have
-     * additional embedded type information.
-     */
-    public ObjectMapper disableDefaultTyping() {
-        return setDefaultTyping(null);
-    }
-
-    /**
-     * Method for enabling automatic inclusion of type information, using
-     * specified handler object for determining which types this affects,
-     * as well as details of how information is embedded.
-     *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, so care should be taken to use
-     * a {@link TypeResolverBuilder} that can limit allowed classes to
-     * deserialize.
-     * 
-     * @param typer Type information inclusion handler
-     */
-    public ObjectMapper setDefaultTyping(TypeResolverBuilder<?> typer) {
-        _deserializationConfig = _deserializationConfig.with(typer);
-        _serializationConfig = _serializationConfig.with(typer);
-        return this;
-    }
 
     /*
     /**********************************************************************

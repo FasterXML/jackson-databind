@@ -176,13 +176,12 @@ public class TestJsonNode extends NodeTestBase
     // [databind#793]
     public void testArrayWithDefaultTyping() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
-            .enableDefaultTyping();
-
+        ObjectMapper mapper = ObjectMapper.builder()
+            .enableDefaultTyping()
+            .build();
         JsonNode array = mapper.readTree("[ 1, 2 ]");
         assertTrue(array.isArray());
         assertEquals(2, array.size());
-
         JsonNode obj = mapper.readTree("{ \"a\" : 2 }");
         assertTrue(obj.isObject());
         assertEquals(1, obj.size());

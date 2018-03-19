@@ -120,8 +120,9 @@ public class TypeRefinementForMapTest extends BaseMapTest
     {
         final String TEST_INSTANCE_SERIALIZED =
                 "{\"mapProperty\":[\"java.util.HashMap\",{\"Compound|Key\":\"Value\"}]}";
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTyping(DefaultTyping.NON_FINAL);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .build();
         TestClass testInstance = mapper.readValue(TEST_INSTANCE_SERIALIZED, TestClass.class);
         assertEquals(1, testInstance.mapProperty.size());
         Object key = testInstance.mapProperty.keySet().iterator().next();

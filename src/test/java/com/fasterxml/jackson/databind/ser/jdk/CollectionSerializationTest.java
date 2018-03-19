@@ -273,8 +273,9 @@ public class CollectionSerializationTest
         assertEquals(aposToQuotes("{'list':['a','b','c']}"), json);
 
         // but then with default typing
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        final ObjectMapper mapper = ObjectMapper.builder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .build();
         json = mapper.writeValueAsString(w);
         assertEquals(aposToQuotes(String.format("['%s',{'list':['%s',['a','b','c']]}]",
                 w.getClass().getName(), w.list.getClass().getName())), json);

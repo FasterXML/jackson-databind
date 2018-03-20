@@ -142,6 +142,13 @@ public class TestIterable extends BaseMapTest
     {
         assertEquals("{\"values\":[\"itValue\"]}",
                 STATIC_MAPPER.writeValueAsString(new BeanWithIterator()));
+
+        // [databind#1977]
+        ArrayList<Number> numbersList = new ArrayList<>();
+        numbersList.add(1);
+        numbersList.add(0.25);
+        String json = MAPPER.writeValueAsString(numbersList.iterator());
+        assertEquals("[1,0.25]", json);
     }
 
     // [databind#358]

@@ -96,7 +96,6 @@ public class IteratorSerializer
     protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
-        JsonSerializer<Object> serializer = _elementSerializer;
         final TypeSerializer typeSer = _valueTypeSerializer;
         PropertySerializerMap serializers = _dynamicSerializers;
         do {
@@ -106,7 +105,7 @@ public class IteratorSerializer
                 continue;
             }
             Class<?> cc = elem.getClass();
-            serializers.serializerFor(cc);
+            JsonSerializer<Object> serializer = serializers.serializerFor(cc);
             if (serializer == null) {
                 if (_elementType.hasGenericTypes()) {
                     serializer = _findAndAddDynamic(serializers,

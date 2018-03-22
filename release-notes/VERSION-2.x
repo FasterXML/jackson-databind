@@ -25,6 +25,8 @@ Project: jackson-databind
  (reported by Timur S)
 #1977: Serializing an Iterator with multiple sub-types fails after upgrading to 2.9.x
  (reported by ssivanand@github)
+#1978: Using @JsonUnwrapped annotation in builderdeserializer hangs in infinite loop
+ (reported by roeltje25@github)
 
 2.9.4 (24-Jan-2018)
 

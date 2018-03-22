@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 
 /**
- * Enumeration used with {@link ObjectMapper#enableDefaultTyping()}
+ * Enumeration used with <code>ObjectMapper.enableDefaultTyping()</code>
  * to specify what kind of types (classes) default typing should
  * be used for. It will only be used if no explicit type information
  * is found, but this enumeration further limits subset of those types.

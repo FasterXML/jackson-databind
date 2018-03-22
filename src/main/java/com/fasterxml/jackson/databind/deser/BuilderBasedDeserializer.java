@@ -259,7 +259,7 @@ public class BuilderBasedDeserializer
         throws IOException
     {
         Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
+        for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             String propName = p.getCurrentName();
             // Skip field name:
             p.nextToken();
@@ -304,7 +304,7 @@ public class BuilderBasedDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
+        for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             String propName = p.getCurrentName();
             // Skip field name:
             p.nextToken();
@@ -535,8 +535,7 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-
-        for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
+        for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);

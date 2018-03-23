@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -132,6 +133,23 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     public void testLocale() throws IOException
     {
+        // [databind #1948]
+        String deJavaKey = FromStringDeserializer.Std.STD_LOCALE_DE_JAVA;
+        String old = System.setProperty(deJavaKey, "1");
+        try {
+            assertLocale(new Locale(""));
+            assertLocale(new Locale("en"));
+            assertLocale(new Locale("en", "US"));
+            assertLocale(new Locale("zh", "CN"));
+            assertLocale(new Locale("zh-hant", "CN"));
+        } finally {
+            if (old == null) {
+                System.getProperties().remove(deJavaKey);
+            } else {
+                System.setProperty(deJavaKey, old);
+            }
+        }
+
         assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
         assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
         assertEquals(new Locale("FI", "fi", "savo"),
@@ -142,6 +160,10 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         // [databind#1123]
         Locale loc = MAPPER.readValue(quote(""), Locale.class);
         assertSame(Locale.ROOT, loc);
+    }
+
+    private void assertLocale(Locale loc) throws IOException {
+        assertEquals(loc, MAPPER.readValue(MAPPER.writeValueAsString(loc), Locale.class));
     }
 
     public void testCharSequence() throws IOException

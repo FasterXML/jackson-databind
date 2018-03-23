@@ -1173,6 +1173,7 @@ public class BeanDeserializer
                         _anySetter.deserialize(p, ctxt));
             }
         }
+        tokens.writeEndObject();
 
         // We hit END_OBJECT; resolve the pieces:
         try {

@@ -721,6 +721,8 @@ public class BuilderBasedDeserializer
                 buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
             }
         }
+        tokens.writeEndObject();
+
         // We hit END_OBJECT, so:
         Object builder = null;
         try {

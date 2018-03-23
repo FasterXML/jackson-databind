@@ -762,3 +762,8 @@ Aniruddha Maru (maroux@github)
 Timur Shakurov (saladinkzn@github)
   * Reported #1947: `MapperFeature.AUTO_DETECT_XXX` do not work if all disabled
    (2.9.5)
+
+roeltje25@github
+  * Reported #1978: Using @JsonUnwrapped annotation in builderdeserializer hangs in
+    infinite loop
+   (2.9.5)

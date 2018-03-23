@@ -3,11 +3,12 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.TreeNode;
+
 import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 /**
  * Customized {@link TypeResolverBuilder} that provides type resolver builders
  * used with so-called "default typing"
- * (see {@link ObjectMapper#enableDefaultTyping()} for details).
+ * (see <code>MapperBuilder.enableDefaultTyping()</code> for details).
  *<p>
  * Type resolver construction is based on configuration: implementation takes care
  * of only providing builders in cases where type information should be applied.

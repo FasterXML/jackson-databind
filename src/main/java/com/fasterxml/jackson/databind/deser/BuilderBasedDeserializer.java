@@ -576,7 +576,6 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-
         for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();

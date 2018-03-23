@@ -41,9 +41,9 @@ public abstract class JsonNode
     implements TreeNode, Iterable<JsonNode>
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, related
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected JsonNode() { }
@@ -66,9 +66,9 @@ public abstract class JsonNode
     public abstract <T extends JsonNode> T deepCopy();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* TreeNode implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
 //  public abstract JsonToken asToken();
@@ -227,9 +227,9 @@ public abstract class JsonNode
     protected abstract JsonNode _at(JsonPointer ptr);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, type introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // First high-level division between values, containers and "missing"
@@ -238,8 +238,6 @@ public abstract class JsonNode
      * Return the type of this node
      *
      * @return the node type as a {@link JsonNodeType} enum value
-     *
-     * @since 2.2
      */
     public abstract JsonNodeType getNodeType();
 
@@ -311,9 +309,6 @@ public abstract class JsonNode
      */
     public boolean isLong() { return false; }
 
-    /**
-     * @since 2.2
-     */
     public boolean isFloat() { return false; }
 
     public boolean isDouble() { return false; }
@@ -367,8 +362,6 @@ public abstract class JsonNode
      * from JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asInt} could still succeed
      * if node is a JSON String representing integral number, or boolean.
-     * 
-     * @since 2.0
      */
     public boolean canConvertToInt() { return false; }
 
@@ -383,15 +376,13 @@ public abstract class JsonNode
      * from JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asLong} could still succeed
      * if node is a JSON String representing integral number, or boolean.
-     * 
-     * @since 2.0
      */
     public boolean canConvertToLong() { return false; }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, straight value access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -484,8 +475,6 @@ public abstract class JsonNode
      * that an overflow is possible for `long` values
      *
      * @return 32-bit float value this node contains, if any; 0.0 for non-number nodes.
-     *
-     * @since 2.2
      */
     public float floatValue() { return 0.0f; }
 
@@ -497,8 +486,6 @@ public abstract class JsonNode
      * in overflows with {@link BigInteger} values.
      *
      * @return 64-bit double value this node contains, if any; 0.0 for non-number nodes.
-     *
-     * @since 2.2
      */
     public double doubleValue() { return 0.0; }
 
@@ -521,9 +508,9 @@ public abstract class JsonNode
     public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, value access with conversion(s)/coercion(s)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -539,8 +526,6 @@ public abstract class JsonNode
      * <code>defaultValue</code> in cases where null value would be returned;
      * either for missing nodes (trying to access missing property, or element
      * at invalid item for array) or explicit nulls.
-     * 
-     * @since 2.4
      */
     public String asText(String defaultValue) {
         String str = asText();
@@ -660,9 +645,9 @@ public abstract class JsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, value find / existence check methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -723,8 +708,6 @@ public abstract class JsonNode
      *<pre>
      *   node.get(fieldName) != null &lt;&lt; !node.get(fieldName).isNull()
      *</pre>
-     * 
-     * @since 2.1
      */
     public boolean hasNonNull(String fieldName) {
         JsonNode n = get(fieldName);
@@ -739,8 +722,6 @@ public abstract class JsonNode
      *<pre>
      *   node.get(index) != null &lt;&lt; !node.get(index).isNull()
      *</pre>
-     * 
-     * @since 2.1
      */
     public boolean hasNonNull(int index) {
         JsonNode n = get(index);
@@ -748,9 +729,9 @@ public abstract class JsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, container access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -780,9 +761,9 @@ public abstract class JsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, find methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -875,9 +856,9 @@ public abstract class JsonNode
     public abstract List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, path handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -907,9 +888,9 @@ public abstract class JsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, comparison
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -927,22 +908,21 @@ public abstract class JsonNode
      * 
      * @param comparator Object called to compare two scalar {@link JsonNode} 
      *   instances, and return either 0 (are equals) or non-zero (not equal)
-     *
-     * @since 2.6
      */
     public boolean equals(Comparator<JsonNode> comparator, JsonNode other) {
         return comparator.compare(this, other) == 0;
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden standard methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
      * Method that will produce developer-readable representation of the
      * node; which may <b>or may not</b> be as valid JSON.
+     * For Jackson 3.0, specifically, it is UNLIKELY TO BE VALID JSON.
      * If you want valid JSON output (or output formatted using one of
      * other Jackson supported data formats) make sure to use
      * {@link ObjectMapper} or {@link ObjectWriter} to serialize an

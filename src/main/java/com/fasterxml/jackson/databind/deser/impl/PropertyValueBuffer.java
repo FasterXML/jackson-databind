@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 public class PropertyValueBuffer
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final JsonParser _parser;
@@ -32,9 +32,9 @@ public class PropertyValueBuffer
     protected final ObjectIdReader _objectIdReader;
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accumulated properties, other stuff
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -77,9 +77,9 @@ public class PropertyValueBuffer
     protected Object _idValue;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
     
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
@@ -100,8 +100,6 @@ public class PropertyValueBuffer
     /**
      * Returns {@code true} if the given property was seen in the JSON source by
      * this buffer.
-     *
-     * @since 2.8
      */
     public final boolean hasParameter(SettableBeanProperty prop)
     {
@@ -118,8 +116,6 @@ public class PropertyValueBuffer
      * {@link #hasParameter(SettableBeanProperty)}) to let applications only
      * fetch the properties defined in the JSON source itself, and to have some
      * other customized behavior for missing properties.
-     *
-     * @since 2.8
      */
     public Object getParameter(SettableBeanProperty prop)
         throws JsonMappingException
@@ -205,16 +201,14 @@ public class PropertyValueBuffer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Helper method called to see if given non-creator property is the "id property";
      * and if so, handle appropriately.
-     * 
-     * @since 2.1
      */
     public boolean readIdProperty(String propName) throws IOException
     {
@@ -256,8 +250,6 @@ public class PropertyValueBuffer
      * we now have values for all (creator) properties that we expect to get values for.
      *
      * @return True if we have received all creator parameters
-     * 
-     * @since 2.6
      */
     public boolean assignParameter(SettableBeanProperty prop, Object value)
     {

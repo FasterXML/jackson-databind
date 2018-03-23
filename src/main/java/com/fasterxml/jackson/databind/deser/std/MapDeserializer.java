@@ -424,7 +424,7 @@ public class MapDeserializer
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        boolean useObjectId = valueDes.getObjectIdReader(ctxt) != null;
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
                     result);
@@ -489,7 +489,7 @@ public class MapDeserializer
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = (valueDes.getObjectIdReader() != null);
+        boolean useObjectId = (valueDes.getObjectIdReader(ctxt) != null);
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }

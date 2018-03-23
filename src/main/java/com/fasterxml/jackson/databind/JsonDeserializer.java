@@ -41,10 +41,9 @@ public abstract class JsonDeserializer<T>
     implements NullValueProvider
 {
     /*
-    /**********************************************************
-    /* Initialization, with former `ResolvableDeserializer`,
-    /* `ContextualDeserializer`
-    /**********************************************************
+    /**********************************************************************
+    /* Initialization, with former `ResolvableDeserializer`, `ContextualDeserializer`
+    /**********************************************************************
      */
 
     /**
@@ -88,9 +87,9 @@ public abstract class JsonDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Main deserialization methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -196,9 +195,9 @@ public abstract class JsonDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Fluent factory methods for constructing decorated versions
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -227,10 +226,10 @@ public abstract class JsonDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection methods for figuring out configuration/setup
     /* of this deserializer instance and/or type it handles
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -289,9 +288,9 @@ public abstract class JsonDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Default NullValueProvider implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -335,9 +334,9 @@ public abstract class JsonDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other accessors
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -376,7 +375,7 @@ public abstract class JsonDeserializer<T>
      *    value, instead of full value serialization, if deserializer can do that;
      *    null if no Object Id is expected.
      */
-    public ObjectIdReader getObjectIdReader() { return null; }
+    public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) { return null; }
 
     /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
@@ -410,9 +409,9 @@ public abstract class JsonDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -263,7 +263,7 @@ _containerType,
 
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         // Let's offline handling of values with Object Ids (simplifies code here)
-        if (valueDes.getObjectIdReader() != null) {
+        if (valueDes.getObjectIdReader(ctxt) != null) {
             return _deserializeWithObjectId(p, ctxt, result);
         }
         final TypeDeserializer typeDeser = _valueTypeDeserializer;

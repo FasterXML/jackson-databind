@@ -94,6 +94,18 @@
 
   </dependencies>
 
+  <!-- Alas, need to include snapshot reference since otherwise can not find
+       snapshot of parent... -->
+  <repositories>
+    <repository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases><enabled>false</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+  </repositories>
+
   <build>
     <plugins>
 
@@ -118,7 +130,6 @@
     </executions>
 -->
 </plugin>
-
 
        <plugin>
         <groupId>org.apache.maven.plugins</groupId>

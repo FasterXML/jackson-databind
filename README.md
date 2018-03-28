@@ -1,8 +1,8 @@
 # Overview
 
 This project contains the general-purpose data-binding functionality
-and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome).
-It builds on [core streaming parser/generator](../../../jackson-core) package,
+and tree-model for [Jackson Data Processor](../../../jackson).
+It builds on [Streaming API](../../../jackson-core) (stream parser/generator) package,
 and uses [Jackson Annotations](../../../jackson-annotations) for configuration.
 Project is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
@@ -412,19 +412,19 @@ usually a Jackson module.
 
 -----
 
-# Differences from Jackson 1.x
+## Differences from Jackson 1.x
 
-Project contains versions 2.0 and above: source code for earlier (1.x) versions was available from [Codehaus](http://jackson.codehaus.org) SVN repository, but due to Codehaus closure is currently (July 2015) not officially available.
-We may try to create Jackson1x repository at Github in future (if you care about this, ping Jackson team via mailing lists, or file an issue for this project).
+Project contains versions 2.0 and above: source code for last (1.x) release, 1.9, is available at
+[Jackson-1](../../../jackson-1) repo.
 
-Main differences compared to 1.0 "mapper" jar are:
+Main differences compared to 1.x "mapper" jar are:
 
 * Maven build instead of Ant
 * Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)
 
 -----
 
-# Further reading
+## Further reading
 
 * [Overall Jackson Docs](../../../jackson-docs)
 * [Project wiki page](https://github.com/FasterXML/jackson-databind/wiki)
@@ -433,4 +433,5 @@ Related:
 
 * [Core annotations](https://github.com/FasterXML/jackson-annotations) package defines annotations commonly used for configuring databinding details
 * [Core parser/generator](https://github.com/FasterXML/jackson-core) package defines low-level incremental/streaming parsers, generators
-* [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome) has additional documentation (although much of it for Jackson 1.x)
+* [Jackson Project Home](../../../jackson) has links to all modules
+* [Jackson Docs](../../../jackson-docs) is project's documentation hub

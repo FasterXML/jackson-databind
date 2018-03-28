@@ -51,9 +51,9 @@ public class OptionalBasicTest extends BaseMapTest
     public static class ContainedImpl implements Contained { }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newObjectMapper();

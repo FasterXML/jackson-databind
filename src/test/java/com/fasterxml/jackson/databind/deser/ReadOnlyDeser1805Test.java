@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
-public class ReadOnlyDeser1382Test extends BaseMapTest
+public class ReadOnlyDeser1805Test extends BaseMapTest
 {
     static class Foo {
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)

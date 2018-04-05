@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializationConfig;
 
 /**
@@ -65,7 +66,8 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *    handle; super type of all types it will be used for.
      */
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes);
+            JavaType baseType, Collection<NamedType> subtypes)
+        throws JsonMappingException;
 
     /**
      * Method for building type deserializer based on current configuration
@@ -76,7 +78,8 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * @param subtypes Known subtypes of the base type.
      */
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes);
+            JavaType baseType, Collection<NamedType> subtypes)
+        throws JsonMappingException;
     
     /*
     /**********************************************************************

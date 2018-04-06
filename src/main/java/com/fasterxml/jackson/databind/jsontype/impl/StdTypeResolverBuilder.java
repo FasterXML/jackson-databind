@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.*;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link TypeResolverBuilder} implementation.
@@ -165,13 +164,17 @@ public class StdTypeResolverBuilder
                     defaultImpl = config.getTypeFactory()
                             .constructSpecializedType(baseType, _defaultImpl);
                 } else {
-                    // 05-Apr-2018, tatu: [databind#1861] Not sure what would be the best way
-                    //    to handle, but for 2.9, let's consider case of "sibling" defaultImpl...
-                    // ... Ugh. Not declared to throw `JsonMappingException`, so...
+                    // 05-Apr-2018, tatu: As [databind#1565] and [databind#1861] need to allow
+                    //    some cases of seemingly incompatible `defaultImpl`. Easiest to just clear
+                    //    the setting.
+
+                    /*
                     throw new IllegalArgumentException(
                             String.format("Invalid \"defaultImpl\" (%s): not a subtype of basetype (%s)",
                                     ClassUtil.nameOf(_defaultImpl), ClassUtil.nameOf(baseType.getRawClass()))
                             );
+                            */
+                    defaultImpl = null;
                 }
             }
         }

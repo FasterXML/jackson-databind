@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.6 (not yet released)
+
+#1565: Deserialization failure with Polymorphism using JsonTypeInfo `defaultImpl`,
+  subtype as target
+
 2.9.5 (26-Mar-2018)
 
 #1911: Allow serialization of `BigDecimal` as String, using

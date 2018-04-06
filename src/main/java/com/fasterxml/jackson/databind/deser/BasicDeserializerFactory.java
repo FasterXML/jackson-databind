@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.impl.JavaUtilCollectionsDeserializers;
 import com.fasterxml.jackson.databind.deser.std.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -1554,9 +1556,8 @@ nonAnnotatedParamIndex, ctor);
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType);
 
-        /* Ok: if there is no explicit type info handler, we may want to
-         * use a default. If so, config object knows what to use.
-         */
+        // Ok: if there is no explicit type info handler, we may want to
+        // use a default. If so, config object knows what to use.
         Collection<NamedType> subtypes = null;
         if (b == null) {
             b = config.getDefaultTyper(baseType);
@@ -1574,7 +1575,16 @@ nonAnnotatedParamIndex, ctor);
                 b = b.defaultImpl(defaultType.getRawClass());
             }
         }
-        return b.buildTypeDeserializer(config, baseType, subtypes);
+        // 05-Apt-2018, tatu: Since we get non-mapping exception due to various limitations,
+        //    map to better type here
+        try {
+            return b.buildTypeDeserializer(config, baseType, subtypes);
+        } catch (IllegalArgumentException e0) {
+            InvalidDefinitionException e = InvalidDefinitionException.from((JsonParser) null,
+                    e0.getMessage(), baseType);
+            e.initCause(e0);
+            throw e;
+        }
     }
 
     /**

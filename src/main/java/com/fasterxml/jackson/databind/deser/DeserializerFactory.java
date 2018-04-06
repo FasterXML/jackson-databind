@@ -184,7 +184,7 @@ public abstract class DeserializerFactory
     public abstract KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
         throws JsonMappingException;
-    
+
     /**
      * Method called to find and create a type information deserializer for given base type,
      * if one is needed. If not needed (no polymorphic handling configured for type),

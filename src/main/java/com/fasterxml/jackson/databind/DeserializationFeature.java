@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 public enum DeserializationFeature implements ConfigFeature
 {
     /*
-    /******************************************************
+    /**********************************************************************
     /* Value (mostly scalar) mapping features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -92,9 +92,9 @@ public enum DeserializationFeature implements ConfigFeature
     USE_JAVA_ARRAY_FOR_JSON_ARRAY(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Error handling features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -265,9 +265,9 @@ public enum DeserializationFeature implements ConfigFeature
     WRAP_EXCEPTIONS(true),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Structural conversion features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -306,9 +306,9 @@ public enum DeserializationFeature implements ConfigFeature
     UNWRAP_ROOT_VALUE(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Value conversion/coercion features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -328,7 +328,6 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default (for backwards compatibility since this was the
      * default behavior)
-     * 
      *
      * @since 3.0 (in 2.x was a `MapperFeature` instead)
      */
@@ -452,9 +451,9 @@ public enum DeserializationFeature implements ConfigFeature
     ADJUST_DATES_TO_CONTEXT_TIME_ZONE(true),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Other
-    /******************************************************
+    /**********************************************************************
      */
 
     /**

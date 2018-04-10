@@ -141,7 +141,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         if (text != null) { // has String representation
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
                 // Usually should become null; but not always
-                return _deserializeFromEmptyString();
+                return _deserializeFromEmptyString(ctxt);
             }
             Exception cause = null;
             try {
@@ -189,12 +189,13 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         // default impl: error out
         ctxt.reportInputMismatch(this,
                 "Don't know how to convert embedded Object of type %s into %s",
-                ob.getClass().getName(), _valueClass.getName());
+                ClassUtil.classNameOf(ob), _valueClass.getName());
         return null;
     }
 
-    protected T _deserializeFromEmptyString() throws IOException {
-        return null;
+    @SuppressWarnings("unchecked")
+    protected T _deserializeFromEmptyString(DeserializationContext ctxt) throws IOException {
+        return (T) _coerceEmptyString(ctxt, false);
     }
 
     /*
@@ -319,7 +320,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         }
 
         @Override
-        protected Object _deserializeFromEmptyString() throws IOException {
+        protected Object _deserializeFromEmptyString(DeserializationContext ctxt) throws IOException {
             // As per [databind#398], URI requires special handling
             if (_kind == STD_URI) {
                 return URI.create("");
@@ -331,7 +332,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             if (_kind == STD_STRING_BUILDER) {
                 return new StringBuilder();
             }
-            return super._deserializeFromEmptyString();
+            return super._deserializeFromEmptyString(ctxt);
         }
 
         protected int _firstHyphenOrUnderscore(String str)

@@ -1,19 +1,14 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
  * Optimized lookup table for accessing two types of serializers; typed
  * and non-typed. Only accessed from a single thread, so no synchronization
  * needed for accessors.
- *<p>
- * Note that before 2.6 this class was much smaller, and referred most
- * operations to separate <code>JsonSerializerMap</code>, but in 2.6
- * functions were combined.
  */
 public final class ReadOnlyClassToSerializerMap
 {
@@ -23,20 +18,18 @@ public final class ReadOnlyClassToSerializerMap
 
     private final int _mask;
 
-    public ReadOnlyClassToSerializerMap(Map<TypeKey,JsonSerializer<Object>> serializers)
+    protected ReadOnlyClassToSerializerMap(SimpleLookupCache<TypeKey, JsonSerializer<Object>> src)
     {
-        int size = findSize(serializers.size());
-        _size = size;
-        _mask = (size-1);
-        Bucket[] buckets = new Bucket[size];
-        for (Map.Entry<TypeKey,JsonSerializer<Object>> entry : serializers.entrySet()) {
-            TypeKey key = entry.getKey();
+        _size = findSize(src.size());;
+        _mask = (_size-1);
+        Bucket[] buckets = new Bucket[_size];
+        src.contents((key, value) -> {
             int index = key.hashCode() & _mask;
-            buckets[index] = new Bucket(buckets[index], key, entry.getValue());
-        }
+            buckets[index] = new Bucket(buckets[index], key, value);
+        });
         _buckets = buckets;
     }
-    
+
     private final static int findSize(int size)
     {
         // For small enough results (64 or less), we'll require <= 50% fill rate; otherwise 80%
@@ -51,14 +44,14 @@ public final class ReadOnlyClassToSerializerMap
     /**
      * Factory method for constructing an instance.
      */
-    public static ReadOnlyClassToSerializerMap from(HashMap<TypeKey, JsonSerializer<Object>> src) {
+    public static ReadOnlyClassToSerializerMap from(SimpleLookupCache<TypeKey, JsonSerializer<Object>> src) {
         return new ReadOnlyClassToSerializerMap(src);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
 
     public int size() { return _size; }
@@ -132,9 +125,9 @@ public final class ReadOnlyClassToSerializerMap
     }    
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static class Bucket

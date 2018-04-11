@@ -255,9 +255,7 @@ public abstract class SerializerProvider
 
         // and others initialized to default empty state
         _serializerCache = new SerializerCache();
-
         _nullValueSerializer = src._nullValueSerializer;
-
         _stdNullValueSerializer = src._stdNullValueSerializer;
     }
 

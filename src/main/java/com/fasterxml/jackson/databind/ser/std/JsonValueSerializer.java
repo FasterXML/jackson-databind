@@ -50,9 +50,9 @@ public class JsonValueSerializer
     protected final boolean _forceTypeInformation;
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -60,9 +60,6 @@ public class JsonValueSerializer
      *    occurs if and only if the "value method" was annotated with
      *    {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *    null
-     *    
-     * @since 2.8 Earlier method took "raw" Method, but that does not work with access
-     *    to information we need
      */
     @SuppressWarnings("unchecked")
     public JsonValueSerializer(AnnotatedMember accessor, JsonSerializer<?> ser)
@@ -101,9 +98,9 @@ public class JsonValueSerializer
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Post-processing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -117,9 +114,9 @@ public class JsonValueSerializer
     {
         JsonSerializer<?> ser = _valueSerializer;
         if (ser == null) {
-            /* Can only assign serializer statically if the declared type is final:
-             * if not, we don't really know the actual type until we get the instance.
-             */
+            // Can only assign serializer statically if the declared type is final:
+            // if not, we don't really know the actual type until we get the instance.
+
             // 10-Mar-2010, tatu: Except if static typing is to be used
             JavaType t = _accessor.getType();
             if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || t.isFinal()) {
@@ -144,13 +141,13 @@ public class JsonValueSerializer
         }
         return this;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual serialization
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     @Override
     public void serialize(Object bean, JsonGenerator gen, SerializerProvider prov) throws IOException
     {
@@ -252,8 +249,6 @@ public class JsonValueSerializer
      * 
      * @return True if method handled callbacks; false if not; in latter case caller will
      *   send default callbacks
-     *
-     * @since 2.6
      */
     protected boolean _acceptJsonFormatVisitorForEnum(JsonFormatVisitorWrapper visitor,
             JavaType typeHint, Class<?> enumType)
@@ -300,9 +295,9 @@ public class JsonValueSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -311,9 +306,9 @@ public class JsonValueSerializer
     }
 
     /*
-    /**********************************************************
-    /* Helper class
-    /**********************************************************
+    /**********************************************************************
+    /* Helper class(es)
+    /**********************************************************************
      */
 
     /**

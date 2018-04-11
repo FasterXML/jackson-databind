@@ -53,7 +53,8 @@ public final class SerializerCache
      * @since 3.0
      */
     public SerializerCache(int maxCached) {
-        _sharedMap = new SimpleLookupCache<TypeKey, JsonSerializer<Object>>(maxCached>>2, maxCached);
+        int initial = Math.min(64, maxCached>>2);
+        _sharedMap = new SimpleLookupCache<TypeKey, JsonSerializer<Object>>(initial, maxCached);
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 

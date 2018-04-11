@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -12,10 +11,10 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 /**
- * Class that defines caching layer between callers (like
- * {@link ObjectMapper},
+ * Class that defines caching layer between callers (like {@link ObjectMapper},
  * {@link com.fasterxml.jackson.databind.DeserializationContext})
  * and classes that construct deserializers
  * ({@link com.fasterxml.jackson.databind.deser.DeserializerFactory}).
@@ -24,6 +23,11 @@ public final class DeserializerCache
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
+
+    /**
+     * By default allow caching of up to 4000 deserializers.
+     */
+    public final static int DEFAULT_MAX_CACHED = 4000;
 
     /*
     /**********************************************************************
@@ -34,15 +38,10 @@ public final class DeserializerCache
     /**
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
-     * This currently means bean and Enum deserializers; starting with
-     * 2.5, container deserializers will also be cached.
-     *<p>
-     * Given that we don't expect much concurrency for additions
-     * (should very quickly converge to zero after startup), let's
-     * define a relatively low concurrency setting.
+     * This currently (3.0) means POJO, Enum and Container (collection,
+     * map) deserializers.
      */
-    private final transient ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers
-        = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.75f, 4);
+    private final SimpleLookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
 
     /**
      * During deserializer construction process we may need to keep track of partially
@@ -50,7 +49,7 @@ public final class DeserializerCache
      * map used for storing deserializers before they are fully complete.
      */
     private final transient HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
-        = new HashMap<JavaType, JsonDeserializer<Object>>(8);
+        = new HashMap<>(8);
 
     /*
     /**********************************************************************
@@ -58,7 +57,16 @@ public final class DeserializerCache
     /**********************************************************************
      */
 
-    public DeserializerCache() { }
+    public DeserializerCache() { this(DEFAULT_MAX_CACHED); }
+
+    public DeserializerCache(int maxSize) {
+        int initial = Math.min(64, maxSize>>2);
+        _cachedDeserializers = new SimpleLookupCache<>(initial, maxSize);
+    }
+
+    private DeserializerCache(DeserializerCache src) {
+        _cachedDeserializers = src._cachedDeserializers;
+    }
 
     /*
     /**********************************************************************
@@ -66,10 +74,9 @@ public final class DeserializerCache
     /**********************************************************************
      */
 
-    // 11-Apr-2018, tatu: instead of clearing or such on write, keep everything transient,
-    //     recreate as empty. No point trying to revive cached instances
+    //  Need to re-create just to initialize `transient` fields
     protected Object readResolve() {
-        return new DeserializerCache();
+        return new DeserializerCache(this);
     }
 
     /*

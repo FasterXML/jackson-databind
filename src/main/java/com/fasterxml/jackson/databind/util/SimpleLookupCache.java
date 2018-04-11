@@ -1,14 +1,17 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 /**
- * Helper for simple bounded maps used for reusing lookup values.
+ * Synchronized cache with bounded size: used for reusing lookup values
+ * and lazily instantiated reusable items.
  *<p>
  * Note that serialization behavior is such that contents are NOT serialized,
  * on assumption that all use cases are for caching where persistence
- * does not make sense. The only thing serialized is the cache size of Map.
+ * does not make sense. The only thing serialized is the initial and maximum
+ * size of the contents.
  *<p>
  * NOTE: this is <b>NOT</b> an LRU-based (in 2.x it was named <code>LRUMap</code>); reason
  * being that it is not possible to use JDK components that do LRU _AND_ perform
@@ -23,18 +26,42 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SimpleLookupCache<K,V>
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
-    protected final transient int _maxEntries;
+    protected final int _initialEntries, _maxEntries;
 
     protected final transient ConcurrentHashMap<K,V> _map;
     
+    /*
+    /**********************************************************************
+    /* Life-cycle
+    /**********************************************************************
+     */
+
     public SimpleLookupCache(int initialEntries, int maxEntries)
     {
+        _initialEntries = initialEntries;
+        _maxEntries = maxEntries;
         // We'll use concurrency level of 4, seems reasonable
         _map = new ConcurrentHashMap<K,V>(initialEntries, 0.8f, 4);
-        _maxEntries = maxEntries;
     }
+
+    // for JDK serialization
+    protected Object readResolve() {
+        return new SimpleLookupCache<Object,Object>(_initialEntries, _maxEntries);
+    }
+
+    public void contents(BiConsumer<K,V> consumer) {
+        for (Map.Entry<K,V> entry : _map.entrySet()) {
+            consumer.accept(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API
+    /**********************************************************************
+     */
 
     public V put(K key, V value) {
         if (_map.size() >= _maxEntries) {
@@ -66,28 +93,4 @@ public class SimpleLookupCache<K,V>
 
     public void clear() { _map.clear(); }
     public int size() { return _map.size(); }
-
-    /*
-    /**********************************************************
-    /* Serializable overrides
-    /**********************************************************
-     */
-
-    /**
-     * Ugly hack, to work through the requirement that _value is indeed final,
-     * and that JDK serialization won't call ctor(s) if Serializable is implemented.
-     */
-    protected transient int _jdkSerializeMaxEntries;
-
-    private void readObject(ObjectInputStream in) throws IOException {
-        _jdkSerializeMaxEntries = in.readInt();
-    }
-
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.writeInt(_jdkSerializeMaxEntries);
-    }
-
-    protected Object readResolve() {
-        return new SimpleLookupCache<Object,Object>(_jdkSerializeMaxEntries, _jdkSerializeMaxEntries);
-    }
 }

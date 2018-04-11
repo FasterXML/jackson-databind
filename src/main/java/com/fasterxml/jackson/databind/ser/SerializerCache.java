@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
@@ -26,12 +26,19 @@ public final class SerializerCache
     private static final long serialVersionUID = 3L;
 
     /**
-     * Shared, modifiable map; all access needs to be through synchronized blocks.
+     * By default, allow caching of up to 4000 serializer entries (for possibly up to
+     * 1000 types; but depending access patterns may be as few as half of that).
+     */
+    public final static int DEFAULT_MAX_CACHED = 4000;
+
+    /**
+     * Shared, modifiable map; used if local read-only copy does not contain serializer
+     * caller expects.
      *<p>
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private final transient HashMap<TypeKey, JsonSerializer<Object>> _sharedMap;
+    private final SimpleLookupCache<TypeKey, JsonSerializer<Object>> _sharedMap;
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
@@ -39,13 +46,26 @@ public final class SerializerCache
     private final transient AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap;
 
     public SerializerCache() {
-        _sharedMap = new HashMap<TypeKey, JsonSerializer<Object>>(64);
+        this(DEFAULT_MAX_CACHED);
+    }
+
+    /**
+     * @since 3.0
+     */
+    public SerializerCache(int maxCached) {
+        _sharedMap = new SimpleLookupCache<TypeKey, JsonSerializer<Object>>(maxCached>>2, maxCached);
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 
-    // Since 3.0, needed to initialize cache properly
+    private SerializerCache(SerializerCache serialized) {
+        _sharedMap = serialized._sharedMap;
+        _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
+    }
+    
+    // Since 3.0, needed to initialize cache properly: shared map would be ok but need to
+    // reconstruct AtomicReference
     protected Object readResolve() {
-        return new SerializerCache();
+        return new SerializerCache(this);
     }
 
     /**
@@ -78,7 +98,7 @@ public final class SerializerCache
     /**********************************************************************
      */
 
-    public synchronized int size() {
+    public int size() {
         return _sharedMap.size();
     }
 
@@ -88,30 +108,22 @@ public final class SerializerCache
      */
     public JsonSerializer<Object> untypedValueSerializer(Class<?> type)
     {
-        synchronized (this) {
-            return _sharedMap.get(new TypeKey(type, false));
-        }
+        return _sharedMap.get(new TypeKey(type, false));
     }
 
     public JsonSerializer<Object> untypedValueSerializer(JavaType type)
     {
-        synchronized (this) {
-            return _sharedMap.get(new TypeKey(type, false));
-        }
+        return _sharedMap.get(new TypeKey(type, false));
     }
 
     public JsonSerializer<Object> typedValueSerializer(JavaType type)
     {
-        synchronized (this) {
-            return _sharedMap.get(new TypeKey(type, true));
-        }
+        return _sharedMap.get(new TypeKey(type, true));
     }
 
     public JsonSerializer<Object> typedValueSerializer(Class<?> cls)
     {
-        synchronized (this) {
-            return _sharedMap.get(new TypeKey(cls, true));
-        }
+        return _sharedMap.get(new TypeKey(cls, true));
     }
 
     /*
@@ -127,24 +139,20 @@ public final class SerializerCache
      */
     public void addTypedSerializer(JavaType type, JsonSerializer<Object> ser)
     {
-        synchronized (this) {
-            if (_sharedMap.put(new TypeKey(type, true), ser) == null) {
-                // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap.set(null);
-            }
+        if (_sharedMap.put(new TypeKey(type, true), ser) == null) {
+            // let's invalidate the read-only copy, too, to get it updated
+            _readOnlyMap.set(null);
         }
     }
 
     public void addTypedSerializer(Class<?> cls, JsonSerializer<Object> ser)
     {
-        synchronized (this) {
-            if (_sharedMap.put(new TypeKey(cls, true), ser) == null) {
-                // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap.set(null);
-            }
+        if (_sharedMap.put(new TypeKey(cls, true), ser) == null) {
+            // let's invalidate the read-only copy, too, to get it updated
+            _readOnlyMap.set(null);
         }
     }
-    
+
     public void addAndResolveNonTypedSerializer(Class<?> type, JsonSerializer<Object> ser,
             SerializerProvider provider)
         throws JsonMappingException

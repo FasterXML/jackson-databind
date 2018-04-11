@@ -32,4 +32,5 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1955: Change the way `Module`s configure, interact with `ObjectMapper`
 #1973: Remove support for "default [Map] key serializer" configuration from
   `SerializerProvider`
+#1994: Limit size of `SerializerCache`, auto-flush on exceeding
 - Remove `MappingJsonFactory`

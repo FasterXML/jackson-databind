@@ -50,9 +50,9 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public class BeanSerializerFactory
     extends BasicSerializerFactory
-    implements java.io.Serializable // since 2.1
+    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 3;
 
     /**
      * Like {@link BasicSerializerFactory}, this factory is stateless, and
@@ -150,22 +150,23 @@ public class BeanSerializerFactory
         }
         // Slight detour: do we have a Converter to consider?
         Converter<Object,Object> conv = beanDesc.findSerializationConverter();
-        if (conv == null) { // no, simple
-            return (JsonSerializer<Object>) _createSerializer2(prov, type, beanDesc, staticTyping);
+        if (conv != null) { // yup, need converter
+            JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
+            
+            // One more twist, as per [databind#288]; probably need to get new BeanDesc
+            if (!delegateType.hasRawClass(type.getRawClass())) {
+                beanDesc = config.introspect(delegateType);
+                // [#359]: explicitly check (again) for @JsonSerializer...
+                ser = findSerializerFromAnnotation(prov, beanDesc.getClassInfo());
+            }
+            // [databind#731]: Should skip if nominally java.lang.Object
+            if ((ser == null) && !delegateType.isJavaLangObject()) {
+                ser = _createSerializer2(prov, delegateType, beanDesc, true);
+            }
+            return new StdDelegatingSerializer(conv, delegateType, ser);
         }
-        JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
-        
-        // One more twist, as per [databind#288]; probably need to get new BeanDesc
-        if (!delegateType.hasRawClass(type.getRawClass())) {
-            beanDesc = config.introspect(delegateType);
-            // [#359]: explicitly check (again) for @JsonSerializer...
-            ser = findSerializerFromAnnotation(prov, beanDesc.getClassInfo());
-        }
-        // [databind#731]: Should skip if nominally java.lang.Object
-        if (ser == null && !delegateType.isJavaLangObject()) {
-            ser = _createSerializer2(prov, delegateType, beanDesc, true);
-        }
-        return new StdDelegatingSerializer(conv, delegateType, ser);
+        // No, regular serializer
+        return (JsonSerializer<Object>) _createSerializer2(prov, type, beanDesc, staticTyping);
     }
 
     protected JsonSerializer<?> _createSerializer2(SerializerProvider prov,
@@ -302,7 +303,7 @@ public class BeanSerializerFactory
         // [databind#638]: Allow injection of "virtual" properties:
         prov.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDesc.getClassInfo(), props);
 
-        // [JACKSON-440] Need to allow modification bean properties to serialize:
+        // allow modification bean properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 props = mod.changeProperties(config, beanDesc, props);

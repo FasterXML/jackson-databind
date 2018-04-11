@@ -105,9 +105,9 @@ public abstract class BasicSerializerFactory
     protected final SerializerFactoryConfig _factoryConfig;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -530,9 +530,9 @@ public abstract class BasicSerializerFactory
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, container types:
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
@@ -541,10 +541,9 @@ public abstract class BasicSerializerFactory
     {
         final SerializationConfig config = prov.getConfig();
 
-        /* [databind#23], 15-Mar-2013, tatu: must force static handling of root value type,
-         *   with just one important exception: if value type is "untyped", let's
-         *   leave it as is; no clean way to make it work.
-         */
+        // [databind#23], 15-Mar-2013, tatu: must force static handling of root value type,
+        //   with just one important exception: if value type is "untyped", let's
+        //   leave it as is; no clean way to make it work.
         if (!staticTyping && type.useStaticType()) {
             if (!type.isContainerType() || !type.getContentType().isJavaLangObject()) {
                 staticTyping = true;
@@ -634,8 +633,6 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.List} types that support efficient by-index access
-     * 
-     * @since 2.1
      */
     protected JsonSerializer<?> buildCollectionSerializer(SerializerProvider prov,
             CollectionType type, BeanDescription beanDesc, boolean staticTyping,
@@ -678,7 +675,7 @@ public abstract class BasicSerializerFactory
                     Class<?> elementRaw = type.getContentType().getRawClass();
                     if (isIndexedList(raw)) {
                         if (elementRaw == String.class) {
-                            // [JACKSON-829] Must NOT use if we have custom serializer
+                            // Only optimize if std implementation, not custom
                             if (ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
                                 ser = IndexedStringListSerializer.instance;
                             }
@@ -687,7 +684,7 @@ public abstract class BasicSerializerFactory
                                 elementTypeSerializer, elementValueSerializer);
                         }
                     } else if (elementRaw == String.class) {
-                        // [JACKSON-829] Must NOT use if we have custom serializer
+                        // Only optimize if std implementation, not custom
                         if (ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
                             ser = StringCollectionSerializer.instance;
                         }
@@ -709,9 +706,9 @@ public abstract class BasicSerializerFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, for Collections
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected boolean isIndexedList(Class<?> cls)
@@ -734,9 +731,9 @@ public abstract class BasicSerializerFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, for Maps
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -799,8 +796,6 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method that does figures out content inclusion value to use, if any,
      * and construct re-configured {@link MapSerializer} appropriately.
-     *
-     * @since 2.9
      */
     protected MapSerializer _checkMapContentInclusion(SerializerProvider prov,
             BeanDescription beanDesc, MapSerializer mapSer)
@@ -855,9 +850,6 @@ public abstract class BasicSerializerFactory
         return mapSer.withContentInclusion(valueToSuppress, suppressNulls);
     }
 
-    /**
-     * @since 2.9
-     */
     protected JsonSerializer<?> buildMapEntrySerializer(SerializerProvider prov,
             JavaType type, BeanDescription beanDesc, boolean staticTyping,
             JavaType keyType, JavaType valueType)
@@ -964,9 +956,9 @@ public abstract class BasicSerializerFactory
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, for Arrays
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -1020,9 +1012,9 @@ public abstract class BasicSerializerFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods for Reference types
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonSerializer<?> findReferenceSerializer(SerializerProvider prov, ReferenceType refType,
@@ -1127,9 +1119,9 @@ public abstract class BasicSerializerFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, for non-container types
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonSerializer<?> buildIteratorSerializer(SerializationConfig config,
@@ -1177,9 +1169,9 @@ public abstract class BasicSerializerFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1233,9 +1225,8 @@ public abstract class BasicSerializerFactory
     protected boolean usesStaticTyping(SerializationConfig config,
             BeanDescription beanDesc, TypeSerializer typeSer)
     {
-        /* 16-Aug-2010, tatu: If there is a (value) type serializer, we cannot force
-         *    static typing; that would make it impossible to handle expected subtypes
-         */
+        // 16-Aug-2010, tatu: If there is a (value) type serializer, we cannot force
+        //    static typing; that would make it impossible to handle expected subtypes
         if (typeSer != null) {
             return false;
         }

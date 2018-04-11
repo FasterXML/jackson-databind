@@ -17,11 +17,11 @@ public abstract class SerializerFactory
      */
 
     /**
-      * Method called to create (or, for immutable serializers, reuse) a serializer for given type. 
-      * 
-      * @param prov Provider that needs to be used to resolve annotation-provided
-      *    serializers (but NOT for others)
-      */
+     * Method called to create (or, for immutable serializers, reuse) a serializer for given type. 
+     * 
+     * @param prov Provider that needs to be used to resolve annotation-provided
+     *    serializers (but NOT for others)
+     */
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
             JavaType baseType)
         throws JsonMappingException;

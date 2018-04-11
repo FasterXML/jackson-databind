@@ -78,16 +78,12 @@ public class MapEntrySerializer
      * non-null values.
      * Note that inclusion value for Map instance itself is handled by caller (POJO
      * property that refers to the Map value).
-     * 
-     * @since 2.5
      */
     protected final Object _suppressableValue;
 
     /**
      * Flag that indicates what to do with `null` values, distinct from
      * handling of {@link #_suppressableValue}
-     *
-     * @since 2.9
      */
     protected final boolean _suppressNulls;
 

@@ -9,23 +9,21 @@ import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
  * Simple cache object that allows for doing 2-level lookups: first level is
- * by "local" read-only lookup Map (used without locking)
- * and second backup level is by a shared modifiable HashMap.
- * The idea is that after a while, most serializers are found from the
- * local Map (to optimize performance, reduce lock contention),
- * but that during buildup we can use a shared map to reduce both
- * number of distinct read-only maps constructed, and number of
- * serializers constructed.
+ * by "local" read-only lookup Map (used without locking) and second backup
+ * level is by a shared modifiable HashMap. The idea is that after a while,
+ * most serializers are found from the local Map (to optimize performance,
+ * reduce lock contention), but that during buildup we can use a shared map
+ * to reduce both number of distinct read-only maps constructed, and number
+ * of serializers constructed.
  *<p>
- * Cache contains three kinds of entries,
- * based on combination of class pair key. First class in key is for the
- * type to serialize, and second one is type used for determining how
- * to resolve value type. One (but not both) of entries can be null.
+ * Cache contains three kinds of entries, based on combination of class pair key.
+ * First class in key is for the type to serialize, and second one is type used for
+ * determining how to resolve value type. One (but not both) of entries can be null.
  */
 public final class SerializerCache
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Shared, modifiable map; all access needs to be through synchronized blocks.
@@ -75,9 +73,9 @@ public final class SerializerCache
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Lookup methods for accessing shared (slow) cache
-    /**********************************************************
+    /**********************************************************************
      */
 
     public synchronized int size() {
@@ -117,11 +115,11 @@ public final class SerializerCache
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for adding shared serializer instances
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Method called if none of lookups succeeded, and caller had to construct
      * a serializer. If so, we will update the shared lookup map so that it
@@ -184,8 +182,6 @@ public final class SerializerCache
     /**
      * Another alternative that will cover both access via raw type and matching
      * fully resolved type, in one fell swoop.
-     *
-     * @since 2.7
      */
     public void addAndResolveNonTypedSerializer(Class<?> rawType, JavaType fullType,
             JsonSerializer<Object> ser,

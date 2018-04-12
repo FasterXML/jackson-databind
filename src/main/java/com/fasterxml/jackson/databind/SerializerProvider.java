@@ -662,31 +662,6 @@ public abstract class SerializerProvider
         return (JsonSerializer<Object>) handlePrimaryContextualization(ser, property);
     }
 
-    @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> findPrimaryPropertySerializer(Class<?> rawValueType,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawValueType);
-        if (ser == null) {
-            ser = _serializerCache.untypedValueSerializer(rawValueType);
-            if (ser == null) {
-                ser = _serializerCache.untypedValueSerializer(_config.constructType(rawValueType));
-                if (ser == null) {
-                    ser = _createAndCacheUntypedSerializer(rawValueType);
-                    if (ser == null) {
-                        ser = getUnknownTypeSerializer(rawValueType);
-                        if (CACHE_UNKNOWN_MAPPINGS) {
-                            _serializerCache.addAndResolveNonTypedSerializer(rawValueType, ser, this);
-                        }
-                        return ser;
-                    }
-                }
-            }
-        }
-        return (JsonSerializer<Object>) handlePrimaryContextualization(ser, property);
-    }
-    
     /**
      * Method called to locate regular serializer, matching type serializer,
      * and if both found, wrap them in a serializer that calls both in correct

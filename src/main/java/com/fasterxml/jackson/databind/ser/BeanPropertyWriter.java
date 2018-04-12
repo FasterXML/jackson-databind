@@ -784,17 +784,17 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     /**********************************************************
      */
 
-    protected JsonSerializer<Object> _findAndAddDynamic(
-            PropertySerializerMap map, Class<?> type,
-            SerializerProvider provider) throws JsonMappingException {
-        PropertySerializerMap.SerializerAndMapResult result;
+    protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+            Class<?> rawType, SerializerProvider provider) throws JsonMappingException
+    {
+        JavaType t;
         if (_nonTrivialBaseType != null) {
-            JavaType t = provider.constructSpecializedType(_nonTrivialBaseType,
-                    type);
-            result = map.findAndAddPrimarySerializer(t, provider, this);
+            t = provider.constructSpecializedType(_nonTrivialBaseType,
+                    rawType);
         } else {
-            result = map.findAndAddPrimarySerializer(type, provider, this);
+            t = provider.constructType(rawType);
         }
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddPrimarySerializer(t, provider, this);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicSerializers = result.map;

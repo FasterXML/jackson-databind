@@ -53,18 +53,16 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         throws JsonMappingException
     {
         JsonSerializer<?> ser = null;
-        Boolean unwrapSingle = null;
         
         if (property != null) {
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                Object serDef = intr.findContentSerializer(serializers.getConfig(), m);
-                if (serDef != null) {
-                    ser = serializers.serializerInstance(m, serDef);
-                }
+                ser = serializers.serializerInstance(m,
+                        intr.findContentSerializer(serializers.getConfig(), m));
             }
         }
+        Boolean unwrapSingle = null;
         JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
         if (format != null) {
             unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);

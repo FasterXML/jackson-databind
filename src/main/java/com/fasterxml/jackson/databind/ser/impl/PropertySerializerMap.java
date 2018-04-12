@@ -89,8 +89,6 @@ public abstract class PropertySerializerMap
      * around it. Will both find the serializer
      * and construct new map instance if warranted, and return both.
      * 
-     * @since 2.5
-     * 
      * @throws JsonMappingException 
      */
     public final SerializerAndMapResult findAndAddRootValueSerializer(Class<?> type,
@@ -146,9 +144,9 @@ public abstract class PropertySerializerMap
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -183,9 +181,9 @@ public abstract class PropertySerializerMap
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Implementations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

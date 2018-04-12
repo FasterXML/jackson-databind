@@ -122,7 +122,7 @@ public class ObjectArraySerializer
         throws JsonMappingException
     {
         TypeSerializer vts = _valueTypeSerializer;
-        if (vts != null) {
+        if (vts != null) { // need to contextualize
             vts = vts.forProperty(property);
         }
         JsonSerializer<?> ser = null;
@@ -133,10 +133,8 @@ public class ObjectArraySerializer
             AnnotatedMember m = property.getMember();
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             if (m != null) {
-                Object serDef = intr.findContentSerializer(serializers.getConfig(), m);
-                if (serDef != null) {
-                    ser = serializers.serializerInstance(m, serDef);
-                }
+                ser = serializers.serializerInstance(m,
+                        intr.findContentSerializer(serializers.getConfig(), m));
             }
         }
         JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());

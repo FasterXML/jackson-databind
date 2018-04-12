@@ -451,10 +451,8 @@ public abstract class StdSerializer<T>
             AnnotatedMember m = property.getMember();
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             if (m != null) {
-                Object serDef = intr.findContentSerializer(serializers.getConfig(), m);
-                if (serDef != null) {
-                    return serializers.serializerInstance(m, serDef);
-                }
+                return serializers.serializerInstance(m,
+                        intr.findContentSerializer(serializers.getConfig(), m));
             }
         }
         return null;

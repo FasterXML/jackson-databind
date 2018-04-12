@@ -89,10 +89,8 @@ public class StringArraySerializer
             final AnnotationIntrospector ai = provider.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                Object serDef = ai.findContentSerializer(provider.getConfig(), m);
-                if (serDef != null) {
-                    ser = provider.serializerInstance(m, serDef);
-                }
+                ser = provider.serializerInstance(m,
+                        ai.findContentSerializer(provider.getConfig(), m));
             }
         }
         // but since formats have both property overrides and global per-type defaults,

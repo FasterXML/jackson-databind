@@ -126,10 +126,8 @@ public abstract class AsArraySerializerBase<T>
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                Object serDef = intr.findContentSerializer(serializers.getConfig(), m);
-                if (serDef != null) {
-                    ser = serializers.serializerInstance(m, serDef);
-                }
+                ser = serializers.serializerInstance(m,
+                        intr.findContentSerializer(serializers.getConfig(), m));
             }
         }
         JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());

@@ -962,22 +962,14 @@ public abstract class SerializerProvider
      * be called for all values including field and Map values, but usually
      * field values are best handled calling
      * {@link #defaultSerializeField} instead.
+     *
+     * @deprecated Use {@link #writeValue(JsonGenerator, Object)} instead
      */
-    @Deprecated // since 3.0 -- use `writeValue()` instead
-    public final void defaultSerializeValue(Object value, JsonGenerator gen) throws IOException
-    {
-        if (value == null) {
-            if (_stdNullValueSerializer) { // minor perf optimization
-                gen.writeNull();
-            } else {
-                _nullValueSerializer.serialize(null, gen, this);
-            }
-        } else {
-            Class<?> cls = value.getClass();
-            findTypedValueSerializer(cls, true, null).serialize(value, gen, this);
-        }
+    @Deprecated // since 3.0
+    public final void defaultSerializeValue(Object value, JsonGenerator gen) throws IOException {
+        writeValue(gen, value);
     }
-    
+
     /**
      * Convenience method that will serialize given field with specified
      * value. Value may be null. Serializer is done using the usual
@@ -987,18 +979,7 @@ public abstract class SerializerProvider
         throws IOException
     {
         gen.writeFieldName(fieldName);
-        if (value == null) {
-            // Note: can't easily check for suppression at this point
-            // any more; caller must check it.
-            if (_stdNullValueSerializer) { // minor perf optimization
-                gen.writeNull();
-            } else {
-                _nullValueSerializer.serialize(null, gen, this);
-            }
-        } else {
-            Class<?> cls = value.getClass();
-            findTypedValueSerializer(cls, true, null).serialize(value, gen, this);
-        }
+        writeValue(gen, value);
     }
 
     /**

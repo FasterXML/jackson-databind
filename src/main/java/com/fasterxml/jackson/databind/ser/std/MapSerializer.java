@@ -323,14 +323,10 @@ public class MapSerializer
 
         // First: if we have a property, may have property-annotation overrides
         if (_neitherNull(propertyAcc, intr)) {
-            Object serDef = intr.findKeySerializer(provider.getConfig(), propertyAcc);
-            if (serDef != null) {
-                keySer = provider.serializerInstance(propertyAcc, serDef);
-            }
-            serDef = intr.findContentSerializer(provider.getConfig(), propertyAcc);
-            if (serDef != null) {
-                ser = provider.serializerInstance(propertyAcc, serDef);
-            }
+            keySer = provider.serializerInstance(propertyAcc,
+                    intr.findKeySerializer(provider.getConfig(), propertyAcc));
+            ser = provider.serializerInstance(propertyAcc,
+                    intr.findContentSerializer(provider.getConfig(), propertyAcc));
         }
         if (ser == null) {
             ser = _valueSerializer;
@@ -372,7 +368,7 @@ public class MapSerializer
         JsonFormat.Value format = findFormatOverrides(provider, property, Map.class);
         if (format != null) {
             Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
-            if (B != null) {
+            if (B != null) { // do NOT override if not defined
                 sortKeys = B.booleanValue();
             }
         }
@@ -380,9 +376,8 @@ public class MapSerializer
 
         // [databind#307]: allow filtering
         if (property != null) {
-            AnnotatedMember m = property.getMember();
-            if (m != null) {
-                Object filterId = intr.findFilterId(m);
+            if (propertyAcc != null) {
+                Object filterId = intr.findFilterId(propertyAcc);
                 if (filterId != null) {
                     mser = mser.withFilterId(filterId);
                 }

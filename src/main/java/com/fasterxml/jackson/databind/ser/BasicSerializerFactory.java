@@ -495,9 +495,9 @@ public abstract class BasicSerializerFactory
         if (serDef == null) {
             return null;
         }
-        JsonSerializer<Object> ser = prov.serializerInstance(a, serDef);
         // One more thing however: may need to also apply a converter:
-        return (JsonSerializer<Object>) findConvertingSerializer(prov, a, ser);
+        return (JsonSerializer<Object>) findConvertingSerializer(prov, a,
+                prov.serializerInstance(a, serDef));
     }
 
     /**
@@ -1185,10 +1185,7 @@ public abstract class BasicSerializerFactory
     {
         AnnotationIntrospector intr = prov.getAnnotationIntrospector();
         Object serDef = intr.findKeySerializer(prov.getConfig(), a);
-        if (serDef != null) {
-            return prov.serializerInstance(a, serDef);
-        }
-        return null;
+        return prov.serializerInstance(a, serDef);
     }
 
     /**
@@ -1202,10 +1199,7 @@ public abstract class BasicSerializerFactory
     {
         AnnotationIntrospector intr = prov.getAnnotationIntrospector();
         Object serDef = intr.findContentSerializer(prov.getConfig(), a);
-        if (serDef != null) {
-            return prov.serializerInstance(a, serDef);
-        }
-        return null;
+        return prov.serializerInstance(a, serDef); // ok to pass null
     }
 
     /**

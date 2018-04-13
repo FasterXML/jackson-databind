@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -116,7 +117,7 @@ public class BeanSerializerFactory
     @Override
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType origType)
+            JavaType origType, JsonFormat.Value format)
         throws JsonMappingException
     {
         // Very first thing, let's check if there is explicit serializer annotation:

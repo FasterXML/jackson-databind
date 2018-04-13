@@ -1113,9 +1113,12 @@ public abstract class SerializerProvider
          *    since there's one instance per serialization).
          *   Perhaps not-yet-resolved instance might be exposed too early to callers.
          */
-        synchronized (_serializerCache) {
+        // 13-Apr-2018, tatu: With 3.0 I do not see test for [databind#738] failing, even
+        //    without sync. Speculating this is due to fixes to later 2.8 patches, which
+        //    solve race condition in annotation introspection (for `AnnotatedClass`)
+//        synchronized (_serializerCache) {
             return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type);
-        }
+//        }
     }
 
     /**

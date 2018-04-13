@@ -56,7 +56,7 @@ public class RaceCondition738Test extends BaseMapTest
      */
     
     public void testRepeatedly() throws Exception {
-        final int COUNT = 2000;
+        final int COUNT = 3000;
         for (int i = 0; i < COUNT; i++) {
             runOnce(i, COUNT);
         }

@@ -1380,6 +1380,10 @@ public abstract class SerializerProvider
          *    since there's one instance per serialization).
          *   Perhaps not-yet-resolved instance might be exposed too early to callers.
          */
+        // 13-Apr-2018, tatu: Problem does NOT occur any more with late 2.8.x and 2.9.x
+        //    versions, likely due to concurrency fixes for `AnnotatedClass` introspection.
+        //    This sync block could probably be removed; but to minimize any risk of
+        //    regression sync block will only be removed from 3.0.
         synchronized (_serializerCache) {
             // 17-Feb-2013, tatu: Used to call deprecated method (that passed property)
             return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type);

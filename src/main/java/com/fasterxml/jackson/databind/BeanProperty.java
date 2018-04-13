@@ -67,23 +67,19 @@ public interface BeanProperty extends FullyNamed
      *<code>
      *  getMetadata().isRequired()
      *</code>
-     * 
-     * @since 2.2
      */
     public boolean isRequired();
 
     /**
      * Accessor for checking whether there is an actual physical property
      * behind this property abstraction or not.
-     * 
-     * @since 2.7
      */
     public boolean isVirtual();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Access to annotation information
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -140,9 +136,9 @@ public interface BeanProperty extends FullyNamed
     public List<PropertyName> findAliases(MapperConfig<?> config);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Schema/introspection support
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -151,23 +147,17 @@ public interface BeanProperty extends FullyNamed
      * Note that not all implementations support traversal with this
      * method; those that do not should throw
      * {@link UnsupportedOperationException}.
-     *<p>
-     * NOTE: Starting with 2.7, takes explicit {@link SerializerProvider}
-     * argument to reduce the need to rely on provider visitor may or may not
-     * have assigned.
      * 
      * @param objectVisitor Visitor to used as the callback handler
-     * 
-     * @since 2.2 (although signature did change in 2.7)
      */
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
             SerializerProvider provider)
         throws JsonMappingException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -175,9 +165,9 @@ public interface BeanProperty extends FullyNamed
      * or base class for more complex implementations.
      */
     public static class Std implements BeanProperty,
-        java.io.Serializable // 2.9
+        java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 3L;
 
         protected final PropertyName _name;
         protected final JavaType _type;
@@ -283,8 +273,6 @@ public interface BeanProperty extends FullyNamed
     /**
      * Alternative "Null" implementation that can be used in cases where a non-null
      * {@link BeanProperty} is needed
-     *
-     * @since 2.9
      */
     public static class Bogus implements BeanProperty
     {

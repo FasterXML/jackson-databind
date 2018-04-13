@@ -1075,7 +1075,7 @@ public abstract class SerializerProvider
         JavaType fullType = _config.constructType(rawType);
         JsonSerializer<Object> ser;
         try {
-            ser = _createUntypedSerializer(fullType);
+            ser = _serializerFactory.createSerializer(this, fullType);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, iae.getMessage());
@@ -1089,10 +1089,10 @@ public abstract class SerializerProvider
 
     protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
         throws JsonMappingException
-    {        
+    {
         JsonSerializer<Object> ser;
         try {
-            ser = _createUntypedSerializer(type);
+            ser = _serializerFactory.createSerializer(this, type);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, iae.getMessage());
@@ -1105,14 +1105,14 @@ public abstract class SerializerProvider
         return ser;
     }
 
-    protected JsonSerializer<Object> _createUntypedSerializer(JavaType type)
+    /*
+    private final JsonSerializer<Object> _createUntypedSerializer(JavaType type)
         throws JsonMappingException
     {
-        /* 27-Mar-2015, tatu: Wish I knew exactly why/what, but [databind#738]
-         *    can be prevented by synchronizing on cache (not on 'this', however,
-         *    since there's one instance per serialization).
-         *   Perhaps not-yet-resolved instance might be exposed too early to callers.
-         */
+        // 27-Mar-2015, tatu: Wish I knew exactly why/what, but [databind#738]
+        //    can be prevented by synchronizing on cache (not on 'this', however,
+        //    since there's one instance per serialization).
+        //   Perhaps not-yet-resolved instance might be exposed too early to callers.
         // 13-Apr-2018, tatu: With 3.0 I do not see test for [databind#738] failing, even
         //    without sync. Speculating this is due to fixes to later 2.8 patches, which
         //    solve race condition in annotation introspection (for `AnnotatedClass`)
@@ -1120,6 +1120,7 @@ public abstract class SerializerProvider
             return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type);
 //        }
     }
+*/
 
     /**
      * Helper method called to resolve and contextualize given

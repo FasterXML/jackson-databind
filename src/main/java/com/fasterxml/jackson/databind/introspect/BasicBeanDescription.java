@@ -29,9 +29,9 @@ public class BasicBeanDescription extends BeanDescription
     private final static Class<?>[] NO_VIEWS = new Class<?>[0];
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -46,9 +46,9 @@ public class BasicBeanDescription extends BeanDescription
     final protected AnnotationIntrospector _annotationIntrospector;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Information about type itself
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -61,9 +61,9 @@ public class BasicBeanDescription extends BeanDescription
     protected boolean _defaultViewsResolved;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Member information
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -77,9 +77,9 @@ public class BasicBeanDescription extends BeanDescription
     protected ObjectIdInfo _objectIdInfo;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected BasicBeanDescription(POJOPropertiesCollector coll,
@@ -89,11 +89,8 @@ public class BasicBeanDescription extends BeanDescription
         _propCollector = coll;
         _config = coll.getConfig();
         // NOTE: null config only for some pre-constructed types
-        if (_config == null) {
-            _annotationIntrospector = null;
-        } else {
-            _annotationIntrospector = _config.getAnnotationIntrospector();
-        }
+        _annotationIntrospector = (_config == null) ? NopAnnotationIntrospector.nopInstance()
+                : _config.getAnnotationIntrospector();
         _classInfo = classDef;
     }
 
@@ -108,15 +105,12 @@ public class BasicBeanDescription extends BeanDescription
         _propCollector = null;
         _config = config;
         // NOTE: null config only for some pre-constructed types
-        if (_config == null) {
-            _annotationIntrospector = null;
-        } else {
-            _annotationIntrospector = _config.getAnnotationIntrospector();
-        }
+        _annotationIntrospector = (_config == null) ? NopAnnotationIntrospector.nopInstance()
+                : _config.getAnnotationIntrospector();
         _classInfo = classDef;
         _properties = props;
     }
-    
+
     protected BasicBeanDescription(POJOPropertiesCollector coll)
     {
         this(coll, coll.getType(), coll.getClassDef());
@@ -159,17 +153,15 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Limited modifications by core databind functionality
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method that can be used to prune unwanted properties, during
      * construction of serializers and deserializers.
      * Use with utmost care, if at all...
-     * 
-     * @since 2.1
      */
     public boolean removeProperty(String propName)
     {
@@ -193,17 +185,11 @@ public class BasicBeanDescription extends BeanDescription
         _properties().add(def);
         return true;
     }
-    
-    /**
-     * @since 2.6
-     */
+
     public boolean hasProperty(PropertyName name) {
         return findProperty(name) != null;
     }
-    
-    /**
-     * @since 2.6
-     */
+
     public BeanPropertyDefinition findProperty(PropertyName name)
     {
         for (BeanPropertyDefinition prop : _properties()) {
@@ -213,11 +199,11 @@ public class BasicBeanDescription extends BeanDescription
         }
         return null;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple accessors from BeanDescription
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -329,14 +315,15 @@ anyField.getName()));
             }
             ClassUtil.throwIfError(t);
             ClassUtil.throwIfRTE(t);
-            throw new IllegalArgumentException("Failed to instantiate bean of type "+_classInfo.getAnnotated().getName()+": ("+t.getClass().getName()+") "+t.getMessage(), t);
+            throw new IllegalArgumentException("Failed to instantiate bean of type "+ClassUtil.nameOf(_classInfo.getAnnotated())
+                    +": ("+t.getClass().getName()+") "+t.getMessage(), t);
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple accessors, extended
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -345,44 +332,29 @@ anyField.getName()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General per-class annotation introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue)
+    public JsonFormat.Value findExpectedFormat()
     {
-        // 15-Apr-2016, tatu: Let's check both per-type defaults and annotations; per-type
-        //   defaults having higher precedence, so start with that
-        if (_annotationIntrospector != null) {
-            JsonFormat.Value v = _annotationIntrospector.findFormat(_classInfo);
-            if (v != null) {
-                if (defValue == null) {
-                    defValue = v;
-                } else {
-                    defValue = defValue.withOverrides(v);
-                }
-            }
-        }
-        JsonFormat.Value v = _config.getDefaultPropertyFormat(_classInfo.getRawType());
-        if (v != null) {
-            if (defValue == null) {
-                defValue = v;
-            } else {
-                defValue = defValue.withOverrides(v);
-            }
-        }
-        return defValue;
+        // Let's check both per-type defaults and annotations; annotations may
+        // be overridden by per-type configuration (have precedence)
+        JsonFormat.Value v1 = _annotationIntrospector.findFormat(_classInfo);
+        JsonFormat.Value v2 = _config.getDefaultPropertyFormat(_classInfo.getRawType());
+        // 13-Apr-2018, tatu: One open question: should we default to `empty` to avoid
+        //    returning null?
+        return JsonFormat.Value.merge(v1, v2);
     }
 
-    @Override // since 2.9
+    @Override
     public Class<?>[] findDefaultViews()
     {
         if (!_defaultViewsResolved) {
             _defaultViewsResolved = true;
-            Class<?>[] def = (_annotationIntrospector == null) ? null
-                    : _annotationIntrospector.findViews(_classInfo);
+            Class<?>[] def = _annotationIntrospector.findViews(_classInfo);
             // one more twist: if default inclusion disabled, need to force empty set of views
             if (def == null) {
                 if (!_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)) {
@@ -395,17 +367,14 @@ anyField.getName()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection for serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public Converter<Object,Object> findSerializationConverter()
     {
-        if (_annotationIntrospector == null) {
-            return null;
-        }
         return _createConverter(_annotationIntrospector.findSerializationConverter(_config, _classInfo));
     }
 
@@ -417,11 +386,9 @@ anyField.getName()));
      */
     @Override
     public JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue) {
-        if (_annotationIntrospector != null) {
-            JsonInclude.Value incl = _annotationIntrospector.findPropertyInclusion(_config, _classInfo);
-            if (incl != null) {
-                return (defValue == null) ? incl : defValue.withOverrides(incl);
-            }
+        JsonInclude.Value incl = _annotationIntrospector.findPropertyInclusion(_config, _classInfo);
+        if (incl != null) {
+            return (defValue == null) ? incl : defValue.withOverrides(incl);
         }
         return defValue;
     }
@@ -475,9 +442,9 @@ anyField.getName()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection for deserialization, factories
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -579,42 +546,38 @@ anyField.getName()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection for deserialization, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public Class<?> findPOJOBuilder() {
-        return (_annotationIntrospector == null) ? null
-                : _annotationIntrospector.findPOJOBuilder(_config, _classInfo);
+        return _annotationIntrospector.findPOJOBuilder(_config, _classInfo);
     }
 
     @Override
     public JsonPOJOBuilder.Value findPOJOBuilderConfig()
     {
-        return (_annotationIntrospector == null) ? null
-                : _annotationIntrospector.findPOJOBuilderConfig(_config, _classInfo);
+        return _annotationIntrospector.findPOJOBuilderConfig(_config, _classInfo);
     }
 
     @Override
     public Converter<Object,Object> findDeserializationConverter()
     {
-        return (_annotationIntrospector == null) ? null
-                :  _createConverter(_annotationIntrospector
+        return _createConverter(_annotationIntrospector
                         .findDeserializationConverter(_config, _classInfo));
     }
 
     @Override
     public String findClassDescription() {
-        return (_annotationIntrospector == null) ?
-                null : _annotationIntrospector.findClassDescription(_classInfo);
+        return _annotationIntrospector.findClassDescription(_classInfo);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, other
-    /**********************************************************
+    /**********************************************************************
      */
     
     @SuppressWarnings("unchecked")

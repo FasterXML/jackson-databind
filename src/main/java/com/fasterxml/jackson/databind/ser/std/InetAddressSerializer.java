@@ -25,29 +25,22 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class InetAddressSerializer
     extends StdScalarSerializer<InetAddress>
 {
-    /**
-     * @since 2.9
-     */
     protected final boolean _asNumeric;
 
     public InetAddressSerializer() {
         this(false);
     }
 
-    /**
-     * @since 2.9
-     */
     public InetAddressSerializer(boolean asNumeric) {
         super(InetAddress.class);
         _asNumeric = asNumeric;
     }
     
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        JsonFormat.Value format = findFormatOverrides(serializers,
-                property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         boolean asNumeric = false;
         if (format != null) {
             JsonFormat.Shape shape = format.getShape();

@@ -27,9 +27,9 @@ public abstract class BeanDescription
     protected final JavaType _type;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected BeanDescription(JavaType type) {
@@ -37,9 +37,9 @@ public abstract class BeanDescription
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple accesors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -79,9 +79,9 @@ public abstract class BeanDescription
     public abstract Annotations getClassAnnotations();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic API for finding properties
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -94,15 +94,13 @@ public abstract class BeanDescription
 
     /**
      * Method for locating all back-reference properties (setters, fields) bean has
-     *
-     * @since 2.9
      */
     public abstract List<BeanPropertyDefinition> findBackReferences();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic API for finding creator members
-    /**********************************************************
+    /**********************************************************************
      */
 
     public abstract List<AnnotatedConstructor> getConstructors();
@@ -136,9 +134,9 @@ public abstract class BeanDescription
     public abstract Method findFactoryMethod(Class<?>... expArgTypes);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic API for finding property accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -147,8 +145,6 @@ public abstract class BeanDescription
      * {@link com.fasterxml.jackson.annotation.JsonValue} annotation,
      * if any. If multiple ones are found,
      * an error is reported by throwing {@link IllegalArgumentException}
-     *
-     * @since 2.9
      */
     public abstract AnnotatedMember findJsonValueAccessor();
 
@@ -163,17 +159,15 @@ public abstract class BeanDescription
      * Additional checks are also made to see that method signature
      * is acceptable: needs to take 2 arguments, first one String or
      * Object; second any can be any type.
-     *
-     * @since 2.9
      */
     public abstract AnnotatedMember findAnySetterAccessor();
 
     public abstract AnnotatedMethod findMethod(String name, Class<?>[] paramTypes);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic API, class configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -190,7 +184,7 @@ public abstract class BeanDescription
      * defined by defaults and possible annotations.
      * Note that this may be further refined by per-property annotations.
      */
-    public abstract JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue);
+    public abstract JsonFormat.Value findExpectedFormat();
 
     /**
      * Method for finding {@link Converter} used for serializing instances
@@ -211,9 +205,9 @@ public abstract class BeanDescription
     public String findClassDescription() { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic API, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     public abstract Map<Object, AnnotatedMember> findInjectables();

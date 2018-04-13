@@ -27,7 +27,7 @@ public abstract class SerializerFactory
      * @since 3.0 (last argument added)
      */
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType baseType, JsonFormat.Value format)
+            BeanDescription beanDesc, JavaType baseType, JsonFormat.Value format)
         throws JsonMappingException;
 
     /**
@@ -115,7 +115,9 @@ public abstract class SerializerFactory
      */
     @Deprecated // since 3.0
     public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType baseType)
-        throws JsonMappingException {
-        return createSerializer(prov, baseType, JsonFormat.Value.empty());
+        throws JsonMappingException
+    {
+        final SerializationConfig config = prov.getConfig();
+        return createSerializer(prov, config.introspect(baseType), baseType, JsonFormat.Value.empty());
     }
 }

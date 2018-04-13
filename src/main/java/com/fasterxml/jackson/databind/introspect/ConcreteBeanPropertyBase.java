@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 /**
  * Intermediate {@link BeanProperty} class shared by concrete readable- and
  * writable property implementations for sharing common functionality.
- *
- * @since 2.7
  */
 public abstract class ConcreteBeanPropertyBase
     implements BeanProperty, java.io.Serializable
@@ -24,21 +22,14 @@ public abstract class ConcreteBeanPropertyBase
 
     /**
      * Additional information about property
-     *
-     * @since 2.3
      */
     protected final PropertyMetadata _metadata;
 
     /**
      * Lazily accessed value for per-property format override definition.
-     * 
-     * @since 2.8
      */
     protected transient JsonFormat.Value _propertyFormat;
 
-    /**
-     * @since 2.9
-     */
     protected transient List<PropertyName> _aliases;
 
     protected ConcreteBeanPropertyBase(PropertyMetadata md) {

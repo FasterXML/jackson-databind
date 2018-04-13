@@ -87,7 +87,7 @@ public final class SerializerCache
         // not correctness
         ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
         if (m == null) {
-            m = ReadOnlyClassToSerializerMap.from(_sharedMap);
+            m = ReadOnlyClassToSerializerMap.from(this, _sharedMap);
             _readOnlyMap.set(m);
         }
         return m;

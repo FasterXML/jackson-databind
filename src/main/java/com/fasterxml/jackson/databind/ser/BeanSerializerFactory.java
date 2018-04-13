@@ -232,17 +232,15 @@ public class BeanSerializerFactory
                 }
             }
         }
-        if (ser != null) {
-            // [databind#120]: Allow post-processing
-            if (_factoryConfig.hasSerializerModifiers()) {
-                for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
-                    ser = mod.modifySerializer(config, beanDesc, ser);
-                }
+        // can not be null any more (always get at least "unknown" serializer)
+        if (_factoryConfig.hasSerializerModifiers()) {
+            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+                ser = mod.modifySerializer(config, beanDesc, ser);
             }
         }
         return ser;
     }
-    
+
     /*
     /**********************************************************************
     /* Other public methods that are not part of `SerializerFactory` API

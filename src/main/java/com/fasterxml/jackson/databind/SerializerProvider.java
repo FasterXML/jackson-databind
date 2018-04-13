@@ -510,7 +510,6 @@ public abstract class SerializerProvider
      *   accessing suitable serializer; including that of not
      *   finding any serializer
      */
-    @SuppressWarnings("unchecked")
     public JsonSerializer<Object> findValueSerializer(Class<?> valueType, BeanProperty property)
         throws JsonMappingException
     {
@@ -534,7 +533,7 @@ public abstract class SerializerProvider
             }
         }
         // at this point, resolution has occured, but not contextualization
-        return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
+        return handleSecondaryContextualization(ser, property);
     }
 
     /**
@@ -549,7 +548,6 @@ public abstract class SerializerProvider
      *   serializer is needed: annotations of the property (or bean that contains it)
      *   may be checked to create contextual serializers.
      */
-    @SuppressWarnings("unchecked")
     public JsonSerializer<Object> findValueSerializer(JavaType valueType, BeanProperty property)
         throws JsonMappingException
     {
@@ -568,7 +566,7 @@ public abstract class SerializerProvider
                 return ser;
             }
         }
-        return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
+        return handleSecondaryContextualization(ser, property);
     }
 
     /**
@@ -627,7 +625,6 @@ public abstract class SerializerProvider
      * @param property Property that is being handled; will never be null, and its
      *    type has to match <code>valueType</code> parameter.
      */
-    @SuppressWarnings("unchecked")
     public JsonSerializer<Object> findPrimaryPropertySerializer(JavaType valueType, BeanProperty property)
         throws JsonMappingException
     {
@@ -643,7 +640,7 @@ public abstract class SerializerProvider
                 return ser;
             }
         }
-        return (JsonSerializer<Object>) handlePrimaryContextualization(ser, property);
+        return handlePrimaryContextualization(ser, property);
     }
 
     /**
@@ -748,7 +745,9 @@ public abstract class SerializerProvider
         // 16-Mar-2018, tatu: Used to have "default key serializer" in 2.x; dropped to let/make
         //    custom code use Module interface or similar to provide key serializers
         JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType, null);
-        return _handleContextualResolvable(ser, property);
+        // _handleContextualResolvable(ser, property):
+        ser.resolve(this);
+        return handleSecondaryContextualization(ser, property);
     }
 
     public JsonSerializer<Object> findKeySerializer(Class<?> rawKeyType, BeanProperty property)
@@ -798,19 +797,6 @@ public abstract class SerializerProvider
         return ser;
     }
 
-    /**
-     * Helper method called to resolve and contextualize given
-     * serializer, if and as necessary.
-     */
-    @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> _handleContextualResolvable(JsonSerializer<?> ser,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        ser.resolve(this);
-        return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
-    }
-
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> _handleResolvable(JsonSerializer<?> ser)
         throws JsonMappingException
@@ -818,7 +804,7 @@ public abstract class SerializerProvider
         ser.resolve(this);
         return (JsonSerializer<Object>) ser;
     }
-    
+
     /*
     /**********************************************************************
     /* Accessors for specialized serializers
@@ -951,14 +937,15 @@ public abstract class SerializerProvider
      * 
      * @param property Property for which the given primary serializer is used; never null.
      */
-    public JsonSerializer<?> handlePrimaryContextualization(JsonSerializer<?> ser,
+    @SuppressWarnings("unchecked")
+    public JsonSerializer<Object> handlePrimaryContextualization(JsonSerializer<?> ser,
             BeanProperty property)
         throws JsonMappingException
     {
         if (ser != null) {
             ser = ser.createContextual(this, property);
         }
-        return ser;
+        return (JsonSerializer<Object>) ser;
     }
 
     /**
@@ -975,14 +962,15 @@ public abstract class SerializerProvider
      * @param property Property for which serializer is used, if any; null
      *    when deserializing root values
      */
-    public JsonSerializer<?> handleSecondaryContextualization(JsonSerializer<?> ser,
+    @SuppressWarnings("unchecked")
+    public JsonSerializer<Object> handleSecondaryContextualization(JsonSerializer<?> ser,
             BeanProperty property)
         throws JsonMappingException
     {
         if (ser != null) {
             ser = ser.createContextual(this, property);
         }
-        return ser;
+        return (JsonSerializer<Object>) ser;
     }
 
     /*

@@ -174,11 +174,8 @@ public abstract class BasicSerializerFactory
     /**********************************************************************
      */
     
-    // Implemented by sub-classes
-    @Override
-    public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType type)
-        throws JsonMappingException;
+// Implemented by sub-classes
+//    public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov, ....)
 
     @Override
     @SuppressWarnings("unchecked")

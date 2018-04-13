@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -19,11 +20,14 @@ public abstract class SerializerFactory
     /**
      * Method called to create (or, for immutable serializers, reuse) a serializer for given type. 
      * 
-     * @param prov Provider that needs to be used to resolve annotation-provided
+     * @param prov (not null) Provider that needs to be used to resolve annotation-provided
      *    serializers (but NOT for others)
+     * @param format (not null) Format definition for serializer to create
+     *
+     * @since 3.0 (last argument added)
      */
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType baseType)
+            JavaType baseType, JsonFormat.Value format)
         throws JsonMappingException;
 
     /**
@@ -99,4 +103,19 @@ public abstract class SerializerFactory
      * @since 3.0
      */
     public abstract SerializerFactory withNullKeySerializer(JsonSerializer<?> nks);
+
+    /*
+    /**********************************************************************
+    /* Deprecated (for 2.x migration, compatibility)
+    /**********************************************************************
+     */
+
+    /**
+     * @deprecated Since 3.0 use variant that takes {@link JsonFormat.Value} argument
+     */
+    @Deprecated // since 3.0
+    public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType baseType)
+        throws JsonMappingException {
+        return createSerializer(prov, baseType, JsonFormat.Value.empty());
+    }
 }

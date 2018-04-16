@@ -11,9 +11,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class EnumSetSerializer
     extends AsArraySerializerBase<EnumSet<? extends Enum<?>>>
 {
-    /**
-     * @since 2.6
-     */
     public EnumSetSerializer(JavaType elemType) {
         super(EnumSet.class, elemType, true, null, null);
     }

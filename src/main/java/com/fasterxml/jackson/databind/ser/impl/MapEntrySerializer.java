@@ -26,11 +26,6 @@ public class MapEntrySerializer
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /**
-     * Map-valued property being serialized with this instance
-     */
-    protected final BeanProperty _property;
-
-    /**
      * Whether static types should be used for serialization of values
      * or not (if not, dynamic runtime type is used)
      */
@@ -58,12 +53,6 @@ public class MapEntrySerializer
      * Type identifier serializer used for values, if any.
      */
     protected final TypeSerializer _valueTypeSerializer;
-
-    /**
-     * If value type cannot be statically determined, mapping from
-     * runtime value types to serializers are stored in this object.
-     */
-    protected PropertySerializerMap _dynamicValueSerializers;
 
     /*
     /**********************************************************************
@@ -97,14 +86,12 @@ public class MapEntrySerializer
             boolean staticTyping, TypeSerializer vts,
             BeanProperty property)
     {
-        super(type);
+        super(type, property);
         _entryType = type;
         _keyType = keyType;
         _valueType = valueType;
         _valueTypeIsStatic = staticTyping;
         _valueTypeSerializer = vts;
-        _property = property;
-        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
         _suppressableValue = null;
         _suppressNulls = false;
     }
@@ -115,7 +102,7 @@ public class MapEntrySerializer
             JsonSerializer<?> keySer, JsonSerializer<?> valueSer,
             Object suppressableValue, boolean suppressNulls)
     {
-        super(Map.class, false);
+        super(src, property);
         _entryType = src._entryType;
         _keyType = src._keyType;
         _valueType = src._valueType;
@@ -123,8 +110,6 @@ public class MapEntrySerializer
         _valueTypeSerializer = src._valueTypeSerializer;
         _keySerializer = (JsonSerializer<Object>) keySer;
         _valueSerializer = (JsonSerializer<Object>) valueSer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
-        _property = src._property;
         _suppressableValue = suppressableValue;
         _suppressNulls = suppressNulls;
     }
@@ -376,31 +361,5 @@ public class MapEntrySerializer
             String keyDesc = ""+keyElem;
             wrapAndThrow(provider, e, value, keyDesc);
         }
-    }
-
-    /*
-    /**********************************************************************
-    /* Internal helper methods
-    /**********************************************************************
-     */
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        if (map != result.map) {
-            _dynamicValueSerializers = result.map;
-        }
-        return result.serializer;
-    }
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        if (map != result.map) {
-            _dynamicValueSerializers = result.map;
-        }
-        return result.serializer;
     }
 }

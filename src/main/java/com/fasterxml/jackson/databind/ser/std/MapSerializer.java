@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.BeanUtil;
@@ -38,9 +37,6 @@ public class MapSerializer
 
     protected final static JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
 
-    /**
-     * @since 2.9
-     */
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /*
@@ -48,11 +44,6 @@ public class MapSerializer
     /* Basic information about referring property, type
     /**********************************************************************
      */
-    
-    /**
-     * Map-valued property being serialized with this instance
-     */
-    protected final BeanProperty _property;
 
     /**
      * Whether static types should be used for serialization of values
@@ -90,12 +81,6 @@ public class MapSerializer
      * Type identifier serializer used for values, if any.
      */
     protected final TypeSerializer _valueTypeSerializer;
-
-    /**
-     * If value type cannot be statically determined, mapping from
-     * runtime value types to serializers are stored in this object.
-     */
-    protected PropertySerializerMap _dynamicValueSerializers;
 
     /*
     /**********************************************************************
@@ -162,8 +147,6 @@ public class MapSerializer
         _valueTypeSerializer = vts;
         _keySerializer = (JsonSerializer<Object>) keySerializer;
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
-        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
-        _property = null;
         _filterId = null;
         _sortKeys = false;
         _suppressableValue = null;
@@ -175,7 +158,7 @@ public class MapSerializer
             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
             Set<String> ignoredEntries)
     {
-        super(Map.class, false);
+        super(src, property);
         _ignoredEntries = ((ignoredEntries == null) || ignoredEntries.isEmpty())
                 ? null : ignoredEntries;
         _keyType = src._keyType;
@@ -184,18 +167,16 @@ public class MapSerializer
         _valueTypeSerializer = src._valueTypeSerializer;
         _keySerializer = (JsonSerializer<Object>) keySerializer;
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
-        _property = property;
         _filterId = src._filterId;
         _sortKeys = src._sortKeys;
         _suppressableValue = src._suppressableValue;
         _suppressNulls = src._suppressNulls;
     }
 
-    protected MapSerializer(MapSerializer src, TypeSerializer vts,
-            Object suppressableValue, boolean suppressNulls)
+    protected MapSerializer(MapSerializer src,
+            TypeSerializer vts, Object suppressableValue, boolean suppressNulls)
     {
-        super(Map.class, false);
+        super(src);
         _ignoredEntries = src._ignoredEntries;
         _keyType = src._keyType;
         _valueType = src._valueType;
@@ -203,8 +184,6 @@ public class MapSerializer
         _valueTypeSerializer = vts;
         _keySerializer = src._keySerializer;
         _valueSerializer = src._valueSerializer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
-        _property = src._property;
         _filterId = src._filterId;
         _sortKeys = src._sortKeys;
         _suppressableValue = suppressableValue;
@@ -213,7 +192,7 @@ public class MapSerializer
 
     protected MapSerializer(MapSerializer src, Object filterId, boolean sortKeys)
     {
-        super(Map.class, false);
+        super(src);
         _ignoredEntries = src._ignoredEntries;
         _keyType = src._keyType;
         _valueType = src._valueType;
@@ -221,8 +200,6 @@ public class MapSerializer
         _valueTypeSerializer = src._valueTypeSerializer;
         _keySerializer = src._keySerializer;
         _valueSerializer = src._valueSerializer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
-        _property = src._property;
         _filterId = filterId;
         _sortKeys = sortKeys;
         _suppressableValue = src._suppressableValue;
@@ -939,27 +916,6 @@ public class MapSerializer
     /* Internal helper methods
     /**********************************************************************
      */
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        // did we get a new map of serializers? If so, start using it
-        if (map != result.map) {
-            _dynamicValueSerializers = result.map;
-        }
-        return result.serializer;
-    }
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        if (map != result.map) {
-            _dynamicValueSerializers = result.map;
-        }
-        return result.serializer;
-    }
 
     protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
             SerializerProvider provider) throws IOException

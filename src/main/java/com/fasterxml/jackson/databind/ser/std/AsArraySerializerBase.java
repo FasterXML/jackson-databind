@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 /**
  * Base class for serializers that will output contents as JSON
@@ -23,11 +22,6 @@ public abstract class AsArraySerializerBase<T>
     extends ContainerSerializer<T>
 {
     protected final JavaType _elementType;
-
-    /**
-     * Collection-valued property being serialized with this instance
-     */
-    protected final BeanProperty _property;
 
     protected final boolean _staticTyping;
 
@@ -48,12 +42,6 @@ public abstract class AsArraySerializerBase<T>
      */
     protected final JsonSerializer<Object> _elementSerializer;
 
-    /**
-     * If element type cannot be statically determined, mapping from
-     * runtime type to serializer is handled using this object
-     */
-    protected PropertySerializerMap _dynamicSerializers;
-
     /*
     /**********************************************************************
     /* Life-cycle
@@ -64,17 +52,16 @@ public abstract class AsArraySerializerBase<T>
      * Non-contextual, "blueprint" constructor typically called when the first
      * instance is created, without knowledge of property it was used via.
      */
+    @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
-            TypeSerializer vts, JsonSerializer<Object> elementSerializer)
+            TypeSerializer vts, JsonSerializer<?> elementSerializer)
     {
         super(cls, false);
         _elementType = et;
         // static if explicitly requested, or if element type is final
         _staticTyping = staticTyping || (et != null && et.isFinal());
         _valueTypeSerializer = vts;
-        _property = null;
-        _elementSerializer = elementSerializer;
-        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+        _elementSerializer = (JsonSerializer<Object>) elementSerializer;
         _unwrapSingle = null;
     }
 
@@ -83,13 +70,11 @@ public abstract class AsArraySerializerBase<T>
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle)
     {
-        super(src);
+        super(src, property);
         _elementType = src._elementType;
         _staticTyping = src._staticTyping;
         _valueTypeSerializer = vts;
-        _property = property;
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
-        _dynamicSerializers = src._dynamicSerializers;
         _unwrapSingle = unwrapSingle;
     }
 
@@ -225,26 +210,5 @@ public abstract class AsArraySerializerBase<T>
             }
         }
         visitArrayFormat(visitor, typeHint, valueSer, _elementType);
-    }
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        // did we get a new map of serializers? If so, start using it
-        if (map != result.map) {
-            _dynamicSerializers = result.map;
-        }
-        return result.serializer;
-    }
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        if (map != result.map) {
-            _dynamicSerializers = result.map;
-        }
-        return result.serializer;
     }
 }

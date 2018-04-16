@@ -97,7 +97,7 @@ public class IteratorSerializer
             SerializerProvider provider) throws IOException
     {
         final TypeSerializer typeSer = _valueTypeSerializer;
-        PropertySerializerMap serializers = _dynamicSerializers;
+        PropertySerializerMap serializers = _dynamicValueSerializers;
         do {
             Object elem = value.next();
             if (elem == null) {
@@ -113,7 +113,7 @@ public class IteratorSerializer
                 } else {
                     serializer = _findAndAddDynamic(serializers, cc, provider);
                 }
-                serializers = _dynamicSerializers;
+                serializers = _dynamicValueSerializers;
             }
             if (typeSer == null) {
                 serializer.serialize(elem, g, provider);

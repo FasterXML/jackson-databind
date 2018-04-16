@@ -90,8 +90,8 @@ public class JsonValueSerializer
     public JsonValueSerializer withResolved(BeanProperty property,
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
-        if (_property == property && _valueSerializer == ser
-                && forceTypeInfo == _forceTypeInformation) {
+        if ((_property == property) && (_valueSerializer == ser)
+                && (forceTypeInfo == _forceTypeInformation)) {
             return this;
         }
         return new JsonValueSerializer(this, property, ser, forceTypeInfo);

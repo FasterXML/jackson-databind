@@ -44,12 +44,6 @@ public class ObjectArraySerializer
      */
     protected JsonSerializer<Object> _elementSerializer;
 
-    /**
-     * If element type cannot be statically determined, mapping from
-     * runtime type to serializer is handled using this object
-     */
-    protected PropertySerializerMap _dynamicSerializers;
-
     /*
     /**********************************************************************
     /* Life-cycle
@@ -63,7 +57,6 @@ public class ObjectArraySerializer
         _elementType = elemType;
         _staticTyping = staticTyping;
         _valueTypeSerializer = vts;
-        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _elementSerializer = elementSerializer;
     }
 
@@ -73,7 +66,6 @@ public class ObjectArraySerializer
         _elementType = src._elementType;
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
-        _dynamicSerializers = src._dynamicSerializers;
         _elementSerializer = src._elementSerializer;
     }
     
@@ -86,7 +78,6 @@ public class ObjectArraySerializer
         _elementType = src._elementType;
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
-        _dynamicSerializers = src._dynamicSerializers;
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
     }
 
@@ -225,7 +216,7 @@ public class ObjectArraySerializer
         int i = 0;
         Object elem = null;
         try {
-            PropertySerializerMap serializers = _dynamicSerializers;
+            PropertySerializerMap serializers = _dynamicValueSerializers;
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
@@ -249,7 +240,7 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeContentsUsing(Object[] value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeContentsUsing(Object[] value, JsonGenerator g, SerializerProvider provider,
             JsonSerializer<Object> ser) throws IOException
     {
         final int len = value.length;
@@ -261,13 +252,13 @@ public class ObjectArraySerializer
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(jgen);
+                    provider.defaultSerializeNullValue(g);
                     continue;
                 }
                 if (typeSer == null) {
-                    ser.serialize(elem, jgen, provider);
+                    ser.serialize(elem, g, provider);
                 } else {
-                    ser.serializeWithType(elem, jgen, provider, typeSer);
+                    ser.serializeWithType(elem, g, provider, typeSer);
                 }
             }
         } catch (Exception e) {
@@ -275,18 +266,18 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeTypedContents(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serializeTypedContents(Object[] value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         int i = 0;
         Object elem = null;
         try {
-            PropertySerializerMap serializers = _dynamicSerializers;
+            PropertySerializerMap serializers = _dynamicValueSerializers;
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(jgen);
+                    provider.defaultSerializeNullValue(g);
                     continue;
                 }
                 Class<?> cc = elem.getClass();
@@ -294,7 +285,7 @@ public class ObjectArraySerializer
                 if (serializer == null) {
                     serializer = _findAndAddDynamic(serializers, cc, provider);
                 }
-                serializer.serializeWithType(elem, jgen, provider, typeSer);
+                serializer.serializeWithType(elem, g, provider, typeSer);
             }
         } catch (Exception e) {
             wrapAndThrow(provider, e, elem, i);
@@ -314,27 +305,5 @@ public class ObjectArraySerializer
             }
             arrayVisitor.itemsFormat(valueSer, contentType);
         }
-    }
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        // did we get a new map of serializers? If so, start using it
-        if (map != result.map) {
-            _dynamicSerializers = result.map;
-        }
-        return result.serializer;
-    }
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        // did we get a new map of serializers? If so, start using it
-        if (map != result.map) {
-            _dynamicSerializers = result.map;
-        }
-        return result.serializer;
     }
 }

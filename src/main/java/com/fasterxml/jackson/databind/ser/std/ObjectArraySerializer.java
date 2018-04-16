@@ -51,9 +51,9 @@ public class ObjectArraySerializer
     protected PropertySerializerMap _dynamicSerializers;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
     
     public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
@@ -111,9 +111,9 @@ public class ObjectArraySerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Post-processing
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -159,9 +159,9 @@ public class ObjectArraySerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -185,9 +185,9 @@ public class ObjectArraySerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -308,16 +308,6 @@ public class ObjectArraySerializer
         JsonArrayFormatVisitor arrayVisitor = visitor.expectArrayFormat(typeHint);
         if (arrayVisitor != null) {
             JavaType contentType = _elementType;
-
-            // [databind#1793]: Was getting `null` for `typeHint`. But why would we even use it...
-/*
-            TypeFactory tf = visitor.getProvider().getTypeFactory();
-            contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
-            if (contentType == null) {
-                visitor.getProvider().reportBadDefinition(_elementType,
-                        "Could not resolve type: "+_elementType);
-            }
-*/
             JsonSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
                 valueSer = visitor.getProvider().findValueSerializer(contentType, _property);

@@ -45,9 +45,9 @@ public abstract class StdSerializer<T>
     protected final Class<T> _handledType;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected StdSerializer(Class<T> t) {
@@ -68,27 +68,24 @@ public abstract class StdSerializer<T>
         _handledType = (Class<T>) t;
     }
 
-    /**
-     * @since 2.6
-     */
     @SuppressWarnings("unchecked")
     protected StdSerializer(StdSerializer<?> src) {
         _handledType = (Class<T>) src._handledType;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public Class<T> handledType() { return _handledType; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -96,9 +93,9 @@ public abstract class StdSerializer<T>
         throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Type introspection API, partial/default implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -113,9 +110,9 @@ public abstract class StdSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for JSON Schema generation
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected ObjectNode createSchemaNode(String type)
@@ -163,8 +160,6 @@ public abstract class StdSerializer<T>
     /**
      * Helper method that calls necessary visit method(s) to indicate that the
      * underlying JSON type is JSON Integer number.
-     *
-     * @since 2.7
      */
     protected void visitIntFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             NumberType numberType)
@@ -180,8 +175,6 @@ public abstract class StdSerializer<T>
      * Helper method that calls necessary visit method(s) to indicate that the
      * underlying JSON type is JSON Integer number, but that there is also a further
      * format restriction involved.
-     *
-     * @since 2.7
      */
     protected void visitIntFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             NumberType numberType, JsonValueFormat format)
@@ -201,8 +194,6 @@ public abstract class StdSerializer<T>
     /**
      * Helper method that calls necessary visit method(s) to indicate that the
      * underlying JSON type is a floating-point JSON number.
-     *
-     * @since 2.7
      */
     protected void visitFloatFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             NumberType numberType)
@@ -214,9 +205,6 @@ public abstract class StdSerializer<T>
         }
     }
 
-    /**
-     * @since 2.7
-     */
     protected void visitArrayFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             JsonSerializer<?> itemSerializer, JavaType itemType)
         throws JsonMappingException
@@ -238,9 +226,9 @@ public abstract class StdSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for exception handling
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -304,9 +292,9 @@ public abstract class StdSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, accessing annotation-based configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -416,8 +404,6 @@ public abstract class StdSerializer<T>
      * to find whether that feature has been specifically marked as enabled or disabled.
      * 
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
-     *
-     * @since 2.7
      */
     protected Boolean findFormatFeature(SerializerProvider provider,
             BeanProperty prop, Class<?> typeForDefaults, JsonFormat.Feature feat)
@@ -459,9 +445,9 @@ public abstract class StdSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, other
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**

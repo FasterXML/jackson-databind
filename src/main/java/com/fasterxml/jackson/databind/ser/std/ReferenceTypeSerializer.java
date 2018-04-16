@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.BeanUtil;
@@ -23,18 +22,16 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * methods for sub-classes to implement
  */
 public abstract class ReferenceTypeSerializer<T>
-    extends StdSerializer<T>
+    extends DynamicStdSerializer<T>
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
-    
+
     /**
      * Value type
      */
     protected final JavaType _referredType;
-
-    protected final BeanProperty _property;
 
     /**
      * Type serializer used for values, if any.
@@ -42,20 +39,9 @@ public abstract class ReferenceTypeSerializer<T>
     protected final TypeSerializer _valueTypeSerializer;
 
     /**
-     * Serializer for content values, if statically known.
-     */
-    protected final JsonSerializer<Object> _valueSerializer;
-
-    /**
      * In case of unwrapping, need name transformer.
      */
     protected final NameTransformer _unwrapper;
-
-    /**
-     * If element type cannot be statically determined, mapping from
-     * runtime type to serializer is handled using this object
-     */
-    protected transient PropertySerializerMap _dynamicSerializers;
 
     /*
     /**********************************************************************
@@ -88,29 +74,22 @@ public abstract class ReferenceTypeSerializer<T>
     public ReferenceTypeSerializer(ReferenceType fullType, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<Object> ser)
     {
-        super(fullType);
+        super(fullType, null, ser);
         _referredType = fullType.getReferencedType();
-        _property = null;
         _valueTypeSerializer = vts;
-        _valueSerializer = ser;
         _unwrapper = null;
         _suppressableValue = null;
         _suppressNulls = false;
-        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
     }
 
-    @SuppressWarnings("unchecked")
     protected ReferenceTypeSerializer(ReferenceTypeSerializer<?> base, BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> valueSer,
             NameTransformer unwrapper,
             Object suppressableValue, boolean suppressNulls)
     {
-        super(base);
+        super(base, property, valueSer);
         _referredType = base._referredType;
-        _dynamicSerializers = base._dynamicSerializers;
-        _property = property;
         _valueTypeSerializer = vts;
-        _valueSerializer = (JsonSerializer<Object>) valueSer;
         _unwrapper = unwrapper;
         _suppressableValue = suppressableValue;
         _suppressNulls = suppressNulls;
@@ -425,7 +404,7 @@ public abstract class ReferenceTypeSerializer<T>
     private final JsonSerializer<Object> _findCachedSerializer(SerializerProvider provider,
             Class<?> rawType) throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _dynamicSerializers.serializerFor(rawType);
+        JsonSerializer<Object> ser = _dynamicValueSerializers.serializerFor(rawType);
         if (ser == null) {
             // NOTE: call this instead of `map._findAndAddDynamic(...)` (which in turn calls
             // `findAndAddSecondarySerializer`) since we may need to apply unwrapper
@@ -441,7 +420,7 @@ public abstract class ReferenceTypeSerializer<T>
             if (_unwrapper != null) {
                 ser = ser.unwrappingSerializer(_unwrapper);
             }
-            _dynamicSerializers = _dynamicSerializers.newWith(rawType, ser);
+            _dynamicValueSerializers = _dynamicValueSerializers.newWith(rawType, ser);
         }
         return ser;
     }

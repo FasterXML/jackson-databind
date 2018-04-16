@@ -33,7 +33,7 @@ public class EnumSetSerializer
             Boolean unwrapSingle) {
         return new EnumSetSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, EnumSet<? extends Enum<?>> value) {
         return value.isEmpty();
@@ -68,15 +68,12 @@ public class EnumSetSerializer
         throws IOException
     {
         JsonSerializer<Object> enumSer = _elementSerializer;
-        /* Need to dynamically find instance serializer; unfortunately
-         * that seems to be the only way to figure out type (no accessors
-         * to the enum class that set knows)
-         */
+        // Need to dynamically find instance serializer; unfortunately that seems
+        // to be the only way to figure out type (no accessors to the enum class that set knows)
         for (Enum<?> en : value) {
             if (enumSer == null) {
-                /* 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
-                 *   not bother with typed serializer variant here
-                 */
+                // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
+                //   not bother with typed serializer variant here
                 enumSer = provider.findValueSerializer(en.getDeclaringClass(), _property);
             }
             enumSer.serialize(en, gen, provider);

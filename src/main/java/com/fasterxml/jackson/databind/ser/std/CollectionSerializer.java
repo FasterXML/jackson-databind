@@ -106,7 +106,7 @@ public class CollectionSerializer
         if (!it.hasNext()) {
             return;
         }
-        PropertySerializerMap serializers = _dynamicSerializers;
+        PropertySerializerMap serializers = _dynamicValueSerializers;
         final TypeSerializer typeSer = _valueTypeSerializer;
 
         int i = 0;
@@ -125,7 +125,7 @@ public class CollectionSerializer
                         } else {
                             serializer = _findAndAddDynamic(serializers, cc, provider);
                         }
-                        serializers = _dynamicSerializers;
+                        serializers = _dynamicValueSerializers;
                     }
                     if (typeSer == null) {
                         serializer.serialize(elem, g, provider);

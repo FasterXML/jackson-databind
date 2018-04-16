@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 
 /**
- * Intermediate base class for serializers used for various
- * Java arrays.
+ * Intermediate base class for serializers used for various Java arrays.
  * 
  * @param <T> Type of arrays serializer handles
  */
@@ -19,8 +18,6 @@ import com.fasterxml.jackson.databind.ser.*;
 public abstract class ArraySerializerBase<T>
     extends ContainerSerializer<T>
 {
-    protected final BeanProperty _property;
-
     /**
      * Setting for specific local override for "unwrap single element arrays":
      * true for enable unwrapping, false for preventing it, `null` for using
@@ -31,22 +28,18 @@ public abstract class ArraySerializerBase<T>
     protected ArraySerializerBase(Class<T> cls)
     {
         super(cls);
-        _property = null;
         _unwrapSingle = null;
     }
 
-    protected ArraySerializerBase(ArraySerializerBase<?> src)
-    {
-        super(src._handledType, false);
-        _property = src._property;
+    protected ArraySerializerBase(ArraySerializerBase<?> src) {
+        super(src);
         _unwrapSingle = src._unwrapSingle;
     }
 
     protected ArraySerializerBase(ArraySerializerBase<?> src, BeanProperty property,
             Boolean unwrapSingle)
     {
-        super(src._handledType, false);
-        _property = property;
+        super(src, property);
         _unwrapSingle = unwrapSingle;
     }
 

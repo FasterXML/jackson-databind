@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -17,6 +18,23 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 public abstract class ContainerSerializer<T>
     extends StdSerializer<T>
 {
+    /**
+     * Property that contains values handled by this serializer, if known; `null`
+     * for root value serializers (ones directly called by {@link ObjectMapper} and
+     * {@link ObjectWriter}).
+     *
+     * @since 3.0
+     */
+    protected final BeanProperty _property;
+
+    /**
+     * If value type cannot be statically determined, mapping from
+     * runtime value types to serializers are stored in this object.
+     *
+     * @since 3.0 (in 2.x subtypes contained it)
+     */
+    protected PropertySerializerMap _dynamicValueSerializers;
+    
     /*
     /**********************************************************************
     /* Construction, initialization
@@ -25,26 +43,38 @@ public abstract class ContainerSerializer<T>
 
     protected ContainerSerializer(Class<T> t) {
         super(t);
+        _property = null;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
-    protected ContainerSerializer(JavaType fullType) {
-        super(fullType);
-    }
-    
     /**
      * Alternate constructor that is (alas!) needed to work
      * around kinks of generic type handling
-     * 
-     * @param t
      */
     protected ContainerSerializer(Class<?> t, boolean dummy) {
         super(t, dummy);
+        _property = null;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
+    protected ContainerSerializer(JavaType fullType, BeanProperty prop) {
+        super(fullType);
+        _property = prop;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     protected ContainerSerializer(ContainerSerializer<?> src) {
-        super(src._handledType, false);
+        this(src, src._property);
     }
-    
+
+    protected ContainerSerializer(ContainerSerializer<?> src, BeanProperty prop) {
+        super(src._handledType, false);
+        _property = prop;
+        // 16-Apr-2018, tatu: Could retain, possibly, in some cases... but may be
+        //    dangerous as general practice so reset
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
     /**
      * Factory(-like) method that can be used to construct a new container
      * serializer that uses specified {@link TypeSerializer} for decorating
@@ -107,10 +137,38 @@ public abstract class ContainerSerializer<T>
      */
     public abstract boolean hasSingleElement(T value);
 
+    /*
+    /**********************************************************************
+    /* Helper methods for locating, caching element/value serializers
+    /**********************************************************************
+     */
+    
     /**
      * Method that needs to be implemented to allow construction of a new
      * serializer object with given {@link TypeSerializer}, used when
      * addition type information is to be embedded.
      */
     protected abstract ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts);
+
+    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+            Class<?> type, SerializerProvider provider) throws JsonMappingException
+    {
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        // did we get a new map of serializers? If so, start using it
+        if (map != result.map) {
+            _dynamicValueSerializers = result.map;
+        }
+        return result.serializer;
+    }
+
+    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+            JavaType type, SerializerProvider provider) throws JsonMappingException
+    {
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        // did we get a new map of serializers? If so, start using it
+        if (map != result.map) {
+            _dynamicValueSerializers = result.map;
+        }
+        return result.serializer;
+    }
 }

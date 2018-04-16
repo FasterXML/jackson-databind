@@ -100,7 +100,7 @@ public final class IndexedListSerializer
         }
         int i = 0;
         try {
-            PropertySerializerMap serializers = _dynamicSerializers;
+            PropertySerializerMap serializers = _dynamicValueSerializers;
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
@@ -116,7 +116,7 @@ public final class IndexedListSerializer
                         } else {
                             serializer = _findAndAddDynamic(serializers, cc, provider);
                         }
-                        serializers = _dynamicSerializers;
+                        serializers = _dynamicValueSerializers;
                     }
                     serializer.serialize(elem, g, provider);
                 }
@@ -162,7 +162,7 @@ public final class IndexedListSerializer
         int i = 0;
         try {
             final TypeSerializer typeSer = _valueTypeSerializer;
-            PropertySerializerMap serializers = _dynamicSerializers;
+            PropertySerializerMap serializers = _dynamicValueSerializers;
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
@@ -178,7 +178,7 @@ public final class IndexedListSerializer
                         } else {
                             serializer = _findAndAddDynamic(serializers, cc, provider);
                         }
-                        serializers = _dynamicSerializers;
+                        serializers = _dynamicValueSerializers;
                     }
                     serializer.serializeWithType(elem, jgen, provider, typeSer);
                 }

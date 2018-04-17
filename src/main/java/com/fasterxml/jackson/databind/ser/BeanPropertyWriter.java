@@ -686,8 +686,6 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Alternative to {@link #serializeAsField} that is used when a POJO is
      * serialized as JSON Array; the difference is that no field names are
      * written.
-     * 
-     * @since 2.3
      */
     @Override
     public void serializeAsElement(Object bean, JsonGenerator gen,

@@ -301,7 +301,7 @@ public class ObjectArraySerializer
             JavaType contentType = _elementType;
             JsonSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
-                valueSer = visitor.getProvider().findValueSerializer(contentType, _property);
+                valueSer = visitor.getProvider().findSecondaryPropertySerializer(contentType, _property);
             }
             arrayVisitor.itemsFormat(valueSer, contentType);
         }

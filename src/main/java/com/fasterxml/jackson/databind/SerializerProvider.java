@@ -327,7 +327,7 @@ public abstract class SerializerProvider
                 return;
             }
             Class<?> cls = value.getClass();
-            findTypedValueSerializer(cls, true, null).serialize(value, gen, this);
+            findTypedValueSerializer(cls, true).serialize(value, gen, this);
         } finally {
             _generator = prevGen;
         }
@@ -479,13 +479,155 @@ public abstract class SerializerProvider
      */
     public abstract WritableObjectId findObjectId(Object forPojo,
         ObjectIdGenerator<?> generatorType);
-    
+
+    /*
+    /**********************************************************************
+    /* Serializer discovery: root value serializers
+    /**********************************************************************
+     */
+
+    /**
+     * Method called to locate regular serializer, matching type serializer,
+     * and if both found, wrap them in a serializer that calls both in correct
+     * sequence. This method is mostly used for root-level serializer
+     * handling to allow for simpler caching. A call can always be replaced
+     * by equivalent calls to access serializer and type serializer separately.
+     * 
+     * @param rawType Type for purpose of locating a serializer; usually dynamic
+     *   runtime type, but can also be static declared type, depending on configuration
+     * @param cache Whether resulting value serializer should be cached or not; this is just
+     *    a hint
+     */
+    public JsonSerializer<Object> findTypedValueSerializer(Class<?> rawType,
+            boolean cache)
+        throws JsonMappingException
+    {
+        // First: do we have it cached (locally, or in shared as call-through)?
+        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(rawType);
+        if (ser != null) {
+            return ser;
+        }
+
+        // If not, compose from pieces:
+        JavaType fullType = _config.constructType(rawType);
+        ser = handleRootContextualization(findValueSerializer(rawType));
+        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, fullType);
+        if (typeSer != null) {
+            typeSer = typeSer.forProperty(null);
+            ser = new TypeWrappedSerializer(typeSer, ser);
+        }
+        if (cache) {
+            _serializerCache.addTypedSerializer(rawType, ser);
+        }
+        return ser;
+    }
+
+    /**
+     * Method called to locate regular serializer, matching type serializer,
+     * and if both found, wrap them in a serializer that calls both in correct
+     * sequence. This method is mostly used for root-level serializer
+     * handling to allow for simpler caching. A call can always be replaced
+     * by equivalent calls to access serializer and type serializer separately.
+     * 
+     * @param valueType Declared type of value being serialized (which may not
+     *    be actual runtime type); used for finding both value serializer and
+     *    type serializer to use for adding polymorphic type (if any)
+     * @param cache Whether resulting value serializer should be cached or not; this is just
+     *    a hint 
+     */
+    public JsonSerializer<Object> findTypedValueSerializer(JavaType valueType, boolean cache)
+        throws JsonMappingException
+    {
+        // First see if we might have serializer already cached
+        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
+        if (ser != null) {
+            return ser;
+        }
+        // Well, let's just compose from pieces:
+        ser = handleRootContextualization(findValueSerializer(valueType));
+        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, valueType);
+        if (typeSer != null) {
+            typeSer = typeSer.forProperty(null);
+            ser = new TypeWrappedSerializer(typeSer, ser);
+        }
+        if (cache) {
+            _serializerCache.addTypedSerializer(valueType, ser);
+        }
+        return ser;
+    }
+
+    /*
+    /**********************************************************************
+    /* Serializer discovery: property value serializers
+    /**********************************************************************
+     */
+
+    /**
+     * Similar to {@link #findValueSerializer(JavaType, BeanProperty)}, but used
+     * when finding "primary" property value serializer (one directly handling
+     * value of the property). Difference has to do with contextual resolution,
+     * and method(s) called: this method should only be called when caller is
+     * certain that this is the primary property value serializer.
+     * 
+     * @param property Property that is being handled; will never be null, and its
+     *    type has to match <code>valueType</code> parameter.
+     */
+    public JsonSerializer<Object> findPrimaryPropertySerializer(JavaType valueType,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _createAndCacheUntypedSerializer(valueType);
+        }
+        return handlePrimaryContextualization(ser, property);
+    }
+
+    public JsonSerializer<Object> findPrimaryPropertySerializer(Class<?> rawType,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(_config.constructType(rawType));
+            if (ser == null) {
+                ser = _createAndCacheUntypedSerializer(rawType);
+            }
+        }
+        return handlePrimaryContextualization(ser, property);
+    }
+
+    public JsonSerializer<Object> findSecondaryPropertySerializer(JavaType valueType,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _createAndCacheUntypedSerializer(valueType);
+        }
+        return handleSecondaryContextualization(ser, property);
+    }
+
+    public JsonSerializer<Object> findSecondaryPropertySerializer(Class<?> rawType,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(_config.constructType(rawType));
+            if (ser == null) {
+                ser = _createAndCacheUntypedSerializer(rawType);
+            }
+        }
+        return handleSecondaryContextualization(ser, property);
+    }
+
     /*
     /**********************************************************************
     /* General serializer locating functionality
     /**********************************************************************
      */
-
+    
     /**
      * Method called to get hold of a serializer for a value of given type;
      * or if no such serializer can be found, a default handler (which
@@ -511,8 +653,7 @@ public abstract class SerializerProvider
         if (ser == null) {
             // ... possibly as fully typed?
             ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
-            if (ser == null) {
-                // If neither, must create
+            if (ser == null) { // If neither, must create
                 ser = _createAndCacheUntypedSerializer(valueType);
             }
         }
@@ -580,103 +721,12 @@ public abstract class SerializerProvider
         return ser;
     }
 
-    /**
-     * Similar to {@link #findValueSerializer(JavaType, BeanProperty)}, but used
-     * when finding "primary" property value serializer (one directly handling
-     * value of the property). Difference has to do with contextual resolution,
-     * and method(s) called: this method should only be called when caller is
-     * certain that this is the primary property value serializer.
-     * 
-     * @param property Property that is being handled; will never be null, and its
-     *    type has to match <code>valueType</code> parameter.
+    /*
+    /**********************************************************************
+    /* Serializer discovery: type serializers
+    /**********************************************************************
      */
-    public JsonSerializer<Object> findPrimaryPropertySerializer(JavaType valueType, BeanProperty property)
-        throws JsonMappingException
-    {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
-        if (ser == null) {
-            ser = _createAndCacheUntypedSerializer(valueType);
-        }
-        return handlePrimaryContextualization(ser, property);
-    }
-
-    /**
-     * Method called to locate regular serializer, matching type serializer,
-     * and if both found, wrap them in a serializer that calls both in correct
-     * sequence. This method is mostly used for root-level serializer
-     * handling to allow for simpler caching. A call can always be replaced
-     * by equivalent calls to access serializer and type serializer separately.
-     * 
-     * @param rawType Type for purpose of locating a serializer; usually dynamic
-     *   runtime type, but can also be static declared type, depending on configuration
-     * @param cache Whether resulting value serializer should be cached or not; this is just
-     *    a hint
-     * @param property When creating secondary serializers, property for which
-     *   serializer is needed: annotations of the property (or bean that contains it)
-     *   may be checked to create contextual serializers.
-     */
-    public JsonSerializer<Object> findTypedValueSerializer(Class<?> rawType,
-            boolean cache, BeanProperty property)
-        throws JsonMappingException
-    {
-        // First: do we have it cached (locally, or in shared as call-through)?
-        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(rawType);
-        if (ser != null) {
-            return ser;
-        }
-
-        // If not, compose from pieces:
-        JavaType fullType = _config.constructType(rawType);
-        ser = findValueSerializer(rawType, property);
-        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, fullType);
-        if (typeSer != null) {
-            typeSer = typeSer.forProperty(property);
-            ser = new TypeWrappedSerializer(typeSer, ser);
-        }
-        if (cache) {
-            _serializerCache.addTypedSerializer(rawType, ser);
-        }
-        return ser;
-    }
-
-    /**
-     * Method called to locate regular serializer, matching type serializer,
-     * and if both found, wrap them in a serializer that calls both in correct
-     * sequence. This method is mostly used for root-level serializer
-     * handling to allow for simpler caching. A call can always be replaced
-     * by equivalent calls to access serializer and type serializer separately.
-     * 
-     * @param valueType Declared type of value being serialized (which may not
-     *    be actual runtime type); used for finding both value serializer and
-     *    type serializer to use for adding polymorphic type (if any)
-     * @param cache Whether resulting value serializer should be cached or not; this is just
-     *    a hint 
-     * @param property When creating secondary serializers, property for which
-     *   serializer is needed: annotations of the property (or bean that contains it)
-     *   may be checked to create contextual serializers.
-     */
-    public JsonSerializer<Object> findTypedValueSerializer(JavaType valueType, boolean cache,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        // Two-phase lookups; local non-shared cache, then shared:
-        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
-        if (ser != null) {
-            return ser;
-        }
-        // Well, let's just compose from pieces:
-        ser = findValueSerializer(valueType, property);
-        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, valueType);
-        if (typeSer != null) {
-            typeSer = typeSer.forProperty(property);
-            ser = new TypeWrappedSerializer(typeSer, ser);
-        }
-        if (cache) {
-            _serializerCache.addTypedSerializer(valueType, ser);
-        }
-        return ser;
-    }
-
+    
     /**
      * Method called to get the {@link TypeSerializer} to use for including Type Id necessary
      * for serializing for the given Java class.
@@ -685,6 +735,12 @@ public abstract class SerializerProvider
     public TypeSerializer findTypeSerializer(JavaType javaType) throws JsonMappingException {
         return _serializerFactory.findTypeSerializer(_config, javaType);
     }
+
+    /*
+    /**********************************************************************
+    /* Serializer discovery: key serializers
+    /**********************************************************************
+     */
 
     /**
      * Method called to get the serializer to use for serializing
@@ -926,6 +982,19 @@ public abstract class SerializerProvider
     {
         if (ser != null) {
             ser = ser.createContextual(this, property);
+        }
+        return (JsonSerializer<Object>) ser;
+    }
+
+    /**
+     * @since 3.0
+     */
+    @SuppressWarnings("unchecked")
+    public JsonSerializer<Object> handleRootContextualization(JsonSerializer<?> ser)
+        throws JsonMappingException
+    {
+        if (ser != null) {
+            ser = ser.createContextual(this, null);
         }
         return (JsonSerializer<Object>) ser;
     }

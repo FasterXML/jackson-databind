@@ -153,7 +153,7 @@ public class UnwrappingBeanPropertyWriter
             SerializerProvider provider) throws JsonMappingException
     {
         JsonSerializer<Object> ser = provider
-                .findValueSerializer(this.getType(), this)
+                .findValueSerializer(getType(), this)
                 .unwrappingSerializer(_nameTransformer);
 
         if (ser.isUnwrappingSerializer()) {
@@ -165,7 +165,7 @@ public class UnwrappingBeanPropertyWriter
                         throws JsonMappingException {
                     return visitor;
                 }
-            }, this.getType());
+            }, getType());
         } else {
             super.depositSchemaProperty(visitor, provider);
         }
@@ -203,9 +203,9 @@ public class UnwrappingBeanPropertyWriter
         JsonSerializer<Object> serializer;
         if (_nonTrivialBaseType != null) {
             JavaType subtype = provider.constructSpecializedType(_nonTrivialBaseType, type);
-            serializer = provider.findValueSerializer(subtype, this);
+            serializer = provider.findPrimaryPropertySerializer(subtype, this);
         } else {
-            serializer = provider.findValueSerializer(type, this);
+            serializer = provider.findPrimaryPropertySerializer(type, this);
         }
         NameTransformer t = _nameTransformer;
         if (serializer.isUnwrappingSerializer()) {

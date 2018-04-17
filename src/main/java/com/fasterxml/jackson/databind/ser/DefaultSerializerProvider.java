@@ -249,7 +249,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         }
         final Class<?> cls = value.getClass();
         // true, since we do want to cache root-level typed serializers (ditto for null property)
-        final JsonSerializer<Object> ser = findTypedValueSerializer(cls, true, null);
+        final JsonSerializer<Object> ser = findTypedValueSerializer(cls, true);
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
@@ -286,7 +286,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             _reportIncompatibleRootType(value, rootType);
         }
         // root value, not reached via property:
-        JsonSerializer<Object> ser = findTypedValueSerializer(rootType, true, null);
+        JsonSerializer<Object> ser = findTypedValueSerializer(rootType, true);
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
@@ -324,7 +324,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         }
         // root value, not reached via property:
         if (ser == null) {
-            ser = findTypedValueSerializer(rootType, true, null);
+            ser = findTypedValueSerializer(rootType, true);
         }
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
@@ -345,8 +345,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     /**
      * Alternate serialization call used for polymorphic types, when {@link TypeSerializer}
      * is already known, but the actual serializer may or may not be.
-     *
-     * @since 2.6
      */
     public void serializePolymorphic(JsonGenerator gen, Object value, JavaType rootType,
             JsonSerializer<Object> valueSer, TypeSerializer typeSer)
@@ -368,9 +366,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
          */
         if (valueSer == null) {
             if ((rootType != null) && rootType.isContainerType()) {
-                valueSer = findValueSerializer(rootType, null);
+                valueSer = handleRootContextualization(findValueSerializer(rootType));
             } else {
-                valueSer = findValueSerializer(value.getClass(), null);
+                valueSer = handleRootContextualization(findValueSerializer(value.getClass()));
             }
         }
 

@@ -69,7 +69,7 @@ public class NullConversionsPojoTest extends BaseMapTest
         String json = aposToQuotes("{'name':null}");
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
-        
+
         ObjectMapper mapper = objectMapperBuilder()
                 .withConfigOverride(String.class,
                         o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.FAIL)))

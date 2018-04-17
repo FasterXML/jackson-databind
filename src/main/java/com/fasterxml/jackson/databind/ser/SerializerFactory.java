@@ -40,8 +40,16 @@ public abstract class SerializerFactory
      * @return Type serializer to use for the base type, if one is needed; null if not.
      */
     public abstract TypeSerializer findTypeSerializer(SerializationConfig config,
-            JavaType baseType)
+            BeanDescription beanDesc, JavaType baseType)
         throws JsonMappingException;
+
+    public TypeSerializer findTypeSerializer(SerializationConfig config,
+            JavaType baseType) throws JsonMappingException
+    {
+        return findTypeSerializer(config,
+                config.introspectClassAnnotations(baseType),
+                baseType);
+    }
 
     /**
      * Method called to create serializer to use for serializing JSON property names (which must

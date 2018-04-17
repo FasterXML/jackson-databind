@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * methods for sub-classes to implement
  */
 public abstract class ReferenceTypeSerializer<T>
-    extends DynamicStdSerializer<T>
+    extends StdDynamicSerializer<T>
 {
     private static final long serialVersionUID = 3L;
 
@@ -32,11 +32,6 @@ public abstract class ReferenceTypeSerializer<T>
      * Value type
      */
     protected final JavaType _referredType;
-
-    /**
-     * Type serializer used for values, if any.
-     */
-    protected final TypeSerializer _valueTypeSerializer;
 
     /**
      * In case of unwrapping, need name transformer.
@@ -74,9 +69,8 @@ public abstract class ReferenceTypeSerializer<T>
     public ReferenceTypeSerializer(ReferenceType fullType, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<Object> ser)
     {
-        super(fullType, null, ser);
+        super(fullType, null, vts, ser);
         _referredType = fullType.getReferencedType();
-        _valueTypeSerializer = vts;
         _unwrapper = null;
         _suppressableValue = null;
         _suppressNulls = false;
@@ -87,9 +81,8 @@ public abstract class ReferenceTypeSerializer<T>
             NameTransformer unwrapper,
             Object suppressableValue, boolean suppressNulls)
     {
-        super(base, property, valueSer);
+        super(base, property, vts, valueSer);
         _referredType = base._referredType;
-        _valueTypeSerializer = vts;
         _unwrapper = unwrapper;
         _suppressableValue = suppressableValue;
         _suppressNulls = suppressNulls;

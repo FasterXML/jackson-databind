@@ -49,7 +49,7 @@ public class ObjectArraySerializer
     /* Life-cycle
     /**********************************************************************
      */
-    
+
     public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<Object> elementSerializer)
     {

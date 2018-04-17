@@ -33,9 +33,19 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @SuppressWarnings("serial")
 @JacksonStdImpl
 public class JsonValueSerializer
-    extends DynamicStdSerializer<Object>
+    extends StdDynamicSerializer<Object>
 {
+    /**
+     * Accessor (field, getter) used to access value to serialize.
+     */
     protected final AnnotatedMember _accessor;
+
+    /**
+     * Value for annotated accessor.
+     */
+    protected final JavaType _valueType;
+
+    protected final boolean _staticTyping;
 
     /**
      * This is a flag that is set in rare (?) cases where this serializer
@@ -51,24 +61,36 @@ public class JsonValueSerializer
     /**********************************************************************
      */
 
+    /*
+    public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
+            TypeSerializer vts, JsonSerializer<Object> elementSerializer)
+     */
+    
     /**
      * @param ser Explicit serializer to use, if caller knows it (which
      *    occurs if and only if the "value method" was annotated with
      *    {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *    null
      */
-    public JsonValueSerializer(AnnotatedMember accessor, JsonSerializer<?> ser)
+    public JsonValueSerializer(JavaType nominalType,
+            JavaType valueType, boolean staticTyping,
+            TypeSerializer vts, JsonSerializer<?> ser,
+            AnnotatedMember accessor)
     {
-        super(accessor.getType(), null, ser);
+        super(nominalType, null, vts, ser);
+        _valueType = valueType;
+        _staticTyping = staticTyping;
         _accessor = accessor;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
     }
 
-    public JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
+    protected JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
-        super(src, property, ser);
+        super(src, property, src._valueTypeSerializer, ser);
+        _valueType = src._valueType;
         _accessor = src._accessor;
+        _staticTyping = src._staticTyping;
         _forceTypeInformation = forceTypeInfo;
     }
 
@@ -103,20 +125,20 @@ public class JsonValueSerializer
             // if not, we don't really know the actual type until we get the instance.
 
             // 10-Mar-2010, tatu: Except if static typing is to be used
-            JavaType t = _accessor.getType();
-            if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || t.isFinal()) {
+            if (_staticTyping || provider.isEnabled(MapperFeature.USE_STATIC_TYPING)
+                    || _valueType.isFinal()) {
                 // false -> no need to cache
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
                  *   serializer from value serializer; but, alas, there's no access
                  *   to serializer factory at this point... 
                  */
                 // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-                ser = provider.findPrimaryPropertySerializer(t, property);
+                ser = provider.findPrimaryPropertySerializer(_valueType, property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
-                boolean forceTypeInformation = isNaturalTypeWithStdHandling(t.getRawClass(), ser);
+                boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
                 return withResolved(property, ser, forceTypeInformation);
             }
         } else {
@@ -149,15 +171,19 @@ public class JsonValueSerializer
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            Class<?> c = value.getClass();
-            /// 10-Mar-2010, tatu: Ideally we would actually separate out type
-            //  serializer from value serializer; but, alas, there's no access
-            //   to serializer factory at this point... 
-
-            // let's cache it, may be needed soon again
-            ser = prov.findTypedValueSerializer(c, true, _property);
+            Class<?> cc = value.getClass();
+            if (_valueType.hasGenericTypes()) {
+                ser = _findAndAddDynamic(_dynamicValueSerializers,
+                        prov.constructSpecializedType(_valueType, cc), prov);
+            } else {
+                ser = _findAndAddDynamic(_dynamicValueSerializers, cc, prov);
+            }
         }
-        ser.serialize(value, gen, prov);
+        if (_valueTypeSerializer != null) {
+            ser.serializeWithType(value, gen, prov, _valueTypeSerializer);
+        } else {
+            ser.serialize(value, gen, prov);
+        }
     }
 
     @Override
@@ -178,24 +204,38 @@ public class JsonValueSerializer
             return;
         }
         JsonSerializer<Object> ser = _valueSerializer;
-        if (ser == null) { // no serializer yet? Need to fetch
-            ser = prov.findValueSerializer(value.getClass(), _property);
-        } else {
-            // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
-            //    this (note: type is for the wrapper type, not enclosed value!)
-            if (_forceTypeInformation) {
-                // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
-                WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
-                        typeSer0.typeId(bean, JsonToken.VALUE_STRING));
-                ser.serialize(value, gen, prov);
-                typeSer0.writeTypeSuffix(gen, typeIdDef);
-
-                return;
+        if (ser == null) {
+            Class<?> cc = value.getClass();
+            if (_valueType.hasGenericTypes()) {
+                ser = _findAndAddDynamic(_dynamicValueSerializers,
+                        prov.constructSpecializedType(_valueType, cc), prov);
+            } else {
+                ser = _findAndAddDynamic(_dynamicValueSerializers, cc, prov);
             }
         }
+
+        // 16-Apr-2018, tatu: This is interesting piece of vestigal code but...
+        //    I guess it is still needed, too.
+
+        // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
+        //    this (note: type is for the wrapper type, not enclosed value!)
+        if (_forceTypeInformation) {
+            // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
+            WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
+                    typeSer0.typeId(bean, JsonToken.VALUE_STRING));
+            ser.serialize(value, gen, prov);
+            typeSer0.writeTypeSuffix(gen, typeIdDef);
+            return;
+        }
+
         // 28-Sep-2016, tatu: As per [databind#1385], we do need to do some juggling
         //    to use different Object for type id (logical type) and actual serialization
-        //    (delegat type).
+        //    (delegate type).
+
+        // 16-Apr-2018, tatu: What seems suspicious is that we do not use `_valueTypeSerializer`
+        //    for anything but... it appears to work wrt existing tests, and alternative
+        //    is not very clear. So most likely it'll fail at some point and require
+        //    full investigation. But not today.
         TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
         ser.serializeWithType(value, gen, prov, rr);
     }

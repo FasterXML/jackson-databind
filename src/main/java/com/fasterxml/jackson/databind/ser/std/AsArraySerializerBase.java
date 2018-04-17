@@ -164,9 +164,12 @@ public abstract class AsArraySerializerBase<T>
     /**********************************************************************
      */
 
-    // NOTE: as of 2.5, sub-classes SHOULD override
+    // 16-Apr-2018, tatu: Sample code, but sub-classes need to implement (for more
+    //    efficient "is-single-unwrapped" check)
+    
     // at least if they can provide access to actual size of value and use `writeStartArray()`
     // variant that passes size of array to output, which is helpful with some data formats
+    /*
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
@@ -175,12 +178,13 @@ public abstract class AsArraySerializerBase<T>
             serializeContents(value, gen, provider);
             return;
         }
-        gen.writeStartArray();
+        gen.writeStartArray(value);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
+    */
 
     @Override
     public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,

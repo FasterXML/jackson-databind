@@ -132,7 +132,7 @@ public class JsonValueSerializer
                  *   serializer from value serializer; but, alas, there's no access
                  *   to serializer factory at this point... 
                  */
-                // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
+                // I _think_ this can be considered a primary property...
                 ser = provider.findPrimaryPropertySerializer(_valueType, property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
@@ -262,7 +262,7 @@ public class JsonValueSerializer
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = visitor.getProvider().findTypedValueSerializer(type, false, _property);
+            ser = visitor.getProvider().findValueSerializer(type, _property);
             if (ser == null) { // can this ever occur?
                 visitor.expectAnyFormat(typeHint);
                 return;

@@ -768,7 +768,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     // Also part of BeanProperty implementation
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor v,
-            SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException
+    {
         if (v != null) {
             if (isRequired()) {
                 v.property(this);
@@ -779,9 +780,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

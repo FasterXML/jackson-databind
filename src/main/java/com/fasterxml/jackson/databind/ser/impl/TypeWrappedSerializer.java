@@ -43,12 +43,12 @@ public final class TypeWrappedSerializer
     public Class<Object> handledType() { return Object.class; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ContextualDeserializer
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override // since 2.9
+    @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
@@ -64,9 +64,9 @@ public final class TypeWrappedSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API for other core classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonSerializer<Object> valueSerializer() {

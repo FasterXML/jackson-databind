@@ -1113,7 +1113,7 @@ public class ObjectWriter
                 //   serializer for polymorphic types, it is actually more efficient to do the
                 //   reverse here.
                 try {
-                    JsonSerializer<Object> ser = prov.findTypedValueSerializer(newType, true, null);
+                    JsonSerializer<Object> ser = prov.findTypedValueSerializer(newType, true);
                     // Important: for polymorphic types, "unwrap"...
                     if (ser instanceof TypeWrappedSerializer) {
                         return new Prefetch(newType, null,

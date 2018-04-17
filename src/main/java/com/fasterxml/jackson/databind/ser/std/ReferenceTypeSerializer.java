@@ -406,9 +406,9 @@ public abstract class ReferenceTypeSerializer<T>
                 // [databind#1673] Must ensure we will resolve all available type information
                 //  so as not to miss generic declaration of, say, `List<GenericPojo>`...
                 JavaType fullType = provider.constructSpecializedType(_referredType, rawType);
-                ser = provider.findValueSerializer(fullType, _property);
+                ser = provider.findSecondaryPropertySerializer(fullType, _property);
             } else {
-                ser = provider.findValueSerializer(rawType, _property);
+                ser = provider.findSecondaryPropertySerializer(rawType, _property);
             }
             if (_unwrapper != null) {
                 ser = ser.unwrappingSerializer(_unwrapper);
@@ -426,6 +426,6 @@ public abstract class ReferenceTypeSerializer<T>
         // 15-Jan-2017, tatu: ... possibly because we need to access "secondary" serializer,
         //   not primary (primary being one for Reference type itself, not value)
 //        return provider.findTypedValueSerializer(type, true, prop);
-        return provider.findValueSerializer(type, prop);
+        return provider.findSecondaryPropertySerializer(type, prop);
     }
 }

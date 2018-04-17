@@ -81,9 +81,9 @@ public class JSONPObject
 
             try {
                 if (_serializationType != null) {
-                    provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, gen, provider);
+                    provider.findTypedValueSerializer(_serializationType, true).serialize(_value, gen, provider);
                 } else {
-                    provider.findTypedValueSerializer(_value.getClass(), true, null).serialize(_value, gen, provider);
+                    provider.findTypedValueSerializer(_value.getClass(), true).serialize(_value, gen, provider);
                 }
             } finally {
                 if (override) {

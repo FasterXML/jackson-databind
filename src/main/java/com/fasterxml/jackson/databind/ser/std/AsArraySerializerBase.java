@@ -129,7 +129,7 @@ public abstract class AsArraySerializerBase<T>
             //   we can consider it a static case as well.
             if (_elementType != null) {
                 if (_staticTyping && !_elementType.isJavaLangObject()) {
-                    ser = serializers.findValueSerializer(_elementType, property);
+                    ser = serializers.findSecondaryPropertySerializer(_elementType, property);
                 }
             }
         }

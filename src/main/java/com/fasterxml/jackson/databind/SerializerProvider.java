@@ -482,7 +482,7 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************************
-    /* Serializer discovery: root value serializers
+    /* Serializer discovery: root/non-property value serializers
     /**********************************************************************
      */
 
@@ -495,19 +495,17 @@ public abstract class SerializerProvider
      * 
      * @param rawType Type for purpose of locating a serializer; usually dynamic
      *   runtime type, but can also be static declared type, depending on configuration
-     * @param cache Whether resulting value serializer should be cached or not; this is just
-     *    a hint
+     * @param cache Whether resulting value serializer should be cached or not
      */
     public JsonSerializer<Object> findTypedValueSerializer(Class<?> rawType,
             boolean cache)
         throws JsonMappingException
     {
-        // First: do we have it cached (locally, or in shared as call-through)?
+        // First: do we have it cached?
         JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(rawType);
         if (ser != null) {
             return ser;
         }
-
         // If not, compose from pieces:
         JavaType fullType = _config.constructType(rawType);
         ser = handleRootContextualization(findValueSerializer(rawType));
@@ -532,18 +530,16 @@ public abstract class SerializerProvider
      * @param valueType Declared type of value being serialized (which may not
      *    be actual runtime type); used for finding both value serializer and
      *    type serializer to use for adding polymorphic type (if any)
-     * @param cache Whether resulting value serializer should be cached or not; this is just
-     *    a hint 
+     * @param cache Whether resulting value serializer should be cached or not
      */
     public JsonSerializer<Object> findTypedValueSerializer(JavaType valueType, boolean cache)
         throws JsonMappingException
     {
-        // First see if we might have serializer already cached
+
         JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
         if (ser != null) {
             return ser;
         }
-        // Well, let's just compose from pieces:
         ser = handleRootContextualization(findValueSerializer(valueType));
         TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, valueType);
         if (typeSer != null) {
@@ -554,6 +550,46 @@ public abstract class SerializerProvider
             _serializerCache.addTypedSerializer(valueType, ser);
         }
         return ser;
+    }
+
+    /**
+     * Method for finding (from cache) or creating (and caching) serializer for given type,
+     * without checking for polymorphic typing, and then contextualizing without actual
+     * property. This is most often used for root-level values (when writing
+     * sequences), but may sometimes be used for more esoteric value handling for
+     * delegation.
+     *
+     * @since 3.0
+     */
+    public JsonSerializer<Object> findRootValueSerializer(Class<?> rawType) throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(_config.constructType(rawType));
+            if (ser == null) {
+                ser = _createAndCacheUntypedSerializer(rawType);
+            }
+        }
+        return handleRootContextualization(ser);
+    }
+
+    /**
+     * Method for finding (from cache) or creating (and caching) serializer for given type,
+     * without checking for polymorphic typing, and then contextualizing without actual
+     * property. This is most often used for root-level values (when writing
+     * sequences), but may sometimes be used for more esoteric value handling for
+     * delegation.
+     *
+     * @since 3.0
+     */
+    public JsonSerializer<Object> findRootValueSerializer(JavaType valueType)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _createAndCacheUntypedSerializer(valueType);
+        }
+        return handleRootContextualization(ser);
     }
 
     /*
@@ -627,65 +663,6 @@ public abstract class SerializerProvider
     /* General serializer locating functionality
     /**********************************************************************
      */
-    
-    /**
-     * Method called to get hold of a serializer for a value of given type;
-     * or if no such serializer can be found, a default handler (which
-     * may do a best-effort generic serialization or just simply
-     * throw an exception when invoked).
-     *<p>
-     * Note: this method is only called for non-null values; not for keys
-     * or null values. For these, check out other accessor methods.
-     *<p>
-     * Note that serializers produced should NOT handle polymorphic serialization
-     * aspects; separate {@link TypeSerializer} is to be constructed by caller
-     * if and as necessary.
-     *
-     * @throws JsonMappingException if there are fatal problems with
-     *   accessing suitable serializer; including that of not
-     *   finding any serializer
-     */
-    public JsonSerializer<Object> findValueSerializer(Class<?> valueType, BeanProperty property)
-        throws JsonMappingException
-    {
-        // Fast lookup from local lookup thingy works? (or fallback with the same)
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
-        if (ser == null) {
-            // ... possibly as fully typed?
-            ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
-            if (ser == null) { // If neither, must create
-                ser = _createAndCacheUntypedSerializer(valueType);
-            }
-        }
-        // at this point, resolution has occured, but not contextualization
-        return handleSecondaryContextualization(ser, property);
-    }
-
-    /**
-     * Similar to {@link #findValueSerializer(Class,BeanProperty)}, but takes
-     * full generics-aware type instead of raw class.
-     * This is necessary for accurate handling of external type information,
-     * to handle polymorphic types.
-     *<p>
-     * Note: this call will also contextualize serializer before returning it.
-     * 
-     * @param property When creating secondary serializers, property for which
-     *   serializer is needed: annotations of the property (or bean that contains it)
-     *   may be checked to create contextual serializers.
-     */
-    public JsonSerializer<Object> findValueSerializer(JavaType valueType, BeanProperty property)
-        throws JsonMappingException
-    {
-        if (valueType == null) {
-            reportMappingProblem("Null passed for `valueType` of `findValueSerializer()`");
-        }
-        // (see comments from above method)
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
-        if (ser == null) {
-            ser = _createAndCacheUntypedSerializer(valueType);
-        }
-        return handleSecondaryContextualization(ser, property);
-    }
 
     /**
      * Method variant used when we do NOT want contextualization to happen; it will need
@@ -694,7 +671,6 @@ public abstract class SerializerProvider
      */
     public JsonSerializer<Object> findValueSerializer(Class<?> valueType) throws JsonMappingException
     {
-        // (see comments from above method)
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
@@ -723,7 +699,7 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************************
-    /* Serializer discovery: type serializers
+    /* Serializer discovery: other kinds of serializers; type, key
     /**********************************************************************
      */
     
@@ -735,12 +711,6 @@ public abstract class SerializerProvider
     public TypeSerializer findTypeSerializer(JavaType javaType) throws JsonMappingException {
         return _serializerFactory.findTypeSerializer(_config, javaType);
     }
-
-    /*
-    /**********************************************************************
-    /* Serializer discovery: key serializers
-    /**********************************************************************
-     */
 
     /**
      * Method called to get the serializer to use for serializing
@@ -768,61 +738,6 @@ public abstract class SerializerProvider
     {
         return findKeySerializer(_config.constructType(rawKeyType), property);
     }
-
-    /*
-    /**********************************************************************
-    /* Low-level methods for actually constructing and initializing serializers
-    /**********************************************************************
-     */
-
-    /**
-     * Method that will try to construct a value serializer; and if
-     * one is successfully created, cache it for reuse.
-     */
-    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType)
-        throws JsonMappingException
-    {
-        JavaType fullType = _config.constructType(rawType);
-        JsonSerializer<Object> ser;
-        try {
-            ser = _serializerFactory.createSerializer(this, fullType);
-        } catch (IllegalArgumentException iae) {
-            // We better only expose checked exceptions, since those are what caller is expected to handle
-            throw _mappingProblem(iae, iae.getMessage());
-        }
-        // 13-Apr-2018, tatu: Always cache (note! also applies to "unknown" serializer, for now..)
-        _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
-        return ser;
-    }
-
-    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
-        throws JsonMappingException
-    {
-        JsonSerializer<Object> ser;
-        try {
-            ser = _serializerFactory.createSerializer(this, type);
-        } catch (IllegalArgumentException iae) {
-            // We better only expose checked exceptions, since those are what caller is expected to handle
-            throw _mappingProblem(iae, iae.getMessage());
-        }
-        // 13-Apr-2018, tatu: Always cache (note! also applies to "unknown" serializer, for now..)
-        _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
-        return ser;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> _handleResolvable(JsonSerializer<?> ser)
-        throws JsonMappingException
-    {
-        ser.resolve(this);
-        return (JsonSerializer<Object>) ser;
-    }
-
-    /*
-    /**********************************************************************
-    /* Accessors for specialized serializers
-    /**********************************************************************
-     */
 
     public JsonSerializer<Object> getDefaultNullValueSerializer() {
         return _nullValueSerializer;
@@ -895,6 +810,55 @@ public abstract class SerializerProvider
             }
         }
         return false;
+    }
+
+    /*
+    /**********************************************************************
+    /* Low-level methods for actually constructing and initializing serializers
+    /**********************************************************************
+     */
+
+    /**
+     * Method that will try to construct a value serializer; and if
+     * one is successfully created, cache it for reuse.
+     */
+    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType)
+        throws JsonMappingException
+    {
+        JavaType fullType = _config.constructType(rawType);
+        JsonSerializer<Object> ser;
+        try {
+            ser = _serializerFactory.createSerializer(this, fullType);
+        } catch (IllegalArgumentException iae) {
+            // We better only expose checked exceptions, since those are what caller is expected to handle
+            throw _mappingProblem(iae, iae.getMessage());
+        }
+        // 13-Apr-2018, tatu: Always cache (note! also applies to "unknown" serializer, for now..)
+        _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
+        return ser;
+    }
+
+    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser;
+        try {
+            ser = _serializerFactory.createSerializer(this, type);
+        } catch (IllegalArgumentException iae) {
+            // We better only expose checked exceptions, since those are what caller is expected to handle
+            throw _mappingProblem(iae, iae.getMessage());
+        }
+        // 13-Apr-2018, tatu: Always cache (note! also applies to "unknown" serializer, for now..)
+        _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
+        return ser;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected JsonSerializer<Object> _handleResolvable(JsonSerializer<?> ser)
+        throws JsonMappingException
+    {
+        ser.resolve(this);
+        return (JsonSerializer<Object>) ser;
     }
 
     /*

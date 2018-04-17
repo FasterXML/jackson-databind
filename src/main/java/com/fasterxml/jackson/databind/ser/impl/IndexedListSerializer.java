@@ -82,16 +82,16 @@ public final class IndexedListSerializer
     }
     
     @Override
-    public void serializeContents(Object value0, JsonGenerator g, SerializerProvider provider)
+    public void serializeContents(Object value0, JsonGenerator g, SerializerProvider ctxt)
         throws IOException
     {
         final List<?> value = (List<?>) value0;
         if (_elementSerializer != null) {
-            serializeContentsUsing(value, g, provider, _elementSerializer);
+            serializeContentsUsing(value, g, ctxt, _elementSerializer);
             return;
         }
         if (_valueTypeSerializer != null) {
-            serializeTypedContents(value, g, provider);
+            serializeTypedContents(value, g, ctxt);
             return;
         }
         final int len = value.size();
@@ -100,29 +100,27 @@ public final class IndexedListSerializer
         }
         int i = 0;
         try {
-            PropertySerializerMap serializers = _dynamicValueSerializers;
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(g);
+                    ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                    JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
                     if (serializer == null) {
                         // To fix [JACKSON-508]
                         if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(serializers,
-                                    provider.constructSpecializedType(_elementType, cc), provider);
+                            serializer = _findAndAddDynamic(ctxt,
+                                    ctxt.constructSpecializedType(_elementType, cc));
                         } else {
-                            serializer = _findAndAddDynamic(serializers, cc, provider);
+                            serializer = _findAndAddDynamic(ctxt, cc);
                         }
-                        serializers = _dynamicValueSerializers;
                     }
-                    serializer.serialize(elem, g, provider);
+                    serializer.serialize(elem, g, ctxt);
                 }
             }
         } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
+            wrapAndThrow(ctxt, e, value, i);
         }
     }
     
@@ -152,7 +150,7 @@ public final class IndexedListSerializer
         }
     }
 
-    public void serializeTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
+    public void serializeTypedContents(List<?> value, JsonGenerator g, SerializerProvider ctxt)
         throws IOException
     {
         final int len = value.size();
@@ -166,26 +164,24 @@ public final class IndexedListSerializer
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(jgen);
+                    ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
                     JsonSerializer<Object> serializer = serializers.serializerFor(cc);
                     if (serializer == null) {
-                        // To fix [JACKSON-508]
                         if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(serializers,
-                                    provider.constructSpecializedType(_elementType, cc), provider);
+                            serializer = _findAndAddDynamic(ctxt,
+                                    ctxt.constructSpecializedType(_elementType, cc));
                         } else {
-                            serializer = _findAndAddDynamic(serializers, cc, provider);
+                            serializer = _findAndAddDynamic(ctxt, cc);
                         }
                         serializers = _dynamicValueSerializers;
                     }
-                    serializer.serializeWithType(elem, jgen, provider, typeSer);
+                    serializer.serializeWithType(elem, g, ctxt, typeSer);
                 }
             }
         } catch (Exception e) {
-            // [JACKSON-55] Need to add reference information
-            wrapAndThrow(provider, e, value, i);
+            wrapAndThrow(ctxt, e, value, i);
         }
     }
 }

@@ -147,7 +147,7 @@ public abstract class ContainerSerializer<T>
     /* Helper methods for locating, caching element/value serializers
     /**********************************************************************
      */
-    
+
     /**
      * Method that needs to be implemented to allow construction of a new
      * serializer object with given {@link TypeSerializer}, used when
@@ -158,10 +158,11 @@ public abstract class ContainerSerializer<T>
     /**
      * @since 3.0
      */
-    protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
+    protected JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
+            throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        PropertySerializerMap map = _dynamicValueSerializers;
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
@@ -172,10 +173,11 @@ public abstract class ContainerSerializer<T>
     /**
      * @since 3.0
      */
-    protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
+    protected JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
+            throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        PropertySerializerMap map = _dynamicValueSerializers;
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicValueSerializers = result.map;

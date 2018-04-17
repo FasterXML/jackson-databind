@@ -305,7 +305,7 @@ public class SequenceWriter
         } else {
             result = _dynamicSerializers.addSerializer(type,
                     new TypeWrappedSerializer(_typeSerializer,
-                            _provider.findValueSerializer(type, null)));
+                            _provider.findRootValueSerializer(type)));
         }
         _dynamicSerializers = result.map;
         return result.serializer;
@@ -319,7 +319,7 @@ public class SequenceWriter
         } else {
             result = _dynamicSerializers.addSerializer(type,
                     new TypeWrappedSerializer(_typeSerializer,
-                            _provider.findValueSerializer(type, null)));
+                            _provider.findRootValueSerializer(type)));
         }
         _dynamicSerializers = result.map;
         return result.serializer;

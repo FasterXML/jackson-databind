@@ -61,11 +61,6 @@ public class JsonValueSerializer
     /**********************************************************************
      */
 
-    /*
-    public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
-            TypeSerializer vts, JsonSerializer<Object> elementSerializer)
-     */
-    
     /**
      * @param ser Explicit serializer to use, if caller knows it (which
      *    occurs if and only if the "value method" was annotated with
@@ -156,38 +151,38 @@ public class JsonValueSerializer
      */
 
     @Override
-    public void serialize(Object bean, JsonGenerator gen, SerializerProvider prov) throws IOException
+    public void serialize(Object bean, JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
         Object value;
         try {
             value = _accessor.getValue(bean);
         } catch (Exception e) {
-            wrapAndThrow(prov, e, bean, _accessor.getName() + "()");
+            wrapAndThrow(ctxt, e, bean, _accessor.getName() + "()");
             return; // never gets here
         }
         if (value == null) {
-            prov.defaultSerializeNullValue(gen);
+            ctxt.defaultSerializeNullValue(gen);
             return;
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             Class<?> cc = value.getClass();
             if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(_dynamicValueSerializers,
-                        prov.constructSpecializedType(_valueType, cc), prov);
+                ser = _findAndAddDynamic(ctxt,
+                        ctxt.constructSpecializedType(_valueType, cc));
             } else {
-                ser = _findAndAddDynamic(_dynamicValueSerializers, cc, prov);
+                ser = _findAndAddDynamic(ctxt, cc);
             }
         }
         if (_valueTypeSerializer != null) {
-            ser.serializeWithType(value, gen, prov, _valueTypeSerializer);
+            ser.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
         } else {
-            ser.serialize(value, gen, prov);
+            ser.serialize(value, gen, ctxt);
         }
     }
 
     @Override
-    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider prov,
+    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer0) throws IOException
     {
         // Regardless of other parts, first need to find value to serialize:
@@ -195,22 +190,21 @@ public class JsonValueSerializer
         try {
             value = _accessor.getValue(bean);
         } catch (Exception e) {
-            wrapAndThrow(prov, e, bean, _accessor.getName() + "()");
+            wrapAndThrow(ctxt, e, bean, _accessor.getName() + "()");
             return; // never gets here
         }
         // and if we got null, can also just write it directly
         if (value == null) {
-            prov.defaultSerializeNullValue(gen);
+            ctxt.defaultSerializeNullValue(gen);
             return;
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             Class<?> cc = value.getClass();
             if (_valueType.hasGenericTypes()) {
-                ser = _findAndAddDynamic(_dynamicValueSerializers,
-                        prov.constructSpecializedType(_valueType, cc), prov);
+                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
             } else {
-                ser = _findAndAddDynamic(_dynamicValueSerializers, cc, prov);
+                ser = _findAndAddDynamic(ctxt, cc);
             }
         }
 
@@ -223,7 +217,7 @@ public class JsonValueSerializer
             // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
             WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
                     typeSer0.typeId(bean, JsonToken.VALUE_STRING));
-            ser.serialize(value, gen, prov);
+            ser.serialize(value, gen, ctxt);
             typeSer0.writeTypeSuffix(gen, typeIdDef);
             return;
         }
@@ -237,7 +231,7 @@ public class JsonValueSerializer
         //    is not very clear. So most likely it'll fail at some point and require
         //    full investigation. But not today.
         TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
-        ser.serializeWithType(value, gen, prov, rr);
+        ser.serializeWithType(value, gen, ctxt, rr);
     }
 
     @Override
@@ -262,7 +256,7 @@ public class JsonValueSerializer
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = visitor.getProvider().findValueSerializer(type, _property);
+            ser = visitor.getProvider().findPrimaryPropertySerializer(type, _property);
             if (ser == null) { // can this ever occur?
                 visitor.expectAnyFormat(typeHint);
                 return;

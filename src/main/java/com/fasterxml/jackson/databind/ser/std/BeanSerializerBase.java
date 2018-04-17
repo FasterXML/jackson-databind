@@ -277,7 +277,7 @@ public abstract class BeanSerializerBase
                 JsonSerializer<Object> nullSer = provider.findNullValueSerializer(prop);
                 if (nullSer != null) {
                     prop.assignNullSerializer(nullSer);
-                    // also: remember to replace filtered property too? (see [JACKSON-364])
+                    // also: remember to replace filtered property too?
                     if (i < filteredCount) {
                         BeanPropertyWriter w2 = _filteredProps[i];
                         if (w2 != null) {
@@ -363,8 +363,8 @@ public abstract class BeanSerializerBase
                     JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
                     // [databind#731]: Should skip if nominally java.lang.Object
                     JsonSerializer<?> ser = delegateType.isJavaLangObject() ? null
-                            : provider.findValueSerializer(delegateType, prop);
-                    return new StdDelegatingSerializer(conv, delegateType, ser);
+                            : provider.findPrimaryPropertySerializer(delegateType, prop);
+                    return new StdDelegatingSerializer(conv, delegateType, ser, prop);
                 }
             }
         }
@@ -373,18 +373,17 @@ public abstract class BeanSerializerBase
 
     @SuppressWarnings("incomplete-switch")
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
-            BeanProperty property)
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
         throws JsonMappingException
     {
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-        final AnnotatedMember accessor = (property == null || intr == null)
-                ? null : property.getMember();
-        final SerializationConfig config = provider.getConfig();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final AnnotatedMember accessor = _neitherNull(property, intr)
+                ? property.getMember() : null;
+        final SerializationConfig config = ctxt.getConfig();
         
         // Let's start with one big transmutation: Enums that are annotated
         // to serialize as Objects may want to revert
-        JsonFormat.Value format = findFormatOverrides(provider, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         JsonFormat.Shape shape = null;
         if ((format != null) && format.hasShape()) {
             shape = format.getShape();
@@ -399,8 +398,8 @@ public abstract class BeanSerializerBase
                         //   for now, just do class ones
                         BeanDescription desc = config.introspectClassAnnotations(_beanType);
                         JsonSerializer<?> ser = EnumSerializer.construct(_beanType.getRawClass(),
-                                provider.getConfig(), desc, format);
-                        return provider.handlePrimaryContextualization(ser, property);
+                                ctxt.getConfig(), desc, format);
+                        return ctxt.handlePrimaryContextualization(ser, property);
                     }
                 // 16-Oct-2016, tatu: Ditto for `Map`, `Map.Entry` subtypes
                 } else if (shape == JsonFormat.Shape.NATURAL) {
@@ -416,7 +415,7 @@ public abstract class BeanSerializerBase
                         //   see if "static" typing is needed, nor look for `TypeSerializer` yet...
                         JsonSerializer<?> ser = new MapEntrySerializer(_beanType, kt, vt,
                                 false, null, property);
-                        return provider.handlePrimaryContextualization(ser, property);
+                        return ctxt.handlePrimaryContextualization(ser, property);
                     }
                 }
             }
@@ -449,8 +448,8 @@ public abstract class BeanSerializerBase
                 objectIdInfo = intr.findObjectReferenceInfo(config, accessor, objectIdInfo);
                 ObjectIdGenerator<?> gen;
                 Class<?> implClass = objectIdInfo.getGeneratorType();
-                JavaType type = provider.constructType(implClass);
-                JavaType idType = provider.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+                JavaType type = ctxt.constructType(implClass);
+                JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
                 // Property-based generator is trickier
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
                     String propName = objectIdInfo.getPropertyName().getSimpleName();
@@ -458,7 +457,7 @@ public abstract class BeanSerializerBase
 
                     for (int i = 0, len = _props.length; ; ++i) {
                         if (i == len) {
-                            provider.reportBadDefinition(_beanType, String.format(
+                            ctxt.reportBadDefinition(_beanType, String.format(
                                     "Invalid Object Id definition for %s: cannot find property with name '%s'",
                                     handledType().getName(), propName));
                         }
@@ -483,7 +482,7 @@ public abstract class BeanSerializerBase
                     gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
                     oiw = ObjectIdWriter.construct(idType, (PropertyName) null, gen, objectIdInfo.getAlwaysAsId());
                 } else { // other types need to be simpler
-                    gen = provider.objectIdGeneratorInstance(accessor, objectIdInfo);
+                    gen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
                     oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen,
                             objectIdInfo.getAlwaysAsId());
                 }
@@ -500,7 +499,8 @@ public abstract class BeanSerializerBase
         // either way, need to resolve serializer:
         BeanSerializerBase contextual = this;
         if (oiw != null) {
-            JsonSerializer<?> ser = provider.findValueSerializer(oiw.idType, property);
+            // not really associated with the property so let's not pass it?
+            JsonSerializer<?> ser = ctxt.findRootValueSerializer(oiw.idType);
             oiw = oiw.withSerializer(ser);
             if (oiw != _objectIdWriter) {
                 contextual = contextual.withObjectIdWriter(oiw);

@@ -59,27 +59,27 @@ public class IterableSerializer
     }
 
     @Override
-    public final void serialize(Iterable<?> value, JsonGenerator gen,
-        SerializerProvider provider)throws IOException
+    public final void serialize(Iterable<?> value, JsonGenerator g,
+        SerializerProvider ctxt) throws IOException
     {
         if (((_unwrapSingle == null) &&
-                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
             if (hasSingleElement(value)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
-        gen.writeStartArray();
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        g.setCurrentValue(value);
+        g.writeStartArray();
+        serializeContents(value, g, ctxt);
+        g.writeEndArray();
     }
-    
+
     @Override
-    public void serializeContents(Iterable<?> value, JsonGenerator jgen,
-        SerializerProvider provider) throws IOException
+    public void serializeContents(Iterable<?> value, JsonGenerator g,
+        SerializerProvider ctxt) throws IOException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
@@ -87,7 +87,7 @@ public class IterableSerializer
             do {
                 Object elem = it.next();
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(jgen);
+                    ctxt.defaultSerializeNullValue(g);
                     continue;
                 }
                 JsonSerializer<Object> serializer = _elementSerializer;
@@ -96,17 +96,16 @@ public class IterableSerializer
                     serializer = _dynamicValueSerializers.serializerFor(cc);
                     if (serializer == null) {
                         if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(_dynamicValueSerializers,
-                                    provider.constructSpecializedType(_elementType, cc), provider);
+                            serializer = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc));
                         } else {
-                            serializer = _findAndAddDynamic(_dynamicValueSerializers, cc, provider);
+                            serializer = _findAndAddDynamic(ctxt, cc);
                         }
                     }
                 }
                 if (typeSer == null) {
-                    serializer.serialize(elem, jgen, provider);
+                    serializer.serialize(elem, g, ctxt);
                 } else {
-                    serializer.serializeWithType(elem, jgen, provider, typeSer);
+                    serializer.serializeWithType(elem, g, ctxt, typeSer);
                 }
             } while (it.hasNext());
         }

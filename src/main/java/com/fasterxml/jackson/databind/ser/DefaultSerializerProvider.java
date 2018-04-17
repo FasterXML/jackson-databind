@@ -32,12 +32,12 @@ public abstract class DefaultSerializerProvider
     extends SerializerProvider
     implements java.io.Serializable // only because ObjectWriter needs it
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State, for non-blueprint instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -49,9 +49,9 @@ public abstract class DefaultSerializerProvider
     protected transient ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected DefaultSerializerProvider(TokenStreamFactory streamFactory) {
@@ -77,9 +77,9 @@ public abstract class DefaultSerializerProvider
             GeneratorSettings genSettings, SerializerFactory jsf);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract method impls, factory methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -157,9 +157,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Object Id handling
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -213,9 +213,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API: simple accesors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -229,9 +229,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API called by ObjectMapper: value serialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -448,9 +448,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     }
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* Access to caching details
-    /********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -479,9 +479,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API called by ObjectMapper: other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -497,17 +497,16 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         if (javaType == null) {
             throw new IllegalArgumentException("A class must be provided");
         }
-        /* no need for embedded type information for JSON schema generation (all
-         * type information it needs is accessible via "untyped" serializer)
-         */
+        // no need for embedded type information for JSON schema generation (all
+        // type information it needs is accessible via "untyped" serializer)
         visitor.setProvider(this);
-        findValueSerializer(javaType, null).acceptJsonFormatVisitor(visitor, javaType);
+        findRootValueSerializer(javaType).acceptJsonFormatVisitor(visitor, javaType);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

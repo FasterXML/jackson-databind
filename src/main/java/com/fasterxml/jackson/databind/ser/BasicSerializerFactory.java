@@ -516,7 +516,7 @@ public abstract class BasicSerializerFactory
             return ser;
         }
         JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
-        return new StdDelegatingSerializer(conv, delegateType, ser);
+        return new StdDelegatingSerializer(conv, delegateType, ser, null);
     }
 
     protected Converter<Object,Object> findConverter(SerializerProvider prov,

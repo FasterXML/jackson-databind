@@ -56,13 +56,6 @@ public abstract class SerializerProvider
     private static final long serialVersionUID = 3L;
 
     /**
-     * Setting for determining whether mappings for "unknown classes" should be
-     * cached for faster resolution. Usually this isn't needed, but maybe it
-     * is in some cases?
-     */
-    protected final static boolean CACHE_UNKNOWN_MAPPINGS = false;
-
-    /**
      * Placeholder serializer used when <code>java.lang.Object</code> typed property
      * is marked to be serialized.
      *<br>
@@ -521,15 +514,6 @@ public abstract class SerializerProvider
             if (ser == null) {
                 // If neither, must create
                 ser = _createAndCacheUntypedSerializer(valueType);
-                // Not found? Must use the unknown type serializer, which will report error later on
-                if (ser == null) {
-                    ser = getUnknownTypeSerializer(valueType);
-                    // Should this be added to lookups?
-                    if (CACHE_UNKNOWN_MAPPINGS) {
-                        _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
-                    }
-                    return ser;
-                }
             }
         }
         // at this point, resolution has occured, but not contextualization
@@ -558,13 +542,6 @@ public abstract class SerializerProvider
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCacheUntypedSerializer(valueType);
-            if (ser == null) {
-                ser = getUnknownTypeSerializer(valueType.getRawClass());
-                if (CACHE_UNKNOWN_MAPPINGS) {
-                    _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
-                }
-                return ser;
-            }
         }
         return handleSecondaryContextualization(ser, property);
     }
@@ -582,12 +559,6 @@ public abstract class SerializerProvider
             ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
             if (ser == null) {
                 ser = _createAndCacheUntypedSerializer(valueType);
-                if (ser == null) {
-                    ser = getUnknownTypeSerializer(valueType);
-                    if (CACHE_UNKNOWN_MAPPINGS) {
-                        _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
-                    }
-                }
             }
         }
         return ser;
@@ -605,12 +576,6 @@ public abstract class SerializerProvider
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCacheUntypedSerializer(valueType);
-            if (ser == null) {
-                ser = getUnknownTypeSerializer(valueType.getRawClass());
-                if (CACHE_UNKNOWN_MAPPINGS) {
-                    _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
-                }
-            }
         }
         return ser;
     }
@@ -631,14 +596,6 @@ public abstract class SerializerProvider
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCacheUntypedSerializer(valueType);
-            if (ser == null) {
-                ser = getUnknownTypeSerializer(valueType.getRawClass());
-                // Should this be added to lookups?
-                if (CACHE_UNKNOWN_MAPPINGS) {
-                    _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
-                }
-                return ser;
-            }
         }
         return handlePrimaryContextualization(ser, property);
     }

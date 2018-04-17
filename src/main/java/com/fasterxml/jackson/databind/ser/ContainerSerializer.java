@@ -155,7 +155,10 @@ public abstract class ContainerSerializer<T>
      */
     protected abstract ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts);
 
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+    /**
+     * @since 3.0
+     */
+    protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
@@ -166,7 +169,10 @@ public abstract class ContainerSerializer<T>
         return result.serializer;
     }
 
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+    /**
+     * @since 3.0
+     */
+    protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             JavaType type, SerializerProvider provider) throws JsonMappingException
     {
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);

@@ -36,7 +36,7 @@ public class IterableSerializer
             Boolean unwrapSingle) {
         return new IterableSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, Iterable<?> value) {
         // Not really good way to implement this, but has to do for now:
@@ -90,10 +90,10 @@ public class IterableSerializer
                     provider.defaultSerializeNullValue(jgen);
                     continue;
                 }
-                JsonSerializer<Object> currSerializer = _elementSerializer;
-                if (currSerializer == null) {
+                JsonSerializer<Object> serializer = _elementSerializer;
+                if (serializer == null) {
                     Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
+                    serializer = _dynamicValueSerializers.serializerFor(cc);
                     if (serializer == null) {
                         if (_elementType.hasGenericTypes()) {
                             serializer = _findAndAddDynamic(_dynamicValueSerializers,
@@ -104,9 +104,9 @@ public class IterableSerializer
                     }
                 }
                 if (typeSer == null) {
-                    currSerializer.serialize(elem, jgen, provider);
+                    serializer.serialize(elem, jgen, provider);
                 } else {
-                    currSerializer.serializeWithType(elem, jgen, provider, typeSer);
+                    serializer.serializeWithType(elem, jgen, provider, typeSer);
                 }
             } while (it.hasNext());
         }

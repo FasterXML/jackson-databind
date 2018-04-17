@@ -64,7 +64,7 @@ public class EnumSetSerializer
     
     @Override
     public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
-            SerializerProvider provider)
+            SerializerProvider ctxt)
         throws IOException
     {
         JsonSerializer<Object> enumSer = _elementSerializer;
@@ -74,10 +74,10 @@ public class EnumSetSerializer
             if (enumSer == null) {
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
-                enumSer = _findAndAddDynamic(_dynamicValueSerializers, en.getDeclaringClass(), provider);
+                enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
 
             }
-            enumSer.serialize(en, gen, provider);
+            enumSer.serialize(en, gen, ctxt);
         }
     }
 }

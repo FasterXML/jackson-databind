@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -22,6 +23,9 @@ import com.fasterxml.jackson.databind.util.Converter;
 public class StdDelegatingSerializer
     extends StdSerializer<Object>
 {
+    // @since 3.0
+    protected final BeanProperty _property;
+
     protected final Converter<Object,?> _converter;
 
     /**
@@ -33,11 +37,20 @@ public class StdDelegatingSerializer
      * Underlying serializer for type <code>T</code>.
      */
     protected final JsonSerializer<Object> _delegateSerializer;
+
+    /**
+     * If delegate serializer needs to be accessed dynamically (non-final
+     * type, static type not forced), this data structure helps with efficient
+     * lookups.
+     *
+     * @since 3.0
+     */
+    protected PropertySerializerMap _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -47,6 +60,7 @@ public class StdDelegatingSerializer
         _converter = (Converter<Object,?>)converter;
         _delegateType = null;
         _delegateSerializer = null;
+        _property = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -56,45 +70,59 @@ public class StdDelegatingSerializer
         _converter = (Converter<Object,?>)converter;
         _delegateType = null;
         _delegateSerializer = null;
+        _property = null;
     }
-    
-    @SuppressWarnings("unchecked")
+
+    @Deprecated // since 3.0
     public StdDelegatingSerializer(Converter<Object,?> converter,
             JavaType delegateType, JsonSerializer<?> delegateSerializer)
+    {
+        this(converter, delegateType, delegateSerializer, null);
+    }
+
+    /**
+     * @since 3.0
+     */
+    @SuppressWarnings("unchecked")
+    public StdDelegatingSerializer(Converter<Object,?> converter,
+            JavaType delegateType, JsonSerializer<?> delegateSerializer,
+            BeanProperty prop)
     {
         super(delegateType);
         _converter = converter;
         _delegateType = delegateType;
         _delegateSerializer = (JsonSerializer<Object>) delegateSerializer;
+        _property = prop;
     }
-
+    
     /**
      * Method used for creating resolved contextual instances. Must be
      * overridden when sub-classing.
      */
     protected StdDelegatingSerializer withDelegate(Converter<Object,?> converter,
-            JavaType delegateType, JsonSerializer<?> delegateSerializer)
+            JavaType delegateType, JsonSerializer<?> delegateSerializer,
+            BeanProperty prop)
     {
         ClassUtil.verifyMustOverride(StdDelegatingSerializer.class, this, "withDelegate");
-        return new StdDelegatingSerializer(converter, delegateType, delegateSerializer);
+        return new StdDelegatingSerializer(converter, delegateType, delegateSerializer, prop);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Contextualization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public void resolve(SerializerProvider provider) throws JsonMappingException
+    public void resolve(SerializerProvider ctxt) throws JsonMappingException
     {
         if (_delegateSerializer != null) {
-            _delegateSerializer.resolve(provider);
+            _delegateSerializer.resolve(ctxt);
         }
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
         throws JsonMappingException
     {
         JsonSerializer<?> delSer = _delegateSerializer;
@@ -103,27 +131,28 @@ public class StdDelegatingSerializer
         if (delSer == null) {
             // Otherwise, need to locate serializer to delegate to. For that we need type information...
             if (delegateType == null) {
-                delegateType = _converter.getOutputType(provider.getTypeFactory());
+                delegateType = _converter.getOutputType(ctxt.getTypeFactory());
             }
             // 02-Apr-2015, tatu: For "dynamic case", where type is only specified as
             //    java.lang.Object (or missing generic), [databind#731]
             if (!delegateType.isJavaLangObject()) {
-                delSer = provider.findValueSerializer(delegateType);
+                delSer = ctxt.findValueSerializer(delegateType);
             }
         }
         if (delSer != null) {
-            delSer = provider.handleSecondaryContextualization(delSer, property);
+            delSer = ctxt.handleSecondaryContextualization(delSer, property);
         }
-        if (delSer == _delegateSerializer && delegateType == _delegateType) {
+        if ((delSer == _delegateSerializer)
+                && (delegateType == _delegateType) && (property == _property)) {
             return this;
         }
-        return withDelegate(_converter, delegateType, delSer);
+        return withDelegate(_converter, delegateType, delSer, property);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Converter<Object, ?> getConverter() {
@@ -134,32 +163,32 @@ public class StdDelegatingSerializer
     public JsonSerializer<?> getDelegatee() {
         return _delegateSerializer;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
         Object delegateValue = convertValue(value);
         // should we accept nulls?
         if (delegateValue == null) {
-            provider.defaultSerializeNullValue(gen);
+            ctxt.defaultSerializeNullValue(gen);
             return;
         }
         // 02-Apr-2015, tatu: As per [databind#731] may need to do dynamic lookup
         JsonSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
-            ser = _findSerializer(delegateValue, provider);
+            ser = _findSerializer(delegateValue, ctxt);
         }
-        ser.serialize(delegateValue, gen, provider);
+        ser.serialize(delegateValue, gen, ctxt);
     }
 
     @Override
-    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer) throws IOException
     {
         /* 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
@@ -168,28 +197,29 @@ public class StdDelegatingSerializer
         Object delegateValue = convertValue(value);
         JsonSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
-            ser = _findSerializer(value, provider);
+            ser = _findSerializer(value, ctxt);
         }
-        ser.serializeWithType(delegateValue, gen, provider, typeSer);
+        ser.serializeWithType(delegateValue, gen, ctxt, typeSer);
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Object value) throws IOException
+    public boolean isEmpty(SerializerProvider ctxt, Object value) throws IOException
     {
         Object delegateValue = convertValue(value);
         if (delegateValue == null) {
             return true;
         }
-        if (_delegateSerializer == null) { // best we can do for now, too costly to look up
-            return (value == null);
+        JsonSerializer<Object> ser = _delegateSerializer;
+        if (ser == null) {
+            ser = _findSerializer(value, ctxt);
         }
-        return _delegateSerializer.isEmpty(prov, delegateValue);
+        return ser.isEmpty(ctxt, delegateValue);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Schema functionality
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -206,9 +236,9 @@ public class StdDelegatingSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -232,10 +262,17 @@ public class StdDelegatingSerializer
      * {@link java.lang.Object}, and where serializer needs to be located dynamically
      * based on actual value type.
      */
-    protected JsonSerializer<Object> _findSerializer(Object value, SerializerProvider serializers)
+    protected JsonSerializer<Object> _findSerializer(Object value, SerializerProvider ctxt)
         throws JsonMappingException
     {
-        // NOTE: will NOT call contextualization
-        return serializers.findValueSerializer(value.getClass());
+        // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
+        // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...
+        Class<?> cc = value.getClass();
+        PropertySerializerMap.SerializerAndMapResult result = _dynamicValueSerializers.findAndAddSecondarySerializer(cc,
+                ctxt, _property);
+        if (_dynamicValueSerializers != result.map) {
+            _dynamicValueSerializers = result.map;
+        }
+        return result.serializer;
     }
 }

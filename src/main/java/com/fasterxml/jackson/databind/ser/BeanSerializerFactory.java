@@ -163,7 +163,7 @@ public class BeanSerializerFactory
             if ((ser == null) && !delegateType.isJavaLangObject()) {
                 ser = _createSerializer2(ctxt, delegateType, beanDesc, true);
             }
-            return new StdDelegatingSerializer(conv, delegateType, ser);
+            return new StdDelegatingSerializer(conv, delegateType, ser, null);
         }
         // No, regular serializer
         return (JsonSerializer<Object>) _createSerializer2(ctxt, type, beanDesc, staticTyping);

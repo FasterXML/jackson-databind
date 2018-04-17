@@ -304,8 +304,6 @@ public abstract class StdSerializer<T>
      * 
      * @param existingSerializer (optional) configured content
      *    serializer if one already exists.
-     * 
-     * @since 2.9
      */
     protected JsonSerializer<?> findContextualConvertingSerializer(SerializerProvider provider,
             BeanProperty property, JsonSerializer<?> existingSerializer)

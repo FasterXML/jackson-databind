@@ -50,8 +50,6 @@ public abstract class PropertySerializerMap
      * serializer (one that is directly attached to a property).
      * Will both find serializer
      * and construct new map instance if warranted, and return both.
-     * 
-     * @throws JsonMappingException 
      */
     public final SerializerAndMapResult findAndAddPrimarySerializer(JavaType type,
             SerializerProvider provider, BeanProperty property)
@@ -66,8 +64,6 @@ public abstract class PropertySerializerMap
      * serializer (one that is not directly attached to a property).
      * Will both find serializer
      * and construct new map instance if warranted, and return both.
-     *
-     * @throws JsonMappingException 
      */
     public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
             SerializerProvider provider, BeanProperty property)

@@ -904,8 +904,7 @@ public class MapSerializer
             v2.keyFormat(_keySerializer, _keyType);
             JsonSerializer<?> valueSer = _valueSerializer;
             if (valueSer == null) {
-                valueSer = _findAndAddDynamic(_dynamicValueSerializers,
-                            _valueType, visitor.getProvider());
+                valueSer = _findAndAddDynamic(visitor.getProvider(), _valueType);
             }
             v2.valueFormat(valueSer, _valueType);
         }
@@ -956,23 +955,23 @@ public class MapSerializer
         return (input instanceof HashMap) && input.containsKey(null);
     }
     
-    protected void _writeNullKeyedEntry(JsonGenerator gen, SerializerProvider provider,
+    protected void _writeNullKeyedEntry(JsonGenerator g, SerializerProvider ctxt,
             Object value) throws IOException
     {
-        JsonSerializer<Object> keySerializer = provider.findNullKeySerializer(_keyType, _property);
+        JsonSerializer<Object> keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
         JsonSerializer<Object> valueSer;
         if (value == null) {
             if (_suppressNulls) {
                 return;
             }
-            valueSer = provider.getDefaultNullValueSerializer();
+            valueSer = ctxt.getDefaultNullValueSerializer();
         } else {
             valueSer = _valueSerializer;
             if (valueSer == null) {
-                valueSer = _findSerializer(provider, value);
+                valueSer = _findSerializer(ctxt, value);
             }
             if (_suppressableValue == MARKER_FOR_EMPTY) {
-                if (valueSer.isEmpty(provider, value)) {
+                if (valueSer.isEmpty(ctxt, value)) {
                     return;
                 }
             } else if ((_suppressableValue != null)
@@ -982,14 +981,14 @@ public class MapSerializer
         }
 
         try {
-            keySerializer.serialize(null, gen, provider);
-            valueSer.serialize(value, gen, provider);
+            keySerializer.serialize(null, g, ctxt);
+            valueSer.serialize(value, g, ctxt);
         } catch (Exception e) {
-            wrapAndThrow(provider, e, value, "");
+            wrapAndThrow(ctxt, e, value, "");
         }
     }
 
-    private final JsonSerializer<Object> _findSerializer(SerializerProvider provider,
+    private final JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
             Object value) throws JsonMappingException
     {
         final Class<?> cc = value.getClass();
@@ -998,9 +997,9 @@ public class MapSerializer
             return valueSer;
         }
         if (_valueType.hasGenericTypes()) {
-            return _findAndAddDynamic(_dynamicValueSerializers,
-                    provider.constructSpecializedType(_valueType, cc), provider);
+            return _findAndAddDynamic(ctxt,
+                    ctxt.constructSpecializedType(_valueType, cc));
         }
-        return _findAndAddDynamic(_dynamicValueSerializers, cc, provider);
+        return _findAndAddDynamic(ctxt, cc);
     }
 }

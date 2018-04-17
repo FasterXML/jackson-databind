@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 /**
  * Generic serializer for Object arrays (<code>Object[]</code>).
@@ -182,61 +181,60 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public final void serialize(Object[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public final void serialize(Object[] value, JsonGenerator g, SerializerProvider ctxt) throws IOException
     {
         final int len = value.length;
         if (len == 1) {
             if (((_unwrapSingle == null) &&
-                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
-        gen.writeStartArray(value, len);
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        g.writeStartArray(value, len);
+        serializeContents(value, g, ctxt);
+        g.writeEndArray();
     }
 
     @Override
-    public void serializeContents(Object[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public void serializeContents(Object[] value, JsonGenerator g, SerializerProvider ctxt) throws IOException
     {
         final int len = value.length;
         if (len == 0) {
             return;
         }
         if (_elementSerializer != null) {
-            serializeContentsUsing(value, gen, provider, _elementSerializer);
+            serializeContentsUsing(value, g, ctxt, _elementSerializer);
             return;
         }
         if (_valueTypeSerializer != null) {
-            serializeTypedContents(value, gen, provider);
+            serializeTypedContents(value, g, ctxt);
             return;
         }
         int i = 0;
         Object elem = null;
         try {
-            PropertySerializerMap serializers = _dynamicValueSerializers;
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(gen);
+                    ctxt.defaultSerializeNullValue(g);
                     continue;
                 }
                 Class<?> cc = elem.getClass();
-                JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
                 if (serializer == null) {
                     if (_elementType.hasGenericTypes()) {
-                        serializer = _findAndAddDynamic(serializers,
-                                provider.constructSpecializedType(_elementType, cc), provider);
+                        serializer = _findAndAddDynamic(ctxt,
+                                ctxt.constructSpecializedType(_elementType, cc));
                     } else {
-                        serializer = _findAndAddDynamic(serializers, cc, provider);
+                        serializer = _findAndAddDynamic(ctxt, cc);
                     }
                 }
-                serializer.serialize(elem, gen, provider);
+                serializer.serialize(elem, g, ctxt);
             }
         } catch (Exception e) {
-            wrapAndThrow(provider, e, elem, i);
+            wrapAndThrow(ctxt, e, elem, i);
         }
     }
 
@@ -266,29 +264,28 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeTypedContents(Object[] value, JsonGenerator g, SerializerProvider provider) throws IOException
+    public void serializeTypedContents(Object[] value, JsonGenerator g, SerializerProvider ctxt) throws IOException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
         int i = 0;
         Object elem = null;
         try {
-            PropertySerializerMap serializers = _dynamicValueSerializers;
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(g);
+                    ctxt.defaultSerializeNullValue(g);
                     continue;
                 }
                 Class<?> cc = elem.getClass();
-                JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
                 if (serializer == null) {
-                    serializer = _findAndAddDynamic(serializers, cc, provider);
+                    serializer = _findAndAddDynamic(ctxt, cc);
                 }
-                serializer.serializeWithType(elem, g, provider, typeSer);
+                serializer.serializeWithType(elem, g, ctxt, typeSer);
             }
         } catch (Exception e) {
-            wrapAndThrow(provider, e, elem, i);
+            wrapAndThrow(ctxt, e, elem, i);
         }
     }
 

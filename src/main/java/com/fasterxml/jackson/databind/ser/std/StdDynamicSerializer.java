@@ -32,7 +32,7 @@ public abstract class StdDynamicSerializer<T>
      * polymorphic types.
      */
     protected final TypeSerializer _valueTypeSerializer;
-    
+
     /**
      * Eagerly fetched serializer for actual value contained or referenced,
      * if fetched.
@@ -45,14 +45,14 @@ public abstract class StdDynamicSerializer<T>
      *
      * @since 3.0 (in 2.x subtypes contained it)
      */
-    protected PropertySerializerMap _dynamicValueSerializers;
+    protected PropertySerializerMap _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
 
     /*
     /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     protected StdDynamicSerializer(JavaType type, BeanProperty prop,
             TypeSerializer vts, JsonSerializer<?> valueSer)
@@ -61,7 +61,6 @@ public abstract class StdDynamicSerializer<T>
         _property = prop;
         _valueTypeSerializer = vts;
         _valueSerializer = (JsonSerializer<Object>) valueSer;
-        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     protected StdDynamicSerializer(StdDynamicSerializer<?> src, BeanProperty prop)
@@ -70,7 +69,6 @@ public abstract class StdDynamicSerializer<T>
         _property = prop;
         _valueTypeSerializer = src._valueTypeSerializer;
         _valueSerializer = src._valueSerializer;
-        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     @SuppressWarnings("unchecked")
@@ -81,7 +79,6 @@ public abstract class StdDynamicSerializer<T>
         _property = prop;
         _valueTypeSerializer = vts;
         _valueSerializer = (JsonSerializer<Object>) valueSer;
-        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     /*
@@ -90,24 +87,24 @@ public abstract class StdDynamicSerializer<T>
     /**********************************************************************
      */
 
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
+    protected final JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
+        throws JsonMappingException
     {
+        PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
-                provider, _property);
-        // did we get a new map of serializers? If so, start using it
+                ctxt, _property);
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
         }
         return result.serializer;
     }
 
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
+    protected final JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
+        throws JsonMappingException
     {
+        PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
-                provider, _property);
-        // did we get a new map of serializers? If so, start using it
+                ctxt, _property);
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
         }

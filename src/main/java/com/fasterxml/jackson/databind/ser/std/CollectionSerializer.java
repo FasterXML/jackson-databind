@@ -96,10 +96,10 @@ public class CollectionSerializer
     }
     
     @Override
-    public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
+    public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider ctxt) throws IOException
     {
         if (_elementSerializer != null) {
-            serializeContentsUsing(value, g, provider, _elementSerializer);
+            serializeContentsUsing(value, g, ctxt, _elementSerializer);
             return;
         }
         Iterator<?> it = value.iterator();
@@ -114,29 +114,28 @@ public class CollectionSerializer
             do {
                 Object elem = it.next();
                 if (elem == null) {
-                    provider.defaultSerializeNullValue(g);
+                    ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
                     JsonSerializer<Object> serializer = serializers.serializerFor(cc);
                     if (serializer == null) {
                         if (_elementType.hasGenericTypes()) {
-                            serializer = _findAndAddDynamic(serializers,
-                                    provider.constructSpecializedType(_elementType, cc), provider);
+                            serializer = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc));
                         } else {
-                            serializer = _findAndAddDynamic(serializers, cc, provider);
+                            serializer = _findAndAddDynamic(ctxt, cc);
                         }
                         serializers = _dynamicValueSerializers;
                     }
                     if (typeSer == null) {
-                        serializer.serialize(elem, g, provider);
+                        serializer.serialize(elem, g, ctxt);
                     } else {
-                        serializer.serializeWithType(elem, g, provider, typeSer);
+                        serializer.serializeWithType(elem, g, ctxt, typeSer);
                     }
                 }
                 ++i;
             } while (it.hasNext());
         } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
+            wrapAndThrow(ctxt, e, value, i);
         }
     }
 

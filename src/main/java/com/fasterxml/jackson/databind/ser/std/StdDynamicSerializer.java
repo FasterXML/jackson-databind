@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 /**
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
  *
  * @since 3.0
  */
-public abstract class DynamicStdSerializer<T>
+public abstract class StdDynamicSerializer<T>
     extends StdSerializer<T>
     implements java.io.Serializable
 {
@@ -27,9 +28,14 @@ public abstract class DynamicStdSerializer<T>
     protected final BeanProperty _property;
 
     /**
+     * Type serializer used for values, if any: used for serializing values of
+     * polymorphic types.
+     */
+    protected final TypeSerializer _valueTypeSerializer;
+    
+    /**
      * Eagerly fetched serializer for actual value contained or referenced,
-     * if fetched (based on {@link #_valueType} being non-parameterized and
-     * either final, or type handling defined as static).
+     * if fetched.
      */
     protected final JsonSerializer<Object> _valueSerializer;
 
@@ -48,21 +54,32 @@ public abstract class DynamicStdSerializer<T>
      */
     
     @SuppressWarnings("unchecked")
-    protected DynamicStdSerializer(JavaType type,
-            BeanProperty prop, JsonSerializer<?> valueSer)
+    protected StdDynamicSerializer(JavaType type, BeanProperty prop,
+            TypeSerializer vts, JsonSerializer<?> valueSer)
     {
         super(type);
         _property = prop;
+        _valueTypeSerializer = vts;
         _valueSerializer = (JsonSerializer<Object>) valueSer;
         _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
-    @SuppressWarnings("unchecked")
-    protected DynamicStdSerializer(DynamicStdSerializer<?> src,
-            BeanProperty prop, JsonSerializer<?> valueSer)
+    protected StdDynamicSerializer(StdDynamicSerializer<?> src, BeanProperty prop)
     {
         super(src);
         _property = prop;
+        _valueTypeSerializer = src._valueTypeSerializer;
+        _valueSerializer = src._valueSerializer;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected StdDynamicSerializer(StdDynamicSerializer<?> src,
+            BeanProperty prop, TypeSerializer vts, JsonSerializer<?> valueSer)
+    {
+        super(src);
+        _property = prop;
+        _valueTypeSerializer = vts;
         _valueSerializer = (JsonSerializer<Object>) valueSer;
         _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
@@ -76,7 +93,8 @@ public abstract class DynamicStdSerializer<T>
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
+                provider, _property);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
@@ -87,7 +105,8 @@ public abstract class DynamicStdSerializer<T>
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             JavaType type, SerializerProvider provider) throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
+                provider, _property);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicValueSerializers = result.map;

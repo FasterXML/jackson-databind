@@ -70,6 +70,8 @@ public class IterableSerializer
                 return;
             }
         }
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(value);
         gen.writeStartArray();
         serializeContents(value, gen, provider);
         gen.writeEndArray();
@@ -82,9 +84,6 @@ public class IterableSerializer
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
             final TypeSerializer typeSer = _valueTypeSerializer;
-            JsonSerializer<Object> prevSerializer = null;
-            Class<?> prevClass = null;
-            
             do {
                 Object elem = it.next();
                 if (elem == null) {
@@ -93,14 +92,15 @@ public class IterableSerializer
                 }
                 JsonSerializer<Object> currSerializer = _elementSerializer;
                 if (currSerializer == null) {
-                    // Minor optimization to avoid most lookups:
                     Class<?> cc = elem.getClass();
-                    if (cc == prevClass) {
-                        currSerializer = prevSerializer;
-                    } else {
-                        currSerializer = provider.findValueSerializer(cc, _property);
-                        prevSerializer = currSerializer;
-                        prevClass = cc;
+                    JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
+                    if (serializer == null) {
+                        if (_elementType.hasGenericTypes()) {
+                            serializer = _findAndAddDynamic(_dynamicValueSerializers,
+                                    provider.constructSpecializedType(_elementType, cc), provider);
+                        } else {
+                            serializer = _findAndAddDynamic(_dynamicValueSerializers, cc, provider);
+                        }
                     }
                 }
                 if (typeSer == null) {

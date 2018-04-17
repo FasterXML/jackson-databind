@@ -650,7 +650,7 @@ public abstract class SerializerProvider
      * handling to allow for simpler caching. A call can always be replaced
      * by equivalent calls to access serializer and type serializer separately.
      * 
-     * @param valueType Type for purpose of locating a serializer; usually dynamic
+     * @param rawType Type for purpose of locating a serializer; usually dynamic
      *   runtime type, but can also be static declared type, depending on configuration
      * @param cache Whether resulting value serializer should be cached or not; this is just
      *    a hint
@@ -658,26 +658,26 @@ public abstract class SerializerProvider
      *   serializer is needed: annotations of the property (or bean that contains it)
      *   may be checked to create contextual serializers.
      */
-    public JsonSerializer<Object> findTypedValueSerializer(Class<?> valueType,
+    public JsonSerializer<Object> findTypedValueSerializer(Class<?> rawType,
             boolean cache, BeanProperty property)
         throws JsonMappingException
     {
         // First: do we have it cached (locally, or in shared as call-through)?
-        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(rawType);
         if (ser != null) {
             return ser;
         }
 
         // If not, compose from pieces:
-        ser = findValueSerializer(valueType, property);
-        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config,
-                _config.constructType(valueType));
+        JavaType fullType = _config.constructType(rawType);
+        ser = findValueSerializer(rawType, property);
+        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, fullType);
         if (typeSer != null) {
             typeSer = typeSer.forProperty(property);
             ser = new TypeWrappedSerializer(typeSer, ser);
         }
         if (cache) {
-            _serializerCache.addTypedSerializer(valueType, ser);
+            _serializerCache.addTypedSerializer(rawType, ser);
         }
         return ser;
     }

@@ -210,7 +210,9 @@ public abstract class BasicSerializerFactory
                         ClassUtil.checkAndFixAccess(am.getMember(),
                                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                     }
-                    ser = new JsonValueSerializer(am, delegate);
+                    // need to pass both type of key Object (on which accessor called), and actual
+                    // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
+                    ser = new JsonValueSerializer(keyType, am.getType(), false, null, delegate, am);
                 } else {
                     // And aside from JDK defaults, use `defaultImpl` if any specified
                     ser = defaultImpl;
@@ -237,11 +239,10 @@ public abstract class BasicSerializerFactory
      */
     @Override
     public TypeSerializer findTypeSerializer(SerializationConfig config,
-            JavaType baseType) throws JsonMappingException
+            BeanDescription beanDesc, JavaType baseType) throws JsonMappingException
     {
-        BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         return config.getTypeResolverProvider().findTypeSerializer(config,
-                bean.getClassInfo(), baseType);
+                beanDesc.getClassInfo(), baseType);
     }
 
     @Override
@@ -352,12 +353,15 @@ public abstract class BasicSerializerFactory
                         prov.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueAccessor);
-            return new JsonValueSerializer(valueAccessor, ser);
+            JavaType valueType = valueAccessor.getType();
+            TypeSerializer vts = findTypeSerializer(prov.getConfig(), valueType);
+            return new JsonValueSerializer(type, valueType, /* static typing */ false,
+                    vts, ser, valueAccessor);
         }
         // No well-known annotations...
         return null;
     }
-    
+
     /**
      * Method for checking if we can determine serializer to use based on set of
      * known primary types, checking for set of known base types (exact matches
@@ -546,11 +550,9 @@ public abstract class BasicSerializerFactory
                 staticTyping = true;
             }
         }
-        
         // Let's see what we can learn about element/content/value type, type serializer for it:
         JavaType elementType = type.getContentType();
-        TypeSerializer elementTypeSerializer = findTypeSerializer(config,
-                elementType);
+        TypeSerializer elementTypeSerializer = findTypeSerializer(config, elementType);
 
         // if elements have type serializer, cannot force static typing:
         if (elementTypeSerializer != null) {
@@ -861,7 +863,8 @@ public abstract class BasicSerializerFactory
             return null;
         }
         MapEntrySerializer ser = new MapEntrySerializer(valueType, keyType, valueType,
-                staticTyping, findTypeSerializer(prov.getConfig(), valueType), null);
+                staticTyping, findTypeSerializer(prov.getConfig(), valueType),
+                null);
 
         final JavaType contentType = ser.getContentType();
         JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
@@ -1126,7 +1129,8 @@ public abstract class BasicSerializerFactory
             JavaType valueType)
         throws JsonMappingException
     {
-        return new IteratorSerializer(valueType, staticTyping, findTypeSerializer(config, valueType));
+        return new IteratorSerializer(valueType, staticTyping,
+                findTypeSerializer(config, valueType));
     }
 
     protected JsonSerializer<?> buildIterableSerializer(SerializationConfig config,
@@ -1134,7 +1138,8 @@ public abstract class BasicSerializerFactory
             JavaType valueType)
         throws JsonMappingException
     {
-        return new IterableSerializer(valueType, staticTyping, findTypeSerializer(config, valueType));
+        return new IterableSerializer(valueType, staticTyping,
+                findTypeSerializer(config, valueType));
     }
 
     protected JsonSerializer<?> buildEnumSerializer(SerializationConfig config,

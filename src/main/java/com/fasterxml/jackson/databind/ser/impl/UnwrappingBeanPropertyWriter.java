@@ -153,7 +153,7 @@ public class UnwrappingBeanPropertyWriter
             SerializerProvider provider) throws JsonMappingException
     {
         JsonSerializer<Object> ser = provider
-                .findValueSerializer(getType(), this)
+                .findPrimaryPropertySerializer(getType(), this)
                 .unwrappingSerializer(_nameTransformer);
 
         if (ser.isUnwrappingSerializer()) {

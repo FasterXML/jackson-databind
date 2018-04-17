@@ -210,7 +210,7 @@ public abstract class AsArraySerializerBase<T>
             // 19-Oct-2016, tatu: Apparently we get null for untyped/raw `EnumSet`s... not 100%
             //   sure what'd be the clean way but let's try this for now:
             if (_elementType != null) {
-                valueSer = visitor.getProvider().findValueSerializer(_elementType, _property);
+                valueSer = visitor.getProvider().findSecondaryPropertySerializer(_elementType, _property);
             }
         }
         visitArrayFormat(visitor, typeHint, valueSer, _elementType);

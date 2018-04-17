@@ -108,7 +108,7 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
         throws JsonMappingException
     {
@@ -122,13 +122,13 @@ public class ObjectArraySerializer
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
             AnnotatedMember m = property.getMember();
-            final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
+            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
             if (m != null) {
-                ser = serializers.serializerInstance(m,
-                        intr.findContentSerializer(serializers.getConfig(), m));
+                ser = ctxt.serializerInstance(m,
+                        intr.findContentSerializer(ctxt.getConfig(), m));
             }
         }
-        JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         if (format != null) {
             unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
@@ -136,13 +136,13 @@ public class ObjectArraySerializer
             ser = _elementSerializer;
         }
         // [databind#124]: May have a content converter
-        ser = findContextualConvertingSerializer(serializers, property, ser);
+        ser = findContextualConvertingSerializer(ctxt, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             if (_elementType != null) {
                 if (_staticTyping && !_elementType.isJavaLangObject()) {
-                    ser = serializers.findValueSerializer(_elementType, property);
+                    ser = ctxt.findSecondaryPropertySerializer(_elementType, property);
                 }
             }
         }

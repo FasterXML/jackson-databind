@@ -143,7 +143,7 @@ public class NewSchemaTest extends BaseMapTest
                         if (prov == null) {
                             throw new Error("SerializerProvider missing");
                         }
-                        ser = prov.findValueSerializer(prop.getType(), prop);
+                        ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                     }
                     JsonFormatVisitorWrapper visitor = new JsonFormatVisitorWrapper.Base(getProvider());
                     ser.acceptJsonFormatVisitor(visitor, prop.getType());
@@ -305,7 +305,7 @@ public class NewSchemaTest extends BaseMapTest
                         }
                         final SerializerProvider prov = getProvider();
                         if (ser == null) {
-                            ser = prov.findValueSerializer(prop.getType(), prop);
+                            ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                         }
                         ser.acceptJsonFormatVisitor(new JsonFormatVisitorWrapper.Base() {
                             @Override

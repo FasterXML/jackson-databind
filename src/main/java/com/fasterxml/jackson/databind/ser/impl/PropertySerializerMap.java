@@ -91,8 +91,6 @@ public abstract class PropertySerializerMap
      * have {@link com.fasterxml.jackson.databind.jsontype.TypeSerializer} wrapped
      * around it. Will both find the serializer
      * and construct new map instance if warranted, and return both.
-     * 
-     * @throws JsonMappingException 
      */
     public final SerializerAndMapResult findAndAddRootValueSerializer(Class<?> type,
             SerializerProvider provider)

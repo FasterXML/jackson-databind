@@ -307,7 +307,7 @@ public abstract class BeanSerializerBase
                         continue;
                     }
                 }
-                ser = provider.findValueSerializer(type, prop);
+                ser = provider.findPrimaryPropertySerializer(type, prop);
                 // 04-Feb-2010, tatu: We may have stashed type serializer for content types
                 //   too, earlier; if so, it's time to connect the dots here:
                 if (type.isContainerType()) {

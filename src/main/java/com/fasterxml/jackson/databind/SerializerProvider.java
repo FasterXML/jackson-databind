@@ -565,9 +565,10 @@ public abstract class SerializerProvider
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
-            ser = _serializerCache.untypedValueSerializer(_config.constructType(rawType));
+            JavaType fullType = _config.constructType(rawType);
+            ser = _serializerCache.untypedValueSerializer(fullType);
             if (ser == null) {
-                ser = _createAndCacheUntypedSerializer(rawType);
+                ser = _createAndCacheUntypedSerializer(rawType, fullType);
             }
         }
         return handleRootContextualization(ser);
@@ -624,9 +625,10 @@ public abstract class SerializerProvider
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
-            ser = _serializerCache.untypedValueSerializer(_config.constructType(rawType));
+            JavaType fullType = _config.constructType(rawType);
+            ser = _serializerCache.untypedValueSerializer(fullType);
             if (ser == null) {
-                ser = _createAndCacheUntypedSerializer(rawType);
+                ser = _createAndCacheUntypedSerializer(rawType, fullType);
             }
         }
         return handlePrimaryContextualization(ser, property);
@@ -649,9 +651,10 @@ public abstract class SerializerProvider
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
-            ser = _serializerCache.untypedValueSerializer(_config.constructType(rawType));
+            JavaType fullType = _config.constructType(rawType);
+            ser = _serializerCache.untypedValueSerializer(fullType);
             if (ser == null) {
-                ser = _createAndCacheUntypedSerializer(rawType);
+                ser = _createAndCacheUntypedSerializer(rawType, fullType);
             }
         }
         return handleSecondaryContextualization(ser, property);
@@ -668,13 +671,14 @@ public abstract class SerializerProvider
      * to be handled at a later point, but caller wants to be able to do that
      * as needed; sometimes to avoid infinite loops
      */
-    public JsonSerializer<Object> findValueSerializer(Class<?> valueType) throws JsonMappingException
+    public JsonSerializer<Object> findValueSerializer(Class<?> rawType) throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
-            ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
+            JavaType fullType = _config.constructType(rawType);
+            ser = _serializerCache.untypedValueSerializer(fullType);
             if (ser == null) {
-                ser = _createAndCacheUntypedSerializer(valueType);
+                ser = _createAndCacheUntypedSerializer(rawType, fullType);
             }
         }
         return ser;
@@ -821,18 +825,22 @@ public abstract class SerializerProvider
      * Method that will try to construct a value serializer; and if
      * one is successfully created, cache it for reuse.
      */
-    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType)
+    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType,
+            JavaType fullType)
+            
         throws JsonMappingException
     {
-        JavaType fullType = _config.constructType(rawType);
+        // Important: must introspect all annotations, not just class
+        BeanDescription beanDesc = _config.introspect(fullType);
+        JsonFormat.Value format = beanDesc.findExpectedFormat();
         JsonSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, fullType);
+            ser = _serializerFactory.createSerializer(this, beanDesc, fullType, format);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, iae.getMessage());
         }
-        // 13-Apr-2018, tatu: Always cache (note! also applies to "unknown" serializer, for now..)
+        // Always cache -- and in this case both for raw and full type
         _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
         return ser;
     }
@@ -840,14 +848,17 @@ public abstract class SerializerProvider
     protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
         throws JsonMappingException
     {
+        // Important: must introspect all annotations, not just class
+        BeanDescription beanDesc = _config.introspect(type);
+        JsonFormat.Value format = beanDesc.findExpectedFormat();
         JsonSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, type);
+            ser = _serializerFactory.createSerializer(this, beanDesc, type, format);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, iae.getMessage());
         }
-        // 13-Apr-2018, tatu: Always cache (note! also applies to "unknown" serializer, for now..)
+        // always cache -- but only full type (may be parameterized)
         _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
         return ser;
     }

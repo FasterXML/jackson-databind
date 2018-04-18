@@ -125,7 +125,8 @@ public abstract class SerializerFactory
     public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType baseType)
         throws JsonMappingException
     {
-        final SerializationConfig config = prov.getConfig();
-        return createSerializer(prov, config.introspect(baseType), baseType, JsonFormat.Value.empty());
+        BeanDescription beanDesc = prov.getConfig().introspect(baseType);
+        return createSerializer(prov, beanDesc, baseType,
+                beanDesc.findExpectedFormat());
     }
 }

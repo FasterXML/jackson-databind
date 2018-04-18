@@ -116,7 +116,7 @@ public abstract class BeanSerializerBase
             _propertyFilterId = builder.getFilterId();
             _objectIdWriter = builder.getObjectIdWriter();
             JsonFormat.Value format = builder.getBeanDescription().findExpectedFormat();
-            _serializationShape = (format == null) ? null : format.getShape();
+            _serializationShape = format.getShape();
         }
     }
 

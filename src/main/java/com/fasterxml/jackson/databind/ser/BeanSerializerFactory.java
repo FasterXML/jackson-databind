@@ -161,16 +161,17 @@ public class BeanSerializerFactory
             }
             // [databind#731]: Should skip if nominally java.lang.Object
             if ((ser == null) && !delegateType.isJavaLangObject()) {
-                ser = _createSerializer2(ctxt, delegateType, beanDesc, true);
+                ser = _createSerializer2(ctxt, beanDesc, delegateType, format, true);
             }
             return new StdDelegatingSerializer(conv, delegateType, ser, null);
         }
         // No, regular serializer
-        return (JsonSerializer<Object>) _createSerializer2(ctxt, type, beanDesc, staticTyping);
+        return (JsonSerializer<Object>) _createSerializer2(ctxt, beanDesc, type, format, staticTyping);
     }
 
     protected JsonSerializer<?> _createSerializer2(SerializerProvider ctxt,
-            JavaType type, BeanDescription beanDesc, boolean staticTyping)
+            BeanDescription beanDesc, JavaType type,
+            JsonFormat.Value format, boolean staticTyping)
         throws JsonMappingException
     {
         JsonSerializer<?> ser = null;
@@ -218,7 +219,7 @@ public class BeanSerializerFactory
                     // And this is where this class comes in: if type is not a
                     // known "primary JDK type", perhaps it's a bean? We can still
                     // get a null, if we can't find a single suitable bean property.
-                    ser = findBeanSerializer(ctxt, type, beanDesc);
+                    ser = findBeanSerializer(ctxt, beanDesc, type, format);
                     // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
                     if (ser == null) {
                         ser = findSerializerByAddonType(config, type, beanDesc, staticTyping);
@@ -251,14 +252,14 @@ public class BeanSerializerFactory
      * Method that will try to construct a {@link BeanSerializer} for
      * given class. Returns null if no properties are found.
      */
-    public JsonSerializer<Object> findBeanSerializer(SerializerProvider ctxt, JavaType type,
-            BeanDescription beanDesc)
+    public JsonSerializer<Object> findBeanSerializer(SerializerProvider ctxt, BeanDescription beanDesc,
+            JavaType type, JsonFormat.Value format)
         throws JsonMappingException
     {
         // First things first: we know some types are not beans...
         if (!isPotentialBeanType(type.getRawClass())) {
-            // 03-Aug-2012, tatu: Except we do need to allow serializers for Enums,
-            //   as per [databind#24]
+            // Except we do need to allow serializers for Enums, if shape dictates (which it does
+            // if we end up here)
             if (!type.isEnumType()) {
                 return null;
             }

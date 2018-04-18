@@ -116,8 +116,8 @@ public class BeanSerializerFactory
      */
     @Override
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> createSerializer(SerializerProvider ctxt,
-            BeanDescription beanDesc, JavaType origType, JsonFormat.Value format)
+    public JsonSerializer<Object> createSerializer(SerializerProvider ctxt, JavaType origType,
+            BeanDescription beanDesc, JsonFormat.Value format)
         throws JsonMappingException
     {
         // Very first thing, let's check if there is explicit serializer annotation:

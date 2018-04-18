@@ -1553,8 +1553,8 @@ nonAnnotatedParamIndex, ctor);
         throws JsonMappingException
     {
         BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
-        return config.getTypeResolverProvider().findTypeDeserializer(config,
-                bean.getClassInfo(), baseType);
+        return config.getTypeResolverProvider().findTypeDeserializer(config, baseType,
+                bean.getClassInfo());
 
 //      JavaType defaultType = mapAbstractType(config, baseType);
         

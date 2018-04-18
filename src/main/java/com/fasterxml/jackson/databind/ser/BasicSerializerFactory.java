@@ -239,10 +239,10 @@ public abstract class BasicSerializerFactory
      */
     @Override
     public TypeSerializer findTypeSerializer(SerializationConfig config,
-            BeanDescription beanDesc, JavaType baseType) throws JsonMappingException
+            JavaType baseType, BeanDescription beanDesc) throws JsonMappingException
     {
         return config.getTypeResolverProvider().findTypeSerializer(config,
-                beanDesc.getClassInfo(), baseType);
+                baseType, beanDesc.getClassInfo());
     }
 
     @Override

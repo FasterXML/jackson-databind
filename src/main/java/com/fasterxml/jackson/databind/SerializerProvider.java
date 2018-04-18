@@ -835,7 +835,7 @@ public abstract class SerializerProvider
         JsonFormat.Value format = beanDesc.findExpectedFormat();
         JsonSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, beanDesc, fullType, format);
+            ser = _serializerFactory.createSerializer(this, fullType, beanDesc, format);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, iae.getMessage());
@@ -853,7 +853,7 @@ public abstract class SerializerProvider
         JsonFormat.Value format = beanDesc.findExpectedFormat();
         JsonSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, beanDesc, type, format);
+            ser = _serializerFactory.createSerializer(this, type, beanDesc, format);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, iae.getMessage());

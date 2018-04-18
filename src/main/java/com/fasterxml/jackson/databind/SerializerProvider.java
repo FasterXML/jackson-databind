@@ -599,9 +599,8 @@ public abstract class SerializerProvider
      */
 
     /**
-     * Similar to {@link #findValueSerializer(JavaType, BeanProperty)}, but used
-     * when finding "primary" property value serializer (one directly handling
-     * value of the property). Difference has to do with contextual resolution,
+     * Method used for locating "primary" property value serializer (one directly
+     * handling value of the property). Difference (if any) has to do with contextual resolution,
      * and method(s) called: this method should only be called when caller is
      * certain that this is the primary property value serializer.
      * 

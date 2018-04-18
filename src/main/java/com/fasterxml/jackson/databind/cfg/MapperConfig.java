@@ -388,6 +388,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for default format settings to use for serialization (and, to a degree
      * deserialization), considering baseline settings and per-type defaults
      * for given base type (if any).
+     *
+     * @return (non-null) Format settings to use, possibly `JsonFormat.Value.empty()`
      */
     public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
 

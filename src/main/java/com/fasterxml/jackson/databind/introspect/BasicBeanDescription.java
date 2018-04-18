@@ -340,12 +340,25 @@ anyField.getName()));
     @Override
     public JsonFormat.Value findExpectedFormat()
     {
+        // 18-Apr-2018, tatu: Bit unclean but apparently `_config` is `null` for
+        //   a small set of pre-discovered simple types that `BasicClassIntrospector`
+        //   may expose. If so, nothing we can do
+        if (_config == null) {
+            return JsonFormat.Value.empty();
+        }
+
         // Let's check both per-type defaults and annotations; annotations may
         // be overridden by per-type configuration (have precedence)
         JsonFormat.Value v1 = _annotationIntrospector.findFormat(_classInfo);
         JsonFormat.Value v2 = _config.getDefaultPropertyFormat(_classInfo.getRawType());
         // 13-Apr-2018, tatu: One open question: should we default to `empty` to avoid
         //    returning null?
+        if (v1 == null) {
+            if (v2 == null) {
+                return JsonFormat.Value.empty();
+            }
+            return v2;
+        }
         return JsonFormat.Value.merge(v1, v2);
     }
 

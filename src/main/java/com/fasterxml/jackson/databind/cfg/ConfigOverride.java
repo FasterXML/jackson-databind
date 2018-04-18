@@ -83,6 +83,12 @@ public abstract class ConfigOverride
     }
 
     public JsonFormat.Value getFormat() { return _format; }
+
+    // @since 3.0
+    public JsonFormat.Value getFormatOrEmpty() {
+        return (_format == null) ? JsonFormat.Value.empty() : _format;
+    }
+
     public JsonInclude.Value getInclude() { return _include; }
 
     public JsonInclude.Value getIncludeAsProperty() { return _includeAsProperty; }

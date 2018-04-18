@@ -27,25 +27,21 @@ public class EnumSerializer
     private static final long serialVersionUID = 1L;
 
     /**
-     * This map contains pre-resolved values (since there are ways
-     * to customize actual String constants to use) to use as
-     * serializations.
+     * This map contains pre-resolved values (since there are ways to customize
+     * actual String constants to use) to use as serializations.
      */
     protected final EnumValues _values;
 
     /**
-     * Flag that is set if we statically know serialization choice
-     * between index and textual format (null if it needs to be dynamically
-     * checked).
-     * 
-     * @since 2.1
+     * Flag that is set if we statically know serialization choice between
+     * index and textual format (null if it needs to be dynamically checked).
      */
     protected final Boolean _serializeAsIndex;
 
     /*
-    /**********************************************************
-    /* Construction, initialization
-    /**********************************************************
+    /**********************************************************************
+    /* Life-cycle
+    /**********************************************************************
      */
 
     public EnumSerializer(EnumValues v, Boolean serializeAsIndex)
@@ -58,17 +54,14 @@ public class EnumSerializer
     /**
      * Factory method used by {@link com.fasterxml.jackson.databind.ser.BasicSerializerFactory}
      * for constructing serializer instance of Enum types.
-     * 
-     * @since 2.1
      */
     @SuppressWarnings("unchecked")
     public static EnumSerializer construct(Class<?> enumClass, SerializationConfig config,
             BeanDescription beanDesc, JsonFormat.Value format)
     {
-        /* 08-Apr-2015, tatu: As per [databind#749], we cannot statically determine
-         *   between name() and toString(), need to construct `EnumValues` with names,
-         *   handle toString() case dynamically (for example)
-         */
+        // 08-Apr-2015, tatu: As per [databind#749], we cannot statically determine
+        //   between name() and toString(), need to construct `EnumValues` with names,
+        //   handle toString() case dynamically (for example)
         EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true, null);
         return new EnumSerializer(v, serializeAsIndex);
@@ -80,10 +73,10 @@ public class EnumSerializer
      * choice here, however.
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        JsonFormat.Value format = findFormatOverrides(serializers,
+        JsonFormat.Value format = findFormatOverrides(ctxt,
                 property, handledType());
         if (format != null) {
             Class<?> type = handledType();
@@ -97,40 +90,40 @@ public class EnumSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API for Jackson databind core
-    /**********************************************************
+    /**********************************************************************
      */
     
     public EnumValues getEnumValues() { return _values; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual serialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
-    public final void serialize(Enum<?> en, JsonGenerator gen, SerializerProvider serializers)
+    public final void serialize(Enum<?> en, JsonGenerator g, SerializerProvider ctxt)
         throws IOException
     {
-        // [JACKSON-684]: serialize as index?
-        if (_serializeAsIndex(serializers)) {
-            gen.writeNumber(en.ordinal());
+        // Serialize as index?
+        if (_serializeAsIndex(ctxt)) {
+            g.writeNumber(en.ordinal());
             return;
         }
         // [databind#749]: or via toString()?
-        if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            gen.writeString(en.toString());
+        if (ctxt.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+            g.writeString(en.toString());
             return;
         }
-        gen.writeString(_values.serializedValueFor(en));
+        g.writeString(_values.serializedValueFor(en));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Schema support
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -163,17 +156,17 @@ public class EnumSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
     
-    protected final boolean _serializeAsIndex(SerializerProvider serializers)
+    protected final boolean _serializeAsIndex(SerializerProvider ctxt)
     {
         if (_serializeAsIndex != null) {
             return _serializeAsIndex.booleanValue();
         }
-        return serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX);
+        return ctxt.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX);
     }
 
     /**

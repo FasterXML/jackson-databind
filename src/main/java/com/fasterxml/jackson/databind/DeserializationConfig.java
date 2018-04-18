@@ -639,8 +639,8 @@ public final class DeserializationConfig
     public TypeDeserializer findTypeDeserializer(JavaType baseType)
         throws JsonMappingException
     {
-        BeanDescription bean = introspectClassAnnotations(baseType.getRawClass());
-        return getTypeResolverProvider().findTypeDeserializer(this,
-                bean.getClassInfo(), baseType);
+        BeanDescription beanDesc = introspectClassAnnotations(baseType.getRawClass());
+        return getTypeResolverProvider().findTypeDeserializer(this, baseType,
+                beanDesc.getClassInfo());
     }
 }

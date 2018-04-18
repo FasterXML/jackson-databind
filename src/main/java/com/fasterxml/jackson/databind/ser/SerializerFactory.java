@@ -27,7 +27,7 @@ public abstract class SerializerFactory
      * @since 3.0 (last argument added)
      */
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            BeanDescription beanDesc, JavaType baseType, JsonFormat.Value format)
+            JavaType baseType, BeanDescription beanDesc, JsonFormat.Value format)
         throws JsonMappingException;
 
     /**
@@ -40,15 +40,14 @@ public abstract class SerializerFactory
      * @return Type serializer to use for the base type, if one is needed; null if not.
      */
     public abstract TypeSerializer findTypeSerializer(SerializationConfig config,
-            BeanDescription beanDesc, JavaType baseType)
+            JavaType baseType, BeanDescription beanDesc)
         throws JsonMappingException;
 
     public TypeSerializer findTypeSerializer(SerializationConfig config,
             JavaType baseType) throws JsonMappingException
     {
-        return findTypeSerializer(config,
-                config.introspectClassAnnotations(baseType),
-                baseType);
+        return findTypeSerializer(config, baseType,
+                config.introspectClassAnnotations(baseType));
     }
 
     /**
@@ -126,7 +125,7 @@ public abstract class SerializerFactory
         throws JsonMappingException
     {
         BeanDescription beanDesc = prov.getConfig().introspect(baseType);
-        return createSerializer(prov, beanDesc, baseType,
+        return createSerializer(prov, baseType, beanDesc,
                 beanDesc.findExpectedFormat());
     }
 }

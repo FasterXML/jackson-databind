@@ -87,8 +87,8 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
         }
     }
 
-    // [databind#1998]: leakage of state via ObjectMapper.copy()
-    public void testIssue1998() throws Exception
+    // [databind#1998]: leakage of state via ObjectMapper.copy() (et al)
+    public void testSharedBuilder() throws Exception
     {
         final MapperBuilder<?,?> B = defaultMapper();
         MyModelRoot myModelInstance = new MyModelRoot();
@@ -96,8 +96,12 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
 
         ObjectMapper mapper = B.build();
 
+System.err.println("FIRST/shared");
+
         String postResult = mapper.writeValueAsString(myModelInstance);
         assertEquals(FULLMODEL, postResult);
+
+System.err.println("SECOND/shared");
 
         mapper = B
                 .addMixIn(MyModelRoot.class, MixinConfig.MyModelRoot.class)
@@ -107,7 +111,35 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
         String result = mapper
                 .writerWithView(MyModelView.class)
                 .writeValueAsString(myModelInstance);
-//System.out.println("result: "+result);
+System.err.println("Shared, result: "+result);
+        assertEquals(EXPECTED, result);
+    }
+
+    // [databind#1998]: leakage of state via ObjectMapper.copy() (et al)
+    public void testSharingViaRebuild() throws Exception
+    {
+        final MapperBuilder<?,?> B = defaultMapper();
+        MyModelRoot myModelInstance = new MyModelRoot();
+        myModelInstance.setChild(new MyChildB("testB"));
+
+        ObjectMapper mapper = B.build();
+
+System.err.println("FIRST/Rebuild");
+
+        String postResult = mapper.writeValueAsString(myModelInstance);
+        assertEquals(FULLMODEL, postResult);
+
+System.err.println("SECOND/Rebuild");
+
+        mapper = mapper.rebuild()
+                .addMixIn(MyModelRoot.class, MixinConfig.MyModelRoot.class)
+                .addMixIn(MyModelChildBase.class, MixinConfig.MyModelChildBase.class)
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build();
+        String result = mapper
+                .writerWithView(MyModelView.class)
+                .writeValueAsString(myModelInstance);
+System.err.println("Rebuild, esult: "+result);
         assertEquals(EXPECTED, result);
     }
 

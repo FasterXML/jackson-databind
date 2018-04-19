@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.TokenStreamFactory;
+import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -30,7 +31,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class DefaultSerializerProvider
     extends SerializerProvider
-    implements java.io.Serializable // only because ObjectWriter needs it
+    implements Snapshottable<DefaultSerializerProvider>,
+        java.io.Serializable // only because ObjectWriter needs it
 {
     private static final long serialVersionUID = 3L;
 
@@ -520,7 +522,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         private static final long serialVersionUID = 1L;
 
         public Impl(TokenStreamFactory streamFactory) { super(streamFactory); }
-        public Impl(Impl src) { super(src); }
+        protected Impl(Impl src) { super(src); }
 
         protected Impl(SerializerProvider src, SerializationConfig config,
                 GeneratorSettings genSettings, SerializerFactory f) {
@@ -531,6 +533,11 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         public Impl createInstance(SerializationConfig config,
                 GeneratorSettings genSettings, SerializerFactory jsf) {
             return new Impl(this, config, genSettings, jsf);
+        }
+
+        @Override
+        public DefaultSerializerProvider snapshot() {
+            return new Impl(this);
         }
     }
 }

@@ -246,8 +246,10 @@ public abstract class SerializerProvider
         _serializerFactory = null;
         _knownSerializers = null;
 
+        // need to ensure cache is clear()ed
+        _serializerCache = src._serializerCache.snapshot();
+
         // and others initialized to default empty state
-        _serializerCache = new SerializerCache();
         _nullValueSerializer = src._nullValueSerializer;
         _stdNullValueSerializer = src._stdNullValueSerializer;
     }

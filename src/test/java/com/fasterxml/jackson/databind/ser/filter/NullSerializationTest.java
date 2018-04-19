@@ -58,6 +58,11 @@ public class NullSerializationTest
             }
             return super.findNullValueSerializer(property);
         }
+
+        @Override
+        public DefaultSerializerProvider snapshot() {
+            return new MyNullProvider();
+        }
     }
 
     static class BeanWithNullProps

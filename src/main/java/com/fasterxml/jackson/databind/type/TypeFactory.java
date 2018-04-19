@@ -441,6 +441,15 @@ public final class TypeFactory
             JavaType exp = expectedTypes.get(i);
             JavaType act = actualTypes.get(i);
             if (!_verifyAndResolvePlaceholders(exp, act)) {
+                // 19-Apr-2018, tatu: Hack for [databind#1964] -- allow type demotion
+                //    for `java.util.Map` key type if (and only if) target type is
+                //    `java.lang.Object`
+                if (i == 0) {
+                    if (sourceType.hasRawClass(Map.class)
+                            && act.hasRawClass(Object.class)) {
+                        continue;
+                    }
+                }
                 return String.format("Type parameter #%d/%d differs; can not specialize %s with %s",
                         (i+1), len, exp.toCanonical(), act.toCanonical());
             }

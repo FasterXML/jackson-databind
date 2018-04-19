@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.fasterxml.jackson.databind.util.SimpleLookupCache;
@@ -21,7 +22,8 @@ import com.fasterxml.jackson.databind.util.TypeKey;
  * determining how to resolve value type. One (but not both) of entries can be null.
  */
 public final class SerializerCache
-    implements java.io.Serializable
+    implements Snapshottable<SerializerCache>,
+        java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
 
@@ -58,15 +60,20 @@ public final class SerializerCache
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 
-    private SerializerCache(SerializerCache serialized) {
-        _sharedMap = serialized._sharedMap;
+    private SerializerCache(SimpleLookupCache<TypeKey, JsonSerializer<Object>> shared) {
+        _sharedMap = shared;
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
-    
+
     // Since 3.0, needed to initialize cache properly: shared map would be ok but need to
     // reconstruct AtomicReference
     protected Object readResolve() {
-        return new SerializerCache(this);
+        return new SerializerCache(_sharedMap);
+    }
+
+    @Override
+    public SerializerCache snapshot() {
+        return new SerializerCache(_sharedMap.snapshot());
     }
 
     /**

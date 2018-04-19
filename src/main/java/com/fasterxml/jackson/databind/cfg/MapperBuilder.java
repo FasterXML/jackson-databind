@@ -310,7 +310,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         // Factories for serialization
         _serializerFactory = state._serializerFactory;
-        _serializerProvider = state._serializerProvider;
+        _serializerProvider = Snapshottable.takeSnapshot(state._serializerProvider);
         _filterProvider = state._filterProvider;
         _defaultPrettyPrinter = state._defaultPrettyPrinter;
 

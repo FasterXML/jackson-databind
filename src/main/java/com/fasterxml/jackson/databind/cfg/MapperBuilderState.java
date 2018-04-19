@@ -115,7 +115,6 @@ public abstract class MapperBuilderState
     public MapperBuilderState(MapperBuilder<?,?> src)
     {
         // Basic settings
-
         _baseSettings = src._baseSettings; // immutable
         _streamFactory = src._streamFactory; // immutable
         _configOverrides = Snapshottable.takeSnapshot(src._configOverrides);
@@ -138,7 +137,7 @@ public abstract class MapperBuilderState
 
         // Factories for serialization
         _serializerFactory = src._serializerFactory;
-        _serializerProvider = src._serializerProvider;
+        _serializerProvider = Snapshottable.takeSnapshot(src._serializerProvider);
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         

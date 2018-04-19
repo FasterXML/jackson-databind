@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 /**
  * Synchronized cache with bounded size: used for reusing lookup values
  * and lazily instantiated reusable items.
@@ -24,7 +26,8 @@ import java.util.function.BiConsumer;
  * a shaded variant may be used one day.
  */
 public class SimpleLookupCache<K,V>
-    implements java.io.Serializable
+    implements Snapshottable<SimpleLookupCache<K,V>>,
+        java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
 
@@ -48,7 +51,12 @@ public class SimpleLookupCache<K,V>
 
     // for JDK serialization
     protected Object readResolve() {
-        return new SimpleLookupCache<Object,Object>(_initialEntries, _maxEntries);
+        return snapshot();
+    }
+
+    @Override
+    public SimpleLookupCache<K, V> snapshot() {
+        return new SimpleLookupCache<K,V>(_initialEntries, _maxEntries);
     }
 
     public void contents(BiConsumer<K,V> consumer) {

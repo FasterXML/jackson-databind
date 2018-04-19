@@ -108,7 +108,6 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
                 .setConfig(myObjectMapper.getSerializationConfig().withView(MyModelView.class));
 
         String result = getString(myModelInstance, myObjectMapper);
-System.out.println("result: "+result);
         assertEquals(EXPECTED, result);
 
     }

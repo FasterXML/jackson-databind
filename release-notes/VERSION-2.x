@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #1565: Deserialization failure with Polymorphism using JsonTypeInfo `defaultImpl`,
   subtype as target
+#1964: Failed to specialize `Map` type during serialization where key type
+  incompatibility overidden via "raw" types
+ (reported by ptirador@github)
 #1998: Removing "type" attribute with Mixin not taken in account if
   using ObjectMapper.copy()
  (reported by SBKila@github)

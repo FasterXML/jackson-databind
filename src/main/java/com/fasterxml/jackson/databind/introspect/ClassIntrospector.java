@@ -47,6 +47,13 @@ public abstract class ClassIntrospector
 
     protected ClassIntrospector() { }
 
+    /**
+     * Method that may be needed when `copy()`ing `ObjectMapper` instances.
+     *
+     * @since 2.9.6
+     */
+    public abstract ClassIntrospector copy();
+
     /*
     /**********************************************************
     /* Public API: factory methods

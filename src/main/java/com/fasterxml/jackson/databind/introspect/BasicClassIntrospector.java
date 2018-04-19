@@ -66,7 +66,12 @@ public class BasicClassIntrospector
         // a small cache should go a long way here
         _cachedFCA = new LRUMap<JavaType,BasicBeanDescription>(16, 64);
     }
-    
+
+    @Override
+    public ClassIntrospector copy() {
+        return new BasicClassIntrospector();
+    }
+
     /*
     /**********************************************************
     /* Factory method impls

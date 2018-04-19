@@ -535,7 +535,8 @@ public abstract class BasicSerializerFactory
      */
 
     protected JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
-            JavaType type, BeanDescription beanDesc, boolean staticTyping)
+            JavaType type, BeanDescription beanDesc, JsonFormat.Value format,
+            boolean staticTyping)
         throws JsonMappingException
     {
         final SerializationConfig config = prov.getConfig();
@@ -567,7 +568,8 @@ public abstract class BasicSerializerFactory
              */
             JsonSerializer<Object> keySerializer = _findKeySerializer(prov, beanDesc.getClassInfo());
             if (mlt.isTrueMapType()) {
-                return buildMapSerializer(prov, (MapType) mlt, beanDesc, staticTyping,
+                return buildMapSerializer(prov, (MapType) mlt, beanDesc, format,
+                        staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
             }
             // With Map-like, just 2 options: (1) Custom, (2) Annotations
@@ -738,14 +740,13 @@ public abstract class BasicSerializerFactory
      * {@link java.util.Map} types.
      */
     protected JsonSerializer<?> buildMapSerializer(SerializerProvider prov,
-            MapType type, BeanDescription beanDesc,
+            MapType type, BeanDescription beanDesc, JsonFormat.Value format,
             boolean staticTyping, JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
     {
         // [databind#467]: This is where we could allow serialization "as POJO": But! It's
         // nasty to undo, and does not apply on per-property basis. So, hardly optimal
-        JsonFormat.Value format = beanDesc.findExpectedFormat();
         if (format.getShape() == JsonFormat.Shape.OBJECT) {
             return null;
         }

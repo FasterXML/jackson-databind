@@ -419,7 +419,7 @@ index, owner, defs[index], propDef);
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators,
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
-        throws JsonMappingException
+                 throws JsonMappingException
     {
         // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
         //     for now to skip attempts at using anything but no-args constructor (see

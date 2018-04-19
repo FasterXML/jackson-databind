@@ -74,21 +74,6 @@ public final class SerializationConfig
      */
 
     /**
-     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
-     */
-    protected SerializationConfig(SerializationConfig src,
-            MixInHandler mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
-    {
-        super(src, mixins, rootNames, configOverrides);
-        _serFeatures = src._serFeatures;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _formatWriteFeatures = src._formatWriteFeatures;
-    }
-
-    /**
      * @since 3.0
      */
     public SerializationConfig(MapperBuilder<?,?> b,

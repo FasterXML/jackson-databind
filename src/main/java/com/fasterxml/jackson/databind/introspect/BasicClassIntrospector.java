@@ -17,7 +17,7 @@ public class BasicClassIntrospector
     extends ClassIntrospector
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /* We keep a small set of pre-constructed descriptions to use for
      * common non-structured values, such as Numbers and Strings.
@@ -47,9 +47,9 @@ public class BasicClassIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -62,11 +62,16 @@ public class BasicClassIntrospector
         // a small cache should go a long way here
         _cachedFCA = new SimpleLookupCache<JavaType,BasicBeanDescription>(16, 64);
     }
-    
+
+    @Override
+    public ClassIntrospector snapshot() {
+        return new BasicClassIntrospector();
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory method impls
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -170,9 +175,9 @@ public class BasicClassIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,

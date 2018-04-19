@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
@@ -14,8 +15,11 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * those methods.
  */
 public abstract class ClassIntrospector
+    implements Snapshottable<ClassIntrospector>
 {
     protected ClassIntrospector() { }
+
+//    public abstract ClassIntrospector snapshot();
 
     /*
     /**********************************************************

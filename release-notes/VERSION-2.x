@@ -14,6 +14,8 @@ Project: jackson-databind
 #1998: Removing "type" attribute with Mixin not taken in account if
   using ObjectMapper.copy()
  (reported by SBKila@github)
+#1999: "Duplicate property" issue should mention which class it complains about
+ (reported by Ondrej Z)
 
 2.9.5 (26-Mar-2018)
 

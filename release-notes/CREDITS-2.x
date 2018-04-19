@@ -767,3 +767,7 @@ roeltje25@github
   * Reported #1978: Using @JsonUnwrapped annotation in builderdeserializer hangs in
     infinite loop
    (2.9.5)
+
+Ondrej Zizka (OndraZizk@github)
+  * Reported #1999: "Duplicate property" issue should mention which class it complains about
+   (2.9.6)

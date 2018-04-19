@@ -130,24 +130,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = configOverrides;
     }
 
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src,
-            MixInHandler mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
-    {
-        super(src);
-        _typeFactory = src._typeFactory;
-        _classIntrospector = src._classIntrospector;
-        _typeResolverProvider = src._typeResolverProvider;
-        _subtypeResolver = src._subtypeResolver;
-
-        _mixIns = mixins;
-        _rootNames = rootNames;
-        _rootName = src._rootName;
-        _view = src._view;
-        _attributes = src._attributes;
-        _configOverrides = configOverrides;
-    }
-
     /**
      * Pass-through constructor used when no changes are needed to the
      * base class.

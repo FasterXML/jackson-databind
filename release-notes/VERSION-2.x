@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #1565: Deserialization failure with Polymorphism using JsonTypeInfo `defaultImpl`,
   subtype as target
+#1998: Removing "type" attribute with Mixin not taken in account if
+  using ObjectMapper.copy()
+ (reported by SBKila@github)
 
 2.9.5 (26-Mar-2018)
 

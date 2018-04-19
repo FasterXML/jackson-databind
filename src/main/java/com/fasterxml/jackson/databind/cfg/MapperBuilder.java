@@ -303,7 +303,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         // Handlers, introspection
         _typeFactory = state._typeFactory;
-        _classIntrospector = state._classIntrospector;
+        _classIntrospector = Snapshottable.takeSnapshot(state._classIntrospector);
         _typeResolverProvider = state._typeResolverProvider;
         _subtypeResolver = Snapshottable.takeSnapshot(state._subtypeResolver);
         _mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(state._mixInHandler);

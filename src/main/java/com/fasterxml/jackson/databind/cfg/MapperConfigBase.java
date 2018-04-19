@@ -134,13 +134,18 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /**
+     * Copy constructor usually called to make a copy for use by
+     * ObjectMapper that is copied.
+     *
      * @since 2.8
      */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src,
             SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
-        super(src);
+        // 18-Apr-2018, tatu: [databind#1898] need to force copying of `ClassIntrospector`
+        //    (to clear its cache) to avoid leakage
+        super(src, src._base.copy());
         _mixIns = mixins;
         _subtypeResolver = src._subtypeResolver;
         _rootNames = rootNames;

@@ -147,6 +147,26 @@ public final class BaseSettings
         _defaultBase64 = defaultBase64;
     }
 
+    /**
+     * Turns out we are not necessarily 100% stateless, alas, since {@link ClassIntrospector}
+     * typically has a cache. So this method is needed for deep copy() of Mapper.
+     *
+     * @since 2.9.6
+     */
+    public BaseSettings copy() {
+        return new BaseSettings(_classIntrospector.copy(),
+            _annotationIntrospector,
+            _propertyNamingStrategy,
+            _typeFactory,
+            _typeResolverBuilder,
+            _dateFormat,
+            _handlerInstantiator,
+            _locale,
+            _timeZone,
+            _defaultBase64);
+
+    }
+
     /*
     /**********************************************************
     /* Factory methods

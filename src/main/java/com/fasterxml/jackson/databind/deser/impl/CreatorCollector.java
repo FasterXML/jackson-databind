@@ -177,8 +177,8 @@ public class CreatorCollector
                     Integer old = names.put(name, Integer.valueOf(i));
                     if (old != null) {
                         throw new IllegalArgumentException(String.format(
-                                "Duplicate creator property \"%s\" (index %s vs %d)",
-                                name, old, i));
+                                "Duplicate creator property \"%s\" (index %s vs %d) for type %s ",
+                                name, old, i, ClassUtil.nameOf(_beanDesc.getBeanClass())));
                     }
                 }
             }

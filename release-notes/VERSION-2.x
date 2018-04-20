@@ -11,6 +11,8 @@ Project: jackson-databind
 #1964: Failed to specialize `Map` type during serialization where key type
   incompatibility overidden via "raw" types
  (reported by ptirador@github)
+#1990: MixIn `@JsonProperty` for `Object.hashCode()` is ignored
+ (reported by Freddy B)
 #1998: Removing "type" attribute with Mixin not taken in account if
   using ObjectMapper.copy()
  (reported by SBKila@github)

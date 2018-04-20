@@ -31,13 +31,10 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class DefaultSerializerProvider
     extends SerializerProvider
-    implements java.io.Serializable // only because ObjectWriter needs it
 {
-    private static final long serialVersionUID = 3L;
-
     /*
     /**********************************************************************
-    /* State, for non-blueprint instances
+    /* Additional state
     /**********************************************************************
      */
 

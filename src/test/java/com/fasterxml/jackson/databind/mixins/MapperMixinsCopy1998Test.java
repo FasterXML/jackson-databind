@@ -87,6 +87,7 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
         }
     }
 
+    /*
     // [databind#1998]: leakage of state via ObjectMapper.copy() (2.x) and similar (3.x)
     public void testSharedBuilder() throws Exception
     {
@@ -114,6 +115,7 @@ System.err.println("SECOND/shared");
 System.err.println("Shared, result: "+result);
         assertEquals(EXPECTED, result);
     }
+    */
 
     // [databind#1998]: leakage of state via ObjectMapper.copy() (2.x) and similar (3.x)
     public void testSharingViaRebuild() throws Exception

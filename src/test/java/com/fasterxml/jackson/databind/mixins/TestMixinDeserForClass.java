@@ -10,12 +10,6 @@ import com.fasterxml.jackson.databind.*;
 public class TestMixinDeserForClass
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper bean classes
-    /**********************************************************
-     */
-
     static class BaseClass
     {
         /* property that is always found; but has lower priority than
@@ -35,6 +29,21 @@ public class TestMixinDeserForClass
     @JsonAutoDetect(setterVisibility=Visibility.NONE, fieldVisibility=Visibility.NONE)
     interface MixIn { }
 
+    // [databind#1990]
+    public interface HashCodeMixIn {
+        @Override
+        @JsonProperty
+        public int hashCode();
+    }
+
+    public class Bean1990WithoutHashCode {
+    }
+
+    public class Bean1990WithHashCode {
+        @Override
+        public int hashCode() { return 13; }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -48,9 +57,8 @@ public class TestMixinDeserForClass
         LeafClass result = m.readValue("{\"a\":\"value\"}", LeafClass.class);
         assertEquals("XXXvalue", result.a);
 
-        /* Then with leaf-level mix-in; without (method) auto-detect, should
-         * use field
-         */
+        // Then with leaf-level mix-in; without (method) auto-detect,
+        // should use field
         m = ObjectMapper.builder()
                 .addMixIn(LeafClass.class, MixIn.class)
                 .build();
@@ -58,9 +66,8 @@ public class TestMixinDeserForClass
         assertEquals("value", result.a);
     }
 
-    /* and then a test for mid-level mixin; should have no effect
-     * when deserializing leaf (but will if deserializing base class)
-     */
+    // and then a test for mid-level mixin; should have no effect
+    // when deserializing leaf (but will if deserializing base class)
     public void testClassMixInsMidLevel() throws IOException
     {
         ObjectMapper m = ObjectMapper.builder()
@@ -96,6 +103,25 @@ public class TestMixinDeserForClass
         {
             LeafClass result = m.readValue("{\"a\":\"\"}", LeafClass.class);
             assertEquals("XXX", result.a);
+        }
+    }
+
+    // [databind#1990]: can apply mix-in to `Object#hashCode()` to force serialization
+    public void testHashCodeViaObject() throws Exception
+    {
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addMixIn(Object.class, HashCodeMixIn.class)
+                .build();
+
+        // First, with something that overrides hashCode()
+        assertEquals( "{\"hashCode\":13}",
+                mapper.writeValueAsString(new Bean1990WithHashCode()));
+
+        // and then special case of accessing Object#hashCode()
+        String prefix = "{\"hashCode\":";
+        String json = mapper.writeValueAsString(new Bean1990WithoutHashCode());
+        if (!json.startsWith(prefix)) {
+            fail("Should start with ["+prefix+"], does not: ["+json+"]");
         }
     }
 }

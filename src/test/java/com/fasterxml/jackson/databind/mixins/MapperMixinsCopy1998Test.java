@@ -87,7 +87,6 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
         }
     }
 
-    /*
     // [databind#1998]: leakage of state via ObjectMapper.copy() (2.x) and similar (3.x)
     public void testSharedBuilder() throws Exception
     {
@@ -97,12 +96,8 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
 
         ObjectMapper mapper = B.build();
 
-System.err.println("FIRST/shared");
-
         String postResult = mapper.writeValueAsString(myModelInstance);
         assertEquals(FULLMODEL, postResult);
-
-System.err.println("SECOND/shared");
 
         mapper = B
                 .addMixIn(MyModelRoot.class, MixinConfig.MyModelRoot.class)
@@ -112,10 +107,8 @@ System.err.println("SECOND/shared");
         String result = mapper
                 .writerWithView(MyModelView.class)
                 .writeValueAsString(myModelInstance);
-System.err.println("Shared, result: "+result);
         assertEquals(EXPECTED, result);
     }
-    */
 
     // [databind#1998]: leakage of state via ObjectMapper.copy() (2.x) and similar (3.x)
     public void testSharingViaRebuild() throws Exception
@@ -126,12 +119,8 @@ System.err.println("Shared, result: "+result);
 
         ObjectMapper mapper = B.build();
 
-System.err.println("FIRST/Rebuild");
-
         String postResult = mapper.writeValueAsString(myModelInstance);
         assertEquals(FULLMODEL, postResult);
-
-System.err.println("SECOND/Rebuild");
 
         mapper = mapper.rebuild()
                 .addMixIn(MyModelRoot.class, MixinConfig.MyModelRoot.class)
@@ -141,7 +130,6 @@ System.err.println("SECOND/Rebuild");
         String result = mapper
                 .writerWithView(MyModelView.class)
                 .writeValueAsString(myModelInstance);
-System.err.println("Rebuild, esult: "+result);
         assertEquals(EXPECTED, result);
     }
 

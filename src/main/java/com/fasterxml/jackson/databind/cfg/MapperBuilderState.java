@@ -129,7 +129,7 @@ public abstract class MapperBuilderState
 
         // Handlers, introspection
         _typeFactory = src._typeFactory;
-        _classIntrospector = Snapshottable.takeSnapshot(src._classIntrospector);
+        _classIntrospector = src._classIntrospector;
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = Snapshottable.takeSnapshot(src._subtypeResolver);
         _mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(src._mixInHandler);

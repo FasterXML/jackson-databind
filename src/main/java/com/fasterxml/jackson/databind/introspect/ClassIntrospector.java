@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
@@ -15,11 +14,19 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * those methods.
  */
 public abstract class ClassIntrospector
-    implements Snapshottable<ClassIntrospector>
 {
     protected ClassIntrospector() { }
 
-//    public abstract ClassIntrospector snapshot();
+    /**
+     * Method called to create an instance to be exclusive used by specified
+     * mapper. Needed to ensure that no sharing through cache occurs.
+     *
+     * @param Mapper instance: always of type {@link ObjectMappper}, but not fully
+     *     typed to avoid compile dependency
+     *
+     * @since 3.0
+     */
+    public abstract ClassIntrospector forMapper(Object mapper);
 
     /*
     /**********************************************************************

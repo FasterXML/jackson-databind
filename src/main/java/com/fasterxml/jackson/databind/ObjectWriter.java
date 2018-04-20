@@ -32,10 +32,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * reused in completely thread-safe manner with no explicit synchronization
  */
 public class ObjectWriter
-    implements Versioned, java.io.Serializable
+    implements Versioned
+    // NOTE: since 3.x, NO LONGER JDK Serializable
 {
-    private static final long serialVersionUID = 1;
-
     /*
     /**********************************************************************
     /* Immutable configuration from ObjectMapper

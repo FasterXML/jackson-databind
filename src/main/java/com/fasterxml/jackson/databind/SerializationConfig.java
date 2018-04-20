@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.Instantiatable;
 
 import com.fasterxml.jackson.databind.cfg.*;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
@@ -78,9 +79,10 @@ public final class SerializationConfig
      */
     public SerializationConfig(MapperBuilder<?,?> b,
             int mapperFeatures, int serFeatures, int genFeatures, int formatWriteFeatures,
-            MixInHandler mixins, RootNameLookup rootNames, ConfigOverrides configOverrides)
+            ClassIntrospector classIntr, MixInHandler mixins,
+            RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
-        super(b, mapperFeatures, mixins, rootNames, configOverrides);
+        super(b, mapperFeatures, classIntr, mixins, rootNames, configOverrides);
         _serFeatures = serFeatures;
         _filterProvider = b.filterProvider();
         _defaultPrettyPrinter = b.defaultPrettyPrinter();

@@ -1031,8 +1031,7 @@ public class ObjectWriter
      * {@link SerializerProvider} to use for serialization.
      */
     protected final DefaultSerializerProvider _serializerProvider() {
-        return _serializationContexts.createContext(_config, _generatorSettings,
-                _serializerFactory);
+        return _serializationContexts.createContext(_config, _generatorSettings);
     }
 
     /*

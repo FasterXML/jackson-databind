@@ -136,7 +136,7 @@ public abstract class MapperBuilderState
 
         // Factories for serialization
         _serializerFactory = src._serializerFactory;
-        _serializationContexts = Snapshottable.takeSnapshot(src._serializationContexts);
+        _serializationContexts = src._serializationContexts;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         

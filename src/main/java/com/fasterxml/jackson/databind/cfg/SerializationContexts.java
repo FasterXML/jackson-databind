@@ -66,12 +66,12 @@ public abstract class SerializationContexts
      * (as opposed to coming into existence during building, module registration).
      * Necessary usually to initialize non-configuration state, such as caching.
      */
-    public SerializationContexts forMapper(ObjectMapper mapper,
+    public SerializationContexts forMapper(Object mapper,
             TokenStreamFactory tsf, SerializerFactory serializerFactory) {
         return forMapper(mapper, tsf, serializerFactory, _defaultCache());
     }
 
-    protected abstract SerializationContexts forMapper(ObjectMapper mapper,
+    protected abstract SerializationContexts forMapper(Object mapper,
             TokenStreamFactory tsf, SerializerFactory serializerFactory,
             SerializerCache cache);
     
@@ -142,7 +142,7 @@ public abstract class SerializationContexts
         }
 
         @Override
-        public SerializationContexts forMapper(ObjectMapper mapper,
+        public SerializationContexts forMapper(Object mapper,
                 TokenStreamFactory tsf, SerializerFactory serializerFactory,
                 SerializerCache cache) {
             return new DefaultImpl(tsf, serializerFactory, cache);

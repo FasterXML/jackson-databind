@@ -93,9 +93,9 @@ public class ObjectMapper
     private static final long serialVersionUID = 3L;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes, enums
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -135,6 +135,12 @@ public class ObjectMapper
                 super(b);
             }
 
+            /* 20-Apr-2018, tatu: This may look weird, but it's "trampoline" approach in which
+             *   `ObjectMapper` instances are actually serializer as `MapperBuilderState` and thus
+             *   need to be transmorphed back into mapper instance. So that's ... what's going on
+             *   in here -- state is frozen or hibernating version of `ObjectMapper` (for JDK)
+             *   OR `MapperBuilder` (in-memory)
+             */
             @Override
             protected Object readResolve() {
                 return new Builder(this).build();
@@ -143,9 +149,9 @@ public class ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal constants, singletons
-    /**********************************************************
+    /**********************************************************************
      */
     
     // Quick little shortcut, to avoid having to use global TypeFactory instance...
@@ -156,9 +162,9 @@ public class ObjectMapper
 //            TypeFactory.defaultInstance().constructType(JsonNode.class);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration settings, shared
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -192,9 +198,9 @@ public class ObjectMapper
     protected final ConfigOverrides _configOverrides;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration settings: mix-in annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -211,17 +217,16 @@ public class ObjectMapper
     protected final MixInHandler _mixIns;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration settings, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
-    // !!! TODO 15-Mar-2018: Only mutable for Default Typing
     /**
      * Configuration object that defines basic global
      * settings for the serialization process
      */
-    protected SerializationConfig _serializationConfig;
+    protected final SerializationConfig _serializationConfig;
 
     /**
      * Object that manages access to serializers used for serialization,
@@ -241,17 +246,16 @@ public class ObjectMapper
     protected final SerializerFactory _serializerFactory;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration settings, deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
-    // !!! TODO 15-Mar-2018: Only mutable for Default Typing
     /**
      * Configuration object that defines basic global
      * settings for the serialization process
      */
-    protected DeserializationConfig _deserializationConfig;
+    protected final DeserializationConfig _deserializationConfig;
 
     /**
      * Blueprint context object; stored here to allow custom
@@ -261,9 +265,9 @@ public class ObjectMapper
     protected final DefaultDeserializationContext _deserializationContext;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Caching
-    /**********************************************************
+    /**********************************************************************
      */
 
     /* Note: handling of serializers and deserializers is not symmetric;
@@ -292,9 +296,9 @@ public class ObjectMapper
         = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.6f, 2);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Saved state to allow re-building
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1189,9 +1193,9 @@ public class ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API: Tree Model support
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void writeTree(JsonGenerator g, TreeNode rootNode)
@@ -1339,9 +1343,9 @@ public class ObjectMapper
     }
 
     /*
-    /**********************************************************
-    /* Public API, deserialization,
-    /**********************************************************
+    /**********************************************************************
+    /* Public API, deserialization (ext format to Java Objects)
+    /**********************************************************************
      */
 
     /**
@@ -1646,10 +1650,9 @@ public class ObjectMapper
     }
 
     /*
-    /**********************************************************
-    /* Public API: serialization
-    /* (mapping from Java types to JSON)
-    /**********************************************************
+    /**********************************************************************
+    /* Public API: serialization (mapping from Java types to external format)
+    /**********************************************************************
      */
 
     /**
@@ -1820,10 +1823,10 @@ public class ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API: constructing ObjectWriters
     /* for more advanced configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1968,10 +1971,10 @@ public class ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended Public API: constructing ObjectReaders
     /* for more advanced configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -2106,9 +2109,9 @@ public class ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended Public API: convenience type conversion
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -2294,9 +2297,9 @@ public class ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended Public API: JSON Schema generation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

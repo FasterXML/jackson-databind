@@ -80,7 +80,7 @@ public abstract class SerializerProvider
      * embedded generators.
      */
     final protected TokenStreamFactory _streamFactory;
-    
+
     /**
      * View used for currently active serialization, if any.
      * Only set for non-blueprint instances.

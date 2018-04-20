@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -32,9 +33,10 @@ import com.fasterxml.jackson.databind.util.SimpleLookupCache;
  */
 @SuppressWarnings({"rawtypes" })
 public final class TypeFactory
-    implements java.io.Serializable
+    implements Snapshottable<TypeFactory>,
+        java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
@@ -48,9 +50,9 @@ public final class TypeFactory
     protected final static TypeBindings EMPTY_BINDINGS = TypeBindings.emptyBindings();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Constants for "well-known" classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // // Let's assume that a small set of core primitive/basic types
@@ -70,9 +72,9 @@ public final class TypeFactory
     private final static Class<?> CLS_DOUBLE = Double.TYPE;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Cached pre-constructed JavaType instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     // note: these are primitive, hence no super types
@@ -112,9 +114,9 @@ public final class TypeFactory
     protected final SimpleLookupCache<Object,JavaType> _typeCache;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -123,17 +125,15 @@ public final class TypeFactory
      */
     protected final TypeModifier[] _modifiers;
 
-    protected final TypeParser _parser;
-    
     /**
      * ClassLoader used by this factory [databind#624].
      */
     protected final ClassLoader _classLoader;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     private TypeFactory() {
@@ -145,22 +145,32 @@ public final class TypeFactory
             typeCache = new SimpleLookupCache<Object,JavaType>(16, 200);
         }
         _typeCache = typeCache;
-        _parser = new TypeParser(this);
         _modifiers = null;
         _classLoader = null;
     }
 
-    protected TypeFactory(SimpleLookupCache<Object,JavaType> typeCache, TypeParser p,
+    protected TypeFactory(SimpleLookupCache<Object,JavaType> typeCache,
             TypeModifier[] mods, ClassLoader classLoader)
     {
         if (typeCache == null) {
             typeCache = new SimpleLookupCache<Object,JavaType>(16, 200);
         }
         _typeCache = typeCache;
-        // As per [databind#894] must ensure we have back-linkage from TypeFactory:
-        _parser = p.withFactory(this);
         _modifiers = mods;
         _classLoader = classLoader;
+    }
+
+    /**
+     * Need to make a copy on snapshot() to avoid accidental leakage via cache.
+     * In theory only needed if there are modifiers, but since these are lightweight
+     * objects, let's recreate always.
+     */
+    @Override
+    public TypeFactory snapshot() {
+        return new TypeFactory(_typeCache.snapshot(),
+                // this is safe since array never modified, always copy-on-mod
+                _modifiers,
+                _classLoader);
     }
 
     public TypeFactory withModifier(TypeModifier mod) 
@@ -177,11 +187,11 @@ public final class TypeFactory
         } else {
             mods = ArrayBuilders.insertInListNoDup(_modifiers, mod);
         }
-        return new TypeFactory(typeCache, _parser, mods, _classLoader);
+        return new TypeFactory(typeCache, mods, _classLoader);
     }
 
     public TypeFactory withClassLoader(ClassLoader classLoader) {
-        return new TypeFactory(_typeCache, _parser, _modifiers, classLoader);
+        return new TypeFactory(_typeCache, _modifiers, classLoader);
     }
 
     /**
@@ -190,7 +200,7 @@ public final class TypeFactory
      * bigger maximum size.
      */
     public TypeFactory withCache(SimpleLookupCache<Object,JavaType> cache)  {
-        return new TypeFactory(cache, _parser, _modifiers, _classLoader);
+        return new TypeFactory(cache, _modifiers, _classLoader);
     }
 
     /**
@@ -215,11 +225,11 @@ public final class TypeFactory
     public ClassLoader getClassLoader() {
         return _classLoader;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Static methods for non-instance-specific functionality
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -246,9 +256,9 @@ public final class TypeFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -309,11 +319,11 @@ public final class TypeFactory
         if ("void".equals(className)) return Void.TYPE;
         return null;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Type conversion, parameterization resolution methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -522,7 +532,7 @@ public final class TypeFactory
      */
     public JavaType constructFromCanonical(String canonical) throws IllegalArgumentException
     {
-        return _parser.parse(canonical);
+        return TypeParser.instance.parse(this, canonical);
     }
 
     /**
@@ -587,11 +597,11 @@ public final class TypeFactory
         }
         return type1;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JavaType constructType(Type type) {
@@ -626,6 +636,8 @@ public final class TypeFactory
         */
     }
 
+    // 20-Apr-2018, tatu: Really should get rid of this...
+    
     /**
      * Method that use by core Databind functionality, and that should NOT be called
      * by application code outside databind package.
@@ -641,12 +653,12 @@ public final class TypeFactory
     public JavaType uncheckedSimpleType(Class<?> cls) {
         // 18-Oct-2015, tatu: Not sure how much problem missing super-type info is here
         return _constructSimple(cls, EMPTY_BINDINGS, null, null);
-    }    
+    }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Direct factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -909,10 +921,10 @@ s     */
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Direct factory methods for "raw" variants, used when
     /* parameterization is unknown
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -976,9 +988,9 @@ s     */
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private JavaType _mapType(Class<?> rawClass, TypeBindings bindings,
@@ -1091,9 +1103,9 @@ s     */
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual type resolution, traversal
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

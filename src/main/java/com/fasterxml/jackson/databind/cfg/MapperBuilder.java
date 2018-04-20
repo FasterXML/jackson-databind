@@ -302,7 +302,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _serFeatures = state._serFeatures;
 
         // Handlers, introspection
-        _typeFactory = state._typeFactory;
+        _typeFactory = Snapshottable.takeSnapshot(state._typeFactory);
+
         _classIntrospector = state._classIntrospector;
         _typeResolverProvider = state._typeResolverProvider;
         _subtypeResolver = Snapshottable.takeSnapshot(state._subtypeResolver);
@@ -332,6 +333,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         }
     }
 
+    /*
     protected MapperBuilder(MapperBuilder<?,?> base)
     {
         _streamFactory = base._streamFactory;
@@ -363,6 +365,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         _problemHandlers = base._problemHandlers;
     }
+    */
 
     /*
     /**********************************************************************

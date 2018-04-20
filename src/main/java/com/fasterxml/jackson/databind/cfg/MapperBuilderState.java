@@ -111,6 +111,10 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
+    /**
+     * Constructor called when "saving" state of mapper, to be used as base for
+     * {@link ObjectMapper#rebuild()} functionality.
+     */
     public MapperBuilderState(MapperBuilder<?,?> src)
     {
         // Basic settings
@@ -118,7 +122,7 @@ public abstract class MapperBuilderState
         _streamFactory = src._streamFactory; // immutable
         _configOverrides = Snapshottable.takeSnapshot(src._configOverrides);
 
-        // Feature flags
+        // Feature flags (simple ints, no copy needed)
         _mapperFeatures = src._mapperFeatures;
         _serFeatures = src._serFeatures;
         _deserFeatures = src._deserFeatures;
@@ -128,15 +132,15 @@ public abstract class MapperBuilderState
         _formatGeneratorFeatures = src._formatGeneratorFeatures;
 
         // Handlers, introspection
-        _typeFactory = src._typeFactory;
-        _classIntrospector = src._classIntrospector;
+        _typeFactory = Snapshottable.takeSnapshot(src._typeFactory);
+        _classIntrospector = src._classIntrospector; // no snapshot needed (uses `forMapper()`)
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = Snapshottable.takeSnapshot(src._subtypeResolver);
         _mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(src._mixInHandler);
 
         // Factories for serialization
         _serializerFactory = src._serializerFactory;
-        _serializationContexts = src._serializationContexts;
+        _serializationContexts = src._serializationContexts; // no snapshot needed (uses `forMapper()`)
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         

@@ -355,9 +355,11 @@ public class ObjectMapper
         _subtypeResolver = builder.subtypeResolver();
         
         // Ser/deser framework factories
-        SerializerFactory sf = builder.serializerFactory();
-        _serializationContexts = builder.serializationContexts()
-                .forMapper(this, _streamFactory, sf);
+        {
+            SerializerFactory sf = builder.serializerFactory();
+            _serializationContexts = builder.serializationContexts()
+                    .forMapper(this, _streamFactory, sf);
+        }
 
         _deserializationContext = builder.deserializationContext();
         _injectableValues = builder.injectableValues();

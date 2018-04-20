@@ -45,7 +45,7 @@ public class NullSerializationTest
         }
 
         @Override
-        public SerializationContexts forMapper(ObjectMapper mapper,
+        public SerializationContexts forMapper(Object mapper,
                 TokenStreamFactory tsf, SerializerFactory serializerFactory,
                 SerializerCache cache) {
             return new MyNullSerializerContexts(tsf, serializerFactory, cache);

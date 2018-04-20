@@ -49,37 +49,40 @@ public class AnnotatedMethodCollector
                     type.getRawClass(), methods, mixin);
         }
         // Special case: mix-ins for Object.class? (to apply to ALL classes)
-        /*
+        boolean checkJavaLangObject = false;
         if (_mixInResolver != null) {
             Class<?> mixin = _mixInResolver.findMixInClassFor(Object.class);
             if (mixin != null) {
-                _addMethodMixIns(tc, mainType.getRawClass(), memberMethods, mixin, mixins);
+                _addMethodMixIns(tc, mainType.getRawClass(), methods, mixin); //, mixins);
+                checkJavaLangObject = true;
             }
         }
 
         // Any unmatched mix-ins? Most likely error cases (not matching any method);
         // but there is one possible real use case: exposing Object#hashCode
         // (alas, Object#getClass can NOT be exposed)
-        if (_intr != null) {
-            if (!mixins.isEmpty()) {
-                Iterator<AnnotatedMethod> it = mixins.iterator();
-                while (it.hasNext()) {
-                    AnnotatedMethod mixIn = it.next();
-                    try {
-                        Method m = Object.class.getDeclaredMethod(mixIn.getName(), mixIn.getRawParameterTypes());
-                        if (m != null) {
-                            // Since it's from java.lang.Object, no generics, no need for real type context:
-                            AnnotatedMethod am = _constructMethod(tc, m);
-                            _addMixOvers(mixIn.getAnnotated(), am, false);
-                            memberMethods.add(am);
-                        }
-                    } catch (Exception e) { }
+        // Since we only know of that ONE case, optimize for it
+        if (checkJavaLangObject && (_intr != null) && !methods.isEmpty()) {
+            // Could use lookup but probably as fast or faster to traverse
+            for (Map.Entry<MemberKey,MethodBuilder> entry : methods.entrySet()) {
+                MemberKey k = entry.getKey();
+                if (!"hashCode".equals(k.getName()) || (0 != k.argCount())) {
+                    continue;
                 }
+                try {
+                    // And with that, we can generate it appropriately
+                    Method m = Object.class.getDeclaredMethod(k.getName());
+                    if (m != null) {
+                        MethodBuilder b = entry.getValue();
+                        b.annotations = collectDefaultAnnotations(b.annotations,
+                                m.getDeclaredAnnotations());
+                        b.method = m;
+                   }
+                } catch (Exception e) { }
             }
         }
-        */
 
-        // And then let's 
+        // And then let's create the lookup map
         if (methods.isEmpty()) {
             return new AnnotatedMethodMap();
         }

@@ -338,36 +338,46 @@ public class ObjectMapper
      */
     protected ObjectMapper(MapperBuilder<?,?> builder)
     {
-        // First things first: finalize building process:
+        // First things first: finalize building process. Saved state
+        // consists of snapshots and is safe to keep references to
+
         _savedBuilderState = builder.saveStateApplyModules();
 
+        // But we will ALSO need to take snapshot of anything builder has,
+        // in case caller keeps on tweaking with builder. So rules are the
+        // as with above call, or when creating new builder for rebuild()ing
+        
         // General framework factories
         _streamFactory = builder.streamFactory();
-        // bit tricky as we do NOT want to expose simple accessors (to a mutable thing)
         {
+            // bit tricky as we do NOT want to expose simple accessors (to a mutable thing)
             final AtomicReference<ConfigOverrides> ref = new AtomicReference<>();
             builder.withAllConfigOverrides(overrides -> ref.set(overrides));
-            _configOverrides = ref.get();
+            _configOverrides =  Snapshottable.takeSnapshot(ref.get());
         }
-        // general type handling
-        _typeFactory = builder.typeFactory();
 
-        _subtypeResolver = builder.subtypeResolver();
-        
-        // Ser/deser framework factories
+        // Handlers, introspection
+        _typeFactory =  Snapshottable.takeSnapshot(builder.typeFactory());
+        ClassIntrospector classIntr = builder.classIntrospector().forMapper(this);
+        _subtypeResolver =  Snapshottable.takeSnapshot(builder.subtypeResolver());
+        _mixIns = (MixInHandler) Snapshottable.takeSnapshot(builder.mixInHandler());
+
+        RootNameLookup rootNames = new RootNameLookup();
+
+        // Serialization factories
         {
             SerializerFactory sf = builder.serializerFactory();
             _serializationContexts = builder.serializationContexts()
                     .forMapper(this, _streamFactory, sf);
         }
 
+        // Deserialization factories
+
         _deserializationContext = builder.deserializationContext();
-        _injectableValues = builder.injectableValues();
+        _injectableValues = Snapshottable.takeSnapshot(builder.injectableValues());
 
-        RootNameLookup rootNames = new RootNameLookup();
-        ClassIntrospector classIntr = builder.classIntrospector().forMapper(this);
+        // And then finalize serialization/deserialization Config containers
 
-        _mixIns = builder.mixInHandler();
         _serializationConfig = builder.buildSerializationConfig(_mixIns, classIntr, rootNames);
         _deserializationConfig = builder.buildDeserializationConfig(_mixIns, classIntr, rootNames);
     }

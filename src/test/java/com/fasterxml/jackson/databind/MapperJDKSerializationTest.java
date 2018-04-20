@@ -141,7 +141,7 @@ public class MapperJDKSerializationTest extends BaseMapTest
 
         byte[] bytes = jdkSerialize(MAPPER);
         ObjectMapper mapper2 = jdkDeserialize(bytes);
-        
+
         ObjectWriter origWriter = mapper2.writer();
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);
@@ -189,7 +189,7 @@ public class MapperJDKSerializationTest extends BaseMapTest
 
         byte[] bytes = jdkSerialize(mapper);
         ObjectMapper mapper2 = jdkDeserialize(bytes);
-
+        
         // verify settings
         assertTrue(mapper.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS));
         assertTrue(mapper.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));

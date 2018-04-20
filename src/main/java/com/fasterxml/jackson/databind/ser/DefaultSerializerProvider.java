@@ -6,7 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.TokenStreamFactory;
-import com.fasterxml.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -18,9 +18,9 @@ import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
- * Standard implementation used by {@link ObjectMapper}:
- * adds methods only exposed to {@link ObjectMapper},
- * as well as constructors.
+ * Extension over {@link SerializerProvider} that adds methods needed by
+ * {@link ObjectMapper} (and {@link ObjectWriter}) but that are not to be exposed
+ * as general context during serialization.
  *<p>
  * Note that class is abstract just because it does not
  * define {@link #createInstance} method.
@@ -29,10 +29,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * implementations must sub-class this class: {@link ObjectMapper}
  * requires this type, not basic provider type.
  */
-public abstract class DefaultSerializerProvider
+public class DefaultSerializerProvider
     extends SerializerProvider
-    implements Snapshottable<DefaultSerializerProvider>,
-        java.io.Serializable // only because ObjectWriter needs it
+    implements java.io.Serializable // only because ObjectWriter needs it
 {
     private static final long serialVersionUID = 3L;
 
@@ -56,27 +55,12 @@ public abstract class DefaultSerializerProvider
     /**********************************************************************
      */
 
-    protected DefaultSerializerProvider(TokenStreamFactory streamFactory) {
-        super(streamFactory);
-    }
-
-    protected DefaultSerializerProvider(SerializerProvider src,
+    protected DefaultSerializerProvider(TokenStreamFactory streamFactory,
+            SerializerCache cache,
             SerializationConfig config, GeneratorSettings genSettings,
             SerializerFactory f) {
-        super(src, config, genSettings, f);
+        super(streamFactory, cache, config, genSettings, f);
     }
-
-    protected DefaultSerializerProvider(DefaultSerializerProvider src) {
-        super(src);
-    }
-
-    /**
-     * Method that sub-classes need to implement: used to create a non-blueprint instances
-     * from the blueprint.
-     * This is needed to retain state during serialization.
-     */
-    public abstract DefaultSerializerProvider createInstance(SerializationConfig config,
-            GeneratorSettings genSettings, SerializerFactory jsf);
 
     /*
     /**********************************************************************
@@ -451,37 +435,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
 
     /*
     /**********************************************************************
-    /* Access to caching details
-    /**********************************************************************
-     */
-
-    /**
-     * Method that can be used to determine how many serializers this
-     * provider is caching currently
-     * (if it does caching: default implementation does)
-     * Exact count depends on what kind of serializers get cached;
-     * default implementation caches all serializers, including ones that
-     * are eagerly constructed (for optimal access speed)
-     *<p> 
-     * The main use case for this method is to allow conditional flushing of
-     * serializer cache, if certain number of entries is reached.
-     */
-    public int cachedSerializersCount() {
-        return _serializerCache.size();
-    }
-
-    /**
-     * Method that will drop all serializers currently cached by this provider.
-     * This can be used to remove memory usage (in case some serializers are
-     * only used once or so), or to force re-construction of serializers after
-     * configuration changes for mapper than owns the provider.
-     */
-    public void flushCachedSerializers() {
-        _serializerCache.flush();
-    }
-
-    /*
-    /**********************************************************************
     /* Extended API called by ObjectMapper: other
     /**********************************************************************
      */
@@ -512,8 +465,8 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
      */
 
     /**
-     * Concrete implementation that defines factory method(s),
-     * defined as final.
+     * Concrete implementation defined separately so it can be declared `final`.
+     * Alternate implements should instead just extend {@link DefaultSerializerProvider}
      */
     public final static class Impl
         extends DefaultSerializerProvider
@@ -521,23 +474,10 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     {
         private static final long serialVersionUID = 1L;
 
-        public Impl(TokenStreamFactory streamFactory) { super(streamFactory); }
-        protected Impl(Impl src) { super(src); }
-
-        protected Impl(SerializerProvider src, SerializationConfig config,
+        public Impl(TokenStreamFactory streamFactory,
+                SerializerCache cache, SerializationConfig config,
                 GeneratorSettings genSettings, SerializerFactory f) {
-            super(src, config, genSettings, f);
-        }
-
-        @Override
-        public Impl createInstance(SerializationConfig config,
-                GeneratorSettings genSettings, SerializerFactory jsf) {
-            return new Impl(this, config, genSettings, jsf);
-        }
-
-        @Override
-        public DefaultSerializerProvider snapshot() {
-            return new Impl(this);
+            super(streamFactory, cache, config, genSettings, f);
         }
     }
 }

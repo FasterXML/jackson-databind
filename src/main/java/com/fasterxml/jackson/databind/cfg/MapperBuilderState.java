@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -84,7 +83,7 @@ public abstract class MapperBuilderState
      */
 
     protected final SerializerFactory _serializerFactory;
-    protected final DefaultSerializerProvider _serializerProvider;
+    protected final SerializationContexts _serializationContexts;
     protected final FilterProvider _filterProvider;
     protected final PrettyPrinter _defaultPrettyPrinter;
 
@@ -137,7 +136,7 @@ public abstract class MapperBuilderState
 
         // Factories for serialization
         _serializerFactory = src._serializerFactory;
-        _serializerProvider = Snapshottable.takeSnapshot(src._serializerProvider);
+        _serializationContexts = Snapshottable.takeSnapshot(src._serializationContexts);
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         

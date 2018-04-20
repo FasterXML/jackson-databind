@@ -229,16 +229,13 @@ public class ObjectMapper
     protected final SerializationConfig _serializationConfig;
 
     /**
-     * Object that manages access to serializers used for serialization,
-     * including caching.
-     * It is configured with {@link #_serializerFactory} to allow
-     * for constructing custom serializers.
+     * Factory used for constructing per-call {@link SerializerProvider}s.
      *<p>
      * Note: while serializers are only exposed {@link SerializerProvider},
      * mappers and readers need to access additional API defined by
      * {@link DefaultSerializerProvider}
      */
-    protected final DefaultSerializerProvider _serializerProvider;
+    protected final SerializationContexts _serializationContexts;
 
     /**
      * Serializer factory used for constructing serializers.
@@ -363,7 +360,7 @@ public class ObjectMapper
         _subtypeResolver = builder.subtypeResolver();
         
         // Ser/deser framework factories
-        _serializerProvider = builder.serializerProvider();
+        _serializationContexts = builder.serializationContexts();
         _serializerFactory = builder.serializerFactory();
 
         _deserializationContext = builder.deserializationContext();
@@ -2354,13 +2351,13 @@ public class ObjectMapper
      */
     protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
-        return _serializerProvider.createInstance(config,
+        return _serializationContexts.createContext(config,
                 GeneratorSettings.empty(), _serializerFactory);
     }
 
     protected DefaultSerializerProvider _serializerProvider() {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
-        return _serializerProvider.createInstance(serializationConfig(),
+        return _serializationContexts.createContext(serializationConfig(),
                 GeneratorSettings.empty(), _serializerFactory);
     }
 

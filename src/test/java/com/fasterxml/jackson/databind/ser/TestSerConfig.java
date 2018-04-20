@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.cfg.SerializationContexts;
 
 /**
  * Unit tests for checking handling of SerializationConfig.
@@ -110,7 +111,7 @@ public class TestSerConfig
     static class TestObjectMapper
         extends ObjectMapper
     {
-        public SerializerProvider getSerializerProvider() { return _serializerProvider; }    
+        public SerializationContexts getSerializationContexts() { return _serializationContexts; }    
     }
 
     /**
@@ -119,7 +120,7 @@ public class TestSerConfig
     public void testProviderConfig() throws Exception   
     {
         TestObjectMapper mapper = new TestObjectMapper();
-        DefaultSerializerProvider prov = (DefaultSerializerProvider) mapper.getSerializerProvider();
+        SerializationContexts prov = mapper.getSerializationContexts();
         assertEquals(0, prov.cachedSerializersCount());
         // and then should get one constructed for:
         Map<String,Object> result = this.writeAndMap(mapper, new AnnoBean());

@@ -4,11 +4,15 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import com.fasterxml.jackson.core.json.JsonFactory;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.fasterxml.jackson.databind.ser.SerializerCache;
 
 public class OptionalUnwrappedTest extends BaseMapTest
 {
@@ -65,9 +69,17 @@ public class OptionalUnwrappedTest extends BaseMapTest
 	public void testPropogatePrefixToSchema() throws Exception {
         final ObjectMapper mapper = newObjectMapper();
 
+        /*
+        public Impl(TokenStreamFactory streamFactory,
+                SerializerCache cache, SerializationConfig config,
+                GeneratorSettings genSettings, SerializerFactory f) {
+         */
+        
         final AtomicReference<String> propertyName = new AtomicReference<>();
         mapper.acceptJsonFormatVisitor(OptionalParent.class, new JsonFormatVisitorWrapper.Base(
-                new DefaultSerializerProvider.Impl(new JsonFactory())) {
+                new DefaultSerializerProvider.Impl(new JsonFactory(),
+                        new SerializerCache(), mapper.serializationConfig(), null,
+                        BeanSerializerFactory.instance)) {
             @Override
             public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
                 return new JsonObjectFormatVisitor.Base(getProvider()) {

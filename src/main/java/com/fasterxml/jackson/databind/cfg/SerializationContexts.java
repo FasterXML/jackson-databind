@@ -29,22 +29,27 @@ public abstract class SerializationContexts
     /* Configuration
     /**********************************************************************
      */
+
+    // NOTE! We do not need (or want) to serialize any of these because they
+    // get passed via `forMapper(...)` call; all we want to serialize is identity
+    // of this class (and possibly whatever sub-classes may want to retain).
+    // Hence `transient` modifiers
     
     /**
      * Low-level {@link TokenStreamFactory} that may be used for constructing
      * embedded generators.
      */
-    final protected TokenStreamFactory _streamFactory;
+    final transient protected TokenStreamFactory _streamFactory;
 
     /**
      * Factory responsible for constructing standard serializers.
      */
-    final protected SerializerFactory _serializerFactory;
+    final transient protected SerializerFactory _serializerFactory;
 
     /**
      * Cache for doing type-to-value-serializer lookups.
      */
-    final protected SerializerCache _serializerCache;
+    final transient protected SerializerCache _serializerCache;
 
     /*
     /**********************************************************************

@@ -237,11 +237,6 @@ public class ObjectMapper
      */
     protected final SerializationContexts _serializationContexts;
 
-    /**
-     * Serializer factory used for constructing serializers.
-     */
-    protected final SerializerFactory _serializerFactory;
-
     /*
     /**********************************************************************
     /* Configuration settings, deserialization
@@ -360,9 +355,9 @@ public class ObjectMapper
         _subtypeResolver = builder.subtypeResolver();
         
         // Ser/deser framework factories
-        _serializerFactory = builder.serializerFactory();
+        SerializerFactory sf = builder.serializerFactory();
         _serializationContexts = builder.serializationContexts()
-                .forMapper(this, _streamFactory, _serializerFactory);
+                .forMapper(this, _streamFactory, sf);
 
         _deserializationContext = builder.deserializationContext();
         _injectableValues = builder.injectableValues();
@@ -378,7 +373,7 @@ public class ObjectMapper
     //    are apparently bound to compatibility rules (despite them not being real overrides at all).
     //    And because there is no "JsonMapper" we need to use odd weird typing here. Instead of simply
     //    using `MapperBuilder` we already go
-    
+
     /**
      * Short-cut for:
      *<pre>

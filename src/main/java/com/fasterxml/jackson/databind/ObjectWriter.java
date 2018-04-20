@@ -56,8 +56,6 @@ public class ObjectWriter
      */
     protected final SerializationContexts _serializationContexts;
 
-    protected final SerializerFactory _serializerFactory;
-
     /**
      * Factory used for constructing {@link JsonGenerator}s
      */
@@ -97,7 +95,6 @@ public class ObjectWriter
     {
         _config = config;
         _serializationContexts = mapper._serializationContexts;
-        _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._streamFactory;
         _generatorSettings = (pp == null) ? GeneratorSettings.empty
                 : new GeneratorSettings(pp, null, null, null);
@@ -118,7 +115,6 @@ public class ObjectWriter
     {
         _config = config;
         _serializationContexts = mapper._serializationContexts;
-        _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._streamFactory;
 
         _generatorSettings = GeneratorSettings.empty;
@@ -134,7 +130,6 @@ public class ObjectWriter
         _config = config;
 
         _serializationContexts = mapper._serializationContexts;
-        _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._streamFactory;
 
         _generatorSettings = (s == null) ? GeneratorSettings.empty
@@ -151,7 +146,6 @@ public class ObjectWriter
         _config = config;
 
         _serializationContexts = base._serializationContexts;
-        _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
 
         _generatorSettings = genSettings;
@@ -166,7 +160,6 @@ public class ObjectWriter
         _config = config;
 
         _serializationContexts = base._serializationContexts;
-        _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
 
         _generatorSettings = base._generatorSettings;

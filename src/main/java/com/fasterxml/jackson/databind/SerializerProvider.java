@@ -40,21 +40,13 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Provider handles caching aspects of serializer handling; all construction
  * details are delegated to {@link SerializerFactory} instance.
  *<p>
- * Object life-cycle is such that an initial instance ("blueprint") is created
- * and referenced by {@link ObjectMapper} and {@link ObjectWriter} intances;
- * but for actual usage, a configured instance is created by using
- * a create method in sub-class
- * {@link com.fasterxml.jackson.databind.ser.DefaultSerializerProvider}.
- * Only this instance can be used for actual serialization calls; blueprint
- * object is only to be used for creating instances.
+ *
  */
 public abstract class SerializerProvider
     extends DatabindContext
-    implements java.io.Serializable, // because we don't have no-args constructor
+    implements // NOTE: not JDK serializable with 3.x (factory that creates these is)
         ObjectWriteContext // 3.0, for use by jackson-core
 {
-    private static final long serialVersionUID = 3L;
-
     /**
      * Placeholder serializer used when <code>java.lang.Object</code> typed property
      * is marked to be serialized.
@@ -69,17 +61,11 @@ public abstract class SerializerProvider
     /* Configuration, general
     /**********************************************************************
      */
-    
+
     /**
      * Serialization configuration to use for serialization processing.
      */
     final protected SerializationConfig _config;
-
-    /**
-     * Low-level {@link TokenStreamFactory} that may be used for constructing
-     * embedded generators.
-     */
-    final protected TokenStreamFactory _streamFactory;
 
     /**
      * Configuration to be used by streaming generator when it is constructed.
@@ -88,21 +74,27 @@ public abstract class SerializerProvider
      */
     final protected GeneratorSettings _generatorConfig;
 
-    /*
-    /**********************************************************************
-    /* Configuration, specialized serializers
-    /**********************************************************************
+    /**
+     * Low-level {@link TokenStreamFactory} that may be used for constructing
+     * embedded generators.
      */
+    final protected TokenStreamFactory _streamFactory;
 
     /**
-     * Serializer used to output a null value. Default implementation
-     * writes nulls using {@link JsonGenerator#writeNull}.
+     * Token stream generator actively used; only set for per-call instances
+     *
+     * @since 3.0
      */
-    protected final JsonSerializer<Object> _nullValueSerializer;
+    protected transient JsonGenerator _generator;
 
+    /**
+     * View used for currently active serialization, if any.
+     */
+    final protected Class<?> _activeView;
+    
     /*
     /**********************************************************************
-    /* Configuration, non-blueprint instances
+    /* Configuration, serializer access
     /**********************************************************************
      */
 
@@ -111,19 +103,18 @@ public abstract class SerializerProvider
      * Only set for non-blueprint instances.
      */
     final protected SerializerFactory _serializerFactory;
+    
+    /**
+     * Serializer used to output a null value. Default implementation
+     * writes nulls using {@link JsonGenerator#writeNull}.
+     */
+    final protected JsonSerializer<Object> _nullValueSerializer;
 
     /**
-     * Lazily-constructed holder for per-call attributes.
-     * Only set for non-blueprint instances.
+     * Flag set to indicate that we are using vanilla null value serialization
      */
-    protected transient ContextAttributes _attributes;
-
-    /**
-     * View used for currently active serialization, if any.
-     * Only set for non-blueprint instances.
-     */
-    final protected Class<?> _activeView;
-
+    final protected boolean _stdNullValueSerializer;
+    
     /*
     /**********************************************************************
     /* Helper objects for caching, reuse
@@ -135,17 +126,11 @@ public abstract class SerializerProvider
      */
     final protected SerializerCache _serializerCache;
     
-    /*
-    /**********************************************************************
-    /* State, for non-blueprint instances
-    /**********************************************************************
-     */
-
     /**
      * For fast lookups, we will have a local non-shared read-only
      * map that contains serializers previously fetched.
      */
-    protected final ReadOnlyClassToSerializerMap _knownSerializers;
+    final protected ReadOnlyClassToSerializerMap _knownSerializers;
 
     /**
      * Lazily acquired and instantiated formatter object: initialized
@@ -154,17 +139,17 @@ public abstract class SerializerProvider
      */
     protected DateFormat _dateFormat;
 
-    /**
-     * Flag set to indicate that we are using vanilla null value serialization
+    /*
+    /**********************************************************************
+    /* Other state
+    /**********************************************************************
      */
-    protected final boolean _stdNullValueSerializer;
 
     /**
-     * Token stream generator actively used; only set for per-call instances
-     *
-     * @since 3.0
+     * Lazily-constructed holder for per-call attributes.
+     * Only set for non-blueprint instances.
      */
-    protected transient JsonGenerator _generator;
+    protected ContextAttributes _attributes;
 
     /*
     /**********************************************************************
@@ -172,35 +157,6 @@ public abstract class SerializerProvider
     /**********************************************************************
      */
 
-    /**
-     * Constructor for creating master (or "blue-print") provider object,
-     * which is only used as the template for constructing per-binding
-     * instances.
-     */
-    public SerializerProvider(TokenStreamFactory streamFactory)
-    {
-        _streamFactory = streamFactory;
-        _config = null;
-        _generatorConfig = null;
-        _serializerFactory = null;
-        _serializerCache = new SerializerCache();
-        // Blueprints doesn't have access to any serializers...
-        _knownSerializers = null;
-
-        _activeView = null;
-        _attributes = null;
-
-        // not relevant for blueprint instance, could set either way:
-        _stdNullValueSerializer = true;
-        _nullValueSerializer = null;
-    }
-
-    /**
-     * "Copy-constructor", used by sub-classes when creating actual non-blueprint
-     * instances to use.
-     *
-     * @param src Blueprint object used as the baseline for this instance
-     */
     protected SerializerProvider(TokenStreamFactory streamFactory,
             SerializerCache cache,
             SerializationConfig config, GeneratorSettings generatorConfig,
@@ -231,28 +187,6 @@ public abstract class SerializerProvider
         // Non-blueprint instances do have a read-only map; one that doesn't
         // need synchronization for lookups.
         _knownSerializers = _serializerCache.getReadOnlyLookupMap();
-    }
-
-    /**
-     * Copy-constructor used when making a copy of a blueprint instance.
-     */
-    protected SerializerProvider(SerializerProvider src)
-    {
-        _streamFactory = src._streamFactory;
-
-        // since this is assumed to be a blue-print instance, many settings missing:
-        _config = null;
-        _generatorConfig = null;
-        _activeView = src._activeView;
-        _serializerFactory = null;
-        _knownSerializers = null;
-
-        // need to ensure cache is clear()ed
-        _serializerCache = src._serializerCache.snapshot();
-
-        // and others initialized to default empty state
-        _nullValueSerializer = src._nullValueSerializer;
-        _stdNullValueSerializer = src._stdNullValueSerializer;
     }
 
     /*

@@ -109,8 +109,7 @@ public abstract class SerializationContexts
 
         @Override
         public SerializationContexts snapshot() {
-            // TODO Auto-generated method stub
-            return null;
+            return new DefaultImpl(_streamFactory);
         }
 
         @Override

@@ -82,47 +82,12 @@ public abstract class SerializerProvider
     final protected TokenStreamFactory _streamFactory;
 
     /**
-     * View used for currently active serialization, if any.
-     * Only set for non-blueprint instances.
-     */
-    final protected Class<?> _activeView;
-
-    /**
      * Configuration to be used by streaming generator when it is constructed.
      *
      * @since 3.0
      */
     final protected GeneratorSettings _generatorConfig;
 
-    /*
-    /**********************************************************************
-    /* Configuration, factories
-    /**********************************************************************
-     */
-
-    /**
-     * Factory used for constructing actual serializer instances.
-     * Only set for non-blueprint instances.
-     */
-    final protected SerializerFactory _serializerFactory;
-
-    /*
-    /**********************************************************************
-    /* Helper objects for caching, reuse
-    /**********************************************************************
-     */
-    
-    /**
-     * Cache for doing type-to-value-serializer lookups.
-     */
-    final protected SerializerCache _serializerCache;
-
-    /**
-     * Lazily-constructed holder for per-call attributes.
-     * Only set for non-blueprint instances.
-     */
-    protected transient ContextAttributes _attributes;
-    
     /*
     /**********************************************************************
     /* Configuration, specialized serializers
@@ -135,6 +100,41 @@ public abstract class SerializerProvider
      */
     protected final JsonSerializer<Object> _nullValueSerializer;
 
+    /*
+    /**********************************************************************
+    /* Configuration, non-blueprint instances
+    /**********************************************************************
+     */
+
+    /**
+     * Factory used for constructing actual serializer instances.
+     * Only set for non-blueprint instances.
+     */
+    final protected SerializerFactory _serializerFactory;
+
+    /**
+     * Lazily-constructed holder for per-call attributes.
+     * Only set for non-blueprint instances.
+     */
+    protected transient ContextAttributes _attributes;
+
+    /**
+     * View used for currently active serialization, if any.
+     * Only set for non-blueprint instances.
+     */
+    final protected Class<?> _activeView;
+
+    /*
+    /**********************************************************************
+    /* Helper objects for caching, reuse
+    /**********************************************************************
+     */
+
+    /**
+     * Cache for doing type-to-value-serializer lookups.
+     */
+    final protected SerializerCache _serializerCache;
+    
     /*
     /**********************************************************************
     /* State, for non-blueprint instances
@@ -201,16 +201,17 @@ public abstract class SerializerProvider
      *
      * @param src Blueprint object used as the baseline for this instance
      */
-    protected SerializerProvider(SerializerProvider src,
+    protected SerializerProvider(TokenStreamFactory streamFactory,
+            SerializerCache cache,
             SerializationConfig config, GeneratorSettings generatorConfig,
             SerializerFactory f)
     {
-        _streamFactory = src._streamFactory;
+        _streamFactory = streamFactory;
         _serializerFactory = f;
         _config = config;
         _generatorConfig = generatorConfig;
 
-        _serializerCache = src._serializerCache;
+        _serializerCache = cache;
 
         // Default null key, value serializers configured via SerializerFactory
         {

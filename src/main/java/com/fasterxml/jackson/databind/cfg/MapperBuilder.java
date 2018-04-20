@@ -143,9 +143,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected SerializerFactory _serializerFactory;
 
     /**
-     * Prototype {@link SerializerProvider} to use for creating per-operation providers.
+     * {@link SerializerProviders} to use as factory for stateful {@link SerializerProvider}s
      */
-    protected DefaultSerializerProvider _serializerProvider;
+    protected SerializationContexts _serializationContexts;
 
     protected FilterProvider _filterProvider;
 
@@ -271,7 +271,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mixInHandler = null;
 
         _serializerFactory = null;
-        _serializerProvider = null;
+        _serializationContexts = null;
         _filterProvider = null;
 
         _deserializerFactory = null;
@@ -310,7 +310,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         // Factories for serialization
         _serializerFactory = state._serializerFactory;
-        _serializerProvider = Snapshottable.takeSnapshot(state._serializerProvider);
+        _serializationContexts = Snapshottable.takeSnapshot(state._serializationContexts);
         _filterProvider = state._filterProvider;
         _defaultPrettyPrinter = state._defaultPrettyPrinter;
 
@@ -354,7 +354,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mixInHandler = base._mixInHandler;
 
         _serializerFactory = base._serializerFactory;
-        _serializerProvider = base._serializerProvider;
+        _serializationContexts = base._serializationContexts;
         _filterProvider = base._filterProvider;
 
         _deserializerFactory = base._deserializerFactory;
@@ -561,19 +561,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return BeanSerializerFactory.instance;
     }
 
-    public DefaultSerializerProvider serializerProvider() {
-        if (_serializerProvider == null) {
-            _serializerProvider = _defaultSerializerProvider();
+    public SerializationContexts serializationContexts() {
+        if (_serializationContexts == null) {
+            _serializationContexts = _defaultSerializationContexts();
         }
-        return _serializerProvider;
+        return _serializationContexts;
     }
 
     /**
      * Overridable method for changing default {@link SerializerProvider} prototype
      * to use.
      */
-    protected DefaultSerializerProvider _defaultSerializerProvider() {
-        return new DefaultSerializerProvider.Impl(_streamFactory);
+    protected SerializationContexts _defaultSerializationContexts() {
+        return new SerializationContexts.DefaultImpl(_streamFactory);
     }
 
     public FilterProvider filterProvider() {
@@ -1068,8 +1068,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    public B serializerProvider(DefaultSerializerProvider prov) {
-        _serializerProvider = prov;
+    public B serializationContexts(SerializationContexts ctxt) {
+        _serializationContexts = ctxt;
         return _this();
     }
 

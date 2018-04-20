@@ -40,7 +40,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Provider handles caching aspects of serializer handling; all construction
  * details are delegated to {@link SerializerFactory} instance.
  *<p>
- *
  */
 public abstract class SerializerProvider
     extends DatabindContext

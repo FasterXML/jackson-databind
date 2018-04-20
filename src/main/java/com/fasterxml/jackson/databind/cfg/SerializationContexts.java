@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.core.TokenStreamFactory;
-import com.fasterxml.jackson.core.util.Snapshottable;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.SerializerCache;
@@ -20,8 +20,7 @@ import com.fasterxml.jackson.databind.ser.SerializerFactory;
  * @since 3.0
  */
 public abstract class SerializationContexts
-    implements Snapshottable<SerializationContexts>,
-        java.io.Serializable
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
 
@@ -37,11 +36,10 @@ public abstract class SerializationContexts
      */
     final protected TokenStreamFactory _streamFactory;
 
-    /*
-    /**********************************************************************
-    /* Shared helper objects (dynamic)
-    /**********************************************************************
+    /**
+     * Factory responsible for constructing standard serializers.
      */
+    final protected SerializerFactory _serializerFactory;
 
     /**
      * Cache for doing type-to-value-serializer lookups.
@@ -54,13 +52,47 @@ public abstract class SerializationContexts
     /**********************************************************************
      */
 
-    protected SerializationContexts(TokenStreamFactory tsf) {
+    protected SerializationContexts() { this(null, null, null); }
+
+    protected SerializationContexts(TokenStreamFactory tsf,
+            SerializerFactory serializerFactory, SerializerCache cache) {
         _streamFactory = tsf;
-        _serializerCache = new SerializerCache();
+        _serializerFactory = serializerFactory;
+        _serializerCache = cache;
     }
 
+    /**
+     * Mutant factory method called when instance is actually created for use by mapper
+     * (as opposed to coming into existence during building, module registration).
+     * Necessary usually to initialize non-configuration state, such as caching.
+     */
+    public SerializationContexts forMapper(ObjectMapper mapper,
+            TokenStreamFactory tsf, SerializerFactory serializerFactory) {
+        return forMapper(mapper, tsf, serializerFactory, _defaultCache());
+    }
+
+    protected abstract SerializationContexts forMapper(ObjectMapper mapper,
+            TokenStreamFactory tsf, SerializerFactory serializerFactory,
+            SerializerCache cache);
+    
+    /**
+     * Factory method for constructing context object for individual {@code 
+     */
     public abstract DefaultSerializerProvider createContext(SerializationConfig config,
-            GeneratorSettings genSettings, SerializerFactory serFactory);
+            GeneratorSettings genSettings);
+
+    /*
+    /**********************************************************************
+    /* Overridable default methods
+    /**********************************************************************
+     */
+
+    /**
+     * Factory method for constructing per-mapper serializer cache to use.
+     */
+    protected SerializerCache _defaultCache() {
+        return new SerializerCache();
+    }
 
     /*
     /**********************************************************************
@@ -103,21 +135,25 @@ public abstract class SerializationContexts
     {
         private static final long serialVersionUID = 3L;
 
-        public DefaultImpl(TokenStreamFactory tsf) {
-            super(tsf);
+        public DefaultImpl() { super(null, null, null); }
+        public DefaultImpl(TokenStreamFactory tsf,
+                SerializerFactory serializerFactory, SerializerCache cache) {
+            super(tsf, serializerFactory, cache);
         }
 
         @Override
-        public SerializationContexts snapshot() {
-            return new DefaultImpl(_streamFactory);
+        public SerializationContexts forMapper(ObjectMapper mapper,
+                TokenStreamFactory tsf, SerializerFactory serializerFactory,
+                SerializerCache cache) {
+            return new DefaultImpl(tsf, serializerFactory, cache);
         }
 
         @Override
         public DefaultSerializerProvider createContext(SerializationConfig config,
-                GeneratorSettings genSettings, SerializerFactory serFactory) {
+                GeneratorSettings genSettings) {
             return new DefaultSerializerProvider.Impl(_streamFactory,
                     _serializerCache,
-                    config, genSettings, serFactory);
+                    config, genSettings, _serializerFactory);
         }
     }
 }

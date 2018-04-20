@@ -360,8 +360,9 @@ public class ObjectMapper
         _subtypeResolver = builder.subtypeResolver();
         
         // Ser/deser framework factories
-        _serializationContexts = builder.serializationContexts();
         _serializerFactory = builder.serializerFactory();
+        _serializationContexts = builder.serializationContexts()
+                .forMapper(this, _streamFactory, _serializerFactory);
 
         _deserializationContext = builder.deserializationContext();
         _injectableValues = builder.injectableValues();
@@ -2352,13 +2353,13 @@ public class ObjectMapper
     protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(config,
-                GeneratorSettings.empty(), _serializerFactory);
+                GeneratorSettings.empty());
     }
 
     protected DefaultSerializerProvider _serializerProvider() {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(serializationConfig(),
-                GeneratorSettings.empty(), _serializerFactory);
+                GeneratorSettings.empty());
     }
 
     /*

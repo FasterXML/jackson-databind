@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser.filter;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
@@ -38,23 +38,27 @@ public class NullSerializationTest
     @SuppressWarnings("serial")
     static class MyNullSerializerContexts extends SerializationContexts
     {
-        public MyNullSerializerContexts() { super(new JsonFactory()); }
+        public MyNullSerializerContexts() { super(); }
+        public MyNullSerializerContexts(TokenStreamFactory tsf, SerializerFactory serializerFactory,
+                SerializerCache cache) {
+            super(tsf, serializerFactory, cache);
+        }
 
         @Override
-        public SerializationContexts snapshot() {
-            return this;
+        public SerializationContexts forMapper(ObjectMapper mapper,
+                TokenStreamFactory tsf, SerializerFactory serializerFactory,
+                SerializerCache cache) {
+            return new MyNullSerializerContexts(tsf, serializerFactory, cache);
         }
 
         @Override
         public DefaultSerializerProvider createContext(SerializationConfig config,
-                GeneratorSettings genSettings,
-                SerializerFactory serFactory) {
+                GeneratorSettings genSettings) {
             return new MyNullSerializerProvider(_streamFactory, _serializerCache,
-                    config, genSettings, serFactory);
+                    config, genSettings, _serializerFactory);
         }
     }
 
-    @SuppressWarnings("serial")
     static class MyNullSerializerProvider extends DefaultSerializerProvider
     {
         public MyNullSerializerProvider(TokenStreamFactory streamFactory,

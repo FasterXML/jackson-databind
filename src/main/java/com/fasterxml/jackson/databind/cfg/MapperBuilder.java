@@ -310,7 +310,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         // Factories for serialization
         _serializerFactory = state._serializerFactory;
-        _serializationContexts = Snapshottable.takeSnapshot(state._serializationContexts);
+        _serializationContexts = state._serializationContexts;
         _filterProvider = state._filterProvider;
         _defaultPrettyPrinter = state._defaultPrettyPrinter;
 
@@ -573,7 +573,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * to use.
      */
     protected SerializationContexts _defaultSerializationContexts() {
-        return new SerializationContexts.DefaultImpl(_streamFactory);
+        return new SerializationContexts.DefaultImpl();
     }
 
     public FilterProvider filterProvider() {

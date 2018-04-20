@@ -31,14 +31,21 @@ public final class MemberKey
         _argTypes = (argTypes == null) ? NO_CLASSES : argTypes;
     }
 
+    public String getName() {
+        return _name;
+    }
+
+    public int argCount() {
+        return _argTypes.length;
+    }
+
     @Override
     public String toString() {
         return _name + "(" + _argTypes.length+"-args)";
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return _name.hashCode() + _argTypes.length;
     }
 

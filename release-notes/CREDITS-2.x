@@ -768,6 +768,10 @@ roeltje25@github
     infinite loop
    (2.9.5)
 
+Freddy Boucher (freddyboucher@github)
+  * Reported #1990: MixIn `@JsonProperty` for `Object.hashCode()` is ignored
+   (2.9.6)
+
 Ondrej Zizka (OndraZizk@github)
   * Reported #1999: "Duplicate property" issue should mention which class it complains about
    (2.9.6)

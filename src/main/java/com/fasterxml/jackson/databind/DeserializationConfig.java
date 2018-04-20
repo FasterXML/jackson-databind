@@ -80,10 +80,11 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
             int deserFeatures, int parserFeatures, int formatParserFeatures,
-            MixInHandler mixins, RootNameLookup rootNames, ConfigOverrides configOverrides,
+            ClassIntrospector classIntr, MixInHandler mixins,
+            RootNameLookup rootNames, ConfigOverrides configOverrides,
             AbstractTypeResolver[] atrs)
     {
-        super(b, mapperFeatures, mixins, rootNames, configOverrides);
+        super(b, mapperFeatures, classIntr, mixins, rootNames, configOverrides);
         _deserFeatures = deserFeatures;
         _parserFeatures = parserFeatures;
         _formatParserFeatures = formatParserFeatures;

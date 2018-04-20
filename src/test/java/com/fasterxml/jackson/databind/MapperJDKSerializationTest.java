@@ -112,56 +112,12 @@ public class MapperJDKSerializationTest extends BaseMapTest
         ObjectMapper mapper2 = jdkDeserialize(bytes);
         assertNotNull(mapper2);
 
-        bytes = jdkSerialize(mapper.readerFor(EnumPOJO.class));
-        ObjectReader r = jdkDeserialize(bytes);
-        assertNotNull(r);
-
-        /* 14-Aug-2015, tatu: Looks like pre-loading JsonSerializer is problematic
-         *    at this point; comment out for now. Try to fix later on.
-         */
-        bytes = jdkSerialize(mapper.writerFor(EnumPOJO.class));
-        ObjectWriter w = jdkDeserialize(bytes);
-        assertNotNull(w);
-
         // plus, ensure objects are usable:
-        String json2 = w.writeValueAsString(new EnumPOJO());
+        String json2 = mapper2.writerFor(EnumPOJO.class)
+                .writeValueAsString(new EnumPOJO());
         assertEquals(json, json2);
-        EnumPOJO result2 = r.readValue(json2);
+        EnumPOJO result2 = mapper2.readValue(json2, EnumPOJO.class);
         assertNotNull(result2);
-    }
-
-    public void testObjectWriter() throws IOException
-    {
-        ObjectWriter origWriter = MAPPER.writer();
-        final String EXP_JSON = "{\"x\":2,\"y\":3}";
-        final MyPojo p = new MyPojo(2, 3);
-        assertEquals(EXP_JSON, origWriter.writeValueAsString(p));
-        String json = origWriter.writeValueAsString(new AnyBean()
-                .addEntry("a", "b"));
-        assertNotNull(json);
-        byte[] bytes = jdkSerialize(origWriter);
-        ObjectWriter writer2 = jdkDeserialize(bytes);
-        assertEquals(EXP_JSON, writer2.writeValueAsString(p));
-    }
-    
-    public void testObjectReader() throws IOException
-    {
-        ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
-        String JSON = "{\"x\":1,\"y\":2}";
-        MyPojo p1 = origReader.readValue(JSON);
-        assertEquals(2, p1.y);
-        ObjectReader anyReader = MAPPER.readerFor(AnyBean.class);
-        AnyBean any = anyReader.readValue(JSON);
-        assertEquals(Integer.valueOf(2), any.properties().get("y"));
-        
-        byte[] readerBytes = jdkSerialize(origReader);
-        ObjectReader reader2 = jdkDeserialize(readerBytes);
-        MyPojo p2 = reader2.readValue(JSON);
-        assertEquals(2, p2.y);
-
-        ObjectReader anyReader2 = jdkDeserialize(jdkSerialize(anyReader));
-        AnyBean any2 = anyReader2.readValue(JSON);
-        assertEquals(Integer.valueOf(2), any2.properties().get("y"));
     }
 
     public void testObjectMapper() throws IOException
@@ -176,6 +132,40 @@ public class MapperJDKSerializationTest extends BaseMapTest
         MyPojo p2 = mapper2.readValue(EXP_JSON, MyPojo.class);
         assertEquals(p.x, p2.x);
         assertEquals(p.y, p2.y);
+    }
+    
+    public void testObjectWriter() throws IOException
+    {
+        // 20-Apr-2018, tatu: ObjectReader no longer JDK serializable so
+        //    can only check via thawed ObjectMapper
+
+        byte[] bytes = jdkSerialize(MAPPER);
+        ObjectMapper mapper2 = jdkDeserialize(bytes);
+        
+        ObjectWriter origWriter = mapper2.writer();
+        final String EXP_JSON = "{\"x\":2,\"y\":3}";
+        final MyPojo p = new MyPojo(2, 3);
+        assertEquals(EXP_JSON, origWriter.writeValueAsString(p));
+        String json = origWriter.writeValueAsString(new AnyBean()
+                .addEntry("a", "b"));
+        assertEquals("{\"a\":\"b\"}", json);
+    }
+    
+    public void testObjectReader() throws IOException
+    {
+        // 20-Apr-2018, tatu: ObjectReader no longer JDK serializable so
+        //    can only check via thawed ObjectMapper
+
+        byte[] bytes = jdkSerialize(MAPPER);
+        ObjectMapper mapper2 = jdkDeserialize(bytes);
+
+        ObjectReader origReader = mapper2.readerFor(MyPojo.class);
+        String JSON = "{\"x\":1,\"y\":2}";
+        MyPojo p1 = origReader.readValue(JSON);
+        assertEquals(2, p1.y);
+        ObjectReader anyReader = mapper2.readerFor(AnyBean.class);
+        AnyBean any = anyReader.readValue(JSON);
+        assertEquals(Integer.valueOf(2), any.properties().get("y"));
     }
 
     public void testMapperWithModule() throws IOException

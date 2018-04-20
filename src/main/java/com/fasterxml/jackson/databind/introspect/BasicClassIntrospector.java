@@ -52,20 +52,27 @@ public class BasicClassIntrospector
     /**********************************************************************
      */
 
+    // Looks like 'forClassAnnotations()' gets called so frequently that we
+    // should consider caching to avoid some of the lookups.
+
     /**
-     * Looks like 'forClassAnnotations()' gets called so frequently that we
-     * should consider caching to avoid some of the lookups.
+     * Transient cache: note that we do NOT have to add `readResolve()` for JDK serialization
+     * because {@link #forMapper(Object)} initializes it properly, when mapper get
+     * constructed.
      */
-    protected final SimpleLookupCache<JavaType,BasicBeanDescription> _cachedFCA;
+    protected final transient SimpleLookupCache<JavaType,BasicBeanDescription> _cachedFCA;
 
     public BasicClassIntrospector() {
-        // a small cache should go a long way here
-        _cachedFCA = new SimpleLookupCache<JavaType,BasicBeanDescription>(16, 64);
+        this(null);
+    }
+
+    protected BasicClassIntrospector(SimpleLookupCache<JavaType,BasicBeanDescription> cache) {
+        _cachedFCA = cache;
     }
 
     @Override
-    public ClassIntrospector snapshot() {
-        return new BasicClassIntrospector();
+    public ClassIntrospector forMapper(Object mapper) {
+        return new BasicClassIntrospector(new SimpleLookupCache<JavaType,BasicBeanDescription>(16, 64));
     }
 
     /*

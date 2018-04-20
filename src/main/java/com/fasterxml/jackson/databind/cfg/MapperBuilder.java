@@ -303,7 +303,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         // Handlers, introspection
         _typeFactory = state._typeFactory;
-        _classIntrospector = Snapshottable.takeSnapshot(state._classIntrospector);
+        _classIntrospector = state._classIntrospector;
         _typeResolverProvider = state._typeResolverProvider;
         _subtypeResolver = Snapshottable.takeSnapshot(state._subtypeResolver);
         _mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(state._mixInHandler);
@@ -409,19 +409,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     
     public SerializationConfig buildSerializationConfig(MixInHandler mixins,
-            RootNameLookup rootNames)
+            ClassIntrospector classIntr, RootNameLookup rootNames)
     {
         return new SerializationConfig(this,
                 _mapperFeatures, _serFeatures, _generatorFeatures, _formatGeneratorFeatures,
-                mixins, rootNames, _configOverrides);
+                classIntr, mixins, rootNames, _configOverrides);
     }
 
     public DeserializationConfig buildDeserializationConfig(MixInHandler mixins,
-            RootNameLookup rootNames)
+            ClassIntrospector classIntr, RootNameLookup rootNames)
     {
         return new DeserializationConfig(this,
                 _mapperFeatures, _deserFeatures, _parserFeatures, _formatParserFeatures,
-                mixins, rootNames, _configOverrides,
+                classIntr, mixins, rootNames, _configOverrides,
                 _abstractTypeResolvers);
     }
 

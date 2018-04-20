@@ -41,10 +41,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * should be extended by sub-classing.
  */
 public class ObjectReader
-    implements Versioned, java.io.Serializable
+    implements Versioned
+    // NOTE: since 3.x, NO LONGER JDK Serializable
 {
-    private static final long serialVersionUID = 3L;
-
     protected final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
     /*

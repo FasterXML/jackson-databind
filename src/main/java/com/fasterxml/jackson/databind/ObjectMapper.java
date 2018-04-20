@@ -363,10 +363,11 @@ public class ObjectMapper
         _injectableValues = builder.injectableValues();
 
         RootNameLookup rootNames = new RootNameLookup();
+        ClassIntrospector classIntr = builder.classIntrospector().forMapper(this);
 
         _mixIns = builder.mixInHandler();
-        _serializationConfig = builder.buildSerializationConfig(_mixIns, rootNames);
-        _deserializationConfig = builder.buildDeserializationConfig(_mixIns, rootNames);
+        _serializationConfig = builder.buildSerializationConfig(_mixIns, classIntr, rootNames);
+        _deserializationConfig = builder.buildDeserializationConfig(_mixIns, classIntr, rootNames);
     }
 
     // 16-Feb-2018, tatu: Arggghh. Due to Java Type Erasure rules, override, even static methods

@@ -8,8 +8,10 @@ import com.fasterxml.jackson.core.util.Instantiatable;
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
+import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -79,15 +81,17 @@ public final class SerializationConfig
      */
     public SerializationConfig(MapperBuilder<?,?> b,
             int mapperFeatures, int serFeatures, int genFeatures, int formatWriteFeatures,
-            ClassIntrospector classIntr, MixInHandler mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
+            ConfigOverrides configOverrides,
+            TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
+            RootNameLookup rootNames,
+            FilterProvider filterProvider)
     {
-        super(b, mapperFeatures, classIntr, mixins, rootNames, configOverrides);
+        super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
         _serFeatures = serFeatures;
-        _filterProvider = b.filterProvider();
-        _defaultPrettyPrinter = b.defaultPrettyPrinter();
+        _filterProvider = filterProvider;
         _generatorFeatures = genFeatures;
         _formatWriteFeatures = formatWriteFeatures;
+        _defaultPrettyPrinter = b.defaultPrettyPrinter();
     }
 
     /*

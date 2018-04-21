@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsontype.*;
+import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.*;
@@ -185,37 +185,6 @@ public class ObjectMapper
      */
     protected final InjectableValues _injectableValues;
 
-    /**
-     * Thing used for registering sub-types, resolving them to
-     * super/sub-types as needed.
-     */
-    protected final SubtypeResolver _subtypeResolver;
-
-    /**
-     * Currently active per-type configuration overrides, accessed by
-     * declared type of property.
-     */
-    protected final ConfigOverrides _configOverrides;
-
-    /*
-    /**********************************************************************
-    /* Configuration settings: mix-in annotations
-    /**********************************************************************
-     */
-
-    /**
-     * Mapping that defines how to apply mix-in annotations: key is
-     * the type to received additional annotations, and value is the
-     * type that has annotations to "mix in".
-     *<p>
-     * Annotations associated with the value classes will be used to
-     * override annotations of the key class, associated with the
-     * same field or method. They can be further masked by sub-classes:
-     * you can think of it as injecting annotations between the target
-     * class and its sub-classes (or interfaces)
-     */
-    protected final MixInHandler _mixIns;
-
     /*
     /**********************************************************************
     /* Configuration settings, serialization
@@ -349,27 +318,26 @@ public class ObjectMapper
         
         // General framework factories
         _streamFactory = builder.streamFactory();
+        final ConfigOverrides configOverrides;
         {
             // bit tricky as we do NOT want to expose simple accessors (to a mutable thing)
             final AtomicReference<ConfigOverrides> ref = new AtomicReference<>();
             builder.withAllConfigOverrides(overrides -> ref.set(overrides));
-            _configOverrides =  Snapshottable.takeSnapshot(ref.get());
+
+// 20-Apr-2018, tatu: something wrong with following, need to troubleshoot...
+//            configOverrides = Snapshottable.takeSnapshot(ref.get());
+            configOverrides = ref.get();
         }
 
         // Handlers, introspection
         _typeFactory =  Snapshottable.takeSnapshot(builder.typeFactory());
         ClassIntrospector classIntr = builder.classIntrospector().forMapper(this);
-        _subtypeResolver =  Snapshottable.takeSnapshot(builder.subtypeResolver());
-        _mixIns = (MixInHandler) Snapshottable.takeSnapshot(builder.mixInHandler());
-
-        RootNameLookup rootNames = new RootNameLookup();
+        SubtypeResolver subtypeResolver =  Snapshottable.takeSnapshot(builder.subtypeResolver());
+        MixInHandler mixIns = (MixInHandler) Snapshottable.takeSnapshot(builder.mixInHandler());
 
         // Serialization factories
-        {
-            SerializerFactory sf = builder.serializerFactory();
-            _serializationContexts = builder.serializationContexts()
-                    .forMapper(this, _streamFactory, sf);
-        }
+        _serializationContexts = builder.serializationContexts()
+                .forMapper(this, _streamFactory, builder.serializerFactory());
 
         // Deserialization factories
 
@@ -378,8 +346,14 @@ public class ObjectMapper
 
         // And then finalize serialization/deserialization Config containers
 
-        _serializationConfig = builder.buildSerializationConfig(_mixIns, classIntr, rootNames);
-        _deserializationConfig = builder.buildDeserializationConfig(_mixIns, classIntr, rootNames);
+        RootNameLookup rootNames = new RootNameLookup();
+        FilterProvider filterProvider = Snapshottable.takeSnapshot(builder.filterProvider());
+        _serializationConfig = builder.buildSerializationConfig(configOverrides,
+                mixIns, _typeFactory, classIntr, subtypeResolver,
+                rootNames, filterProvider);
+        _deserializationConfig = builder.buildDeserializationConfig(configOverrides,
+                mixIns, _typeFactory, classIntr, subtypeResolver,
+                rootNames);
     }
 
     // 16-Feb-2018, tatu: Arggghh. Due to Java Type Erasure rules, override, even static methods

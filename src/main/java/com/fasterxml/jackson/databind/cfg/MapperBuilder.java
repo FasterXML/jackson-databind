@@ -411,20 +411,26 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
     
-    public SerializationConfig buildSerializationConfig(MixInHandler mixins,
-            ClassIntrospector classIntr, RootNameLookup rootNames)
+    public SerializationConfig buildSerializationConfig(ConfigOverrides configOverrides,
+            MixInHandler mixins, TypeFactory tf, ClassIntrospector classIntr, SubtypeResolver str,
+            RootNameLookup rootNames,
+            FilterProvider filterProvider)
     {
         return new SerializationConfig(this,
                 _mapperFeatures, _serFeatures, _generatorFeatures, _formatGeneratorFeatures,
-                classIntr, mixins, rootNames, _configOverrides);
+                configOverrides,
+                tf, classIntr, mixins, str, rootNames,
+                filterProvider);
     }
 
-    public DeserializationConfig buildDeserializationConfig(MixInHandler mixins,
-            ClassIntrospector classIntr, RootNameLookup rootNames)
+    public DeserializationConfig buildDeserializationConfig(ConfigOverrides configOverrides,
+            MixInHandler mixins, TypeFactory tf, ClassIntrospector classIntr, SubtypeResolver str,
+            RootNameLookup rootNames)
     {
         return new DeserializationConfig(this,
                 _mapperFeatures, _deserFeatures, _parserFeatures, _formatParserFeatures,
-                classIntr, mixins, rootNames, _configOverrides,
+                configOverrides,
+                tf, classIntr, mixins, str, rootNames,
                 _abstractTypeResolvers);
     }
 

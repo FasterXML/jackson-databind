@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.*;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayIterator;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LinkedNode;
@@ -80,11 +81,12 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
             int deserFeatures, int parserFeatures, int formatParserFeatures,
-            ClassIntrospector classIntr, MixInHandler mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides,
+            ConfigOverrides configOverrides,
+            TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
+            RootNameLookup rootNames,
             AbstractTypeResolver[] atrs)
     {
-        super(b, mapperFeatures, classIntr, mixins, rootNames, configOverrides);
+        super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
         _deserFeatures = deserFeatures;
         _parserFeatures = parserFeatures;
         _formatParserFeatures = formatParserFeatures;

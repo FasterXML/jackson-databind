@@ -334,6 +334,8 @@ public class ObjectMapper
         ClassIntrospector classIntr = builder.classIntrospector().forMapper(this);
         SubtypeResolver subtypeResolver =  Snapshottable.takeSnapshot(builder.subtypeResolver());
         MixInHandler mixIns = (MixInHandler) Snapshottable.takeSnapshot(builder.mixInHandler());
+        // NOTE: TypeResolverProvider apparently ok without snapshot, hence accessed directly
+        // and not passed
 
         // Serialization factories
         _serializationContexts = builder.serializationContexts()

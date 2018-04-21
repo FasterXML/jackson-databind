@@ -22,9 +22,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * {@link ObjectMapper} (and {@link ObjectWriter}) but that are not to be exposed
  * as general context during serialization.
  *<p>
- * Note that class is abstract just because it does not
- * define {@link #createInstance} method.
- *<p>
  * Also note that all custom {@link SerializerProvider}
  * implementations must sub-class this class: {@link ObjectMapper}
  * requires this type, not basic provider type.
@@ -53,10 +50,9 @@ public class DefaultSerializerProvider
      */
 
     protected DefaultSerializerProvider(TokenStreamFactory streamFactory,
-            SerializerCache cache,
             SerializationConfig config, GeneratorSettings genSettings,
-            SerializerFactory f) {
-        super(streamFactory, cache, config, genSettings, f);
+            SerializerFactory f, SerializerCache cache) {
+        super(streamFactory, config, genSettings, f, cache);
     }
 
     /*
@@ -467,14 +463,11 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
      */
     public final static class Impl
         extends DefaultSerializerProvider
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         public Impl(TokenStreamFactory streamFactory,
-                SerializerCache cache, SerializationConfig config,
-                GeneratorSettings genSettings, SerializerFactory f) {
-            super(streamFactory, cache, config, genSettings, f);
+                SerializationConfig config, GeneratorSettings genSettings,
+                SerializerFactory f, SerializerCache cache) {
+            super(streamFactory, config, genSettings, f, cache);
         }
     }
 }

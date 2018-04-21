@@ -39,13 +39,13 @@ public class SubTypeResolution1964Test extends BaseMapTest
     {
         // Important! Must use raw type since assignment requires effectively
         // casting due incompatible type parameters.
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         Map<String, Collection<String>> repoPrivilegesMap = new CustomMap();
         String key = "/storages/storage0/releases";
         Collection<String> values = new HashSet<>();
         values.add("ARTIFACTS_RESOLVE");
         repoPrivilegesMap.put(key, values);
-        
+
         AccessModel accessModel = new AccessModel();
         accessModel.setRepositoryPrivileges(repoPrivilegesMap);
 

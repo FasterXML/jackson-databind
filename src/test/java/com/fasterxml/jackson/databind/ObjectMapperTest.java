@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
+import com.fasterxml.jackson.databind.cfg.DeserializationContexts;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.node.*;
@@ -135,27 +137,33 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(dc.shouldSortPropertiesAlphabetically());
     }
 
-    public void testProviderConfig() throws Exception   
+    public void testDeserializationContextCache() throws Exception   
     {
         ObjectMapper m = new ObjectMapper();
         final String JSON = "{ \"x\" : 3 }";
 
-        assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
+        DeserializationContexts.DefaultImpl dc = (DeserializationContexts.DefaultImpl) m._deserializationContexts;
+        DeserializerCache cache = dc.cacheForTests();
+
+        assertEquals(0, cache.cachedDeserializersCount());
         // and then should get one constructed for:
         Bean bean = m.readValue(JSON, Bean.class);
         assertNotNull(bean);
         // Since 2.6, serializer for int also cached:
-        assertEquals(2, m._deserializationContext._cache.cachedDeserializersCount());
-        m._deserializationContext._cache.flushCachedDeserializers();
-        assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
+        assertEquals(2, cache.cachedDeserializersCount());
+        cache.flushCachedDeserializers();
+        assertEquals(0, cache.cachedDeserializersCount());
 
         // 07-Nov-2014, tatu: As per [databind#604] verify that Maps also get cached
         m = new ObjectMapper();
+        dc = (DeserializationContexts.DefaultImpl) m._deserializationContexts;
+        cache = dc.cacheForTests();
+
         List<?> stuff = m.readValue("[ ]", List.class);
         assertNotNull(stuff);
         // may look odd, but due to "Untyped" deserializer thing, we actually have
         // 4 deserializers (int, List<?>, Map<?,?>, Object)
-        assertEquals(4, m._deserializationContext._cache.cachedDeserializersCount());
+        assertEquals(4, cache.cachedDeserializersCount());
     }
 
     // For [databind#689]

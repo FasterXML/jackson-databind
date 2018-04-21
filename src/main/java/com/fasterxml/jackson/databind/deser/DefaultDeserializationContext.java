@@ -22,16 +22,10 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * extended API for {@link ObjectMapper} (and {@link ObjectReader})
  * to call, as well as implements certain parts that base class
  * has left abstract.
- * The remaining abstract methods ({@link #createInstance}, {@link #with})
- * are left so that custom implementations will properly implement them
- * to return intended subtype.
  */
 public abstract class DefaultDeserializationContext
     extends DeserializationContext
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     protected transient LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId> _objectIds;
 
     private List<ObjectIdResolver> _objectIdResolvers;
@@ -41,20 +35,12 @@ public abstract class DefaultDeserializationContext
      * cache: cache may be null (in which case default implementation
      * will be used), factory cannot be null
      */
-    protected DefaultDeserializationContext(DeserializerFactory df,
-            TokenStreamFactory streamFactory, DeserializerCache cache) {
-        super(df, streamFactory, cache);
-    }
-    
-    protected DefaultDeserializationContext(DefaultDeserializationContext src,
+    protected DefaultDeserializationContext(TokenStreamFactory tsf,
+            DeserializerFactory deserializerFactory, DeserializerCache cache,
             DeserializationConfig config, FormatSchema schema,
             InjectableValues values) {
-        super(src, config, schema, values);
-    }
-
-    protected DefaultDeserializationContext(DefaultDeserializationContext src,
-            DeserializerFactory factory) {
-        super(src, factory);
+        super(tsf, deserializerFactory, cache,
+                config, schema, values);
     }
 
     public DefaultDeserializationContext assignParser(JsonParser p) {
@@ -264,25 +250,6 @@ public abstract class DefaultDeserializationContext
 
     /*
     /**********************************************************************
-    /* Extended API
-    /**********************************************************************
-     */
-
-    /**
-     * Fluent factory method used for constructing a blueprint instance
-     * with different factory
-     */
-    public abstract DefaultDeserializationContext with(DeserializerFactory factory);
-    
-    /**
-     * Method called to create actual usable per-deserialization
-     * context instance.
-     */
-    public abstract DefaultDeserializationContext createInstance(DeserializationConfig config,
-            FormatSchema schema, InjectableValues values);
-
-    /*
-    /**********************************************************************
     /* And then the concrete implementation class
     /**********************************************************************
      */
@@ -292,35 +259,12 @@ public abstract class DefaultDeserializationContext
      */
     public final static class Impl extends DefaultDeserializationContext
     {
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Default constructor for a blueprint object, which will use the standard
-         * {@link DeserializerCache}, given factory.
-         */
-        public Impl(DeserializerFactory df, TokenStreamFactory streamFactory) {
-            super(df, streamFactory, null);
-        }
-
-        protected Impl(Impl src,
+        public Impl(TokenStreamFactory tsf,
+                DeserializerFactory deserializerFactory, DeserializerCache cache,
                 DeserializationConfig config, FormatSchema schema,
                 InjectableValues values) {
-            super(src, config, schema, values);
-        }
-
-        protected Impl(Impl src, DeserializerFactory factory) {
-            super(src, factory);
-        }
-
-        @Override
-        public DefaultDeserializationContext createInstance(DeserializationConfig config,
-                FormatSchema schema, InjectableValues values) {
-            return new Impl(this, config, schema, values);
-        }
-
-        @Override
-        public DefaultDeserializationContext with(DeserializerFactory factory) {
-            return (factory == this._factory) ? this : new Impl(this, factory);
+            super(tsf, deserializerFactory, cache,
+                    config, schema, values);
         }
     }
 }

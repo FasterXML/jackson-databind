@@ -36,48 +36,25 @@ import com.fasterxml.jackson.databind.util.*;
  * Context for the process of deserialization a single root-level value.
  * Used to allow passing in configuration settings and reusable temporary
  * objects (scrap arrays, containers).
- *<p>
- * Instance life-cycle is such that a partially configured "blueprint" object
- * is registered with {@link ObjectMapper} (and {@link ObjectReader},
- * and when actual instance is needed for deserialization,
- * a fully configured instance will be created using a method in extended internal
- *  API of sub-class
- * ({@link com.fasterxml.jackson.databind.deser.DefaultDeserializationContext#createInstance}).
- * Each instance is guaranteed to only be used from single-threaded context;
- * instances may be reused if (and only if) no configuration has changed.
- *<p>
- * Defined as abstract class so that implementations must define methods
- * for reconfiguring blueprints and creating instances.
+ * Constructed by {@link ObjectMapper} (and {@link ObjectReader} based on
+ * configuration,
+ * used mostly by {@link JsonDeserializer}s to access contextual information.
  */
 public abstract class DeserializationContext
     extends DatabindContext
-    implements java.io.Serializable,
-        ObjectReadContext // 3.0
+    implements ObjectReadContext // 3.0
 {
-    private static final long serialVersionUID = 3L;
-
     /*
     /**********************************************************************
-    /* Configuration, immutable
+    /* Per-mapper configuration (immutable via ObjectReader)
     /**********************************************************************
      */
-    
-    /**
-     * Object that handle details of {@link JsonDeserializer} caching.
-     */
-    final protected DeserializerCache _cache;
 
     /**
      * Low-level {@link TokenStreamFactory} that may be used for constructing
      * embedded parsers.
      */
     final protected TokenStreamFactory _streamFactory;
-
-    /*
-    /**********************************************************************
-    /* Configuration, changeable via fluent factories
-    /**********************************************************************
-     */
 
     /**
      * Read-only factory instance; exposed to let
@@ -86,10 +63,14 @@ public abstract class DeserializationContext
      */
     final protected DeserializerFactory _factory;
 
+    /**
+     * Object that handle details of {@link JsonDeserializer} caching.
+     */
+    final protected DeserializerCache _cache;
+
     /*
     /**********************************************************************
-    /* Configuration that gets set for instances (not blueprints)
-    /* (partly denormalized for performance)
+    /* Configuration that may vary by ObjectReader
     /**********************************************************************
      */
 
@@ -121,10 +102,10 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************************
-    /* State (not for blueprints)
+    /* Other State
     /**********************************************************************
      */
-    
+
     /**
      * Currently active parser used for deserialization.
      * May be different from the outermost parser
@@ -161,54 +142,14 @@ public abstract class DeserializationContext
     /**********************************************************************
      */
 
-    protected DeserializationContext(DeserializerFactory df,
-            TokenStreamFactory streamFactory, DeserializerCache cache)
-    {
-        if (df == null) {
-            throw new IllegalArgumentException("Cannot pass null DeserializerFactory");
-        }
-        _factory = df;
-        if (streamFactory == null) {
-            throw new IllegalArgumentException("Cannot pass null TokenStreamFactory");
-        }
-        _streamFactory = streamFactory;
-        if (cache == null) {
-            cache = new DeserializerCache();
-        }
-        _cache = cache;
-        _featureFlags = 0;
-        _config = null;
-        _injectableValues = null;
-        _activeView = null;
-        _attributes = null;
-        _schema = null;
-    }
-
-    protected DeserializationContext(DeserializationContext src,
-            DeserializerFactory factory)
-    {
-        _cache = src._cache;
-        _factory = factory;
-        _streamFactory = src._streamFactory;
-
-        _config = src._config;
-        _featureFlags = src._featureFlags;
-        _activeView = src._activeView;
-        _schema = src._schema;
-        _injectableValues = src._injectableValues;
-        _attributes = src._attributes;
-    }
-
-    /**
-     * Constructor used for creating actual per-call instances.
-     */
-    protected DeserializationContext(DeserializationContext src,
+    protected DeserializationContext(TokenStreamFactory streamFactory, 
+            DeserializerFactory df, DeserializerCache cache,
             DeserializationConfig config, FormatSchema schema,
             InjectableValues injectableValues)
     {
-        _cache = src._cache;
-        _factory = src._factory;
-        _streamFactory = src._streamFactory;
+        _streamFactory = streamFactory;
+        _factory = df;
+        _cache = cache;
 
         _config = config;
         _featureFlags = config.getDeserializationFeatures();

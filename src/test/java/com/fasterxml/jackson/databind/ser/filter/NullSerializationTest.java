@@ -54,7 +54,7 @@ public class NullSerializationTest
         @Override
         public DefaultSerializerProvider createContext(SerializationConfig config,
                 GeneratorSettings genSettings) {
-            return new MyNullSerializerProvider(_streamFactory, _serializerCache,
+            return new MyNullSerializerProvider(_streamFactory, _cache,
                     config, genSettings, _serializerFactory);
         }
     }
@@ -64,7 +64,7 @@ public class NullSerializationTest
         public MyNullSerializerProvider(TokenStreamFactory streamFactory,
                 SerializerCache cache, SerializationConfig config,
                 GeneratorSettings genSettings, SerializerFactory f) {
-            super(streamFactory, cache, config, genSettings, f);
+            super(streamFactory, config, genSettings, f, cache);
         }
 
         @Override

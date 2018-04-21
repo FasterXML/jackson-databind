@@ -157,9 +157,8 @@ public abstract class SerializerProvider
      */
 
     protected SerializerProvider(TokenStreamFactory streamFactory,
-            SerializerCache cache,
             SerializationConfig config, GeneratorSettings generatorConfig,
-            SerializerFactory f)
+            SerializerFactory f, SerializerCache cache)
     {
         _streamFactory = streamFactory;
         _serializerFactory = f;

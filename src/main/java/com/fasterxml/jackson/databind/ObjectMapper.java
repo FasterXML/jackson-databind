@@ -192,12 +192,6 @@ public class ObjectMapper
      */
 
     /**
-     * Configuration object that defines basic global
-     * settings for the serialization process
-     */
-    protected final SerializationConfig _serializationConfig;
-
-    /**
      * Factory used for constructing per-call {@link SerializerProvider}s.
      *<p>
      * Note: while serializers are only exposed {@link SerializerProvider},
@@ -206,6 +200,12 @@ public class ObjectMapper
      */
     protected final SerializationContexts _serializationContexts;
 
+    /**
+     * Configuration object that defines basic global
+     * settings for the serialization process
+     */
+    protected final SerializationConfig _serializationConfig;
+
     /*
     /**********************************************************************
     /* Configuration settings, deserialization
@@ -213,17 +213,15 @@ public class ObjectMapper
      */
 
     /**
+     * Factory used for constructing per-call {@link DeserializationContext}s.
+     */
+    protected final DeserializationContexts _deserializationContexts;
+
+    /**
      * Configuration object that defines basic global
      * settings for the serialization process
      */
     protected final DeserializationConfig _deserializationConfig;
-
-    /**
-     * Blueprint context object; stored here to allow custom
-     * sub-classes. Contains references to objects needed for
-     * deserialization construction (cache, factory).
-     */
-    protected final DefaultDeserializationContext _deserializationContext;
 
     /*
     /**********************************************************************
@@ -308,7 +306,8 @@ public class ObjectMapper
     protected ObjectMapper(MapperBuilder<?,?> builder)
     {
         // First things first: finalize building process. Saved state
-        // consists of snapshots and is safe to keep references to
+        // consists of snapshots and is safe to keep references to; used
+        // for rebuild()ing mapper instances
 
         _savedBuilderState = builder.saveStateApplyModules();
 
@@ -331,8 +330,8 @@ public class ObjectMapper
         ClassIntrospector classIntr = builder.classIntrospector().forMapper(this);
         SubtypeResolver subtypeResolver =  Snapshottable.takeSnapshot(builder.subtypeResolver());
         MixInHandler mixIns = (MixInHandler) Snapshottable.takeSnapshot(builder.mixInHandler());
-        // NOTE: TypeResolverProvider apparently ok without snapshot, hence accessed directly
-        // and not passed
+        // NOTE: TypeResolverProvider apparently ok without snapshot, hence config objects fetch
+        // it directly from MapperBuilder, not passed by us.
 
         // Serialization factories
         _serializationContexts = builder.serializationContexts()
@@ -340,19 +339,20 @@ public class ObjectMapper
 
         // Deserialization factories
 
-        _deserializationContext = builder.deserializationContext();
+        _deserializationContexts = builder.deserializationContexts()
+                .forMapper(this, _streamFactory, builder.deserializerFactory());
         _injectableValues = Snapshottable.takeSnapshot(builder.injectableValues());
 
         // And then finalize serialization/deserialization Config containers
 
         RootNameLookup rootNames = new RootNameLookup();
         FilterProvider filterProvider = Snapshottable.takeSnapshot(builder.filterProvider());
-        _serializationConfig = builder.buildSerializationConfig(configOverrides,
-                mixIns, _typeFactory, classIntr, subtypeResolver,
-                rootNames, filterProvider);
         _deserializationConfig = builder.buildDeserializationConfig(configOverrides,
                 mixIns, _typeFactory, classIntr, subtypeResolver,
                 rootNames);
+        _serializationConfig = builder.buildSerializationConfig(configOverrides,
+                mixIns, _typeFactory, classIntr, subtypeResolver,
+                rootNames, filterProvider);
     }
 
     // 16-Feb-2018, tatu: Arggghh. Due to Java Type Erasure rules, override, even static methods
@@ -2498,19 +2498,19 @@ public class ObjectMapper
      * Can be overridden if a custom context is needed.
      */
     protected DefaultDeserializationContext createDeserializationContext(JsonParser p) {
-        return _deserializationContext.createInstance(deserializationConfig(),
+        return _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues)
                 .assignParser(p);
     }
 
     protected DefaultDeserializationContext createDeserializationContext() {
-        return _deserializationContext.createInstance(deserializationConfig(),
+        return _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues);
     }
 
     protected DefaultDeserializationContext createDeserializationContext(DeserializationConfig config,
             JsonParser p) {
-        return _deserializationContext.createInstance(config,
+        return _deserializationContexts.createContext(config,
                 /* FormatSchema */ null, _injectableValues)
                 .assignParser(p);
     }

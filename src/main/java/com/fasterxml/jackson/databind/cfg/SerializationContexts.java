@@ -9,13 +9,13 @@ import com.fasterxml.jackson.databind.ser.SerializerFactory;
 
 /**
  * Factory/builder class that replaces Jackson 2.x concept of "blueprint" instance
- * of {@link SerializerProvider}. It will be constructed and configured during
+ * of {@link com.fasterxml.jackson.databind.SerializerProvider}. It will be constructed and configured during
  * {@link ObjectMapper} building phase, and will be called once per {@code writeValue}
- * call to construct actual stateful {@link SerializerProvider} to use during
+ * call to construct actual stateful {@link com.fasterxml.jackson.databind.SerializerProvider} to use during
  * serialization.
  *<p>
  * Note that since this object has to be serializable (to allow JDK serialization of
- * mapper instances), {@link SerializerProvider} need not be serializable any more.
+ * mapper instances), {@link com.fasterxml.jackson.databind.SerializerProvider} need not be serializable any more.
  *
  * @since 3.0
  */
@@ -49,7 +49,7 @@ public abstract class SerializationContexts
     /**
      * Cache for doing type-to-value-serializer lookups.
      */
-    final transient protected SerializerCache _serializerCache;
+    final transient protected SerializerCache _cache;
 
     /*
     /**********************************************************************
@@ -63,7 +63,7 @@ public abstract class SerializationContexts
             SerializerFactory serializerFactory, SerializerCache cache) {
         _streamFactory = tsf;
         _serializerFactory = serializerFactory;
-        _serializerCache = cache;
+        _cache = cache;
     }
 
     /**
@@ -81,7 +81,8 @@ public abstract class SerializationContexts
             SerializerCache cache);
     
     /**
-     * Factory method for constructing context object for individual {@code 
+     * Factory method for constructing context object for individual {@code writeValue()}
+     * calls.
      */
     public abstract DefaultSerializerProvider createContext(SerializationConfig config,
             GeneratorSettings genSettings);
@@ -117,7 +118,7 @@ public abstract class SerializationContexts
      * serializer cache, if certain number of entries is reached.
      */
     public int cachedSerializersCount() {
-        return _serializerCache.size();
+        return _cache.size();
     }
 
     /**
@@ -127,7 +128,7 @@ public abstract class SerializationContexts
      * configuration changes for mapper than owns the provider.
      */
     public void flushCachedSerializers() {
-        _serializerCache.flush();
+        _cache.flush();
     }
 
     /*
@@ -157,8 +158,7 @@ public abstract class SerializationContexts
         public DefaultSerializerProvider createContext(SerializationConfig config,
                 GeneratorSettings genSettings) {
             return new DefaultSerializerProvider.Impl(_streamFactory,
-                    _serializerCache,
-                    config, genSettings, _serializerFactory);
+                    config, genSettings, _serializerFactory, _cache);
         }
     }
 }

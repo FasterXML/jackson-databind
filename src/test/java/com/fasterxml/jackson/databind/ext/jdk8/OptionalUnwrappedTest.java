@@ -69,17 +69,11 @@ public class OptionalUnwrappedTest extends BaseMapTest
 	public void testPropogatePrefixToSchema() throws Exception {
         final ObjectMapper mapper = newObjectMapper();
 
-        /*
-        public Impl(TokenStreamFactory streamFactory,
-                SerializerCache cache, SerializationConfig config,
-                GeneratorSettings genSettings, SerializerFactory f) {
-         */
-        
         final AtomicReference<String> propertyName = new AtomicReference<>();
         mapper.acceptJsonFormatVisitor(OptionalParent.class, new JsonFormatVisitorWrapper.Base(
                 new DefaultSerializerProvider.Impl(new JsonFactory(),
-                        new SerializerCache(), mapper.serializationConfig(), null,
-                        BeanSerializerFactory.instance)) {
+                        mapper.serializationConfig(), null,
+                        BeanSerializerFactory.instance, new SerializerCache())) {
             @Override
             public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
                 return new JsonObjectFormatVisitor.Base(getProvider()) {

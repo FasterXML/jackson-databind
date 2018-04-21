@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.core.util.Snapshottable;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.DeserializerFactory;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -82,8 +81,8 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
-    protected final SerializerFactory _serializerFactory;
     protected final SerializationContexts _serializationContexts;
+    protected final SerializerFactory _serializerFactory;
     protected final FilterProvider _filterProvider;
     protected final PrettyPrinter _defaultPrettyPrinter;
 
@@ -93,8 +92,8 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
+    protected final DeserializationContexts _deserializationContexts;
     protected final DeserializerFactory _deserializerFactory;
-    protected final DefaultDeserializationContext _deserializationContext;
     protected final InjectableValues _injectableValues;
 
     /**
@@ -146,7 +145,7 @@ public abstract class MapperBuilderState
 
         // Factories for deserialization
         _deserializerFactory = src._deserializerFactory;
-        _deserializationContext = src._deserializationContext;
+        _deserializationContexts = src._deserializationContexts;
         _injectableValues = Snapshottable.takeSnapshot(src._injectableValues);
         // assume our usage of LinkedNode-based list is immutable here (should be)
         _problemHandlers = src._problemHandlers;

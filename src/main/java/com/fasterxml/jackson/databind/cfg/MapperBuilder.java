@@ -140,13 +140,13 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
-    protected SerializerFactory _serializerFactory;
-
     /**
-     * {@link SerializerProviders} to use as factory for stateful {@link SerializerProvider}s
+     * {@link SerializationContexts} to use as factory for stateful {@link SerializerProvider}s
      */
     protected SerializationContexts _serializationContexts;
 
+    protected SerializerFactory _serializerFactory;
+    
     protected FilterProvider _filterProvider;
 
     protected PrettyPrinter _defaultPrettyPrinter;
@@ -157,12 +157,12 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
-    protected DeserializerFactory _deserializerFactory;
-
     /**
-     * Prototype (about same as factory) to use for creating per-operation contexts.
+     * Factory to use for creating per-operation contexts.
      */
-    protected DefaultDeserializationContext _deserializationContext;
+    protected DeserializationContexts _deserializationContexts;
+
+    protected DeserializerFactory _deserializerFactory;
 
     /**
      * Provider for values to inject in deserialized POJOs.
@@ -275,7 +275,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _filterProvider = null;
 
         _deserializerFactory = null;
-        _deserializationContext = null;
+        _deserializationContexts = null;
         _injectableValues = null;
 
         _problemHandlers = null;
@@ -310,14 +310,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mixInHandler = (MixInHandler) Snapshottable.takeSnapshot(state._mixInHandler);
 
         // Factories for serialization
-        _serializerFactory = state._serializerFactory;
         _serializationContexts = state._serializationContexts;
+        _serializerFactory = state._serializerFactory;
         _filterProvider = state._filterProvider;
         _defaultPrettyPrinter = state._defaultPrettyPrinter;
 
         // Factories for deserialization
+        _deserializationContexts = state._deserializationContexts;
         _deserializerFactory = state._deserializerFactory;
-        _deserializationContext = state._deserializationContext;
         _injectableValues = Snapshottable.takeSnapshot(state._injectableValues);
         _problemHandlers = state._problemHandlers;
         _abstractTypeResolvers = state._abstractTypeResolvers;
@@ -559,17 +559,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
-    public SerializerFactory serializerFactory() {
-        if (_serializerFactory == null) {
-            _serializerFactory = _defaultSerializerFactory();
-        }
-        return _serializerFactory;
-    }
-
-    protected SerializerFactory _defaultSerializerFactory() {
-        return BeanSerializerFactory.instance;
-    }
-
     public SerializationContexts serializationContexts() {
         if (_serializationContexts == null) {
             _serializationContexts = _defaultSerializationContexts();
@@ -583,6 +572,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     protected SerializationContexts _defaultSerializationContexts() {
         return new SerializationContexts.DefaultImpl();
+    }
+
+    public SerializerFactory serializerFactory() {
+        if (_serializerFactory == null) {
+            _serializerFactory = _defaultSerializerFactory();
+        }
+        return _serializerFactory;
+    }
+
+    protected SerializerFactory _defaultSerializerFactory() {
+        return BeanSerializerFactory.instance;
     }
 
     public FilterProvider filterProvider() {
@@ -606,6 +606,21 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
+    public DeserializationContexts deserializationContexts() {
+        if (_deserializationContexts == null) {
+            _deserializationContexts = _defaultDeserializationContexts();
+        }
+        return _deserializationContexts;
+    }
+
+    /**
+     * Overridable method for changing default {@link SerializerProvider} prototype
+     * to use.
+     */
+    protected DeserializationContexts _defaultDeserializationContexts() {
+        return new DeserializationContexts.DefaultImpl();
+    }
+
     public DeserializerFactory deserializerFactory() {
         if (_deserializerFactory == null) {
             _deserializerFactory = _defaultDeserializerFactory();
@@ -615,22 +630,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     DeserializerFactory _defaultDeserializerFactory() {
         return BeanDeserializerFactory.instance;
-    }
-
-    public DefaultDeserializationContext deserializationContext() {
-        if (_deserializationContext == null) {
-            _deserializationContext = _defaultDeserializationContext();
-        }
-        return _deserializationContext;
-    }
-
-    /**
-     * Overridable method for changing default {@link SerializerProvider} prototype
-     * to use.
-     */
-    protected DefaultDeserializationContext _defaultDeserializationContext() {
-        return new DefaultDeserializationContext.Impl(deserializerFactory(),
-                _streamFactory);
     }
 
     public InjectableValues injectableValues() {
@@ -1108,15 +1107,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B deserializerFactory(DeserializerFactory f) {
         _deserializerFactory = f;
-        // 19-Feb-2018, tatu: Hopefully not needed in future but is needed for now
-        if (_deserializationContext != null) {
-            _deserializationContext = _deserializationContext.with(f);
-        }
         return _this();
     }
 
-    public B deserializationContext(DefaultDeserializationContext ctxt) {
-        _deserializationContext = ctxt;
+    public B deserializationContext(DeserializationContexts ctxt) {
+        _deserializationContexts = ctxt;
         return _this();
     }
 

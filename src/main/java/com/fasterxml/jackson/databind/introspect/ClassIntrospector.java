@@ -21,7 +21,8 @@ public abstract class ClassIntrospector
      * Method called to create an instance to be exclusive used by specified
      * mapper. Needed to ensure that no sharing through cache occurs.
      *
-     * @param Mapper instance: always of type {@link ObjectMappper}, but not fully
+     * @param mapper "owner" of this instance: always of type
+     *    {@link com.fasterxml.jackson.databind.ObjectMapper}, but not fully
      *     typed to avoid compile dependency
      *
      * @since 3.0

@@ -82,9 +82,8 @@ public class BeanDeserializerFactory
      */
 
     /**
-     * Method that {@link DeserializerCache}s call to create a new
-     * deserializer for types other than Collections, Maps, arrays and
-     * enums.
+     * Method that called to create a new deserializer for types other than Collections,
+     * Maps, arrays, referential types or enums, or "well-known" JDK scalar types.
      */
     @Override
     public JsonDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
@@ -113,9 +112,8 @@ public class BeanDeserializerFactory
             // Let's make it possible to materialize abstract types.
             JavaType concreteType = materializeAbstractType(ctxt, type, beanDesc);
             if (concreteType != null) {
-                /* important: introspect actual implementation (abstract class or
-                 * interface doesn't have constructors, for one)
-                 */
+                // important: introspect actual implementation (abstract class or
+                // interface doesn't have constructors, for one)
                 beanDesc = config.introspect(concreteType);
                 return buildBeanDeserializer(ctxt, concreteType, beanDesc);
             }

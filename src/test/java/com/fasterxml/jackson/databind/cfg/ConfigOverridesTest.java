@@ -14,8 +14,6 @@ public class ConfigOverridesTest extends BaseMapTest
             .setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.SETTER,
                     Visibility.NONE));
         // simplest verification of snapshot(): check that string repr matches
-System.err.println("orig -> "+co);
-System.err.println("snap -> "+co.snapshot());
         assertEquals(co.toString(),
                 co.snapshot().toString());
     }

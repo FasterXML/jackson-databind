@@ -43,9 +43,9 @@ public class ConfigOverrides
     protected Boolean _defaultMergeable;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public ConfigOverrides() {
@@ -86,9 +86,9 @@ public class ConfigOverrides
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Per-type override access
-    /**********************************************************
+    /**********************************************************************
      */
     
     public ConfigOverride findOverride(Class<?> type) {
@@ -111,9 +111,9 @@ public class ConfigOverrides
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Global defaults accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonInclude.Value getDefaultInclusion() {
@@ -133,9 +133,9 @@ public class ConfigOverrides
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Global defaults mutators
-    /**********************************************************
+    /**********************************************************************
      */
 
     public ConfigOverrides setDefaultInclusion(JsonInclude.Value v) {
@@ -164,9 +164,38 @@ public class ConfigOverrides
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Standard methods (for diagnostics)
+    /**********************************************************************
+     */
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[ConfigOverrides ")
+                .append("incl=").append(_defaultInclusion)
+                .append(", nulls=").append(_defaultNullHandling)
+                .append(", merge=").append(_defaultMergeable)
+                .append(", visibility=").append(_visibilityChecker)
+                .append(", typed=")
+                ;
+        if (_overrides == null) {
+            sb.append("NLLL");
+        } else {
+            sb.append("(").append(_overrides.size()).append("){");
+            TreeMap<String, MutableConfigOverride> sorted = new TreeMap<>();
+            _overrides.forEach((k, v) -> sorted.put(k.getName(), v));
+            sorted.forEach((k, v) -> {
+                sb.append(String.format("'%s'->%s", k, v));
+            });
+            sb.append("}");
+        }
+        return sb.append("]").toString();
+    }
+
+    /*
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Map<Class<?>, MutableConfigOverride> _newMap() {

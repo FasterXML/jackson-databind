@@ -104,7 +104,19 @@ public abstract class ConfigOverride
     public JsonAutoDetect.Value getVisibility() { return _visibility; }
 
     public Boolean getMergeable() { return _mergeable; }
-    
+
+    @Override
+    public String toString() {
+        return new StringBuilder("[ConfigOverrides ")
+                .append("format=").append(_format)
+                .append(", include=").append(_include).append("/").append(_includeAsProperty)
+                .append(", ignorals=").append(_ignorals)
+                .append(", nulls=").append(_ignorals)
+                .append(", visibility=").append(_visibility)
+                .append(", merge=").append(_mergeable)
+                .toString();
+    }
+
     /**
      * Implementation used solely for "empty" instance; has no mutators
      * and is not changed by core functionality.

@@ -325,8 +325,8 @@ public class ObjectMapper
             builder.withAllConfigOverrides(overrides -> ref.set(overrides));
 
 // 20-Apr-2018, tatu: something wrong with following, need to troubleshoot...
-//            configOverrides = Snapshottable.takeSnapshot(ref.get());
-            configOverrides = ref.get();
+            configOverrides = Snapshottable.takeSnapshot(ref.get());
+//            configOverrides = ref.get();
         }
 
         // Handlers, introspection

@@ -141,7 +141,6 @@ public class MapperJDKSerializationTest extends BaseMapTest
 
         byte[] bytes = jdkSerialize(MAPPER);
         ObjectMapper mapper2 = jdkDeserialize(bytes);
-
         ObjectWriter origWriter = mapper2.writer();
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);

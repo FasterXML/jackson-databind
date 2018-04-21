@@ -143,7 +143,7 @@ public abstract class MapperBuilderState
         _serializationContexts = src._serializationContexts; // no snapshot needed (uses `forMapper()`)
         _filterProvider = Snapshottable.takeSnapshot(src._filterProvider);
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        
+
         // Factories for deserialization
         _deserializerFactory = src._deserializerFactory;
         _deserializationContext = src._deserializationContext;

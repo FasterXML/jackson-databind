@@ -79,6 +79,8 @@ public abstract class ConfigOverride
         _include = src._include;
         _includeAsProperty = src._includeAsProperty;
         _ignorals = src._ignorals;
+        _setterInfo = src._setterInfo;
+        _visibility = src._visibility;
         _isIgnoredType = src._isIgnoredType;
         _mergeable = src._mergeable;
     }

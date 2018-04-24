@@ -117,7 +117,7 @@ public class BeanSerializerFactory
     @Override
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> createSerializer(SerializerProvider ctxt, JavaType origType,
-            BeanDescription beanDesc, JsonFormat.Value format)
+            BeanDescription beanDesc, JsonFormat.Value formatOverrides)
         throws JsonMappingException
     {
         // Very first thing, let's check if there is explicit serializer annotation:
@@ -161,16 +161,16 @@ public class BeanSerializerFactory
             }
             // [databind#731]: Should skip if nominally java.lang.Object
             if ((ser == null) && !delegateType.isJavaLangObject()) {
-                ser = _createSerializer2(ctxt, beanDesc, delegateType, format, true);
+                ser = _createSerializer2(ctxt, beanDesc, delegateType, formatOverrides, true);
             }
             return new StdDelegatingSerializer(conv, delegateType, ser, null);
         }
         // No, regular serializer
-        return (JsonSerializer<Object>) _createSerializer2(ctxt, beanDesc, type, format, staticTyping);
+        return (JsonSerializer<Object>) _createSerializer2(ctxt, beanDesc, type, formatOverrides, staticTyping);
     }
 
     protected JsonSerializer<?> _createSerializer2(SerializerProvider ctxt,
-            BeanDescription beanDesc, JavaType type, JsonFormat.Value format,
+            BeanDescription beanDesc, JavaType type, JsonFormat.Value formatOverrides,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -184,18 +184,18 @@ public class BeanSerializerFactory
                 staticTyping = usesStaticTyping(config, beanDesc, null);
             }
             // 03-Aug-2012, tatu: As per [databind#40], may require POJO serializer...
-            ser =  buildContainerSerializer(ctxt, type, beanDesc, format, staticTyping);
+            ser =  buildContainerSerializer(ctxt, type, beanDesc, formatOverrides, staticTyping);
             // Will return right away, since called method does post-processing:
             if (ser != null) {
                 return ser;
             }
         } else {
             if (type.isReferenceType()) {
-                ser = findReferenceSerializer(ctxt, (ReferenceType) type, beanDesc, staticTyping);
+                ser = findReferenceSerializer(ctxt, (ReferenceType) type, beanDesc, formatOverrides, staticTyping);
             } else {
                 // Modules may provide serializers of POJO types:
                 for (Serializers serializers : customSerializers()) {
-                    ser = serializers.findSerializer(config, type, beanDesc);
+                    ser = serializers.findSerializer(config, type, beanDesc, formatOverrides);
                     if (ser != null) {
                         break;
                     }
@@ -212,17 +212,17 @@ public class BeanSerializerFactory
             // Otherwise, we will check "primary types"; both marker types that
             // indicate specific handling (JsonSerializable), or main types that have
             // precedence over container types
-            ser = findSerializerByLookup(type, config, beanDesc, staticTyping);
+            ser = findSerializerByLookup(type, config, beanDesc, formatOverrides, staticTyping);
             if (ser == null) {
-                ser = findSerializerByPrimaryType(ctxt, type, beanDesc, staticTyping);
+                ser = findSerializerByPrimaryType(ctxt, type, beanDesc, formatOverrides, staticTyping);
                 if (ser == null) {
                     // And this is where this class comes in: if type is not a
                     // known "primary JDK type", perhaps it's a bean? We can still
                     // get a null, if we can't find a single suitable bean property.
-                    ser = findBeanSerializer(ctxt, beanDesc, type, format);
+                    ser = findBeanSerializer(ctxt, beanDesc, type, formatOverrides);
                     // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
                     if (ser == null) {
-                        ser = findSerializerByAddonType(config, type, beanDesc, staticTyping);
+                        ser = findSerializerByAddonType(config, type, beanDesc, formatOverrides, staticTyping);
                         // 18-Sep-2014, tatu: Actually, as per [jackson-databind#539], need to get
                         //   'unknown' serializer assigned earlier, here, so that it gets properly
                         //   post-processed

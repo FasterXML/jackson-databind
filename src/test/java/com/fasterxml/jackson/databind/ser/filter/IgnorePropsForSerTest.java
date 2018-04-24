@@ -63,6 +63,25 @@ public class IgnorePropsForSerTest
         }
     }
 
+    // for [databind#1060]
+    static class IgnoreForListValuesXY {
+        @JsonIgnoreProperties({ "x" })
+        public List<XY> coordinates;
+
+        public IgnoreForListValuesXY() {
+            coordinates = Arrays.asList(new XY());
+        }
+    }
+
+    static class IgnoreForListValuesXYZ {
+        @JsonIgnoreProperties({ "y" })
+        public List<XYZ> coordinates;
+
+        public IgnoreForListValuesXYZ() {
+            coordinates = Arrays.asList(new XYZ());
+        }
+    }    
+
     /*
     /****************************************************************
     /* Unit tests
@@ -128,5 +147,18 @@ public class IgnorePropsForSerTest
         mapper.configOverride(Point.class)
             .setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("x"));
         assertEquals("{\"y\":3}", mapper.writeValueAsString(new Point(2, 3)));
+    }
+
+    // for [databind#1060]
+    // Ensure that `@JsonIgnoreProperties` applies to POJOs within lists, too
+    public void testIgnoreForListValues() throws Exception
+    {
+        // should apply to elements
+        assertEquals(aposToQuotes("{'coordinates':[{'y':2}]}"),
+                MAPPER.writeValueAsString(new IgnoreForListValuesXY()));
+
+        // and combine values too
+        assertEquals(aposToQuotes("{'coordinates':[{'z':3}]}"),
+                MAPPER.writeValueAsString(new IgnoreForListValuesXYZ()));
     }
 }

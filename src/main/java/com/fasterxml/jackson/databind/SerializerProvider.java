@@ -767,10 +767,9 @@ public abstract class SerializerProvider
     {
         // Important: must introspect all annotations, not just class
         BeanDescription beanDesc = _config.introspect(fullType);
-        JsonFormat.Value format = beanDesc.findExpectedFormat();
         JsonSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, fullType, beanDesc, format);
+            ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, iae.getMessage());
@@ -785,10 +784,9 @@ public abstract class SerializerProvider
     {
         // Important: must introspect all annotations, not just class
         BeanDescription beanDesc = _config.introspect(type);
-        JsonFormat.Value format = beanDesc.findExpectedFormat();
         JsonSerializer<Object> ser;
         try {
-            ser = _serializerFactory.createSerializer(this, type, beanDesc, format);
+            ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
             throw _mappingProblem(iae, iae.getMessage());

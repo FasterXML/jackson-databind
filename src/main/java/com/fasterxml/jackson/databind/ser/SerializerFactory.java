@@ -22,12 +22,13 @@ public abstract class SerializerFactory
      * 
      * @param prov (not null) Provider that needs to be used to resolve annotation-provided
      *    serializers (but NOT for others)
-     * @param format (not null) Format definition for serializer to create
+     * @param formatOverride (nullable) Possible format overrides (from property annotations)
+     *    to use, above and beyond what `beanDesc` defines
      *
      * @since 3.0 (last argument added)
      */
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType baseType, BeanDescription beanDesc, JsonFormat.Value format)
+            JavaType baseType, BeanDescription beanDesc, JsonFormat.Value formatOverride)
         throws JsonMappingException;
 
     /**
@@ -118,14 +119,13 @@ public abstract class SerializerFactory
      */
 
     /**
-     * @deprecated Since 3.0 use variant that takes {@link JsonFormat.Value} argument
+     * @deprecated Since 3.0 use variant that takes {@code JsonFormat.Value} argument
      */
     @Deprecated // since 3.0
     public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType baseType)
         throws JsonMappingException
     {
         BeanDescription beanDesc = prov.getConfig().introspect(baseType);
-        return createSerializer(prov, baseType, beanDesc,
-                beanDesc.findExpectedFormat());
+        return createSerializer(prov, baseType, beanDesc, null);
     }
 }

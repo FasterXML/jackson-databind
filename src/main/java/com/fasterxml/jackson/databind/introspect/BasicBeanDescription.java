@@ -78,6 +78,19 @@ public class BasicBeanDescription extends BeanDescription
 
     /*
     /**********************************************************************
+    /* Lazily accessed results of introspection, cached for reuse
+    /**********************************************************************
+     */
+
+    /**
+     * Results of introspecting `@JsonFormat` configuration for class, if any.
+     *
+     * @since 3.0
+     */
+    protected transient JsonFormat.Value _classFormat;
+    
+    /*
+    /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
@@ -337,29 +350,42 @@ anyField.getName()));
     /**********************************************************************
      */
 
+    @Deprecated // since 3.0
     @Override
     public JsonFormat.Value findExpectedFormat()
     {
-        // 18-Apr-2018, tatu: Bit unclean but apparently `_config` is `null` for
-        //   a small set of pre-discovered simple types that `BasicClassIntrospector`
-        //   may expose. If so, nothing we can do
-        if (_config == null) {
-            return JsonFormat.Value.empty();
-        }
-
-        // Let's check both per-type defaults and annotations; annotations may
-        // be overridden by per-type configuration (have precedence)
-        JsonFormat.Value v1 = _annotationIntrospector.findFormat(_classInfo);
-        JsonFormat.Value v2 = _config.getDefaultPropertyFormat(_classInfo.getRawType());
-        // 13-Apr-2018, tatu: One open question: should we default to `empty` to avoid
-        //    returning null?
-        if (v1 == null) {
-            if (v2 == null) {
-                return JsonFormat.Value.empty();
+        JsonFormat.Value v = _classFormat;
+        if (v == null) {
+            // 18-Apr-2018, tatu: Bit unclean but apparently `_config` is `null` for
+            //   a small set of pre-discovered simple types that `BasicClassIntrospector`
+            //   may expose. If so, nothing we can do
+            v = (_config == null) ? null
+                    : _annotationIntrospector.findFormat(_classInfo);
+            if (v == null) {
+                v = JsonFormat.Value.empty();
             }
-            return v2;
+            _classFormat = v;
         }
-        return JsonFormat.Value.merge(v1, v2);
+        return v;
+    }
+
+    @Override
+    public JsonFormat.Value findExpectedFormat(Class<?> baseType)
+    {
+        JsonFormat.Value v0 = _classFormat;
+        if (v0 == null) { // copied from above
+            v0 = (_config == null) ? null
+                    : _annotationIntrospector.findFormat(_classInfo);
+            if (v0 == null) {
+                v0 = JsonFormat.Value.empty();
+            }
+            _classFormat = v0;
+        }
+        JsonFormat.Value v1 = _config.getDefaultPropertyFormat(baseType);
+        if (v1 == null) {
+            return v0;
+        }
+        return JsonFormat.Value.merge(v0, v1);
     }
 
     @Override

@@ -20,12 +20,6 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 public class TestEnumSerialization
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper enums
-    /**********************************************************
-     */
-
     /**
      * Test enumeration for verifying Enum serialization functionality.
      */

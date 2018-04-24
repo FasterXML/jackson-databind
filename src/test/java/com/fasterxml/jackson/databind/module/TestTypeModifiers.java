@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.module;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -16,12 +17,6 @@ import com.fasterxml.jackson.databind.type.*;
 @SuppressWarnings("serial")
 public class TestTypeModifiers extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     private static class ModifierModule extends SimpleModule
     {
         public ModifierModule() {
@@ -34,7 +29,7 @@ public class TestTypeModifiers extends BaseMapTest
             context.addSerializers(new Serializers.Base() {
                 @Override
                 public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
-                        MapLikeType type, BeanDescription beanDesc,
+                        MapLikeType type, BeanDescription beanDesc, JsonFormat.Value format,
                         JsonSerializer<Object> keySerializer,
                         TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
                 {
@@ -46,7 +41,7 @@ public class TestTypeModifiers extends BaseMapTest
 
                 @Override
                 public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-                        CollectionLikeType type, BeanDescription beanDesc,
+                        CollectionLikeType type, BeanDescription beanDesc, JsonFormat.Value format,
                         TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
                 {
                     if (CollectionMarker.class.isAssignableFrom(type.getRawClass())) {

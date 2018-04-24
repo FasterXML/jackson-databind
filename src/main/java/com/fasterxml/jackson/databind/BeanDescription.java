@@ -181,11 +181,19 @@ public abstract class BeanDescription
 
     /**
      * Method for checking what is the expected format for POJO, as
-     * defined by defaults and possible annotations.
-     * Note that this may be further refined by per-property annotations.
+     * defined by possible annotations (but NOT config overrides)
+     *
+     * @deprecated Since 3.0
      */
+    @Deprecated // since 3.0
     public abstract JsonFormat.Value findExpectedFormat();
 
+    /**
+     * Method for checking what is the expected format for POJO, as
+     * defined by possible annotations and possible per-type config overrides.
+     */
+    public abstract JsonFormat.Value findExpectedFormat(Class<?> baseType);
+    
     /**
      * Method for finding {@link Converter} used for serializing instances
      * of this class.

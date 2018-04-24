@@ -161,6 +161,7 @@ Project: jackson-databind
 #1029: Add a way to define property name aliases
 #1035: `@JsonAnySetter` assumes key of `String`, does not consider declared type.
  (reported by Michael F)
+#1060: Allow use of `@JsonIgnoreProperties` for POJO-valued arrays, `Collection`s
 #1106: Add `MapperFeature.ALLOW_COERCION_OF_SCALARS` for enabling/disabling coercions
 #1284: Make `StdKeySerializers` use new `JsonGenerator.writeFieldId()` for `int`/`long` keys
 #1320: Add `ObjectNode.put(String, BigInteger)`

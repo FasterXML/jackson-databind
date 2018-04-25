@@ -51,7 +51,7 @@ public class TestDefaultForEnums
 
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
     }
-    
+
     public void testSimpleEnumsInObjectArray() throws Exception
     {
         // Typing is needed for enums

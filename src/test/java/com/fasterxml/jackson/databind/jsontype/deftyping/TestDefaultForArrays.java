@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsontype;
+package com.fasterxml.jackson.databind.jsontype.deftyping;
 
 import java.util.ArrayList;
 import java.util.HashMap;

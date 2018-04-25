@@ -2,7 +2,9 @@ package com.fasterxml.jackson.databind.jsontype.deftyping;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
 /**
  * Unit tests to verify that Java/JSON scalar values (non-structured values)
@@ -16,10 +18,15 @@ public class TestDefaultForScalars
         public java.io.Serializable bar = new Integer(13);
     }
 
+    // [databind#1395]: prevent attempts at including type info for primitives
+    static class Data {
+        public long key;
+    }
+
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     private final ObjectMapper DEFAULT_TYPING_MAPPER = ObjectMapper.builder()
@@ -94,5 +101,31 @@ public class TestDefaultForScalars
         Jackson417Bean result = DEFAULT_TYPING_MAPPER.readValue(json, Jackson417Bean.class);
         assertEquals(input.foo, result.foo);
         assertEquals(input.bar, result.bar);
+    }
+
+    // [databind#1395]: prevent attempts at including type info for primitives
+    public void testDefaultTypingWithLong() throws Exception
+    {
+        Data data = new Data();
+        data.key = 1L;
+        Map<String, Object> mapData = new HashMap<String, Object>();
+        mapData.put("longInMap", 2L);
+        mapData.put("longAsField", data);
+
+        // Configure Jackson to preserve types
+        StdTypeResolverBuilder resolver = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
+                JsonTypeInfo.As.PROPERTY, "__t");
+        ObjectMapper mapper = ObjectMapper.builder()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .setDefaultTyping(resolver)
+                .build();
+
+        // Serialize
+        String json = mapper.writeValueAsString(mapData);
+
+        // Deserialize
+        Map<?,?> result = mapper.readValue(json, Map.class);
+        assertNotNull(result);
+        assertEquals(2, result.size());
     }
 }

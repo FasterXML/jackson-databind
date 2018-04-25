@@ -25,11 +25,15 @@ public class TestDefaultForEnums
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
+    private final ObjectMapper DEFTYPING_MAPPER = ObjectMapper.builder()
+            .enableDefaultTyping()
+            .build();
+    
     public void testSimpleEnumBean() throws Exception
     {
         TimeUnitBean bean = new TimeUnitBean();
@@ -42,39 +46,29 @@ public class TestDefaultForEnums
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
         
         // then with type info
-        m = ObjectMapper.builder()
-                .enableDefaultTyping()
-                .build();
-        json = m.writeValueAsString(bean);
-        result = m.readValue(json, TimeUnitBean.class);
+        json = DEFTYPING_MAPPER.writeValueAsString(bean);
+        result = DEFTYPING_MAPPER.readValue(json, TimeUnitBean.class);
 
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
     }
     
     public void testSimpleEnumsInObjectArray() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
-                .enableDefaultTyping()
-                .build();
-        
         // Typing is needed for enums
-        String json = mapper.writeValueAsString(new Object[] { TestEnum.A });
-        assertEquals("[[\"com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums$TestEnum\",\"A\"]]", json);
+        String json = DEFTYPING_MAPPER.writeValueAsString(new Object[] { TestEnum.A });
+        assertEquals("[[\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForEnums$TestEnum\",\"A\"]]", json);
 
         // and let's verify we get it back ok as well:
-        Object[] value = mapper.readValue(json, Object[].class);
+        Object[] value = DEFTYPING_MAPPER.readValue(json, Object[].class);
         assertEquals(1, value.length);
         assertSame(TestEnum.A, value[0]);
     }
 
     public void testSimpleEnumsAsField() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
-                .enableDefaultTyping()
-                .build();
-        String json = mapper.writeValueAsString(new EnumHolder(TestEnum.B));
-        assertEquals("{\"value\":[\"com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums$TestEnum\",\"B\"]}", json);
-        EnumHolder holder = mapper.readValue(json, EnumHolder.class);
+        String json = DEFTYPING_MAPPER.writeValueAsString(new EnumHolder(TestEnum.B));
+        assertEquals("{\"value\":[\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForEnums$TestEnum\",\"B\"]}", json);
+        EnumHolder holder = DEFTYPING_MAPPER.readValue(json, EnumHolder.class);
         assertSame(TestEnum.B, holder.value);
     }
 }

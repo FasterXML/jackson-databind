@@ -42,15 +42,15 @@ public class TestScalars extends BaseMapTest
             return this;
         }
     }
-    
+
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
-    
+    final ObjectMapper MAPPER = newObjectMapper();
+
     /**
      * Ensure that per-property dynamic types work, both for "native" types
      * and others

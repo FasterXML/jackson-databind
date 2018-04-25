@@ -337,7 +337,7 @@ public class TestDefaultForObject
         ObjectMapper mapper = new ObjectMapper();
         mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, "*CLASS*");
         String json = mapper.writeValueAsString(new BeanHolder(new StringBean("punny")));
-        assertEquals("{\"bean\":{\"*CLASS*\":\"com.fasterxml.jackson.databind.jsontype.TestDefaultForObject$StringBean\",\"name\":\"punny\"}}", json);
+        assertEquals("{\"bean\":{\"*CLASS*\":\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForObject$StringBean\",\"name\":\"punny\"}}", json);
     }
 
     public void testNoGoWithExternalProperty() throws Exception

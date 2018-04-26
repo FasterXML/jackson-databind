@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class CollectionSerializationTest
     extends BaseMapTest
@@ -46,8 +47,11 @@ public class CollectionSerializationTest
         }
     }
 
-    static class ListSerializer extends JsonSerializer<List<String>>
+    @SuppressWarnings("serial")
+    static class ListSerializer extends StdSerializer<List<String>>
     {
+        public ListSerializer() { super(List.class); }
+
         @Override
         public void serialize(List<String> value, JsonGenerator gen, SerializerProvider provider)
             throws IOException
@@ -57,7 +61,6 @@ public class CollectionSerializationTest
         }
     }
 
-    // for [JACKSON-254], suppression of empty collections
     static class EmptyListBean {
         public List<String> empty = new ArrayList<String>();
     }

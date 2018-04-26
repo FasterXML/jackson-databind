@@ -56,7 +56,7 @@ public abstract class AsArraySerializerBase<T>
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<?> elementSerializer)
     {
-        super(cls, false);
+        super(cls);
         _elementType = et;
         // static if explicitly requested, or if element type is final
         _staticTyping = staticTyping || (et != null && et.isFinal());

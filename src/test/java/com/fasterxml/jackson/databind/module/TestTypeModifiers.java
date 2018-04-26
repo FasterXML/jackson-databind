@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.Serializers;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.type.*;
 
 @SuppressWarnings("serial")
@@ -76,8 +77,9 @@ public class TestTypeModifiers extends BaseMapTest
         }
     }
 
-    static class XxxSerializer extends JsonSerializer<Object>
+    static class XxxSerializer extends StdSerializer<Object>
     {
+        public XxxSerializer() { super(Object.class); }
         @Override
         public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeString("xxx:"+value);
@@ -122,12 +124,13 @@ public class TestTypeModifiers extends BaseMapTest
         public Integer getValue() { return value; }
     }
 
-    static class MyMapSerializer extends JsonSerializer<MapMarker<?,?>>
+    static class MyMapSerializer extends StdSerializer<MapMarker<?,?>>
     {
         protected final JsonSerializer<Object> _keySerializer;
         protected final JsonSerializer<Object> _valueSerializer;
-        
+
         public MyMapSerializer(JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer) {
+            super(MapMarker.class);
             _keySerializer = keySer;
             _valueSerializer = valueSer;
         }
@@ -162,8 +165,9 @@ public class TestTypeModifiers extends BaseMapTest
         }        
     }
 
-    static class MyCollectionSerializer extends JsonSerializer<MyCollectionLikeType>
+    static class MyCollectionSerializer extends StdSerializer<MyCollectionLikeType>
     {
+        public MyCollectionSerializer() { super(MyCollectionLikeType.class); }
         @Override
         public void serialize(MyCollectionLikeType value, JsonGenerator g, SerializerProvider provider) throws IOException {
             g.writeStartArray();

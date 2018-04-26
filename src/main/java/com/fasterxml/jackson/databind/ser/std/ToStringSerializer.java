@@ -37,7 +37,7 @@ public class ToStringSerializer
     public ToStringSerializer() { super(Object.class); }
 
     public ToStringSerializer(Class<?> handledType) {
-        super(handledType, false);
+        super(handledType);
     }
 
     @Override

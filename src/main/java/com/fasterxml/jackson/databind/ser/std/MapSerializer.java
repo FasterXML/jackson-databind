@@ -138,7 +138,7 @@ public class MapSerializer
             TypeSerializer vts,
             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
     {
-        super(Map.class, false);
+        super(Map.class);
         _ignoredEntries = ((ignoredEntries == null) || ignoredEntries.isEmpty())
                 ? null : ignoredEntries;
         _keyType = keyType;

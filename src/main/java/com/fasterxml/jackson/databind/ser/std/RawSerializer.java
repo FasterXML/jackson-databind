@@ -22,7 +22,7 @@ public class RawSerializer<T>
      * just take wild card and coerce type.
      */
     public RawSerializer(Class<?> cls) {
-        super(cls, false);
+        super(cls);
     }
 
     @Override

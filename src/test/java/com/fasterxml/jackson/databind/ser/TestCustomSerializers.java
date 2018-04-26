@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
 /**
@@ -25,8 +26,9 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 @SuppressWarnings("serial")
 public class TestCustomSerializers extends BaseMapTest
 {
-    static class ElementSerializer extends JsonSerializer<Element>
+    static class ElementSerializer extends StdSerializer<Element>
     {
+        public ElementSerializer() { super(Element.class); }
         @Override
         public void serialize(Element value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonProcessingException {
             gen.writeString("element");
@@ -183,6 +185,9 @@ public class TestCustomSerializers extends BaseMapTest
                     gen.writeNull();
                 }
             }
+
+            @Override
+            public Class<?> handledType() { return Collection.class; }
         });
         ObjectMapper mapper = ObjectMapper.builder()
                 .addModule(module)

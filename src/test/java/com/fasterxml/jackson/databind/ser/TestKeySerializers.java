@@ -11,31 +11,39 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+@SuppressWarnings("serial")
 public class TestKeySerializers extends BaseMapTest
 {
-    public static class KarlSerializer extends JsonSerializer<String>
+    public static class KarlSerializer extends StdSerializer<String>
     {
+        public KarlSerializer() { super(String.class); }
         @Override
         public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeFieldName("Karl");
         }
     }
 
-    public static class NullKeySerializer extends JsonSerializer<Object>
+    public static class NullKeySerializer extends StdSerializer<Object>
     {
         private String _null;
-        public NullKeySerializer(String s) { _null = s; }
+        public NullKeySerializer(String s) {
+            super(String.class);
+            _null = s;
+        }
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeFieldName(_null);
         }
     }
 
-    public static class NullValueSerializer extends JsonSerializer<Object>
+    public static class NullValueSerializer extends StdSerializer<Object>
     {
         private String _null;
-        public NullValueSerializer(String s) { _null = s; }
+        public NullValueSerializer(String s) { super(String.class);
+            _null = s;
+            }
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeString(_null);
@@ -72,7 +80,8 @@ public class TestKeySerializers extends BaseMapTest
         }
     }
     
-    static class ABCKeySerializer extends JsonSerializer<ABC> {
+    static class ABCKeySerializer extends StdSerializer<ABC> {
+        public ABCKeySerializer() { super(ABC.class); }
         @Override
         public void serialize(ABC value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException {

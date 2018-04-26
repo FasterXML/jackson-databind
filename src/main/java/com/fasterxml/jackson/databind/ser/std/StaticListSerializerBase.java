@@ -27,7 +27,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     protected final Boolean _unwrapSingle;
 
     protected StaticListSerializerBase(Class<?> cls) {
-        super(cls, false);
+        super(cls);
         _unwrapSingle = null;
     }
 

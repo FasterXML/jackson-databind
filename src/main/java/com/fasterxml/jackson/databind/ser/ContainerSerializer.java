@@ -41,7 +41,7 @@ public abstract class ContainerSerializer<T>
     /**********************************************************************
      */
 
-    protected ContainerSerializer(Class<T> t) {
+    protected ContainerSerializer(Class<?> t) {
         super(t);
         _property = null;
         _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
@@ -51,8 +51,9 @@ public abstract class ContainerSerializer<T>
      * Alternate constructor that is (alas!) needed to work
      * around kinks of generic type handling
      */
+    @Deprecated
     protected ContainerSerializer(Class<?> t, boolean dummy) {
-        super(t, dummy);
+        super(t);
         _property = null;
         _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
@@ -73,7 +74,7 @@ public abstract class ContainerSerializer<T>
     }
 
     protected ContainerSerializer(ContainerSerializer<?> src, BeanProperty prop) {
-        super(src._handledType, false);
+        super(src._handledType);
         _property = prop;
         // 16-Apr-2018, tatu: Could retain, possibly, in some cases... but may be
         //    dangerous as general practice so reset

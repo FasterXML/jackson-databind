@@ -7,12 +7,14 @@ import java.util.Map;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 // for [databind#827]
+@SuppressWarnings("serial")
 public class PolyMapWriter827Test extends BaseMapTest
 {
     static class CustomKey {
@@ -23,10 +25,11 @@ public class PolyMapWriter827Test extends BaseMapTest
         public String toString() { return "BAD-KEY"; }
     }
 
-    public class CustomKeySerializer extends JsonSerializer<CustomKey> {
+    public class CustomKeySerializer extends StdSerializer<CustomKey> {
+        public CustomKeySerializer() { super(CustomKey.class); }
         @Override
-        public void serialize(CustomKey key, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
-            jsonGenerator.writeFieldName(key.a + "," + key.b);
+        public void serialize(CustomKey key, JsonGenerator g, SerializerProvider serializerProvider) throws IOException {
+            g.writeFieldName(key.a + "," + key.b);
         }
     }
 

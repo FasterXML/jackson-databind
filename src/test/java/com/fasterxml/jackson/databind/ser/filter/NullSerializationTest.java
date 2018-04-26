@@ -13,12 +13,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.SerializerCache;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class NullSerializationTest
     extends BaseMapTest
 {
-    static class NullSerializer extends JsonSerializer<Object>
+    @SuppressWarnings("serial")
+    static class NullSerializer extends StdSerializer<Object>
     {
+        public NullSerializer() { super(Object.class); }
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
             throws IOException

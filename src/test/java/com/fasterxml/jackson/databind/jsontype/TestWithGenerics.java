@@ -80,7 +80,7 @@ public class TestWithGenerics extends BaseMapTest
         }
     
         @Override
-        public Class<Object> handledType() { return beanSerializer.handledType(); }
+        public Class<?> handledType() { return beanSerializer.handledType(); }
     
         @Override
         public void serializeWithType( Object value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer )

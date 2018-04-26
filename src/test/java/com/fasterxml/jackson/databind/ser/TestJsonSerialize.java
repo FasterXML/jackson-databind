@@ -8,20 +8,16 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
  * This unit test suite tests use of @JsonClass Annotation
  * with bean serialization.
  */
+@SuppressWarnings("serial")
 public class TestJsonSerialize
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Annotated helper classes
-    /**********************************************************
-     */
-
     interface ValueInterface {
         public int getX();
     }
@@ -80,14 +76,10 @@ public class TestJsonSerialize
         }
     }
 
-    @SuppressWarnings("serial")
     static class ValueMap extends HashMap<String,ValueInterface> { }
-    @SuppressWarnings("serial")
     static class ValueList extends ArrayList<ValueInterface> { }
-    @SuppressWarnings("serial")
     static class ValueLinkedList extends LinkedList<ValueInterface> { }
-    
-    // Classes for [JACKSON-294]
+
     static class Foo294
     {
         @JsonProperty private String id;
@@ -114,8 +106,9 @@ public class TestJsonSerialize
         public String getName() { return name; }
     }
 
-    static class Bar294Serializer extends JsonSerializer<Bar294>
+    static class Bar294Serializer extends StdSerializer<Bar294>
     {
+        public Bar294Serializer() { super(Bar294.class); }
         @Override
         public void serialize(Bar294 bar, JsonGenerator jgen,
             SerializerProvider provider) throws IOException

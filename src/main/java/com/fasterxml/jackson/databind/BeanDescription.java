@@ -193,7 +193,7 @@ public abstract class BeanDescription
      * defined by possible annotations and possible per-type config overrides.
      */
     public abstract JsonFormat.Value findExpectedFormat(Class<?> baseType);
-    
+
     /**
      * Method for finding {@link Converter} used for serializing instances
      * of this class.

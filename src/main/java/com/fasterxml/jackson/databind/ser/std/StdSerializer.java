@@ -42,7 +42,7 @@ public abstract class StdSerializer<T>
      * Nominal type supported, usually declared type of
      * property for which serializer is used.
      */
-    protected final Class<T> _handledType;
+    protected final Class<?> _handledType;
 
     /*
     /**********************************************************************
@@ -50,27 +50,25 @@ public abstract class StdSerializer<T>
     /**********************************************************************
      */
 
-    protected StdSerializer(Class<T> t) {
+    protected StdSerializer(Class<?> t) {
         _handledType = t;
     }
 
-    @SuppressWarnings("unchecked")
     protected StdSerializer(JavaType type) {
-        _handledType = (Class<T>) type.getRawClass();
+        _handledType = type.getRawClass();
     }
 
     /**
      * Alternate constructor that is (alas!) needed to work
      * around kinks of generic type handling
      */
-    @SuppressWarnings("unchecked")
+    @Deprecated // since 3.0
     protected StdSerializer(Class<?> t, boolean dummy) {
-        _handledType = (Class<T>) t;
+        _handledType = t;
     }
 
-    @SuppressWarnings("unchecked")
     protected StdSerializer(StdSerializer<?> src) {
-        _handledType = (Class<T>) src._handledType;
+        _handledType = src._handledType;
     }
 
     /*
@@ -80,7 +78,7 @@ public abstract class StdSerializer<T>
      */
 
     @Override
-    public Class<T> handledType() { return _handledType; }
+    public Class<?> handledType() { return _handledType; }
 
     /*
     /**********************************************************************

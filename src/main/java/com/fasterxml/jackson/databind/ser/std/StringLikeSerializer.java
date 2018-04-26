@@ -55,7 +55,7 @@ public class StringLikeSerializer
     private final int _type;
 
     public StringLikeSerializer(Class<?> handledType, int type) {
-        super(handledType, false);
+        super(handledType);
         _type = type;
     }
 

@@ -82,7 +82,7 @@ public class AnyGetterTest extends BaseMapTest
     static class Issue705Serializer extends StdSerializer<Object>
     {
         public Issue705Serializer() {
-            super(Map.class, false);
+            super(Map.class);
         }
 
         @Override

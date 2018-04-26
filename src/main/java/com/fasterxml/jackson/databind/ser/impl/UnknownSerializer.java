@@ -17,11 +17,8 @@ public class UnknownSerializer
         super(Object.class);
     }
 
-    /**
-     * @since 2.6
-     */
     public UnknownSerializer(Class<?> cls) {
-        super(cls, false);
+        super(cls);
     }
     
     @Override

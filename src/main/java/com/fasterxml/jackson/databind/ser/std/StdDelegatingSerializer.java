@@ -66,7 +66,7 @@ public class StdDelegatingSerializer
     @SuppressWarnings("unchecked")
     public <T> StdDelegatingSerializer(Class<T> cls, Converter<T,?> converter)
     {
-        super(cls, false);
+        super(cls);
         _converter = (Converter<Object,?>)converter;
         _delegateType = null;
         _delegateSerializer = null;

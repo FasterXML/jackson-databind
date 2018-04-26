@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 import java.util.Iterator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
@@ -151,6 +152,45 @@ public abstract class JsonSerializer<T>
         return this;
     }
 
+    /**
+     * Mutant factory called if there is need to create a serializer with specified
+     * format overrides (typically from property on which this serializer would be used,
+     * based on type declaration). Method is called before {@link #createContextual}
+     * but right after serializer is either constructed or fetched from cache.
+     *<p>
+     * Method can do one of three things:
+     *<ul>
+     * <li>Return {@code this} instance as is: this means that none of overrides has any effect
+     *  </li>
+     * <li>Return an alternate {@link JsonSerializer}, suitable for use with specified format
+     *  </li>
+     * <li>Return {@code null} to indicate that this serializer instance is not suitable for
+     *    handling format variation, but does not know how to construct new serializer: caller
+     *    will typically then call {@link SerializerFactory} with overrides to construct new serializer
+     *  </li>
+     *</ul>
+     * One example of second approach is the case where {@link JsonFormat.Shape#STRING} indicates String
+     * representation and code can just construct simple "string-like serializer", or variant of itself
+     * (similar to how {@link #createContextual} is often implemented).
+     * And third case (returning {@code null}) is applicable for cases like format defines
+     * {@link JsonFormat.Shape#POJO}, requesting "introspect serializer for POJO regardless of type":
+     * {@link SerializerFactory} is needed for full re-introspection, typically.
+     *
+     * @param formatOverrides (not null) Override settings, NOT including original format settings (which
+     *    serializer needs to explicitly retain if needed)
+     *
+     * @since 3.0
+     */
+    public JsonSerializer<?> withFormatOverride(SerializationConfig config,
+            JsonFormat.Value formatOverrides)
+    {
+        // First: if no override, safe to use as is:
+        if (formatOverrides.getShape() == JsonFormat.Shape.ANY) {
+            return this;
+        }
+        return null;
+    }
+
     /*
     /**********************************************************************
     /* Serialization methods
@@ -211,7 +251,7 @@ public abstract class JsonSerializer<T>
 
     /*
     /**********************************************************************
-    /* Other accessors
+    /* Accessors for serializer metadata
     /**********************************************************************
      */
 
@@ -221,26 +261,10 @@ public abstract class JsonSerializer<T>
      * may be a more generic (super-type) -- but it should not be
      * incorrect (return a non-related type).
      *<p>
-     * Default implementation will return null, which essentially means
-     * same as returning <code>Object.class</code> would; that is, that
-     * nothing is known about handled type.
-     *<p>
+     * NOTE: starting with 3.0, left {@code abstract}.
      */
-    public Class<T> handledType() { return null; }
+    public Class<?> handledType() { return Object.class; }
 
-    /**
-     * Method called to check whether given serializable value is
-     * considered "empty" value (for purposes of suppressing serialization
-     * of empty values).
-     *<p>
-     * Default implementation will consider only null values to be empty.
-     */
-    public boolean isEmpty(SerializerProvider provider, T value)
-        throws IOException
-    {
-        return (value == null);
-    }
-    
     /**
      * Method that can be called to see whether this serializer instance
      * will use Object Id to handle cyclic references.
@@ -258,7 +282,7 @@ public abstract class JsonSerializer<T>
     public boolean isUnwrappingSerializer() {
         return false;
     }
-    
+
     /**
      * Accessor that can be used to determine if this serializer uses
      * another serializer for actual serialization, by delegating
@@ -282,6 +306,25 @@ public abstract class JsonSerializer<T>
      */
     public Iterator<PropertyWriter> properties() {
         return ClassUtil.emptyIterator();
+    }
+
+    /*
+    /**********************************************************************
+    /* Accessors for introspecting handling of values
+    /**********************************************************************
+     */
+    
+    /**
+     * Method called to check whether given serializable value is
+     * considered "empty" value (for purposes of suppressing serialization
+     * of empty values).
+     *<p>
+     * Default implementation will consider only null values to be empty.
+     */
+    public boolean isEmpty(SerializerProvider provider, T value)
+        throws IOException
+    {
+        return (value == null);
     }
 
     /*

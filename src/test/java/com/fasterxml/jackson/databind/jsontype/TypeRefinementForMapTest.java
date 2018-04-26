@@ -9,7 +9,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+@SuppressWarnings("serial")
 public class TypeRefinementForMapTest extends BaseMapTest
 {
     interface HasUniqueId<K> {
@@ -36,7 +38,6 @@ public class TypeRefinementForMapTest extends BaseMapTest
 //        public MyHashMap<String, Item> items;
     }
 
-    @SuppressWarnings("serial")
     static class MyHashMap<K, V extends HasUniqueId<K>>
         extends LinkedHashMap<K, V>
     {
@@ -84,7 +85,8 @@ public class TypeRefinementForMapTest extends BaseMapTest
         }
     }
 
-    static class CompoundKeySerializer extends JsonSerializer<CompoundKey> {
+    static class CompoundKeySerializer extends StdSerializer<CompoundKey> {
+        public CompoundKeySerializer() { super(CompoundKey.class); }
         @Override
         public void serialize(CompoundKey compoundKey, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeFieldName(compoundKey.getPart0() + '|' + compoundKey.getPart1());

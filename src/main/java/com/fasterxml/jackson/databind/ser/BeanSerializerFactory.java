@@ -222,7 +222,7 @@ public class BeanSerializerFactory
                     ser = findBeanSerializer(ctxt, beanDesc, type, formatOverrides);
                     // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
                     if (ser == null) {
-                        ser = findSerializerByAddonType(config, type, beanDesc, formatOverrides, staticTyping);
+                        ser = findSerializerByAddonType(ctxt, type, beanDesc, formatOverrides, staticTyping);
                         // 18-Sep-2014, tatu: Actually, as per [jackson-databind#539], need to get
                         //   'unknown' serializer assigned earlier, here, so that it gets properly
                         //   post-processed
@@ -333,7 +333,7 @@ public class BeanSerializerFactory
             // copied from BasicSerializerFactory.buildMapSerializer():
             boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
             JavaType valueType = type.getContentType();
-            TypeSerializer typeSer = findTypeSerializer(config, valueType);
+            TypeSerializer typeSer = findTypeSerializer(ctxt, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
             // 23-Feb-2015, tatu: As per [databind#705], need to support custom serializers
             JsonSerializer<?> anySer = findSerializerFromAnnotation(ctxt, anyGetter);
@@ -707,10 +707,10 @@ public class BeanSerializerFactory
         TypeSerializer contentTypeSer = null;
         // 16-Feb-2014, cgc: contentType serializers for collection-like and map-like types
         if (type.isContainerType() || type.isReferenceType()) {
-            contentTypeSer = findPropertyContentTypeSerializer(type, ctxt.getConfig(), accessor);
+            contentTypeSer = findPropertyContentTypeSerializer(ctxt, type, accessor);
         }
         // and if not JAXB collection/array with annotations, maybe regular type info?
-        TypeSerializer typeSer = findPropertyTypeSerializer(type, ctxt.getConfig(), accessor);
+        TypeSerializer typeSer = findPropertyTypeSerializer(ctxt, type, accessor);
         return pb.buildWriter(ctxt, propDef, type, annotatedSerializer,
                         typeSer, contentTypeSer, accessor, staticTyping);
     }

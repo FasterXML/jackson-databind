@@ -68,7 +68,7 @@ public class JacksonAnnotationIntrospector
      *<p>
      * Non-final only because it needs to be re-created after deserialization.
      */
-    protected transient SimpleLookupCache<Class<?>,Boolean> _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 48);
+    protected transient SimpleLookupCache<Class<?>,Boolean> _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 96);
 
     /*
     /**********************************************************************

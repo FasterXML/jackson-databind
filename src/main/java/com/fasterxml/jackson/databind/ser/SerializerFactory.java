@@ -20,14 +20,14 @@ public abstract class SerializerFactory
     /**
      * Method called to create (or, for immutable serializers, reuse) a serializer for given type. 
      * 
-     * @param prov (not null) Provider that needs to be used to resolve annotation-provided
+     * @param ctxt (not null) Context that needs to be used to resolve annotation-provided
      *    serializers (but NOT for others)
      * @param formatOverride (nullable) Possible format overrides (from property annotations)
      *    to use, above and beyond what `beanDesc` defines
      *
      * @since 3.0 (last argument added)
      */
-    public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
+    public abstract JsonSerializer<Object> createSerializer(SerializerProvider ctxt,
             JavaType baseType, BeanDescription beanDesc, JsonFormat.Value formatOverride)
         throws JsonMappingException;
 
@@ -40,15 +40,15 @@ public abstract class SerializerFactory
      * 
      * @return Type serializer to use for the base type, if one is needed; null if not.
      */
-    public abstract TypeSerializer findTypeSerializer(SerializationConfig config,
+    public abstract TypeSerializer findTypeSerializer(SerializerProvider ctxt,
             JavaType baseType, BeanDescription beanDesc)
         throws JsonMappingException;
 
-    public TypeSerializer findTypeSerializer(SerializationConfig config,
+    public TypeSerializer findTypeSerializer(SerializerProvider ctxt,
             JavaType baseType) throws JsonMappingException
     {
-        return findTypeSerializer(config, baseType,
-                config.introspectClassAnnotations(baseType));
+        return findTypeSerializer(ctxt, baseType,
+                ctxt.introspectClassAnnotations(baseType));
     }
 
     /**
@@ -122,10 +122,10 @@ public abstract class SerializerFactory
      * @deprecated Since 3.0 use variant that takes {@code JsonFormat.Value} argument
      */
     @Deprecated // since 3.0
-    public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType baseType)
+    public JsonSerializer<Object> createSerializer(SerializerProvider ctxt, JavaType baseType)
         throws JsonMappingException
     {
-        BeanDescription beanDesc = prov.introspect(baseType);
-        return createSerializer(prov, baseType, beanDesc, null);
+        BeanDescription beanDesc = ctxt.introspect(baseType);
+        return createSerializer(ctxt, baseType, beanDesc, null);
     }
 }

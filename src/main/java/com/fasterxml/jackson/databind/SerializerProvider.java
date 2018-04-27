@@ -430,6 +430,11 @@ public abstract class SerializerProvider
         return _config.introspect(type);
     }
 
+    public BeanDescription introspectClassAnnotations(Class<?> rawType) throws JsonMappingException
+    {
+        return _config.introspectClassAnnotations(rawType);
+    }
+
     public BeanDescription introspectClassAnnotations(JavaType type) throws JsonMappingException
     {
         return _config.introspectClassAnnotations(type);
@@ -464,7 +469,7 @@ public abstract class SerializerProvider
         // If not, compose from pieces:
         JavaType fullType = _config.constructType(rawType);
         ser = handleRootContextualization(findValueSerializer(rawType));
-        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, fullType);
+        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(this, fullType);
         if (typeSer != null) {
             typeSer = typeSer.forProperty(null);
             ser = new TypeWrappedSerializer(typeSer, ser);
@@ -496,7 +501,7 @@ public abstract class SerializerProvider
             return ser;
         }
         ser = handleRootContextualization(findValueSerializer(valueType));
-        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(_config, valueType);
+        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(this, valueType);
         if (typeSer != null) {
             typeSer = typeSer.forProperty(null);
             ser = new TypeWrappedSerializer(typeSer, ser);
@@ -667,7 +672,7 @@ public abstract class SerializerProvider
      * Useful for schema generators.
      */
     public TypeSerializer findTypeSerializer(JavaType javaType) throws JsonMappingException {
-        return _serializerFactory.findTypeSerializer(_config, javaType);
+        return _serializerFactory.findTypeSerializer(this, javaType);
     }
 
     /**

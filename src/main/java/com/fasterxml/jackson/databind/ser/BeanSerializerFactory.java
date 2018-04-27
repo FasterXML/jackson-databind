@@ -145,7 +145,7 @@ public class BeanSerializerFactory
         } else { // changes; assume static typing; plus, need to re-introspect if class differs
             staticTyping = true;
             if (!type.hasRawClass(origType.getRawClass())) {
-                beanDesc = config.introspect(type);
+                beanDesc = ctxt.introspect(type);
             }
         }
         // Slight detour: do we have a Converter to consider?
@@ -155,7 +155,7 @@ public class BeanSerializerFactory
             
             // One more twist, as per [databind#288]; probably need to get new BeanDesc
             if (!delegateType.hasRawClass(type.getRawClass())) {
-                beanDesc = config.introspect(delegateType);
+                beanDesc = ctxt.introspect(delegateType);
                 // [#359]: explicitly check (again) for @JsonSerializer...
                 ser = findSerializerFromAnnotation(ctxt, beanDesc.getClassInfo());
             }

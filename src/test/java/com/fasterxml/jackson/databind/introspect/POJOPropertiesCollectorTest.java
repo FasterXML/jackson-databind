@@ -417,7 +417,7 @@ public class POJOPropertiesCollectorTest
 
     public void testInnerClassWithAnnotationsInCreator() throws Exception
     {
-        BasicBeanDescription beanDesc;
+        BeanDescription beanDesc;
         // first with serialization
         beanDesc = MAPPER.serializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
         assertNotNull(beanDesc);
@@ -432,7 +432,7 @@ public class POJOPropertiesCollectorTest
         ObjectMapper mapper = ObjectMapper.builder()
                 .disable(MapperFeature.USE_ANNOTATIONS)
                 .build();
-        BasicBeanDescription beanDesc = mapper.serializationConfig().introspect(mapper.constructType(Jackson703.class));
+        BeanDescription beanDesc = mapper.serializationConfig().introspect(mapper.constructType(Jackson703.class));
         assertNotNull(beanDesc);
 
         Jackson703 bean = new Jackson703();

@@ -453,6 +453,28 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************************
+    /* Introspection support
+    /**********************************************************************
+     */
+
+    /**
+     * Convenience method for doing full "for serialization" introspection of specified
+     * type; results may be cached during lifespan of this context as well.
+     */
+    public BeanDescription introspect(JavaType type) throws JsonMappingException {
+        return _config.introspect(type);
+    }
+
+    public BeanDescription introspectForCreation(JavaType type) throws JsonMappingException{
+        return _config.introspectForCreation(type);
+    }
+
+    public BeanDescription introspectForBuilder(JavaType type) throws JsonMappingException {
+        return _config.introspectForBuilder(type);
+    }
+
+    /*
+    /**********************************************************************
     /* Public API, pass-through to DeserializerCache
     /**********************************************************************
      */

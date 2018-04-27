@@ -63,7 +63,7 @@ public abstract class SerializerFactory
      * @return Serializer to use, if factory knows it; null if not (in which case default
      *   serializer is to be used)
      */
-    public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config,
+    public abstract JsonSerializer<Object> createKeySerializer(SerializerProvider ctxt,
             JavaType type, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException;
 
@@ -125,7 +125,7 @@ public abstract class SerializerFactory
     public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType baseType)
         throws JsonMappingException
     {
-        BeanDescription beanDesc = prov.getConfig().introspect(baseType);
+        BeanDescription beanDesc = prov.introspect(baseType);
         return createSerializer(prov, baseType, beanDesc, null);
     }
 }

@@ -417,6 +417,26 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************************
+    /* Introspection support
+    /**********************************************************************
+     */
+    
+    /**
+     * Convenience method for doing full "for serialization" introspection of specified
+     * type; results may be cached during lifespan of this context as well.
+     */
+    public BeanDescription introspect(JavaType type) throws JsonMappingException
+    {
+        return _config.introspect(type);
+    }
+
+    public BeanDescription introspectClassAnnotations(JavaType type) throws JsonMappingException
+    {
+        return _config.introspectClassAnnotations(type);
+    }
+    
+    /*
+    /**********************************************************************
     /* Serializer discovery: root/non-property value serializers
     /**********************************************************************
      */
@@ -665,7 +685,7 @@ public abstract class SerializerProvider
     {
         // 16-Mar-2018, tatu: Used to have "default key serializer" in 2.x; dropped to let/make
         //    custom code use Module interface or similar to provide key serializers
-        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType, null);
+        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType, null);
         // _handleContextualResolvable(ser, property):
         ser.resolve(this);
         return handleSecondaryContextualization(ser, property);
@@ -766,7 +786,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // Important: must introspect all annotations, not just class
-        BeanDescription beanDesc = _config.introspect(fullType);
+        BeanDescription beanDesc = introspect(fullType);
         JsonSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
@@ -783,7 +803,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // Important: must introspect all annotations, not just class
-        BeanDescription beanDesc = _config.introspect(type);
+        BeanDescription beanDesc = introspect(type);
         JsonSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, type, beanDesc, null);

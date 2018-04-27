@@ -1184,7 +1184,7 @@ nonAnnotatedParamIndex, ctor);
                 } else {
                     type = implType;
                     // But if so, also need to re-check creators...
-                    beanDesc = config.introspectForCreation(type);
+                    beanDesc = ctxt.introspectForCreation(type);
                 }
             }
             if (deser == null) {
@@ -1336,7 +1336,7 @@ nonAnnotatedParamIndex, ctor);
                         mapClass = fallback;
                         type = (MapType) config.constructSpecializedType(type, mapClass);
                         // But if so, also need to re-check creators...
-                        beanDesc = config.introspectForCreation(type);
+                        beanDesc = ctxt.introspectForCreation(type);
                     } else {
                         // [databind#292]: Actually, may be fine, but only if polymorphic deser enabled
                         if (type.getTypeHandler() == null) {
@@ -1637,7 +1637,7 @@ nonAnnotatedParamIndex, ctor);
             if (type.isEnumType()) {
                 deser = _createEnumKeyDeserializer(ctxt, type);
             } else {
-                deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
+                deser = StdKeyDeserializers.findStringBasedKeyDeserializer(ctxt, type);
             }
         }
         // and then post-processing
@@ -1658,7 +1658,7 @@ nonAnnotatedParamIndex, ctor);
         final DeserializationConfig config = ctxt.getConfig();
         Class<?> enumClass = type.getRawClass();
 
-        BeanDescription beanDesc = config.introspect(type);
+        BeanDescription beanDesc = ctxt.introspect(type);
         // 24-Sep-2015, bim: a key deserializer is the preferred thing.
         KeyDeserializer des = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
         if (des != null) {

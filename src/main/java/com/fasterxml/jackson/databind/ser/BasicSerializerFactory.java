@@ -179,12 +179,14 @@ public abstract class BasicSerializerFactory
 
     @Override
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> createKeySerializer(SerializationConfig config,
+    public JsonSerializer<Object> createKeySerializer(SerializerProvider ctxt,
             JavaType keyType, JsonSerializer<Object> defaultImpl)
+        throws JsonMappingException
     {
         // We should not need any member method info; at most class annotations for Map type
         // ... at least, not here.
-        BeanDescription beanDesc = config.introspectClassAnnotations(keyType.getRawClass());
+        BeanDescription beanDesc = ctxt.introspectClassAnnotations(keyType);
+        final SerializationConfig config = ctxt.getConfig();
         JsonSerializer<?> ser = null;
         // Minor optimization: to avoid constructing beanDesc, bail out if none registered
         if (_factoryConfig.hasKeySerializers()) {
@@ -200,7 +202,7 @@ public abstract class BasicSerializerFactory
             ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
             // As per [databind#47], also need to support @JsonValue
             if (ser == null) {
-                beanDesc = config.introspect(keyType);
+                beanDesc = ctxt.introspect(keyType);
                 AnnotatedMember am = beanDesc.findJsonValueAccessor();
                 if (am != null) {
                     final Class<?> rawType = am.getRawType();

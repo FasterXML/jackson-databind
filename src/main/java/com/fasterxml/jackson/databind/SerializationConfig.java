@@ -555,8 +555,7 @@ public final class SerializationConfig
      * Method that will introspect full bean properties for the purpose
      * of building a bean serializer
      */
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspect(JavaType type) {
-        return (T) getClassIntrospector().forSerialization(this, type, this);
+    public BeanDescription introspect(JavaType type) {
+        return getClassIntrospector().forSerialization(this, type, this);
     }
 }

@@ -31,7 +31,7 @@ public class SerConfigTest extends BaseMapTest
         assertSame(config, config.with(config.getAttributes()));
         assertNotSame(config, config.with(new ContextAttributes.Impl(Collections.singletonMap("a", "b"))));
 
-        assertNotNull(config.introspectDirectClassAnnotations(getClass()));
+//        assertNotNull(config.introspectDirectClassAnnotations(getClass()));
     }
 
     public void testGeneratorFeatures() throws Exception

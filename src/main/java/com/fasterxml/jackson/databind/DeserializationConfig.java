@@ -609,23 +609,20 @@ public final class DeserializationConfig
      *
      * @param type Type of class to be introspected
      */
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspect(JavaType type) {
-        return (T) getClassIntrospector().forDeserialization(this, type, this);
+    public BeanDescription introspect(JavaType type) {
+        return getClassIntrospector().forDeserialization(this, type, this);
     }
 
     /**
      * Method that will introspect subset of bean properties needed to
      * construct bean instance.
      */
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspectForCreation(JavaType type) {
-        return (T) getClassIntrospector().forCreation(this, type, this);
+    public BeanDescription introspectForCreation(JavaType type) {
+        return getClassIntrospector().forCreation(this, type, this);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspectForBuilder(JavaType type) {
-        return (T) getClassIntrospector().forDeserializationWithBuilder(this, type, this);
+    public BeanDescription introspectForBuilder(JavaType type) {
+        return getClassIntrospector().forDeserializationWithBuilder(this, type, this);
     }
 
     /*

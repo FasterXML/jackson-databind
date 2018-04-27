@@ -45,18 +45,19 @@ public class StdKeyDeserializers
         return new StdKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
     }
     
-    public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationConfig config,
+    public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
+        throws JsonMappingException
     {
         /* We don't need full deserialization information, just need to
          * know creators.
          */
-        BeanDescription beanDesc = config.introspect(type);
+        BeanDescription beanDesc = ctxt.introspect(type);
         // Ok, so: can we find T(String) constructor?
         Constructor<?> ctor = beanDesc.findSingleArgConstructor(String.class);
         if (ctor != null) {
-            if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(ctor, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            if (ctxt.canOverrideAccessModifiers()) {
+                ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             return new StdKeyDeserializer.StringCtorKeyDeserializer(ctor);
         }
@@ -65,8 +66,8 @@ public class StdKeyDeserializers
          */
         Method m = beanDesc.findFactoryMethod(String.class);
         if (m != null){
-            if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(m, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            if (ctxt.canOverrideAccessModifiers()) {
+                ClassUtil.checkAndFixAccess(m, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             return new StdKeyDeserializer.StringFactoryKeyDeserializer(m);
         }

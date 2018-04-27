@@ -114,7 +114,7 @@ public class BeanDeserializerFactory
             if (concreteType != null) {
                 // important: introspect actual implementation (abstract class or
                 // interface doesn't have constructors, for one)
-                beanDesc = config.introspect(concreteType);
+                beanDesc = ctxt.introspect(concreteType);
                 return buildBeanDeserializer(ctxt, concreteType, beanDesc);
             }
         }
@@ -148,7 +148,7 @@ public class BeanDeserializerFactory
         } else {
             builderType = ctxt.constructType(builderClass);
         }
-        BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
+        BeanDescription builderDesc = ctxt.introspectForBuilder(builderType);
         return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
     }
 

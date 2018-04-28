@@ -166,15 +166,15 @@ public abstract class JsonSerializer<T>
      *  </li>
      * <li>Return {@code null} to indicate that this serializer instance is not suitable for
      *    handling format variation, but does not know how to construct new serializer: caller
-     *    will typically then call {@link SerializerFactory} with overrides to construct new serializer
+     *    will typically then call {@link com.fasterxml.jackson.databind.ser.SerializerFactory} with overrides to construct new serializer
      *  </li>
      *</ul>
-     * One example of second approach is the case where {@link JsonFormat.Shape#STRING} indicates String
+     * One example of second approach is the case where {@link com.fasterxml.jackson.annotation.JsonFormat.Shape#STRING} indicates String
      * representation and code can just construct simple "string-like serializer", or variant of itself
      * (similar to how {@link #createContextual} is often implemented).
      * And third case (returning {@code null}) is applicable for cases like format defines
-     * {@link JsonFormat.Shape#POJO}, requesting "introspect serializer for POJO regardless of type":
-     * {@link SerializerFactory} is needed for full re-introspection, typically.
+     * {@link com.fasterxml.jackson.annotation.JsonFormat.Shape#POJO}, requesting "introspect serializer for POJO regardless of type":
+     * {@link com.fasterxml.jackson.databind.ser.SerializerFactory} is needed for full re-introspection, typically.
      *
      * @param formatOverrides (not null) Override settings, NOT including original format settings (which
      *    serializer needs to explicitly retain if needed)

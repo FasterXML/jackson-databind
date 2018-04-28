@@ -465,6 +465,10 @@ public abstract class DeserializationContext
         return _config.introspect(type);
     }
 
+    public BeanDescription introspectClassAnnotations(JavaType type) throws JsonMappingException {
+        return _config.introspectClassAnnotations(type);
+    }
+
     public BeanDescription introspectForCreation(JavaType type) throws JsonMappingException{
         return _config.introspectForCreation(type);
     }
@@ -524,7 +528,7 @@ public abstract class DeserializationContext
             return null;
         }
         deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null, type);
-        TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
+        TypeDeserializer typeDeser = findTypeDeserializer(type);
         if (typeDeser != null) {
             // important: contextualize to indicate this is for root value
             typeDeser = typeDeser.forProperty(null);
@@ -534,13 +538,35 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Convenience method, functionally same as:
-     *<pre>
-     *  getDeserializerProvider().findKeyDeserializer(getConfig(), prop.getType(), prop);
-     *</pre>
+     * Method called to find and create a type information deserializer for given base type,
+     * if one is needed. If not needed (no polymorphic handling configured for type),
+     * should return null.
+     *<p>
+     * Note that this method is usually only directly called for values of container (Collection,
+     * array, Map) types and root values, but not for bean property values.
+     *
+     * @param baseType Declared base type of the value to deserializer (actual
+     *    deserializer type will be this type or its subtype)
+     * 
+     * @return Type deserializer to use for given base type, if one is needed; null if not.
      */
+    public TypeDeserializer findTypeDeserializer(JavaType baseType)
+        throws JsonMappingException
+    {
+        return findTypeDeserializer(baseType, introspectClassAnnotations(baseType));
+    }
+
+    public TypeDeserializer findTypeDeserializer(JavaType baseType,
+            BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        return _config.getTypeResolverProvider().findTypeDeserializer(this,
+                baseType, beanDesc.getClassInfo());
+    }
+
     public final KeyDeserializer findKeyDeserializer(JavaType keyType,
-            BeanProperty prop) throws JsonMappingException {
+            BeanProperty prop) throws JsonMappingException
+    {
         KeyDeserializer kd = _cache.findKeyDeserializer(this,
                 _factory, keyType);
         // Second: contextualize?

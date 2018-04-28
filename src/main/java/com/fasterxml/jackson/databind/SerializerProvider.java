@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
@@ -425,18 +426,15 @@ public abstract class SerializerProvider
      * Convenience method for doing full "for serialization" introspection of specified
      * type; results may be cached during lifespan of this context as well.
      */
-    public BeanDescription introspect(JavaType type) throws JsonMappingException
-    {
+    public BeanDescription introspect(JavaType type) throws JsonMappingException {
         return _config.introspect(type);
     }
 
-    public BeanDescription introspectClassAnnotations(Class<?> rawType) throws JsonMappingException
-    {
+    public BeanDescription introspectClassAnnotations(Class<?> rawType) throws JsonMappingException {
         return _config.introspectClassAnnotations(rawType);
     }
 
-    public BeanDescription introspectClassAnnotations(JavaType type) throws JsonMappingException
-    {
+    public BeanDescription introspectClassAnnotations(JavaType type) throws JsonMappingException {
         return _config.introspectClassAnnotations(type);
     }
     
@@ -687,6 +685,26 @@ public abstract class SerializerProvider
             throws JsonMappingException {
         return _config.getTypeResolverProvider().findTypeSerializer(this, baseType,
                 beanDesc.getClassInfo());
+    }
+
+    /**
+     * Like {@link #findTypeSerializer(JavaType)}, but for use from specific POJO property.
+     * Method called to create a type information serializer for values of given
+     * non-container property
+     * if one is needed. If not needed (no polymorphic handling configured), should
+     * return null.
+     *
+     * @param baseType Declared type to use as the base type for type information serializer
+     * 
+     * @return Type serializer to use for property values, if one is needed; null if not.
+     *
+     * @since 3.0
+     */
+    public TypeSerializer findPropertyTypeSerializer(JavaType baseType, AnnotatedMember accessor)
+            throws JsonMappingException
+    {
+        return _config.getTypeResolverProvider()
+                .findPropertyTypeSerializer(this, accessor, baseType);
     }
 
     /**

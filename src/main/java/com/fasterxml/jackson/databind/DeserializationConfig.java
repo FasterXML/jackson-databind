@@ -636,6 +636,7 @@ public final class DeserializationConfig
      * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
      * or various "optional" types.
      */
+    /*
     public TypeDeserializer findTypeDeserializer(JavaType baseType)
         throws JsonMappingException
     {
@@ -643,4 +644,5 @@ public final class DeserializationConfig
         return getTypeResolverProvider().findTypeDeserializer(this, baseType,
                 beanDesc.getClassInfo());
     }
+    */
 }

@@ -41,11 +41,10 @@ public class TypeResolverProvider
      * This includes not only
      * instantiating resolver builder, but also configuring it based on
      * relevant annotations (not including ones checked with a call to
-     * {@link #findSubtypes}
+     * {@code findSubtypes()}
      *
-     * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param classInfo Introspected annotation information for the class (type)
      * @param baseType Base java type of value for which resolver is to be found
+     * @param classInfo Introspected annotation information for the class (type)
      * 
      * @return Type resolver builder for given type, if one found; null if none
      */
@@ -71,10 +70,11 @@ public class TypeResolverProvider
         return b.buildTypeSerializer(config, baseType, subtypes);
     }
 
-    public TypeDeserializer findTypeDeserializer(DeserializationConfig config,
+    public TypeDeserializer findTypeDeserializer(DeserializationContext ctxt,
             JavaType baseType, AnnotatedClass classInfo)
         throws JsonMappingException
     {
+        final DeserializationConfig config = ctxt.getConfig();
         TypeResolverBuilder<?> b = _findTypeResolver(config, classInfo, baseType);
 
         // Ok: if there is no explicit type info handler, we may want to
@@ -117,7 +117,7 @@ public class TypeResolverProvider
         }
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {
-            BeanDescription bean = ctxt.introspectClassAnnotations(baseType.getRawClass());
+            BeanDescription bean = ctxt.introspectClassAnnotations(baseType);
             return findTypeSerializer(ctxt, baseType, bean.getClassInfo());
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
@@ -127,19 +127,20 @@ public class TypeResolverProvider
         return b.buildTypeSerializer(config, baseType, subtypes);
     }
 
-    public TypeDeserializer findPropertyTypeDeserializer(DeserializationConfig config,
+    public TypeDeserializer findPropertyTypeDeserializer(DeserializationContext ctxt,
             AnnotatedMember accessor, JavaType baseType)
         throws JsonMappingException
     {
         TypeResolverBuilder<?> b = null;
+        final DeserializationConfig config = ctxt.getConfig();
         // As per definition of @JsonTypeInfo, check for annotation only for non-container types
         if (!baseType.isContainerType() && !baseType.isReferenceType()) {
             b = _findTypeResolver(config, accessor, baseType);
         }
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {
-            return findTypeDeserializer(config, baseType,
-                    config.introspectClassAnnotations(baseType.getRawClass()).getClassInfo());
+            BeanDescription bean = ctxt.introspectClassAnnotations(baseType);
+            return findTypeDeserializer(ctxt, baseType, bean.getClassInfo());
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,
                     accessor, baseType);
@@ -176,11 +177,12 @@ public class TypeResolverProvider
         return b.buildTypeSerializer(config, contentType, subtypes);
     }
 
-    public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationConfig config,
+    public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationContext ctxt,
             AnnotatedMember accessor, JavaType containerType)
         throws JsonMappingException
     {
         final JavaType contentType = containerType.getContentType();
+        final DeserializationConfig config = ctxt.getConfig();
         // First: let's ensure property is a container type: caller should have
         // verified but just to be sure
         if (contentType == null) {
@@ -188,8 +190,8 @@ public class TypeResolverProvider
         }
         TypeResolverBuilder<?> b = _findTypeResolver(config, accessor, containerType);
         if (b == null) {
-            return findTypeDeserializer(config, contentType,
-                    config.introspectClassAnnotations(contentType.getRawClass()).getClassInfo());
+            BeanDescription beanDesc = ctxt.introspectClassAnnotations(contentType);
+            return findTypeDeserializer(ctxt, contentType, beanDesc.getClassInfo());
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,
                 accessor, contentType);

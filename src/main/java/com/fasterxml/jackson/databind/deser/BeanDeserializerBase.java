@@ -615,7 +615,7 @@ public abstract class BeanDeserializerBase
 
         TypeDeserializer td = delegateType.getTypeHandler();
         if (td == null) {
-            td = ctxt.getConfig().findTypeDeserializer(delegateType);
+            td = ctxt.findTypeDeserializer(delegateType);
         }
         JsonDeserializer<Object> dd = findDeserializer(ctxt, delegateType, property);
         if (td != null) {

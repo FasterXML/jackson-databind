@@ -333,7 +333,7 @@ public class BeanSerializerFactory
             // copied from BasicSerializerFactory.buildMapSerializer():
             boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
             JavaType valueType = type.getContentType();
-            TypeSerializer typeSer = findTypeSerializer(ctxt, valueType);
+            TypeSerializer typeSer = ctxt.findTypeSerializer(valueType);
             // last 2 nulls; don't know key, value serializers (yet)
             // 23-Feb-2015, tatu: As per [databind#705], need to support custom serializers
             JsonSerializer<?> anySer = findSerializerFromAnnotation(ctxt, anyGetter);

@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Abstract class that defines API used by {@link SerializerProvider}
@@ -30,26 +29,6 @@ public abstract class SerializerFactory
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider ctxt,
             JavaType baseType, BeanDescription beanDesc, JsonFormat.Value formatOverride)
         throws JsonMappingException;
-
-    /**
-     * Method called to create a type information serializer for given base type,
-     * if one is needed. If not needed (no polymorphic handling configured), should
-     * return null.
-     *
-     * @param baseType Declared type to use as the base type for type information serializer
-     * 
-     * @return Type serializer to use for the base type, if one is needed; null if not.
-     */
-    public abstract TypeSerializer findTypeSerializer(SerializerProvider ctxt,
-            JavaType baseType, BeanDescription beanDesc)
-        throws JsonMappingException;
-
-    public TypeSerializer findTypeSerializer(SerializerProvider ctxt,
-            JavaType baseType) throws JsonMappingException
-    {
-        return findTypeSerializer(ctxt, baseType,
-                ctxt.introspectClassAnnotations(baseType));
-    }
 
     /**
      * Method called to create serializer to use for serializing JSON property names (which must

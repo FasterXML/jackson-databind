@@ -469,7 +469,7 @@ public abstract class SerializerProvider
         // If not, compose from pieces:
         JavaType fullType = _config.constructType(rawType);
         ser = handleRootContextualization(findValueSerializer(rawType));
-        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(this, fullType);
+        TypeSerializer typeSer = findTypeSerializer(fullType);
         if (typeSer != null) {
             typeSer = typeSer.forProperty(null);
             ser = new TypeWrappedSerializer(typeSer, ser);
@@ -501,7 +501,7 @@ public abstract class SerializerProvider
             return ser;
         }
         ser = handleRootContextualization(findValueSerializer(valueType));
-        TypeSerializer typeSer = _serializerFactory.findTypeSerializer(this, valueType);
+        TypeSerializer typeSer = findTypeSerializer(valueType);
         if (typeSer != null) {
             typeSer = typeSer.forProperty(null);
             ser = new TypeWrappedSerializer(typeSer, ser);
@@ -665,14 +665,28 @@ public abstract class SerializerProvider
     /* Serializer discovery: other kinds of serializers; type, key
     /**********************************************************************
      */
-    
+
     /**
      * Method called to get the {@link TypeSerializer} to use for including Type Id necessary
      * for serializing for the given Java class.
      * Useful for schema generators.
      */
-    public TypeSerializer findTypeSerializer(JavaType javaType) throws JsonMappingException {
-        return _serializerFactory.findTypeSerializer(this, javaType);
+    public TypeSerializer findTypeSerializer(JavaType baseType) throws JsonMappingException {
+        return _config.getTypeResolverProvider().findTypeSerializer(this, baseType,
+                introspectClassAnnotations(baseType).getClassInfo());
+    }
+
+    /**
+     * Method called to get the {@link TypeSerializer} to use for including Type Id necessary
+     * for serializing for the given Java class.
+     * Useful for schema generators.
+     *
+     * @since 3.0
+     */
+    public TypeSerializer findTypeSerializer(JavaType baseType, BeanDescription beanDesc)
+            throws JsonMappingException {
+        return _config.getTypeResolverProvider().findTypeSerializer(this, baseType,
+                beanDesc.getClassInfo());
     }
 
     /**

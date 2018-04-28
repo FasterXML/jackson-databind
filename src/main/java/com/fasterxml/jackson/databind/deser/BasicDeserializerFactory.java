@@ -1655,46 +1655,6 @@ nonAnnotatedParamIndex, ctor);
      */
 
     /**
-     * Method called to create a type information deserializer for values of
-     * given non-container property, if one is needed.
-     * If not needed (no polymorphic handling configured for property), should return null.
-     *<p>
-     * Note that this method is only called for non-container bean properties,
-     * and not for values in container types or root values (or container properties)
-     *
-     * @param baseType Declared base type of the value to deserializer (actual
-     *    deserializer type will be this type or its subtype)
-     * 
-     * @return Type deserializer to use for given base type, if one is needed; null if not.
-     */
-    public TypeDeserializer findPropertyTypeDeserializer(DeserializationContext ctxt,
-            JavaType baseType, AnnotatedMember accessor)
-        throws JsonMappingException
-    {
-        DeserializationConfig config = ctxt.getConfig();
-        return config.getTypeResolverProvider().findPropertyTypeDeserializer(ctxt, accessor, baseType);
-    }
-
-    /**
-     * Method called to find and create a type information deserializer for values of
-     * given container (list, array, map) property, if one is needed.
-     * If not needed (no polymorphic handling configured for property), should return null.
-     *<p>
-     * Note that this method is only called for container bean properties,
-     * and not for values in container types or root values (or non-container properties)
-     * 
-     * @param containerType Type of property; must be a container type
-     * @param accessor Field or method that contains container property
-     */    
-    public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationContext ctxt,
-            JavaType containerType, AnnotatedMember accessor)
-        throws JsonMappingException
-    {
-        DeserializationConfig config = ctxt.getConfig();
-        return config.getTypeResolverProvider().findPropertyContentTypeDeserializer(ctxt, accessor, containerType);
-    }
-
-    /**
      * Helper method called to find one of default serializers for "well-known"
      * platform types: JDK-provided types, and small number of public Jackson
      * API types.
@@ -2006,14 +1966,13 @@ nonAnnotatedParamIndex, ctor);
             if (cd != null) {
                 type = type.withContentValueHandler(cd);
             }
-            TypeDeserializer contentTypeDeser = findPropertyContentTypeDeserializer(
-                    ctxt, type, (AnnotatedMember) member);            	
+            TypeDeserializer contentTypeDeser = ctxt.findPropertyContentTypeDeserializer(type,
+                    (AnnotatedMember) member);            	
             if (contentTypeDeser != null) {
                 type = type.withContentTypeHandler(contentTypeDeser);
             }
         }
-        TypeDeserializer valueTypeDeser = findPropertyTypeDeserializer(ctxt,
-                    type, (AnnotatedMember) member);
+        TypeDeserializer valueTypeDeser = ctxt.findPropertyTypeDeserializer(type, (AnnotatedMember) member);
         if (valueTypeDeser != null) {
             type = type.withTypeHandler(valueTypeDeser);
         }

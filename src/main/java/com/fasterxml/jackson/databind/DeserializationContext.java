@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -479,7 +480,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************************
-    /* Public API, pass-through to DeserializerCache
+    /* Public API, value deserializer access
     /**********************************************************************
      */
 
@@ -537,6 +538,12 @@ public abstract class DeserializationContext
         return deser;
     }
 
+    /*
+    /**********************************************************************
+    /* Public API, value type deserializer access
+    /**********************************************************************
+     */
+
     /**
      * Method called to find and create a type information deserializer for given base type,
      * if one is needed. If not needed (no polymorphic handling configured for type),
@@ -563,6 +570,56 @@ public abstract class DeserializationContext
         return _config.getTypeResolverProvider().findTypeDeserializer(this,
                 baseType, beanDesc.getClassInfo());
     }
+
+    /**
+     * Method called to create a type information deserializer for values of
+     * given non-container property, if one is needed.
+     * If not needed (no polymorphic handling configured for property), should return null.
+     *<p>
+     * Note that this method is only called for non-container bean properties,
+     * and not for values in container types or root values (or container properties)
+     *
+     * @param baseType Declared base type of the value to deserializer (actual
+     *    deserializer type will be this type or its subtype)
+     * 
+     * @return Type deserializer to use for given base type, if one is needed; null if not.
+     *
+     * @since 3.0
+     */
+    public TypeDeserializer findPropertyTypeDeserializer(JavaType baseType,
+            AnnotatedMember accessor)
+        throws JsonMappingException
+    {
+        return _config.getTypeResolverProvider().findPropertyTypeDeserializer(this,
+                accessor, baseType);
+    }
+
+    /**
+     * Method called to find and create a type information deserializer for values of
+     * given container (list, array, map) property, if one is needed.
+     * If not needed (no polymorphic handling configured for property), should return null.
+     *<p>
+     * Note that this method is only called for container bean properties,
+     * and not for values in container types or root values (or non-container properties)
+     * 
+     * @param containerType Type of property; must be a container type
+     * @param accessor Field or method that contains container property
+     *
+     * @since 3.0
+     */    
+    public TypeDeserializer findPropertyContentTypeDeserializer(JavaType containerType,
+            AnnotatedMember accessor)
+        throws JsonMappingException
+    {
+        return _config.getTypeResolverProvider().findPropertyContentTypeDeserializer(this,
+                accessor, containerType);
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, key deserializer access
+    /**********************************************************************
+     */
 
     public final KeyDeserializer findKeyDeserializer(JavaType keyType,
             BeanProperty prop) throws JsonMappingException

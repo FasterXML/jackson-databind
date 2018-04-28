@@ -624,25 +624,4 @@ public final class DeserializationConfig
     public BeanDescription introspectForBuilder(JavaType type) {
         return getClassIntrospector().forDeserializationWithBuilder(this, type, this);
     }
-
-    /*
-    /**********************************************************************
-    /* Support for polymorphic type handling
-    /**********************************************************************
-     */
-
-    /**
-     * Helper method that is needed to properly handle polymorphic referenced
-     * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
-     * or various "optional" types.
-     */
-    /*
-    public TypeDeserializer findTypeDeserializer(JavaType baseType)
-        throws JsonMappingException
-    {
-        BeanDescription beanDesc = introspectClassAnnotations(baseType.getRawClass());
-        return getTypeResolverProvider().findTypeDeserializer(this, baseType,
-                beanDesc.getClassInfo());
-    }
-    */
 }

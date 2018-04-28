@@ -256,24 +256,6 @@ public abstract class BasicSerializerFactory
 
     /**
      * Method called to create a type information serializer for values of given
-     * non-container property
-     * if one is needed. If not needed (no polymorphic handling configured), should
-     * return null.
-     *
-     * @param baseType Declared type to use as the base type for type information serializer
-     * 
-     * @return Type serializer to use for property values, if one is needed; null if not.
-     */
-    public TypeSerializer findPropertyTypeSerializer(SerializerProvider ctxt,
-            JavaType baseType, AnnotatedMember accessor)
-        throws JsonMappingException
-    {
-        return ctxt.getConfig().getTypeResolverProvider()
-                .findPropertyTypeSerializer(ctxt, accessor, baseType);
-    }
-
-    /**
-     * Method called to create a type information serializer for values of given
      * container property
      * if one is needed. If not needed (no polymorphic handling configured), should
      * return null.

@@ -710,7 +710,7 @@ public class BeanSerializerFactory
             contentTypeSer = findPropertyContentTypeSerializer(ctxt, type, accessor);
         }
         // and if not JAXB collection/array with annotations, maybe regular type info?
-        TypeSerializer typeSer = findPropertyTypeSerializer(ctxt, type, accessor);
+        TypeSerializer typeSer = ctxt.findPropertyTypeSerializer(type, accessor);
         return pb.buildWriter(ctxt, propDef, type, annotatedSerializer,
                         typeSer, contentTypeSer, accessor, staticTyping);
     }

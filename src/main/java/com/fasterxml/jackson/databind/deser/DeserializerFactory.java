@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 
 /**
@@ -42,36 +41,6 @@ public abstract class DeserializerFactory
 {
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
 
-    /*
-    /**********************************************************************
-    /* Configuration handling
-    /**********************************************************************
-     */
-
-    /**
-     * Convenience method for creating a new factory instance with additional deserializer
-     * provider.
-     */
-    public abstract DeserializerFactory withAdditionalDeserializers(Deserializers additional);
-
-    /**
-     * Convenience method for creating a new factory instance with additional
-     * {@link KeyDeserializers}.
-     */
-    public abstract DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional);
-    
-    /**
-     * Convenience method for creating a new factory instance with additional
-     * {@link BeanDeserializerModifier}.
-     */
-    public abstract DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier);
-
-    /**
-     * Convenience method for creating a new factory instance with additional
-     * {@link ValueInstantiators}.
-     */
-    public abstract DeserializerFactory withValueInstantiators(ValueInstantiators instantiators);
-    
     /*
     /**********************************************************************
     /* Basic DeserializerFactory API
@@ -167,20 +136,33 @@ public abstract class DeserializerFactory
             JavaType type)
         throws JsonMappingException;
 
-    /**
-     * Method called to find and create a type information deserializer for given base type,
-     * if one is needed. If not needed (no polymorphic handling configured for type),
-     * should return null.
-     *<p>
-     * Note that this method is usually only directly called for values of container (Collection,
-     * array, Map) types and root values, but not for bean property values.
-     *
-     * @param baseType Declared base type of the value to deserializer (actual
-     *    deserializer type will be this type or its subtype)
-     * 
-     * @return Type deserializer to use for given base type, if one is needed; null if not.
+    /*
+    /**********************************************************************
+    /* Mutant factories for registering additional configuration
+    /**********************************************************************
      */
-    public abstract TypeDeserializer findTypeDeserializer(DeserializationConfig config,
-            JavaType baseType)
-        throws JsonMappingException;
+
+    /**
+     * Convenience method for creating a new factory instance with additional deserializer
+     * provider.
+     */
+    public abstract DeserializerFactory withAdditionalDeserializers(Deserializers additional);
+
+    /**
+     * Convenience method for creating a new factory instance with additional
+     * {@link KeyDeserializers}.
+     */
+    public abstract DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional);
+    
+    /**
+     * Convenience method for creating a new factory instance with additional
+     * {@link BeanDeserializerModifier}.
+     */
+    public abstract DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier);
+
+    /**
+     * Convenience method for creating a new factory instance with additional
+     * {@link ValueInstantiators}.
+     */
+    public abstract DeserializerFactory withValueInstantiators(ValueInstantiators instantiators);
 }

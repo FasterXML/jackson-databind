@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.module;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,10 +40,48 @@ public class TestAbstractTypes extends BaseMapTest
         public int getValue() { return 3; }
     }
 
+    // [databind#2019]: mappings from multiple modules
+    public interface Datatype1 {
+        String getValue();
+    }
+
+    public interface Datatype2 {
+        String getValue();
+    }
+
+    static class SimpleDatatype1 implements Datatype1 {
+
+        private final String value;
+
+        @JsonCreator
+        public SimpleDatatype1(@JsonProperty("value") String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+
+    static class SimpleDatatype2 implements Datatype2 {
+        private final String value;
+
+        @JsonCreator
+        public SimpleDatatype2(@JsonProperty("value") String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
+    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testCollectionDefaulting() throws Exception
@@ -114,5 +154,24 @@ public class TestAbstractTypes extends BaseMapTest
                 .registerModule(mod);
         Abstract a = mapper.readValue("{}", Abstract.class);
         assertNotNull(a);
+    }
+
+    // [databind#2019]: mappings from multiple modules
+    public static void testAbstractMappingsFromTwoModules() throws Exception
+    {
+        ObjectMapper mapper = newObjectMapper();
+        SimpleModule module1 = new SimpleModule("module1");
+        module1.addAbstractTypeMapping(Datatype1.class, SimpleDatatype1.class);
+
+        SimpleModule module2 = new SimpleModule("module2");
+        module2.addAbstractTypeMapping(Datatype2.class, SimpleDatatype2.class);
+        mapper.registerModules(module1, module2);
+
+        final String JSON_EXAMPLE = "{\"value\": \"aaa\"}";
+        Datatype1 value1 = mapper.readValue(JSON_EXAMPLE, Datatype1.class);
+        assertNotNull(value1);
+
+        Datatype2 value2 = mapper.readValue(JSON_EXAMPLE, Datatype2.class);
+        assertNotNull(value2);
     }
 }

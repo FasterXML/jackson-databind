@@ -790,6 +790,11 @@ public class POJOPropertiesCollector
                 }
                 // replace the creatorProperty too, if there is one
                 _updateCreatorProperty(prop, _creatorProperties);
+
+                // New name of property was ignored previously - remove from ignored [#2001]
+                if (_ignoredPropertyNames != null) {
+                  _ignoredPropertyNames.remove(name);
+                }
             }
         }
     }

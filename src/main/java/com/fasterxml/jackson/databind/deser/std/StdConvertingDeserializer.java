@@ -20,15 +20,14 @@ import com.fasterxml.jackson.databind.util.Converter;
  * Note that although types (delegate, target) may be related, they must not be same; trying
  * to do this will result in an exception.
  *<p>
- * Since 2.5 There is {@link StdNodeBasedDeserializer} that is a simplified version
- * for cases where intermediate type is {@link JsonNode}
+ * Also note that in Jackson 2.x, this class was named {@code StdDelegatingDeserializer}
  * 
  * @param <T> Target type to convert to, from delegate type
  * 
  * @see StdNodeBasedDeserializer
  * @see Converter
  */
-public class StdDelegatingDeserializer<T>
+public class StdConvertingDeserializer<T>
     extends StdDeserializer<T>
 {
     private static final long serialVersionUID = 1L;
@@ -49,13 +48,13 @@ public class StdDelegatingDeserializer<T>
     protected final JsonDeserializer<Object> _delegateDeserializer;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
-    public StdDelegatingDeserializer(Converter<?,T> converter)
+    public StdConvertingDeserializer(Converter<?,T> converter)
     {
         super(Object.class);
         _converter = (Converter<Object,T>)converter;
@@ -64,7 +63,7 @@ public class StdDelegatingDeserializer<T>
     }
 
     @SuppressWarnings("unchecked")
-    public StdDelegatingDeserializer(Converter<Object,T> converter,
+    public StdConvertingDeserializer(Converter<Object,T> converter,
             JavaType delegateType, JsonDeserializer<?> delegateDeserializer)
     {
         super(delegateType);
@@ -73,10 +72,7 @@ public class StdDelegatingDeserializer<T>
         _delegateDeserializer = (JsonDeserializer<Object>) delegateDeserializer;
     }
 
-    /**
-     * @since 2.5
-     */
-    protected StdDelegatingDeserializer(StdDelegatingDeserializer<T> src)
+    protected StdConvertingDeserializer(StdConvertingDeserializer<T> src)
     {
         super(src);
         _converter = src._converter;
@@ -88,17 +84,17 @@ public class StdDelegatingDeserializer<T>
      * Method used for creating resolved contextual instances. Must be
      * overridden when sub-classing.
      */
-    protected StdDelegatingDeserializer<T> withDelegate(Converter<Object,T> converter,
+    protected StdConvertingDeserializer<T> withDelegate(Converter<Object,T> converter,
             JavaType delegateType, JsonDeserializer<?> delegateDeserializer)
     {
-        ClassUtil.verifyMustOverride(StdDelegatingDeserializer.class, this, "withDelegate");
-        return new StdDelegatingDeserializer<T>(converter, delegateType, delegateDeserializer);
+        ClassUtil.verifyMustOverride(StdConvertingDeserializer.class, this, "withDelegate");
+        return new StdConvertingDeserializer<T>(converter, delegateType, delegateDeserializer);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Contextualization
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Note: unlikely to get called since most likely instances explicitly constructed;
@@ -109,7 +105,6 @@ public class StdDelegatingDeserializer<T>
     {
         if (_delegateDeserializer != null) {
             _delegateDeserializer.resolve(ctxt);
-            
         }
     }
 
@@ -133,9 +128,9 @@ public class StdDelegatingDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -148,17 +143,25 @@ public class StdDelegatingDeserializer<T>
         return _delegateDeserializer.handledType();
     }
 
-    @Override // since 2.9
+    /**
+     * Let's assume that as long as delegate is cachable, we are too.
+     */
+    @Override
+    public boolean isCachable() {
+        return (_delegateDeserializer != null) && _delegateDeserializer.isCachable();
+    }
+
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return _delegateDeserializer.supportsUpdate(config);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -209,8 +212,6 @@ public class StdDelegatingDeserializer<T>
      * an operation that can be permitted, and the default behavior is to throw exception.
      * Sub-classes may choose to try alternative approach if they have more information on
      * exact usage and constraints.
-     *
-     * @since 2.6
      */
     protected Object _handleIncompatibleUpdateValue(JsonParser p, DeserializationContext ctxt, Object intoValue)
         throws IOException
@@ -219,11 +220,11 @@ public class StdDelegatingDeserializer<T>
                 ("Cannot update object of type %s (using deserializer for type %s)"
                         +intoValue.getClass().getName(), _delegateType));
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

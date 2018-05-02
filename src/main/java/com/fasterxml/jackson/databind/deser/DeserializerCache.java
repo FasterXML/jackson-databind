@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdConvertingDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -362,7 +362,7 @@ public final class DeserializerCache
         if (!delegateType.hasRawClass(type.getRawClass())) {
             beanDesc = ctxt.introspect(delegateType);
         }
-        return new StdDelegatingDeserializer<Object>(conv, delegateType,
+        return new StdConvertingDeserializer<Object>(conv, delegateType,
                 _createDeserializer2(ctxt, factory, delegateType, beanDesc));
     }
 
@@ -452,7 +452,7 @@ public final class DeserializerCache
             return deser;
         }
         JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
-        return (JsonDeserializer<Object>) new StdDelegatingDeserializer<Object>(conv, delegateType, deser);
+        return (JsonDeserializer<Object>) new StdConvertingDeserializer<Object>(conv, delegateType, deser);
     }
 
     protected Converter<Object,Object> findConverter(DeserializationContext ctxt,

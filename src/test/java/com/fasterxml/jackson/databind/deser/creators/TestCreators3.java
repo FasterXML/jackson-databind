@@ -100,22 +100,22 @@ public class TestCreators3 extends BaseMapTest
     }
  
     // [databind#1853]
-    public static class Product {
+    public static class Product1853 {
         String name;
 
         public Object other, errors;
 
         @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-        public Product(@JsonProperty("name") String name) {
+        public Product1853(@JsonProperty("name") String name) {
             this.name = "PROP:" + name;
         }
 
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-        public static Product from(String name){
-            return new Product(false, "DELEG:"+name);
+        public static Product1853 from(String name){
+            return new Product1853(false, "DELEG:"+name);
         }
 
-        private Product(boolean bogus, String name) {
+        private Product1853(boolean bogus, String name) {
             this.name = name;
         }
 
@@ -186,17 +186,17 @@ public class TestCreators3 extends BaseMapTest
     // [databind#1853]
     public void testSerialization() throws Exception {
         assertEquals(quote("testProduct"),
-                MAPPER.writeValueAsString(new Product(false, "testProduct")));
+                MAPPER.writeValueAsString(new Product1853(false, "testProduct")));
     }
 
     public void testDeserializationFromObject() throws Exception {
         final String EXAMPLE_DATA = "{\"name\":\"dummy\",\"other\":{},\"errors\":{}}";
-        assertEquals("PROP:dummy", MAPPER.readValue(EXAMPLE_DATA, Product.class).getName());
+        assertEquals("PROP:dummy", MAPPER.readValue(EXAMPLE_DATA, Product1853.class).getName());
     }
 
     public void testDeserializationFromString() throws Exception {
         assertEquals("DELEG:testProduct",
-                MAPPER.readValue(quote("testProduct"), Product.class).getName());
+                MAPPER.readValue(quote("testProduct"), Product1853.class).getName());
     }
 }
 

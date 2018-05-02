@@ -1,15 +1,15 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 public class TestCreatorsDelegating extends BaseMapTest
@@ -82,14 +82,28 @@ public class TestCreatorsDelegating extends BaseMapTest
             this.map = map;
         }
     }
-    
+
+    // [databind#2016]
+    static class Wrapper2016 {
+        private final List<String> value;
+
+        @JsonCreator //(mode = JsonCreator.Mode.DELEGATING)
+        public Wrapper2016(@JsonDeserialize(as = LinkedList.class) List<String> value) {
+            this.value = value;
+        }
+
+        public List<String> getValue() {
+            return value;
+        }
+    }
+
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newObjectMapper();
     
     public void testBooleanDelegate() throws Exception
     {
@@ -179,5 +193,14 @@ public class TestCreatorsDelegating extends BaseMapTest
         
         bean = MAPPER.readValue(EMPTY_JSON, MapBean.class);
         assertEquals(0, bean.map.size());
+    }
+
+    // [databind#2016]
+    public void testCreatorWithDeserializeAs2016() throws Exception
+    {
+        String json = "[\"Hello, World!\"]";
+        Wrapper2016 actual = MAPPER.readValue(json, Wrapper2016.class);
+        assertEquals(Collections.singletonList("Hello, World!"), actual.getValue());
+        assertEquals(LinkedList.class, actual.getValue().getClass());
     }
 }

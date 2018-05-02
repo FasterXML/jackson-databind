@@ -1,18 +1,14 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.beans.ConstructorProperties;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-
-import java.beans.ConstructorProperties;
-import java.io.IOException;
 
 // Tests for [databind#2001]
 public class IgnoredFieldPresentInCreatorProperty2001Test extends BaseMapTest {
-
     static public class Foo {
 
         @JsonIgnore
@@ -25,8 +21,8 @@ public class IgnoredFieldPresentInCreatorProperty2001Test extends BaseMapTest {
       }
     }
 
-    public void testIgnoredFieldPresentInPropertyCreator() throws IOException {
-        Foo deserialized = new ObjectMapper().readValue("{\"query\": \"bar\"}", Foo.class);
+    public void testIgnoredFieldPresentInPropertyCreator() throws Exception {
+        Foo deserialized = newObjectMapper().readValue("{\"query\": \"bar\"}", Foo.class);
         assertEquals("bar", deserialized.query);
     }
 }

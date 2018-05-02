@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
-import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdConvertingDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -647,7 +647,7 @@ public abstract class BeanDeserializerBase
                 // 25-Mar-2017, tatu: should not yet contextualize
 //                JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(delegateType, prop);
                 JsonDeserializer<?> deser = ctxt.findNonContextualValueDeserializer(delegateType);
-                return new StdDelegatingDeserializer<Object>(conv, delegateType, deser);
+                return new StdConvertingDeserializer<Object>(conv, delegateType, deser);
             }
         }
         return null;

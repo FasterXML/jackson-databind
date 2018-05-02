@@ -358,7 +358,7 @@ public class TestCustomDeserializers
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(Immutable.class,
-            new StdDelegatingDeserializer<Immutable>(
+            new StdConvertingDeserializer<Immutable>(
                 new StdConverter<JsonNode, Immutable>() {
                     @Override
                     public Immutable convert(JsonNode value)

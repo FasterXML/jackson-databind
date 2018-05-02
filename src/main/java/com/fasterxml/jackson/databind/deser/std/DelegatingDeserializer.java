@@ -71,6 +71,12 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
+    public SettableBeanProperty findBackReference(String logicalName) {
+        // [databind#253]: Hope this works....
+        return _delegatee.findBackReference(logicalName);
+    }
+
+    @Override
     public JsonDeserializer<?> replaceDelegatee(JsonDeserializer<?> delegatee)
     {
         if (delegatee == _delegatee) {
@@ -116,22 +122,8 @@ public abstract class DelegatingDeserializer
      */
 
     @Override
-    public boolean isCachable() { return _delegatee.isCachable(); }
-
-    @Override // since 2.9
-    public Boolean supportsUpdate(DeserializationConfig config) {
-        return _delegatee.supportsUpdate(config);
-    }
-
-    @Override
     public JsonDeserializer<?> getDelegatee() {
         return _delegatee;
-    }
-
-    @Override
-    public SettableBeanProperty findBackReference(String logicalName) {
-        // [databind#253]: Hope this works....
-        return _delegatee.findBackReference(logicalName);
     }
 
     @Override
@@ -155,5 +147,15 @@ public abstract class DelegatingDeserializer
     @Override
     public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) {
         return _delegatee.getObjectIdReader(ctxt);
+    }
+
+    @Override
+    public boolean isCachable() {
+        return (_delegatee != null) && _delegatee.isCachable();
+    }
+
+    @Override
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _delegatee.supportsUpdate(config);
     }
 }

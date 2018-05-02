@@ -74,18 +74,18 @@ public abstract class StdDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
     public Class<?> handledType() { return _valueClass; }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -108,11 +108,11 @@ public abstract class StdDeserializer<T>
     protected boolean isDefaultKeyDeserializer(KeyDeserializer keyDeser) {
         return ClassUtil.isJacksonStdImpl(keyDeser);
     }
-    
+
     /*
-    /**********************************************************
-    /* Partial JsonDeserializer implementation 
-    /**********************************************************
+    /**********************************************************************
+    /* Partial deserialize method implementation 
+    /**********************************************************************
      */
     
     /**
@@ -127,11 +127,11 @@ public abstract class StdDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for sub-classes, parsing: while mostly
     /* useful for numeric types, can be also useful for dealing
     /* with things serialized as numbers (such as Dates).
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException
@@ -252,9 +252,6 @@ public abstract class StdDeserializer<T>
         return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).intValue();
     }
 
-    /**
-     * @since 2.9
-     */
     protected final int _parseIntPrimitive(DeserializationContext ctxt, String text) throws IOException
     {
         try {
@@ -613,10 +610,9 @@ public abstract class StdDeserializer<T>
     protected final boolean _isNaN(String text) { return "NaN".equals(text); }
 
     /*
-    /**********************************************************
-    /* Helper methods for sub-classes regarding decoding from
-    /* alternate representations
-    /**********************************************************
+    /**********************************************************************
+    /* Helper methods for sub-classes regarding decoding from alternate representations
+    /**********************************************************************
      */
 
     /**
@@ -632,8 +628,6 @@ public abstract class StdDeserializer<T>
      * NOTE: in case of unwrapped single element, will handle actual decoding
      * by calling {@link #_deserializeWrappedValue}, which by default calls
      * {@link #deserialize(JsonParser, DeserializationContext)}.
-     *
-     * @since 2.9
      */
     protected T _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -685,9 +679,9 @@ public abstract class StdDeserializer<T>
     }
 
     /*
-    /****************************************************
+    /**********************************************************************
     /* Helper methods for sub-classes, coercions
-    /****************************************************
+    /**********************************************************************
      */
 
     protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
@@ -706,8 +700,6 @@ public abstract class StdDeserializer<T>
      * 
      * @see DeserializationFeature#USE_BIG_INTEGER_FOR_INTS
      * @see DeserializationFeature#USE_LONG_FOR_INTS
-     *
-     * @since 2.6
      */
     protected Object _coerceIntegral(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -881,9 +873,9 @@ public abstract class StdDeserializer<T>
     }
 
     /*
-    /****************************************************
+    /**********************************************************************
     /* Helper methods for sub-classes, resolving dependencies
-    /****************************************************
+    /**********************************************************************
      */
 
     /**
@@ -925,9 +917,9 @@ public abstract class StdDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for: deserializer construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -953,7 +945,7 @@ public abstract class StdDeserializer<T>
                     if (existingDeserializer == null) {
                         existingDeserializer = ctxt.findContextualValueDeserializer(delegateType, prop);
                     }
-                    return new StdDelegatingDeserializer<Object>(conv, delegateType, existingDeserializer);
+                    return new StdConvertingDeserializer<Object>(conv, delegateType, existingDeserializer);
                 }
             }
         }
@@ -961,9 +953,9 @@ public abstract class StdDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for: accessing contextual config settings
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -972,8 +964,6 @@ public abstract class StdDeserializer<T>
      * defaulting.
      *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
-     *
-     * @since 2.7
      */
     protected JsonFormat.Value findFormatOverrides(DeserializationContext ctxt,
             BeanProperty prop, Class<?> typeForDefaults)
@@ -992,8 +982,6 @@ public abstract class StdDeserializer<T>
      * to find whether that feature has been specifically marked as enabled or disabled.
      * 
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
-     *
-     * @since 2.7
      */
     protected Boolean findFormatFeature(DeserializationContext ctxt,
             BeanProperty prop, Class<?> typeForDefaults, JsonFormat.Feature feat)
@@ -1009,8 +997,6 @@ public abstract class StdDeserializer<T>
      * Method called to find {@link NullValueProvider} for a primary property, using
      * "value nulls" setting. If no provider found (not defined, or is "skip"),
      * will return `null`.
-     *
-     * @since 2.9
      */
     protected final NullValueProvider findValueNullProvider(DeserializationContext ctxt,
             SettableBeanProperty prop, PropertyMetadata propMetadata)
@@ -1103,9 +1089,9 @@ public abstract class StdDeserializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for sub-classes, problem reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1157,44 +1143,29 @@ handledType().getName());
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.9
-     */
     protected final static boolean _neitherNull(Object a, Object b) {
         return (a != null) && (b != null);
     }
 
-    /**
-     * @since 2.9
-     */
     protected final boolean _byteOverflow(int value) {
         // 07-nov-2016, tatu: We support "unsigned byte" as well
         //    as Java signed range since that's relatively common usage
         return (value < Byte.MIN_VALUE || value > 255);
     }
-    
-    /**
-     * @since 2.9
-     */
+
     protected final boolean _shortOverflow(int value) {
         return (value < Short.MIN_VALUE || value > Short.MAX_VALUE);
     }
 
-    /**
-     * @since 2.9
-     */
     protected final boolean _intOverflow(long value) {
         return (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE);
     }
 
-    /**
-     * @since 2.9
-     */
     protected Number _nonNullNumber(Number n) {
         if (n == null) {
             n = Integer.valueOf(0);

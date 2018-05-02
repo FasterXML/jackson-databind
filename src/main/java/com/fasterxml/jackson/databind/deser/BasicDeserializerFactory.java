@@ -216,7 +216,7 @@ public abstract class BasicDeserializerFactory
         if (_factoryConfig.hasAbstractTypeResolvers()) {
             for (AbstractTypeResolver resolver : _factoryConfig.abstractTypeResolvers()) {
                 JavaType concrete = resolver.findTypeMapping(config, type);
-                if (ClassUtil.rawClass(concrete) != currClass) {
+                if ((concrete != null) && !concrete.hasRawClass(currClass)) {
                     return concrete;
                 }
             }

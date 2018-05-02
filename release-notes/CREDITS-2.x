@@ -775,3 +775,8 @@ Freddy Boucher (freddyboucher@github)
 Ondrej Zizka (OndraZizk@github)
   * Reported #1999: "Duplicate property" issue should mention which class it complains about
    (2.9.6)
+
+Jakub Skierbiszewski (jskierbi@github)
+  * Reported, contributed fix for #2001: Deserialization issue with `@JsonIgnore` and
+    `@JsonCreator` + `@JsonProperty` for same property name
+   (2.9.6)

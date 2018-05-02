@@ -822,6 +822,12 @@ public class POJOPropertiesCollector
                 }
                 // replace the creatorProperty too, if there is one
                 _updateCreatorProperty(prop, _creatorProperties);
+                // [databind#2001]: New name of property was ignored previously? Remove from ignored
+                // 01-May-2018, tatu: I have a feeling this will need to be revisited at some point,
+                //   to avoid removing some types of removals, possibly. But will do for now.
+                if (_ignoredPropertyNames != null) {
+                    _ignoredPropertyNames.remove(name);
+                }
             }
         }
     }

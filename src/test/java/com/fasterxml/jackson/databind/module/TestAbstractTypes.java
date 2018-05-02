@@ -164,13 +164,15 @@ public class TestAbstractTypes extends BaseMapTest
     // [databind#2019]: mappings from multiple modules
     public static void testAbstractMappingsFromTwoModules() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
         SimpleModule module1 = new SimpleModule("module1");
         module1.addAbstractTypeMapping(Datatype1.class, SimpleDatatype1.class);
 
         SimpleModule module2 = new SimpleModule("module2");
         module2.addAbstractTypeMapping(Datatype2.class, SimpleDatatype2.class);
-        mapper.registerModules(module1, module2);
+
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModules(module1, module2)
+                .build();
 
         final String JSON_EXAMPLE = "{\"value\": \"aaa\"}";
         Datatype1 value1 = mapper.readValue(JSON_EXAMPLE, Datatype1.class);

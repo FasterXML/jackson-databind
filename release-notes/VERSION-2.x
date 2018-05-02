@@ -18,6 +18,8 @@ Project: jackson-databind
  (reported by SBKila@github)
 #1999: "Duplicate property" issue should mention which class it complains about
  (reported by Ondrej Z)
+#2019: Abstract Type mapping in 2.9 fails when multiple modules are registered
+ (reported by asger82@github)
 
 2.9.5 (26-Mar-2018)
 

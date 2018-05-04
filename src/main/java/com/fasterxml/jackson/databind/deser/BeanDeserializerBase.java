@@ -604,6 +604,7 @@ public abstract class BeanDeserializerBase
         }
     }
 
+    @SuppressWarnings("unchecked")
     private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt,
             JavaType delegateType, AnnotatedWithParams delegateCreator)
                     throws JsonMappingException
@@ -612,12 +613,18 @@ public abstract class BeanDeserializerBase
         BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
                 delegateType, null, delegateCreator,
                 PropertyMetadata.STD_OPTIONAL);
-
         TypeDeserializer td = delegateType.getTypeHandler();
         if (td == null) {
             td = ctxt.findTypeDeserializer(delegateType);
         }
-        JsonDeserializer<Object> dd = findDeserializer(ctxt, delegateType, property);
+        // 04-May-2018, tatu: [databind#2021] check if there's custom deserializer attached
+        //    to type (resolved from parameter)
+        JsonDeserializer<Object> dd = delegateType.getValueHandler();
+        if (dd == null) {
+            dd = findDeserializer(ctxt, delegateType, property);
+        } else {
+            dd = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(dd, property, delegateType);
+        }
         if (td != null) {
             td = td.forProperty(property);
             return new TypeWrappedDeserializer(td, dd);
@@ -625,8 +632,7 @@ public abstract class BeanDeserializerBase
         return dd;
     }
 
-
-    /*
+    /**
      * Helper method that can be used to see if specified property is annotated
      * to indicate use of a converter for property value (in case of container types,
      * it is container type itself, not key or content type).

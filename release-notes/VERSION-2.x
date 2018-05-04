@@ -21,6 +21,8 @@ Project: jackson-databind
 #2001: Deserialization issue with `@JsonIgnore` and `@JsonCreator` + `@JsonProperty`
   for same property name
  (reported, fix contributed by Jakub S)
+#2016: Delegating JsonCreator disregards JsonDeserialize info
+ (reported by Carter K)
 #2019: Abstract Type mapping in 2.9 fails when multiple modules are registered
  (reported by asger82@github)
 

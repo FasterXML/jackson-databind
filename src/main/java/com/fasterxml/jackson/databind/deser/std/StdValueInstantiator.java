@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
 /**
@@ -62,13 +61,10 @@ public class StdValueInstantiator
     protected AnnotatedWithParams _fromDoubleCreator;
     protected AnnotatedWithParams _fromBooleanCreator;
 
-    // // // Incomplete creator
-    protected AnnotatedParameter  _incompleteParameter;
-    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
@@ -157,14 +153,10 @@ public class StdValueInstantiator
         _fromBooleanCreator = creator;
     }
 
-    public void configureIncompleteParameter(AnnotatedParameter parameter) {
-        _incompleteParameter = parameter;
-    }
-    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; metadata
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -245,11 +237,11 @@ public class StdValueInstantiator
     public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
         return _constructorArguments;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; instantiation from JSON Object
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -303,9 +295,9 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; instantiation from JSON scalars
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -394,9 +386,9 @@ public class StdValueInstantiator
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API: configuration mutators, accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -419,15 +411,10 @@ public class StdValueInstantiator
         return _withArgsCreator;
     }
 
-    @Override
-    public AnnotatedParameter getIncompleteParameter() {
-        return _incompleteParameter;
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonMappingException unwrapAndWrapException(DeserializationContext ctxt, Throwable t)
@@ -469,9 +456,9 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private Object _createUsingDelegate(AnnotatedWithParams delegateCreator,

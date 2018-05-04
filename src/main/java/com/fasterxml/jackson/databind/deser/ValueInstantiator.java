@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
 /**
@@ -31,9 +30,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 public abstract class ValueInstantiator
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -45,9 +44,9 @@ public abstract class ValueInstantiator
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Metadata accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -122,8 +121,6 @@ public abstract class ValueInstantiator
      * Method that can be called to check whether a array-delegate-based creator
      * (single-arg constructor or factory method)
      * is available for this instantiator
-     *
-     * @since 2.7
      */
     public boolean canCreateUsingArrayDelegate() { return false; }
 
@@ -167,9 +164,9 @@ public abstract class ValueInstantiator
     public JavaType getArrayDelegateType(DeserializationConfig config) { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Instantiation methods for JSON Object
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -243,10 +240,9 @@ public abstract class ValueInstantiator
     }
 
     /*
-    /**********************************************************
-    /* Instantiation methods for JSON scalar types
-    /* (String, Number, Boolean)
-    /**********************************************************
+    /**********************************************************************
+    /* Instantiation methods for JSON scalar types (String, Number, Boolean)
+    /**********************************************************************
      */
     
     public Object createFromString(DeserializationContext ctxt, String value) throws IOException {
@@ -278,9 +274,9 @@ public abstract class ValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors for underlying creator objects (optional)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -326,16 +322,10 @@ public abstract class ValueInstantiator
      */
     public AnnotatedWithParams getWithArgsCreator() { return null; }
 
-    /**
-     * If an incomplete creator was found, this is the first parameter that
-     * needs further annotation to help make the creator complete.
-     */
-    public AnnotatedParameter getIncompleteParameter() { return null; }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
@@ -366,9 +356,9 @@ public abstract class ValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Std method overrides for testing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /*
@@ -385,9 +375,9 @@ public abstract class ValueInstantiator
 */
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard Base implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -520,7 +520,12 @@ public abstract class SettableBeanProperty
         if (_valueTypeDeserializer != null) {
             return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
-        return _valueDeserializer.deserialize(p, ctxt);
+        // 04-May-2018, tatu: [databind#2023] Coercion from String (mostly) can give null
+        Object value =  _valueDeserializer.deserialize(p, ctxt);
+        if (value == null) {
+            value = _nullProvider.getNullValue(ctxt);
+        }
+        return value;
     }
 
     /**
@@ -545,7 +550,15 @@ public abstract class SettableBeanProperty
                             getName()));
 //            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
-        return _valueDeserializer.deserialize(p, ctxt, toUpdate);
+        // 04-May-2018, tatu: [databind#2023] Coercion from String (mostly) can give null
+        Object value = _valueDeserializer.deserialize(p, ctxt, toUpdate);
+        if (value == null) {
+            if (NullsConstantProvider.isSkipper(_nullProvider)) {
+                return toUpdate;
+            }
+            value = _nullProvider.getNullValue(ctxt);
+        }
+        return value;
     }
 
     /*

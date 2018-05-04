@@ -964,15 +964,21 @@ public class JacksonAnnotationIntrospector
     @Override
     public PropertyName findNameForSerialization(Annotated a)
     {
+        boolean useDefault = false;
         JsonGetter jg = _findAnnotation(a, JsonGetter.class);
         if (jg != null) {
-            return PropertyName.construct(jg.value());
+            String s = jg.value();
+            // 04-May-2018, tatu: Should allow for "nameless" `@JsonGetter` too
+            if (!s.isEmpty()) {
+                return PropertyName.construct(s);
+            }
+            useDefault = true;
         }
         JsonProperty pann = _findAnnotation(a, JsonProperty.class);
         if (pann != null) {
             return PropertyName.construct(pann.value());
         }
-        if (_hasOneOf(a, ANNOTATIONS_TO_INFER_SER)) {
+        if (useDefault || _hasOneOf(a, ANNOTATIONS_TO_INFER_SER)) {
             return PropertyName.USE_DEFAULT;
         }
         return null;

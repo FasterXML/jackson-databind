@@ -25,6 +25,7 @@ Project: jackson-databind
  (reported by Carter K)
 #2019: Abstract Type mapping in 2.9 fails when multiple modules are registered
  (reported by asger82@github)
+#2021: Delegating JsonCreator disregards `JsonDeserialize.using` annotation
 #2023: `JsonFormat.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT` not working
   with `null` coercion with `@JsonSetter`
 

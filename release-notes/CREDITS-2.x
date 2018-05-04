@@ -780,3 +780,7 @@ Jakub Skierbiszewski (jskierbi@github)
   * Reported, contributed fix for #2001: Deserialization issue with `@JsonIgnore` and
     `@JsonCreator` + `@JsonProperty` for same property name
    (2.9.6)
+
+Carter Kozak (cakofony@github)
+  * Reported #2016: Delegating JsonCreator disregards JsonDeserialize info
+   (2.9.6)

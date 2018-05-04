@@ -509,8 +509,7 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
-    private Object _createUsingDelegate(
-            AnnotatedWithParams delegateCreator,
+    private Object _createUsingDelegate(AnnotatedWithParams delegateCreator,
             SettableBeanProperty[] delegateArguments,
             DeserializationContext ctxt,
             Object delegate)

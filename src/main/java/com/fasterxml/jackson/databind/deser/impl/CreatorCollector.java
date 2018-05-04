@@ -68,8 +68,6 @@ public class CreatorCollector {
 
     protected SettableBeanProperty[] _propertyBasedArgs;
 
-    protected AnnotatedParameter _incompleteParameter;
-
     /*
     /**********************************************************
     /* Life-cycle
@@ -83,11 +81,12 @@ public class CreatorCollector {
                 .isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
     }
 
-    public ValueInstantiator constructValueInstantiator(
-            DeserializationConfig config) {
-        final JavaType delegateType = _computeDelegateType(
+    public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
+        throws JsonMappingException
+    {
+        final JavaType delegateType = _computeDelegateType(config,
                 _creators[C_DELEGATE], _delegateArgs);
-        final JavaType arrayDelegateType = _computeDelegateType(
+        final JavaType arrayDelegateType = _computeDelegateType(config,
                 _creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
         final JavaType type = _beanDesc.getType();
 
@@ -108,7 +107,6 @@ public class CreatorCollector {
         inst.configureFromLongCreator(_creators[C_LONG]);
         inst.configureFromDoubleCreator(_creators[C_DOUBLE]);
         inst.configureFromBooleanCreator(_creators[C_BOOLEAN]);
-        inst.configureIncompleteParameter(_incompleteParameter);
         return inst;
     }
 
@@ -193,12 +191,6 @@ public class CreatorCollector {
         }
     }
 
-    public void addIncompeteParameter(AnnotatedParameter parameter) {
-        if (_incompleteParameter == null) {
-            _incompleteParameter = parameter;
-        }
-    }
-
     /*
     /**********************************************************
     /* Accessors
@@ -232,8 +224,10 @@ public class CreatorCollector {
     /**********************************************************
      */
 
-    private JavaType _computeDelegateType(AnnotatedWithParams creator,
-            SettableBeanProperty[] delegateArgs) {
+    private JavaType _computeDelegateType(MapperConfig<?> config,
+            AnnotatedWithParams creator, SettableBeanProperty[] delegateArgs)
+        throws JsonMappingException
+    {
         if (!_hasNonDefaultCreator || (creator == null)) {
             return null;
         }
@@ -247,7 +241,11 @@ public class CreatorCollector {
                 }
             }
         }
-        return creator.getParameterType(ix);
+        // 03-May-2018, tatu: [databind#2016] need to check possible annotation-based
+        //    type refinement(s)
+        JavaType baseType = creator.getParameterType(ix);
+        return config.getAnnotationIntrospector().refineDeserializationType(config,
+                creator.getParameter(ix), baseType);
     }
 
     private <T extends AnnotatedMember> T _fixAccess(T member) {

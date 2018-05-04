@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.deser.filter;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -58,6 +60,18 @@ public class NullConversionsGenericTest extends BaseMapTest
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot create empty instance");
         }
+    }
+
+    // [databind#2023] two-part coercion from "" to `null` to skip/empty/exception should work
+    public void testEmptyStringToNullToEmptyPojo() throws Exception
+    {
+        GeneralEmpty<Point> result = MAPPER.readerFor(new TypeReference<GeneralEmpty<Point>>() { })
+                .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .readValue(aposToQuotes("{'value':''}"));
+        assertNotNull(result.value);
+        Point p = result.value;
+        assertEquals(0, p.x);
+        assertEquals(0, p.y);
     }
 
     public void testNullsToEmptyCollection() throws Exception

@@ -339,7 +339,7 @@ public abstract class BasicDeserializerFactory
         if (beanDesc.getType().isConcrete()) {
             _addDeserializerConstructors(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
         }
-        return creators.constructValueInstantiator(config);
+        return creators.constructValueInstantiator(ctxt);
     }
 
     protected Map<AnnotatedWithParams,BeanPropertyDefinition[]> _findCreatorsFromProperties(DeserializationContext ctxt,

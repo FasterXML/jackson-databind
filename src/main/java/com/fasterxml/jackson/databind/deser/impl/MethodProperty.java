@@ -125,6 +125,13 @@ public final class MethodProperty
             value = _nullProvider.getNullValue(ctxt);
         } else if (_valueTypeDeserializer == null) {
             value = _valueDeserializer.deserialize(p, ctxt);
+            // 04-May-2018, tatu: [databind#2023] Coercion from String (mostly) can give null
+            if (value == null) {
+                if (_skipNulls) {
+                    return;
+                }
+                value = _nullProvider.getNullValue(ctxt);
+            }
         } else {
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
@@ -147,6 +154,13 @@ public final class MethodProperty
             value = _nullProvider.getNullValue(ctxt);
         } else if (_valueTypeDeserializer == null) {
             value = _valueDeserializer.deserialize(p, ctxt);
+            // 04-May-2018, tatu: [databind#2023] Coercion from String (mostly) can give null
+            if (value == null) {
+                if (_skipNulls) {
+                    return instance;
+                }
+                value = _nullProvider.getNullValue(ctxt);
+            }
         } else {
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
@@ -165,7 +179,7 @@ public final class MethodProperty
         try {
             _setter.invoke(instance, value);
         } catch (Exception e) {
-            // 15-Sep-2015, tatu: How coud we get a ref to JsonParser?
+            // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
             _throwAsIOE(e, value);
         }
     }
@@ -177,7 +191,7 @@ public final class MethodProperty
             Object result = _setter.invoke(instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
-            // 15-Sep-2015, tatu: How coud we get a ref to JsonParser?
+            // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
             _throwAsIOE(e, value);
             return null;
         }

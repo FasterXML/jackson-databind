@@ -134,6 +134,13 @@ public final class FieldProperty
             value = _nullProvider.getNullValue(ctxt);
         } else if (_valueTypeDeserializer == null) {
             value = _valueDeserializer.deserialize(p, ctxt);
+            // 04-May-2018, tatu: [databind#2023] Coercion from String (mostly) can give null
+            if (value == null) {
+                if (_skipNulls) {
+                    return;
+                }
+                value = _nullProvider.getNullValue(ctxt);
+            }
         } else {
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
@@ -156,6 +163,13 @@ public final class FieldProperty
             value = _nullProvider.getNullValue(ctxt);
         } else if (_valueTypeDeserializer == null) {
             value = _valueDeserializer.deserialize(p, ctxt);
+            // 04-May-2018, tatu: [databind#2023] Coercion from String (mostly) can give null
+            if (value == null) {
+                if (_skipNulls) {
+                    return instance;
+                }
+                value = _nullProvider.getNullValue(ctxt);
+            }
         } else {
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }

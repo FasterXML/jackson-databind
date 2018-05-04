@@ -275,7 +275,8 @@ public abstract class BasicDeserializerFactory
         if (instantiator.getIncompleteParameter() != null) {
             final AnnotatedParameter nonAnnotatedParam = instantiator.getIncompleteParameter();
             final AnnotatedWithParams ctor = nonAnnotatedParam.getOwner();
-            throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()+" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
+            throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
+                +" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
         }
 
         return instantiator;
@@ -2143,36 +2144,6 @@ nonAnnotatedParamIndex, ctor);
         if (intr == null) {
             return type;
         }
-
-        // First, deserializers for key/value types?
-        /*
-        if (type.isMapLikeType()) {
-            JavaType keyType = type.getKeyType();
-            // 21-Mar-2011, tatu: ... and associated deserializer too (unless already assigned)
-            //  (not 100% why or how, but this does seem to get called more than once, which
-            //   is not good: for now, let's just avoid errors)
-            if (keyType != null && keyType.getValueHandler() == null) {
-                Object kdDef = intr.findKeyDeserializer(a);
-                KeyDeserializer kd = ctxt.keyDeserializerInstance(a, kdDef);
-                if (kd != null) {
-                    type = (T) ((MapLikeType) type).withKeyValueHandler(kd);
-                    keyType = type.getKeyType(); // just in case it's used below
-                }
-            }            
-        }
-        JavaType contentType = type.getContentType();
-        if (contentType != null) {
-           // ... as well as deserializer for contents:
-           if (contentType.getValueHandler() == null) { // as with above, avoid resetting (which would trigger exception)
-               Object cdDef = intr.findContentDeserializer(a);
-                JsonDeserializer<?> cd = ctxt.deserializerInstance(a, cdDef);
-                if (cd != null) {
-                    type = (T) type.withContentValueHandler(cd);
-                }
-            }
-        }
-        */
-        // then: type refinement(s)?
         return intr.refineDeserializationType(ctxt.getConfig(), a, type);
     }
 

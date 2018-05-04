@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class NullConversionWithCreatorTest extends BaseMapTest
 {
+    // [databind#2024]
     static class EmptyFromNullViaCreator {
         Point p;
 
@@ -24,6 +25,7 @@ public class NullConversionWithCreatorTest extends BaseMapTest
      */
     private final ObjectMapper MAPPER = newObjectMapper();
 
+    // [databind#2024]
     public void testEmptyFromNullViaCreator() throws Exception
     {
         EmptyFromNullViaCreator result = MAPPER.readValue(aposToQuotes("{'p':null}"),

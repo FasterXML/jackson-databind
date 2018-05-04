@@ -617,25 +617,32 @@ public abstract class BeanDeserializerBase
         }
     }
 
-    private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt, JavaType delegateType,
-            AnnotatedWithParams delegateCreator) throws JsonMappingException {
+    @SuppressWarnings("unchecked")
+    private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt,
+            JavaType delegateType, AnnotatedWithParams delegateCreator) throws JsonMappingException
+    {
         // Need to create a temporary property to allow contextual deserializers:
         BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
                 delegateType, null, delegateCreator,
                 PropertyMetadata.STD_OPTIONAL);
-
         TypeDeserializer td = delegateType.getTypeHandler();
         if (td == null) {
             td = ctxt.getConfig().findTypeDeserializer(delegateType);
         }
-        JsonDeserializer<Object> dd = findDeserializer(ctxt, delegateType, property);
+        // 04-May-2018, tatu: [databind#2021] check if there's custom deserializer attached
+        //    to type (resolved from parameter)
+        JsonDeserializer<Object> dd = delegateType.getValueHandler();
+        if (dd == null) {
+            dd = findDeserializer(ctxt, delegateType, property);
+        } else {
+            dd = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(dd, property, delegateType);
+        }
         if (td != null) {
             td = td.forProperty(property);
             return new TypeWrappedDeserializer(td, dd);
         }
         return dd;
     }
-
 
     /**
      * Helper method that can be used to see if specified property is annotated

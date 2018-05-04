@@ -81,12 +81,13 @@ public class CreatorCollector {
                 .isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
     }
 
-    public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
+    public ValueInstantiator constructValueInstantiator(DeserializationContext ctxt)
         throws JsonMappingException
     {
-        final JavaType delegateType = _computeDelegateType(config,
+        final DeserializationConfig config = ctxt.getConfig();
+        final JavaType delegateType = _computeDelegateType(ctxt,
                 _creators[C_DELEGATE], _delegateArgs);
-        final JavaType arrayDelegateType = _computeDelegateType(config,
+        final JavaType arrayDelegateType = _computeDelegateType(ctxt,
                 _creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
         final JavaType type = _beanDesc.getType();
 
@@ -224,7 +225,7 @@ public class CreatorCollector {
     /**********************************************************
      */
 
-    private JavaType _computeDelegateType(MapperConfig<?> config,
+    private JavaType _computeDelegateType(DeserializationContext ctxt,
             AnnotatedWithParams creator, SettableBeanProperty[] delegateArgs)
         throws JsonMappingException
     {
@@ -241,11 +242,28 @@ public class CreatorCollector {
                 }
             }
         }
-        // 03-May-2018, tatu: [databind#2016] need to check possible annotation-based
-        //    type refinement(s)
+        final DeserializationConfig config = ctxt.getConfig();
+
+        // 03-May-2018, tatu: need to check possible annotation-based
+        //   custom deserializer [databind#2012],
+        //   type refinement(s) [databind#2016]. 
         JavaType baseType = creator.getParameterType(ix);
-        return config.getAnnotationIntrospector().refineDeserializationType(config,
-                creator.getParameter(ix), baseType);
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        if (intr != null) {
+            AnnotatedParameter delegate = creator.getParameter(ix);
+            
+            // First: custom deserializer(s):
+            Object deserDef = intr.findDeserializer(delegate);
+            if (deserDef != null) {
+                JsonDeserializer<Object> deser = ctxt.deserializerInstance(delegate, deserDef);
+                baseType = baseType.withValueHandler(deser);
+            } else {
+                // Second: type refinement(s), if no explicit deserializer was located
+                baseType = intr.refineDeserializationType(config,
+                        delegate, baseType);
+            }
+        }
+        return baseType;
     }
 
     private <T extends AnnotatedMember> T _fixAccess(T member) {

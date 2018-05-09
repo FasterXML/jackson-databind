@@ -31,6 +31,8 @@ Project: jackson-databind
 #2021: Delegating JsonCreator disregards `JsonDeserialize.using` annotation
 #2023: `JsonFormat.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT` not working
   with `null` coercion with `@JsonSetter`
+#2027: Concurrency error causes `IllegalStateException` on `BeanPropertyMap`
+ (reported by franboragina@github)
 
 2.9.5 (26-Mar-2018)
 

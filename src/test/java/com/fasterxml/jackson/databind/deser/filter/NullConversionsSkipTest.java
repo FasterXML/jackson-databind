@@ -36,6 +36,16 @@ public class NullConversionsSkipTest extends BaseMapTest
         }
     }
 
+    // for [databind#2015]
+    enum NUMS2015 {
+        ONE, TWO
+    }
+
+    public static class Pojo2015 {
+        @JsonSetter(value = "number", nulls = Nulls.SKIP)
+        NUMS2015 number = NUMS2015.TWO;
+    }
+
     /*
     /**********************************************************
     /* Test methods, straight annotation
@@ -70,6 +80,15 @@ public class NullConversionsSkipTest extends BaseMapTest
                 NullSkipMethod.class);
         assertEquals("b", result._noNulls);
         assertEquals("a", result._nullsOk);
+    }
+
+    // for [databind#2015]
+    public void testEnumAsNullThenSkip() throws Exception
+    {    
+        Pojo2015 p = MAPPER.readerFor(Pojo2015.class)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .readValue("{\"number\":\"THREE\"}"); 
+        assertEquals(NUMS2015.TWO, p.number);
     }
 
     /*

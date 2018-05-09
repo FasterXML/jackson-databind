@@ -21,6 +21,9 @@ Project: jackson-databind
 #2001: Deserialization issue with `@JsonIgnore` and `@JsonCreator` + `@JsonProperty`
   for same property name
  (reported, fix contributed by Jakub S)
+#2015: `@Jsonsetter with Nulls.SKIP` collides with
+  `DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL` when parsing enum
+ (reported by ndori@github)
 #2016: Delegating JsonCreator disregards JsonDeserialize info
  (reported by Carter K)
 #2019: Abstract Type mapping in 2.9 fails when multiple modules are registered
@@ -28,6 +31,8 @@ Project: jackson-databind
 #2021: Delegating JsonCreator disregards `JsonDeserialize.using` annotation
 #2023: `JsonFormat.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT` not working
   with `null` coercion with `@JsonSetter`
+#2027: Concurrency error causes `IllegalStateException` on `BeanPropertyMap`
+ (reported by franboragina@github)
 
 2.9.5 (26-Mar-2018)
 

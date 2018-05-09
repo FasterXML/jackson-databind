@@ -43,7 +43,7 @@ public class BeanPropertyMap
      * Number of entries stored in the hash area.
      */
     private int _size;
-    
+
     private int _spillCount;
 
     /**
@@ -55,7 +55,7 @@ public class BeanPropertyMap
      * Array of properties in the exact order they were handed in. This is
      * used by as-array serialization, deserialization.
      */
-    private SettableBeanProperty[] _propsInOrder;
+    private final SettableBeanProperty[] _propsInOrder;
 
     /**
      * Configuration of alias mappings, indexed by unmodified property name
@@ -75,7 +75,7 @@ public class BeanPropertyMap
      * @since 2.9
      */
     private final Map<String,String> _aliasMapping;
-    
+
     /**
      * @since 2.9
      */
@@ -87,6 +87,70 @@ public class BeanPropertyMap
         _aliasDefs = aliasDefs;
         _aliasMapping = _buildAliasMapping(aliasDefs);
         init(props);
+    }
+
+    /* Copy constructors used when a property can replace existing one
+     *
+     * @since 2.9.6
+     */
+    private BeanPropertyMap(BeanPropertyMap src,
+            SettableBeanProperty newProp, int hashIndex, int orderedIndex)
+    {
+        // First, copy most fields as is:
+        _caseInsensitive = src._caseInsensitive;
+        _hashMask = src._hashMask;
+        _size = src._size;
+        _spillCount = src._spillCount;
+        _aliasDefs = src._aliasDefs;
+        _aliasMapping = src._aliasMapping;
+
+        // but then make deep copy of arrays to modify
+        _hashArea = Arrays.copyOf(src._hashArea, src._hashArea.length);
+        _propsInOrder = Arrays.copyOf(src._propsInOrder, src._propsInOrder.length);
+        _hashArea[hashIndex] = newProp;
+        _propsInOrder[orderedIndex] = newProp;
+    }
+
+    /* Copy constructors used when a property needs to be appended (can't replace)
+     *
+     * @since 2.9.6
+     */
+    private BeanPropertyMap(BeanPropertyMap src,
+            SettableBeanProperty newProp, String key, int slot)
+    {
+        // First, copy most fields as is:
+        _caseInsensitive = src._caseInsensitive;
+        _hashMask = src._hashMask;
+        _size = src._size;
+        _spillCount = src._spillCount;
+        _aliasDefs = src._aliasDefs;
+        _aliasMapping = src._aliasMapping;
+
+        // but then make deep copy of arrays to modify
+        _hashArea = Arrays.copyOf(src._hashArea, src._hashArea.length);
+        int last = src._propsInOrder.length;
+        // and append property at the end of ordering
+        _propsInOrder = Arrays.copyOf(src._propsInOrder, last+1);
+        _propsInOrder[last] = newProp;
+
+        final int hashSize = _hashMask+1;
+        int ix = (slot<<1);
+
+        // primary slot not free?
+        if (_hashArea[ix] != null) {
+            // secondary?
+            ix = (hashSize + (slot >> 1)) << 1;
+            if (_hashArea[ix] != null) {
+                // ok, spill over.
+                ix = ((hashSize + (hashSize >> 1) ) << 1) + _spillCount;
+                _spillCount += 2;
+                if (ix >= _hashArea.length) {
+                    _hashArea = Arrays.copyOf(_hashArea, _hashArea.length + 4);
+                }
+            }
+        }
+        _hashArea[ix] = key;
+        _hashArea[ix+1] = newProp;
     }
 
     @Deprecated // since 2.8
@@ -159,15 +223,11 @@ public class BeanPropertyMap
                     }
                 }
             }
-//System.err.println(" add '"+key+" at #"+(ix>>1)+"/"+size+" (hashed at "+slot+")");             
             hashed[ix] = key;
             hashed[ix+1] = prop;
 
             // and aliases
         }
-//for (int i = 0; i < hashed.length; i += 2) {
-//System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
-//}
         _hashArea = hashed;
         _spillCount = spillCount;
     }
@@ -217,46 +277,13 @@ public class BeanPropertyMap
         for (int i = 1, end = _hashArea.length; i < end; i += 2) {
             SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
             if ((prop != null) && prop.getName().equals(key)) {
-                _hashArea[i] = newProp;
-                _propsInOrder[_findFromOrdered(prop)] = newProp;
-                return this;
+                return new BeanPropertyMap(this, newProp, i, _findFromOrdered(prop));
             }
         }
         // If not, append
         final int slot = _hashCode(key);
-        final int hashSize = _hashMask+1;
-        int ix = (slot<<1);
-        
-        // primary slot not free?
-        if (_hashArea[ix] != null) {
-            // secondary?
-            ix = (hashSize + (slot >> 1)) << 1;
-            if (_hashArea[ix] != null) {
-                // ok, spill over.
-                ix = ((hashSize + (hashSize >> 1) ) << 1) + _spillCount;
-                _spillCount += 2;
-                if (ix >= _hashArea.length) {
-                    _hashArea = Arrays.copyOf(_hashArea, _hashArea.length + 4);
-// Uncomment for debugging only
-//for (int i = 0; i < _hashArea.length; i += 2) {
-//    if (_hashArea[i] != null) {
-//        System.err.println("Property #"+(i/2)+" '"+_hashArea[i]+"'...");
-//    }
-//}
-//System.err.println("And new propr #"+slot+" '"+key+"'");
-                }
-            }
-        }
-        _hashArea[ix] = key;
-        _hashArea[ix+1] = newProp;
 
-        int last = _propsInOrder.length;
-        _propsInOrder = Arrays.copyOf(_propsInOrder, last+1);
-        _propsInOrder[last] = newProp;
-
-        // should we just create a new one? Or is resetting ok?
-        
-        return this;
+        return new BeanPropertyMap(this, newProp, key, slot);
     }
 
     public BeanPropertyMap assignIndexes()

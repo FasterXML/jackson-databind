@@ -57,6 +57,8 @@ public class SubTypeValidator
         // [databind#1899]: more 3rd party
         s.add("org.hibernate.jmx.StatisticsService");
         s.add("org.apache.ibatis.datasource.jndi.JndiDataSourceFactory");
+        // [databind#2032]: more 3rd party; data exfiltration via xml parsed ext entities
+        s.add("org.apache.ibatis.parsing.XPathParser");
 
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }

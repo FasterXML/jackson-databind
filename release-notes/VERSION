@@ -8,6 +8,8 @@ Project: jackson-databind
 #1941: `TypeFactory.constructFromCanonical()` throws NPE for Unparameterized
   generic canonical strings
  (reported by ayushgp@github)
+#2032: Blacklist another serialization gadget (ibatis)
+ (reported by Guixiong Wu)
 
 2.8.11.1 (11-Feb-2018)
 

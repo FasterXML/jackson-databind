@@ -304,7 +304,7 @@ public abstract class StdSerializer<T>
      *    serializer if one already exists.
      */
     protected JsonSerializer<?> findContextualConvertingSerializer(SerializerProvider provider,
-            BeanProperty property, JsonSerializer<?> existingSerializer)
+            BeanProperty prop, JsonSerializer<?> existingSerializer)
         throws JsonMappingException
     {
         // 08-Dec-2016, tatu: to fix [databind#357], need to prevent recursive calls for
@@ -312,7 +312,7 @@ public abstract class StdSerializer<T>
         @SuppressWarnings("unchecked")
         Map<Object,Object> conversions = (Map<Object,Object>) provider.getAttribute(KEY_CONTENT_CONVERTER_LOCK);
         if (conversions != null) {
-            Object lock = conversions.get(property);
+            Object lock = conversions.get(prop);
             if (lock != null) {
                 return existingSerializer;
             }
@@ -320,40 +320,37 @@ public abstract class StdSerializer<T>
             conversions = new IdentityHashMap<>();
             provider.setAttribute(KEY_CONTENT_CONVERTER_LOCK, conversions);
         }
-        conversions.put(property, Boolean.TRUE);
-        try {
-            JsonSerializer<?> ser = findConvertingContentSerializer(provider, property, existingSerializer);
-            if (ser != null) {
-                return provider.handleSecondaryContextualization(ser, property);
+        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        if (_neitherNull(intr, prop)) {
+            conversions.put(prop, Boolean.TRUE);
+            try {
+                JsonSerializer<?> ser = _findConvertingContentSerializer(provider, intr,
+                        prop, existingSerializer);
+                if (ser != null) {
+                    return provider.handleSecondaryContextualization(ser, prop);
+                }
+            } finally {
+                conversions.remove(prop);
             }
-        } finally {
-            conversions.remove(property);
         }
         return existingSerializer;
     }
 
-    /**
-     * @deprecated Since 2.9 use {link {@link #findContextualConvertingSerializer} instead
-     */
-    @Deprecated
-    protected JsonSerializer<?> findConvertingContentSerializer(SerializerProvider provider,
-            BeanProperty prop, JsonSerializer<?> existingSerializer)
+    private JsonSerializer<?> _findConvertingContentSerializer(SerializerProvider provider,
+            AnnotationIntrospector intr, BeanProperty prop, JsonSerializer<?> existingSerializer)
         throws JsonMappingException
     {
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-        if (_neitherNull(intr, prop)) {
-            AnnotatedMember m = prop.getMember();
-            if (m != null) {
-                Object convDef = intr.findSerializationContentConverter(provider.getConfig(), m);
-                if (convDef != null) {
-                    Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                    JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
-                    // [databind#731]: Should skip if nominally java.lang.Object
-                    if ((existingSerializer == null) && !delegateType.isJavaLangObject()) {
-                        existingSerializer = provider.findValueSerializer(delegateType);
-                    }
-                    return new StdDelegatingSerializer(conv, delegateType, existingSerializer);
+        AnnotatedMember m = prop.getMember();
+        if (m != null) {
+            Object convDef = intr.findSerializationContentConverter(provider.getConfig(), m);
+            if (convDef != null) {
+                Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
+                JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
+                // [databind#731]: Should skip if nominally java.lang.Object
+                if ((existingSerializer == null) && !delegateType.isJavaLangObject()) {
+                    existingSerializer = provider.findValueSerializer(delegateType);
                 }
+                return new StdDelegatingSerializer(conv, delegateType, existingSerializer, prop);
             }
         }
         return existingSerializer;

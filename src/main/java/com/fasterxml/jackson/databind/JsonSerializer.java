@@ -181,7 +181,7 @@ public abstract class JsonSerializer<T>
      *
      * @since 3.0
      */
-    public JsonSerializer<?> withFormatOverride(SerializationConfig config,
+    public JsonSerializer<?> withFormatOverrides(SerializationConfig config,
             JsonFormat.Value formatOverrides)
     {
         // First: if no override, safe to use as is:

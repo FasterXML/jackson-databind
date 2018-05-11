@@ -117,6 +117,16 @@ public interface BeanProperty extends FullyNamed
      * considering both possible per-type configuration settings
      */
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType);
+
+    /**
+     * Helper method used to only access property-specified format overrides, if any,
+     * not considering type or global default format settings.
+     *
+     * @return Format override settings if any; `null` if no overrides
+     *
+     * @since 3.0
+     */
+    public JsonFormat.Value findFormatOverrides(MapperConfig<?> config);
     
     /**
      * Convenience method that is roughly equivalent to
@@ -210,6 +220,11 @@ public interface BeanProperty extends FullyNamed
             return null;
         }
 
+        @Override
+        public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+            return null;
+        }
+        
         @Override
         public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
             JsonFormat.Value v0 = config.getDefaultPropertyFormat(baseType);
@@ -326,6 +341,11 @@ public interface BeanProperty extends FullyNamed
             return null;
         }
 
+        @Override
+        public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+            return null;
+        }
+        
         @Override
         public Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
             return Value.empty();

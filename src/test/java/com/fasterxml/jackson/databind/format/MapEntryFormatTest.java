@@ -22,7 +22,7 @@ public class MapEntryFormatTest extends BaseMapTest
         }
     }
 
-    @JsonFormat(shape=JsonFormat.Shape.OBJECT)
+    @JsonFormat(shape=JsonFormat.Shape.POJO)
     static class MapEntryAsObject implements Map.Entry<String,String> {
         protected String key, value;
 
@@ -171,7 +171,7 @@ public class MapEntryFormatTest extends BaseMapTest
     {
         ObjectMapper mapper = objectMapperBuilder()
                 .withConfigOverride(Map.Entry.class,
-                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.POJO)))
                 .build();
         Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
         assertEquals(aposToQuotes("{'key':'foo','value':'bar'}"),

@@ -73,13 +73,6 @@ public class StdDelegatingSerializer
         _property = null;
     }
 
-    @Deprecated // since 3.0
-    public StdDelegatingSerializer(Converter<Object,?> converter,
-            JavaType delegateType, JsonSerializer<?> delegateSerializer)
-    {
-        this(converter, delegateType, delegateSerializer, null);
-    }
-
     /**
      * @since 3.0
      */

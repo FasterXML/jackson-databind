@@ -54,6 +54,8 @@ public class SubTypeValidator
         // [databind#1855]: more 3rd party
         s.add("org.apache.tomcat.dbcp.dbcp2.BasicDataSource");
         s.add("com.sun.org.apache.bcel.internal.util.ClassLoader");
+        // [databind#2032]: more 3rd party; data exfiltration via xml parsed ext entities
+        s.add("org.apache.ibatis.parsing.XPathParser");
 
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }

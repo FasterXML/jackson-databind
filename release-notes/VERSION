@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.9.4 (not yet released)
+
+#2032: Blacklist another serialization gadget (ibatis)
+
 2.7.9.3 (11-Feb-2018)
 
 #1872 `NullPointerException` in `SubTypeValidator.validateSubType` when

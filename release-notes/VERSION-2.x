@@ -33,6 +33,8 @@ Project: jackson-databind
   with `null` coercion with `@JsonSetter`
 #2027: Concurrency error causes `IllegalStateException` on `BeanPropertyMap`
  (reported by franboragina@github)
+#2032: Blacklist another serialization gadget (ibatis)
+ (reported by Guixiong Wu)
 
 2.9.5 (26-Mar-2018)
 

@@ -649,6 +649,10 @@ Kevin Gallardo (newkek@github)
 Lukas Euler
   * Reported #1735: Missing type checks when using polymorphic type ids
 
+Guixiong Wu (吴桂雄)
+  * Reported #2032: Blacklist another serialization gadget (ibatis)
+   (2.8.11.2)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

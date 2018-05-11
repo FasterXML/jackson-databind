@@ -51,6 +51,18 @@ public abstract class ConcreteBeanPropertyBase
     public boolean isVirtual() { return false; }
 
     @Override
+    public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        if (intr != null) {
+            AnnotatedMember member = getMember();
+            if (member != null) {
+                return intr.findFormat(member);
+            }
+        }
+        return null;
+    }
+
+    @Override
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType)
     {
         // 15-Apr-2016, tatu: Let's calculate lazily, retain; assumption being however that
@@ -58,14 +70,7 @@ public abstract class ConcreteBeanPropertyBase
         JsonFormat.Value v = _propertyFormat;
         if (v == null) {
             JsonFormat.Value v1 = config.getDefaultPropertyFormat(baseType);
-            JsonFormat.Value v2 = null;
-            AnnotationIntrospector intr = config.getAnnotationIntrospector();
-            if (intr != null) {
-                AnnotatedMember member = getMember();
-                if (member != null) {
-                    v2 = intr.findFormat(member);
-                }
-            }
+            JsonFormat.Value v2 = findFormatOverrides(config);
             if (v1 == null) {
                 v = (v2 == null) ? EMPTY_FORMAT : v2;
             } else {

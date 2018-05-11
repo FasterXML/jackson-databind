@@ -879,13 +879,11 @@ public abstract class SerializerProvider
             throw _mappingProblem(iae, iae.getMessage());
         }
         _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
-
-        // Ok: first part fine. But now the property overrides, if any...
-
-        // !!! TODO
-//        JsonFormat.Value overrides = prop.
-//        JsonSerializer<?> ser2 = ser.withFormatOverrides(_config, prop.
-        return ser;
+        // Fine, we have to base instance. But how about per-property format overrides?
+        if (prop == null) {
+            return ser;
+        }
+        return _checkShapeShifting(fullType, beanDesc, prop, ser);
     }
 
     /**
@@ -904,10 +902,30 @@ public abstract class SerializerProvider
             throw _mappingProblem(iae, iae.getMessage());
         }
         _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
+        // Fine, we have to base instance. But how about per-property format overrides?
+        if (prop == null) {
+            return ser;
+        }
+        return _checkShapeShifting(type, beanDesc, prop, ser);
+    }
 
-        // Ok: first part fine. But now the property overrides, if any...
-// !!! TODO
-        return ser;
+    @SuppressWarnings("unchecked")
+    private JsonSerializer<Object> _checkShapeShifting(JavaType type, BeanDescription beanDesc,
+            BeanProperty prop, JsonSerializer<?> ser)
+        throws JsonMappingException
+    {
+        JsonFormat.Value overrides = prop.findFormatOverrides(_config);
+        if (overrides != null) {
+            // First: it may be completely fine to use serializer, despite some overrides
+            JsonSerializer<?> ser2 = ser.withFormatOverrides(_config, overrides);
+            if (ser2 != null) {
+                ser = ser2;
+            } else {
+                // But if not, we need to re-create it via factory
+                ser = _serializerFactory.createSerializer(this, type, beanDesc, overrides);
+            }
+        }
+        return (JsonSerializer<Object>) ser;
     }
 
     @SuppressWarnings("unchecked")

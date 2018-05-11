@@ -640,8 +640,8 @@ public abstract class BasicSerializerFactory
             ser = findSerializerByAnnotations(prov, type, beanDesc); // (2) Annotations
             if (ser == null) {
                 // We may also want to use serialize Collections "as beans", if (and only if)
-                // this is specified with `@JsonFormat(shape=Object)`
-                if (format.getShape() == JsonFormat.Shape.OBJECT) {
+                // shape specified as "POJO"
+                if (format.getShape() == JsonFormat.Shape.POJO) {
                     return null;
                 }
                 Class<?> raw = type.getRawClass();
@@ -732,7 +732,7 @@ public abstract class BasicSerializerFactory
 
         // [databind#467]: This is where we could allow serialization "as POJO": But! It's
         // nasty to undo, and does not apply on per-property basis. So, hardly optimal
-        if (format.getShape() == JsonFormat.Shape.OBJECT) {
+        if (format.getShape() == JsonFormat.Shape.POJO) {
             return null;
         }
         JsonSerializer<?> ser = null;
@@ -840,7 +840,7 @@ public abstract class BasicSerializerFactory
     {
         // [databind#865]: Allow serialization "as POJO" -- note: to undo, declare
         //   serialization as `Shape.NATURAL` instead; that's JSON Object too.
-        if (effectiveFormat.getShape() == JsonFormat.Shape.OBJECT) {
+        if (effectiveFormat.getShape() == JsonFormat.Shape.POJO) {
             return null;
         }
         MapEntrySerializer ser = new MapEntrySerializer(valueType, keyType,
@@ -1134,7 +1134,7 @@ public abstract class BasicSerializerFactory
         // Challenge here is that EnumSerializer does not know how to produce
         // POJO style serialization, so we must handle that special case separately;
         // otherwise pass it to EnumSerializer.
-        if (effectiveFormat.getShape() == JsonFormat.Shape.OBJECT) {
+        if (effectiveFormat.getShape() == JsonFormat.Shape.POJO) {
             // one special case: suppress serialization of "getDeclaringClass()"...
             ((BasicBeanDescription) beanDesc).removeProperty("declaringClass");
             // returning null will mean that eventually BeanSerializer gets constructed

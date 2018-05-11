@@ -386,7 +386,7 @@ public final class DeserializerCache
                 // but that won't work for other reasons. So do it here.
                 // (read: rewrite for 3.0)
                 JsonFormat.Value format = beanDesc.findExpectedFormat(type.getRawClass());
-                if (format.getShape() != JsonFormat.Shape.OBJECT) {
+                if (format.getShape() != JsonFormat.Shape.POJO) {
                     MapLikeType mlt = (MapLikeType) type;
                     if (mlt.isTrueMapType()) {
                         return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDesc);
@@ -395,13 +395,12 @@ public final class DeserializerCache
                 }
             }
             if (type.isCollectionLikeType()) {
-                /* 03-Aug-2012, tatu: As per [databind#40], one exception is if shape
-                 *   is to be Shape.OBJECT. Ideally we'd determine it bit later on
-                 *   (to allow custom handler checks), but that won't work for other
-                 *   reasons. So do it here.
+                /* One exception is if shape is to be Shape.POJO (or, as alias, OBJECT).
+                 * Ideally we'd determine it bit later on (to allow custom handler checks),
+                 * but that won't work for other reasons. So do it here.
                  */
                 JsonFormat.Value format = beanDesc.findExpectedFormat(type.getRawClass());
-                if (format.getShape() != JsonFormat.Shape.OBJECT) {
+                if (format.getShape() != JsonFormat.Shape.POJO) {
                     CollectionLikeType clt = (CollectionLikeType) type;
                     if (clt.isTrueCollectionType()) {
                         return factory.createCollectionDeserializer(ctxt, (CollectionType) clt, beanDesc);

@@ -953,11 +953,18 @@ public class ObjectMapper
         return this;
     }
 
+    /**
+     * The set of {@link Module} typeIds that are registered in this
+     * ObjectMapper. By default the typeId for a module is it's full
+     * class name (see {@link Module#getTypeId()}).
+     *
+     * @since 2.9.6
+     */
     public Set<Object> getRegisteredModuleIds()
     {
-        return _registeredModuleTypes;
+        return Collections.unmodifiableSet(_registeredModuleTypes);
     }
-    
+
     /**
      * Method for locating available methods, using JDK {@link ServiceLoader}
      * facility, along with module-provided SPI.

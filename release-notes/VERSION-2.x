@@ -35,6 +35,8 @@ Project: jackson-databind
  (reported by franboragina@github)
 #2032: Blacklist another serialization gadget (ibatis)
  (reported by Guixiong Wu)
+#2034: Serialization problem with type specialization of nested generic types
+ (reported by Reinhard P)
 
 2.9.5 (26-Mar-2018)
 

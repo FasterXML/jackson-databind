@@ -451,6 +451,12 @@ public final class TypeFactory
             JavaType exp = expectedTypes.get(i);
             JavaType act = actualTypes.get(i);
             if (!_verifyAndResolvePlaceholders(exp, act)) {
+                // 14-May-2018, tatu: As per [databind#2034] it seems we better relax assignment
+                //   rules further -- at least likely "raw" (untyped, non-generic) base should probably
+                //   allow specialization.
+                if (exp.hasRawClass(Object.class)) {
+                    continue;
+                }
                 // 19-Apr-2018, tatu: Hack for [databind#1964] -- allow type demotion
                 //    for `java.util.Map` key type if (and only if) target type is
                 //    `java.lang.Object`

@@ -952,6 +952,11 @@ public class ObjectMapper
         }
         return this;
     }
+
+    public Set<Object> getRegisteredModuleIds()
+    {
+        return _registeredModuleTypes;
+    }
     
     /**
      * Method for locating available methods, using JDK {@link ServiceLoader}

@@ -146,6 +146,17 @@ public class SimpleModuleTest extends BaseMapTest
         }
     }
 
+    /**
+     * Test module that is different from MySimpleModule. Used to test registration
+     * of multiple modules.
+     */
+    protected static class AnotherSimpleModule extends SimpleModule
+    {
+        public AnotherSimpleModule(String name, Version version) {
+            super(name, version);
+        }
+    }
+
     protected static class ContextVerifierModule extends com.fasterxml.jackson.databind.Module
     {
         @Override
@@ -300,6 +311,21 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
         result = mapper.readValue(quote("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
+    }
+
+    public void testGetRegisteredModules()
+    {
+        MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
+        AnotherSimpleModule mod2 = new AnotherSimpleModule("test2", Version.unknownVersion());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(mod1);
+        mapper.registerModule(mod2);
+
+        Set<Object> registeredModuleIds = mapper.getRegisteredModuleIds();
+        assertEquals(2, registeredModuleIds.size());
+        assertTrue(registeredModuleIds.contains(mod1.getTypeId()));
+        assertTrue(registeredModuleIds.contains(mod2.getTypeId()));
     }
 
     /*

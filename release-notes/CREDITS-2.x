@@ -788,3 +788,7 @@ Jakub Skierbiszewski (jskierbi@github)
 Carter Kozak (cakofony@github)
   * Reported #2016: Delegating JsonCreator disregards JsonDeserialize info
    (2.9.6)
+
+Reinhard Prechtl (dnno@github)
+  * Reported #2034: Serialization problem with type specialization of nested generic types
+   (2.9.6)

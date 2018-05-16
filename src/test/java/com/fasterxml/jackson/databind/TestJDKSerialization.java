@@ -167,6 +167,8 @@ public class TestJDKSerialization extends BaseMapTest
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);
         assertEquals(EXP_JSON, MAPPER.writeValueAsString(p));
+        assertNotNull(MAPPER.getFactory());
+        assertNotNull(MAPPER.getFactory().getCodec());
 
         byte[] bytes = jdkSerialize(MAPPER);
         ObjectMapper mapper2 = jdkDeserialize(bytes);
@@ -174,6 +176,10 @@ public class TestJDKSerialization extends BaseMapTest
         MyPojo p2 = mapper2.readValue(EXP_JSON, MyPojo.class);
         assertEquals(p.x, p2.x);
         assertEquals(p.y, p2.y);
+
+        // [databind#2038]: verify that codec is not lost
+        assertNotNull(mapper2.getFactory());
+        assertNotNull(mapper2.getFactory().getCodec());
     }
 
     public void testTypeFactory() throws Exception

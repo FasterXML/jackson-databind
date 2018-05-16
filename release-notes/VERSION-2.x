@@ -37,6 +37,9 @@ Project: jackson-databind
  (reported by Guixiong Wu)
 #2034: Serialization problem with type specialization of nested generic types
  (reported by Reinhard P)
+#2038: JDK Serializing and using Deserialized `ObjectMapper` loses linkage
+  back from `JsonParser.getCodec()`
+ (reported by Chetan N)
 
 2.9.5 (26-Mar-2018)
 

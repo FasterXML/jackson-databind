@@ -792,3 +792,9 @@ Carter Kozak (cakofony@github)
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types
    (2.9.6)
+
+Chetan Narsude (243826@github)
+  * Reported #2038: JDK Serializing and using Deserialized `ObjectMapper` loses linkage
+    back from `JsonParser.getCodec()`
+  (2.9.6)
+  

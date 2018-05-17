@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.9.6 (not yet released)
 
+#955: Add `MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL` to use declared base type
+   as `defaultImpl` for polymorphic deserialization
+  (contributed by mikeldpl@github)
 #1565: Deserialization failure with Polymorphism using JsonTypeInfo `defaultImpl`,
   subtype as target
 #1964: Failed to specialize `Map` type during serialization where key type

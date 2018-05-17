@@ -145,7 +145,7 @@ public class StdTypeResolverBuilder
         JavaType defaultImpl;
         if (_defaultImpl == null) {
             //Fis of issue #955
-            if (config.isEnabled(DeserializationFeature.USE_BASE_TYPE_AS_DEFAULT) && !baseType.isAbstract()) {
+            if (config.isEnabled(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL) && !baseType.isAbstract()) {
                 defaultImpl = baseType;
             } else {
                 defaultImpl = null;

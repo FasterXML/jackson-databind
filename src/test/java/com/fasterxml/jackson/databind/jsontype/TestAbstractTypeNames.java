@@ -88,14 +88,13 @@ public class TestAbstractTypeNames  extends BaseMapTest
             public String toString() { return "sub!"; }
         };
     }
-    
+
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 
-    // Testing [JACKSON-498], partial fix
     public void testEmptyCollection() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

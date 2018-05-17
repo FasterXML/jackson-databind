@@ -68,13 +68,41 @@ public class TestMixinDeserForCreators
         private StringWrapper(String s, boolean foo) { _value = s; }
 
         @SuppressWarnings("unused")
-		private static StringWrapper create(String str) {
+        private static StringWrapper create(String str) {
             return new StringWrapper(str, false);
         }
     }
 
     abstract static class StringWrapperMixIn {
         @JsonCreator static StringWrapper create(String str) { return null; }
+    }
+
+    // [databind#2020]
+    @JsonIgnoreProperties("size")
+    abstract class MyPairMixIn8 { // with and without <Long, String>
+         @JsonCreator
+         public Pair2020 with(@JsonProperty("value0") Object value0, 
+                   @JsonProperty("value1") Object value1) 
+         {
+             // body does not matter, only signature
+             return null;
+         }
+    }    
+
+    static class Pair2020 {
+        final int x, y;
+
+        private Pair2020(int x0, int y0) {
+            x = x0;
+            y = y0;
+        }
+
+        @JsonCreator
+        static Pair2020 with(Object x0, Object y0) {
+//        static Pair2020 with(@JsonProperty("value0") Object x0, @JsonProperty("value1")Object y0) {
+        return new Pair2020(((Number) x0).intValue(),
+                    ((Number) y0).intValue());
+        }
     }
 
     /*
@@ -107,11 +135,25 @@ public class TestMixinDeserForCreators
         assertEquals("stringX", result._a);
     }
 
-    public void testFactoryMixIn() throws IOException
+    public void testFactoryDelegateMixIn() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixIn(StringWrapper.class, StringWrapperMixIn.class);
         StringWrapper result = m.readValue("\"a\"", StringWrapper.class);
         assertEquals("a", result._value);
     }
+
+    // [databind#2020]
+    /*
+    public void testFactoryPropertyMixin() throws Exception
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.addMixIn(Pair2020.class, MyPairMixIn8.class);
+
+        String doc = aposToQuotes( "{'value0' : 456, 'value1' : 789}");
+        Pair2020 pair2 = objectMapper.readValue(doc, Pair2020.class);
+        assertEquals(456, pair2.x);
+        assertEquals(789, pair2.y);
+    }
+    */
 }

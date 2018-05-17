@@ -135,6 +135,17 @@ public class SimpleModuleTest extends BaseMapTest
         }
     }
 
+    /**
+     * Test module that is different from MySimpleModule. Used to test registration
+     * of multiple modules.
+     */
+    protected static class AnotherSimpleModule extends SimpleModule
+    {
+        public AnotherSimpleModule(String name, Version version) {
+            super(name, version);
+        }
+    }
+
     static class TestModule626 extends SimpleModule {
         final Class<?> mixin, target;
         public TestModule626(Class<?> t, Class<?> m) {
@@ -282,6 +293,23 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
         result = mapper.readValue(quote("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
+    }
+
+    public void testGetRegisteredModules()
+    {
+        MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
+        AnotherSimpleModule mod2 = new AnotherSimpleModule("test2", Version.unknownVersion());
+
+        ObjectMapper mapper = objectMapperBuilder()
+                .addModule(mod1)
+                .addModule(mod2)
+                .build();
+
+        List<com.fasterxml.jackson.databind.Module> mods = new ArrayList<>(mapper.getRegisteredModules());
+        assertEquals(2, mods.size());
+        // Should retain ordering even if not mandated
+        assertEquals("test1", mods.get(0).getModuleName());
+        assertEquals("test2", mods.get(1).getModuleName());
     }
 
     /*

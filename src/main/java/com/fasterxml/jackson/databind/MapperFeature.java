@@ -200,6 +200,20 @@ public enum MapperFeature implements ConfigFeature
      */
     INFER_BUILDER_TYPE_BINDINGS(false),
 
+    /**
+     * Feature that specifies whether the declared base type of a polymorphic value
+     * is to be used as the "default" implementation, if no explicit default class
+     * is specified via {@code @JsonTypeInfo.defaultImpl} annotation.
+     *<p>
+     * Note that feature only has effect on deserialization of regular polymorphic properties:
+     * it does NOT affect non-polymorphic cases, and is unlikely to work with Default Typing.
+     *<p>
+     * Feature is disabled by default for backwards compatibility.
+     *
+     * @since 2.9.6
+     */
+    USE_BASE_TYPE_AS_DEFAULT_IMPL(false),
+
     /*
     /******************************************************
     /* View-related features

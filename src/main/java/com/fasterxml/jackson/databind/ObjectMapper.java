@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.text.DateFormat;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -519,7 +520,6 @@ public class ObjectMapper
         return _typeFactory.constructType(t);
     }
 
-
     /*
     /**********************************************************************
     /* Configuration, accessing features
@@ -562,6 +562,22 @@ public class ObjectMapper
         return _serializationConfig.isEnabled(f);
     }
 
+    /*
+    /**********************************************************************
+    /* Configuration, accessing module information
+    /**********************************************************************
+     */
+
+    /**
+     * Method that may be used to find out {@link Module}s that were registered
+     * when creating this mapper (if any).
+     *
+     * @since 3.0
+     */
+    public Collection<com.fasterxml.jackson.databind.Module> getRegisteredModules() {
+        return _savedBuilderState.modules();
+    }
+    
     /*
     /**********************************************************************
     /* Public API: constructing Parsers that are properly linked

@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.TokenStreamFactory;
@@ -165,6 +167,19 @@ public abstract class MapperBuilderState
             return null;
         }
         return coll.toArray(new com.fasterxml.jackson.databind.Module[coll.size()]);
+    }
+
+    /*
+    /**********************************************************************
+    /* Configuration access by ObjectMapper
+    /**********************************************************************
+     */
+
+    public Collection<com.fasterxml.jackson.databind.Module> modules() {
+        if (_modules == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(Arrays.asList(_modules));
     }
 
     /*

@@ -144,10 +144,36 @@ public class StdTypeResolverBuilder
         }
 
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
-        JavaType defaultImpl;
+        JavaType defaultImpl = defineDefaultImpl(config, baseType);
 
+        // First, method for converting type info to type id:
+        switch (_includeAs) {
+        case WRAPPER_ARRAY:
+            return new AsArrayTypeDeserializer(baseType, idRes,
+                    _typeProperty, _typeIdVisible, defaultImpl);
+        case PROPERTY:
+        case EXISTING_PROPERTY: // as per [#528] same class as PROPERTY
+            return new AsPropertyTypeDeserializer(baseType, idRes,
+                    _typeProperty, _typeIdVisible, defaultImpl, _includeAs);
+        case WRAPPER_OBJECT:
+            return new AsWrapperTypeDeserializer(baseType, idRes,
+                    _typeProperty, _typeIdVisible, defaultImpl);
+        case EXTERNAL_PROPERTY:
+            return new AsExternalTypeDeserializer(baseType, idRes,
+                    _typeProperty, _typeIdVisible, defaultImpl);
+        }
+        throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
+    }
+
+    protected JavaType defineDefaultImpl(DeserializationConfig config, JavaType baseType) {
+        JavaType defaultImpl;
         if (_defaultImpl == null) {
-            defaultImpl = null;
+            //Fis of issue #955
+            if (config.isEnabled(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL) && !baseType.isAbstract()) {
+                defaultImpl = baseType;
+            } else {
+                defaultImpl = null;
+            }
         } else {
             // 20-Mar-2016, tatu: Can finally add a check for type compatibility BUT
             //   if so, need to add explicit checks for marker types. Not ideal, but
@@ -178,24 +204,7 @@ public class StdTypeResolverBuilder
                 }
             }
         }
-
-        // First, method for converting type info to type id:
-        switch (_includeAs) {
-        case WRAPPER_ARRAY:
-            return new AsArrayTypeDeserializer(baseType, idRes,
-                    _typeProperty, _typeIdVisible, defaultImpl);
-        case PROPERTY:
-        case EXISTING_PROPERTY: // as per [#528] same class as PROPERTY
-            return new AsPropertyTypeDeserializer(baseType, idRes,
-                    _typeProperty, _typeIdVisible, defaultImpl, _includeAs);
-        case WRAPPER_OBJECT:
-            return new AsWrapperTypeDeserializer(baseType, idRes,
-                    _typeProperty, _typeIdVisible, defaultImpl);
-        case EXTERNAL_PROPERTY:
-            return new AsExternalTypeDeserializer(baseType, idRes,
-                    _typeProperty, _typeIdVisible, defaultImpl);
-        }
-        throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
+        return defaultImpl;
     }
 
     /*

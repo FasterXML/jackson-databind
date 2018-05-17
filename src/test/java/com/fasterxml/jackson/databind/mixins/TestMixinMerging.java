@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.introspect;
+package com.fasterxml.jackson.databind.mixins;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;

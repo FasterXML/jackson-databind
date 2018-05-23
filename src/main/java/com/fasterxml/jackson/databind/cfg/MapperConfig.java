@@ -273,15 +273,12 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return getClassIntrospector().forClassAnnotations(this, type, this);
     }
 
-    // 27-Apr-2018, tatu: Appears not to be needed?
+    // 23-May-2018, tatu: Used by Avro for schema generation
     /**
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
-     *
-     * @deprecated Since 3.0
      */
-    @Deprecated // since 3.0
     public final BeanDescription introspectDirectClassAnnotations(JavaType type) {
         return getClassIntrospector().forDirectClassAnnotations(this, type, this);
     }

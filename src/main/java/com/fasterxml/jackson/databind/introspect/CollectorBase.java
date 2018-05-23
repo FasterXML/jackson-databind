@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
-// @since 2.9
 class CollectorBase
 {
     protected final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];

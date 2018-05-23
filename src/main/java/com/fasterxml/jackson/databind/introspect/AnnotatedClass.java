@@ -263,7 +263,8 @@ public final class AnnotatedClass
                 f = Collections.emptyList();
             } else {
                 f = AnnotatedFieldCollector.collectFields(_annotationIntrospector,
-                        this, _mixInResolver, _typeFactory, _type);
+                        this, _mixInResolver, _typeFactory,
+                        _type, _primaryMixIn);
             }
             _fields = f;
         }
@@ -279,8 +280,7 @@ public final class AnnotatedClass
                 m = new AnnotatedMethodMap();
             } else {
                 m = AnnotatedMethodCollector.collectMethods(_annotationIntrospector,
-                        this,
-                        _mixInResolver, _typeFactory,
+                        this, _mixInResolver, _typeFactory,
                         _type, _superTypes, _primaryMixIn);
             }
             _memberMethods = m;

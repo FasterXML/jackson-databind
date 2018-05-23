@@ -15,24 +15,22 @@ public class AnnotatedMethodCollector
 {
     private final MixInResolver _mixInResolver;
 
-    AnnotatedMethodCollector(AnnotationIntrospector intr,
-            MixInResolver mixins)
+    AnnotatedMethodCollector(AnnotationIntrospector intr, MixInResolver mixins)
     {
         super(intr);
         _mixInResolver = (intr == null) ? null : mixins;
     }
 
     public static AnnotatedMethodMap collectMethods(AnnotationIntrospector intr,
-            TypeResolutionContext tc,
-            MixInResolver mixins, TypeFactory types,
+            TypeResolutionContext tc, MixInResolver mixins, TypeFactory typeFactory,
             JavaType type, List<JavaType> superTypes, Class<?> primaryMixIn)
     {
         // Constructor also always members of resolved class, parent == resolution context
         return new AnnotatedMethodCollector(intr, mixins)
-                .collect(types, tc, type, superTypes, primaryMixIn);
+                .collect(tc, typeFactory, type, superTypes, primaryMixIn);
     }
 
-    AnnotatedMethodMap collect(TypeFactory typeFactory, TypeResolutionContext tc,
+    AnnotatedMethodMap collect(TypeResolutionContext tc, TypeFactory typeFactory,
             JavaType mainType, List<JavaType> superTypes, Class<?> primaryMixIn)
     {
         Map<MemberKey,MethodBuilder> methods = new LinkedHashMap<>();

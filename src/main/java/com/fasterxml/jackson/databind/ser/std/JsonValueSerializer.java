@@ -339,7 +339,8 @@ public class JsonValueSerializer
         }
 
         @Override
-        public TypeSerializer forProperty(BeanProperty prop) { // should never get called
+        public TypeSerializer forProperty(SerializerProvider ctxt,
+                BeanProperty prop) { // should never get called
             throw new UnsupportedOperationException();
         }
 

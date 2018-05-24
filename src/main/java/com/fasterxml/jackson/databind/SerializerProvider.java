@@ -469,7 +469,7 @@ public abstract class SerializerProvider
         ser = handleRootContextualization(findValueSerializer(rawType));
         TypeSerializer typeSer = findTypeSerializer(fullType);
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(null);
+            typeSer = typeSer.forProperty(this, null);
             ser = new TypeWrappedSerializer(typeSer, ser);
         }
         if (cache) {
@@ -501,7 +501,7 @@ public abstract class SerializerProvider
         ser = handleRootContextualization(findValueSerializer(valueType));
         TypeSerializer typeSer = findTypeSerializer(valueType);
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(null);
+            typeSer = typeSer.forProperty(this, null);
             ser = new TypeWrappedSerializer(typeSer, ser);
         }
         if (cache) {

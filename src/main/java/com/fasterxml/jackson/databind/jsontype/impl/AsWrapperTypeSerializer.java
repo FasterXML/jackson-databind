@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -24,7 +25,8 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     }
 
     @Override
-    public AsWrapperTypeSerializer forProperty(BeanProperty prop) {
+    public AsWrapperTypeSerializer forProperty(SerializerProvider ctxt,
+            BeanProperty prop) {
         return (_property == prop) ? this : new AsWrapperTypeSerializer(_idResolver, prop);
     }
     

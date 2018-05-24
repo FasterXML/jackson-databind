@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import com.fasterxml.jackson.databind.*;
 
-public class ColletionFormatShapeTest extends BaseMapTest
+public class CollectionFormatShapeTest extends BaseMapTest
 {
     // [databind#40]: Allow serialization 'as POJO' (resulting in JSON Object) 
     @JsonPropertyOrder({ "size", "value" })

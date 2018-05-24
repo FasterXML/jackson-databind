@@ -148,25 +148,25 @@ public abstract class ReferenceTypeSerializer<T>
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property) throws JsonMappingException
     {
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(property);
+            typeSer = typeSer.forProperty(ctxt, property);
         }
         // First: do we have an annotation override from property?
-        JsonSerializer<?> ser = findAnnotatedContentSerializer(provider, property);
+        JsonSerializer<?> ser = findAnnotatedContentSerializer(ctxt, property);
         if (ser == null) {
             // If not, use whatever was configured by type
             ser = _valueSerializer;
             if (ser == null) {
                 // A few conditions needed to be able to fetch serializer here:
-                if (_useStatic(provider, property, _referredType)) {
-                    ser = _findSerializer(provider, _referredType, property);
+                if (_useStatic(ctxt, property, _referredType)) {
+                    ser = _findSerializer(ctxt, _referredType, property);
                 }
             } else {
-                ser = provider.handlePrimaryContextualization(ser, property);
+                ser = ctxt.handlePrimaryContextualization(ser, property);
             }
         }
         // First, resolve wrt property, resolved serializers
@@ -180,7 +180,7 @@ public abstract class ReferenceTypeSerializer<T>
 
         // and then see if we have property-inclusion overrides
         if (property != null) {
-            JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), handledType());
+            JsonInclude.Value inclV = property.findPropertyInclusion(ctxt.getConfig(), handledType());
             if (inclV != null) {
                 JsonInclude.Include incl = inclV.getContentInclusion();
 
@@ -206,11 +206,11 @@ public abstract class ReferenceTypeSerializer<T>
                         valueToSuppress = MARKER_FOR_EMPTY;
                         break;
                     case CUSTOM:
-                        valueToSuppress = provider.includeFilterInstance(null, inclV.getContentFilter());
+                        valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
                         if (valueToSuppress == null) { // is this legal?
                             suppressNulls = true;
                         } else {
-                            suppressNulls = provider.includeFilterSuppressNulls(valueToSuppress);
+                            suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
                         }
                         break;
                     case NON_NULL:

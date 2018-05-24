@@ -78,17 +78,6 @@ public class TestMixinDeserForCreators
     }
 
     // [databind#2020]
-    @JsonIgnoreProperties("size")
-    abstract class MyPairMixIn8 { // with and without <Long, String>
-         @JsonCreator
-         public Pair2020 with(@JsonProperty("value0") Object value0, 
-                   @JsonProperty("value1") Object value1) 
-         {
-             // body does not matter, only signature
-             return null;
-         }
-    }    
-
     static class Pair2020 {
         final int x, y;
 
@@ -97,12 +86,21 @@ public class TestMixinDeserForCreators
             y = y0;
         }
 
-        @JsonCreator
         static Pair2020 with(Object x0, Object y0) {
-//        static Pair2020 with(@JsonProperty("value0") Object x0, @JsonProperty("value1")Object y0) {
-        return new Pair2020(((Number) x0).intValue(),
+            return new Pair2020(((Number) x0).intValue(),
                     ((Number) y0).intValue());
         }
+    }
+
+    @JsonIgnoreProperties("size")
+    static class MyPairMixIn8 { // with and without <Long, String>
+         @JsonCreator
+         static TestMixinDeserForCreators.Pair2020 with(@JsonProperty("value0") Object value0,
+                   @JsonProperty("value1") Object value1)
+         {
+             // body does not matter, only signature
+             return null;
+         }
     }
 
     /*
@@ -146,16 +144,15 @@ public class TestMixinDeserForCreators
     }
 
     // [databind#2020]
-    /*
     public void testFactoryPropertyMixin() throws Exception
     {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.addMixIn(Pair2020.class, MyPairMixIn8.class);
+        ObjectMapper mapper = ObjectMapper.builder()
+            .addMixIn(Pair2020.class, MyPairMixIn8.class)
+            .build();
 
         String doc = aposToQuotes( "{'value0' : 456, 'value1' : 789}");
-        Pair2020 pair2 = objectMapper.readValue(doc, Pair2020.class);
+        Pair2020 pair2 = mapper.readValue(doc, Pair2020.class);
         assertEquals(456, pair2.x);
         assertEquals(789, pair2.y);
     }
-    */
 }

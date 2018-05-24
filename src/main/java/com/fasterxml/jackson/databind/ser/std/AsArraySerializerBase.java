@@ -95,27 +95,27 @@ public abstract class AsArraySerializerBase<T>
      * known statically.
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
         throws JsonMappingException
     {
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(property);
+            typeSer = typeSer.forProperty(ctxt, property);
         }
         JsonSerializer<?> ser = null;
         Boolean unwrapSingle = null;
         // First: if we have a property, may have property-annotation overrides
         
         if (property != null) {
-            final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
+            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                ser = serializers.serializerInstance(m,
-                        intr.findContentSerializer(serializers.getConfig(), m));
+                ser = ctxt.serializerInstance(m,
+                        intr.findContentSerializer(ctxt.getConfig(), m));
             }
         }
-        JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         if (format != null) {
             unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
@@ -123,13 +123,13 @@ public abstract class AsArraySerializerBase<T>
             ser = _elementSerializer;
         }
         // 18-Feb-2013, tatu: May have a content converter:
-        ser = findContextualConvertingSerializer(serializers, property, ser);
+        ser = findContextualConvertingSerializer(ctxt, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             if (_elementType != null) {
                 if (_staticTyping && !_elementType.isJavaLangObject()) {
-                    ser = serializers.findSecondaryPropertySerializer(_elementType, property);
+                    ser = ctxt.findSecondaryPropertySerializer(_elementType, property);
                 }
             }
         }

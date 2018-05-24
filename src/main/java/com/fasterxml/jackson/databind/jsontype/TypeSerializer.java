@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
@@ -15,17 +16,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * {@link com.fasterxml.jackson.databind.JsonSerializer}s using proper contextual
  * calls, to add type information using mechanism type serializer was
  * configured with.
- *<p>
- * NOTE: version 2.9 contains significant attempt at simplifying interface,
- * as well as giving format implementation (via {@link JsonGenerator}) more
- * control over actual serialization details.
  */
 public abstract class TypeSerializer
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -34,15 +31,16 @@ public abstract class TypeSerializer
      * (as is the case for bean properties), or values contained
      * (for {@link java.util.Collection} or {@link java.util.Map}
      * valued properties).
-     * 
-     * @since 2.0
+     *<p>
+     * NOTE: since 3.0 has received context object as first argument.
      */
-    public abstract TypeSerializer forProperty(BeanProperty prop);
+    public abstract TypeSerializer forProperty(SerializerProvider ctxt,
+            BeanProperty prop);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -65,9 +63,9 @@ public abstract class TypeSerializer
     public abstract TypeIdResolver getTypeIdResolver();
 
     /*
-    /**********************************************************
-    /* Type serialization methods: new (2.9)
-    /**********************************************************
+    /**********************************************************************
+    /* Type serialization methods
+    /**********************************************************************
      */
 
     /**
@@ -119,6 +117,12 @@ public abstract class TypeSerializer
      * Method called to write initial part of type information for given
      * value, along with possible wrapping to use: details are specified
      * by `typeId` argument.
+     * Note that for structured types (Object, Array), this call will add
+     * necessary start token so it should NOT be explicitly written, unlike
+     * with non-type-id value writes.
+     *<p>
+     * See {@link #writeTypeSuffix(JsonGenerator, WritableTypeId)} for a complete
+     * example of typical usage.
      *
      * @param g Generator to use for outputting type id and possible wrapping
      * @param typeId Details of what type id is to be written, how.

@@ -113,7 +113,7 @@ public class ObjectArraySerializer
     {
         TypeSerializer vts = _valueTypeSerializer;
         if (vts != null) { // need to contextualize
-            vts = vts.forProperty(property);
+            vts = vts.forProperty(ctxt, property);
         }
         JsonSerializer<?> ser = null;
         Boolean unwrapSingle = null;

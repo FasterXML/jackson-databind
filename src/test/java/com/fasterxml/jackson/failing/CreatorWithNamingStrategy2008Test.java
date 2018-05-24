@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ImplicitParamsForCreator806Test extends BaseMapTest
+public class CreatorWithNamingStrategy2008Test extends BaseMapTest
 {
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
@@ -21,14 +21,13 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
         }
     }
 
-    static class XY {
-        protected int x, y;
+    // wrt [https://github.com/FasterXML/jackson-modules-java8/issues/67]
+    static class OneProperty {
+        public String paramName0;
 
-        // annotation should NOT be needed with 2.6 any more (except for single-arg case)
-        //@com.fasterxml.jackson.annotation.JsonCreator
-        public XY(int x, int y) {
-            this.x = x;
-            this.y = y;
+        @JsonCreator
+        public OneProperty(String bogus) {
+            paramName0 = "CTOR:"+bogus;
         }
     }
 
@@ -43,12 +42,14 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
             .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
             ;
 
-    // for [databind#806]
-    public void testImplicitNameWithNamingStrategy() throws Exception
+    // Possibly [databind#2008], but originally
+    // wrt [https://github.com/FasterXML/jackson-modules-java8/issues/67]
+    public void testSnakeCaseWithOneArg() throws Exception
     {
-        XY value = MAPPER.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);
-        assertNotNull(value);
-        assertEquals(1, value.x);
-        assertEquals(2, value.y);
+        final String MSG = "1st";
+        OneProperty actual = MAPPER.readValue(
+                "{\"first_property\":\""+MSG+"\"}",
+                OneProperty.class);
+        assertEquals("CTOR:"+MSG, actual.paramName0);
     }
 }

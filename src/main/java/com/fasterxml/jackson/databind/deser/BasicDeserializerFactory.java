@@ -728,7 +728,11 @@ nonAnnotatedParamIndex, ctor);
         if (!useProps && (paramDef != null)) {
             // One more thing: if implicit name matches property with a getter
             // or field, we'll consider it property-based as well
-            paramName = candidate.findImplicitParamName(0);
+
+            // 25-May-2018, tatu: as per [databind#2051], looks like we have to get
+            //    not implicit name, but name with possible strategy-based-rename
+//            paramName = candidate.findImplicitParamName(0);
+            paramName = candidate.paramName(0);
             useProps = (paramName != null) && paramDef.couldSerialize();
         }
         if (useProps) {

@@ -20,9 +20,9 @@ public class POJONode
     public POJONode(Object v) { _value = v; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Base class overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -50,9 +50,9 @@ public class POJONode
     }
     
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* General type coercions
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -97,29 +97,31 @@ public class POJONode
         }
         return defaultValue;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public final void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException
+    public final void serialize(JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
         if (_value == null) {
-            serializers.defaultSerializeNullValue(gen);
+            ctxt.defaultSerializeNullValue(gen);
         } else if (_value instanceof JsonSerializable) {
-            ((JsonSerializable) _value).serialize(gen, serializers);
+            ((JsonSerializable) _value).serialize(gen, ctxt);
         } else {
-            gen.writeObject(_value);
+            // 25-May-2018, tatu: [databind#1991] do not call via generator but through context;
+            //    this to preserve contextual information
+            ctxt.writeValue(gen, _value);
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -128,9 +130,9 @@ public class POJONode
     public Object getPojo() { return _value; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

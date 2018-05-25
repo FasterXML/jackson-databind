@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 
 // for [databind#1401]: should allow "Any Setter" to back up otherwise
 // problematic Creator properties?
-public class CreatorProperties1401Test extends BaseMapTest
+public class CreatorAnySetter1401Test extends BaseMapTest
 {
     // for [databind#1401]
     static class NoSetter1401 {

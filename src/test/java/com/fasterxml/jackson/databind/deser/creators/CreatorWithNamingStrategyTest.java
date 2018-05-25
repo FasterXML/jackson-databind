@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class CreatorWithNamingStrategy2008Test extends BaseMapTest
+public class CreatorWithNamingStrategyTest extends BaseMapTest
 {
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
@@ -21,7 +21,7 @@ public class CreatorWithNamingStrategy2008Test extends BaseMapTest
         }
     }
 
-    // wrt [https://github.com/FasterXML/jackson-modules-java8/issues/67]
+    // [databind#2051]
     static class OneProperty {
         public String paramName0;
 
@@ -37,18 +37,17 @@ public class CreatorWithNamingStrategy2008Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper()
+    private final ObjectMapper MAPPER = newObjectMapper()
             .setAnnotationIntrospector(new MyParamIntrospector())
             .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
             ;
 
-    // Possibly [databind#2008], but originally
-    // wrt [https://github.com/FasterXML/jackson-modules-java8/issues/67]
+    // [databind#2051]
     public void testSnakeCaseWithOneArg() throws Exception
     {
         final String MSG = "1st";
         OneProperty actual = MAPPER.readValue(
-                "{\"first_property\":\""+MSG+"\"}",
+                "{\"param_name0\":\""+MSG+"\"}",
                 OneProperty.class);
         assertEquals("CTOR:"+MSG, actual.paramName0);
     }

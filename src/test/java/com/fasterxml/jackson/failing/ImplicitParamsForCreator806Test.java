@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -38,7 +37,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper()
+    private final ObjectMapper MAPPER = newObjectMapper()
             .setAnnotationIntrospector(new MyParamIntrospector())
             .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
             ;

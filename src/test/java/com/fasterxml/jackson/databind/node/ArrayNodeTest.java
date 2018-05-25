@@ -88,11 +88,6 @@ public class ArrayNodeTest
         n.addPOJO("foo");
         assertEquals(6, n.size());
 
-        // Try serializing it for fun, too...
-        JsonGenerator g = objectMapper().getFactory().createGenerator(new StringWriter());
-        n.serialize(g, null);
-        g.close();
-
         n.removeAll();
         assertEquals(0, n.size());
     }

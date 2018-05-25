@@ -102,14 +102,16 @@ public class POJONode
      */
 
     @Override
-    public final void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException
+    public final void serialize(JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
         if (_value == null) {
-            serializers.defaultSerializeNull(gen);
+            ctxt.defaultSerializeNull(gen);
         } else if (_value instanceof JsonSerializable) {
-            ((JsonSerializable) _value).serialize(gen, serializers);
+            ((JsonSerializable) _value).serialize(gen, ctxt);
         } else {
-            gen.writeObject(_value);
+            // 25-May-2018, tatu: [databind#1991] do not call via generator but through context;
+            //    this to preserve contextual information
+            ctxt.defaultSerializeValue(_value, gen);
         }
     }
 

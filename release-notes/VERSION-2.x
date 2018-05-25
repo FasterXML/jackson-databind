@@ -43,6 +43,8 @@ Project: jackson-databind
 #2038: JDK Serializing and using Deserialized `ObjectMapper` loses linkage
   back from `JsonParser.getCodec()`
  (reported by Chetan N)
+#2051: Implicit constructor property names are not renamed properly with
+  `PropertyNamingStrategy`
 
 2.9.5 (26-Mar-2018)
 

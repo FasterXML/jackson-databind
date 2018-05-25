@@ -833,7 +833,7 @@ public class POJOPropertiesCollector
                 }
             }
             final String simpleName;
-            if (rename != null && !fullName.hasSimpleName(rename)) {
+            if ((rename != null) && !fullName.hasSimpleName(rename)) {
                 prop = prop.withSimpleName(rename);
                 simpleName = rename;
             } else {
@@ -846,6 +846,7 @@ public class POJOPropertiesCollector
             } else {
                 old.addAll(prop);
             }
+
             // replace the creatorProperty too, if there is one
             _updateCreatorProperty(prop, _creatorProperties);
         }
@@ -1061,9 +1062,11 @@ public class POJOPropertiesCollector
     }
 
     protected void _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
+
         if (creatorProperties != null) {
+            final String intName = prop.getInternalName();
             for (int i = 0, len = creatorProperties.size(); i < len; ++i) {
-                if (creatorProperties.get(i).getInternalName().equals(prop.getInternalName())) {
+                if (creatorProperties.get(i).getInternalName().equals(intName)) {
                     creatorProperties.set(i, prop);
                     break;
                 }

@@ -16,6 +16,8 @@ Project: jackson-databind
  (reported by ptirador@github)
 #1990: MixIn `@JsonProperty` for `Object.hashCode()` is ignored
  (reported by Freddy B)
+#1991: Context attributes are not passed/available to custom serializer if object is in POJO
+ (reported by dletin@github)
 #1998: Removing "type" attribute with Mixin not taken in account if
   using ObjectMapper.copy()
  (reported by SBKila@github)

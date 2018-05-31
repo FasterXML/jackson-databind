@@ -24,7 +24,9 @@ public class NodeContext2049Test extends BaseMapTest
         public Parent parent;
         public String property;
 
+        @Override
         public void setParent(Parent p) { parent = p; }
+        @Override
         public Parent getParent() { return parent; }
     }
 

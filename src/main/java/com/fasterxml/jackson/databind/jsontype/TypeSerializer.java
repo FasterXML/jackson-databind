@@ -172,7 +172,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, JsonToken.VALUE_STRING));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypePrefixForScalar(Object value, JsonGenerator g) throws IOException {
@@ -184,7 +184,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, JsonToken.START_OBJECT));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypePrefixForObject(Object value, JsonGenerator g) throws IOException {
@@ -196,7 +196,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, JsonToken.START_ARRAY));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypePrefixForArray(Object value, JsonGenerator g) throws IOException {
@@ -208,7 +208,7 @@ public abstract class TypeSerializer
      *{@code writeTypeSuffix(g, typeId(value, JsonToken.VALUE_STRING));}.
      * See {@link #writeTypeSuffix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypeSuffixForScalar(Object value, JsonGenerator g) throws IOException {
@@ -220,7 +220,7 @@ public abstract class TypeSerializer
      *{@code writeTypeSuffix(g, typeId(value, JsonToken.START_OBJECT));}.
      * See {@link #writeTypeSuffix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypeSuffixForObject(Object value, JsonGenerator g) throws IOException {
@@ -232,7 +232,7 @@ public abstract class TypeSerializer
      *{@code writeTypeSuffix(g, typeId(value, JsonToken.START_ARRAY));}.
      * See {@link #writeTypeSuffix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypeSuffixForArray(Object value, JsonGenerator g) throws IOException {
@@ -244,7 +244,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, type, JsonToken.VALUE_STRING));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypePrefixForScalar(Object value, JsonGenerator g, Class<?> type) throws IOException {
@@ -256,7 +256,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, type, JsonToken.START_OBJECT));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypePrefixForObject(Object value, JsonGenerator g, Class<?> type) throws IOException {
@@ -268,7 +268,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, type, JsonToken.START_ARRAY));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeTypePrefixForArray(Object value, JsonGenerator g, Class<?> type) throws IOException {
@@ -286,7 +286,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, JsonToken.VALUE_STRING, typeId));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException {
@@ -298,7 +298,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, JsonToken.START_OBJECT, typeId));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator g, String typeId) throws IOException {
@@ -310,7 +310,7 @@ public abstract class TypeSerializer
      *{@code writeTypePrefix(g, typeId(value, JsonToken.START_ARRAY, typeId));}.
      * See {@link #writeTypePrefix} for more info.
      *
-     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypePrefix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeCustomTypePrefixForArray(Object value, JsonGenerator g, String typeId) throws IOException {
@@ -318,7 +318,7 @@ public abstract class TypeSerializer
     }
 
     /**
-     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator g, String typeId) throws IOException {
@@ -326,7 +326,7 @@ public abstract class TypeSerializer
     }
 
     /**
-     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeCustomTypeSuffixForObject(Object value, JsonGenerator g, String typeId) throws IOException {
@@ -334,7 +334,7 @@ public abstract class TypeSerializer
     }
 
     /**
-     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId) instead
+     * @deprecated Since 2.9 use {@link #writeTypeSuffix(JsonGenerator, WritableTypeId)} instead
      */
     @Deprecated // since 2.9
     public void writeCustomTypeSuffixForArray(Object value, JsonGenerator g, String typeId) throws IOException {

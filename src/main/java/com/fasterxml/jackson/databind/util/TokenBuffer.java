@@ -29,9 +29,9 @@ public class TokenBuffer
     protected final static int DEFAULT_GENERATOR_FEATURES = JsonGenerator.Feature.collectDefaults();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -64,11 +64,11 @@ public class TokenBuffer
      * on all floating-point values.
      */
     protected boolean _forceBigDecimal;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Token buffering state
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -105,9 +105,9 @@ public class TokenBuffer
     protected boolean _hasNativeId = false;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output state
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonWriteContext _tokenWriteContext;
@@ -120,9 +120,9 @@ public class TokenBuffer
     protected ObjectWriteContext _objectWriteContext; // = ObjectWriteContext.empty();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -158,10 +158,6 @@ public class TokenBuffer
 
         _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
     }
-    
-    public TokenBuffer(JsonParser p) {
-        this(p, null);
-    }
 
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
@@ -179,9 +175,9 @@ public class TokenBuffer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: helper factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -219,9 +215,9 @@ public class TokenBuffer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: initialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -233,7 +229,7 @@ public class TokenBuffer
      *</pre>
      */
     public static TokenBuffer asCopyOfValue(JsonParser p) throws IOException {
-        TokenBuffer b = new TokenBuffer(p);
+        TokenBuffer b = new TokenBuffer(p, null);
         b.copyCurrentStructure(p);
         return b;
     }
@@ -255,9 +251,9 @@ public class TokenBuffer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parser construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -281,7 +277,7 @@ public class TokenBuffer
         return new Parser(readCtxt,
                 _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
-    
+
     /**
      * Same as:
      *<pre>
@@ -306,11 +302,11 @@ public class TokenBuffer
         p.setLocation(src.getTokenLocation());
         return p;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Versioned (mostly since buffer is `JsonGenerator`
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -319,9 +315,9 @@ public class TokenBuffer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonToken firstToken() {
@@ -330,9 +326,9 @@ public class TokenBuffer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other custom methods not needed for implementing interfaces
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -593,9 +589,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: context
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -605,9 +601,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public ObjectWriteContext getObjectWriteContext() { return _objectWriteContext; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -641,9 +637,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: capability introspection
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -655,9 +651,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: low-level output handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -672,9 +668,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public boolean isClosed() { return _closed; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: write methods, structural
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -745,11 +741,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _tokenWriteContext.writeFieldName(name.getValue());
         _append(JsonToken.FIELD_NAME, name);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: write methods, textual
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -833,9 +829,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: write methods, primitive types
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -900,9 +896,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: write methods for POJOs/trees
-    /***********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -936,9 +932,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation; binary
-    /***********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -967,9 +963,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation: native ids
-    /***********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1000,9 +996,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonGenerator implementation; pass-through copy
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1133,11 +1129,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _hasNativeId = true;
         }
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final void _append(JsonToken type)
@@ -1203,18 +1199,18 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Supporting classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final static class Parser
         extends ParserMinimalBase
     {
         /*
-        /**********************************************************
+        /******************************************************************
         /* Configuration
-        /**********************************************************
+        /******************************************************************
          */
 
         protected final boolean _hasNativeTypeIds;
@@ -1224,9 +1220,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected final boolean _hasNativeIds;
         
         /*
-        /**********************************************************
+        /******************************************************************
         /* Parsing state
-        /**********************************************************
+        /******************************************************************
          */
 
         /**
@@ -1252,9 +1248,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected JsonLocation _location = null;
         
         /*
-        /**********************************************************
+        /******************************************************************
         /* Construction, init
-        /**********************************************************
+        /******************************************************************
          */
 
         public Parser(ObjectReadContext readCtxt, Segment firstSeg,
@@ -1280,9 +1276,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Extended API beyond JsonParser
-        /**********************************************************
+        /******************************************************************
          */
         
         public JsonToken peekNextToken() throws IOException
@@ -1297,11 +1293,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             return (seg == null) ? null : seg.type(ptr);
         }
-        
+
         /*
-        /**********************************************************
+        /******************************************************************
         /* Closeable implementation
-        /**********************************************************
+        /******************************************************************
          */
 
         @Override
@@ -1312,9 +1308,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Public API, traversal
-        /**********************************************************
+        /******************************************************************
          */
         
         @Override
@@ -1391,9 +1387,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public boolean isClosed() { return _closed; }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Public API, token accessors
-        /**********************************************************
+        /******************************************************************
          */
 
         @Override
@@ -1435,9 +1431,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Public API, access to token information, text
-        /**********************************************************
+        /******************************************************************
          */
 
         @Override
@@ -1486,9 +1482,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Public API, access to token information, numeric
-        /**********************************************************
+        /******************************************************************
          */
 
         @Override
@@ -1683,9 +1679,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Public API, access to token information, other
-        /**********************************************************
+        /******************************************************************
          */
 
         @Override
@@ -1739,9 +1735,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Public API, native ids
-        /**********************************************************
+        /******************************************************************
          */
 
         @Override
@@ -1765,9 +1761,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
         
         /*
-        /**********************************************************
+        /******************************************************************
         /* Internal methods
-        /**********************************************************
+        /******************************************************************
          */
 
         protected final Object _currentObject() {
@@ -1918,52 +1914,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _next.set(0, tokenType, value, objectId, typeId);
             return _next;
         }
-
-        /*
-        public Segment appendRaw(int index, int rawTokenType, Object value)
-        {
-            if (index < TOKENS_PER_SEGMENT) {
-                set(index, rawTokenType, value);
-                return null;
-            }
-            _next = new Segment();
-            _next.set(0, rawTokenType, value);
-            return _next;
-        }
-
-        public Segment appendRaw(int index, int rawTokenType, Object value,
-                Object objectId, Object typeId)
-        {
-            if (index < TOKENS_PER_SEGMENT) {
-                set(index, rawTokenType, value, objectId, typeId);
-                return null;
-            }
-            _next = new Segment();
-            _next.set(0, rawTokenType, value, objectId, typeId);
-            return _next;
-        }
-
-        private void set(int index, int rawTokenType, Object value, Object objectId, Object typeId)
-        {
-            _tokens[index] = value;
-            long typeCode = (long) rawTokenType;
-            if (index > 0) {
-                typeCode <<= (index << 2);
-            }
-            _tokenTypes |= typeCode;
-            assignNativeIds(index, objectId, typeId);
-        }
-
-        private void set(int index, int rawTokenType, Object value)
-        {
-            _tokens[index] = value;
-            long typeCode = (long) rawTokenType;
-            if (index > 0) {
-                typeCode <<= (index << 2);
-            }
-            _tokenTypes |= typeCode;
-        }
-        */
 
         private void set(int index, JsonToken tokenType)
         {

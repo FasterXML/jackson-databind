@@ -299,7 +299,7 @@ public class ExternalTypeHandler
                     if (typeProp.getType().hasRawClass(String.class)) {
                         v = typeId;
                     } else {
-                        TokenBuffer tb = new TokenBuffer(p, ctxt);
+                        TokenBuffer tb = TokenBuffer.forInputBuffering(p, ctxt);
                         tb.writeString(typeId);
                         v = typeProp.getValueDeserializer().deserialize(tb.asParserOnFirstToken(), ctxt);
                         tb.close();

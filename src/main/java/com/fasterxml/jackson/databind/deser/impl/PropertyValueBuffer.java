@@ -177,7 +177,6 @@ public class PropertyValueBuffer
                 }
             }
         }
-
         return _creatorParameters;
     }
 
@@ -263,7 +262,6 @@ public class PropertyValueBuffer
     {
         final int ix = prop.getCreatorIndex();
         _creatorParameters[ix] = value;
-
         if (_paramsSeenBig == null) {
             int old = _paramsSeen;
             int newValue = (old | (1 << ix));

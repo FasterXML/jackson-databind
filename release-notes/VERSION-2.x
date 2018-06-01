@@ -9,6 +9,7 @@ Project: jackson-databind
 #955: Add `MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL` to use declared base type
    as `defaultImpl` for polymorphic deserialization
   (contributed by mikeldpl@github)
+#1328: External property polymorphic deserialization does not work with enums
 #1565: Deserialization failure with Polymorphism using JsonTypeInfo `defaultImpl`,
   subtype as target
 #1964: Failed to specialize `Map` type during serialization where key type

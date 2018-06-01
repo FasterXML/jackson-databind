@@ -262,7 +262,6 @@ public class ExternalTypeHandler
         for (int i = 0; i < len; ++i) {
             String typeId = _typeIds[i];
             final ExtTypedProperty extProp = _properties[i];
-
             if (typeId == null) {
                 // let's allow missing both type and property (may already have been set, too)
                 if (_tokens[i] == null) {
@@ -294,11 +293,21 @@ public class ExternalTypeHandler
                 SettableBeanProperty typeProp = extProp.getTypeProperty();
                 // for now, should only be needed for creator properties, too
                 if ((typeProp != null) && (typeProp.getCreatorIndex() >= 0)) {
-                    buffer.assignParameter(typeProp, typeId);
+                    // 31-May-2018, tatu: [databind#1328] if id is NOT plain `String`, need to
+                    //    apply deserializer... fun fun.
+                    final Object v;
+                    if (typeProp.getType().hasRawClass(String.class)) {
+                        v = typeId;
+                    } else {
+                        TokenBuffer tb = new TokenBuffer(p, ctxt);
+                        tb.writeString(typeId);
+                        v = typeProp.getValueDeserializer().deserialize(tb.asParserOnFirstToken(), ctxt);
+                        tb.close();
+                    }
+                    buffer.assignParameter(typeProp, v);
                 }
             }
         }
-
         Object bean = creator.build(ctxt, buffer);
         // third: assign non-creator properties
         for (int i = 0; i < len; ++i) {

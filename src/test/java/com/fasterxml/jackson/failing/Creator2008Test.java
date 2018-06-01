@@ -29,8 +29,8 @@ public class Creator2008Test extends BaseMapTest
         }
 
         @JsonSetter("jacksonAge")
-        public void reviseAge(int age) {
-             this.age = age + 10;
+        public void reviseAge(int a) {
+             this.age = a + 10;
         }
 
         @JsonGetter("jacksonName")
@@ -39,8 +39,8 @@ public class Creator2008Test extends BaseMapTest
         }
 
         @JsonSetter("jacksonName")
-        public void reviseName(String name) {
-             this.name = "lee" + name;
+        public void reviseName(String n) {
+             this.name = "lee" + n;
         }
 
         public String getEtc() {

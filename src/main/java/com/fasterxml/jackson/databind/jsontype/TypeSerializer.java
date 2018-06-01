@@ -132,17 +132,4 @@ public abstract class TypeSerializer
 
     public abstract WritableTypeId writeTypeSuffix(JsonGenerator g,
             WritableTypeId typeId) throws IOException;
-
-    /**
-     * Helper method needed for backwards compatibility: since original type id
-     * can not be routed through completely, we have to reverse-engineer likely
-     * setting before calling suffix.
-     */
-    protected final void _writeLegacySuffix(JsonGenerator g,
-            WritableTypeId typeId) throws IOException
-    {
-        // most likely logic within generator is this:
-        typeId.wrapperWritten = !g.canWriteTypeId();
-        writeTypeSuffix(g, typeId);
-    }
 }

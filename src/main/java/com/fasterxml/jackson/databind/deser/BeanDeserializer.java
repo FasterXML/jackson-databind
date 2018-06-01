@@ -712,8 +712,7 @@ public class BeanDeserializer
         //   "empty" POJOs deserialized from XML, where empty XML tag synthesizes a
         //   `VALUE_NULL` tokens
         if (p.canSynthesizeNulls()) {
-            @SuppressWarnings("resource")
-            TokenBuffer tb = new TokenBuffer(p, ctxt);
+            TokenBuffer tb = TokenBuffer.forGeneration();
             tb.writeEndObject();
             JsonParser p2 = tb.asParser(ctxt, p);
             p2.nextToken(); // to point to END_OBJECT
@@ -721,6 +720,7 @@ public class BeanDeserializer
             Object ob = _vanillaProcessing ? _vanillaDeserialize(p2, ctxt, JsonToken.END_OBJECT)
                     : deserializeFromObject(p2, ctxt);
             p2.close();
+            tb.close();
             return ob;
         }
         return ctxt.handleUnexpectedToken(handledType(), p);

@@ -1181,7 +1181,7 @@ public abstract class BeanDeserializerBase
     protected Object _convertObjectId(JsonParser p, DeserializationContext ctxt,
             Object rawId, JsonDeserializer<Object> idDeser) throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(p, ctxt);
+        TokenBuffer buf = TokenBuffer.forInputBuffering(p, ctxt);
         if (rawId instanceof String) {
             buf.writeString((String) rawId);
         } else if (rawId instanceof Long) {
@@ -1196,8 +1196,7 @@ public abstract class BeanDeserializerBase
             //   but that won't work for default impl (JSON and most dataformats)
             buf.writeObject(rawId);
         }
-        JsonParser bufParser = buf.asParser();
-        bufParser.nextToken();
+        JsonParser bufParser = buf.asParserOnFirstToken();
         return idDeser.deserialize(bufParser, ctxt);
     }
 

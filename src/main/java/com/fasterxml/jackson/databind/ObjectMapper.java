@@ -1240,6 +1240,19 @@ public class ObjectMapper
     }
 
     /**
+     *<p>
+     * Note: return type is co-variant, as basic ObjectCodec
+     * abstraction cannot refer to concrete node types (as it's
+     * part of core package, whereas impls are part of mapper
+     * package)
+     *
+     * @param capacity the initial capacity of the ArrayNode
+     */
+    public ArrayNode createArrayNode(int capacity) {
+        return _deserializationConfig.getNodeFactory().arrayNode(capacity);
+    }
+
+    /**
      * Method for constructing a {@link JsonParser} out of JSON tree
      * representation.
      * 

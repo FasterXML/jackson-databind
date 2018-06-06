@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -12,25 +14,49 @@ public class RecursiveIgnorePropertiesTest extends BaseMapTest
 
         @JsonProperty("person_z") // renaming this to person_p works
         @JsonIgnoreProperties({"person_z"}) // renaming this to person_p works
-//        public Set<Person> personZ;
         public Person personZ;
     }
+
+    static class Persons {
+        public String name;
+
+        @JsonProperty("person_z") // renaming this to person_p works
+        @JsonIgnoreProperties({"person_z"}) // renaming this to person_p works
+        public Set<Persons> personZ;
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
+    private final ObjectMapper MAPPER = newObjectMapper();
 
     public void testRecursiveForDeser() throws Exception
     {
         String st = aposToQuotes("{ 'name': 'admin',\n"
-//                + "    'person_z': [ { 'name': 'admin' } ]"
-              + "    'person_z': { 'name': 'admin' }"
+                + "    'person_z': { 'name': 'wyatt' }"
                 + "}");
-
-        ObjectMapper mapper = newObjectMapper();
-        Person result = mapper.readValue(st, Person.class);
+        Person result = MAPPER.readValue(st, Person.class);
         assertEquals("admin", result.name);
+        assertNotNull(result.personZ);
+        assertEquals("wyatt", result.personZ.name);
+    }
+
+    public void testRecursiveWithCollectionDeser() throws Exception
+    {
+        String st = aposToQuotes("{ 'name': 'admin',\n"
+                + "    'person_z': [ { 'name': 'Foor' }, { 'name' : 'Bar' } ]"
+                + "}");
+        Persons result = MAPPER.readValue(st, Persons.class);
+        assertEquals("admin", result.name);
+        assertNotNull(result.personZ);
+        assertEquals(2, result.personZ.size());
     }
 
     public void testRecursiveForSer() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
         Person input = new Person();
         input.name = "Bob";
         Person p2 = new Person();
@@ -38,7 +64,7 @@ public class RecursiveIgnorePropertiesTest extends BaseMapTest
         input.personZ = p2;
         p2.personZ = input;
 
-        String json = mapper.writeValueAsString(input);
+        String json = MAPPER.writeValueAsString(input);
         assertNotNull(json);
     }
 }

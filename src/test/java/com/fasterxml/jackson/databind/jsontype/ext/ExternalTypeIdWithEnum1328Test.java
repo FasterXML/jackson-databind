@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.jsontype.ext;
 
 import java.io.IOException;
 import java.util.Arrays;

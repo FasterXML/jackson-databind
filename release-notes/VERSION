@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.7.9.4 (08-Jun-2018)
 
-#2032: Blacklist another serialization gadget (ibatis)
+#2032: CVE-2018-11307: Potential information exfiltration with default typing, serialization gadget from MyBatis
 #2052: CVE-2018-12022: Block polymorphic deserialization of types from Jodd-db library
 #2058: CVE-2018-12023: Block polymorphic deserialization of types from Oracle JDBC driver
 

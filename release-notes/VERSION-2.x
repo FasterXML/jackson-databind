@@ -39,7 +39,7 @@ Project: jackson-databind
   with `null` coercion with `@JsonSetter`
 #2027: Concurrency error causes `IllegalStateException` on `BeanPropertyMap`
  (reported by franboragina@github)
-#2032: Blacklist another serialization gadget (ibatis)
+#2032: CVE-2018-11307: Potential information exfiltration with default typing, serialization gadget from MyBatis
  (reported by Guixiong Wu)
 #2034: Serialization problem with type specialization of nested generic types
  (reported by Reinhard P)
@@ -48,6 +48,10 @@ Project: jackson-databind
  (reported by Chetan N)
 #2051: Implicit constructor property names are not renamed properly with
   `PropertyNamingStrategy`
+#2052: CVE-2018-12022: Block polymorphic deserialization of types from Jodd-db library
+ (reported by Guixiong Wu)
+#2058: CVE-2018-12023: Block polymorphic deserialization of types from Oracle JDBC driver
+ (reported by Guixiong Wu)
 
 2.9.5 (26-Mar-2018)
 
@@ -266,6 +270,18 @@ Project: jackson-databind
 #1690: Prevent use of quoted number (index) for Enum deserialization via
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
+
+2.8.11.2 (08-Jun-2018)
+
+#1941: `TypeFactory.constructFromCanonical()` throws NPE for Unparameterized
+  generic canonical strings
+ (reported by ayushgp@github)
+#2032: CVE-2018-11307: Potential information exfiltration with default typing, serialization gadget from MyBatis
+ (reported by Guixiong Wu)
+#2052: CVE-2018-12022: Block polymorphic deserialization of types from Jodd-db library
+ (reported by Guixiong Wu)
+#2058: CVE-2018-12023: Block polymorphic deserialization of types from Oracle JDBC driver
+ (reported by Guixiong Wu)
 
 2.8.11.1 (11-Feb-2018)
 

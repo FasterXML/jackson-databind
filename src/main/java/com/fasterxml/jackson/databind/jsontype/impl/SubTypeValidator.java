@@ -61,10 +61,11 @@ public class SubTypeValidator
         // [databind#2032]: more 3rd party; data exfiltration via xml parsed ext entities
         s.add("org.apache.ibatis.parsing.XPathParser");
 
-        // [databind#2052]: ldap approaches; in all cases LDAP connection String is passed
-        //   and access attempt is made:
-        s.add("oracle.jdbc.connector.OracleManagedConnectionFactory");
+        // [databind#2052]: Jodd-db, with jndi/ldap lookup
         s.add("jodd.db.connection.DataSourceConnectionProvider");
+
+        // [databind#2058]: Oracle JDBC driver, with jndi/ldap lookup
+        s.add("oracle.jdbc.connector.OracleManagedConnectionFactory");
         s.add("oracle.jdbc.rowset.OracleJDBCRowSet");
 
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);

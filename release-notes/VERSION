@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.11.2 (not yet released)
+2.8.11.2 (08-Jun-2018)
 
 #1941: `TypeFactory.constructFromCanonical()` throws NPE for Unparameterized
   generic canonical strings

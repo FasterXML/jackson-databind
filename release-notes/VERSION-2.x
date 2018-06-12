@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.6 (not yet released)
+2.9.6 (12-Jun-2018)
 
 #955: Add `MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL` to use declared base type
    as `defaultImpl` for polymorphic deserialization

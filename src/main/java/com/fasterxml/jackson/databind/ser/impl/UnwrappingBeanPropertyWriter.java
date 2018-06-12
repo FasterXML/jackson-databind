@@ -134,7 +134,10 @@ public class UnwrappingBeanPropertyWriter
     {
         if (ser != null) {
             NameTransformer t = _nameTransformer;
-            if (ser.isUnwrappingSerializer()) {
+            if (ser.isUnwrappingSerializer()
+                    // as per [databind#2060], need to also check this, in case someone writes
+                    // custom implementation that does not extend standard implementation:
+                    && (ser instanceof UnwrappingBeanSerializer)) {
                 t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) ser)._nameTransformer);
             }
             ser = ser.unwrappingSerializer(t);

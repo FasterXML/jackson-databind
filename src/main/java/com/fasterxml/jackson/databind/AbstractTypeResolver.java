@@ -24,7 +24,7 @@ public abstract class AbstractTypeResolver
      * resolvers, until a concrete type is located.
      * 
      * @param config Configuration in use; should always be of type
-     *    <code>DeserializationConfig</code>
+     *    {@code DeserializationConfig}
      */
     public JavaType findTypeMapping(DeserializationConfig config, JavaType type) {
         return null;

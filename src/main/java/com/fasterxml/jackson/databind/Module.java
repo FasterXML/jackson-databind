@@ -150,7 +150,7 @@ public abstract class Module
          *<pre>
          *   mapper.configOverride(java.util.Date.class)
          *       .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd"));
-         *<pre>
+         *</pre>
          * to change the default format to use for properties of type
          * {@link java.util.Date} (possibly further overridden by per-property
          * annotations)

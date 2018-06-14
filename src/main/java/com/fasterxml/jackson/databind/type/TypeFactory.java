@@ -843,7 +843,7 @@ s     */
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type <code>List&lt;Set&lt;Integer>></code>, you could
+     * type {@code List<Set<Integer>>}, you could
      * call
      *<pre>
      *  JavaType inner = TypeFactory.constructParametricType(Set.class, Set.class, Integer.class);
@@ -852,7 +852,7 @@ s     */
      *<p>
      * The reason for first two arguments to be separate is that parameterization may
      * apply to a super-type. For example, if generic type was instead to be
-     * constructed for <code>ArrayList&lt;Integer></code>, the usual call would be:
+     * constructed for {@code ArrayList<Integer>}, the usual call would be:
      *<pre>
      *  TypeFactory.constructParametricType(ArrayList.class, List.class, Integer.class);
      *</pre>
@@ -877,8 +877,7 @@ s     */
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type <code>List&lt;Set&lt;Integer>></code>, you could
-     * call
+     * type {@code List<Set<Integer>>}, you could call
      *<pre>
      *  JavaType inner = TypeFactory.constructParametricType(Set.class, Set.class, Integer.class);
      *  return TypeFactory.constructParametricType(ArrayList.class, List.class, inner);
@@ -886,7 +885,7 @@ s     */
      *<p>
      * The reason for first two arguments to be separate is that parameterization may
      * apply to a super-type. For example, if generic type was instead to be
-     * constructed for <code>ArrayList&lt;Integer></code>, the usual call would be:
+     * constructed for {@code ArrayList<Integer>}, the usual call would be:
      *<pre>
      *  TypeFactory.constructParametricType(ArrayList.class, List.class, Integer.class);
      *</pre>
@@ -895,7 +894,7 @@ s     */
      * one such example is parameterization of types that implement {@link java.util.Iterator}.
      *<p>
      * NOTE: type modifiers are NOT called on constructed type.
-     * 
+     *
      * @param rawType Actual type-erased type
      * @param parameterTypes Type parameters to apply
      */

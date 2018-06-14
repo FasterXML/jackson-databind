@@ -327,7 +327,7 @@ public class ArrayNode
     /**
      * Method for inserting specified child node as an element
      * of this Array. If index is 0 or less, it will be inserted as
-     * the first element; if >= size(), appended at the end, and otherwise
+     * the first element; if {@code >= size()}, appended at the end, and otherwise
      * inserted before existing element in specified index.
      * No exceptions are thrown for any index.
      *

@@ -103,8 +103,9 @@ public class TestViewDeserialization extends BaseMapTest
         assertEquals(3, bean.a);
         assertEquals(9, bean.b);
 
-        ObjectMapper myMapper = new ObjectMapper();
-        myMapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        ObjectMapper myMapper = objectMapperBuilder()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build();
 
         // but with, say, AA, will not get 'b'
         bean = myMapper.readerWithView(ViewAA.class)

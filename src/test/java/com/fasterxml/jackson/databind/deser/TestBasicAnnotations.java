@@ -195,8 +195,9 @@ public class TestBasicAnnotations
         AnnoBean bean = MAPPER.readValue("{ \"y\" : 0 }", AnnoBean.class);
         assertEquals(0, bean.value);
 
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_ANNOTATIONS, false);
+        ObjectMapper m = ObjectMapper.builder()
+                .configure(MapperFeature.USE_ANNOTATIONS, false)
+                .build();
         // without annotations, should default to default bean-based name...
         bean = m.readValue("{ \"x\" : 0 }", AnnoBean.class);
         assertEquals(0, bean.value);
@@ -207,16 +208,18 @@ public class TestBasicAnnotations
         ObjectMapper m = new ObjectMapper();
         assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
 
-        m = new ObjectMapper();
-        m.configure(MapperFeature.USE_ANNOTATIONS, false);
+        m = ObjectMapper.builder()
+                .configure(MapperFeature.USE_ANNOTATIONS, false)
+                .build();
         // should still use the basic name handling here
         assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
     }
 
     public void testNoAccessOverrides() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+        ObjectMapper m = ObjectMapper.builder()
+                .disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)
+                .build();
         SimpleBean bean = m.readValue("{\"x\":1,\"y\":2}", SimpleBean.class);
         assertEquals(1, bean.x);
         assertEquals(2, bean.y);

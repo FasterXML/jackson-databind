@@ -232,12 +232,17 @@ public abstract class BaseMapTest
         return new ObjectMapper();
     }
 
+    // @since 2.10
+    protected static ObjectMapper.Builder objectMapperBuilder() {
+        return (ObjectMapper.Builder) (Object) ObjectMapper.builder();
+    }
+
     // @since 2.7
     protected TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added
         return TypeFactory.defaultInstance().withModifier(null);
     }
-    
+
     /*
     /**********************************************************
     /* Additional assert methods

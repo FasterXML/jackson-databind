@@ -188,8 +188,9 @@ public class TestJsonSerialize
 
     public void testStaticTypingWithMap() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_STATIC_TYPING, true);
+        ObjectMapper m = objectMapperBuilder()
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
         ValueMap map = new ValueMap();
         map.put("a", new ValueClass());
         assertEquals("{\"a\":{\"x\":3}}", serializeAsString(m, map));
@@ -197,8 +198,9 @@ public class TestJsonSerialize
 
     public void testStaticTypingWithArrayList() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_STATIC_TYPING, true);
+        ObjectMapper m = objectMapperBuilder()
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
         ValueList list = new ValueList();
         list.add(new ValueClass());
         assertEquals("[{\"x\":3}]", m.writeValueAsString(list));
@@ -206,8 +208,9 @@ public class TestJsonSerialize
 
     public void testStaticTypingWithLinkedList() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_STATIC_TYPING, true);
+        ObjectMapper m = objectMapperBuilder()
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
         ValueLinkedList list = new ValueLinkedList();
         list.add(new ValueClass());
         assertEquals("[{\"x\":3}]", serializeAsString(m, list));
@@ -215,8 +218,9 @@ public class TestJsonSerialize
     
     public void testStaticTypingWithArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_STATIC_TYPING, true);
+        ObjectMapper m = objectMapperBuilder()
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
         ValueInterface[] array = new ValueInterface[] { new ValueClass() };
         assertEquals("[{\"x\":3}]", serializeAsString(m, array));
     }

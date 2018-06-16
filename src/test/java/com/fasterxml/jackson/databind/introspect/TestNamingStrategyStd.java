@@ -363,17 +363,19 @@ public class TestNamingStrategyStd extends BaseMapTest
 
     public void testExplicitRename() throws Exception
     {
-      ObjectMapper m = new ObjectMapper();
-      m.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-      m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+      ObjectMapper m = ObjectMapper.builder()
+              .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+              .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+              .build();
       // by default, renaming will not take place on explicitly named fields
       assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
           m.writeValueAsString(new ExplicitBean()));
 
-      m = new ObjectMapper();
-      m.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-      m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
-      m.enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING);
+      m = ObjectMapper.builder()
+              .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+          .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+          .enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)
+          .build();
       // w/ feature enabled, ALL property names should get re-written
       assertEquals(aposToQuotes("{'first_name':'Peter','last_name':'Venkman','user_age':'35'}"),
           m.writeValueAsString(new ExplicitBean()));

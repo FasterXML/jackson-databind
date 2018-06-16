@@ -229,9 +229,8 @@ public class TestAnnotations
     public void testInactiveMethodSerializer() throws Exception
     {
         String json = MAPPER.writeValueAsString(new InactiveClassMethodSerializer(8));
-        /* Here we will get wrapped as an object, since we have
-         * full object, just override a single property
-         */
+        // Here we will get wrapped as an object, since we have
+        // full object, just override a single property
         assertEquals("{\"x\":8}", json);
     }
 
@@ -245,16 +244,18 @@ public class TestAnnotations
         assertEquals("{\"a\":3,\"b\":4,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
 
         // but 3 if we require mutator:
-        m = new ObjectMapper();
-        m.enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS);
+        m = objectMapperBuilder()
+                .enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)
+                .build();
         assertEquals("{\"a\":3,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
     }
 
     public void testGettersWithoutSettersOverride() throws Exception
     {
         GettersWithoutSetters2 bean = new GettersWithoutSetters2();
-        ObjectMapper m = new ObjectMapper();
-        m.enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS);
+        ObjectMapper m = objectMapperBuilder()
+                .enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)
+                .build();
         assertEquals("{\"a\":123}", m.writeValueAsString(bean));
     }
 }

@@ -88,6 +88,7 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void testB_KO() throws Exception
     {
         final ObjectMapper DEFAULT = defaultMapper();
@@ -118,10 +119,11 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
 
     private ObjectMapper defaultMapper()
     {
-        return new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+        return ObjectMapper.builder()
+                .serializationInclusion(JsonInclude.Include.NON_EMPTY)
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .configure(MapperFeature.ALLOW_COERCION_OF_SCALARS, false)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
-            ;
+                .build();
     }
 }

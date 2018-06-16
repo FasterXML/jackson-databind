@@ -91,8 +91,9 @@ public class VisibilityForSerializationTest
 
         // Then auto-detection disabled. But note: we MUST create a new
         // mapper, since old version of serializer may be cached by now
-        m = new ObjectMapper();
-        m.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+        m = objectMapperBuilder()
+                .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
+                .build();
         result = writeAndMap(m, new GetterClass());
         assertEquals(1, result.size());
         assertTrue(result.containsKey("x"));
@@ -107,7 +108,9 @@ public class VisibilityForSerializationTest
         assertTrue(result.containsKey("x"));
 
         // And then class-level auto-detection enabling, should override defaults
-        m.configure(MapperFeature.AUTO_DETECT_GETTERS, true);
+        m = objectMapperBuilder()
+                .configure(MapperFeature.AUTO_DETECT_GETTERS, true)
+                .build();
         result = writeAndMap(m, new EnabledGetterClass());
         assertEquals(2, result.size());
         assertTrue(result.containsKey("x"));
@@ -116,10 +119,11 @@ public class VisibilityForSerializationTest
 
     public void testPerClassAutoDetectionForIsGetter() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = objectMapperBuilder()
         // class level should override
-        m.configure(MapperFeature.AUTO_DETECT_GETTERS, true);
-        m.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
+                .configure(MapperFeature.AUTO_DETECT_GETTERS, true)
+                .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false)
+                .build();
         Map<String,Object> result = writeAndMap(m, new EnabledIsGetterClass());
         assertEquals(0, result.size());
         assertFalse(result.containsKey("ok"));
@@ -131,24 +135,27 @@ public class VisibilityForSerializationTest
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
         assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
-        m.configure(MapperFeature.AUTO_DETECT_SETTERS, false)
-            .configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+        m = objectMapperBuilder()
+                .configure(MapperFeature.AUTO_DETECT_SETTERS, false)
+                .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
+                .build();
         assertFalse(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
         assertFalse(m.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
     }
 
     public void testVisibilityFeatures() throws Exception
     {
-        ObjectMapper om = new ObjectMapper();
+        ObjectMapper om = objectMapperBuilder()
         // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).
-        om.configure(MapperFeature.AUTO_DETECT_FIELDS, false);
-        om.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
-        om.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
-        om.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
-        om.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
-        om.configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
-        om.configure(MapperFeature.INFER_PROPERTY_MUTATORS, false);
-        om.configure(MapperFeature.USE_ANNOTATIONS, true);
+                .configure(MapperFeature.AUTO_DETECT_FIELDS, false)
+                .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
+            .configure(MapperFeature.AUTO_DETECT_SETTERS, false)
+            .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false)
+            .configure(MapperFeature.USE_GETTERS_AS_SETTERS, false)
+            .configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, true)
+            .configure(MapperFeature.INFER_PROPERTY_MUTATORS, false)
+            .configure(MapperFeature.USE_ANNOTATIONS, true)
+            .build();
 
         JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
         BeanDescription desc = (BeanDescription) om.getSerializationConfig().introspect(javaType);

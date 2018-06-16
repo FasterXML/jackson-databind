@@ -25,11 +25,13 @@ public class UnwrappedWithView1559Test extends BaseMapTest
 
     // for [databind#1559]
     public void testCanSerializeSimpleWithDefaultView() throws Exception {
-        String json = new ObjectMapper().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
+        String json = objectMapperBuilder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
+                .build()
                 .writeValueAsString(new Health());
         assertEquals(aposToQuotes("{}"), json);
         // and just in case this, although won't matter wrt output
-        json = new ObjectMapper().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true)
+        json = objectMapperBuilder().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true)
+                .build()
                 .writeValueAsString(new Health());
         assertEquals(aposToQuotes("{}"), json);
     }

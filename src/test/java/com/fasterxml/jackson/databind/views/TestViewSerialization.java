@@ -140,8 +140,9 @@ public class TestViewSerialization
         assertEquals("2", map.get("b"));
 
         // but can also change (but not necessarily on the fly...)
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
+        ObjectMapper mapper = objectMapperBuilder()
+                .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
+                .build();
 
         // with this setting, only explicit inclusions count:
         json = mapper.writerWithView(ViewA.class).writeValueAsString(bean);

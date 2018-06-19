@@ -802,3 +802,7 @@ Petar Tahchiev (ptahchiev@github)
   * Reported #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found
     serializer is of type `UnwrappingBeanSerializer`
   (2.9.6)
+
+Thibaut Robert (trobert@github)
+  * Requested #2059: Remove `final` modifier for `TypeFactory`
+  (2.10.0)

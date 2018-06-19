@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.util.LRUMap;
  *</pre>
  */
 @SuppressWarnings({"rawtypes" })
-public final class TypeFactory
+public class TypeFactory // note: was final in 2.9, removed from 2.10
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -171,6 +171,11 @@ public final class TypeFactory
         _classLoader = classLoader;
     }
 
+    /**
+     * "Mutant factory" method which will construct a new instance with specified
+     * {@link TypeModifier} added as the first modifier to call (in case there
+     * are multiple registered).
+     */
     public TypeFactory withModifier(TypeModifier mod) 
     {
         LRUMap<Object,JavaType> typeCache = _typeCache;
@@ -188,6 +193,10 @@ public final class TypeFactory
         return new TypeFactory(typeCache, _parser, mods, _classLoader);
     }
 
+    /**
+     * "Mutant factory" method which will construct a new instance with specified
+     * {@link ClassLoader} to use by {@link #findClass}.
+     */
     public TypeFactory withClassLoader(ClassLoader classLoader) {
         return new TypeFactory(_typeCache, _parser, _modifiers, classLoader);
     }
@@ -281,7 +290,7 @@ public final class TypeFactory
         Throwable prob = null;
         ClassLoader loader = this.getClassLoader();
         if (loader == null) {
-            loader = 	Thread.currentThread().getContextClassLoader();
+            loader = Thread.currentThread().getContextClassLoader();
         }
         if (loader != null) {
             try {

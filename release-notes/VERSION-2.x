@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.0 (not yet released)
+
+#2059: Remove `final` modifier for `TypeFactory`
+ (requested by Thibaut R)
+
 2.9.7 (not yet released)
 
 #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is

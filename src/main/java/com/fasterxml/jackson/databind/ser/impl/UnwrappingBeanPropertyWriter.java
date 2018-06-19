@@ -211,8 +211,11 @@ public class UnwrappingBeanPropertyWriter
             serializer = provider.findPrimaryPropertySerializer(type, this);
         }
         NameTransformer t = _nameTransformer;
-        if (serializer.isUnwrappingSerializer()) {
-            t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) serializer)._nameTransformer);
+        if (serializer.isUnwrappingSerializer()
+            // as per [databind#2060], need to also check this, in case someone writes
+            // custom implementation that does not extend standard implementation:
+            && (serializer instanceof UnwrappingBeanSerializer)) {
+                t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) serializer)._nameTransformer);
         }
         serializer = serializer.unwrappingSerializer(t);
         

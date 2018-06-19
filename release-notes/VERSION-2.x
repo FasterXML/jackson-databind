@@ -4,6 +4,17 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.0 (not yet released)
+
+#2059: Remove `final` modifier for `TypeFactory`
+ (requested by Thibaut R)
+
+2.9.7 (not yet released)
+
+#2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is
+  of type `UnwrappingBeanSerializer`
+ (reported by Petar T)
+
 2.9.6 (12-Jun-2018)
 
 #955: Add `MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL` to use declared base type
@@ -52,9 +63,6 @@ Project: jackson-databind
  (reported by Guixiong Wu)
 #2058: CVE-2018-12023: Block polymorphic deserialization of types from Oracle JDBC driver
  (reported by Guixiong Wu)
-#2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is
-  of type `UnwrappingBeanSerializer`
- (reported by Petar T)
 
 2.9.5 (26-Mar-2018)
 

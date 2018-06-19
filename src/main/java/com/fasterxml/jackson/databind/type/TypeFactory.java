@@ -173,6 +173,11 @@ public final class TypeFactory
                 _classLoader);
     }
 
+    /**
+     * "Mutant factory" method which will construct a new instance with specified
+     * {@link TypeModifier} added as the first modifier to call (in case there
+     * are multiple registered).
+     */
     public TypeFactory withModifier(TypeModifier mod) 
     {
         SimpleLookupCache<Object,JavaType> typeCache = _typeCache;
@@ -190,6 +195,10 @@ public final class TypeFactory
         return new TypeFactory(typeCache, mods, _classLoader);
     }
 
+    /**
+     * "Mutant factory" method which will construct a new instance with specified
+     * {@link ClassLoader} to use by {@link #findClass}.
+     */
     public TypeFactory withClassLoader(ClassLoader classLoader) {
         return new TypeFactory(_typeCache, _modifiers, classLoader);
     }
@@ -277,7 +286,7 @@ public final class TypeFactory
         Throwable prob = null;
         ClassLoader loader = this.getClassLoader();
         if (loader == null) {
-            loader = 	Thread.currentThread().getContextClassLoader();
+            loader = Thread.currentThread().getContextClassLoader();
         }
         if (loader != null) {
             try {

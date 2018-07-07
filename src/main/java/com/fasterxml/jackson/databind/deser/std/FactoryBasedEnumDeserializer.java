@@ -95,6 +95,10 @@ class FactoryBasedEnumDeserializer
         return Boolean.FALSE;
     }
 
+    // since 2.9.7: should have been the case earlier but
+    @Override
+    public boolean isCachable() { return true; }
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {

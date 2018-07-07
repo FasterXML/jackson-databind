@@ -9,6 +9,7 @@ Project: jackson-databind
 #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is
   of type `UnwrappingBeanSerializer`
  (reported by Petar T)
+#2082: `FactoryBasedEnumDeserializer` should be cachable
 
 2.9.6 (12-Jun-2018)
 

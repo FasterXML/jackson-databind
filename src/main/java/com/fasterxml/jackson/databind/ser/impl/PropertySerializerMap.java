@@ -349,11 +349,32 @@ public abstract class PropertySerializerMap
         @Override
         public JsonSerializer<Object> serializerFor(Class<?> type)
         {
-            for (int i = 0, len = _entries.length; i < len; ++i) {
-                TypeAndSerializer entry = _entries[i];
-                if (entry.type == type) {
-                    return entry.serializer;
-                }
+            // Always have first 3 populated so
+            TypeAndSerializer entry;
+            entry = _entries[0];
+            if (entry.type == type) return entry.serializer;
+            entry = _entries[1];
+            if (entry.type == type) return entry.serializer;
+            entry = _entries[2];
+            if (entry.type == type) return entry.serializer;
+
+            switch (_entries.length) {
+            case 8:
+                entry = _entries[7];
+                if (entry.type == type) return entry.serializer;
+            case 7:
+                entry = _entries[6];
+                if (entry.type == type) return entry.serializer;
+            case 6:
+                entry = _entries[5];
+                if (entry.type == type) return entry.serializer;
+            case 5:
+                entry = _entries[4];
+                if (entry.type == type) return entry.serializer;
+            case 4:
+                entry = _entries[3];
+                if (entry.type == type) return entry.serializer;
+            default:
             }
             return null;
         }

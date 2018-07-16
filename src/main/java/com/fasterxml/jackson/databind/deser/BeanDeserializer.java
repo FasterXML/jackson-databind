@@ -947,7 +947,6 @@ public class BeanDeserializer
                     p.setCurrentValue(bean);
                     // if so, need to copy all remaining tokens into buffer
                     while (t == JsonToken.FIELD_NAME) {
-                        p.nextToken(); // to skip name
                         tokens.copyCurrentStructure(p);
                         t = p.nextToken();
                     }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.TokenStreamContext;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
@@ -659,6 +660,21 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                 return;
             }
         }
+        
+        // should it automatically ignore cyclic references?
+        if ( prov.getConfig().isEnabled(SerializationFeature.IGNORE_CYCLIC_REFERENCES) ) {
+            TokenStreamContext ctxt = gen.getOutputContext();
+            // iterate through the chain
+            while ( ctxt != null ) {
+                Object object = ctxt.getCurrentValue();
+                if ( object == value ) {
+                    // Found a cyclical reference in the chain
+                    return;
+                }
+                ctxt = ctxt.getParent();
+            }
+        }
+        
         gen.writeFieldName(_name);
         if (_typeSerializer == null) {
             ser.serialize(value, gen, prov);

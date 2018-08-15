@@ -357,19 +357,13 @@ public class TreeTraversingParser extends ParserMinimalBase
     {
         // Multiple possibilities...
         JsonNode n = currentNode();
-        if (n != null) { // binary node?
-            byte[] data = n.binaryValue();
-            // (or TextNode, which can also convert automatically!)
-            if (data != null) {
-                return data;
+        if (n != null) {
+            // [databind#2096]: although `binaryValue()` works for real binary node
+            // and embedded "POJO" node, coercion from TextNode may require variant, so:
+            if (n instanceof TextNode) {
+                return ((TextNode) n).getBinaryValue(b64variant);
             }
-            // Or maybe byte[] as POJO?
-            if (n.isPojo()) {
-                Object ob = ((POJONode) n).getPojo();
-                if (ob instanceof byte[]) {
-                    return (byte[]) ob;
-                }
-            }
+            return n.binaryValue();
         }
         // otherwise return null to mark we have no binary content
         return null;

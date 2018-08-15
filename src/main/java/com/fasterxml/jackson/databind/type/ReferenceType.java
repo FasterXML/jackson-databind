@@ -150,6 +150,7 @@ public class ReferenceType extends SimpleType
         sb.append(_class.getName());
         sb.append('<');
         sb.append(_referencedType.toCanonical());
+        sb.append('>');
         return sb.toString();
     }
 

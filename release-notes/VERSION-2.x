@@ -15,6 +15,8 @@ Project: jackson-databind
   of type `UnwrappingBeanSerializer`
  (reported by Petar T)
 #2082: `FactoryBasedEnumDeserializer` should be cachable
+#2109: Canonical string for reference type is built incorrectly
+ (reported by svarzee@github)
 
 2.9.6 (12-Jun-2018)
 

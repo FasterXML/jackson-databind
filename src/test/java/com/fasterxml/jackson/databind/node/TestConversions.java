@@ -175,10 +175,22 @@ public class TestConversions extends BaseMapTest
                 try {
                     data = n.getBinaryValue(variant);
                 } catch (Exception e) {
-                    throw new IOException("Failed (variant "+variant+", data length "+len+"): "+e.getMessage());
+                    fail("Failed (variant "+variant+", data length "+len+"): "+e.getMessage());
                 }
                 assertNotNull(data);
                 assertArrayEquals(data, input);
+
+                // 15-Aug-2018, tatu: [databind#2096] requires another test
+                JsonParser p = new TreeTraversingParser(n);
+                assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+                try {
+                    data = p.getBinaryValue(variant);
+                } catch (Exception e) {
+                    fail("Failed (variant "+variant+", data length "+len+"): "+e.getMessage());
+                }
+                assertNotNull(data);
+                assertArrayEquals(data, input);
+                p.close();
             }
         }
     }

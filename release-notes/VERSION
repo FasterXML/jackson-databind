@@ -5,7 +5,10 @@ Project: jackson-databind
 ------------------------------------------------------------------------
 
 2.6.7.2 (not yet released)
+
 #1737: Block more JDK types from polymorphic deserialization
+#2097: Block more classes from polymorphic deserialization (CVE-2018-14718
+  - CVE-2018-14721)
 
 2.6.7.1 (11-Jul-2017)
 

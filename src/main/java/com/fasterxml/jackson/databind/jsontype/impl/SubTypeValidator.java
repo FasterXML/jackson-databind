@@ -66,6 +66,15 @@ public class SubTypeValidator
         // [databind#2058]: Oracle JDBC driver, with jndi/ldap lookup
         s.add("oracle.jdbc.connector.OracleManagedConnectionFactory");
         s.add("oracle.jdbc.rowset.OracleJDBCRowSet");
+        // [databind#1899]: more 3rd party
+        s.add("org.hibernate.jmx.StatisticsService");
+        s.add("org.apache.ibatis.datasource.jndi.JndiDataSourceFactory");
+
+        // [databind#2097]: some 3rd party, one JDK-bundled
+        s.add("org.slf4j.ext.EventData");
+        s.add("flex.messaging.util.concurrent.AsynchBeansWorkManagerExecutor");
+        s.add("com.sun.deploy.security.ruleset.DRSHelper");
+        s.add("org.apache.axis2.jaxws.spi.handler.HandlerResolverImpl");
 
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }

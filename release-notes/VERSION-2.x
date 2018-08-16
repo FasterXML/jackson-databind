@@ -14,9 +14,13 @@ Project: jackson-databind
 #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is
   of type `UnwrappingBeanSerializer`
  (reported by Petar T)
+#2079: NPE when visiting StaticListSerializerBase
+ (reported by WorldSEnder@github)
 #2082: `FactoryBasedEnumDeserializer` should be cachable
 #2096: `TreeTraversingParser` does not take base64 variant into account
  (reported by tangiel@github)
+#2097: Block more classes from polymorphic deserialization (CVE-2018-14718
+  - CVE-2018-14721)
 #2109: Canonical string for reference type is built incorrectly
  (reported by svarzee@github)
 
@@ -585,9 +589,10 @@ Project: jackson-databind
 #1225: `JsonMappingException` should override getProcessor()
  (reported by Nick B)
 
-2.6.8 (if ever released)
+2.6.7.1 (11-Jul-2017)
 
 #1383: Problem with `@JsonCreator` with 1-arg factory-method, implicit param names
+#1599: Backport the extra safety checks for polymorphic deserialization
 
 2.6.7 (05-Jun-2016)
 

@@ -110,7 +110,10 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
-        acceptContentVisitor(visitor.expectArrayFormat(typeHint));
+        JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+        if (v2 != null) {
+            acceptContentVisitor(v2);
+        }
     }
 
     /*

@@ -363,7 +363,7 @@ public class TestNamingStrategyStd extends BaseMapTest
 
     public void testExplicitRename() throws Exception
     {
-      ObjectMapper m = ObjectMapper.builder()
+      ObjectMapper m = objectMapperBuilder()
               .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
               .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
               .build();
@@ -371,7 +371,7 @@ public class TestNamingStrategyStd extends BaseMapTest
       assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
           m.writeValueAsString(new ExplicitBean()));
 
-      m = ObjectMapper.builder()
+      m = objectMapperBuilder()
               .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
           .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
           .enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)

@@ -119,7 +119,7 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
 
     private ObjectMapper defaultMapper()
     {
-        return ObjectMapper.builder()
+        return objectMapperBuilder()
                 .serializationInclusion(JsonInclude.Include.NON_EMPTY)
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .configure(MapperFeature.ALLOW_COERCION_OF_SCALARS, false)

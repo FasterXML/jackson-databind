@@ -234,7 +234,7 @@ public abstract class BaseMapTest
 
     // @since 2.10
     protected static ObjectMapper.Builder objectMapperBuilder() {
-        return (ObjectMapper.Builder) (Object) ObjectMapper.builder();
+        return (ObjectMapper.Builder)(Object) ObjectMapper.builder();
     }
 
     // @since 2.7

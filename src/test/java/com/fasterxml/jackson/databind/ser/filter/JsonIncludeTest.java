@@ -60,7 +60,31 @@ public class JsonIncludeTest
             this.z = z;
         }
     }
-    
+
+    // [databind#1757], [databind#2105]
+    @JsonPropertyOrder({ "a", "b", "c" })
+    static class NonDefaultBeanWithoutIncludeAnnotation
+    {
+        String a = "a";
+        boolean b = true;
+        Integer c = 123;
+        Boolean d;
+
+        NonDefaultBeanWithoutIncludeAnnotation() { }
+
+        NonDefaultBeanWithoutIncludeAnnotation(String a, boolean b, Integer c, Boolean d) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
+        }
+
+        public String getA() { return a; }
+        public boolean isB() { return b; }
+        public Integer getC() { return c; }
+        public Boolean getD() { return d; }
+    }
+
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class MixedBean
     {
@@ -340,4 +364,28 @@ public class JsonIncludeTest
         assertEquals("{}", 
                 MAPPER.writeValueAsString(new NonDefaultCalendar(input)));
     }
+
+    // [databind#1757], [databind#2105]
+    public void testNonDefaultInclusion() throws IOException {
+        ObjectMapper nonDefaultMapper = new ObjectMapper();
+        nonDefaultMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+
+        assertEquals(aposToQuotes("{'a':'a','b':true,'c':123,'d':null}"),
+                MAPPER.writeValueAsString(new NonDefaultBeanWithoutIncludeAnnotation()));
+
+        assertEquals(aposToQuotes("{}"),
+                nonDefaultMapper.writeValueAsString(new NonDefaultBeanWithoutIncludeAnnotation()));
+
+        assertEquals(aposToQuotes("{'a':'x','b':false,'c':456,'d':true}"),
+                nonDefaultMapper.writeValueAsString(
+                        new NonDefaultBeanWithoutIncludeAnnotation("x", false, 456, true)));
+
+        ObjectReader reader = nonDefaultMapper.readerFor(NonDefaultBeanWithoutIncludeAnnotation.class);
+        NonDefaultBeanWithoutIncludeAnnotation defaultValue = reader.readValue("{}");
+        assertEquals("a", defaultValue.getA());
+        assertTrue(defaultValue.isB());
+        assertEquals(Integer.valueOf(123), defaultValue.getC());
+        assertNull(defaultValue.getD());
+    }
+
 }

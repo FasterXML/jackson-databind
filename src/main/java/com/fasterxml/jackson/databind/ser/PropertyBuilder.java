@@ -66,7 +66,7 @@ public class PropertyBuilder
                         JsonInclude.Value.empty()));
         _defaultInclusion = JsonInclude.Value.merge(config.getDefaultPropertyInclusion(),
                 inclPerType);
-        _useRealPropertyDefaults = inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT;
+        _useRealPropertyDefaults = _defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT;
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 

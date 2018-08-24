@@ -357,7 +357,18 @@ public class ObjectWriter
     /* Life-cycle, fluent factories, other
     /**********************************************************************
      */
-    
+
+    /**
+     * Mutant factory method that will construct a new instance that has
+     * specified underlying {@link SerializationConfig}.
+     *<p>
+     * NOTE: use of this method is not recommended, as there are many other
+     * re-configuration methods available.
+     */
+    public ObjectWriter with(SerializationConfig config) {
+        return _new(this, config);
+    }
+
     /**
      * Fluent factory method that will construct a new writer instance that will
      * use specified date format for serializing dates; or if null passed, one

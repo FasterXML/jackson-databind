@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2059: Remove `final` modifier for `TypeFactory`
  (requested by Thibaut R)
+#2116: Make NumberSerializers.Base public and its inherited classes not final
+ (requested by Édouard M)
 
 2.9.7 (not yet released)
 

@@ -44,7 +44,17 @@ public class NumberSerializers {
     /**********************************************************
      */
 
-    protected abstract static class Base<T> extends StdScalarSerializer<T>
+    /**
+     * Base class for actual primitive/wrapper value serializers.
+     *<p>
+     * NOTE: while you can extend this class yourself it is not designed as
+     * an extension point, and as such is not part of public API. This means that
+     * the compatibility across minor versions is only guaranteed on minor-to-minor
+     * basis, and class methods may be changed and/or removed via deprecation
+     * mechanism. Intent is, however, to allow for gradual upgrading so that methods
+     * to remove are marked deprecated for at least one minor version.
+     */
+    public abstract static class Base<T> extends StdScalarSerializer<T>
     {
         protected final JsonParser.NumberType _numberType;
         protected final String _schemaType;
@@ -94,7 +104,7 @@ public class NumberSerializers {
      */
 
     @JacksonStdImpl
-    public final static class ShortSerializer extends Base<Object> {
+    public static class ShortSerializer extends Base<Object> {
         final static ShortSerializer instance = new ShortSerializer();
 
         public ShortSerializer() {
@@ -119,7 +129,7 @@ public class NumberSerializers {
      * of bridge methods.
      */
     @JacksonStdImpl
-    public final static class IntegerSerializer extends Base<Object> {
+    public static class IntegerSerializer extends Base<Object> {
         public IntegerSerializer(Class<?> type) {
             super(type, JsonParser.NumberType.INT, "integer");
         }
@@ -146,7 +156,7 @@ public class NumberSerializers {
      * calling {@link java.lang.Number#intValue}.
      */
     @JacksonStdImpl
-    public final static class IntLikeSerializer extends Base<Object> {
+    public static class IntLikeSerializer extends Base<Object> {
         final static IntLikeSerializer instance = new IntLikeSerializer();
 
         public IntLikeSerializer() {
@@ -161,7 +171,7 @@ public class NumberSerializers {
     }
 
     @JacksonStdImpl
-    public final static class LongSerializer extends Base<Object> {
+    public static class LongSerializer extends Base<Object> {
         public LongSerializer(Class<?> cls) {
             super(cls, JsonParser.NumberType.LONG, "number");
         }
@@ -174,7 +184,7 @@ public class NumberSerializers {
     }
 
     @JacksonStdImpl
-    public final static class FloatSerializer extends Base<Object> {
+    public static class FloatSerializer extends Base<Object> {
         final static FloatSerializer instance = new FloatSerializer();
 
         public FloatSerializer() {
@@ -196,7 +206,7 @@ public class NumberSerializers {
      * on serialization (unlike for most scalar types as of 1.5)
      */
     @JacksonStdImpl
-    public final static class DoubleSerializer extends Base<Object> {
+    public static class DoubleSerializer extends Base<Object> {
         public DoubleSerializer(Class<?> cls) {
             super(cls, JsonParser.NumberType.DOUBLE, "number");
         }

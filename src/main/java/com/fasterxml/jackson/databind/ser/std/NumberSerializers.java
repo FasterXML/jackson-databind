@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided
- * types.
+ * primitve number types and their wrapper counterparts (like {@link java.lang.Integer}).
  */
 @SuppressWarnings("serial")
 public class NumberSerializers {
@@ -46,8 +46,19 @@ public class NumberSerializers {
     /**********************************************************
      */
 
-    protected abstract static class Base<T> extends StdScalarSerializer<T>
-            implements ContextualSerializer {
+    /**
+     * Shared base class for actual primitive/wrapper number serializers.
+     * Note that this class is not meant as general-purpose base class nor
+     * is it part of public API: you may extend it with the caveat that not
+     * being part of public API its implementation and interfaces may change
+     * in minor releases; however deprecation markers will be used to allow
+     * code evolution.
+     *<p>
+     * NOTE: {@code public} since 2.10: previously had {@code protected} access.
+     */
+    public abstract static class Base<T> extends StdScalarSerializer<T>
+            implements ContextualSerializer
+    {
         protected final JsonParser.NumberType _numberType;
         protected final String _schemaType;
         protected final boolean _isInt;
@@ -101,7 +112,7 @@ public class NumberSerializers {
      */
 
     @JacksonStdImpl
-    public final static class ShortSerializer extends Base<Object> {
+    public static class ShortSerializer extends Base<Object> {
         final static ShortSerializer instance = new ShortSerializer();
 
         public ShortSerializer() {
@@ -119,14 +130,14 @@ public class NumberSerializers {
      * This is the special serializer for regular {@link java.lang.Integer}s
      * (and primitive ints)
      * <p>
-     * Since this is one of "native" types, no type information is ever included
-     * on serialization (unlike for most scalar types)
+     * Since this is one of "natural" types, no type information is ever included
+     * on serialization (unlike for most scalar types, except for {@code double}.
      * <p>
      * NOTE: as of 2.6, generic signature changed to Object, to avoid generation
      * of bridge methods.
      */
     @JacksonStdImpl
-    public final static class IntegerSerializer extends Base<Object> {
+    public static class IntegerSerializer extends Base<Object> {
         public IntegerSerializer(Class<?> type) {
             super(type, JsonParser.NumberType.INT, "integer");
         }
@@ -153,7 +164,7 @@ public class NumberSerializers {
      * calling {@link java.lang.Number#intValue}.
      */
     @JacksonStdImpl
-    public final static class IntLikeSerializer extends Base<Object> {
+    public static class IntLikeSerializer extends Base<Object> {
         final static IntLikeSerializer instance = new IntLikeSerializer();
 
         public IntLikeSerializer() {
@@ -168,7 +179,7 @@ public class NumberSerializers {
     }
 
     @JacksonStdImpl
-    public final static class LongSerializer extends Base<Object> {
+    public static class LongSerializer extends Base<Object> {
         public LongSerializer(Class<?> cls) {
             super(cls, JsonParser.NumberType.LONG, "number");
         }
@@ -181,7 +192,7 @@ public class NumberSerializers {
     }
 
     @JacksonStdImpl
-    public final static class FloatSerializer extends Base<Object> {
+    public static class FloatSerializer extends Base<Object> {
         final static FloatSerializer instance = new FloatSerializer();
 
         public FloatSerializer() {
@@ -200,10 +211,10 @@ public class NumberSerializers {
      * primitive doubles)
      * <p>
      * Since this is one of "native" types, no type information is ever included
-     * on serialization (unlike for most scalar types as of 1.5)
+     * on serialization (unlike for most scalar types other than {@code long}).
      */
     @JacksonStdImpl
-    public final static class DoubleSerializer extends Base<Object> {
+    public static class DoubleSerializer extends Base<Object> {
         public DoubleSerializer(Class<?> cls) {
             super(cls, JsonParser.NumberType.DOUBLE, "number");
         }

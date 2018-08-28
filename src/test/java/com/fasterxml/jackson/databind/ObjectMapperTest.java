@@ -228,7 +228,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(dc.shouldSortPropertiesAlphabetically());
 
         // but when enabled, should be visible:
-        m = ObjectMapper.builder()
+        m = objectMapperBuilder()
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .build();
         sc = m.getSerializationConfig();

@@ -61,6 +61,32 @@ public class TestBasicAnnotations
         @JsonDeserialize public void x(int value) { _x = value; }
     }
 
+    static class Issue2088Bean {
+        int x;
+        int y;
+
+        @JsonUnwrapped
+        Issue2088UnwrappedBean w;
+
+        public Issue2088Bean(@JsonProperty("x") int x, @JsonProperty("y") int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public void setW(Issue2088UnwrappedBean w) {
+            this.w = w;
+        }
+    }
+
+    static class Issue2088UnwrappedBean {
+        int a;
+        int b;
+
+        public Issue2088UnwrappedBean(@JsonProperty("a") int a, @JsonProperty("b") int b) {
+            this.a = a;
+            this.b = b;
+        }
+    }
 
     /// Classes for testing Setter discovery with inheritance
     static class BaseBean
@@ -179,6 +205,16 @@ public class TestBasicAnnotations
     {
         Issue442Bean bean = MAPPER.readValue("{\"i\":5}", Issue442Bean.class);
         assertEquals(5, bean.w.i);
+    }
+
+    // [databind#2088]
+    public void testIssue2088UnwrappedFieldsAfterLastCreatorProp() throws Exception
+    {
+        Issue2088Bean bean = MAPPER.readValue("{\"x\":1,\"a\":2,\"y\":3,\"b\":4}", Issue2088Bean.class);
+        assertEquals(1, bean.x);
+        assertEquals(2, bean.w.a);
+        assertEquals(3, bean.y);
+        assertEquals(4, bean.w.b);
     }
 
     /*

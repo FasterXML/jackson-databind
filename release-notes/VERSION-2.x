@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #2059: Remove `final` modifier for `TypeFactory`
  (requested by Thibaut R)
+#2115: Support naive deserialization of `Serializable` values as "untyped", same
+  as `java.lang.Object`
+ (requested by Christopher S)
 #2116: Make NumberSerializers.Base public and its inherited classes not final
  (requested by Édouard M)
 

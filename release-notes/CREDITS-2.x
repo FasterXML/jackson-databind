@@ -811,5 +811,10 @@ Thibaut Robert (trobert@github)
   * Requested #2059: Remove `final` modifier for `TypeFactory`
   (2.10.0)
 
+Christopher Smith (chrylis@github)
+  * Suggested #2115: Support naive deserialization of `Serializable` values as "untyped",
+    same as `java.lang.Object`		     
+  (2.10.0)
+
 Édouard Mercier (edouardmercier@github)
   * Requested #2116: Make NumberSerializers.Base public and its inherited classes not final

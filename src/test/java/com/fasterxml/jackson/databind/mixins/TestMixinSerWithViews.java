@@ -179,7 +179,6 @@ public class TestMixinSerWithViews
                 .addMixIn(A.class, AMixInAnnotation.class)
                 .build();
         String json = mapper.writerWithView(AView.class).writeValueAsString(a);
-
         assertTrue(json.indexOf("\"name\"") > 0);
     }
 
@@ -188,7 +187,7 @@ public class TestMixinSerWithViews
     /* Helper methods
     /**********************************************************
      */
-    
+
     private ObjectMapper createObjectMapper()
     {
         Map<Class<?>, Class<?>> sourceMixins = new HashMap<Class<?>, Class<?>>( );

@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #2059: Remove `final` modifier for `TypeFactory`
  (requested by Thibaut R)
+#2115: Support naive deserialization of `Serializable` values as "untyped", same
+  as `java.lang.Object`
+ (requested by Christopher S)
 #2116: Make NumberSerializers.Base public and its inherited classes not final
  (requested by Édouard M)
 
@@ -19,6 +22,9 @@ Project: jackson-databind
 #2079: NPE when visiting StaticListSerializerBase
  (reported by WorldSEnder@github)
 #2082: `FactoryBasedEnumDeserializer` should be cachable
+#2088: `@JsonUnwrapped` fields are skipped when using `PropertyBasedCreator` if
+  they appear after the last creator property
+ (reported, fix contributed by 6bangs@github)
 #2096: `TreeTraversingParser` does not take base64 variant into account
  (reported by tangiel@github)
 #2097: Block more classes from polymorphic deserialization (CVE-2018-14718

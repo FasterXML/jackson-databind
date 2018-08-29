@@ -947,9 +947,16 @@ public class BeanDeserializer
                     p.setCurrentValue(bean);
                     // if so, need to copy all remaining tokens into buffer
                     while (t == JsonToken.FIELD_NAME) {
-                        p.nextToken(); // to skip name
+                        // NOTE: do NOT skip name as it needs to be copied; `copyCurrentStructure` does that
                         tokens.copyCurrentStructure(p);
                         t = p.nextToken();
+                    }
+                    // 28-Aug-2018, tatu: Let's add sanity check here, easier to catch off-by-some
+                    //    problems if we maintain invariants
+                    if (t != JsonToken.END_OBJECT) {
+                        ctxt.reportWrongTokenException(this, JsonToken.END_OBJECT, 
+                                "Attempted to unwrap '%s' value",
+                                handledType().getName());
                     }
                     tokens.writeEndObject();
                     if (bean.getClass() != _beanType.getRawClass()) {

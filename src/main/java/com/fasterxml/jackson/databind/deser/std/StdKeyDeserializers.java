@@ -49,10 +49,9 @@ public class StdKeyDeserializers
             JavaType type)
         throws JsonMappingException
     {
-        /* We don't need full deserialization information, just need to
-         * know creators.
-         */
+        // We don't need full deserialization information, just need to know creators.
         BeanDescription beanDesc = ctxt.introspect(type);
+
         // Ok, so: can we find T(String) constructor?
         Constructor<?> ctor = beanDesc.findSingleArgConstructor(String.class);
         if (ctor != null) {

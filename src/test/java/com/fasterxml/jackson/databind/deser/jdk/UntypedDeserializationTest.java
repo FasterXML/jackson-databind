@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -109,6 +110,11 @@ public class UntypedDeserializationTest
 
     static class WrappedUntyped1460 {
         public Object value;
+    }
+
+    // [databind#2115]
+    static class SerContainer {
+        public java.io.Serializable value;
     }
 
     /*
@@ -382,5 +388,26 @@ public class UntypedDeserializationTest
                 .with(DeserializationFeature.USE_LONG_FOR_INTS)
                 .readValue(JSON);
         assertEquals(Long.valueOf(3), w.value);
+    }
+
+    // [databind#2115]: Consider `java.io.Serializable` as sort of alias of `java.lang.Object`
+    // since all natural target types do implement `Serializable` so assignment works
+    public void testSerializable() throws Exception
+    {
+        final String JSON1 = aposToQuotes("{ 'value' : 123 }");
+        SerContainer cont = MAPPER.readValue(JSON1, SerContainer.class);
+        assertEquals(Integer.valueOf(123), cont.value);
+
+        cont = MAPPER.readValue(aposToQuotes("{ 'value' : true }"), SerContainer.class);
+        assertEquals(Boolean.TRUE, cont.value);
+
+        // But also via Map value, even key
+        Map<?,?> map = MAPPER.readValue(JSON1, new TypeReference<Map<String, Serializable>>() { });
+        assertEquals(1, map.size());
+        assertEquals(Integer.valueOf(123), map.get("value"));
+
+        map = MAPPER.readValue(JSON1, new TypeReference<Map<Serializable, Object>>() { });
+        assertEquals(1, map.size());
+        assertEquals("value", map.keySet().iterator().next());
     }
 }

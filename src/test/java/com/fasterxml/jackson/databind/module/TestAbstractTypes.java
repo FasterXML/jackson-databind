@@ -77,7 +77,7 @@ public class TestAbstractTypes extends BaseMapTest
             return value;
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods
@@ -157,7 +157,7 @@ public class TestAbstractTypes extends BaseMapTest
     }
 
     // [databind#2019]: mappings from multiple modules
-    public static void testAbstractMappingsFromTwoModules() throws Exception
+    public void testAbstractMappingsFromTwoModules() throws Exception
     {
         ObjectMapper mapper = newObjectMapper();
         SimpleModule module1 = new SimpleModule("module1");

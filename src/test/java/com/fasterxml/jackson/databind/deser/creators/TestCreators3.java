@@ -135,7 +135,7 @@ public class TestCreators3 extends BaseMapTest
     
     public void testCreator541() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .disable(
                 MapperFeature.AUTO_DETECT_CREATORS,
                 MapperFeature.AUTO_DETECT_FIELDS,

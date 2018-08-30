@@ -116,7 +116,7 @@ public class TestPropertyConflicts extends BaseMapTest
 
     public void testInferredNameConflictsWithGetters() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .annotationIntrospector(new InferingIntrospector())
                 .build();
         String json = mapper.writeValueAsString(new Infernal());
@@ -132,7 +132,7 @@ public class TestPropertyConflicts extends BaseMapTest
     }
 
     public void testIssue541() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .disable(
                 MapperFeature.AUTO_DETECT_CREATORS,
                 MapperFeature.AUTO_DETECT_FIELDS,

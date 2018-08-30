@@ -48,9 +48,7 @@ public class StdKeyDeserializers
     public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationConfig config,
             JavaType type)
     {
-        /* We don't need full deserialization information, just need to
-         * know creators.
-         */
+        // We don't need full deserialization information, just need to know creators.
         BeanDescription beanDesc = config.introspect(type);
         // Ok, so: can we find T(String) constructor?
         Constructor<?> ctor = beanDesc.findSingleArgConstructor(String.class);

@@ -653,6 +653,10 @@ Guixiong Wu (吴桂雄)
   * Reported #2032: Blacklist another serialization gadget (ibatis)
    (2.8.11.2)
 
+svarzee@github
+  * Reported #2109, suggested fix: Canonical string for reference type is built incorrectly
+   (2.8.11.3 / 2.9.7)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)
@@ -806,3 +810,11 @@ Petar Tahchiev (ptahchiev@github)
 Thibaut Robert (trobert@github)
   * Requested #2059: Remove `final` modifier for `TypeFactory`
   (2.10.0)
+
+Christopher Smith (chrylis@github)
+  * Suggested #2115: Support naive deserialization of `Serializable` values as "untyped",
+    same as `java.lang.Object`		     
+  (2.10.0)
+
+Édouard Mercier (edouardmercier@github)
+  * Requested #2116: Make NumberSerializers.Base public and its inherited classes not final

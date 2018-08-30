@@ -148,7 +148,7 @@ public class TestTypedArraySerialization
         assertEquals(EXP, MAPPER.writeValueAsString(input));
 
         // then with static typing enabled:
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = objectMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();
         assertEquals(EXP, m.writeValueAsString(input));

@@ -134,7 +134,7 @@ public class NodeContext2049Test extends BaseMapTest
     private ObjectMapper objectMapper;
     {
         objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new Module() {
+        objectMapper.registerModule(new com.fasterxml.jackson.databind.Module() {
               @Override
               public String getModuleName() {
                    return "parentSetting";

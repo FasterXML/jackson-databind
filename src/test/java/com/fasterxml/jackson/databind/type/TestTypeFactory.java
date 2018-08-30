@@ -232,8 +232,14 @@ public class TestTypeFactory
                 can);
         assertEquals(t, tf.constructFromCanonical(can));
 
-        // [databind#1941]: allow "raw" types too
+        // [databind#2109]: also ReferenceTypes
+        t = tf.constructType(new TypeReference<AtomicReference<Long>>() { });
+        can = t.toCanonical();
+        assertEquals("java.util.concurrent.atomic.AtomicReference<java.lang.Long>",
+                can);
+        assertEquals(t, tf.constructFromCanonical(can));
 
+        // [databind#1941]: allow "raw" types too
         t = tf.constructFromCanonical("java.util.List");
         assertEquals(List.class, t.getRawClass());
         assertEquals(CollectionType.class, t.getClass());

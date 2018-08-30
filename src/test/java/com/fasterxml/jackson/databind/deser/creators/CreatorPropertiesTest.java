@@ -96,7 +96,7 @@ public class CreatorPropertiesTest extends BaseMapTest
         assertEquals(6, result.y);
 
         // but change if configuration changed
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .disable(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES)
                 .build();
         // in which case fields are set directly:

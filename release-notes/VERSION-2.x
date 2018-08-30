@@ -8,13 +8,29 @@ Project: jackson-databind
 
 #2059: Remove `final` modifier for `TypeFactory`
  (requested by Thibaut R)
+#2115: Support naive deserialization of `Serializable` values as "untyped", same
+  as `java.lang.Object`
+ (requested by Christopher S)
+#2116: Make NumberSerializers.Base public and its inherited classes not final
+ (requested by Édouard M)
 
 2.9.7 (not yet released)
 
 #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is
   of type `UnwrappingBeanSerializer`
  (reported by Petar T)
+#2079: NPE when visiting StaticListSerializerBase
+ (reported by WorldSEnder@github)
 #2082: `FactoryBasedEnumDeserializer` should be cachable
+#2088: `@JsonUnwrapped` fields are skipped when using `PropertyBasedCreator` if
+  they appear after the last creator property
+ (reported, fix contributed by 6bangs@github)
+#2096: `TreeTraversingParser` does not take base64 variant into account
+ (reported by tangiel@github)
+#2097: Block more classes from polymorphic deserialization (CVE-2018-14718
+  - CVE-2018-14721)
+#2109: Canonical string for reference type is built incorrectly
+ (reported by svarzee@github)
 
 2.9.6 (12-Jun-2018)
 
@@ -581,9 +597,10 @@ Project: jackson-databind
 #1225: `JsonMappingException` should override getProcessor()
  (reported by Nick B)
 
-2.6.8 (if ever released)
+2.6.7.1 (11-Jul-2017)
 
 #1383: Problem with `@JsonCreator` with 1-arg factory-method, implicit param names
+#1599: Backport the extra safety checks for polymorphic deserialization
 
 2.6.7 (05-Jun-2016)
 

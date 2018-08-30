@@ -621,7 +621,7 @@ public class ObjectMapper
      *   return builder(JsonFactory.builder().build());
      *</pre>
      *
-     * @since 2.9
+     * @since 2.10
      */
     @SuppressWarnings("unchecked")
     public static <M extends ObjectMapper, B extends MapperBuilder<M,B>> MapperBuilder<M,B> builder() {

@@ -59,9 +59,8 @@ public abstract class DateTimeSerializerBase<T>
     public JsonSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property) throws JsonMappingException
     {
-        if (property == null) {
-            return this;
-        }
+        // Note! Should not skip if `property` null since that'd skip check
+        // for config overrides, in case of root value
         JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
         if (format == null) {
             return this;

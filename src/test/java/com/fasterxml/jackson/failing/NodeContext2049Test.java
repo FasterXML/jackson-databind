@@ -139,20 +139,20 @@ public class NodeContext2049Test extends BaseMapTest
     {
         com.fasterxml.jackson.databind.Module module = new com.fasterxml.jackson.databind.Module() {
             @Override
-              public String getModuleName() {
-                   return "parentSetting";
-              }
-              @Override
-              public Version version() {
-                   return Version.unknownVersion();
-              }
-              @Override
-              public void setupModule(SetupContext context) {
-                  context.addDeserializerModifier(new ParentSettingDeserializerModifier());
-              }
-         };
-         objectMapper = ObjectMapper.builder()
-                 .addModule(module)
+            public String getModuleName() {
+                return "parentSetting";
+            }
+            @Override
+            public Version version() {
+                return Version.unknownVersion();
+            }
+            @Override
+            public void setupModule(SetupContext context) {
+                context.addDeserializerModifier(new ParentSettingDeserializerModifier());
+            }
+        };
+        objectMapper = ObjectMapper.builder()
+                .addModule(module)
                 .build();
     }
 

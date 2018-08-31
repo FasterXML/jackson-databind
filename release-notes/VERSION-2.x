@@ -19,6 +19,8 @@ Project: jackson-databind
 #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is
   of type `UnwrappingBeanSerializer`
  (reported by Petar T)
+#2064: Cannot set custom format for `SqlDateSerializer` globally
+ (reported by Brandon K)
 #2079: NPE when visiting StaticListSerializerBase
  (reported by WorldSEnder@github)
 #2082: `FactoryBasedEnumDeserializer` should be cachable

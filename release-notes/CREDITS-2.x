@@ -800,21 +800,26 @@ Reinhard Prechtl (dnno@github)
 Chetan Narsude (243826@github)
   * Reported #2038: JDK Serializing and using Deserialized `ObjectMapper` loses linkage
     back from `JsonParser.getCodec()`
-  (2.9.6)
+   (2.9.6)
 
 Petar Tahchiev (ptahchiev@github)
   * Reported #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found
     serializer is of type `UnwrappingBeanSerializer`
-  (2.9.6)
+   (2.9.6)
+
+Brandon Krieger (bkrieger@github)
+  * Reported #2064: Cannot set custom format for `SqlDateSerializer` globally
+   (2.9.7)
 
 Thibaut Robert (trobert@github)
   * Requested #2059: Remove `final` modifier for `TypeFactory`
-  (2.10.0)
+   (2.10.0)
 
 Christopher Smith (chrylis@github)
   * Suggested #2115: Support naive deserialization of `Serializable` values as "untyped",
     same as `java.lang.Object`		     
-  (2.10.0)
+   (2.10.0)
 
 Édouard Mercier (edouardmercier@github)
   * Requested #2116: Make NumberSerializers.Base public and its inherited classes not final
+   (2.9.6)

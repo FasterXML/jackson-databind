@@ -800,9 +800,13 @@ Reinhard Prechtl (dnno@github)
 Chetan Narsude (243826@github)
   * Reported #2038: JDK Serializing and using Deserialized `ObjectMapper` loses linkage
     back from `JsonParser.getCodec()`
-  (2.9.6)
+   (2.9.6)
 
 Petar Tahchiev (ptahchiev@github)
   * Reported #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found
     serializer is of type `UnwrappingBeanSerializer`
-  (2.9.6)
+   (2.9.6)
+
+Brandon Krieger (bkrieger@github)
+  * Reported #2064: Cannot set custom format for `SqlDateSerializer` globally
+   (2.9.7)

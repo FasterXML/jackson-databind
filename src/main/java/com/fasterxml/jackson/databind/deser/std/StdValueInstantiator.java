@@ -417,18 +417,12 @@ public class StdValueInstantiator
     /**********************************************************************
      */
 
-    protected JsonMappingException unwrapAndWrapException(DeserializationContext ctxt, Throwable t)
-    {
-        // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
-        //   does so if and until `JsonMappingException` is found.
-        for (Throwable curr = t; curr != null; curr = curr.getCause()) {
-            if (curr instanceof JsonMappingException) {
-                return (JsonMappingException) curr;
-            }
-        }
-        return ctxt.instantiationException(getValueClass(), t);
-    }
-
+    /**
+     * Helper method that will return given {@link Throwable} case as
+     * a {@link JsonMappingException} (if it is of that type), or call
+     * {@link DeserializationContext#instantiationException(Class, Throwable)} to
+     * produce and return suitable {@link JsonMappingException}.
+     */
     protected JsonMappingException wrapAsJsonMappingException(DeserializationContext ctxt,
             Throwable t)
     {
@@ -439,6 +433,11 @@ public class StdValueInstantiator
         return ctxt.instantiationException(getValueClass(), t);
     }
 
+    /**
+     * Method that subclasses may call for standard handling of an exception thrown when
+     * calling constructor or factory method. Will unwrap {@link ExceptionInInitializerError}
+     * and {@link InvocationTargetException}s, then call {@link #wrapAsJsonMappingException}.
+     */
     protected JsonMappingException rewrapCtorProblem(DeserializationContext ctxt,
             Throwable t)
     {

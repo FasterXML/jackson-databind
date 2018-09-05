@@ -439,7 +439,7 @@ public class StdValueInstantiator
      */
 
     /**
-     * @deprecated Since 2.7 call either {@link #unwrapAndWrapException} or
+     * @deprecated Since 2.7 call either {@link #rewrapCtorProblem} or
      *  {@link #wrapAsJsonMappingException}
      */
     @Deprecated // since 2.7
@@ -457,8 +457,10 @@ public class StdValueInstantiator
     }
 
     /**
-     * @since 2.7
+     * @deprecated Since 2.7 call either {@link #rewrapCtorProblem} or
+     *  {@link #wrapAsJsonMappingException}
      */
+    @Deprecated // since 2.10
     protected JsonMappingException unwrapAndWrapException(DeserializationContext ctxt, Throwable t)
     {
         // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
@@ -472,6 +474,11 @@ public class StdValueInstantiator
     }
 
     /**
+     * Helper method that will return given {@link Throwable} case as
+     * a {@link JsonMappingException} (if it is of that type), or call
+     * {@link DeserializationContext#instantiationException(Class, Throwable)} to
+     * produce and return suitable {@link JsonMappingException}.
+     *
      * @since 2.7
      */
     protected JsonMappingException wrapAsJsonMappingException(DeserializationContext ctxt,
@@ -485,6 +492,10 @@ public class StdValueInstantiator
     }
 
     /**
+     * Method that subclasses may call for standard handling of an exception thrown when
+     * calling constructor or factory method. Will unwrap {@link ExceptionInInitializerError}
+     * and {@link InvocationTargetException}s, then call {@link #wrapAsJsonMappingException}.
+     *
      * @since 2.7
      */
     protected JsonMappingException rewrapCtorProblem(DeserializationContext ctxt,

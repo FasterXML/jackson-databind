@@ -13,6 +13,7 @@ Project: jackson-databind
  (requested by Christopher S)
 #2116: Make NumberSerializers.Base public and its inherited classes not final
  (requested by Édouard M)
+#2126: `DeserializationContext.instantiationException()` throws `InvalidDefinitionException`
 
 2.9.7 (not yet released)
 

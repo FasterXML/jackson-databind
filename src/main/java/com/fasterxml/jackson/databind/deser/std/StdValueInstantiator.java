@@ -453,7 +453,7 @@ public class StdValueInstantiator
             }
         }
         return new JsonMappingException(null,
-                "Instantiation of "+getValueTypeDesc()+" value failed: "+t.getMessage(), t);
+                "Instantiation of "+getValueTypeDesc()+" value failed: "+ClassUtil.exceptionMessage(t), t);
     }
 
     /**

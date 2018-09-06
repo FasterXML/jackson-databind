@@ -100,9 +100,9 @@ public class PropertyBuilder
             serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
         } catch (JsonMappingException e) {
             if (propDef == null) {
-                return prov.reportBadDefinition(declaredType, e.getMessage());
+                return prov.reportBadDefinition(declaredType, ClassUtil.exceptionMessage(e));
             }
-            return prov.reportBadPropertyDefinition(_beanDesc, propDef, e.getMessage());
+            return prov.reportBadPropertyDefinition(_beanDesc, propDef, ClassUtil.exceptionMessage(e));
         }
 
         // Container types can have separate type serializers for content (value / element) type

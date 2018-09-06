@@ -1586,7 +1586,7 @@ nonAnnotatedParamIndex, ctor);
             return b.buildTypeDeserializer(config, baseType, subtypes);
         } catch (IllegalArgumentException e0) {
             InvalidDefinitionException e = InvalidDefinitionException.from((JsonParser) null,
-                    e0.getMessage(), baseType);
+                    ClassUtil.exceptionMessage(e0), baseType);
             e.initCause(e0);
             throw e;
         }

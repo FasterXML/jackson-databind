@@ -7,6 +7,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -722,6 +723,12 @@ public final class ClassUtil
         return backticked(named.getName());
     }
 
+    /*
+    /**********************************************************
+    /* Other escaping, description acces
+    /**********************************************************
+     */
+    
     /**
      * Returns either `text` or [null].
      *
@@ -734,6 +741,22 @@ public final class ClassUtil
         return new StringBuilder(text.length()+2).append('`').append(text).append('`').toString();
     }
 
+    /**
+     * Helper method that returns {@link Throwable#getMessage()} for all other exceptions
+     * except for {@link JsonProcessingException}, for which {@code getOriginalMessage()} is
+     * returned instead.
+     * Method is used to avoid accidentally including trailing location information twice
+     * in message when wrapping exceptions.
+     *
+     * @since 2.9.7
+     */
+    public static String exceptionMessage(Throwable t) {
+        if (t instanceof JsonProcessingException) {
+            return ((JsonProcessingException) t).getOriginalMessage();
+        }
+        return t.getMessage();
+    }
+    
     /*
     /**********************************************************
     /* Primitive type support

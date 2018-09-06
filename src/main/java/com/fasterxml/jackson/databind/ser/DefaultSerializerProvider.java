@@ -168,7 +168,7 @@ public abstract class DefaultSerializerProvider
         } catch (Throwable t) {
             String msg = String.format(
 "Problem determining whether filter of type '%s' should filter out `null` values: (%s) %s",
-filter.getClass().getName(), t.getClass().getName(), t.getMessage());
+filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(t));
             reportBadDefinition(filter.getClass(), msg, t);
             return false; // never gets here
         }
@@ -502,7 +502,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         if (e instanceof IOException) {
             return (IOException) e;
         }
-        String msg = e.getMessage();
+        String msg = ClassUtil.exceptionMessage(e);
         if (msg == null) {
             msg = "[no message for "+e.getClass().getName()+"]";
         }

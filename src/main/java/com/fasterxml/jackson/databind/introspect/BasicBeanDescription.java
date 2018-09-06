@@ -359,7 +359,9 @@ anyField.getName()));
             }
             ClassUtil.throwIfError(t);
             ClassUtil.throwIfRTE(t);
-            throw new IllegalArgumentException("Failed to instantiate bean of type "+_classInfo.getAnnotated().getName()+": ("+t.getClass().getName()+") "+t.getMessage(), t);
+            throw new IllegalArgumentException("Failed to instantiate bean of type "
+                    +_classInfo.getAnnotated().getName()+": ("+t.getClass().getName()+") "
+                    +ClassUtil.exceptionMessage(t), t);
         }
     }
 

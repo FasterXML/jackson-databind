@@ -1335,11 +1335,10 @@ public abstract class SerializerProvider
         try {
             ser = _createUntypedSerializer(fullType);
         } catch (IllegalArgumentException iae) {
-            /* We better only expose checked exceptions, since those
-             * are what caller is expected to handle
-             */
+            // We better only expose checked exceptions, since those
+            // are what caller is expected to handle
             ser = null; // doesn't matter but compiler whines otherwise
-            reportMappingProblem(iae, iae.getMessage());
+            reportMappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
 
         if (ser != null) {
@@ -1359,7 +1358,7 @@ public abstract class SerializerProvider
             // We better only expose checked exceptions, since those
             // are what caller is expected to handle
             ser = null;
-            reportMappingProblem(iae, iae.getMessage());
+            reportMappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
     
         if (ser != null) {

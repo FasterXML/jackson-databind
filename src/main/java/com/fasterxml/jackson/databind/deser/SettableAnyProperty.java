@@ -199,7 +199,7 @@ public class SettableAnyProperty
             StringBuilder msg = new StringBuilder("Problem deserializing \"any\" property '").append(propName);
             msg.append("' of class "+getClassName()+" (expected type: ").append(_type);
             msg.append("; actual type: ").append(actType).append(")");
-            String origMsg = e.getMessage();
+            String origMsg = ClassUtil.exceptionMessage(e);
             if (origMsg != null) {
                 msg.append(", problem: ").append(origMsg);
             } else {
@@ -211,7 +211,7 @@ public class SettableAnyProperty
         ClassUtil.throwIfRTE(e);
         // let's wrap the innermost problem
         Throwable t = ClassUtil.getRootCause(e);
-        throw new JsonMappingException(null, t.getMessage(), t);
+        throw new JsonMappingException(null, ClassUtil.exceptionMessage(t), t);
     }
 
     private String getClassName() { return _setter.getDeclaringClass().getName(); }

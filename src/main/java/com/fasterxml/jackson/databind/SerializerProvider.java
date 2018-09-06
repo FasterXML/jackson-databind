@@ -839,7 +839,7 @@ public abstract class SerializerProvider
             ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
-            throw _mappingProblem(iae, iae.getMessage());
+            throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
         // Always cache -- and in this case both for raw and full type
         _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
@@ -856,7 +856,7 @@ public abstract class SerializerProvider
             ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
-            throw _mappingProblem(iae, iae.getMessage());
+            throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
         // always cache -- but only full type (may be parameterized)
         _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
@@ -876,7 +876,7 @@ public abstract class SerializerProvider
         try {
             ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
         } catch (IllegalArgumentException iae) {
-            throw _mappingProblem(iae, iae.getMessage());
+            throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
         _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
         // Fine, we have to base instance. But how about per-property format overrides?
@@ -899,7 +899,7 @@ public abstract class SerializerProvider
         try {
             ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
         } catch (IllegalArgumentException iae) {
-            throw _mappingProblem(iae, iae.getMessage());
+            throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
         _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
         // Fine, we have to base instance. But how about per-property format overrides?

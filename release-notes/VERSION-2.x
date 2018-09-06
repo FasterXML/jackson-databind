@@ -34,6 +34,7 @@ Project: jackson-databind
   - CVE-2018-14721)
 #2109: Canonical string for reference type is built incorrectly
  (reported by svarzee@github)
+#2128: Location information included twice for some `JsonMappingException`s
 
 2.9.6 (12-Jun-2018)
 

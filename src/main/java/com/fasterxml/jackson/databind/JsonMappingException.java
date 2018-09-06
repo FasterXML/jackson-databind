@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Checked exception used to signal fatal problems with mapping of
@@ -276,7 +277,8 @@ public class JsonMappingException
     public static JsonMappingException fromUnexpectedIOE(IOException src) {
         return new JsonMappingException(null,
                 String.format("Unexpected IOException (of type %s): %s",
-                        src.getClass().getName(), src.getMessage()));
+                        src.getClass().getName(),
+                        ClassUtil.exceptionMessage(src)));
     }
 
     /**
@@ -316,7 +318,8 @@ public class JsonMappingException
         if (src instanceof JsonMappingException) {
             jme = (JsonMappingException) src;
         } else {
-            String msg = src.getMessage();
+            // [databind#2128]: try to avoid duplication
+            String msg = ClassUtil.exceptionMessage(src);
             // Let's use a more meaningful placeholder if all we have is null
             if (msg == null || msg.length() == 0) {
                 msg = "(was "+src.getClass().getName()+")";
@@ -427,9 +430,7 @@ public class JsonMappingException
 
     protected String _buildMessage()
     {
-        /* First: if we have no path info, let's just use parent's
-         * definition as is
-         */
+        // First: if we have no path info, let's just use parent's definition as is
         String msg = super.getMessage();
         if (_path == null) {
             return msg;

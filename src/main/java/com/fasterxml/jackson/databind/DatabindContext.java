@@ -172,7 +172,8 @@ public abstract class DatabindContext
             } catch (Exception e) {
                 throw invalidTypeIdException(baseType, subClass, String.format(
                         "problem: (%s) %s",
-                        e.getClass().getName(), e.getMessage()));
+                        e.getClass().getName(),
+                        ClassUtil.exceptionMessage(e)));
             }
             if (baseType.isTypeOrSuperTypeOf(cls)) {
                 return getTypeFactory().constructSpecializedType(baseType, cls);

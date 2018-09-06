@@ -831,7 +831,8 @@ public abstract class DeserializationContext
             return df.parse(dateStr);
         } catch (ParseException e) {
             throw new IllegalArgumentException(String.format(
-                    "Failed to parse Date value '%s': %s", dateStr, e.getMessage()));
+                    "Failed to parse Date value '%s': %s", dateStr,
+                    ClassUtil.exceptionMessage(e)));
         }
     }
 
@@ -1584,7 +1585,7 @@ trailingToken, ClassUtil.nameOf(targetType)
         String excMsg;
         if (cause == null) {
             excMsg = "N/A";
-        } else if ((excMsg = cause.getMessage()) == null) {
+        } else if ((excMsg = ClassUtil.exceptionMessage(cause)) == null) {
             excMsg = ClassUtil.nameOf(cause.getClass());
         }
         String msg = String.format("Cannot construct instance of %s, problem: %s",

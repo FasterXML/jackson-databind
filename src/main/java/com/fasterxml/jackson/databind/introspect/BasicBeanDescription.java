@@ -329,7 +329,7 @@ anyField.getName()));
             ClassUtil.throwIfError(t);
             ClassUtil.throwIfRTE(t);
             throw new IllegalArgumentException("Failed to instantiate bean of type "+ClassUtil.nameOf(_classInfo.getAnnotated())
-                    +": ("+t.getClass().getName()+") "+t.getMessage(), t);
+                    +": ("+t.getClass().getName()+") "+ClassUtil.exceptionMessage(t), t);
         }
     }
 

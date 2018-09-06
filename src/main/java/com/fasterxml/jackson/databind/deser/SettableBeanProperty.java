@@ -581,7 +581,7 @@ public abstract class SettableBeanProperty
                     .append(getType())
                     .append("; actual type: ")
                     .append(actType).append(")");
-            String origMsg = e.getMessage();
+            String origMsg = ClassUtil.exceptionMessage(e);
             if (origMsg != null) {
                 msg.append(", problem: ")
                     .append(origMsg);
@@ -599,7 +599,7 @@ public abstract class SettableBeanProperty
         ClassUtil.throwIfRTE(e);
         // let's wrap the innermost problem
         Throwable th = ClassUtil.getRootCause(e);
-        throw JsonMappingException.from(p, th.getMessage(), th);
+        throw JsonMappingException.from(p, ClassUtil.exceptionMessage(th), th);
     }
 
     // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining

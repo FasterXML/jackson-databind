@@ -7,6 +7,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.Named;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -61,9 +62,6 @@ public final class ClassUtil
         return result;
     }
 
-    /**
-     * @since 2.7
-     */
     public static List<Class<?>> findRawSuperTypes(Class<?> cls, Class<?> endBefore, boolean addClassItself) {
         if ((cls == null) || (cls == endBefore) || (cls == Object.class)) {
             return Collections.emptyList();
@@ -77,8 +75,6 @@ public final class ClassUtil
      * Method for finding all super classes (but not super interfaces) of given class,
      * starting with the immediate super class and ending in the most distant one.
      * Class itself is included if <code>addClassItself</code> is true.
-     *
-     * @since 2.7
      */
     public static List<Class<?>> findSuperClasses(Class<?> cls, Class<?> endBefore,
             boolean addClassItself) {
@@ -345,10 +341,7 @@ public final class ClassUtil
 
     /**
      * Method that works like by calling {@link #getRootCause} and then
-     * either throwing it (if instanceof {@link IOException}), or
-     * return.
-     *
-     * @since 2.8
+     * either throwing it (if instanceof {@link IOException}), or return.
      */
     public static Throwable throwRootCauseIfIOE(Throwable t) throws IOException {
         return throwIfIOE(getRootCause(t));
@@ -359,7 +352,7 @@ public final class ClassUtil
      * is a checked exception; otherwise (runtime exception or error) throw as is
      */
     public static void throwAsIAE(Throwable t) {
-        throwAsIAE(t, t.getMessage());
+        throwAsIAE(t, exceptionMessage(t));
     }
 
     /**
@@ -374,15 +367,12 @@ public final class ClassUtil
         throw new IllegalArgumentException(msg, t);
     }
 
-    /**
-     * @since 2.9
-     */
     public static <T> T throwAsMappingException(DeserializationContext ctxt,
             IOException e0) throws JsonMappingException {
         if (e0 instanceof JsonMappingException) {
             throw (JsonMappingException) e0;
         }
-        JsonMappingException e = JsonMappingException.from(ctxt, e0.getMessage());
+        JsonMappingException e = JsonMappingException.from(ctxt, exceptionMessage(e0));
         e.initCause(e0);
         throw e;
     }
@@ -490,7 +480,8 @@ public final class ClassUtil
         try {
             return ctor.newInstance();
         } catch (Exception e) {
-            ClassUtil.unwrapAndThrowAsIAE(e, "Failed to instantiate class "+cls.getName()+", problem: "+e.getMessage());
+            ClassUtil.unwrapAndThrowAsIAE(e, "Failed to instantiate class "+cls.getName()+", problem: "
+        +exceptionMessage(e));
             return null;
         }
     }
@@ -512,7 +503,8 @@ public final class ClassUtil
         } catch (NoSuchMethodException e) {
             ;
         } catch (Exception e) {
-            ClassUtil.unwrapAndThrowAsIAE(e, "Failed to find default constructor of class "+cls.getName()+", problem: "+e.getMessage());
+            ClassUtil.unwrapAndThrowAsIAE(e, "Failed to find default constructor of class "+cls.getName()
+                +", problem: "+exceptionMessage(e));
         }
         return null;
     }
@@ -655,6 +647,12 @@ public final class ClassUtil
         return backticked(named.getName());
     }
 
+    /*
+    /**********************************************************
+    /* Other escaping, description acces
+    /**********************************************************
+     */
+    
     /**
      * Returns either `text` or [null].
      */
@@ -665,6 +663,22 @@ public final class ClassUtil
         return new StringBuilder(text.length()+2).append('`').append(text).append('`').toString();
     }
 
+    /**
+     * Helper method that returns {@link Throwable#getMessage()} for all other exceptions
+     * except for {@link JsonProcessingException}, for which {@code getOriginalMessage()} is
+     * returned instead.
+     * Method is used to avoid accidentally including trailing location information twice
+     * in message when wrapping exceptions.
+     *
+     * @since 2.9.7
+     */
+    public static String exceptionMessage(Throwable t) {
+        if (t instanceof JsonProcessingException) {
+            return ((JsonProcessingException) t).getOriginalMessage();
+        }
+        return t.getMessage();
+    }
+    
     /*
     /**********************************************************
     /* Primitive type support
@@ -811,7 +825,8 @@ public final class ClassUtil
             // Google App Engine); so let's only fail if we really needed it...
             if (!ao.isAccessible()) {
                 Class<?> declClass = member.getDeclaringClass();
-                throw new IllegalArgumentException("Cannot access "+member+" (from class "+declClass.getName()+"; failed to set access: "+se.getMessage());
+                throw new IllegalArgumentException("Cannot access "+member+" (from class "+declClass.getName()
+                    +"; failed to set access: "+exceptionMessage(se));
             }
         }
     }

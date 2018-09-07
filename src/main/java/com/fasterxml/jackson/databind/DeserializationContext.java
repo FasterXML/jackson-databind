@@ -1112,32 +1112,7 @@ targetType, goodValue.getClass()));
             JsonParser p, String msg, Object... msgArgs)
         throws IOException
     {
-        msg = _format(msg, msgArgs);
-        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
-        while (h != null) {
-            Object instance = h.value().handleUnexpectedToken(this,
-                    instClass, t, p, msg);
-            if (instance != DeserializationProblemHandler.NOT_HANDLED) {
-                if (_isCompatible(instClass, instance)) {
-                    return instance;
-                }
-                reportBadDefinition(constructType(instClass), String.format(
-                        "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        ClassUtil.nameOf(instClass), ClassUtil.classNameOf(instance)));
-            }
-            h = h.next();
-        }
-        if (msg == null) {
-            if (t == null) {
-                msg = String.format("Unexpected end-of-input when binding data into %s",
-                        ClassUtil.nameOf(instClass));
-            } else {
-                msg = String.format("Cannot deserialize instance of %s out of %s token",
-                        ClassUtil.nameOf(instClass), t);
-            }
-        }
-        reportInputMismatch(instClass, msg);
-        return null; // never gets here
+        return handleUnexpectedToken(constructType(instClass), t, p, msg, msgArgs);
     }
 
     /**
@@ -1183,27 +1158,27 @@ targetType, goodValue.getClass()));
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             Object instance = h.value().handleUnexpectedToken(this,
-                    instClass, t, p, msg);
+                    targetType, t, p, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
-                if (_isCompatible(instClass, instance)) {
+                if (_isCompatible(targetType.getRawClass(), instance)) {
                     return instance;
                 }
-                reportBadDefinition(constructType(instClass), String.format(
+                reportBadDefinition(targetType, String.format(
                         "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        ClassUtil.nameOf(instClass), ClassUtil.classNameOf(instance)));
+                        targetType, ClassUtil.classNameOf(instance)));
             }
             h = h.next();
         }
         if (msg == null) {
             if (t == null) {
                 msg = String.format("Unexpected end-of-input when binding data into %s",
-                        ClassUtil.nameOf(instClass));
+                        targetType);
             } else {
                 msg = String.format("Cannot deserialize instance of %s out of %s token",
-                        ClassUtil.nameOf(instClass), t);
+                        targetType, t);
             }
         }
-        reportInputMismatch(instClass, msg);
+        reportInputMismatch(targetType, msg);
         return null; // never gets here
     }
 

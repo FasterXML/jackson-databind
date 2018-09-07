@@ -162,10 +162,10 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_STRING) {
             String text = p.getText().trim();
             // [databind#422]: Allow aliases
-            if ("true".equals(text) || "True".equals(text)) {
+            if ("true".equalsIgnoreCase(text)) {
                 return true;
             }
-            if ("false".equals(text) || "False".equals(text)) {
+            if ("false".equalsIgnoreCase(text)) {
                 return false;
             }
             if (_isEmptyOrTextualNull(text)) {

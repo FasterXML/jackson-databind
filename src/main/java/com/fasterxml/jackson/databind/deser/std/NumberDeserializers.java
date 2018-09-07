@@ -234,11 +234,11 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_STRING) {
                 String text = p.getText().trim();
                 // [databind#422]: Allow aliases
-                if ("true".equals(text) || "True".equals(text)) {
+                if ("true".equalsIgnoreCase(text)) {
                     _verifyStringForScalarCoercion(ctxt, text);
                     return Boolean.TRUE;
                 }
-                if ("false".equals(text) || "False".equals(text)) {
+                if ("false".equalsIgnoreCase(text)) {
                     _verifyStringForScalarCoercion(ctxt, text);
                     return Boolean.FALSE;
                 }

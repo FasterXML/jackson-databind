@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
+import static java.lang.Character.isLetter;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -8,10 +10,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.Currency;
 import java.util.Locale;
+import java.util.ServiceLoader;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -245,14 +250,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             case STD_URI:
                 return URI.create(value);
             case STD_PATH:
-                if (value.indexOf(':') < 0) {
-                    return Paths.get(value);
-                }
-                try {
-                    return Paths.get(new URI(value));
-                } catch (URISyntaxException e) {
-                    return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
-                }
+                // 06-Sep-2018, tatu: Offlined due to additions in [databind#2120]
+                return NioPathHelper.deserialize(ctxt, value);
             case STD_CLASS:
                 try {
                     return ctxt.findClass(value);
@@ -345,5 +344,60 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             }
             return -1;
         }
+    }
+
+    private static class NioPathHelper {
+        private static final boolean areWindowsFilePathsSupported;
+        static {
+            boolean isWindowsRootFound = false;
+            for (File file : File.listRoots()) {
+                String path = file.getPath();
+                if (path.length() >= 2 && isLetter(path.charAt(0)) && path.charAt(1) == ':') {
+                    isWindowsRootFound = true;
+                    break;
+                }
+            }
+            areWindowsFilePathsSupported = isWindowsRootFound;
+        }
+
+        public static Path deserialize(DeserializationContext ctxt, String value) throws IOException {
+            // If someone gives us an input with no : at all, treat as local path, instead of failing
+            // with invalid URI.
+            if (value.indexOf(':') < 0) {
+                return Paths.get(value);
+            }
+
+            if (areWindowsFilePathsSupported) {
+                if (value.length() >= 2 && isLetter(value.charAt(0)) && value.charAt(1) == ':') {
+                    return Paths.get(value);
+                }
+            }
+
+            final URI uri;
+            try {
+                uri = new URI(value);
+            } catch (URISyntaxException e) {
+                return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+            }
+            try {
+                return Paths.get(uri);
+            } catch (FileSystemNotFoundException cause) {
+                try {
+                    final String scheme = uri.getScheme();
+                    // We want to use the current thread's context class loader, not system class loader that is used in Paths.get():
+                    for (FileSystemProvider provider : ServiceLoader.load(FileSystemProvider.class)) {
+                        if (provider.getScheme().equalsIgnoreCase(scheme)) {
+                            return provider.getPath(uri);
+                        }
+                    }
+                    return (Path) ctxt.handleInstantiationProblem(Path.class, value, cause);
+                } catch (Throwable e) {
+                    e.addSuppressed(cause);
+                    return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+                }
+            } catch (Throwable e) {
+                return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+            }
+        }        
     }
 }

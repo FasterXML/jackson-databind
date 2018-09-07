@@ -823,3 +823,6 @@ Christopher Smith (chrylis@github)
 Édouard Mercier (edouardmercier@github)
   * Requested #2116: Make NumberSerializers.Base public and its inherited classes not final
    (2.9.6)
+
+Semyon Levin (remal@github)
+  * Contributed #2120: `NioPathDeserializer` improvement

@@ -810,3 +810,6 @@ Petar Tahchiev (ptahchiev@github)
 Brandon Krieger (bkrieger@github)
   * Reported #2064: Cannot set custom format for `SqlDateSerializer` globally
    (2.9.7)
+
+Semyon Levin (remal@github)
+  * Contributed #2120: `NioPathDeserializer` improvement

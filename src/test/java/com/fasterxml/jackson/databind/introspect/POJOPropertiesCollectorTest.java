@@ -359,8 +359,9 @@ public class POJOPropertiesCollectorTest
 
     public void testGlobalVisibilityForGetters()
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+        ObjectMapper m = objectMapperBuilder()
+                .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
+                .build();
         POJOPropertiesCollector coll = collector(m, SimpleGetterVisibility.class, true);
         // should be 1, expect that we disabled getter auto-detection, so
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
@@ -426,8 +427,9 @@ public class POJOPropertiesCollectorTest
     public void testUseAnnotationsFalse() throws Exception
     {
         // note: need a separate mapper, need to reconfigure
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(MapperFeature.USE_ANNOTATIONS, false);
+        ObjectMapper mapper = objectMapperBuilder()
+                .configure(MapperFeature.USE_ANNOTATIONS, false)
+                .build();
         BasicBeanDescription beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Jackson703.class));
         assertNotNull(beanDesc);
 

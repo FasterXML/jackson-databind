@@ -96,8 +96,9 @@ public class CreatorPropertiesTest extends BaseMapTest
         assertEquals(6, result.y);
 
         // but change if configuration changed
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES);
+        ObjectMapper mapper = objectMapperBuilder()
+                .disable(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES)
+                .build();
         // in which case fields are set directly:
         result = mapper.readValue(JSON, Lombok1371Bean.class);
         assertEquals(3, result.x);

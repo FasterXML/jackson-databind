@@ -129,6 +129,19 @@ public class ObjectMapper
      */
 
     /**
+     * Base implementation for "Vanilla" {@link ObjectMapper}, used with JSON backend
+     * as well as for some of simpler formats that do not require mapper level overrides.
+     *
+     * @since 2.10
+     */
+    public static class Builder extends MapperBuilder<ObjectMapper, Builder>
+    {
+        public Builder(JsonFactory tsf) {
+            super(new ObjectMapper(tsf));
+        }
+    }
+    
+    /**
      * Enumeration used with {@link ObjectMapper#enableDefaultTyping()}
      * to specify what kind of types (classes) default typing should
      * be used for. It will only be used if no explicit type information
@@ -347,7 +360,7 @@ public class ObjectMapper
     /* Configuration settings: mix-in annotations
     /**********************************************************
      */
-    
+
     /**
      * Mapping that defines how to apply mix-in annotations: key is
      * the type to received additional annotations, and value is the
@@ -426,7 +439,7 @@ public class ObjectMapper
      * @since 2.5
      */
     protected Set<Object> _registeredModuleTypes;
-    
+
     /*
     /**********************************************************
     /* Caching
@@ -589,6 +602,39 @@ public class ObjectMapper
      */
     protected ClassIntrospector defaultClassIntrospector() {
         return new BasicClassIntrospector();
+    }
+
+    /*
+    /**********************************************************
+    /* Builder-based construction (2.10)
+    /**********************************************************
+     */
+
+    // 16-Feb-2018, tatu: Arggghh. Due to Java Type Erasure rules, override, even static methods
+    //    are apparently bound to compatibility rules (despite them not being real overrides at all).
+    //    And because there is no "JsonMapper" we need to use odd weird typing here. Instead of simply
+    //    using `MapperBuilder` we already go
+
+    /**
+     * Short-cut for:
+     *<pre>
+     *   return builder(JsonFactory.builder().build());
+     *</pre>
+     *
+     * @since 2.10
+     */
+    @SuppressWarnings("unchecked")
+    public static <M extends ObjectMapper, B extends MapperBuilder<M,B>> MapperBuilder<M,B> builder() {
+        return (MapperBuilder<M,B>) jsonBuilder();
+    }
+
+    // But here we can just use simple typing. Since there are no overloads of any kind.
+    public static ObjectMapper.Builder jsonBuilder() {
+        return new ObjectMapper.Builder(new JsonFactory());
+    }
+
+    public static ObjectMapper.Builder builder(JsonFactory streamFactory) {
+        return new ObjectMapper.Builder(streamFactory);
     }
 
     /*
@@ -1639,7 +1685,7 @@ public class ObjectMapper
      *<pre>
      *   mapper.configOverride(java.util.Date.class)
      *       .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd"));
-     *<pre>
+     *</pre>
      * to change the default format to use for properties of type
      * {@link java.util.Date} (possibly further overridden by per-property
      * annotations)
@@ -1841,7 +1887,11 @@ public class ObjectMapper
      *
      * @return {@link JsonFactory} that this mapper uses when it needs to
      *   construct Json parser and generators
+     *
+     * @since 2.10
      */
+    public JsonFactory tokenStreamFactory() { return _jsonFactory; }
+
     @Override
     public JsonFactory getFactory() { return _jsonFactory; }
     
@@ -1942,9 +1992,9 @@ public class ObjectMapper
     }
     
     /**
-     * Method for changing state of an on/off mapper feature for
-     * this mapper instance.
+     * @deprecated Since 2.10 use {@code ObjectMapper.builder().disable(...)}
      */
+    @Deprecated
     public ObjectMapper configure(MapperFeature f, boolean state) {
         _serializationConfig = state ?
                 _serializationConfig.with(f) : _serializationConfig.without(f);
@@ -1954,9 +2004,9 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link MapperConfig} features.
-     * Modifies and returns this instance; no new object is created.
+     * @deprecated Since 2.10 use {@code ObjectMapper.builder().disable(...)}
      */
+    @Deprecated
     public ObjectMapper enable(MapperFeature... f) {
         _deserializationConfig = _deserializationConfig.with(f);
         _serializationConfig = _serializationConfig.with(f);
@@ -1964,15 +2014,15 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
+     * @deprecated Since 2.10 use {@code ObjectMapper.builder().disable(...)}
      */
+    @Deprecated
     public ObjectMapper disable(MapperFeature... f) {
         _deserializationConfig = _deserializationConfig.without(f);
         _serializationConfig = _serializationConfig.without(f);
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, simple features: SerializationFeature

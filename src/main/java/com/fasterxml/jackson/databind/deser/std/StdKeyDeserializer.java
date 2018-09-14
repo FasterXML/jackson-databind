@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -72,9 +73,13 @@ public class StdKeyDeserializer extends KeyDeserializer
         int kind;
 
         // first common types:
-        if (raw == String.class || raw == Object.class || raw == CharSequence.class) {
+        if (raw == String.class || raw == Object.class
+                || raw == CharSequence.class
+                // see [databind#2115]:
+                || raw == Serializable.class) {
             return StringKD.forType(raw);
-        } else if (raw == UUID.class) {
+        }
+        if (raw == UUID.class) {
             kind = TYPE_UUID;
         } else if (raw == Integer.class) {
             kind = TYPE_INT;

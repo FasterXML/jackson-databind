@@ -4,6 +4,17 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.0 (not yet released)
+
+#2059: Remove `final` modifier for `TypeFactory`
+ (requested by Thibaut R)
+#2115: Support naive deserialization of `Serializable` values as "untyped", same
+  as `java.lang.Object`
+ (requested by Christopher S)
+#2116: Make NumberSerializers.Base public and its inherited classes not final
+ (requested by Édouard M)
+#2126: `DeserializationContext.instantiationException()` throws `InvalidDefinitionException`
+
 2.9.7 (not yet released)
 
 #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is

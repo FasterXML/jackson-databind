@@ -422,8 +422,9 @@ public class EnumDeserializationTest
         assertSame(TestEnum.values()[1], en);
 
         // [databind#1690]: unless prevented
-        final ObjectMapper mapper = newObjectMapper();
-        mapper.disable(MapperFeature.ALLOW_COERCION_OF_SCALARS);
+        final ObjectMapper mapper = objectMapperBuilder()
+                .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+                .build();
         try {
             en = mapper.readValue(quote("1"), TestEnum.class);
             fail("Should not pass");

@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
 /**
@@ -92,14 +92,14 @@ public class ProblemHandlerTest extends BaseMapTest
         public InstantiationProblemHandler(Object v0) {
             value = v0;
         }
-    
+
         @Override
         public Object handleInstantiationProblem(DeserializationContext ctxt,
                 Class<?> instClass, Object argument, Throwable t)
             throws IOException
         {
-            if (!(t instanceof InvalidDefinitionException)) {
-                throw new IllegalArgumentException("Should have gotten `InvalidDefinitionException`, instead got: "+t);
+            if (!(t instanceof ValueInstantiationException)) {
+                throw new IllegalArgumentException("Should have gotten `ValueInstantiationException`, instead got: "+t);
             }
             return value;
         }
@@ -109,7 +109,7 @@ public class ProblemHandlerTest extends BaseMapTest
         extends DeserializationProblemHandler
     {
         protected final Object value;
-    
+
         public MissingInstantiationHandler(Object v0) {
             value = v0;
         }

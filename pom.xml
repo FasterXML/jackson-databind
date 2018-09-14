@@ -5,12 +5,12 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.9.7-SNAPSHOT</version>
+    <version>2.10.0-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.9.7-SNAPSHOT</version>
+  <version>2.10.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -25,7 +25,7 @@
   </scm>
 
   <properties>
-    <!-- With Jackson 2.9 we will require JDK 7 (except for annotations/streaming),
+    <!-- With Jackson 2.10 baseline is JDK 7 (except for annotations/streaming),
          and new language features (diamond pattern) may be used.
          JDK classes are still loaded dynamically since there isn't much downside
          (small number of types); this allows use on JDK 6 platforms still (including
@@ -42,7 +42,7 @@
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
-    <!-- since 2.9.1: NOTE! can not use packageVersion.package as is -->
+    <!-- NOTE! can not use packageVersion.package as is -->
     <jdk.module.name>com.fasterxml.jackson.databind</jdk.module.name>
   </properties>
 

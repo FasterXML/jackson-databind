@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -8,8 +9,10 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
+
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -46,6 +49,7 @@ public abstract class BasicDeserializerFactory
     private final static Class<?> CLASS_CHAR_SEQUENCE = CharSequence.class;
     private final static Class<?> CLASS_ITERABLE = Iterable.class;
     private final static Class<?> CLASS_MAP_ENTRY = Map.Entry.class;
+    private final static Class<?> CLASS_SERIALIZABLE = Serializable.class;
 
     /**
      * We need a placeholder for creator properties that don't have name
@@ -1771,8 +1775,8 @@ nonAnnotatedParamIndex, ctor);
         throws JsonMappingException
     {
         Class<?> rawType = type.getRawClass();
-        // Object ("untyped"), String equivalents:
-        if (rawType == CLASS_OBJECT) {
+        // Object ("untyped"), and as of 2.10 (see [databind#2115]), `java.io.Serializable`
+        if ((rawType == CLASS_OBJECT) || (rawType == CLASS_SERIALIZABLE)) {
             // 11-Feb-2015, tatu: As per [databind#700] need to be careful wrt non-default Map, List.
             DeserializationConfig config = ctxt.getConfig();
             JavaType lt, mt;
@@ -1785,6 +1789,7 @@ nonAnnotatedParamIndex, ctor);
             }
             return new UntypedObjectDeserializer(lt, mt);
         }
+        // String and equivalents
         if (rawType == CLASS_STRING || rawType == CLASS_CHAR_SEQUENCE) {
             return StringDeserializer.instance;
         }

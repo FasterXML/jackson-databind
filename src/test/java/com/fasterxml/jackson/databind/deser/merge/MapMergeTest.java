@@ -46,10 +46,10 @@ public class MapMergeTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper()
+    private final ObjectMapper MAPPER = objectMapperBuilder()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
-    ;
+            .build();
 
     private final ObjectMapper MAPPER_SKIP_NULLS = newObjectMapper()
             .setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));

@@ -114,9 +114,10 @@ public class TestRootType
 
     public void testInArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = objectMapperBuilder()
         // must force static typing, otherwise won't matter a lot
-        mapper.configure(MapperFeature.USE_STATIC_TYPING, true);
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
         SubType[] ob = new SubType[] { new SubType() };
         String json = mapper.writerFor(BaseInterface[].class).writeValueAsString(ob);
         // should propagate interface type through due to root declaration; static typing

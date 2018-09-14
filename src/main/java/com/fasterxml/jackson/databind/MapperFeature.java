@@ -195,15 +195,15 @@ public enum MapperFeature implements ConfigFeature
     INFER_PROPERTY_MUTATORS(true),
 
     /**
-     * Feature that determines handling of <code>java.beans.ConstructorProperties<code>
+     * Feature that determines handling of {@code java.beans.ConstructorProperties}
      * annotation: when enabled, it is considered as alias of
      * {@link com.fasterxml.jackson.annotation.JsonCreator}, to mean that constructor
      * should be considered a property-based Creator; when disabled, only constructor
      * parameter name information is used, but constructor is NOT considered an explicit
      * Creator (although may be discovered as one using other annotations or heuristics).
      *<p>
-     * Feature is mostly used to help interoperability with frameworks like Lombok
-     * that may automatically generate <code>ConstructorProperties</code> annotation
+     * Feature is mostly used to help inter-operability with frameworks like Lombok
+     * that may automatically generate {@code ConstructorProperties} annotation
      * but without necessarily meaning that constructor should be used as Creator
      * for deserialization.
      *<p>

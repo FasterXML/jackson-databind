@@ -135,18 +135,18 @@ public class TestCreators3 extends BaseMapTest
     
     public void testCreator541() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(
+        ObjectMapper mapper = objectMapperBuilder()
+                .disable(
                 MapperFeature.AUTO_DETECT_CREATORS,
                 MapperFeature.AUTO_DETECT_FIELDS,
                 MapperFeature.AUTO_DETECT_GETTERS,
                 MapperFeature.AUTO_DETECT_IS_GETTERS,
                 MapperFeature.AUTO_DETECT_SETTERS,
-                MapperFeature.USE_GETTERS_AS_SETTERS
-        );
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);  
+                MapperFeature.USE_GETTERS_AS_SETTERS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .serializationInclusion(JsonInclude.Include.NON_NULL)
+        .build();
 
         final String JSON = "{\n"
                 + "    \"foo\": {\n"

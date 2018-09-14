@@ -171,12 +171,13 @@ public class TestMixinSerWithViews
 
     public void testIssue560() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         A a = new A("myname", 29, "mysurname");
 
         // Property SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION set to false
-        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, Boolean.FALSE);
-        mapper.addMixIn(A.class, AMixInAnnotation.class);
+        ObjectMapper mapper = objectMapperBuilder()
+            .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, Boolean.FALSE)
+            .addMixIn(A.class, AMixInAnnotation.class)
+            .build();
         String json = mapper.writerWithView(AView.class).writeValueAsString(a);
 
         assertTrue(json.indexOf("\"name\"") > 0);
@@ -188,12 +189,13 @@ public class TestMixinSerWithViews
     /**********************************************************
      */
     
-    private ObjectMapper createObjectMapper( )
+    private ObjectMapper createObjectMapper()
     {
-        ObjectMapper objectMapper = new ObjectMapper( );
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false );
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
-        objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false );
+        ObjectMapper objectMapper = objectMapperBuilder()
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false )
+                .serializationInclusion(JsonInclude.Include.NON_NULL )
+                .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false )
+                .build();
     
         Map<Class<?>, Class<?>> sourceMixins = new HashMap<Class<?>, Class<?>>( );
         sourceMixins.put( SimpleTestData.class, TestDataJAXBMixin.class );

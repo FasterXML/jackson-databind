@@ -30,12 +30,13 @@ public class AutoDetect1947Test extends BaseMapTest
     }
     public void testDisablingAll() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = objectMapperBuilder()
                 .disable(MapperFeature.AUTO_DETECT_SETTERS)
                 .disable(MapperFeature.AUTO_DETECT_FIELDS)
                 .disable(MapperFeature.AUTO_DETECT_GETTERS)
                 .disable(MapperFeature.AUTO_DETECT_CREATORS)
-                .disable(MapperFeature.AUTO_DETECT_IS_GETTERS);
+                .disable(MapperFeature.AUTO_DETECT_IS_GETTERS)
+                .build();
         String json = mapper.writeValueAsString(new Entity1947());
         JsonNode n = mapper.readTree(json);
         assertEquals(1, n.size());

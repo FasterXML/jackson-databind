@@ -18,13 +18,13 @@ public class ManualReadPerfUntyped extends ObjectReaderTestBase
         }
         byte[] data = readAll(args[0]);
 
-        JsonFactory f = new JsonFactory();
         boolean doIntern = true;
-
-        f.configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern);
-        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern);
+        JsonFactory f = JsonFactory.builder()
+                .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern)
+                .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern)
+                .build();
         
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = new ObjectMapper(f);
         
         // Either Object or Map
         final Class<?> UNTYPED = Map.class;

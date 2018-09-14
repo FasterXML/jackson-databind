@@ -9,6 +9,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
 public class TestCreators2 extends BaseMapTest
 {
@@ -190,7 +193,7 @@ public class TestCreators2 extends BaseMapTest
         try {
             MAPPER.readValue("{}", BustedCtor.class);
             fail("Expected exception");
-        } catch (JsonMappingException e) {
+        } catch (ValueInstantiationException e) {
             verifyException(e, ": foobar");
             // also: should have nested exception
             Throwable t = e.getCause();
@@ -200,6 +203,8 @@ public class TestCreators2 extends BaseMapTest
             assertNotNull(t);
             assertEquals(IllegalArgumentException.class, t.getClass());
             assertEquals("foobar", t.getMessage());
+        } catch (Exception e) {
+            fail("Should have caught ValueInstantiationException, got: "+e);
         }
     }
 
@@ -210,7 +215,6 @@ public class TestCreators2 extends BaseMapTest
         assertEquals("abc", new String(test.bytes, "UTF-8"));
     }
 
-    // Test for [JACKSON-372]
     public void testMissingPrimitives() throws Exception
     {
         Primitives p = MAPPER.readValue("{}", Primitives.class);
@@ -238,11 +242,11 @@ public class TestCreators2 extends BaseMapTest
         try {
             MAPPER.readValue("{ \"name\":\"foobar\" }", BeanFor438.class);
             fail("Should have failed");
-        } catch (Exception e0) {
+        } catch (JsonMappingException e0) {
             e = e0;
         }
-        if (!(e instanceof JsonMappingException)) {
-            fail("Should have received JsonMappingException, caught "+e.getClass().getName());
+        if (!(e instanceof ValueInstantiationException)) {
+            fail("Should have received ValueInstantiationException, caught "+e.getClass().getName());
         }
         verifyException(e, "don't like that name");
         // Ok: also, let's ensure root cause is directly linked, without other extra wrapping:
@@ -259,7 +263,7 @@ public class TestCreators2 extends BaseMapTest
         try {
             MAPPER.readValue("{\"bar\":\"x\"}", BrokenCreatorBean.class);
             fail("Should have caught duplicate creator parameters");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "duplicate creator property \"bar\"");
             verifyException(e, "for type `com.fasterxml.jackson.databind.");
             verifyException(e, "$BrokenCreatorBean`");
@@ -278,7 +282,7 @@ public class TestCreators2 extends BaseMapTest
         try {
             MAPPER.readValue(quote("abc"), IgnoredCtor.class);
             fail("Should have caught missing constructor problem");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "no String-argument constructor/factory method");
         }
     }

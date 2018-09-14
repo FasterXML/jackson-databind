@@ -226,8 +226,9 @@ public abstract class DeserializationProblemHandler
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
      *
-     * @since 2.10
+     * @since 2.8
      */
+    @Deprecated
     public Object handleUnexpectedToken(DeserializationContext ctxt,
             Class<?> targetType, JsonToken t, JsonParser p,
             String failureMsg)
@@ -261,9 +262,8 @@ public abstract class DeserializationProblemHandler
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
      *
-     * @since 2.8
+     * @since 2.10
      */
-    @Deprecated
     public Object handleUnexpectedToken(DeserializationContext ctxt,
             JavaType targetType, JsonToken t, JsonParser p,
             String failureMsg)

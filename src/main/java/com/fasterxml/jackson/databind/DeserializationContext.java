@@ -1109,6 +1109,7 @@ targetType, goodValue.getClass()));
      *
      * @since 2.8
      */
+    @Deprecated
     public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)
         throws IOException
@@ -1128,7 +1129,7 @@ targetType, goodValue.getClass()));
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
      *
-     * @since 2.9
+     * @since 2.10
      */
     public Object handleUnexpectedToken(JavaType targetType, JsonParser p)
         throws IOException
@@ -1149,7 +1150,7 @@ targetType, goodValue.getClass()));
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
      *
-     * @since 2.9
+     * @since 2.10
      */
     public Object handleUnexpectedToken(JavaType targetType, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)

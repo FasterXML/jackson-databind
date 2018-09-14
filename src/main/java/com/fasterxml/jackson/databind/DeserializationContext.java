@@ -1088,7 +1088,6 @@ targetType, goodValue.getClass()));
      *
      * @since 2.8
      */
-    @Deprecated
     public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
         throws IOException
     {
@@ -1110,7 +1109,6 @@ targetType, goodValue.getClass()));
      *
      * @since 2.8
      */
-    @Deprecated
     public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)
         throws IOException

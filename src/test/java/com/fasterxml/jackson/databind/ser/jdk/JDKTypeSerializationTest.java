@@ -145,6 +145,19 @@ public class JDKTypeSerializationTest
         assertEquals(exp, MAPPER.writeValueAsString(bbuf2));
     }
 
+    // [Issue#1662]: Sliced ByteBuffers
+    public void testSlicedByteBuffer() throws IOException
+    {
+        final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
+        String exp = MAPPER.writeValueAsString(new byte[] { 3, 4, 5 });
+        ByteBuffer bbuf = ByteBuffer.wrap(INPUT_BYTES);
+
+        bbuf.position(2);
+        ByteBuffer slicedBuf = bbuf.slice();
+
+        assertEquals(exp, MAPPER.writeValueAsString(slicedBuf));
+    }
+
     // Verify that efficient UUID codec won't mess things up:
     public void testUUIDs() throws IOException
     {

@@ -379,6 +379,16 @@ public enum DeserializationFeature implements ConfigFeature
     ACCEPT_FLOAT_AS_INT(true),
 
     /**
+     * Feature that permits parsing dates/times and ignoring the case of the values.  For example: when
+     * the `pattern="dd-MMM-yyyy"`, this feature will accept both '01-Jan-2018' and '01-JAN-2018'
+     * <p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.10
+     */
+    ACCEPT_CASE_INSENSITIVE_VALUES(false),
+
+    /**
      * Feature that determines standard deserialization mechanism used for
      * Enum values: if enabled, Enums are assumed to have been serialized  using
      * return value of <code>Enum.toString()</code>;

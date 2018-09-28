@@ -369,6 +369,18 @@ public enum MapperFeature implements ConfigFeature
      */
     ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
 
+    /**
+     * Feature that will allow for more forgiving deserialization of incoming JSON, particularly
+     * with respect to dates.
+     * If enabled, the values will be parsed using the built-in features of the underlying parser.
+     *<p>
+     * (see {@link java.time.format.DateTimeFormatterBuilder#parseCaseInsensitive()}
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.10
+     */
+    ACCEPT_CASE_INSENSITIVE_VALUES(false),
 
     /**
      * Feature that determines if Enum deserialization should be case sensitive or not.

@@ -176,6 +176,33 @@ public abstract class JsonNode
     @Override
     public abstract JsonNode path(int index);
 
+    /**
+     * This method works similar to {@link #path(String)}, but
+     * instead of returning a "missing node" if the node is unavailable,
+     * it returns an optional that may contain the
+     * JsonNode at the given fieldName.
+     */
+    public Optional<JsonNode> optional(String fieldName) {
+        JsonNode path = path(fieldName);
+        if (path.isMissingNode()) {
+            return Optional.empty();
+        }
+        return Optional.of(path);
+    }
+
+    /**
+     * This method works similar to {@link #path(int)}, but
+     * instead of returning a "missing node" if the node is unavailable,
+     * it returns an optional that may contain the JsonNode at the given index.
+     */
+    public Optional<JsonNode> optional(int index) {
+        JsonNode path = path(index);
+        if (path.isMissingNode()) {
+            return Optional.empty();
+        }
+        return Optional.of(path);
+    }
+
     @Override
     public Iterator<String> fieldNames() {
         return ClassUtil.emptyIterator();

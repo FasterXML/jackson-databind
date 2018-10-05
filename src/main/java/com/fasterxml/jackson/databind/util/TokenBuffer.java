@@ -267,14 +267,13 @@ public class TokenBuffer
      * @return Parser that can be used for reading contents stored in this buffer
      */
     public JsonParser asParser() {
-        return new Parser(null,
+        return new Parser(null, this,
                 _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
 
     public JsonParser asParser(ObjectReadContext readCtxt)
     {
-        // !!! TODO: pass context
-        return new Parser(readCtxt,
+        return new Parser(readCtxt, this,
                 _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
 
@@ -298,11 +297,11 @@ public class TokenBuffer
      */
     public JsonParser asParser(ObjectReadContext readCtxt, JsonParser src)
     {
-        Parser p = new Parser(readCtxt, _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+        Parser p = new Parser(readCtxt, this,
+                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
         p.setLocation(src.getTokenLocation());
         return p;
     }
-
     /*
     /**********************************************************************
     /* Versioned (mostly since buffer is `JsonGenerator`
@@ -1213,6 +1212,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /******************************************************************
          */
 
+        /**
+         * @since 3.0
+         */
+        protected final TokenBuffer _source;
+
         protected final boolean _hasNativeTypeIds;
 
         protected final boolean _hasNativeObjectIds;
@@ -1253,11 +1257,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /******************************************************************
          */
 
-        public Parser(ObjectReadContext readCtxt, Segment firstSeg,
-                boolean hasNativeTypeIds, boolean hasNativeObjectIds,
+        public Parser(ObjectReadContext readCtxt, TokenBuffer source,
+                Segment firstSeg, boolean hasNativeTypeIds, boolean hasNativeObjectIds,
                 TokenStreamContext parentContext)
         {
             super(readCtxt, 0);
+            _source = source;
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
@@ -1273,6 +1278,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public Version version() {
             return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
+        }
+
+        @Override
+        public TokenBuffer getInputSource() {
+            return _source;
         }
 
         /*

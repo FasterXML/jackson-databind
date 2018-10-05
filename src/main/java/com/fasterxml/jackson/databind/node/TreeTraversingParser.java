@@ -25,6 +25,11 @@ public class TreeTraversingParser extends ParserMinimalBase
      */
 
     /**
+     * @since 3.0
+     */
+    protected final JsonNode _source;
+
+    /**
      * Traversal context within tree
      */
     protected NodeCursor _nodeCursor;
@@ -65,6 +70,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     public TreeTraversingParser(JsonNode n, ObjectReadContext readContext)
     {
         super(readContext, 0);
+        _source = n;
         if (n.isArray()) {
             _nextToken = JsonToken.START_ARRAY;
             _nodeCursor = new NodeCursor.ArrayCursor(n, null);
@@ -80,7 +86,12 @@ public class TreeTraversingParser extends ParserMinimalBase
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
-    
+
+    @Override
+    public JsonNode getInputSource() {
+        return _source;
+    }
+
     /*
     /**********************************************************
     /* Closeable implementation

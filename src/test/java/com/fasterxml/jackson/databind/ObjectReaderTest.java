@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -49,7 +49,7 @@ public class ObjectReaderTest extends BaseMapTest
         final String JSON = "[ /* foo */ 7 ]";
         // default won't accept comments, let's change that:
         ObjectReader reader = MAPPER.readerFor(int[].class)
-                .with(JsonParser.Feature.ALLOW_COMMENTS);
+                .with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
 
         int[] value = reader.readValue(JSON);
         assertNotNull(value);
@@ -58,7 +58,7 @@ public class ObjectReaderTest extends BaseMapTest
 
         // but also can go back
         try {
-            reader.without(JsonParser.Feature.ALLOW_COMMENTS).readValue(JSON);
+            reader.without(JsonReadFeature.ALLOW_JAVA_COMMENTS).readValue(JSON);
             fail("Should not have passed");
         } catch (JsonProcessingException e) {
             verifyException(e, "foo");
@@ -79,7 +79,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         ObjectReader r = MAPPER.reader();
         assertFalse(r.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertFalse(r.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(r.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
         
         r = r.withoutFeatures(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);

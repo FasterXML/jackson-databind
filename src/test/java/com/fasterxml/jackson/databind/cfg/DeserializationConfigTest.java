@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import java.util.Collections;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 
@@ -59,13 +59,13 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testParserFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
-        assertNotSame(config, config.with(JsonParser.Feature.ALLOW_COMMENTS));
-        assertNotSame(config, config.withFeatures(JsonParser.Feature.ALLOW_COMMENTS,
-                JsonParser.Feature.ALLOW_MISSING_VALUES));
+        assertNotSame(config, config.with(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        assertNotSame(config, config.withFeatures(JsonReadFeature.ALLOW_JAVA_COMMENTS,
+                JsonReadFeature.ALLOW_MISSING_VALUES));
 
-        assertNotSame(config, config.without(JsonParser.Feature.ALLOW_COMMENTS));
-        assertNotSame(config, config.withoutFeatures(JsonParser.Feature.ALLOW_COMMENTS,
-                JsonParser.Feature.ALLOW_MISSING_VALUES));
+        assertNotSame(config, config.without(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        assertNotSame(config, config.withoutFeatures(JsonReadFeature.ALLOW_JAVA_COMMENTS,
+                JsonReadFeature.ALLOW_MISSING_VALUES));
     }
 
     public void testFormatFeatures() throws Exception

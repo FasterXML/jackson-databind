@@ -3,7 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class FullStreamReadTest extends BaseMapTest
@@ -81,13 +82,11 @@ public class FullStreamReadTest extends BaseMapTest
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
-
-        ObjectMapper strictWithComments = new ObjectMapper(
-                strict.tokenStreamFactory().rebuild()
-                .enable(JsonParser.Feature.ALLOW_COMMENTS)
-                .build());
+        ObjectReader strictWithComments = strict.reader()
+                .with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
         _verifyArray(strictWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));
-        _verifyCollection(strictWithComments.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class));
+        _verifyCollection((List<?>) strictWithComments.forType(List.class)
+                .readValue(JSON_OK_ARRAY_WITH_COMMENT));
     }
 
     public void testReaderAcceptTrailing() throws Exception
@@ -156,7 +155,7 @@ public class FullStreamReadTest extends BaseMapTest
 
         // but works if comments enabled etc
 
-        ObjectReader strictRWithComments = strictR.with(JsonParser.Feature.ALLOW_COMMENTS);
+        ObjectReader strictRWithComments = strictR.with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
         
         _verifyCollection((List<?>)strictRWithComments.forType(List.class).readValue(JSON_OK_ARRAY_WITH_COMMENT));
         _verifyArray(strictRWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));

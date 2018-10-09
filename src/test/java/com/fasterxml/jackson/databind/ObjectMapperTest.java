@@ -77,7 +77,7 @@ public class ObjectMapperTest extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
                 
         assertTrue(mapper.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-        assertFalse(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(mapper.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
 
         mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE,
                 JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
@@ -99,9 +99,9 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         InjectableValues inj = new InjectableValues.Std();
         m.setInjectableValues(inj);
-        assertFalse(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        m.enable(JsonParser.Feature.ALLOW_COMMENTS);
-        assertTrue(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(m.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+        m.enable(JsonParser.Feature.IGNORE_UNDEFINED);
+        assertTrue(m.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
 
         // // First: verify that handling of features is decoupled:
         
@@ -138,7 +138,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(0, m2.getDeserializationConfig().mixInCount());
 
         // [databind#913]: Ensure JsonFactory Features copied
-        assertTrue(m2.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertTrue(m2.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
     }
 
     // [databind#1580]
@@ -347,17 +347,17 @@ public class ObjectMapperTest extends BaseMapTest
     {
         // ensure we have "fresh" instance to start with
         ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        assertTrue(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(mapper.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+        mapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
+        assertTrue(mapper.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
 
         ObjectMapper copy = mapper.copy();
-        assertTrue(copy.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertTrue(copy.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
 
         // also verify there's no back-linkage
-        copy.configure(JsonParser.Feature.ALLOW_COMMENTS, false);
-        assertFalse(copy.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        assertTrue(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        copy.configure(JsonParser.Feature.IGNORE_UNDEFINED, false);
+        assertFalse(copy.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+        assertTrue(mapper.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
     }
 
     // since 2.8

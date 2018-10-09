@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -498,6 +498,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig with(FormatFeature feature)
     {
+        // 08-Oct-2018, tatu: Alas, complexity due to newly (2.10) refactored json-features:
+        if (feature instanceof JsonReadFeature) {
+            return _withJsonReadFeatures(feature);
+        }
         int newSet = _formatReadFeatures | feature.getMask();
         int newMask = _formatReadFeaturesToChange | feature.getMask();
         return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
@@ -514,6 +518,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig withFeatures(FormatFeature... features)
     {
+        // 08-Oct-2018, tatu: Alas, complexity due to newly (2.10) refactored json-features:
+        if (features.length > 0 && (features[0] instanceof JsonReadFeature)) {
+            return _withJsonReadFeatures(features);
+        }
         int newSet = _formatReadFeatures;
         int newMask = _formatReadFeaturesToChange;
         for (FormatFeature f : features) {
@@ -535,6 +543,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig without(FormatFeature feature)
     {
+        // 08-Oct-2018, tatu: Alas, complexity due to newly (2.10) refactored json-features:
+        if (feature instanceof JsonReadFeature) {
+            return _withoutJsonReadFeatures(feature);
+        }
         int newSet = _formatReadFeatures & ~feature.getMask();
         int newMask = _formatReadFeaturesToChange | feature.getMask();
         return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
@@ -551,6 +563,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig withoutFeatures(FormatFeature... features)
     {
+        // 08-Oct-2018, tatu: Alas, complexity due to newly (2.10) refactored json-features:
+        if (features.length > 0 && (features[0] instanceof JsonReadFeature)) {
+            return _withoutJsonReadFeatures(features);
+        }
         int newSet = _formatReadFeatures;
         int newMask = _formatReadFeaturesToChange;
         for (FormatFeature f : features) {
@@ -562,7 +578,61 @@ public final class DeserializationConfig
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
                     _parserFeatures, _parserFeaturesToChange,
                     newSet, newMask);
-    }    
+    }
+
+    // temporary for 2.10
+    private DeserializationConfig _withJsonReadFeatures(FormatFeature... features) {
+        int parserSet = _parserFeatures;
+        int parserMask = _parserFeaturesToChange;
+        int newSet = _formatReadFeatures;
+        int newMask = _formatReadFeaturesToChange;
+        for (FormatFeature f : features) {
+            final int mask = f.getMask();
+            newSet |= mask;
+            newMask |= mask;
+
+            if (f instanceof JsonReadFeature) {
+                JsonParser.Feature oldF = ((JsonReadFeature) f).mappedFeature();
+                if (oldF != null) {
+                    final int pmask = oldF.getMask();
+                    parserSet |= pmask;
+                    parserMask |= pmask;
+                }
+            }
+        }
+        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)
+                && (_parserFeatures == parserSet) && (_parserFeaturesToChange == parserMask)
+                ) ? this :
+            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
+                    parserSet, parserMask, newSet, newMask);
+    }
+
+    // temporary for 2.10
+    private DeserializationConfig _withoutJsonReadFeatures(FormatFeature... features) {
+        int parserSet = _parserFeatures;
+        int parserMask = _parserFeaturesToChange;
+        int newSet = _formatReadFeatures;
+        int newMask = _formatReadFeaturesToChange;
+        for (FormatFeature f : features) {
+            final int mask = f.getMask();
+            newSet &= ~mask;
+            newMask |= mask;
+
+            if (f instanceof JsonReadFeature) {
+                JsonParser.Feature oldF = ((JsonReadFeature) f).mappedFeature();
+                if (oldF != null) {
+                    final int pmask = oldF.getMask();
+                    parserSet &= ~pmask;
+                    parserMask |= pmask;
+                }
+            }
+        }
+        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)
+                && (_parserFeatures == parserSet) && (_parserFeaturesToChange == parserMask)
+                ) ? this :
+            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
+                    parserSet, parserMask, newSet, newMask);
+    }
 
     /*
     /**********************************************************

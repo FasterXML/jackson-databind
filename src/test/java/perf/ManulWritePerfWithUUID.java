@@ -5,9 +5,10 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 public class ManulWritePerfWithUUID
@@ -26,8 +27,7 @@ public class ManulWritePerfWithUUID
         for (int i = 0; i < uuids.length; ++i) {
             uuids[i] = UUID.randomUUID();
         }
-        ObjectMapper m = new ObjectMapper();
-        new ManulWritePerfWithUUID().test(m,
+        new ManulWritePerfWithUUID().test(new JsonMapper(),
                 "faster-UUID", new UUIDFast(uuids), UUIDFast.class,
                 "JDK-UUID", new UUIDSlow(uuids), UUIDSlow.class);
     }

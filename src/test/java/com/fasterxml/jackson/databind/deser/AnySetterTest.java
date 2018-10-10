@@ -273,7 +273,7 @@ public class AnySetterTest
 
     public void testIgnored() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
         _testIgnorals(mapper);
@@ -281,7 +281,7 @@ public class AnySetterTest
 
     public void testIgnoredPart2() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
         _testIgnorals(mapper);

@@ -220,7 +220,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(DataA.class, new DataADeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .addModule(module)
                 .build();
 

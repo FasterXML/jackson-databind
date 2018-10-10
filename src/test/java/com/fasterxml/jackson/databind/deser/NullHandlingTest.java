@@ -96,7 +96,7 @@ public class NullHandlingTest extends BaseMapTest
     public void testAnySetterNulls() throws Exception {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .addModule(module)
                 .build();
 
@@ -123,7 +123,7 @@ public class NullHandlingTest extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .addModule(module)
                 .build();
 
@@ -144,7 +144,7 @@ public class NullHandlingTest extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .addModule(module)
                 .build();
 
@@ -170,7 +170,7 @@ public class NullHandlingTest extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .addModule(module)
                 .build();
 

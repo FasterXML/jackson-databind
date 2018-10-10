@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class FullStreamReadTest extends BaseMapTest
 {
@@ -40,7 +41,7 @@ public class FullStreamReadTest extends BaseMapTest
     public void testMapperFailOnTrailing() throws Exception
     {
         // but things change if we enforce checks
-        ObjectMapper strict = ObjectMapper.builder()
+        JsonMapper strict = JsonMapper.builder()
                 .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
                 .build();
         assertTrue(strict.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));

@@ -90,7 +90,7 @@ public class TestContextualKeyTypes extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addKeySerializer(String.class, new ContextualKeySerializer("prefix"));
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .addModule(module)
                 .build();
         Map<String,Object> input = new HashMap<String,Object>();
@@ -110,7 +110,7 @@ public class TestContextualKeyTypes extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addKeyDeserializer(String.class, new ContextualDeser("???"));
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .addModule(module)
                 .build();
         MapBean result = mapper.readValue("{\"map\":{\"a\":3}}", MapBean.class);

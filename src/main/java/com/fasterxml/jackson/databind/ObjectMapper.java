@@ -356,33 +356,6 @@ public class ObjectMapper
                 rootNames, filterProvider);
     }
 
-    // 16-Feb-2018, tatu: Arggghh. Due to Java Type Erasure rules, override, even static methods
-    //    are apparently bound to compatibility rules (despite them not being real overrides at all).
-    //    And because there is no "JsonMapper" we need to use odd weird typing here. Instead of simply
-    //    using `MapperBuilder` we already go
-
-    /**
-     * Short-cut for:
-     *<pre>
-     *   return builder(new JsonFactory());
-     *</pre>
-     *
-     * @since 3.0
-     */
-    @SuppressWarnings("unchecked")
-    public static <M extends ObjectMapper, B extends MapperBuilder<M,B>> MapperBuilder<M,B> builder() {
-        return (MapperBuilder<M,B>) jsonBuilder();
-    }
-
-    // But here we can just use simple typing. Since there are no overloads of any kind.
-    public static ObjectMapper.Builder jsonBuilder() {
-        return new ObjectMapper.Builder(new JsonFactory());
-    }
-    
-    public static ObjectMapper.Builder builder(TokenStreamFactory streamFactory) {
-        return new ObjectMapper.Builder(streamFactory);
-    }
-
     /**
      * Method for creating a new {@link MapperBuilder} for constructing differently configured
      * {@link ObjectMapper} instance, starting with current configuration including base settings

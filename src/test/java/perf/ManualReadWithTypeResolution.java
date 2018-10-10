@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * Variant that uses hard-coded input but compares cost of generic type
@@ -35,7 +36,7 @@ public class ManualReadWithTypeResolution
     private ManualReadWithTypeResolution() throws IOException {
         _desc1 = "Raw type";
         _desc2 = "Generic type";
-        _mapper = new ObjectMapper();
+        _mapper = new JsonMapper();
 
         _input = "[\"value\",\"123\"]".getBytes("UTF-8");
         _inputType = List.class;

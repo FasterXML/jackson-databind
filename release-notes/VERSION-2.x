@@ -14,8 +14,9 @@ Project: jackson-databind
 #2116: Make NumberSerializers.Base public and its inherited classes not final
  (requested by Édouard M)
 #2126: `DeserializationContext.instantiationException()` throws `InvalidDefinitionException`
+#2153: Add `JsonMapper` to replace generic `ObjectMapper` usage
 
-2.9.7 (not yet released)
+2.9.7 (19-Sep-2018)
 
 #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is
   of type `UnwrappingBeanSerializer`

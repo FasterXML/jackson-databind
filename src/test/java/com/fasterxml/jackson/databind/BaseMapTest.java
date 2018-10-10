@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -232,15 +233,15 @@ public abstract class BaseMapTest
         return new ObjectMapper();
     }
 
-    // @since 2.10
-    protected static ObjectMapper.Builder objectMapperBuilder() {
+    // @since 2.10s
+    protected static JsonMapper.Builder objectMapperBuilder() {
         /* 27-Aug-2018, tatu: Now this is weird -- with Java 7, we seem to need
          *   explicit type parameters, but not with Java 8.
          *   This need renders builder-approach pretty much useless for Java 7,
          *   which is ok for 3.x (where baseline is Java 8), but potentially
          *   problematic for 2.10. Oh well.
          */
-        return (ObjectMapper.Builder) ObjectMapper.<ObjectMapper,ObjectMapper.Builder>builder();
+        return JsonMapper.builder();
     }
 
     // @since 2.7

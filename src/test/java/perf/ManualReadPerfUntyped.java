@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class ManualReadPerfUntyped extends ObjectReaderTestBase
 {
@@ -25,7 +26,7 @@ public class ManualReadPerfUntyped extends ObjectReaderTestBase
             .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern)
             .build();
         
-        ObjectMapper m = new ObjectMapper(f);
+        JsonMapper m = new JsonMapper(f);
         
         // Either Object or Map
         final Class<?> UNTYPED = Map.class;

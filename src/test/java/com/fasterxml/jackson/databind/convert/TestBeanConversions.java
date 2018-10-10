@@ -163,7 +163,7 @@ public class TestBeanConversions
     // should work regardless of wrapping...
     public void testWrapping() throws Exception
     {
-        ObjectMapper wrappingMapper = ObjectMapper.builder()
+        ObjectMapper wrappingMapper = objectMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
                 .enable(SerializationFeature.WRAP_ROOT_VALUE)
                 .build();
@@ -173,13 +173,13 @@ public class TestBeanConversions
 
         // also: ok to have mismatched settings, since as per [JACKSON-710], should
         // not actually use wrapping internally in these cases
-        wrappingMapper = ObjectMapper.builder()
+        wrappingMapper = objectMapperBuilder()
             .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
             .disable(SerializationFeature.WRAP_ROOT_VALUE)
             .build();
         _convertAndVerifyPoint(wrappingMapper);
 
-        wrappingMapper = ObjectMapper.builder()
+        wrappingMapper = objectMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_ROOT_VALUE)
                 .enable(SerializationFeature.WRAP_ROOT_VALUE)
                 .build();
@@ -260,7 +260,7 @@ public class TestBeanConversions
             verifyException(e, "no properties discovered");
         }
         
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = objectMapperBuilder()
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .build();
         try {

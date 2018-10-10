@@ -6,17 +6,19 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
@@ -233,7 +235,7 @@ public class TestHandlerInstantiation extends BaseMapTest
 
     public void testDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        JsonMapper mapper = JsonMapper.builder()
                 .handlerInstantiator(new MyInstantiator("abc:"))
                 .build();
         MyBean result = mapper.readValue(quote("123"), MyBean.class);
@@ -242,7 +244,7 @@ public class TestHandlerInstantiation extends BaseMapTest
 
     public void testKeyDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        JsonMapper mapper = JsonMapper.builder()
                 .handlerInstantiator(new MyInstantiator("abc:"))
                 .build();
         MyMap map = mapper.readValue("{\"a\":\"b\"}", MyMap.class);
@@ -252,7 +254,7 @@ public class TestHandlerInstantiation extends BaseMapTest
     
     public void testSerializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        JsonMapper mapper = JsonMapper.builder()
                 .handlerInstantiator(new MyInstantiator("xyz:"))
                 .build();
         assertEquals(quote("xyz:456"), mapper.writeValueAsString(new MyBean("456")));
@@ -260,7 +262,7 @@ public class TestHandlerInstantiation extends BaseMapTest
 
     public void testTypeIdResolver() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        JsonMapper mapper = JsonMapper.builder()
                 .handlerInstantiator(new MyInstantiator("foobar"))
                 .build();
         String json = mapper.writeValueAsString(new TypeIdBeanWrapper(new TypeIdBean(123)));

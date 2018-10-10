@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class ManualReadPerfWithMedia extends ObjectReaderTestBase
 {
@@ -32,10 +33,10 @@ public class ManualReadPerfWithMedia extends ObjectReaderTestBase
         input.addPhoto(new MediaItem.Photo("http://a.com", "title1", 200, 100, MediaItem.Size.LARGE));
         input.addPhoto(new MediaItem.Photo("http://b.org", "title2", 640, 480, MediaItem.Size.SMALL));
 
-        ObjectMapper m1 = ObjectMapper.builder()
+        ObjectMapper m1 = JsonMapper.builder()
                 .annotationIntrospector(new NoFormatIntrospector())
                 .build();
-        ObjectMapper m2 = new ObjectMapper();
+        ObjectMapper m2 = new JsonMapper();
         new ManualReadPerfWithRecord().testFromBytes(m1, "JSON-as-Object", input, MediaItem.class,
                 m2, "JSON-as-Array", input, MediaItem.class);
     }

@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /* Test modified from json-parsers-benchmark, to be able to profile
  * Jackson implementation.
@@ -22,7 +22,7 @@ public class ManualWritePerfWithAllTypes
             System.err.println("Usage: java ...");
             System.exit(1);
         }
-        ObjectMapper m = new ObjectMapper();
+        JsonMapper m = new JsonMapper();
         AllTypes input1 = AllTypes.bigObject();
         AllTypes input2 = AllTypes.bigObject();
         new ManualWritePerfWithAllTypes().test(m,

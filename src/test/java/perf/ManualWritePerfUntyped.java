@@ -3,8 +3,8 @@ package perf;
 import java.io.File;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /* Test modified from json-parsers-benchmark, to be able to profile
  * Jackson implementation.
@@ -21,7 +21,7 @@ public class ManualWritePerfUntyped
             System.err.println("Usage: java [input]");
             System.exit(1);
         }
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = new JsonMapper();
         Map<?,?> stuff = mapper.readValue(new File(args[0]), Map.class);
         new ManualWritePerfUntyped().test(mapper,
                 "Untyped-1", stuff, Object.class,

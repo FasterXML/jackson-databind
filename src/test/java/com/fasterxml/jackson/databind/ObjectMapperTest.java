@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.cfg.DeserializationContexts;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.*;
 
 public class ObjectMapperTest extends BaseMapTest
@@ -103,7 +104,7 @@ public class ObjectMapperTest extends BaseMapTest
         // should have default factory
         assertNotNull(MAPPER.getNodeFactory());
         JsonNodeFactory nf = new JsonNodeFactory(true);
-        ObjectMapper m = ObjectMapper.builder()
+        JsonMapper m = JsonMapper.builder()
                 .nodeFactory(nf)
                 .build();
         assertNull(m.getInjectableValues());
@@ -170,13 +171,13 @@ public class ObjectMapperTest extends BaseMapTest
     {
         final int[] input = new int[] { 1, 2 };
 
-        ObjectMapper m = new ObjectMapper();
+        JsonMapper m = new JsonMapper();
 
         // without anything else, compact:
         assertEquals("[1,2]", m.writeValueAsString(input));
 
         // or with default, get... defaults:
-        m = ObjectMapper.builder()
+        m = JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();
         assertEquals("[ 1, 2 ]", m.writeValueAsString(input));
@@ -184,7 +185,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals("[ 1, 2 ]", m.writer().withDefaultPrettyPrinter().writeValueAsString(input));
 
         // but then with our custom thingy...
-        m = ObjectMapper.builder()
+        m = JsonMapper.builder()
                 .defaultPrettyPrinter(new FooPrettyPrinter())
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();

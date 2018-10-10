@@ -114,7 +114,7 @@ public class DateSerializationTest
 
     public void testDateISO8601() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .build();
 
@@ -127,7 +127,7 @@ public class DateSerializationTest
      */
     public void testDateISO8601_customTZ() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .defaultTimeZone(TimeZone.getTimeZone("GMT+2"))
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .build();
@@ -147,7 +147,7 @@ public class DateSerializationTest
         dateFormat = dateFormat.withColonInTimeZone(false);
         assertFalse(dateFormat.isColonIncludedInTimeZone());
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .defaultDateFormat(dateFormat)
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .build();
@@ -158,7 +158,7 @@ public class DateSerializationTest
     public void testDateOther() throws IOException
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .defaultDateFormat(df)
                 .defaultTimeZone(TimeZone.getTimeZone("PST"))
                 .build();
@@ -207,7 +207,7 @@ public class DateSerializationTest
         assertEquals("{\"1970-01-01T00:00:00.000+00:00\":1}", mapper.writeValueAsString(map));
         
         // but can change to use timestamps too
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, true)
                 .build();
         assertEquals("{\"0\":1}", mapper.writeValueAsString(map));
@@ -247,7 +247,7 @@ public class DateSerializationTest
      */
     public void testWithTimeZoneOverride() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"))
                 .defaultTimeZone(TimeZone.getTimeZone("PST"))
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -257,7 +257,7 @@ public class DateSerializationTest
         serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
 
         // Let's also verify that Locale won't matter too much...
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"))
                 .defaultTimeZone(TimeZone.getTimeZone("PST"))
                 .defaultLocale(Locale.FRANCE)
@@ -331,7 +331,7 @@ public class DateSerializationTest
     // [databind#1648]: contextual default format should be used
     public void testFormatWithoutPattern() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss"))
                 .build();
         String json = mapper.writeValueAsString(new DateAsDefaultBeanWithTimezone(0L));

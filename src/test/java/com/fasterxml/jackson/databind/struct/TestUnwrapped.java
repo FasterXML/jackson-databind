@@ -238,7 +238,7 @@ public class TestUnwrapped extends BaseMapTest
     // [databind#1493]: case-insensitive handling
     public void testCaseInsensitiveUnwrap() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
                 .build();
         Person p = mapper.readValue("{ }", Person.class);

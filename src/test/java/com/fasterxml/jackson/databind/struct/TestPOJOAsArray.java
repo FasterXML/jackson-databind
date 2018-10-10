@@ -194,7 +194,7 @@ public class TestPOJOAsArray extends BaseMapTest
      */
 
     public void testSerializeAsArrayWithSingleProperty() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .build();
         String json = mapper.writeValueAsString(new SingleBean());
@@ -203,7 +203,7 @@ public class TestPOJOAsArray extends BaseMapTest
 
     public void testBeanAsArrayUnwrapped() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
         SingleBean result = mapper.readValue("[\"foobar\"]", SingleBean.class);
@@ -223,7 +223,7 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals("{\"value\":{\"x\":1,\"y\":2}}", MAPPER.writeValueAsString(new A()));
 
         // but override should change it:
-        ObjectMapper mapper2 = ObjectMapper.builder()
+        ObjectMapper mapper2 = jsonMapperBuilder()
                 .annotationIntrospector(new ForceArraysIntrospector())
                 .build();
         assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
@@ -254,7 +254,7 @@ public class TestPOJOAsArray extends BaseMapTest
 
     public void testWithConfigOverrides() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(NonAnnotatedXY.class,
                         o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY)))
                 .build();

@@ -49,7 +49,7 @@ public class TestSetterlessProperties
 
     public void testSimpleSetterlessCollectionOk() throws Exception
     {
-        CollectionBean result = ObjectMapper.builder()
+        CollectionBean result = jsonMapperBuilder()
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .build()
                 .readValue
@@ -83,7 +83,7 @@ public class TestSetterlessProperties
 
     public void testSimpleSetterlessMapOk() throws Exception
     {
-        MapBean result = ObjectMapper.builder()
+        MapBean result = jsonMapperBuilder()
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .build()
                 .readValue
@@ -96,7 +96,7 @@ public class TestSetterlessProperties
 
     public void testSimpleSetterlessMapFailure() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .build();
         // so this should fail now without a setter
@@ -114,7 +114,7 @@ public class TestSetterlessProperties
      */
     public void testSetterlessPrecedence() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .build();
         Dual value = m.readValue("{\"list\":[1,2,3]}, valueType)", Dual.class);

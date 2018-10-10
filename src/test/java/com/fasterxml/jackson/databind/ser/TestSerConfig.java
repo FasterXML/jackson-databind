@@ -100,7 +100,7 @@ public class TestSerConfig
         Map<String,Object> result = writeAndMap(MAPPER, new AnnoBean());
         assertEquals(2, result.size());
 
-        ObjectMapper m2 = ObjectMapper.builder()
+        ObjectMapper m2 = jsonMapperBuilder()
                 .configure(MapperFeature.USE_ANNOTATIONS, false)
                 .build();
         result = writeAndMap(m2, new AnnoBean());
@@ -154,7 +154,7 @@ public class TestSerConfig
 
         // and also with ObjectMapper itself
         sw = new StringWriter();
-        ObjectMapper m2 = ObjectMapper.builder()
+        ObjectMapper m2 = jsonMapperBuilder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();
         m2.writeValue(sw, input);
@@ -163,7 +163,7 @@ public class TestSerConfig
 
     public void testNoAccessOverrides() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)
                 .build();
         assertEquals("{\"x\":1}", m.writeValueAsString(new SimpleBean()));
@@ -181,7 +181,7 @@ public class TestSerConfig
             fail("Should not be equal");
         }
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .defaultTimeZone(tz1)
             .build();
 
@@ -195,7 +195,7 @@ public class TestSerConfig
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         f.setTimeZone(tz2);
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .defaultTimeZone(tz1)
                 .defaultDateFormat(f)
                 .build();

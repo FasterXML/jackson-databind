@@ -360,7 +360,7 @@ public class POJOPropertiesCollectorTest
 
     public void testGlobalVisibilityForGetters()
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
                     vc.withVisibility(PropertyAccessor.GETTER, Visibility.NONE))
                 .build();
@@ -429,7 +429,7 @@ public class POJOPropertiesCollectorTest
     public void testUseAnnotationsFalse() throws Exception
     {
         // note: need a separate mapper, need to reconfigure
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.USE_ANNOTATIONS)
                 .build();
         BeanDescription beanDesc = mapper.serializationConfig().introspect(mapper.constructType(Jackson703.class));

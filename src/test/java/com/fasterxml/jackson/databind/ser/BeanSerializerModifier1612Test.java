@@ -53,7 +53,7 @@ public class BeanSerializerModifier1612Test extends BaseMapTest
     {
         SimpleModule mod = new SimpleModule();
         mod.setSerializerModifier(new Modifier1612());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         try {

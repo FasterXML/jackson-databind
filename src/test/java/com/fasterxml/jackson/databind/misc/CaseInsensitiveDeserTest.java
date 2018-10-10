@@ -50,8 +50,8 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
-    private final ObjectMapper INSENSITIVE_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper INSENSITIVE_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
             .build();
 
@@ -111,7 +111,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     // And allow config overrides too
     public void testCaseInsensitiveWithClassFormat() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Role.class,
                         o -> o.setFormat(JsonFormat.Value.empty()
                                 .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)))

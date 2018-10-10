@@ -31,7 +31,7 @@ public class RecursiveType1658Test extends BaseMapTest
         Tree<String> t = new Tree<String>(Arrays.asList("hello", "world"));
         final TypeResolverBuilder<?> typer = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
                 JsonTypeInfo.As.PROPERTY, null);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .setDefaultTyping(typer)
                 .build();
         String res = mapper.writeValueAsString(t);

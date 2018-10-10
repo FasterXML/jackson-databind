@@ -68,7 +68,7 @@ public class TestTreeWithType extends BaseMapTest
     }
 
     public void testValueAsStringWithDefaultTyping() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
         Foo foo = new Foo("baz");
@@ -82,7 +82,7 @@ public class TestTreeWithType extends BaseMapTest
     {
         final String CLASS = Foo.class.getName();
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL,
                         JsonTypeInfo.As.PROPERTY)
                 .build();
@@ -100,7 +100,7 @@ public class TestTreeWithType extends BaseMapTest
 
     public void testValueToTreeWithDefaultTyping() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
         Foo foo = new Foo("baz");
@@ -112,7 +112,7 @@ public class TestTreeWithType extends BaseMapTest
     {
         SimpleModule testModule = new SimpleModule("MyModule", new Version(1, 0, 0, null, "TEST", "TEST"));
         testModule.addDeserializer(SavedCookie.class, new SavedCookieDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class")
                 .addModule(testModule)
                 .build();

@@ -42,13 +42,13 @@ public class OptionalnclusionTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSerOptNonEmpty() throws Exception
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = objectMapperBuilder()
+        String value = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
                 .build()
                 .writeValueAsString(data);
@@ -59,7 +59,7 @@ public class OptionalnclusionTest extends BaseMapTest
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = objectMapperBuilder()
+        String value = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build()
                 .writeValueAsString(data);
@@ -70,7 +70,7 @@ public class OptionalnclusionTest extends BaseMapTest
     {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = objectMapperBuilder()
+        String value = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
                 .build()
                 .writeValueAsString(data);
@@ -89,7 +89,7 @@ public class OptionalnclusionTest extends BaseMapTest
 
     public void testSerPropInclusionAlways() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl ->
                     JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS))
                 .build();
@@ -99,7 +99,7 @@ public class OptionalnclusionTest extends BaseMapTest
 
     public void testSerPropInclusionNonNull() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder().changeDefaultPropertyInclusion(
+        ObjectMapper mapper = jsonMapperBuilder().changeDefaultPropertyInclusion(
                     i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL))
                 .build();
         assertEquals("{\"myData\":true}",
@@ -108,7 +108,7 @@ public class OptionalnclusionTest extends BaseMapTest
 
     public void testSerPropInclusionNonAbsent() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(
                         i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT))
                 .build();
@@ -118,7 +118,7 @@ public class OptionalnclusionTest extends BaseMapTest
 
     public void testSerPropInclusionNonEmpty() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(
                         i -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY))
                 .build();

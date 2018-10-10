@@ -232,11 +232,11 @@ public class ProblemHandlerTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testWeirdKeyHandling() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdKeyHandler(7))
             .build();
         IntKeyMapWrapper w = mapper.readValue("{\"stuff\":{\"foo\":\"abc\"}}",
@@ -249,7 +249,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testWeirdNumberHandling() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdNumberHandler(SingleValuedEnum.A))
             .build();
         SingleValuedEnum result = mapper.readValue("3", SingleValuedEnum.class);
@@ -258,14 +258,14 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testWeirdStringHandling() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
             .build();
         SingleValuedEnum result = mapper.readValue("\"B\"", SingleValuedEnum.class);
         assertEquals(SingleValuedEnum.A, result);
 
         // also, write [databind#1629] try this
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .addHandler(new WeirdStringHandler(null))
                 .build();
         UUID result2 = mapper.readValue(quote("not a uuid!"), UUID.class);
@@ -274,7 +274,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testInvalidTypeId() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new UnknownTypeIdHandler(BaseImpl.class))
             .build();
         BaseWrapper w = mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
@@ -285,7 +285,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testInvalidClassAsId() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new UnknownTypeIdHandler(Base2Impl.class))
             .build();
         Base2Wrapper w = mapper.readValue("{\"value\":{\"clazz\":\"com.fizz\",\"a\":4}}",
@@ -298,7 +298,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testMissingTypeId() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingTypeIdHandler(BaseImpl.class))
             .build();
         BaseWrapper w = mapper.readValue("{\"value\":{\"a\":4}}",
@@ -309,7 +309,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testMissingClassAsId() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingTypeIdHandler(Base2Impl.class))
             .build();
         Base2Wrapper w = mapper.readValue("{\"value\":{\"a\":4}}",
@@ -334,7 +334,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testInstantiationExceptionHandling() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new InstantiationProblemHandler(BustedCtor.INST))
             .build();
         BustedCtor w = mapper.readValue("{ }",
@@ -344,7 +344,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testMissingInstantiatorHandling() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new MissingInstantiationHandler(new NoDefaultCtor(13)))
             .build();
         NoDefaultCtor w = mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
@@ -354,7 +354,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testUnexpectedTokenHandling() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addHandler(new WeirdTokenHandler(Integer.valueOf(13)))
             .build();
         Integer v = mapper.readValue("true", Integer.class);

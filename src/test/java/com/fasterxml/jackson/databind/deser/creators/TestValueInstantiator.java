@@ -343,7 +343,7 @@ public class TestValueInstantiator extends BaseMapTest
     
     public void testCustomBeanInstantiator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MyBean.class, new MyBeanInstantiator()))
                 .build();
         MyBean bean = mapper.readValue("{}", MyBean.class);
@@ -353,7 +353,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testCustomListInstantiator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MyList.class, new MyListInstantiator()))
                 .build();
         MyList result = mapper.readValue("[]", MyList.class);
@@ -364,7 +364,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testCustomMapInstantiator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MyMap.class, new MyMapInstantiator()))
                 .build();
         MyMap result = mapper.readValue("{ \"a\":\"b\" }", MyMap.class);
@@ -381,7 +381,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testDelegateBeanInstantiator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MyBean.class, new MyDelegateBeanInstantiator()))
                 .build();
         MyBean bean = mapper.readValue("123", MyBean.class);
@@ -391,7 +391,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testDelegateListInstantiator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MyList.class, new MyDelegateListInstantiator()))
                 .build();
         MyList result = mapper.readValue("123", MyList.class);
@@ -402,7 +402,7 @@ public class TestValueInstantiator extends BaseMapTest
     
     public void testDelegateMapInstantiator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MyMap.class, new MyDelegateMapInstantiator()))
                 .build();
         MyMap result = mapper.readValue("123", MyMap.class);
@@ -428,7 +428,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testPropertyBasedBeanInstantiator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(CreatorBean.class,
                 new InstantiatorBase() {
                     @Override
@@ -456,7 +456,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testPropertyBasedMapInstantiator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MyMap.class, new CreatorMapInstantiator()))
                 .build();
         MyMap result = mapper.readValue("{\"name\":\"bob\", \"x\":\"y\"}", MyMap.class);
@@ -474,7 +474,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromString() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
@@ -493,7 +493,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromInt() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
@@ -512,7 +512,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromLong() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
@@ -531,7 +531,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromDouble() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
@@ -550,7 +550,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromBoolean() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
@@ -579,7 +579,7 @@ public class TestValueInstantiator extends BaseMapTest
      */
     public void testPolymorphicCreatorBean() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(PolymorphicBeanBase.class, new PolymorphicBeanInstantiator()))
                 .build();
         String JSON = "{\"type\":"+quote(PolymorphicBean.class.getName())+",\"name\":\"Axel\"}";

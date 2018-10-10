@@ -50,7 +50,7 @@ public class TestMixinInheritance
     
     public void testMixinFieldInheritance() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Beano.class, BeanoMixinSub.class)
                 .build();
         Map<String,Object> result;
@@ -64,7 +64,7 @@ public class TestMixinInheritance
 
     public void testMixinMethodInheritance() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Beano2.class, BeanoMixinSub2.class)
                 .build();
         Map<String,Object> result;

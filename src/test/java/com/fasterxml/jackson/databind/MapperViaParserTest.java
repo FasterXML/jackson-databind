@@ -73,7 +73,7 @@ public class MapperViaParserTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("resource")
     public void testPojoReadingOk() throws IOException

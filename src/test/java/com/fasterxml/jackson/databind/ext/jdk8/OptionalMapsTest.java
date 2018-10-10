@@ -27,7 +27,7 @@ public class OptionalMapsTest extends BaseMapTest
 
     public void testMapElementInclusion() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder().changeDefaultPropertyInclusion(
+        ObjectMapper mapper = jsonMapperBuilder().changeDefaultPropertyInclusion(
                 incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL)
                     .withContentInclusion(JsonInclude.Include.NON_ABSENT))
                 .build();

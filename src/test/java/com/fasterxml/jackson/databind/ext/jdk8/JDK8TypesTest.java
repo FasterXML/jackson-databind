@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
 
 public class JDK8TypesTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testOptionalsAreReferentialTypes() throws Exception
     {

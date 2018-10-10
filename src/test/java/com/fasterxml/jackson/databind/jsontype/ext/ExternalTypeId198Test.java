@@ -51,7 +51,7 @@ public class ExternalTypeId198Test extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = newObjectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     public void testFails() throws Exception {
         String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";

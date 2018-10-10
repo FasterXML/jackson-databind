@@ -55,7 +55,7 @@ public class TestGenericListSerialization
         embedded.add(new Child2());
         input.setResult(embedded);
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();
 

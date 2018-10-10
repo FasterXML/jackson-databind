@@ -143,7 +143,7 @@ public class IgnorePropsForSerTest
 
     public void testIgnoreViaConfigOverride() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Point.class,
                         o -> o.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("x")))
                 .build();

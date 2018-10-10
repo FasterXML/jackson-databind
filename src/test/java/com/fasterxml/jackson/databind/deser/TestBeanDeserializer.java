@@ -340,7 +340,7 @@ public class TestBeanDeserializer extends BaseMapTest
     }    
     public void testPropertyRemoval() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new ModuleImpl(new RemovingModifier("a")))
                 .build();
         Bean bean = mapper.readValue("{\"b\":\"2\"}", Bean.class);
@@ -351,7 +351,7 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testDeserializerReplacement() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new ModuleImpl(new ReplacingModifier(new BogusBeanDeserializer("foo", "bar"))))
                 .build();
         Bean bean = mapper.readValue("{\"a\":\"xyz\"}", Bean.class);
@@ -364,7 +364,7 @@ public class TestBeanDeserializer extends BaseMapTest
     {
         final String JSON = "{\"value1\" : {\"name\" : \"fruit\", \"value\" : \"apple\"}, \"value2\" : {\"name\" : \"color\", \"value\" : \"red\"}}";
         
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new Issue476Module())
                 .build();
         mapper.readValue(JSON, Issue476Bean.class);
@@ -394,7 +394,7 @@ public class TestBeanDeserializer extends BaseMapTest
     // [databind#120]
     public void testModifyArrayDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setDeserializerModifier(new ArrayDeserializerModifier()))
                 .build();
@@ -405,7 +405,7 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testModifyCollectionDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setDeserializerModifier(new CollectionDeserializerModifier()))
             .build();
@@ -416,7 +416,7 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testModifyMapDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setDeserializerModifier(new MapDeserializerModifier()))
                 .build();
@@ -427,7 +427,7 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testModifyEnumDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setDeserializerModifier(new EnumDeserializerModifier()))
                 .build();
@@ -437,7 +437,7 @@ public class TestBeanDeserializer extends BaseMapTest
 
     public void testModifyKeyDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setDeserializerModifier(new KeyDeserializerModifier()))
                 .build();
@@ -452,7 +452,7 @@ public class TestBeanDeserializer extends BaseMapTest
      */
     public void testModifyStdScalarDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setDeserializerModifier(new BeanDeserializerModifier() {
                         @Override
@@ -470,7 +470,7 @@ public class TestBeanDeserializer extends BaseMapTest
     }
 
     public void testAddOrReplacePropertyIsUsedOnDeserialization() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new Issue1912Module())
                 .build();
 

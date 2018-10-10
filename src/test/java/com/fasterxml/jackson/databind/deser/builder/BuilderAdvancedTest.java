@@ -50,7 +50,7 @@ public class BuilderAdvancedTest extends BaseMapTest
     
     public void testWithInjectable() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new InjectableValues.Std()
                         .addValue(String.class, "stuffValue"))
                 .build();

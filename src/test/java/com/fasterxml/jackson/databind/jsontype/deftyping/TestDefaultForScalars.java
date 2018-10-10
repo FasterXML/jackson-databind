@@ -29,7 +29,7 @@ public class TestDefaultForScalars
     /**********************************************************************
      */
 
-    private final ObjectMapper DEFAULT_TYPING_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper DEFAULT_TYPING_MAPPER = jsonMapperBuilder()
                     .enableDefaultTyping()
                     .build();
 
@@ -79,7 +79,7 @@ public class TestDefaultForScalars
      */
     public void testScalarArrays() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
         Object[] input = new Object[] {
@@ -115,7 +115,7 @@ public class TestDefaultForScalars
         // Configure Jackson to preserve types
         StdTypeResolverBuilder resolver = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
                 JsonTypeInfo.As.PROPERTY, "__t");
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .setDefaultTyping(resolver)
                 .build();

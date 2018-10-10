@@ -211,11 +211,11 @@ public class TestTypeModifiers extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MY_TYPE_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper MY_TYPE_MAPPER = jsonMapperBuilder()
             .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
             .build();
 
-    private final ObjectMapper MAPPER_WITH_MODIFIER = ObjectMapper.builder()
+    private final ObjectMapper MAPPER_WITH_MODIFIER = jsonMapperBuilder()
             .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
             .addModule(new ModifierModule())
             .build();

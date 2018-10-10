@@ -107,7 +107,7 @@ public class TestIterable extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final ObjectMapper STATIC_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper STATIC_MAPPER = jsonMapperBuilder()
         .enable(MapperFeature.USE_STATIC_TYPING)
         .build();
 

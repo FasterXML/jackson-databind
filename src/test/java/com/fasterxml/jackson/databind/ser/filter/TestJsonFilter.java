@@ -57,7 +57,7 @@ public class TestJsonFilter extends BaseMapTest
         FilterProvider prov = new SimpleFilterProvider().addFilter("checkSiblingContextFilter",
                 new CheckSiblingContextFilter());
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .filterProvider(prov)
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .build();
@@ -119,7 +119,7 @@ public class TestJsonFilter extends BaseMapTest
                 SimpleBeanPropertyFilter.filterOutAllExcept("a"));
         assertEquals("{\"a\":\"a\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .filterProvider(prov)
                 .build();
         assertEquals("{\"a\":\"a\"}", mapper.writeValueAsString(new Bean()));
@@ -152,7 +152,7 @@ public class TestJsonFilter extends BaseMapTest
         
         // but when changing behavior, should work difference
         SimpleFilterProvider fp = new SimpleFilterProvider().setFailOnUnknownId(false);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .filterProvider(fp)
                 .build();
         String json = mapper.writeValueAsString(new Bean());

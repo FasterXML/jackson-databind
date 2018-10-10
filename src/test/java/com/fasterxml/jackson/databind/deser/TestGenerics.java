@@ -79,7 +79,7 @@ public class TestGenerics
     
     public void testGenericWrapperWithSingleElementArray() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         Wrapper<SimpleBean> result = mapper.readValue
@@ -119,10 +119,10 @@ public class TestGenerics
         assertEquals(new Wrapper<Long>(7L), result3);
     }
     
-    //[Issue#381]
+    //[databind#381]
     public void testMultipleWrappersSingleValueArray() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
 
@@ -164,7 +164,7 @@ public class TestGenerics
 
     public void testArrayOfGenericWrappersSingleValueArray() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         

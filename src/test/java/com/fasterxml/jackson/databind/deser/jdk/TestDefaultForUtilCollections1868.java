@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 // Unit tests for [databind#1868], related
 public class TestDefaultForUtilCollections1868 extends BaseMapTest
 {
-   private final ObjectMapper DEFAULT_MAPPER = ObjectMapper.builder()
+   private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
            .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
            .build();
 

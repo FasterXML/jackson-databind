@@ -66,7 +66,7 @@ public class MultiArgConstructorTest extends BaseMapTest
 
     public void testMultiArgVisible() throws Exception
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new MyParamIntrospector())
                 .build();
         MultiArgCtorBean bean = mapper.readValue(aposToQuotes("{'b':13, 'c':2, 'a':-99}"),
@@ -80,7 +80,7 @@ public class MultiArgConstructorTest extends BaseMapTest
     // But besides visibility, also allow overrides
     public void testMultiArgWithPartialOverride() throws Exception
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new MyParamIntrospector())
                 .build();
         MultiArgCtorBeanWithAnnotations bean = mapper.readValue(aposToQuotes("{'b2':7, 'c':222, 'a':-99}"),
@@ -95,7 +95,7 @@ public class MultiArgConstructorTest extends BaseMapTest
     // with different visibility
     public void testMultiArgNotVisible() throws Exception
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new MyParamIntrospector())
                 .changeDefaultVisibility(vc -> VisibilityChecker.construct
                         (JsonAutoDetect.Value.noOverrides()

@@ -48,7 +48,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     // [databind#1868]: Verify class name serialized as is
     public void testUnmodifiableSet() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
         Set<String> theSet = Collections.unmodifiableSet(Collections.singleton("a"));

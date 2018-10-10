@@ -56,7 +56,7 @@ public class Creator2008Test extends BaseMapTest
         }
    }
     
-    private ObjectMapper objectMapper = newObjectMapper();
+    private ObjectMapper objectMapper = newJsonMapper();
 
     public void testSimple() throws Exception {
         String json = "{\"jacksonAge\":30,\"jacksonName\":\"changyong\"}";

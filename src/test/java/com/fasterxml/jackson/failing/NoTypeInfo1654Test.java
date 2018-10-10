@@ -52,7 +52,7 @@ public class NoTypeInfo1654Test extends BaseMapTest
     // [databind#1654]
     public void testNoTypeElementOverride() throws Exception
     {
-        final ObjectMapper mapper = newObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
 
         // First: regular typed case
         String json = mapper.writeValueAsString(new Value1654TypedContainer(

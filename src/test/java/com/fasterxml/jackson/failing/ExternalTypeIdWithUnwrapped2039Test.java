@@ -36,7 +36,7 @@ public class ExternalTypeIdWithUnwrapped2039Test extends BaseMapTest
     
     public void testExternalWithUnwrapped2039() throws Exception
     {
-        final ObjectMapper mapper = newObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
 
         final String json = aposToQuotes("{\n"
                 +"'text': 'this is A',\n"

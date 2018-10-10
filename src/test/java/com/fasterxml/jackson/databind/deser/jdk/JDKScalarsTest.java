@@ -277,7 +277,7 @@ public class JDKScalarsTest
         assertEquals(0, array[0]);
         
         // [databind#381]
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         try {
@@ -287,7 +287,7 @@ public class JDKScalarsTest
             //Correctly threw exception
         }
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         
@@ -343,7 +343,7 @@ public class JDKScalarsTest
         assertEquals(0, array[0]);
 
         // [databind#381]
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         try {
@@ -353,7 +353,7 @@ public class JDKScalarsTest
             //Correctly threw exception
         }
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         
@@ -467,7 +467,7 @@ public class JDKScalarsTest
 
     public void testDoubleAsArray() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         final double value = 0.016;
@@ -478,7 +478,7 @@ public class JDKScalarsTest
             //Correctly threw exception
         }
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         

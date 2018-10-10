@@ -126,7 +126,7 @@ public class TestTypedDeserialization
     // Test inclusion using wrapper style
     public void testTypeAsWrapper() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(Animal.class, TypeWithWrapper.class)
                 .build();
         String JSON = "{\".TestTypedDeserialization$Dog\" : "
@@ -142,7 +142,7 @@ public class TestTypedDeserialization
     // Test inclusion using 2-element array
     public void testTypeAsArray() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(Animal.class, TypeWithArray.class)
                 .build();
         // hmmh. Not good idea to rely on exact output, order may change. But...

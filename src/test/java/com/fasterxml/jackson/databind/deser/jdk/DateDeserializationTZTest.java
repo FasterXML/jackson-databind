@@ -63,7 +63,7 @@ public class DateDeserializationTZTest
         // Create an ObjectMapper with its timezone set to something other than the default (UTC).
         // This way we can verify that serialization and deserialization actually consider the time
         // zone set on the mapper.
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .defaultTimeZone(TimeZone.getTimeZone(LOCAL_TZ))
                 .build();
         MAPPER = m;
@@ -377,7 +377,7 @@ public class DateDeserializationTZTest
     {
         // Change the default locale set on the ObjectMapper to something else than the default.
         // This way we know if the default is correctly taken into account
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .defaultTimeZone(TimeZone.getTimeZone(LOCAL_TZ))
                 .defaultLocale(Locale.ITALY)
                 .build();
@@ -448,7 +448,7 @@ public class DateDeserializationTZTest
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
             df.setTimeZone( TimeZone.getTimeZone("GMT+4") );    // TZ different from mapper's default
             
-            ObjectMapper mapper = ObjectMapper.builder()
+            ObjectMapper mapper = jsonMapperBuilder()
                     .defaultDateFormat(df)
                     .defaultTimeZone(TimeZone.getTimeZone(LOCAL_TZ))
                     .build();
@@ -465,7 +465,7 @@ public class DateDeserializationTZTest
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
             df.setTimeZone( TimeZone.getTimeZone("GMT+4") );    // TZ different from mapper's default
             
-            ObjectMapper mapper = ObjectMapper.builder()
+            ObjectMapper mapper = jsonMapperBuilder()
                     .defaultDateFormat(df)
                     .build();
             
@@ -483,7 +483,7 @@ public class DateDeserializationTZTest
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ssZ");
         df.setTimeZone(TimeZone.getTimeZone("GMT+4"));    // use a timezone different than the ObjectMapper and the system default
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .defaultDateFormat(df)
                 .build();
 

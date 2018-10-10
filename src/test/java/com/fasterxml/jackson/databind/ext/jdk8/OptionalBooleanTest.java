@@ -15,7 +15,7 @@ public class OptionalBooleanTest extends BaseMapTest
         }
     }
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [datatype-jdk8#23]
     public void testBoolean() throws Exception

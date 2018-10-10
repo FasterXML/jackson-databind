@@ -51,7 +51,7 @@ public class InnerClassCreatorTest extends BaseMapTest
         }
     }
 
-    private final ObjectMapper MAPPER = ObjectMapper.builder()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
             .build();
 

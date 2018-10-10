@@ -88,7 +88,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         assertEquals("first", result.values[0]);
 
         // and then without annotation, but with global override
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(String[].class,
                         o -> o.setFormat(JsonFormat.Value.empty()
                                 .withFeature(JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)))

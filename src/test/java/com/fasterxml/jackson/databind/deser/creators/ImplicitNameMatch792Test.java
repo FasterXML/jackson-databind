@@ -96,7 +96,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     
     public void testBindingOfImplicitCreatorNames() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .annotationIntrospector(new ConstructorNameAI())
                 .build();
         String json = m.writeValueAsString(new Issue792Bean("a", "b"));

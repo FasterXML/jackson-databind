@@ -59,7 +59,7 @@ public class TestMixinDeserForClass
 
         // Then with leaf-level mix-in; without (method) auto-detect,
         // should use field
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .addMixIn(LeafClass.class, MixIn.class)
                 .build();
         result = m.readValue("{\"a\":\"value\"}", LeafClass.class);
@@ -70,7 +70,7 @@ public class TestMixinDeserForClass
     // when deserializing leaf (but will if deserializing base class)
     public void testClassMixInsMidLevel() throws IOException
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(BaseClass.class, MixIn.class)
                 .build();
         {
@@ -90,7 +90,7 @@ public class TestMixinDeserForClass
      */
     public void testClassMixInsForObjectClass() throws IOException
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(Object.class, MixIn.class)
                 .build();
         // will be seen for BaseClass
@@ -109,7 +109,7 @@ public class TestMixinDeserForClass
     // [databind#1990]: can apply mix-in to `Object#hashCode()` to force serialization
     public void testHashCodeViaObject() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Object.class, HashCodeMixIn.class)
                 .build();
 

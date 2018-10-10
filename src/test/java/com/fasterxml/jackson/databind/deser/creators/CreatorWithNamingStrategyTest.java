@@ -40,7 +40,7 @@ public class CreatorWithNamingStrategyTest extends BaseMapTest
     // [databind#2051]
     public void testSnakeCaseWithOneArg() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
                 .annotationIntrospector(new MyParamIntrospector())
                 .build();

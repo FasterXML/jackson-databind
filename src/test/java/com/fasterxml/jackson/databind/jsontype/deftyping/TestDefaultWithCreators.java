@@ -66,7 +66,7 @@ public class TestDefaultWithCreators
 
     public void testWithCreators() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         UrlJob input = new UrlJob(123L, "http://foo", 3);
@@ -85,7 +85,7 @@ public class TestDefaultWithCreators
     public void testWithCreatorAndJsonValue() throws Exception
     {
         final byte[] BYTES = new byte[] { 1, 2, 3, 4, 5 };
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         String json = mapper.writeValueAsString(new Bean1385Wrapper(

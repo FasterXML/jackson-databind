@@ -158,7 +158,7 @@ public class TestCustomSerializers extends BaseMapTest
 
     public void testCustomization() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Element.class, ElementMixin.class)
                 .build();
         Element element = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().createElement("el");
@@ -189,7 +189,7 @@ public class TestCustomSerializers extends BaseMapTest
             @Override
             public Class<?> handledType() { return Collection.class; }
         });
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         assertEquals("null", mapper.writeValueAsString(new ArrayList<Object>()));
@@ -210,7 +210,7 @@ public class TestCustomSerializers extends BaseMapTest
                         return map;
                     }
         }));
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
@@ -246,7 +246,7 @@ public class TestCustomSerializers extends BaseMapTest
         
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new UCStringSerializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
 

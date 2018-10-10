@@ -119,7 +119,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
 
     public void testKeepAnnotationBundle() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new BundleAnnotationIntrospector())
                 .build();
         assertEquals("{\"important\":42}", mapper.writeValueAsString(new InformingHolder()));

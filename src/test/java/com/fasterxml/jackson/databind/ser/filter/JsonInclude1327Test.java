@@ -31,7 +31,7 @@ public class JsonInclude1327Test
 
     // for [databind#1327]
     public void testClassDefaultsForEmpty() throws Exception {
-        ObjectMapper om = objectMapperBuilder()
+        ObjectMapper om = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .build();
         final String jsonString = om.writeValueAsString(new Issue1327BeanEmpty());
@@ -42,7 +42,7 @@ public class JsonInclude1327Test
     }
 
     public void testClassDefaultsForAlways() throws Exception {
-        ObjectMapper om = objectMapperBuilder()
+        ObjectMapper om = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
                 .build();
         final String jsonString = om.writeValueAsString(new Issue1327BeanAlways());

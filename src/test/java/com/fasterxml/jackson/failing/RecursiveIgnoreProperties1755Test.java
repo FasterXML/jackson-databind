@@ -31,7 +31,7 @@ public class RecursiveIgnoreProperties1755Test extends BaseMapTest
 
     // for [databind#1755]
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testRecursiveIgnore1755() throws Exception
     {

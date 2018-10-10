@@ -137,7 +137,7 @@ public class ObjectId825BTest extends BaseMapTest
 
     public void testFull825() throws Exception
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
                 .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();

@@ -42,7 +42,7 @@ public class TypeResolverTest extends BaseMapTest
 
         SimpleModule basicModule = new SimpleModule();
         basicModule.setAbstractTypes(resolver);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(basicModule)
                 .build();
         String value = "{\"z\": {\"zz\": {\"a\": 42}}}";

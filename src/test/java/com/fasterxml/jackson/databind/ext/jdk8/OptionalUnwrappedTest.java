@@ -51,7 +51,7 @@ public class OptionalUnwrappedTest extends BaseMapTest
 
     public void testUntypedWithOptionalsNotNulls() throws Exception
     {
-		final ObjectMapper mapper = newObjectMapper();
+		final ObjectMapper mapper = newJsonMapper();
 		String jsonExp = aposToQuotes("{'XX.name':'Bob'}");
 		String jsonAct = mapper.writeValueAsString(new OptionalParent());
 		assertEquals(jsonExp, jsonAct);
@@ -59,7 +59,7 @@ public class OptionalUnwrappedTest extends BaseMapTest
 
 	// for [datatype-jdk8#20]
 	public void testShouldSerializeUnwrappedOptional() throws Exception {
-         final ObjectMapper mapper = newObjectMapper();
+         final ObjectMapper mapper = newJsonMapper();
 	    
 	    assertEquals("{\"id\":\"foo\"}",
 	            mapper.writeValueAsString(new Bean("foo", Optional.<Bean2>empty())));
@@ -67,7 +67,7 @@ public class OptionalUnwrappedTest extends BaseMapTest
 
 	// for [datatype-jdk8#26]
 	public void testPropogatePrefixToSchema() throws Exception {
-        final ObjectMapper mapper = newObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
 
         final AtomicReference<String> propertyName = new AtomicReference<>();
         mapper.acceptJsonFormatVisitor(OptionalParent.class, new JsonFormatVisitorWrapper.Base(

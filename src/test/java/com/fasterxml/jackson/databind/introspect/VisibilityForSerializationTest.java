@@ -91,7 +91,7 @@ public class VisibilityForSerializationTest
 
         // Then auto-detection disabled. But note: we MUST create a new
         // mapper, since old version of serializer may be cached by now
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
                     vc.withVisibility(PropertyAccessor.GETTER, Visibility.NONE))
                 .build();
@@ -109,7 +109,7 @@ public class VisibilityForSerializationTest
         assertTrue(result.containsKey("x"));
 
         // And then class-level auto-detection enabling, should override defaults
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
                     vc.withVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY))
                 .build();
@@ -122,7 +122,7 @@ public class VisibilityForSerializationTest
 
     public void testPerClassAutoDetectionForIsGetter() throws IOException
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
         // class level should override
                 vc.withVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY)
@@ -136,7 +136,7 @@ public class VisibilityForSerializationTest
 
     public void testVisibilityFeatures() throws Exception
     {
-        ObjectMapper om = ObjectMapper.builder()
+        ObjectMapper om = jsonMapperBuilder()
                 .disable(MapperFeature.USE_GETTERS_AS_SETTERS, MapperFeature.INFER_PROPERTY_MUTATORS)
                 .enable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, MapperFeature.USE_ANNOTATIONS)
                 .changeDefaultVisibility(vc ->

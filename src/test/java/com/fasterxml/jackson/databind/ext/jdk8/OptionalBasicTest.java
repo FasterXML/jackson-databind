@@ -56,7 +56,7 @@ public class OptionalBasicTest extends BaseMapTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testOptionalTypeResolution() throws Exception {
 		// With 2.6, we need to recognize it as ReferenceType
@@ -142,7 +142,7 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testSerOptDefault() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = Optional.empty();
-		String value = objectMapperBuilder().changeDefaultPropertyInclusion(
+		String value = jsonMapperBuilder().changeDefaultPropertyInclusion(
 		        incl -> incl.withValueInclusion(JsonInclude.Include.ALWAYS))
 		        .build()
 		        .writeValueAsString(data);
@@ -152,7 +152,7 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testSerOptNull() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = null;
-		String value = objectMapperBuilder().changeDefaultPropertyInclusion(
+		String value = jsonMapperBuilder().changeDefaultPropertyInclusion(
 		        incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
 		        .build().writeValueAsString(data);
 		assertEquals("{}", value);
@@ -161,7 +161,7 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testSerOptNonEmpty() throws Exception {
 		OptionalData data = new OptionalData();
 		data.myString = null;
-		String value = objectMapperBuilder().changeDefaultPropertyInclusion(
+		String value = jsonMapperBuilder().changeDefaultPropertyInclusion(
 		            incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
 		        .build()
 		        .writeValueAsString(data);
@@ -169,7 +169,7 @@ public class OptionalBasicTest extends BaseMapTest
 	}
 
 	public void testWithTypingEnabled() throws Exception {
-	    final ObjectMapper mapper = ObjectMapper.builder()
+	    final ObjectMapper mapper = jsonMapperBuilder()
 	            // ENABLE TYPING
 	            .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
 	            .build();

@@ -240,7 +240,7 @@ public class JsonValueTest
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writeValueAsString(new ValueWrapper()));
 
         // then static
-        ObjectMapper staticMapper = ObjectMapper.builder()
+        ObjectMapper staticMapper = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();
         assertEquals("{\"a\":\"a\"}", staticMapper.writeValueAsString(new ValueWrapper()));
@@ -289,7 +289,7 @@ public class JsonValueTest
         assertEquals(quote("value"), MAPPER.writeValueAsString(INPUT));
 
         // but custom serializer should override it
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule()
                         .addSerializer(Bean838.class, new Bean838Serializer()))
                 .build();

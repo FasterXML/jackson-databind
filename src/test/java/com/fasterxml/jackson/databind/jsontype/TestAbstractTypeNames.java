@@ -96,7 +96,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
 
     public void testEmptyCollection() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.INDENT_OUTPUT, true)
                 .build();
         List<User>friends = new ArrayList<User>();
@@ -109,7 +109,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
         /* 24-Feb-2011, tatu: For now let's simply require registration of
          *   concrete subtypes; can't think of a way to avoid that for now
          */
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .registerSubtypes(DefaultEmployee.class,
                         DefaultUser.class)
                 .build();
@@ -127,7 +127,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
     // [JACKSON-584]: change anonymous non-static inner type into static type:
     public void testInnerClassWithType() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         String json = mapper.writeValueAsString(new BeanWithAnon());

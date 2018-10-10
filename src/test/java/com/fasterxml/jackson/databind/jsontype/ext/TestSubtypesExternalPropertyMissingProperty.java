@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -123,18 +124,22 @@ public class TestSubtypesExternalPropertyMissingProperty
     /**********************************************************
      */
 
+    protected static JsonMapper.Builder jsonMapperBuilder() {
+        return JsonMapper.builder();
+    }
+    
     /**
      * Deserialization tests for external type id property present
      */
     @Test
     public void testDeserializationPresent() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkOrangeBox(mapper);
         checkAppleBox(mapper);
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
 
@@ -147,13 +152,13 @@ public class TestSubtypesExternalPropertyMissingProperty
      */
     @Test
     public void testDeserializationNull() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkOrangeBoxNull(mapper, orangeBoxNullJson);
         checkAppleBoxNull(mapper, appleBoxNullJson);
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkOrangeBoxNull(mapper, orangeBoxNullJson);
@@ -165,13 +170,13 @@ public class TestSubtypesExternalPropertyMissingProperty
      */
     @Test
     public void testDeserializationEmpty() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkOrangeBoxEmpty(mapper, orangeBoxEmptyJson);
         checkAppleBoxEmpty(mapper, appleBoxEmptyJson);
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkOrangeBoxEmpty(mapper, orangeBoxEmptyJson);
@@ -183,13 +188,13 @@ public class TestSubtypesExternalPropertyMissingProperty
      */
     @Test
     public void testDeserializationMissing() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkOrangeBoxNull(mapper, orangeBoxMissingJson);
         checkAppleBoxNull(mapper, appleBoxMissingJson);
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkBoxJsonMappingException(mapper, orangeBoxMissingJson);
@@ -201,13 +206,13 @@ public class TestSubtypesExternalPropertyMissingProperty
      */
     @Test
     public void testDeserializationMissingRequired() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkReqBoxJsonMappingException(mapper, orangeBoxMissingJson);
         checkReqBoxJsonMappingException(mapper, appleBoxMissingJson);
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
                 .build();
         checkReqBoxJsonMappingException(mapper, orangeBoxMissingJson);

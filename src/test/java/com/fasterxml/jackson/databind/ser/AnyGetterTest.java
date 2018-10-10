@@ -153,7 +153,7 @@ public class AnyGetterTest extends BaseMapTest
         ObjectMapper m;
 
         // First, with normal fail settings:
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .build();
         String json = serializeAsString(m, new AnyOnlyBean());

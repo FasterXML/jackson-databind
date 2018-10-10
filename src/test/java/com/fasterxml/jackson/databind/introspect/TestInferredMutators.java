@@ -29,7 +29,7 @@ public class TestInferredMutators extends BaseMapTest
 
     public void testFinalFieldIgnoral() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .build();
         try {
@@ -51,7 +51,7 @@ public class TestInferredMutators extends BaseMapTest
         assertEquals(2, p.x);
 
         // but without it, should fail:
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
                 .build();
         try {

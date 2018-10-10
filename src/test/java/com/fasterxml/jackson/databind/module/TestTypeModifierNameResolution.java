@@ -46,7 +46,7 @@ public class TestTypeModifierNameResolution extends BaseMapTest
     // Expect that the TypeModifier kicks in when the type id is written.
     public void testTypeModiferNameResolution() throws Exception
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .typeFactory(TypeFactory.defaultInstance().withModifier(new CustomTypeModifier()))
                 .addMixIn(MyType.class, Mixin.class)
                 .build();

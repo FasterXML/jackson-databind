@@ -36,7 +36,7 @@ public class OptionalNumbersTest extends BaseMapTest
         }
     }
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************
@@ -127,7 +127,7 @@ public class OptionalNumbersTest extends BaseMapTest
     
     public void testOptionalLongSerializeFilter() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .build();
         assertEquals(aposToQuotes("{'value':123}"),
@@ -137,7 +137,7 @@ public class OptionalNumbersTest extends BaseMapTest
                 mapper.writeValueAsString(new OptionalLongBean()));
 
         // however:
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
                 .build();
         assertEquals(aposToQuotes("{'value':456}"),

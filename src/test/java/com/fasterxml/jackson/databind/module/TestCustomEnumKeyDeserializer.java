@@ -171,7 +171,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         ObjectMapper plainObjectMapper = new ObjectMapper();
         JsonNode tree = plainObjectMapper.readTree(aposToQuotes("{'red' : [ 'a', 'b']}"));
 
-        ObjectMapper fancyObjectMapper = ObjectMapper.builder()
+        ObjectMapper fancyObjectMapper = jsonMapperBuilder()
                 .addModule(new TestEnumModule())
                 .build();
         Map<TestEnum, Set<String>> map = fancyObjectMapper.convertValue(tree,
@@ -184,7 +184,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 //    public void testWithTree749() throws Exception
     public void withTree749() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new TestEnumModule())
                 .build();
         Map<KeyEnum, Object> inputMap = new LinkedHashMap<KeyEnum, Object>();
@@ -214,7 +214,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
                 return SuperTypeEnum.valueOf(p.getText());
             }
         });
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(simpleModule)
                 .build();
 
@@ -262,7 +262,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
                 };
             }
         });
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
 

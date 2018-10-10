@@ -20,7 +20,7 @@ public class ArrayDelegatorCreatorForCollectionTest extends BaseMapTest
     public void testUnmodifiable() throws Exception
     {
         Class<?> unmodSetType = Collections.unmodifiableSet(Collections.<String>emptySet()).getClass();
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .addMixIn(unmodSetType, UnmodifiableSetMixin.class)
                 .build();

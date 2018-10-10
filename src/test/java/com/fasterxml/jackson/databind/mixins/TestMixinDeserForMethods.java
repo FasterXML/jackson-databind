@@ -44,7 +44,7 @@ public class TestMixinDeserForMethods
      */
     public void testWithAnySetter() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BaseClass.class, MixIn.class)
                 .build();
         BaseClass result = mapper.readValue("{ \"a\" : 3, \"b\" : true }", BaseClass.class);

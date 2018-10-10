@@ -25,7 +25,7 @@ public class JsonCreatorTest extends BaseMapTest
 
     @Test
     public void testJsonCreatorOnStaticMethod() throws Exception {
-        ObjectMapper objectMapper = newObjectMapper();
+        ObjectMapper objectMapper = newJsonMapper();
 
         String json = aposToQuotes("{'first':'1st','second':'2nd'}");
         ClassWithJsonCreatorOnStaticMethod actual = objectMapper.readValue(json, ClassWithJsonCreatorOnStaticMethod.class);

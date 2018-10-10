@@ -261,7 +261,7 @@ public class CollectionSerializationTest
         assertEquals("{\"empty\":[]}", MAPPER.writeValueAsString(array));
 
         // note: value of setting may be cached when constructing serializer, need a new instance
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
                 .build();
         assertEquals("{}", m.writeValueAsString(list));
@@ -276,7 +276,7 @@ public class CollectionSerializationTest
         assertEquals(aposToQuotes("{'list':['a','b','c']}"), json);
 
         // but then with default typing
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(w);

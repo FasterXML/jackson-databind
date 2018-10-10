@@ -291,7 +291,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     
     public void testSimpleSerialization() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(ValueBean.class)
                 .build();
         // This may look odd, but one implementation nastiness is the fact
@@ -315,7 +315,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     // for [databind#942]
     public void testExternalTypeIdWithNull() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(ValueBean.class)
                 .build();
         ExternalBean b;
@@ -335,7 +335,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     
     public void testSimpleDeserialization() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(ValueBean.class)
                 .build();
         ExternalBean result = mapper.readValue("{\"bean\":{\"value\":11},\"extType\":\"vbean\"}", ExternalBean.class);
@@ -356,7 +356,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     // externally typed things, mixed with other stuff...
     public void testMultipleTypeIdsDeserialization() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(ValueBean.class)
                 .build();
         String json = mapper.writeValueAsString(new ExternalBean3(3));
@@ -374,7 +374,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     // Also, it should be ok to use @JsonCreator as well...
     public void testExternalTypeWithCreator() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(ValueBean.class)
                 .build();
         String json = mapper.writeValueAsString(new ExternalBeanWithCreator(7));

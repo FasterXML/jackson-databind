@@ -101,7 +101,7 @@ public class TestTypedArrayDeserialization
     public void testLongArray() throws Exception
     {
         // use class name, WRAPPER_OBJECT
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(long[].class, WrapperMixIn.class)
                 .build();
         String JSON = "{\""+long[].class.getName()+"\":[5, 6, 7]}";

@@ -369,7 +369,7 @@ public class TestCustomDeserializers
                     }
                 }
                 ));
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         Immutable imm = mapper.readValue("{\"x\":3,\"y\":7}", Immutable.class);
@@ -390,7 +390,7 @@ public class TestCustomDeserializers
                     return new Immutable(x, y);
                 }
         });
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         Immutable imm = mapper.readValue("{\"x\":-10,\"y\":3}", Immutable.class);
@@ -414,7 +414,7 @@ public class TestCustomDeserializers
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(Bean375Outer.class, new Bean375OuterDeserializer());
         module.addDeserializer(Bean375Inner.class, new Bean375InnerDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
 
@@ -440,7 +440,7 @@ public class TestCustomDeserializers
 
     public void testCustomStringDeser() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule()
                         .addDeserializer(String.class, new UCStringDeserializer()))
                 .build();
@@ -452,7 +452,7 @@ public class TestCustomDeserializers
 
     public void testDelegatingDeserializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new DelegatingModuleImpl())
                 .build();
         String str = mapper.readValue(quote("foo"), String.class);

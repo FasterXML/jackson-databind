@@ -28,7 +28,7 @@ public class TestTimestampDeserialization
     
     public void testTimestampUtilSingleElementArray() throws Exception
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         

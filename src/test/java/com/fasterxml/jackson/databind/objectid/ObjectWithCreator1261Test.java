@@ -65,7 +65,7 @@ public class ObjectWithCreator1261Test
 
     public void testObjectIds1261() throws Exception
     {
-         ObjectMapper mapper = ObjectMapper.builder()
+         ObjectMapper mapper = jsonMapperBuilder()
                  .enable(SerializationFeature.INDENT_OUTPUT)
                  .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                  .build();

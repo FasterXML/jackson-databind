@@ -186,7 +186,7 @@ public class TestArrayDeserialization
     // allow "" to mean 'null' for Arrays, List and Maps
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
                 .build();
         assertNull(m.readValue(quote(""), Object[].class));
@@ -197,7 +197,7 @@ public class TestArrayDeserialization
     // allow "" to mean 'null' for Arrays, List and Maps
     public void testFromEmptyString2() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
                         DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
@@ -575,7 +575,7 @@ public class TestArrayDeserialization
     {
         SimpleModule testModule = new SimpleModule("test", Version.unknownVersion());
         testModule.addDeserializer(NonDeserializable[].class, new CustomNonDeserArrayDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(testModule)
                 .build();
         

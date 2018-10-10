@@ -117,7 +117,7 @@ public class OptionalTest extends BaseMapTest
         }
     }
 
-    private ObjectMapper MAPPER = newObjectMapper();
+    private ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************
@@ -167,7 +167,7 @@ public class OptionalTest extends BaseMapTest
     // To support [datatype-jdk8#8]
     public void testExcludeIfOptionalAbsent() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .build();
         assertEquals(aposToQuotes("{'value':'foo'}"),
@@ -177,7 +177,7 @@ public class OptionalTest extends BaseMapTest
                 mapper.writeValueAsString(new OptionalStringBean(null)));
 
         // however:
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
                 .build();
         assertEquals(aposToQuotes("{'value':'foo'}"),
@@ -216,7 +216,7 @@ public class OptionalTest extends BaseMapTest
 
     public void testCustomSerializerIfOptionalAbsent() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .build();
         assertEquals(aposToQuotes("{'value':'FOO'}"),
@@ -226,7 +226,7 @@ public class OptionalTest extends BaseMapTest
                 mapper.writeValueAsString(new CaseChangingStringWrapper(null)));
 
         // however:
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
                 .build();
         assertEquals(aposToQuotes("{'value':'FOO'}"),

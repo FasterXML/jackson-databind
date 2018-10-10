@@ -184,7 +184,7 @@ public class MapDeserializationTest
 
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
                 .build();
         Map<?,?> result = m.readValue(quote(""), Map.class);

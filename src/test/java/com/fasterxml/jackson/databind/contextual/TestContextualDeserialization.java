@@ -181,7 +181,7 @@ public class TestContextualDeserialization extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(StringValue.class, new MyContextualDeserializer());
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         ContextualBean bean = mapper.readValue("{\"a\":\"1\",\"b\":\"2\"}", ContextualBean.class);
@@ -297,7 +297,7 @@ public class TestContextualDeserialization extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(StringValue.class, new AnnotatedContextualDeserializer());
-        return objectMapperBuilder()
+        return jsonMapperBuilder()
                 .addModule(module)
                 .build();
     }

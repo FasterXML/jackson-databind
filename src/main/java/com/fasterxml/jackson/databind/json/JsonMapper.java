@@ -89,6 +89,12 @@ public class JsonMapper extends ObjectMapper
         return new Builder(streamFactory);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonMapper.Builder rebuild() {
+        return new Builder((Builder.StateImpl)_savedBuilderState);
+    }
+
     /*
     /**********************************************************
     /* Standard method overrides

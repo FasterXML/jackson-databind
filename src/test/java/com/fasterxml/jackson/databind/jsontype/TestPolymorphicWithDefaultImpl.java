@@ -182,7 +182,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     // [databind#148]
     public void testBadTypeAsNull() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
                 .build();
         Object ob = mapper.readValue("{}", MysteryPolymorphic.class);
@@ -234,7 +234,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 
     public void testUnknownClassAsSubtype() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
                 .build();
         BaseWrapper w = mapper.readValue(aposToQuotes

@@ -243,7 +243,7 @@ public class TestAnnotations
         assertEquals("{\"a\":3,\"b\":4,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
 
         // but 3 if we require mutator:
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)
                 .build();
         assertEquals("{\"a\":3,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
@@ -252,7 +252,7 @@ public class TestAnnotations
     public void testGettersWithoutSettersOverride() throws Exception
     {
         GettersWithoutSetters2 bean = new GettersWithoutSetters2();
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)
                 .build();
         assertEquals("{\"a\":123}", m.writeValueAsString(bean));

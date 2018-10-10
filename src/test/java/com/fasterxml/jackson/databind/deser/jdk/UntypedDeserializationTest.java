@@ -220,7 +220,7 @@ public class UntypedDeserializationTest
     // Allow 'upgrade' of big integers into Long, BigInteger
     public void testObjectSerializeWithLong() throws IOException
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY)
                 .build();
         final long VALUE = 1337800584532L;
@@ -242,7 +242,7 @@ public class UntypedDeserializationTest
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
         m.addDeserializer(Number.class, new CustomNumberDeserializer(13));
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
             .addModule(m)
             .build();
 
@@ -264,7 +264,7 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(m)
                 .build();
         // Also: since this is now non-vanilla variant, try more alternatives
@@ -319,7 +319,7 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(List.class, new ListDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(m)
                 .build();
         // And then list...
@@ -336,7 +336,7 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(Map.class, new YMapDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(m)
                 .build();
         // And then list...
@@ -370,7 +370,7 @@ public class UntypedDeserializationTest
         assertTrue(ob instanceof List<?>);
 
         // but can change to produce Object[]:
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
                 .build();
         ob = mapper.readValue("[1]", Object.class);

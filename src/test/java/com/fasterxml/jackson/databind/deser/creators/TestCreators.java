@@ -424,7 +424,7 @@ public class TestCreators
 
     public void testFactoryCreatorWithMixin() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(CreatorBean.class, MixIn.class)
                 .build();
         CreatorBean bean = m.readValue
@@ -435,7 +435,7 @@ public class TestCreators
 
     public void testFactoryCreatorWithRenamingMixin() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(FactoryBean.class, FactoryBeanMixIn.class)
                 .build();
         // override changes property name from "f" to "mixed"

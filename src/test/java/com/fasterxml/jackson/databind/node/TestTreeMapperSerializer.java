@@ -21,7 +21,7 @@ public class TestTreeMapperSerializer extends NodeTestBase
 
     final static double DOUBLE_VALUE = 9.25;
 
-    private final ObjectMapper mapper = newObjectMapper();
+    private final ObjectMapper mapper = newJsonMapper();
 
     public void testFromArray() throws Exception
     {

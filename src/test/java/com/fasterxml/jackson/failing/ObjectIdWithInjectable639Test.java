@@ -30,7 +30,7 @@ public class ObjectIdWithInjectable639Test extends BaseMapTest
     // for [databind#639]
     public void testObjectIdWithInjectable() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new InjectableValues.Std().
                         addValue("context", "Stuff"))
                 .build();

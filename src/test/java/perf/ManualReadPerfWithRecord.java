@@ -1,6 +1,6 @@
 package perf;
 
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * Simple manually run micro-benchmark for checking effects of (de)serializer
@@ -19,7 +19,7 @@ public class ManualReadPerfWithRecord extends ObjectReaderTestBase
         }
         Record input = new Record(44, "BillyBob", "Bumbler", 'm', true);
         RecordAsArray input2 = new RecordAsArray(44, "BillyBob", "Bumbler", 'm', true);
-        ObjectMapper m = new ObjectMapper();
+        JsonMapper m = new JsonMapper();
         new ManualReadPerfWithRecord().testFromBytes(m, "JSON-as-Object", input, Record.class,
                 m, "JSON-as-Array", input2, RecordAsArray.class);
     }

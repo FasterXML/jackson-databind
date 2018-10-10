@@ -107,7 +107,7 @@ public class NullSerializationTest
 
     public void testOverriddenDefaultNulls() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addModule(new SimpleModule()
                         .setDefaultNullValueSerializer(new NullSerializer()))
                 .build();
@@ -116,7 +116,7 @@ public class NullSerializationTest
 
     public void testCustomNulls() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .serializationContexts(new MyNullSerializerContexts())
                 .build();
         assertEquals("{\"name\":\"foobar\"}", m.writeValueAsString(new Bean1()));
@@ -132,7 +132,7 @@ public class NullSerializationTest
         assertEquals("{\"a\":null}", MAPPER.writeValueAsString(root));
 
         // but then we can customize it:
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .serializationContexts(new MyNullSerializerContexts())
                 .addModule(new SimpleModule()
                         .setDefaultNullValueSerializer(new NullSerializer()))

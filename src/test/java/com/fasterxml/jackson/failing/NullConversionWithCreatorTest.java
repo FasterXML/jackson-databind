@@ -37,7 +37,7 @@ public class NullConversionWithCreatorTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2024]
     public void testEmptyFromNullViaCreator() throws Exception

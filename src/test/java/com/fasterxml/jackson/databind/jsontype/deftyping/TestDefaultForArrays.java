@@ -37,7 +37,7 @@ public class TestDefaultForArrays extends BaseMapTest
      */
     public void testArrayTypingSimple() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
                 .build();
         ArrayBean bean = new ArrayBean(new String[0]);
@@ -50,7 +50,7 @@ public class TestDefaultForArrays extends BaseMapTest
     // And let's try it with deeper array as well
     public void testArrayTypingNested() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
                 .build();
         ArrayBean bean = new ArrayBean(new String[0][0]);
@@ -62,8 +62,8 @@ public class TestDefaultForArrays extends BaseMapTest
 
     public void testNodeInArray() throws Exception
     {
-        JsonNode node = new ObjectMapper().readTree("{\"a\":3}");
-        ObjectMapper mapper = ObjectMapper.builder()
+        JsonNode node = objectMapper().readTree("{\"a\":3}");
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
         Object[] obs = new Object[] { node };
@@ -79,7 +79,8 @@ public class TestDefaultForArrays extends BaseMapTest
     {
         Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
         outerMap.put("inner", new ArrayList<String>());
-        ObjectMapper vanillaMapper = ObjectMapper.builder().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)
+        ObjectMapper vanillaMapper = jsonMapperBuilder()
+                .disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)
                 .build();
         JsonNode tree = vanillaMapper.convertValue(outerMap, JsonNode.class);
         
@@ -99,7 +100,7 @@ public class TestDefaultForArrays extends BaseMapTest
 
     public void testArraysOfArrays() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 
@@ -114,7 +115,7 @@ public class TestDefaultForArrays extends BaseMapTest
 
     public void testArrayTypingForPrimitiveArrays() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
                 .build();
         _testArrayTypingForPrimitiveArrays(mapper, new int[] { 1, 2, 3 });

@@ -26,7 +26,7 @@ public class StackTraceElementTest extends BaseMapTest
     // for [databind#1794] where extra `declaringClass` is serialized from private field.
     public void testCustomStackTraceDeser() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
                     vc.withVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY))
                 .build();

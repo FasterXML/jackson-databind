@@ -108,7 +108,7 @@ public class TestMixinSerForMethods
         assertEquals("b2", result.get("b"));
 
         // then with leaf-level mix-in
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .addMixIn(BaseClass.class, MixIn.class)
                 .build();
         result = writeAndMap(mapper, bean);
@@ -127,7 +127,7 @@ public class TestMixinSerForMethods
         Map<String,Object> result;
         LeafClass bean = new LeafClass("XXX", "b2");
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BaseClass.class, MixIn.class)
                 .build();
         result = writeAndMap(mapper, bean);
@@ -141,7 +141,7 @@ public class TestMixinSerForMethods
      */
     public void testIntermediateMixin2() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(EmptyBean.class, MixInForSimple.class)
                 .build();
         Map<String,Object> result = writeAndMap(mapper, new SimpleBean());
@@ -152,7 +152,7 @@ public class TestMixinSerForMethods
     // [databind#688]
     public void testCustomResolver() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .mixInOverrides(new MixInResolver() {
                     @Override
                     public Class<?> findMixInClassFor(Class<?> target) {

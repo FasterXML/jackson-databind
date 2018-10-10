@@ -30,7 +30,7 @@ public class TestDefaultForEnums
     /**********************************************************************
      */
 
-    private final ObjectMapper DEFTYPING_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper DEFTYPING_MAPPER = jsonMapperBuilder()
             .enableDefaultTyping()
             .build();
     

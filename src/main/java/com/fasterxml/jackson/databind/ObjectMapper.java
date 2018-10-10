@@ -102,12 +102,10 @@ public class ObjectMapper
     /**
      * Base implementation for "Vanilla" {@link ObjectMapper}, used with JSON backend
      * as well as for some of simpler formats that do not require mapper level overrides.
-     *
-     * @since 3.0
      */
-    public static class Builder extends MapperBuilder<ObjectMapper, Builder>
+    private static class PrivateBuilder extends MapperBuilder<ObjectMapper, PrivateBuilder>
     {
-        public Builder(TokenStreamFactory tsf) {
+        public PrivateBuilder(TokenStreamFactory tsf) {
             super(tsf);
         }
 
@@ -121,30 +119,22 @@ public class ObjectMapper
             return new StateImpl(this);
         }
 
-        public Builder(MapperBuilderState state) {
+        public PrivateBuilder(MapperBuilderState state) {
             super(state);
         }
 
-        /**
-         * We also need actual instance of state as base class can not implement logic
-         * for reinstating mapper (via mapper builder) from state.
-         */
+     // We also need actual instance of state as base class can not implement logic
+     // for reinstating mapper (via mapper builder) from state.
         static class StateImpl extends MapperBuilderState {
             private static final long serialVersionUID = 3L;
 
-            public StateImpl(Builder b) {
+            public StateImpl(PrivateBuilder b) {
                 super(b);
             }
 
-            /* 20-Apr-2018, tatu: This may look weird, but it's "trampoline" approach in which
-             *   `ObjectMapper` instances are actually serializer as `MapperBuilderState` and thus
-             *   need to be transmorphed back into mapper instance. So that's ... what's going on
-             *   in here -- state is frozen or hibernating version of `ObjectMapper` (for JDK)
-             *   OR `MapperBuilder` (in-memory)
-             */
             @Override
             protected Object readResolve() {
-                return new Builder(this).build();
+                return new PrivateBuilder(this).build();
             }
         }
     }
@@ -281,7 +271,7 @@ public class ObjectMapper
      * default settings, and no additional registered modules.
      */
     public ObjectMapper() {
-        this(new Builder(new JsonFactory()));
+        this(new PrivateBuilder(new JsonFactory()));
     }
 
     /**
@@ -290,7 +280,7 @@ public class ObjectMapper
      * {@link JsonGenerator}s, but without registering additional modules.
      */
     public ObjectMapper(TokenStreamFactory streamFactory) {
-        this(new Builder(streamFactory));
+        this(new PrivateBuilder(streamFactory));
     }
 
     /*
@@ -368,7 +358,7 @@ public class ObjectMapper
         // 27-Feb-2018, tatu: since we still have problem with `ObjectMapper` being both API
         //    and implementation for JSON, need more checking here
         ClassUtil.verifyMustOverride(ObjectMapper.class, this, "rebuild");
-        return (MapperBuilder<M,B>) new ObjectMapper.Builder(_savedBuilderState);
+        return (MapperBuilder<M,B>) new PrivateBuilder(_savedBuilderState);
     }
 
     /*

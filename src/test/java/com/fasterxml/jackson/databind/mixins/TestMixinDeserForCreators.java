@@ -111,7 +111,7 @@ public class TestMixinDeserForCreators
 
     public void testForConstructor() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BaseClassWithPrivateCtor.class, MixInForPrivate.class)
                 .build();
         BaseClassWithPrivateCtor result = mapper.readValue("\"?\"", BaseClassWithPrivateCtor.class);
@@ -127,7 +127,7 @@ public class TestMixinDeserForCreators
         assertEquals("string...", result._a);
 
         // Then with simple mix-in: should change to use the factory method
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BaseClass.class, MixIn.class)
                 .build();
         result = mapper.readValue("\"string\"", BaseClass.class);
@@ -136,7 +136,7 @@ public class TestMixinDeserForCreators
 
     public void testFactoryDelegateMixIn() throws IOException
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(StringWrapper.class, StringWrapperMixIn.class)
                 .build();
         StringWrapper result = mapper.readValue("\"a\"", StringWrapper.class);
@@ -146,7 +146,7 @@ public class TestMixinDeserForCreators
     // [databind#2020]
     public void testFactoryPropertyMixin() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .addMixIn(Pair2020.class, MyPairMixIn8.class)
             .build();
 

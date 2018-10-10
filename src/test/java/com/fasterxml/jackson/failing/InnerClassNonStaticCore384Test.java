@@ -170,7 +170,7 @@ public class InnerClassNonStaticCore384Test extends BaseMapTest
      */
 
     public void testHierarchy() throws IOException {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
 

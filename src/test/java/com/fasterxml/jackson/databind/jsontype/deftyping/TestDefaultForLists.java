@@ -68,7 +68,7 @@ public class TestDefaultForLists
     
     public void testListOfLongs() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
@@ -91,7 +91,7 @@ public class TestDefaultForLists
      */
     public void testListOfNumbers() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
@@ -108,7 +108,7 @@ public class TestDefaultForLists
 
     public void testDateTypes() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         ObjectListBean input = new ObjectListBean();
@@ -127,7 +127,7 @@ public class TestDefaultForLists
     
     public void testJackson628() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         ArrayList<Foo> data = new ArrayList<Foo>();
@@ -138,7 +138,7 @@ public class TestDefaultForLists
 
     public void testJackson667() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL,
                         JsonTypeInfo.As.PROPERTY)
                 .build();

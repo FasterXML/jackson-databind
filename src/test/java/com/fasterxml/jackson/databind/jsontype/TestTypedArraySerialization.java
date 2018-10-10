@@ -126,7 +126,7 @@ public class TestTypedArraySerialization
 
     public void testIntArray() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(int[].class, WrapperMixIn.class)
                 .build();
         int[] input = new int[] { 1, 2, 3 };
@@ -149,7 +149,7 @@ public class TestTypedArraySerialization
         assertEquals(EXP, MAPPER.writeValueAsString(input));
 
         // then with static typing enabled:
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enable(MapperFeature.USE_STATIC_TYPING)
                 .build();
         assertEquals(EXP, m.writeValueAsString(input));

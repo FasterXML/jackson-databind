@@ -70,7 +70,7 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
     /**********************************************************
      */
 
-    private static final ObjectMapper JSON_MAPPER = newObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = newJsonMapper();
 
     public void testAbstractTypeDeserialization() throws Exception {
         String test = aposToQuotes("{'customField': 'customString'}");

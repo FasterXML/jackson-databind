@@ -76,7 +76,7 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
 		inner.setP2("202");
 		outer.setInner(inner);
 
-		ObjectMapper mapper = ObjectMapper.builder()
+		ObjectMapper mapper = jsonMapperBuilder()
 		        .disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
 		        .build();
 

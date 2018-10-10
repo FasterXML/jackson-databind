@@ -40,7 +40,7 @@ public class TestMixinMerging extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("Test");
         module.setMixInAnnotation(Person.class, PersonMixin.class);        
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
                 .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .changeDefaultVisibility(vc -> vc

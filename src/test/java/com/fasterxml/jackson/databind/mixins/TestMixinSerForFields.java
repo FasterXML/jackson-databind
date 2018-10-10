@@ -68,7 +68,7 @@ public class TestMixinSerForFields
         assertEquals("1", result.get("a"));
 
         // and then with simple mix-in
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .addMixIn(BaseClass.class, MixIn.class)
                 .build();
         result = writeAndMap(mapper, bean);
@@ -84,7 +84,7 @@ public class TestMixinSerForFields
         mixins.put(SubClass.class, MixIn.class);
         mixins.put(BaseClass.class, MixIn2.class);
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIns(mixins)
                 .build();
 

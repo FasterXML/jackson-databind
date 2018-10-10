@@ -90,7 +90,7 @@ public class TestAbstractTypes extends BaseMapTest
         // let's ensure we get hierarchic mapping
         mod.addAbstractTypeMapping(Collection.class, List.class);
         mod.addAbstractTypeMapping(List.class, LinkedList.class);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         Collection<?> result = mapper.readValue("[]", Collection.class);
@@ -102,7 +102,7 @@ public class TestAbstractTypes extends BaseMapTest
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         // default is HashMap, so:
         mod.addAbstractTypeMapping(Map.class, TreeMap.class);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         Map<?,?> result = mapper.readValue("{}", Map.class);
@@ -118,7 +118,7 @@ public class TestAbstractTypes extends BaseMapTest
         mod.addAbstractTypeMapping(Map.class, TreeMap.class);
         mod.addAbstractTypeMapping(List.class, LinkedList.class);
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         Object result;
@@ -144,7 +144,7 @@ public class TestAbstractTypes extends BaseMapTest
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         // let's ensure we get hierarchic mapping
         mod.addAbstractTypeMapping(CharSequence.class, MyString.class);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         Object result = mapper.readValue(quote("abc"), CharSequence.class);
@@ -154,7 +154,7 @@ public class TestAbstractTypes extends BaseMapTest
         // and ditto for POJOs
         mod = new SimpleModule();
         mod.addAbstractTypeMapping(Abstract.class, AbstractImpl.class);
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         Abstract a = mapper.readValue("{}", Abstract.class);
@@ -170,7 +170,7 @@ public class TestAbstractTypes extends BaseMapTest
         SimpleModule module2 = new SimpleModule("module2");
         module2.addAbstractTypeMapping(Datatype2.class, SimpleDatatype2.class);
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModules(module1, module2)
                 .build();
 

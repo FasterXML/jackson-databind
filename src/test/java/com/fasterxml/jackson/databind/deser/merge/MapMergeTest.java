@@ -45,12 +45,12 @@ public class MapMergeTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = ObjectMapper.builder()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();
 
-    private final ObjectMapper MAPPER_SKIP_NULLS = objectMapperBuilder()
+    private final ObjectMapper MAPPER_SKIP_NULLS = jsonMapperBuilder()
             .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.SKIP))
             .build();
 
@@ -166,7 +166,7 @@ public class MapMergeTest extends BaseMapTest
     public void testDisabledMergeViaGlobal() throws Exception
     {
         // disable merging, globally; does not affect main level
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .defaultMergeable(false)
                 .build();
 
@@ -184,7 +184,7 @@ public class MapMergeTest extends BaseMapTest
     public void testDisabledMergeByType() throws Exception
     {
         // disable merging for "untyped", that is, `Object.class`
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Object.class,
                         o -> o.setMergeable(false))
                 .build();
@@ -200,7 +200,7 @@ public class MapMergeTest extends BaseMapTest
         // and for extra points, disable by default but ENABLE for type,
         // which should once again allow merging
 
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .withConfigOverride(Object.class,
                         o -> o.setMergeable(true))
                 .defaultMergeable(Boolean.FALSE)

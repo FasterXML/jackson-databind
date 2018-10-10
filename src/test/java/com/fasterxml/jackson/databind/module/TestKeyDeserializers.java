@@ -33,7 +33,7 @@ public class TestKeyDeserializers extends BaseMapTest
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addKeyDeserializer(Foo.class, new FooKeyDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         Map<Foo,Integer> map = mapper.readValue("{\"a\":3}",

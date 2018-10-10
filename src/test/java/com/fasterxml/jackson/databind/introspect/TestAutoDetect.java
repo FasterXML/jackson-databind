@@ -64,7 +64,7 @@ public class TestAutoDetect
         assertEquals("abc", bean.a);
 
         // then by increasing visibility requirement:
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY))
                 .build();
         try {
@@ -91,7 +91,7 @@ public class TestAutoDetect
         }
 
         // except if we lower requirement
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.ANY))
                 .build();
         bean = m.readValue(quote("xyz"), PrivateBeanAnnotated.class);
@@ -106,7 +106,7 @@ public class TestAutoDetect
         assertEquals(aposToQuotes("{'field':2,'value':3}"),
                 MAPPER.writeValueAsString(input));
 
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Feature1347SerBean.class,
                         o -> o.setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.GETTER,
                             Visibility.NONE)))
@@ -130,7 +130,7 @@ public class TestAutoDetect
         }
 
         // but when instructed to ignore setter, should work
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Feature1347DeserBean.class,
                         o -> o.setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.SETTER,
                                 Visibility.NONE)))

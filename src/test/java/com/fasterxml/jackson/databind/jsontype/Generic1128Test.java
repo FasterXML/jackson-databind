@@ -48,7 +48,7 @@ public class Generic1128Test extends BaseMapTest
 
     public void testIssue1128() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
                 .build();
         final DevMContainer devMContainer1 = new DevMContainer();

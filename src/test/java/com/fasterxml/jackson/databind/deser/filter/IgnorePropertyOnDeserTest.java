@@ -41,7 +41,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     /****************************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1217]
     public void testIgnoreOnProperty1217() throws Exception
@@ -67,7 +67,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
 
     public void testIgnoreViaConfigOverride1217() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Point.class,
                         o -> o.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("y")))
                 .build();

@@ -24,7 +24,7 @@ public class TestJava7Types extends BaseMapTest
     // [databind#1688]:
     public void testPolymorphicPath() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         Path input = Paths.get("/tmp", "foo.txt");

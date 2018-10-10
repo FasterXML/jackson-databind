@@ -71,7 +71,7 @@ public class TestSubtypesWithDefaultImpl extends BaseMapTest
         // but then succeed when we register default impl
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addAbstractTypeMapping(SuperTypeWithoutDefault.class, DefaultImpl505.class);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         SuperTypeWithoutDefault bean = mapper.readValue(JSON, SuperTypeWithoutDefault.class);

@@ -116,7 +116,7 @@ public class TestPropertyConflicts extends BaseMapTest
 
     public void testInferredNameConflictsWithGetters() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new InferingIntrospector())
                 .build();
         String json = mapper.writeValueAsString(new Infernal());
@@ -125,7 +125,7 @@ public class TestPropertyConflicts extends BaseMapTest
     
     public void testInferredNameConflictsWithSetters() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new InferingIntrospector())
                 .build();
         Infernal inf = mapper.readValue(aposToQuotes("{'stuff':'Bob'}"), Infernal.class);
@@ -133,7 +133,7 @@ public class TestPropertyConflicts extends BaseMapTest
     }
 
     public void testIssue541() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
                 .build();
         Bean541 data = mapper.readValue("{\"str\":\"the string\"}", Bean541.class);

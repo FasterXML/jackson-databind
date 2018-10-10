@@ -185,7 +185,7 @@ public class TestMapSerialization extends BaseMapTest
         assertEquals(aposToQuotes("[{'answer':42}]"), json);
 
         // and maybe with bit of extra typing?
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(input);
@@ -218,7 +218,7 @@ public class TestMapSerialization extends BaseMapTest
         Map<String, String> map = new HashMap<String, String>();
         map.put("NULL", null);
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Object.class, Mixin691.class)
                 .build();
         String json = mapper.writeValueAsString(map);

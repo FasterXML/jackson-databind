@@ -65,7 +65,7 @@ public class TestOptionalWithPolymorphic extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = newObjectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     public void testOptionalMapsFoo() throws Exception {
 

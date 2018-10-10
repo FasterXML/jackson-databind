@@ -17,7 +17,7 @@ public class UnknownSubClassTest extends BaseMapTest
     
     public void testUnknownClassAsSubtype() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
                 .build();
         BaseWrapper w = mapper.readValue(aposToQuotes

@@ -280,7 +280,7 @@ public class JsonIncludeTest
     public void testEmptyInclusionScalars() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
-        ObjectMapper inclMapper = objectMapperBuilder()
+        ObjectMapper inclMapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
                 .build();
 
@@ -310,7 +310,7 @@ public class JsonIncludeTest
     // [databind#1351], [databind#1417]
     public void testIssue1351() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
         assertEquals(aposToQuotes("{}"),

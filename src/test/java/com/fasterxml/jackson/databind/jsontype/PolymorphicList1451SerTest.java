@@ -19,7 +19,7 @@ public class PolymorphicList1451SerTest extends BaseMapTest
     private final String CLASS_NAME = getClass().getSimpleName();
 
     public void testCollectionWithTypeInfo() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(SerializationFeature.EAGER_SERIALIZER_FETCH)
 //                .disable(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
                 .build();

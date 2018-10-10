@@ -230,7 +230,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         // and then directly, iff registered
         SimpleModule module = new SimpleModule();
         module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
@@ -306,7 +306,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
     
     public void testUUID() throws Exception
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";

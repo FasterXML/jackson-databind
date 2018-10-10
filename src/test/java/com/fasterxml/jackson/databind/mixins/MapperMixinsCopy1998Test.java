@@ -135,7 +135,7 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
 
     private MapperBuilder<?,?> defaultMapper()
     {
-        return ObjectMapper.builder().changeDefaultPropertyInclusion(incl ->
+        return jsonMapperBuilder().changeDefaultPropertyInclusion(incl ->
             incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
         ;
     }

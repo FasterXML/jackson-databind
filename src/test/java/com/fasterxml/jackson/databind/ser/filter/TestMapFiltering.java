@@ -255,7 +255,7 @@ public class TestMapFiltering extends BaseMapTest
     public void testMapViaGlobalNonEmpty() throws Exception
     {
         // basic Map<String,String> subclass:
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl
                         .withContentInclusion(JsonInclude.Include.NON_EMPTY))
                 .build();
@@ -269,7 +269,7 @@ public class TestMapFiltering extends BaseMapTest
     public void testMapViaTypeOverride() throws Exception
     {
         // basic Map<String,String> subclass:
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Map.class,
                         o -> o.setInclude(JsonInclude.Value.empty()
                                 .withContentInclusion(JsonInclude.Include.NON_EMPTY)))

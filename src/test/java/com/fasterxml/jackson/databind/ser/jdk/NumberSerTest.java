@@ -112,7 +112,7 @@ public class NumberSerTest extends BaseMapTest
 
     public void testConfigOverridesForNumbers() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withAllConfigOverrides(all -> { // could have used separate but test for funsies
                     all.findOrCreateOverride(Integer.TYPE) // for `int`
                         .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));

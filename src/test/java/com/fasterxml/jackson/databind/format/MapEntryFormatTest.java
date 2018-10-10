@@ -103,7 +103,7 @@ public class MapEntryFormatTest extends BaseMapTest
     /**********************************************************
      */
     
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testInclusion() throws Exception
     {
@@ -169,7 +169,7 @@ public class MapEntryFormatTest extends BaseMapTest
     // [databind#1895]
     public void testDefaultShapeOverride() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Map.Entry.class,
                         o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.POJO)))
                 .build();

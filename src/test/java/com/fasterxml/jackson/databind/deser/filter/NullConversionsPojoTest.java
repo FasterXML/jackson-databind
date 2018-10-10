@@ -43,7 +43,7 @@ public class NullConversionsPojoTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testFailOnNull() throws Exception
     {
@@ -70,7 +70,7 @@ public class NullConversionsPojoTest extends BaseMapTest
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
 
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(String.class,
                         o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.FAIL)))
                 .build();
@@ -99,7 +99,7 @@ public class NullConversionsPojoTest extends BaseMapTest
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
 
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(String.class,
                         o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY)))
                 .build();

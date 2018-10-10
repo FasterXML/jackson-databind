@@ -145,7 +145,7 @@ public class TestJacksonAnnotationIntrospector
      */
     public void testSerializeDeserializeWithJaxbAnnotations() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();
         JacksonExample ex = new JacksonExample();
@@ -172,7 +172,7 @@ public class TestJacksonAnnotationIntrospector
 
     public void testEnumHandling() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new LcEnumIntrospector())
                 .build();
         assertEquals("\"value1\"", mapper.writeValueAsString(EnumExample.VALUE1));

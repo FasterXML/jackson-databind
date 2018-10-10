@@ -57,7 +57,7 @@ public class IllegalTypesCheckTest extends BaseMapTest
 +" ]\n"
 +"}"
         );
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         try {
@@ -102,7 +102,7 @@ public class IllegalTypesCheckTest extends BaseMapTest
     // // // Tests for [databind#1872]
     public void testJDKTypes1872() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 

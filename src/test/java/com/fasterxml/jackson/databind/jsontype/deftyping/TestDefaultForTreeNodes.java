@@ -18,7 +18,7 @@ public class TestDefaultForTreeNodes extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper DEFAULT_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
             .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
             .build();
 

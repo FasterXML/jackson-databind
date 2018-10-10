@@ -171,7 +171,7 @@ public class TestKeySerializers extends BaseMapTest
         // cannot use shared mapper as we are registering a module
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         String json = mapper.writeValueAsString(new ABCMapWrapper());
@@ -180,7 +180,7 @@ public class TestKeySerializers extends BaseMapTest
 
     public void testCustomNullSerializers() throws IOException
     {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule()
                         .setDefaultNullKeySerializer(new NullKeySerializer("NULL-KEY"))
                         .setDefaultNullValueSerializer(new NullValueSerializer("NULL"))
@@ -204,7 +204,7 @@ public class TestKeySerializers extends BaseMapTest
         SimpleModule mod = new SimpleModule("test");
         mod.setMixInAnnotation(ABC.class, ABCMixin.class);
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         JsonNode tree = mapper.convertValue(outerMap, JsonNode.class);
@@ -221,7 +221,7 @@ public class TestKeySerializers extends BaseMapTest
         TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY, JsonTypeInfo.Id.NAME, null)
             .typeIdVisibility(true);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .setDefaultTyping(typer)
                 .build();
@@ -237,7 +237,7 @@ public class TestKeySerializers extends BaseMapTest
     public void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)

@@ -49,7 +49,7 @@ public class TestScalars extends BaseMapTest
     /**********************************************************************
      */
 
-    final ObjectMapper MAPPER = newObjectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * Ensure that per-property dynamic types work, both for "native" types

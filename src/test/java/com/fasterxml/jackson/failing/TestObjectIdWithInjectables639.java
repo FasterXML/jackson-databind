@@ -63,7 +63,7 @@ public class TestObjectIdWithInjectables639 extends BaseMapTest
             Context context = new Context();
             InjectableValues iv = new InjectableValues.Std().
                     addValue(Context.class, context);
-            ObjectMapper mapper = ObjectMapper.builder()
+            ObjectMapper mapper = jsonMapperBuilder()
                     .injectableValues(iv)
                     .build();
 

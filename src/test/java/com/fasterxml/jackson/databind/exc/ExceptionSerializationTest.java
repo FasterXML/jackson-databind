@@ -96,7 +96,7 @@ public class ExceptionSerializationTest
         assertNotNull(result.get("bogus2"));
 
         // and then also remova second property with config overrides
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(ExceptionWithIgnoral.class,
                         o -> o.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("bogus2")))
                 .build();

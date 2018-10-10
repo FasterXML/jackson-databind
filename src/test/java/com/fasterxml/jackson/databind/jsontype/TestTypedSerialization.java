@@ -101,7 +101,7 @@ public class TestTypedSerialization
      */
     public void testTypeAsWrapper() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(Animal.class, TypeWithWrapper.class)
                 .build();
         Map<String,Object> result = writeAndMap(m, new Cat("Venla", "black"));
@@ -120,7 +120,7 @@ public class TestTypedSerialization
      */
     public void testTypeAsArray() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(Animal.class, TypeWithArray.class)
                 .build();
         // hmmh. Not good idea to rely on exact output, order may change. But...
@@ -151,7 +151,7 @@ public class TestTypedSerialization
     public void testInArray() throws Exception
     {
         // ensure we'll use mapper with default configs
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 // ... so this should NOT be needed...
                 .disableDefaultTyping()
                 .build();
@@ -184,7 +184,7 @@ public class TestTypedSerialization
      */
     public void testEmptyBean() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
                 .build();
         assertEquals("{\"@type\":\"empty\"}", m.writeValueAsString(new Empty()));

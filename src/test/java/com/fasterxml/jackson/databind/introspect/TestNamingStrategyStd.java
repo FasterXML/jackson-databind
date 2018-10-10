@@ -170,7 +170,7 @@ public class TestNamingStrategyStd extends BaseMapTest
                 {"uId", "u_id" },
     });
     
-    private static ObjectMapper _lcWithUndescoreMapper = ObjectMapper.builder()
+    private static ObjectMapper _lcWithUndescoreMapper = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
                 .build();
 
@@ -274,7 +274,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     // [databind#428]
     public void testIssue428PascalWithOverrides() throws Exception
     {
-        String json = ObjectMapper.builder()
+        String json = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
                 .build()
                 .writeValueAsString(new Bean428());
@@ -322,7 +322,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testSimpleKebabCase() throws Exception
     {
         final FirstNameBean input = new FirstNameBean("Bob");
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE)
                 .build();
 
@@ -344,7 +344,7 @@ public class TestNamingStrategyStd extends BaseMapTest
      */
     public void testNamingWithObjectNode() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE)
                 .build();
         ClassWithObjectNodeField result =
@@ -360,7 +360,7 @@ public class TestNamingStrategyStd extends BaseMapTest
 
     public void testExplicitRename() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
                 .build();
@@ -368,7 +368,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
                 m.writeValueAsString(new ExplicitBean()));
 
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)

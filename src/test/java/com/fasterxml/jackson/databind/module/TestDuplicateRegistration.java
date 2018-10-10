@@ -42,7 +42,7 @@ public class TestDuplicateRegistration extends BaseMapTest
     {
         // by default, duplicate registration should be prevented
         AtomicInteger counter = new AtomicInteger();
-        /*ObjectMapper mapper =*/ ObjectMapper.builder()
+        /*ObjectMapper mapper =*/ jsonMapperBuilder()
                 .addModule(new MyModule(counter, "id"))
                 .addModule(new MyModule(counter, "id"))
                 .addModule(new MyModule(counter, "id"))
@@ -51,7 +51,7 @@ public class TestDuplicateRegistration extends BaseMapTest
 
         // but may be allowed by using non-identical id
         AtomicInteger counter2 = new AtomicInteger();
-        /*ObjectMapper mapper2 =*/ ObjectMapper.builder()
+        /*ObjectMapper mapper2 =*/ jsonMapperBuilder()
                 .addModule(new MyModule(counter2, "id1"))
                 .addModule(new MyModule(counter2, "id2"))
                 .addModule(new MyModule(counter2, "id3"))

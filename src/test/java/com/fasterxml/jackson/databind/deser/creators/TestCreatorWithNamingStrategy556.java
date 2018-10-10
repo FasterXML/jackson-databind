@@ -57,7 +57,7 @@ public class TestCreatorWithNamingStrategy556
         }
     }
     
-    private final ObjectMapper MAPPER = ObjectMapper.builder()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             .propertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
             .annotationIntrospector(new MyParamIntrospector())
             .build();

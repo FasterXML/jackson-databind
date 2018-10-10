@@ -206,7 +206,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new CustomBeanSerializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         assertEquals(quote("abcde|5"), mapper.writeValueAsString(new CustomBean("abcde", 5)));
@@ -217,7 +217,7 @@ public class SimpleModuleTest extends BaseMapTest
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new SimpleEnumSerializer());
         // for fun, call "multi-module" registration
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
@@ -229,7 +229,7 @@ public class SimpleModuleTest extends BaseMapTest
         mod.addSerializer(new BaseSerializer());
         // and another variant here too
         List<SimpleModule> mods = Arrays.asList(mod);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModules(mods)
                 .build();
         assertEquals(quote("Base:1"), mapper.writeValueAsString(new Impl1()));
@@ -246,7 +246,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         CustomBean bean = mapper.readValue(quote("xyz|3"), CustomBean.class);
@@ -258,7 +258,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addDeserializer(SimpleEnum.class, new SimpleEnumDeserializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
         SimpleEnum result = mapper.readValue(quote("a"), SimpleEnum.class);
@@ -277,7 +277,7 @@ public class SimpleModuleTest extends BaseMapTest
         mod2.setDeserializers(new SimpleDeserializers(desers));
         mod2.addSerializer(CustomBean.class, new CustomBeanSerializer());
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod1)
                 .addModule(mod2)
                 .build();
@@ -286,7 +286,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertSame(SimpleEnum.A, result);
 
         // also let's try it with different order of registration, just in case
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .addModule(mod2)
                 .addModule(mod1)
                 .build();
@@ -300,7 +300,7 @@ public class SimpleModuleTest extends BaseMapTest
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
         AnotherSimpleModule mod2 = new AnotherSimpleModule("test2", Version.unknownVersion());
 
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod1)
                 .addModule(mod2)
                 .build();
@@ -322,7 +322,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.setMixInAnnotation(MixableBean.class, MixInForOrder.class);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         Map<String,Object> props = this.writeAndMap(mapper, new MixableBean());
@@ -351,7 +351,7 @@ public class SimpleModuleTest extends BaseMapTest
                 }
             }
         };
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         assertNotNull(mapper);

@@ -63,7 +63,7 @@ public class TransientTest extends BaseMapTest
                 MAPPER.writeValueAsString(new SimplePrunableTransient()));
 
         // but may change that
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
             .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
             .build();
         assertEquals(aposToQuotes("{'x':42}"),

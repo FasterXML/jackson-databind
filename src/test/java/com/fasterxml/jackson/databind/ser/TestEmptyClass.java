@@ -74,7 +74,7 @@ public class TestEmptyClass
         assertEquals("{}", serializeAsString(MAPPER, new EmptyWithAnno()));
 
         // Including class annotation through mix-ins
-        ObjectMapper m2 = ObjectMapper.builder()
+        ObjectMapper m2 = jsonMapperBuilder()
                 .addMixIn(Empty.class, EmptyWithAnno.class)
                 .build();
         assertEquals("{}", m2.writeValueAsString(new Empty()));

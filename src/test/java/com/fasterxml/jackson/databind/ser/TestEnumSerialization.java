@@ -220,7 +220,7 @@ public class TestEnumSerialization
     public void testEnumsWithJsonValueUsingMixin() throws Exception
     {
         // can't share, as new mix-ins are added
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(TestEnum.class, ToStringMixin.class)
                 .build();
         assertEquals("\"b\"", mapper.writeValueAsString(TestEnum.B));
@@ -246,7 +246,7 @@ public class TestEnumSerialization
 
     public void testToStringEnum() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
                 .build();
         assertEquals("\"b\"", m.writeValueAsString(LowerCaseEnum.B));
@@ -259,7 +259,7 @@ public class TestEnumSerialization
 
     public void testToStringEnumWithEnumMap() throws Exception
     {
-        ObjectMapper m =ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                 .build();
         EnumMap<LowerCaseEnum,String> enums = new EnumMap<LowerCaseEnum,String>(LowerCaseEnum.class);
@@ -297,7 +297,7 @@ public class TestEnumSerialization
         assertEquals(quote("B"), m.writeValueAsString(TestEnum.B));
 
         // but we can change (dynamically, too!) it to be number-based
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX)
                 .build();
         assertEquals("1", m.writeValueAsString(TestEnum.B));
@@ -315,7 +315,7 @@ public class TestEnumSerialization
         // By default, serialize using name
         SimpleModule module = new SimpleModule("foobar");
         module.addSerializer(Enum.class, new LowerCasingEnumSerializer());
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         assertEquals(quote("b"), mapper.writeValueAsString(TestEnum.B));

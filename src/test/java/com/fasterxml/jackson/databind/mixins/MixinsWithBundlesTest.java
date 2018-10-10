@@ -36,7 +36,7 @@ public class MixinsWithBundlesTest extends BaseMapTest
     }    
     public void testMixinWithBundles() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                .addMixIn(Foo.class, FooMixin.class)
                .build();
         String result = mapper.writeValueAsString(new Foo("result"));

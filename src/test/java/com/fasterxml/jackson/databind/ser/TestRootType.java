@@ -70,7 +70,7 @@ public class TestRootType
     /**********************************************************
      */
 
-    final ObjectMapper WRAP_ROOT_MAPPER = ObjectMapper.builder()
+    final ObjectMapper WRAP_ROOT_MAPPER = jsonMapperBuilder()
             .enable(SerializationFeature.WRAP_ROOT_VALUE)
             .build();
 
@@ -114,7 +114,7 @@ public class TestRootType
     public void testInArray() throws Exception
     {
         // must force static typing, otherwise won't matter a lot
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.USE_STATIC_TYPING)
                 .build();
         SubType[] ob = new SubType[] { new SubType() };

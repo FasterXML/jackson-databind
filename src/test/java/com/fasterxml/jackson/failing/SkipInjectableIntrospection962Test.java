@@ -48,7 +48,7 @@ public class SkipInjectableIntrospection962Test extends BaseMapTest
     public void testInjected() throws Exception
     {
         InjectMe im = new InjectMe(true);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new InjectableValues.Std().addValue(InjectMe.class, im))
                 .build();
         String test = "{\"b\":\"bbb\"}";

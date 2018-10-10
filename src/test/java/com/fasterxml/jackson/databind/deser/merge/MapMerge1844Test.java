@@ -36,7 +36,7 @@ public class MapMerge1844Test extends BaseMapTest
     // for [databind#1844]
     public void testMap1844() throws Exception
     {
-        final ObjectMapper mapper = objectMapperBuilder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .defaultMergeable(true)
                 .build();
 

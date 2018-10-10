@@ -81,7 +81,7 @@ public class BuilderWithTypeParametersTest
     }
 
     public void testWithBuilderInferringBindings() throws Exception {
-        final ObjectMapper mapper = ObjectMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
                 .build();
         final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");

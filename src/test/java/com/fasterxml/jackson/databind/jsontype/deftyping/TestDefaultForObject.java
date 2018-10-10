@@ -89,7 +89,7 @@ public class TestDefaultForObject
      */
     public void testBeanAsObject() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         // note: need to wrap, to get declared as Object
@@ -109,7 +109,7 @@ public class TestDefaultForObject
     // with 2.5, another test to check that "as-property" is valid option
     public void testBeanAsObjectUsingAsProperty() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, ".hype")
                 .build();
         // note: need to wrap, to get declared as Object
@@ -141,7 +141,7 @@ public class TestDefaultForObject
         }
         
         // and then that we will succeed with default type info
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
         serial = m.writeValueAsString(input);
@@ -158,13 +158,13 @@ public class TestDefaultForObject
     public void testNonFinalBean() throws Exception
     {
         // first: use "object or abstract" typing: should produce no type info:        
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
         StringBean bean = new StringBean("x");
         assertEquals("{\"name\":\"x\"}", m.writeValueAsString(bean));
         // then non-final, and voila:
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         assertEquals("[\""+StringBean.class.getName()+"\",{\"name\":\"x\"}]",
@@ -173,7 +173,7 @@ public class TestDefaultForObject
 
     public void testNullValue() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         BeanHolder h = new BeanHolder();
@@ -194,7 +194,7 @@ public class TestDefaultForObject
         assertEquals("[\"MAYBE\"]", serializeAsString(input2));
 
         // and then with it
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         String json = m.writeValueAsString(input);
@@ -218,7 +218,7 @@ public class TestDefaultForObject
     {
         EnumSet<Choice> set = EnumSet.of(Choice.NO);
         Object[] input = new Object[] { set };
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         String json = m.writeValueAsString(input);
@@ -238,7 +238,7 @@ public class TestDefaultForObject
         EnumMap<Choice,String> map = new EnumMap<Choice,String>(Choice.class);
         map.put(Choice.NO, "maybe");
         Object[] input = new Object[] { map };
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .enableDefaultTyping()
                 .build();
         String json = m.writeValueAsString(input);
@@ -254,7 +254,7 @@ public class TestDefaultForObject
 
     public void testJackson311() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         String json = mapper.writeValueAsString(new PolymorphicType("hello", 2));
@@ -266,7 +266,7 @@ public class TestDefaultForObject
     // Also, let's ensure TokenBuffer gets properly handled
     public void testTokenBuffer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         // Ok, first test JSON Object containing buffer:
@@ -321,7 +321,7 @@ public class TestDefaultForObject
 
     public void testIssue352() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping (DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
                 .build();
         DiscussBean d1 = new DiscussBean();
@@ -340,7 +340,7 @@ public class TestDefaultForObject
     // Test to ensure we can also use "As.PROPERTY" inclusion and custom property name
     public void testFeature432() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTypingAsProperty(DefaultTyping.OBJECT_AND_NON_CONCRETE, "*CLASS*")
                 .build();
         String json = mapper.writeValueAsString(new BeanHolder(new StringBean("punny")));
@@ -350,7 +350,7 @@ public class TestDefaultForObject
     public void testNoGoWithExternalProperty() throws Exception
     {
         try {
-            /*ObjectMapper mapper =*/ ObjectMapper.builder()
+            /*ObjectMapper mapper =*/ jsonMapperBuilder()
                     .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT,
                     JsonTypeInfo.As.EXTERNAL_PROPERTY)
                     .build();

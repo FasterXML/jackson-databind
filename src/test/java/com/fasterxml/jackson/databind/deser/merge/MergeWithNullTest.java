@@ -66,7 +66,7 @@ public class MergeWithNullTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = ObjectMapper.builder()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();
@@ -83,7 +83,7 @@ public class MergeWithNullTest extends BaseMapTest
 
         // First: via specific type override
         // important! We'll specify for value type to be merged
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(AB.class,
                         o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.SKIP)))
                 .build();
@@ -94,7 +94,7 @@ public class MergeWithNullTest extends BaseMapTest
         assertEquals(-3, config.loc.b);
 
         // Second: by global defaults
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.SKIP))
                 .build();
         config = mapper.readerForUpdating(new ConfigDefault(12, 34))

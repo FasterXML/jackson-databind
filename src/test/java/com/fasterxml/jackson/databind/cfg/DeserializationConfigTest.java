@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class DeserializationConfigTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testFeatureDefaults()
     {

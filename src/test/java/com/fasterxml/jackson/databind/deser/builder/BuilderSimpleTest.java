@@ -304,7 +304,7 @@ public class BuilderSimpleTest extends BaseMapTest
         }
 
         // but with config overrides should pass
-        ObjectMapper ignorantMapper = ObjectMapper.builder()
+        ObjectMapper ignorantMapper = jsonMapperBuilder()
                 .withConfigOverride(SimpleBuilderXY.class,
                         override -> override.setIgnorals(JsonIgnoreProperties.Value.forIgnoreUnknown(true)))
                 .build();
@@ -391,7 +391,7 @@ public class BuilderSimpleTest extends BaseMapTest
 
     public void testPOJOConfigResolution1557() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new NopModule1557())
                 .build();
         ValueFoo value = mapper.readValue("{\"value\":1}", ValueFoo.class);

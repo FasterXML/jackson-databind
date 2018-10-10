@@ -176,7 +176,7 @@ public class TestJsonNode extends NodeTestBase
     // [databind#793]
     public void testArrayWithDefaultTyping() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .enableDefaultTyping()
             .build();
         JsonNode array = mapper.readTree("[ 1, 2 ]");

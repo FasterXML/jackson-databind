@@ -85,7 +85,7 @@ public class ObjectMapperTest extends BaseMapTest
         // change
         VisibilityChecker customVis = VisibilityChecker.defaultInstance()
                 .withFieldVisibility(Visibility.ANY);
-        m = objectMapperBuilder()
+        m = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .changeDefaultVisibility(vc -> customVis)
                 .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.SKIP))
@@ -125,7 +125,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(dc.shouldSortPropertiesAlphabetically());
 
         // but when enabled, should be visible:
-        m = objectMapperBuilder()
+        m = jsonMapperBuilder()
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .build();
         sc = m.serializationConfig();

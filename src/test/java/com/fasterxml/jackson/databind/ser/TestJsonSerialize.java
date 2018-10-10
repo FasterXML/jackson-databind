@@ -125,7 +125,7 @@ public class TestJsonSerialize
 
     final ObjectMapper MAPPER = objectMapper();
 
-    private final ObjectMapper STATIC_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper STATIC_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
     
@@ -226,7 +226,7 @@ public class TestJsonSerialize
 
     public void testWithIsGetter() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc
                         .withVisibility(PropertyAccessor.GETTER, Visibility.NONE)
                         .withVisibility(PropertyAccessor.FIELD, Visibility.ANY)

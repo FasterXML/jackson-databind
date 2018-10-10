@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 public class TestForwardReference extends BaseMapTest {
 
-	private final ObjectMapper MAPPER = ObjectMapper.builder()
+	private final ObjectMapper MAPPER = jsonMapperBuilder()
 	        .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
 	        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 	        .enable(SerializationFeature.INDENT_OUTPUT)

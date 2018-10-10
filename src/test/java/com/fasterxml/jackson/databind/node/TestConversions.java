@@ -131,7 +131,7 @@ public class TestConversions extends BaseMapTest
     public void testTreeToValue() throws Exception
     {
         String JSON = "{\"leaf\":{\"value\":13}}";
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(Leaf.class, LeafMixIn.class)
                 .build();
         JsonNode root = mapper.readTree(JSON);

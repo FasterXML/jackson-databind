@@ -18,7 +18,7 @@ public class DateFormatTest extends BaseMapTest
 
     public void testTypeDefaults() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Date.class,
                         o -> o.setFormat(JsonFormat.Value.forPattern("yyyy.dd.MM")))
                 .build();

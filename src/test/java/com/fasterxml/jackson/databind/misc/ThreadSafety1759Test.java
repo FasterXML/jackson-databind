@@ -19,7 +19,7 @@ public class ThreadSafety1759Test extends BaseMapTest
 
     public void testCalendarForDeser() throws Exception
     {
-        final ObjectMapper mapper = newObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
 
         final int numThreads = 4;
         final int COUNT = 3000;

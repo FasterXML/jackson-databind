@@ -126,7 +126,7 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
 );
         final DeserializationProblemLogger logger = new DeserializationProblemLogger();
 
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .addHandler(logger)
                 .build();

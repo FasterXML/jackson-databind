@@ -140,7 +140,7 @@ public class TestViewSerialization
         assertEquals("2", map.get("b"));
 
         // but can also change (but not necessarily on the fly...)
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .build();
 
@@ -181,7 +181,7 @@ public class TestViewSerialization
     // [JACKSON-868]
     public void test868() throws IOException
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
         assertEquals("{}",

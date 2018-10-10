@@ -88,7 +88,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testBooleanDelegate() throws Exception
     {
@@ -104,7 +104,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     // As per [JACKSON-711]: should also work with delegate model (single non-annotated arg)
     public void testWithCtorAndDelegate() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new InjectableValues.Std()
                         .addValue(String.class, "Pooka"))
                 .build();
@@ -120,7 +120,7 @@ public class TestCreatorsDelegating extends BaseMapTest
 
     public void testWithFactoryAndDelegate() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new InjectableValues.Std()
                         .addValue(String.class, "Fygar"))
                 .build();

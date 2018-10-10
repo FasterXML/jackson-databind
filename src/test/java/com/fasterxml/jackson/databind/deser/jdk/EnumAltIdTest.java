@@ -41,7 +41,7 @@ public class EnumAltIdTest extends BaseMapTest
      */
 
     protected final ObjectMapper MAPPER = new ObjectMapper();
-    protected final ObjectMapper MAPPER_IGNORE_CASE = ObjectMapper.builder()
+    protected final ObjectMapper MAPPER_IGNORE_CASE = jsonMapperBuilder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
             .build();
 

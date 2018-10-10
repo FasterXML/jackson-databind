@@ -151,7 +151,7 @@ public class NodeContext2049Test extends BaseMapTest
                 context.addDeserializerModifier(new ParentSettingDeserializerModifier());
             }
         };
-        objectMapper = ObjectMapper.builder()
+        objectMapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
     }

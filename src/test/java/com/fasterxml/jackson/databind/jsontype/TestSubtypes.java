@@ -153,7 +153,7 @@ public class TestSubtypes extends BaseMapTest
     public void testPropertyWithSubtypes() throws Exception
     {
         // must register subtypes
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(SubB.class, SubC.class, SubD.class)
                 .build();
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
@@ -166,7 +166,7 @@ public class TestSubtypes extends BaseMapTest
     {
         SimpleModule module = new SimpleModule();
         module.registerSubtypes(SubB.class, SubC.class, SubD.class);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
@@ -180,7 +180,7 @@ public class TestSubtypes extends BaseMapTest
         l.add(SubC.class);
         l.add(SubD.class);
         module.registerSubtypes(l);
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
         json = mapper.writeValueAsString(new PropertyBean(new SubC()));
@@ -195,7 +195,7 @@ public class TestSubtypes extends BaseMapTest
         assertEquals("{\"@type\":\"TypeB\",\"b\":1}", MAPPER.writeValueAsString(bean));
 
         // but we can override type name here too
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(new NamedType(SubB.class, "typeB"))
                 .build();
         assertEquals("{\"@type\":\"typeB\",\"b\":1}", mapper.writeValueAsString(bean));
@@ -206,7 +206,7 @@ public class TestSubtypes extends BaseMapTest
 
     public void testDeserializationNonNamed() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(SubC.class)
                 .build();
         // default name should be unqualified class name
@@ -217,7 +217,7 @@ public class TestSubtypes extends BaseMapTest
 
     public void testDeserializatioNamed() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(SubB.class)
                 .registerSubtypes(new NamedType(SubD.class, "TypeD"))
                 .build();
@@ -235,20 +235,20 @@ public class TestSubtypes extends BaseMapTest
     public void testEmptyBean() throws Exception
     {
         // First, with annotations
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true)
                 .build();
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
 
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
                 .build();
         json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
 
         // and then with defaults
-        mapper = ObjectMapper.builder()
+        mapper = jsonMapperBuilder()
             .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
             .enableDefaultTyping(DefaultTyping.NON_FINAL)
             .build();

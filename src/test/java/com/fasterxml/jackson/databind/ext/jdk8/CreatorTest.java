@@ -28,7 +28,7 @@ public class CreatorTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * Test to ensure that creator parameters use defaulting

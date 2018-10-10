@@ -10,11 +10,11 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 // for [databind#1106]
 public class ScalarCoercionTest extends BaseMapTest
 {
-    private final ObjectMapper COERCING_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper COERCING_MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 
-    private final ObjectMapper NOT_COERCING_MAPPER = ObjectMapper.builder()
+    private final ObjectMapper NOT_COERCING_MAPPER = jsonMapperBuilder()
             .disable(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 

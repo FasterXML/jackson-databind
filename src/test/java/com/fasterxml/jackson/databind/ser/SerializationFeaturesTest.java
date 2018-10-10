@@ -98,7 +98,7 @@ public class SerializationFeaturesTest
     public void testFlushingNotAutomatic() throws IOException
     {
         // but should not occur if configured otherwise
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, false)
                 .build();
         StringWriter sw = new StringWriter();

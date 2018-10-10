@@ -80,7 +80,7 @@ public class TestObjectIdWithEquals extends BaseMapTest
 
     public void testSimpleEquals() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
                 .build();
 
@@ -122,7 +122,7 @@ public class TestObjectIdWithEquals extends BaseMapTest
 //        Element[] input = new Element[] { element, element2 };
         List<Element> input = Arrays.asList(element, element2);
 
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
                 .build();
 

@@ -75,7 +75,7 @@ public class TestDefaultForMaps
                 JsonTypeInfo.As.PROPERTY);
 //        serializerTyper = serializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(true));
 //        serializerTyper = serializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
-        ObjectMapper serMapper = ObjectMapper.builder()
+        ObjectMapper serMapper = jsonMapperBuilder()
                 .setDefaultTyping(serializerTyper)
                 .build();
 
@@ -92,7 +92,7 @@ public class TestDefaultForMaps
                 JsonTypeInfo.As.PROPERTY);
 //        deserializerTyper = deserializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(false));
 //        deserializerTyper = deserializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
-        ObjectMapper deserMapper = ObjectMapper.builder()
+        ObjectMapper deserMapper = jsonMapperBuilder()
                 .setDefaultTyping(deserializerTyper)
                 .build();
         MapHolder result = deserMapper.readValue(json, MapHolder.class);
@@ -123,7 +123,7 @@ public class TestDefaultForMaps
 
     public void testList() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
                 .build();
         ItemList child = new ItemList();
@@ -140,7 +140,7 @@ public class TestDefaultForMaps
 
     public void testMap() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
                 .build();
         ItemMap child = new ItemMap();

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 // trivial tests visitor used (mostly) for JSON Schema generation
 public class SchemaVisitorTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [datatype-jdk8#25]
     public void testOptionalInteger() throws Exception

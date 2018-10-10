@@ -259,7 +259,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testPropertyRemoval() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SerializerModifierModule(new RemovingModifier("a")))
                 .build();
         Bean bean = new Bean();
@@ -268,7 +268,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testPropertyReorder() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SerializerModifierModule(new ReorderingModifier()))
                 .build();
         Bean bean = new Bean();
@@ -277,7 +277,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testBuilderReplacement() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SerializerModifierModule(new BuilderModifier(new BogusBeanSerializer(17))))
                 .build();
         Bean bean = new Bean();
@@ -285,7 +285,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
     }    
     public void testSerializerReplacement() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SerializerModifierModule(new ReplacingModifier(new BogusBeanSerializer(123))))
                 .build();
         Bean bean = new Bean();
@@ -294,7 +294,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testEmptyBean() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test", Version.unknownVersion()) {
             @Override
             public void setupModule(SetupContext context)
@@ -310,7 +310,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testEmptyBean539() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test", Version.unknownVersion()) {
             @Override
             public void setupModule(SetupContext context)
@@ -328,7 +328,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testModifyArraySerializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setSerializerModifier(new ArraySerializerModifier()))
                 .build();
@@ -337,7 +337,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testModifyCollectionSerializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setSerializerModifier(new CollectionSerializerModifier()))
                 .build();
@@ -346,7 +346,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testModifyMapSerializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setSerializerModifier(new MapSerializerModifier()))
                 .build();
@@ -355,7 +355,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testModifyEnumSerializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setSerializerModifier(new EnumSerializerModifier()))
                 .build();
@@ -364,7 +364,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
     public void testModifyKeySerializer() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
                         .setSerializerModifier(new KeySerializerModifier()))
                 .build();

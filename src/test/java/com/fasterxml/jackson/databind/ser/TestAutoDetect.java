@@ -70,7 +70,7 @@ public class TestAutoDetect
 
     public void testPrivateUsingGlobals() throws Exception
     {
-        ObjectMapper m = ObjectMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
                     vc.withFieldVisibility(JsonAutoDetect.Visibility.ANY))
                 .build();
@@ -81,7 +81,7 @@ public class TestAutoDetect
         assertEquals("protected", result.get("p2"));
         assertEquals("private", result.get("p3"));
 
-        m = ObjectMapper.builder()
+        m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
                     vc.withGetterVisibility(JsonAutoDetect.Visibility.ANY)
                     )
@@ -96,7 +96,7 @@ public class TestAutoDetect
     // [JACKSON-621]
     public void testBasicSetup() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc ->
                     vc.with(JsonAutoDetect.Visibility.ANY))
                 .build();
@@ -110,7 +110,7 @@ public class TestAutoDetect
     // [JACKSON-595]
     public void testMapperShortcutMethods() throws Exception
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc
                         .withVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY))
                 .build();

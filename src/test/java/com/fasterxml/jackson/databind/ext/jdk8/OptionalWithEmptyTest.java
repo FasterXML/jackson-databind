@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class OptionalWithEmptyTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     static class BooleanBean {
         public Optional<Boolean> value;

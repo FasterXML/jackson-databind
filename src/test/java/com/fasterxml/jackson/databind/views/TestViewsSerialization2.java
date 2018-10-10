@@ -143,7 +143,7 @@ public class TestViewsSerialization2 extends BaseMapTest
 
     private ObjectMapper createMapper()
     {
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .disable( SerializationFeature.FAIL_ON_EMPTY_BEANS)

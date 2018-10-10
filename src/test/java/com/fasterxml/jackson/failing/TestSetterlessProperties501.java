@@ -50,7 +50,7 @@ public class TestSetterlessProperties501
     public void testSetterlessWithPolymorphic() throws Exception
     {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enableDefaultTyping(DefaultTyping.NON_FINAL)
                 .build();
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(input);

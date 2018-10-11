@@ -2,7 +2,8 @@ package com.fasterxml.jackson.databind.json;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.json.JsonFactory;
-
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperBuilderState;
@@ -37,6 +38,60 @@ public class JsonMapper extends ObjectMapper
         @Override
         protected MapperBuilderState _saveState() {
             return new StateImpl(this);
+        }
+
+        /*
+        /******************************************************************
+        /* Format features
+        /******************************************************************
+         */
+
+        public Builder enable(JsonReadFeature... features) {
+            for (JsonReadFeature f : features) {
+                _formatParserFeatures |= f.getMask();
+            }
+            return this;
+        }
+
+        public Builder disable(JsonReadFeature... features) {
+            for (JsonReadFeature f : features) {
+                _formatParserFeatures &= ~f.getMask();
+            }
+            return this;
+        }
+
+        public Builder configure(JsonReadFeature feature, boolean state)
+        {
+            if (state) {
+                _formatParserFeatures |= feature.getMask();
+            } else {
+                _formatParserFeatures &= ~feature.getMask();
+            }
+            return this;
+        }
+
+        public Builder enable(JsonWriteFeature... features) {
+            for (JsonWriteFeature f : features) {
+                _formatGeneratorFeatures |= f.getMask();
+            }
+            return this;
+        }
+
+        public Builder disable(JsonWriteFeature... features) {
+            for (JsonWriteFeature f : features) {
+                _formatGeneratorFeatures &= ~f.getMask();
+            }
+            return this;
+        }
+
+        public Builder configure(JsonWriteFeature feature, boolean state)
+        {
+            if (state) {
+                _formatGeneratorFeatures |= feature.getMask();
+            } else {
+                _formatGeneratorFeatures &= ~feature.getMask();
+            }
+            return this;
         }
 
         protected static class StateImpl extends MapperBuilderState

@@ -100,8 +100,8 @@ public class ObjectMapper
      */
 
     /**
-     * Base implementation for "Vanilla" {@link ObjectMapper}, used with JSON backend
-     * as well as for some of simpler formats that do not require mapper level overrides.
+     * Base implementation for "Vanilla" {@link ObjectMapper}, only defined to support
+     * backwards-compatibility with some of 2.x usage patterns.
      */
     private static class PrivateBuilder extends MapperBuilder<ObjectMapper, PrivateBuilder>
     {

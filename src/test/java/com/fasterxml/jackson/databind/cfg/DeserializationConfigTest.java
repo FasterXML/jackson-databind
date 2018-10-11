@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import java.util.Collections;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.*;
 
 public class DeserializationConfigTest extends BaseMapTest
@@ -53,16 +54,18 @@ public class DeserializationConfigTest extends BaseMapTest
 
     public void testFormatFeatures() throws Exception
     {
+        final JsonReadFeature DISABLED_BY_DEFAULT = JsonReadFeature.ALLOW_JAVA_COMMENTS;
+        final JsonReadFeature DISABLED_BY_DEFAULT2 = JsonReadFeature.ALLOW_MISSING_VALUES;
         DeserializationConfig config = MAPPER.deserializationConfig();
-        DeserializationConfig config2 = config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT);
+        DeserializationConfig config2 = config.with(DISABLED_BY_DEFAULT);
         assertNotSame(config, config2);
-        DeserializationConfig config3 = config.withFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
-                BogusFormatFeature.FF_ENABLED_BY_DEFAULT);
+        DeserializationConfig config3 = config.withFeatures(DISABLED_BY_DEFAULT2,
+                DISABLED_BY_DEFAULT);
         assertNotSame(config, config3);
 
-        assertNotSame(config3, config3.without(BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
-        assertNotSame(config3, config3.withoutFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
-                BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
+        assertNotSame(config3, config3.without(DISABLED_BY_DEFAULT));
+        assertNotSame(config3, config3.withoutFeatures(DISABLED_BY_DEFAULT2,
+                DISABLED_BY_DEFAULT));
     }
 
     /* Test to verify that we don't overflow number of features; if we

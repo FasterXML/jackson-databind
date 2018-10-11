@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import java.util.Collections;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
 
 public class SerConfigTest extends BaseMapTest
@@ -52,15 +52,19 @@ public class SerConfigTest extends BaseMapTest
 
     public void testFormatFeatures() throws Exception
     {
+        final JsonWriteFeature DUSABLED_BY_DEFAULT = JsonWriteFeature.ESCAPE_NON_ASCII;
+        final JsonWriteFeature ENABLED_BY_DEFAULT = JsonWriteFeature.QUOTE_FIELD_NAMES;
+
         SerializationConfig config = MAPPER.serializationConfig();
-        SerializationConfig config2 = config.with(BogusFormatFeature.FF_DISABLED_BY_DEFAULT);
+        // feature that is NOT enabled by default
+        SerializationConfig config2 = config.with(DUSABLED_BY_DEFAULT);
         assertNotSame(config, config2);
-        SerializationConfig config3 = config.withFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
-                BogusFormatFeature.FF_ENABLED_BY_DEFAULT);
+        // and then with one that IS enabled by default:
+        SerializationConfig config3 = config.withFeatures(DUSABLED_BY_DEFAULT, ENABLED_BY_DEFAULT);
         assertNotSame(config, config3);
 
-        assertNotSame(config3, config3.without(BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
-        assertNotSame(config3, config3.withoutFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
-                BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
+        assertNotSame(config3, config3.without(ENABLED_BY_DEFAULT));
+        assertNotSame(config3, config3.withoutFeatures(DUSABLED_BY_DEFAULT,
+                ENABLED_BY_DEFAULT));
     }
 }

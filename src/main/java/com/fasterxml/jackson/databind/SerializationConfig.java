@@ -63,7 +63,7 @@ public final class SerializationConfig
     /**
      * States of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable.
      */
-    protected final int _generatorFeatures;
+    protected final int _streamWriteFeatures;
 
     /**
      * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
@@ -89,7 +89,7 @@ public final class SerializationConfig
         super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
         _serFeatures = serFeatures;
         _filterProvider = filterProvider;
-        _generatorFeatures = genFeatures;
+        _streamWriteFeatures = genFeatures;
         _formatWriteFeatures = formatWriteFeatures;
         _defaultPrettyPrinter = b.defaultPrettyPrinter();
     }
@@ -108,7 +108,7 @@ public final class SerializationConfig
         _serFeatures = serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = generatorFeatures;
+        _streamWriteFeatures = generatorFeatures;
         _formatWriteFeatures = formatWriteFeatures;
     }
     
@@ -118,7 +118,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
@@ -128,7 +128,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = filters;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
@@ -138,7 +138,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
@@ -148,7 +148,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
@@ -158,7 +158,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
@@ -168,7 +168,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = defaultPP;
-        _generatorFeatures = src._generatorFeatures;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
@@ -241,7 +241,7 @@ public final class SerializationConfig
         int newSerFeatures = _serFeatures | feature.getMask();
         return (newSerFeatures == _serFeatures) ? this
                 : new SerializationConfig(this,
-                        newSerFeatures, _generatorFeatures, _formatWriteFeatures);
+                        newSerFeatures, _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /**
@@ -256,7 +256,7 @@ public final class SerializationConfig
         }
         return (newSerFeatures == _serFeatures) ? this
                 : new SerializationConfig(this,
-                        newSerFeatures, _generatorFeatures, _formatWriteFeatures);
+                        newSerFeatures, _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /**
@@ -271,7 +271,7 @@ public final class SerializationConfig
         }
         return (newSerFeatures == _serFeatures) ? this
                 : new SerializationConfig(this,
-                        newSerFeatures, _generatorFeatures, _formatWriteFeatures);
+                        newSerFeatures, _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /**
@@ -283,7 +283,7 @@ public final class SerializationConfig
         int newSerFeatures = _serFeatures & ~feature.getMask();
         return (newSerFeatures == _serFeatures) ? this
                 : new SerializationConfig(this,
-                        newSerFeatures, _generatorFeatures,  _formatWriteFeatures);
+                        newSerFeatures, _streamWriteFeatures,  _formatWriteFeatures);
     }
 
     /**
@@ -298,7 +298,7 @@ public final class SerializationConfig
         }
         return (newSerFeatures == _serFeatures) ? this
                 : new SerializationConfig(this, newSerFeatures,
-                        _generatorFeatures, _formatWriteFeatures);
+                        _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /**
@@ -313,7 +313,7 @@ public final class SerializationConfig
         }
         return (newSerFeatures == _serFeatures) ? this
                 : new SerializationConfig(this, newSerFeatures,
-                        _generatorFeatures, _formatWriteFeatures);
+                        _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /*
@@ -328,8 +328,8 @@ public final class SerializationConfig
      */
     public SerializationConfig with(JsonGenerator.Feature feature)
     {
-        int newSet = _generatorFeatures | feature.getMask();
-        return (_generatorFeatures == newSet) ? this :
+        int newSet = _streamWriteFeatures | feature.getMask();
+        return (_streamWriteFeatures == newSet) ? this :
             new SerializationConfig(this, _serFeatures, newSet,
                     _formatWriteFeatures);
     }
@@ -340,11 +340,11 @@ public final class SerializationConfig
      */
     public SerializationConfig withFeatures(JsonGenerator.Feature... features)
     {
-        int newSet = _generatorFeatures;
+        int newSet = _streamWriteFeatures;
         for (JsonGenerator.Feature f : features) {
             newSet |= f.getMask();
         }
-        return (_generatorFeatures == newSet) ? this :
+        return (_streamWriteFeatures == newSet) ? this :
             new SerializationConfig(this, _serFeatures, newSet,
                     _formatWriteFeatures);
     }
@@ -355,8 +355,8 @@ public final class SerializationConfig
      */
     public SerializationConfig without(JsonGenerator.Feature feature)
     {
-        int newSet = _generatorFeatures & ~feature.getMask();
-        return (_generatorFeatures == newSet) ? this :
+        int newSet = _streamWriteFeatures & ~feature.getMask();
+        return (_streamWriteFeatures == newSet) ? this :
             new SerializationConfig(this, _serFeatures, newSet,
                     _formatWriteFeatures);
     }
@@ -367,11 +367,11 @@ public final class SerializationConfig
      */
     public SerializationConfig withoutFeatures(JsonGenerator.Feature... features)
     {
-        int newSet = _generatorFeatures;
+        int newSet = _streamWriteFeatures;
         for (JsonGenerator.Feature f : features) {
             newSet &= ~f.getMask();
         }
-        return (_generatorFeatures == newSet) ? this :
+        return (_streamWriteFeatures == newSet) ? this :
             new SerializationConfig(this, _serFeatures, newSet,
                     _formatWriteFeatures);
     }
@@ -391,7 +391,7 @@ public final class SerializationConfig
         int newSet = _formatWriteFeatures | feature.getMask();
         return (_formatWriteFeatures == newSet) ? this :
             new SerializationConfig(this,
-                    _serFeatures, _generatorFeatures, newSet);
+                    _serFeatures, _streamWriteFeatures, newSet);
     }
 
     /**
@@ -406,7 +406,7 @@ public final class SerializationConfig
         }
         return (_formatWriteFeatures == newSet) ? this :
             new SerializationConfig(this,
-                    _serFeatures, _generatorFeatures, newSet);
+                    _serFeatures, _streamWriteFeatures, newSet);
     }
 
     /**
@@ -418,7 +418,7 @@ public final class SerializationConfig
         int newSet = _formatWriteFeatures & ~feature.getMask();
         return (_formatWriteFeatures == newSet) ? this :
             new SerializationConfig(this,
-                    _serFeatures, _generatorFeatures, newSet);
+                    _serFeatures, _streamWriteFeatures, newSet);
     }
 
     /**
@@ -432,7 +432,7 @@ public final class SerializationConfig
             newSet &= ~f.getMask();
         }
         return (_formatWriteFeatures == newSet) ? this :
-            new SerializationConfig(this, _serFeatures, _generatorFeatures, newSet);
+            new SerializationConfig(this, _serFeatures, _streamWriteFeatures, newSet);
     }
 
     /*
@@ -473,7 +473,7 @@ public final class SerializationConfig
      * @since 3.0
      */
     public int getGeneratorFeatures() {
-        return _generatorFeatures;
+        return _streamWriteFeatures;
     }
 
     /**
@@ -508,7 +508,7 @@ public final class SerializationConfig
      * factory.
      */
     public final boolean isEnabled(JsonGenerator.Feature f) {
-        return (_generatorFeatures & f.getMask()) != 0;
+        return (_streamWriteFeatures & f.getMask()) != 0;
     }
     
     /**

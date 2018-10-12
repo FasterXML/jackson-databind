@@ -40,12 +40,12 @@ public final class DeserializationConfig
     /**
      * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
      */
-    protected final int _parserFeatures;
+    protected final int _streamReadFeatures;
 
     /**
      * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
      */
-    protected final int _formatParserFeatures;
+    protected final int _formatReadFeatures;
 
     /*
     /**********************************************************************
@@ -88,8 +88,8 @@ public final class DeserializationConfig
     {
         super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
         _deserFeatures = deserFeatures;
-        _parserFeatures = parserFeatures;
-        _formatParserFeatures = formatParserFeatures;
+        _streamReadFeatures = parserFeatures;
+        _formatReadFeatures = formatParserFeatures;
         _problemHandlers = b.deserializationProblemHandlers();
         _abstractTypeResolvers = atrs;
     }
@@ -107,8 +107,8 @@ public final class DeserializationConfig
     {
         super(src);
         _deserFeatures = deserFeatures;
-        _parserFeatures = parserFeatures;
-        _formatParserFeatures = formatParserFeatures;
+        _streamReadFeatures = parserFeatures;
+        _formatReadFeatures = formatParserFeatures;
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
@@ -117,8 +117,8 @@ public final class DeserializationConfig
     {
         super(src, base);
         _deserFeatures = src._deserFeatures;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
+        _streamReadFeatures = src._streamReadFeatures;
+        _formatReadFeatures = src._formatReadFeatures;
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
@@ -129,8 +129,8 @@ public final class DeserializationConfig
     {
         super(src);
         _deserFeatures = src._deserFeatures;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
+        _streamReadFeatures = src._streamReadFeatures;
+        _formatReadFeatures = src._formatReadFeatures;
         _problemHandlers = problemHandlers;
         _abstractTypeResolvers = atr;
     }
@@ -140,8 +140,8 @@ public final class DeserializationConfig
         super(src, rootName);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
+        _streamReadFeatures = src._streamReadFeatures;
+        _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
@@ -150,8 +150,8 @@ public final class DeserializationConfig
         super(src, view);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
+        _streamReadFeatures = src._streamReadFeatures;
+        _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
@@ -160,8 +160,8 @@ public final class DeserializationConfig
         super(src, attrs);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
+        _streamReadFeatures = src._streamReadFeatures;
+        _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
@@ -221,8 +221,8 @@ public final class DeserializationConfig
     {
         int newDeserFeatures = (_deserFeatures | feature.getMask());
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, newDeserFeatures, _parserFeatures,
-                    _formatParserFeatures);
+            new DeserializationConfig(this, newDeserFeatures, _streamReadFeatures,
+                    _formatReadFeatures);
     }
 
     /**
@@ -237,8 +237,8 @@ public final class DeserializationConfig
             newDeserFeatures |= f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, newDeserFeatures, _parserFeatures,
-                    _formatParserFeatures);
+            new DeserializationConfig(this, newDeserFeatures, _streamReadFeatures,
+                    _formatReadFeatures);
     }
 
     /**
@@ -253,7 +253,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, newDeserFeatures,
-                    _parserFeatures, _formatParserFeatures);
+                    _streamReadFeatures, _formatReadFeatures);
     }
     
     /**
@@ -265,7 +265,7 @@ public final class DeserializationConfig
         int newDeserFeatures = _deserFeatures & ~feature.getMask();
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, newDeserFeatures,
-                    _parserFeatures, _formatParserFeatures);
+                    _streamReadFeatures, _formatReadFeatures);
     }
 
     /**
@@ -280,8 +280,8 @@ public final class DeserializationConfig
             newDeserFeatures &= ~f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, newDeserFeatures, _parserFeatures,
-                    _formatParserFeatures);
+            new DeserializationConfig(this, newDeserFeatures, _streamReadFeatures,
+                    _formatReadFeatures);
     }
 
     /**
@@ -296,7 +296,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this,
-                    newDeserFeatures, _parserFeatures, _formatParserFeatures);
+                    newDeserFeatures, _streamReadFeatures, _formatReadFeatures);
     }
 
     /*
@@ -311,10 +311,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig with(JsonParser.Feature feature)
     {
-        int newSet = _parserFeatures | feature.getMask();
-        return (_parserFeatures == newSet)? this :
+        int newSet = _streamReadFeatures | feature.getMask();
+        return (_streamReadFeatures == newSet)? this :
             new DeserializationConfig(this,
-                    _deserFeatures, newSet, _formatParserFeatures);
+                    _deserFeatures, newSet, _formatReadFeatures);
     }
 
     /**
@@ -323,13 +323,13 @@ public final class DeserializationConfig
      */
     public DeserializationConfig withFeatures(JsonParser.Feature... features)
     {
-        int newSet = _parserFeatures;
+        int newSet = _streamReadFeatures;
         for (JsonParser.Feature f : features) {
             newSet |= f.getMask();
         }
-        return (_parserFeatures == newSet) ? this :
+        return (_streamReadFeatures == newSet) ? this :
             new DeserializationConfig(this, _deserFeatures, newSet,
-                    _formatParserFeatures);
+                    _formatReadFeatures);
     }
     
     /**
@@ -338,10 +338,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig without(JsonParser.Feature feature)
     {
-        int newSet = _parserFeatures & ~feature.getMask();
-        return (_parserFeatures == newSet) ? this :
+        int newSet = _streamReadFeatures & ~feature.getMask();
+        return (_streamReadFeatures == newSet) ? this :
             new DeserializationConfig(this, _deserFeatures, newSet,
-                    _formatParserFeatures);
+                    _formatReadFeatures);
     }
 
     /**
@@ -350,12 +350,12 @@ public final class DeserializationConfig
      */
     public DeserializationConfig withoutFeatures(JsonParser.Feature... features)
     {
-        int newSet = _parserFeatures;
+        int newSet = _streamReadFeatures;
         for (JsonParser.Feature f : features) {
             newSet &= ~f.getMask();
         }
-        return (_parserFeatures == newSet)? this :
-            new DeserializationConfig(this, _deserFeatures, newSet, _formatParserFeatures);
+        return (_streamReadFeatures == newSet)? this :
+            new DeserializationConfig(this, _deserFeatures, newSet, _formatReadFeatures);
     }
 
     /*
@@ -370,10 +370,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig with(FormatFeature feature)
     {
-        int newSet = _formatParserFeatures | feature.getMask();
-        return (_formatParserFeatures == newSet) ? this
+        int newSet = _formatReadFeatures | feature.getMask();
+        return (_formatReadFeatures == newSet) ? this
                 : new DeserializationConfig(this,
-                        _deserFeatures, _parserFeatures,  newSet);
+                        _deserFeatures, _streamReadFeatures,  newSet);
     }
 
     /**
@@ -382,13 +382,13 @@ public final class DeserializationConfig
      */
     public DeserializationConfig withFeatures(FormatFeature... features)
     {
-        int newSet = _formatParserFeatures;
+        int newSet = _formatReadFeatures;
         for (FormatFeature f : features) {
             newSet |= f.getMask();
         }
-        return (_formatParserFeatures == newSet) ? this
+        return (_formatReadFeatures == newSet) ? this
                 : new DeserializationConfig(this,
-                        _deserFeatures, _parserFeatures, newSet);
+                        _deserFeatures, _streamReadFeatures, newSet);
     }
 
     /**
@@ -397,10 +397,10 @@ public final class DeserializationConfig
      */
     public DeserializationConfig without(FormatFeature feature)
     {
-        int newSet = _formatParserFeatures & ~feature.getMask();
-        return (_formatParserFeatures == newSet) ? this
+        int newSet = _formatReadFeatures & ~feature.getMask();
+        return (_formatReadFeatures == newSet) ? this
                 : new DeserializationConfig(this,
-                        _deserFeatures, _parserFeatures, newSet);
+                        _deserFeatures, _streamReadFeatures, newSet);
     }
 
     /**
@@ -409,13 +409,13 @@ public final class DeserializationConfig
      */
     public DeserializationConfig withoutFeatures(FormatFeature... features)
     {
-        int newSet = _formatParserFeatures;
+        int newSet = _formatReadFeatures;
         for (FormatFeature f : features) {
             newSet &= ~f.getMask();
         }
-        return (_formatParserFeatures == newSet) ? this
+        return (_formatReadFeatures == newSet) ? this
                 : new DeserializationConfig(this,
-                        _deserFeatures, _parserFeatures, newSet);
+                        _deserFeatures, _streamReadFeatures, newSet);
     }
 
     /*
@@ -457,14 +457,14 @@ public final class DeserializationConfig
      * @since 3.0
      */
     public int getParserFeatures() {
-        return _parserFeatures;
+        return _streamReadFeatures;
     }
 
     /**
      * @since 3.0
      */
     public int getFormatReadFeatures() {
-        return _formatParserFeatures;
+        return _formatReadFeatures;
     }
 
     /*
@@ -487,7 +487,7 @@ public final class DeserializationConfig
     }
 
     public final boolean isEnabled(JsonParser.Feature f) {
-        return (_parserFeatures & f.getMask()) != 0;
+        return (_streamReadFeatures & f.getMask()) != 0;
     }
 
     /**

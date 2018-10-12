@@ -207,22 +207,22 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
      */
-    protected int _parserFeatures;
+    protected int _streamReadFeatures;
 
     /**
      * States of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable.
      */
-    protected int _generatorFeatures;
+    protected int _streamWriteFeatures;
 
     /**
      * Optional per-format parser feature flags.
      */
-    protected int _formatParserFeatures;
+    protected int _formatReadFeatures;
 
     /**
      * Optional per-format generator feature flags.
      */
-    protected int _formatGeneratorFeatures;
+    protected int _formatWriteFeatures;
 
     /*
     /**********************************************************************
@@ -251,10 +251,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _configOverrides = new ConfigOverrides();
         _modules = null;
 
-        _parserFeatures = streamFactory.getParserFeatures();
-        _generatorFeatures = streamFactory.getGeneratorFeatures();
-        _formatParserFeatures = streamFactory.getFormatParserFeatures();
-        _formatGeneratorFeatures = streamFactory.getFormatGeneratorFeatures();
+        _streamReadFeatures = streamFactory.getStreamReadFeatures();
+        _streamWriteFeatures = streamFactory.getStreamWriteFeatures();
+        _formatReadFeatures = streamFactory.getFormatReadFeatures();
+        _formatWriteFeatures = streamFactory.getFormatWriteFeatures();
 
         _mapperFeatures = DEFAULT_MAPPER_FEATURES;
         // Some overrides we may need based on format
@@ -293,10 +293,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _baseSettings = state._baseSettings;
         _configOverrides = Snapshottable.takeSnapshot(state._configOverrides);
 
-        _parserFeatures = state._parserFeatures;
-        _generatorFeatures = state._generatorFeatures;
-        _formatParserFeatures = state._formatParserFeatures;
-        _formatGeneratorFeatures = state._formatGeneratorFeatures;
+        _streamReadFeatures = state._parserFeatures;
+        _streamWriteFeatures = state._generatorFeatures;
+        _formatReadFeatures = state._formatParserFeatures;
+        _formatWriteFeatures = state._formatGeneratorFeatures;
         _mapperFeatures = state._mapperFeatures;
         _deserFeatures = state._deserFeatures;
         _serFeatures = state._serFeatures;
@@ -417,7 +417,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             FilterProvider filterProvider)
     {
         return new SerializationConfig(this,
-                _mapperFeatures, _serFeatures, _generatorFeatures, _formatGeneratorFeatures,
+                _mapperFeatures, _serFeatures, _streamWriteFeatures, _formatWriteFeatures,
                 configOverrides,
                 tf, classIntr, mixins, str, rootNames,
                 filterProvider);
@@ -428,7 +428,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             RootNameLookup rootNames)
     {
         return new DeserializationConfig(this,
-                _mapperFeatures, _deserFeatures, _parserFeatures, _formatParserFeatures,
+                _mapperFeatures, _deserFeatures, _streamReadFeatures, _formatReadFeatures,
                 configOverrides,
                 tf, classIntr, mixins, str, rootNames,
                 _abstractTypeResolvers);
@@ -451,10 +451,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     public boolean isEnabled(JsonParser.Feature f) {
-        return f.enabledIn(_parserFeatures);
+        return f.enabledIn(_streamReadFeatures);
     }
     public boolean isEnabled(JsonGenerator.Feature f) {
-        return f.enabledIn(_generatorFeatures);
+        return f.enabledIn(_streamWriteFeatures);
     }
 
     /*
@@ -726,46 +726,46 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B enable(JsonParser.Feature... features) {
         for (JsonParser.Feature f : features) {
-            _parserFeatures |= f.getMask();
+            _streamReadFeatures |= f.getMask();
         }
         return _this();
     }
 
     public B disable(JsonParser.Feature... features) {
         for (JsonParser.Feature f : features) {
-            _parserFeatures &= ~f.getMask();
+            _streamReadFeatures &= ~f.getMask();
         }
         return _this();
     }
 
     public B configure(JsonParser.Feature feature, boolean state) {
         if (state) {
-            _parserFeatures |= feature.getMask();
+            _streamReadFeatures |= feature.getMask();
         } else {
-            _parserFeatures &= ~feature.getMask();
+            _streamReadFeatures &= ~feature.getMask();
         }
         return _this();
     }
 
     public B enable(JsonGenerator.Feature... features) {
         for (JsonGenerator.Feature f : features) {
-            _generatorFeatures |= f.getMask();
+            _streamWriteFeatures |= f.getMask();
         }
         return _this();
     }
 
     public B disable(JsonGenerator.Feature... features) {
         for (JsonGenerator.Feature f : features) {
-            _generatorFeatures &= ~f.getMask();
+            _streamWriteFeatures &= ~f.getMask();
         }
         return _this();
     }
 
     public B configure(JsonGenerator.Feature feature, boolean state) {
         if (state) {
-            _generatorFeatures |= feature.getMask();
+            _streamWriteFeatures |= feature.getMask();
         } else {
-            _generatorFeatures &= ~feature.getMask();
+            _streamWriteFeatures &= ~feature.getMask();
         }
         return _this();
     }

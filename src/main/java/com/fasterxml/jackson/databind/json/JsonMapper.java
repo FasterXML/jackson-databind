@@ -48,14 +48,14 @@ public class JsonMapper extends ObjectMapper
 
         public Builder enable(JsonReadFeature... features) {
             for (JsonReadFeature f : features) {
-                _formatParserFeatures |= f.getMask();
+                _formatReadFeatures |= f.getMask();
             }
             return this;
         }
 
         public Builder disable(JsonReadFeature... features) {
             for (JsonReadFeature f : features) {
-                _formatParserFeatures &= ~f.getMask();
+                _formatReadFeatures &= ~f.getMask();
             }
             return this;
         }
@@ -63,23 +63,23 @@ public class JsonMapper extends ObjectMapper
         public Builder configure(JsonReadFeature feature, boolean state)
         {
             if (state) {
-                _formatParserFeatures |= feature.getMask();
+                _formatReadFeatures |= feature.getMask();
             } else {
-                _formatParserFeatures &= ~feature.getMask();
+                _formatReadFeatures &= ~feature.getMask();
             }
             return this;
         }
 
         public Builder enable(JsonWriteFeature... features) {
             for (JsonWriteFeature f : features) {
-                _formatGeneratorFeatures |= f.getMask();
+                _formatWriteFeatures |= f.getMask();
             }
             return this;
         }
 
         public Builder disable(JsonWriteFeature... features) {
             for (JsonWriteFeature f : features) {
-                _formatGeneratorFeatures &= ~f.getMask();
+                _formatWriteFeatures &= ~f.getMask();
             }
             return this;
         }
@@ -87,9 +87,9 @@ public class JsonMapper extends ObjectMapper
         public Builder configure(JsonWriteFeature feature, boolean state)
         {
             if (state) {
-                _formatGeneratorFeatures |= feature.getMask();
+                _formatWriteFeatures |= feature.getMask();
             } else {
-                _formatGeneratorFeatures &= ~feature.getMask();
+                _formatWriteFeatures &= ~feature.getMask();
             }
             return this;
         }

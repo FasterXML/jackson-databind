@@ -111,6 +111,8 @@ class FactoryBasedEnumDeserializer
             //the below case handles it.
             if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
                 value = p.getText();
+            } else if (curr == JsonToken.VALUE_NUMBER_INT) {
+                value = p.getIntValue();
             } else if ((_creatorProps != null) && p.isExpectedStartObjectToken()) {
                 if (_propCreator == null) {
                     _propCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,

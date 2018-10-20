@@ -456,7 +456,7 @@ public final class DeserializationConfig
     /**
      * @since 3.0
      */
-    public int getParserFeatures() {
+    public int getStreamReadFeatures() {
         return _streamReadFeatures;
     }
 

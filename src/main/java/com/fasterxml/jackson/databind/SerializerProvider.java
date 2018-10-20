@@ -223,7 +223,7 @@ public abstract class SerializerProvider
 
     @Override
     public int getGeneratorFeatures(int defaults) {
-        return _config.getGeneratorFeatures();
+        return _config.getStreamWriteFeatures();
     }
 
     @Override

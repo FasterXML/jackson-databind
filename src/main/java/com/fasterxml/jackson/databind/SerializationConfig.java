@@ -80,7 +80,7 @@ public final class SerializationConfig
      * @since 3.0
      */
     public SerializationConfig(MapperBuilder<?,?> b,
-            int mapperFeatures, int serFeatures, int genFeatures, int formatWriteFeatures,
+            int mapperFeatures, int serFeatures, int streamWriteFeatures, int formatWriteFeatures,
             ConfigOverrides configOverrides,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
             RootNameLookup rootNames,
@@ -89,7 +89,7 @@ public final class SerializationConfig
         super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
         _serFeatures = serFeatures;
         _filterProvider = filterProvider;
-        _streamWriteFeatures = genFeatures;
+        _streamWriteFeatures = streamWriteFeatures;
         _formatWriteFeatures = formatWriteFeatures;
         _defaultPrettyPrinter = b.defaultPrettyPrinter();
     }
@@ -472,7 +472,7 @@ public final class SerializationConfig
     /**
      * @since 3.0
      */
-    public int getGeneratorFeatures() {
+    public int getStreamWriteFeatures() {
         return _streamWriteFeatures;
     }
 

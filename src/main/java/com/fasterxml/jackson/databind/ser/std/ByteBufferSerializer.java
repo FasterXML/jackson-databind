@@ -20,7 +20,7 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
     {
         // first, simple case when wrapping an array...
         if (bbuf.hasArray()) {
-            gen.writeBinary(bbuf.array(), 0, bbuf.limit());
+            gen.writeBinary(bbuf.array(), bbuf.arrayOffset(), bbuf.limit());
             return;
         }
         // the other case is more complicated however. Best to handle with InputStream wrapper.

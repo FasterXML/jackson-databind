@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.8 (not yet released)
+
+#1662: `ByteBuffer` serialization is broken if offset is not 0
+ (reported by j-baker@github)
+
 2.9.7 (19-Sep-2018)
 
 #2060: `UnwrappingBeanPropertyWriter` incorrectly assumes the found serializer is

@@ -125,13 +125,12 @@ public class JDKTypeSerializationTest
         assertEquals(quote("void"), MAPPER.writeValueAsString(Void.TYPE));
     }
 
-    // [JACKSON-789]
     public void testCharset() throws IOException
     {
         assertEquals(quote("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
     }
 
-    // [Issue#239]: Support serialization of ByteBuffer
+    // [databind#239]: Support serialization of ByteBuffer
     public void testByteBuffer() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
@@ -145,7 +144,7 @@ public class JDKTypeSerializationTest
         assertEquals(exp, MAPPER.writeValueAsString(bbuf2));
     }
 
-    // [Issue#1662]: Sliced ByteBuffers
+    // [databind#1662]: Sliced ByteBuffers
     public void testSlicedByteBuffer() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };

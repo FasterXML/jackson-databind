@@ -144,7 +144,7 @@ public class TestJsonSerialize
     public void testBrokenAnnotation() throws Exception
     {
         try {
-            serializeAsString(MAPPER, new BrokenClass());
+            MAPPER.writeValueAsString(new BrokenClass());
             fail("Should not succeed");
         } catch (Exception e) {
             verifyException(e, "types not related");
@@ -187,7 +187,7 @@ public class TestJsonSerialize
     {
         ValueMap map = new ValueMap();
         map.put("a", new ValueClass());
-        assertEquals("{\"a\":{\"x\":3}}", serializeAsString(STATIC_MAPPER, map));
+        assertEquals("{\"a\":{\"x\":3}}", STATIC_MAPPER.writeValueAsString(map));
     }
 
     public void testStaticTypingWithArrayList() throws Exception
@@ -201,13 +201,13 @@ public class TestJsonSerialize
     {
         ValueLinkedList list = new ValueLinkedList();
         list.add(new ValueClass());
-        assertEquals("[{\"x\":3}]", serializeAsString(STATIC_MAPPER, list));
+        assertEquals("[{\"x\":3}]", STATIC_MAPPER.writeValueAsString(list));
     }
     
     public void testStaticTypingWithArray() throws Exception
     {
         ValueInterface[] array = new ValueInterface[] { new ValueClass() };
-        assertEquals("[{\"x\":3}]", serializeAsString(STATIC_MAPPER, array));
+        assertEquals("[{\"x\":3}]", STATIC_MAPPER.writeValueAsString(array));
     }
 
     public void testIssue294() throws Exception

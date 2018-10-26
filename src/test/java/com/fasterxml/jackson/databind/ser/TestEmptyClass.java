@@ -54,7 +54,7 @@ public class TestEmptyClass
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = new ObjectMapper();
+    protected final ObjectMapper MAPPER = objectMapper();
 
     /**
      * Test to check that [JACKSON-201] works if there is a recognized
@@ -64,14 +64,14 @@ public class TestEmptyClass
     {
         // First: without annotations, should complain
         try {
-            serializeAsString(MAPPER, new Empty());
+            MAPPER.writeValueAsString(new Empty());
             fail("Should fail");
         } catch (JsonMappingException e) {
             verifyException(e, "No serializer found for class");
         }
 
         // But not if there is a recognized annotation
-        assertEquals("{}", serializeAsString(MAPPER, new EmptyWithAnno()));
+        assertEquals("{}", MAPPER.writeValueAsString(new EmptyWithAnno()));
 
         // Including class annotation through mix-ins
         ObjectMapper m2 = jsonMapperBuilder()

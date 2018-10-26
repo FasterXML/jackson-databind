@@ -490,6 +490,10 @@ public final class DeserializationConfig
         return (_streamReadFeatures & f.getMask()) != 0;
     }
 
+    public final boolean hasFormatFeature(FormatFeature f) {
+        return (_formatReadFeatures & f.getMask()) != 0;
+    }
+    
     /**
      * Bulk access method for checking that all features specified by
      * mask are enabled.

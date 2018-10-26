@@ -186,12 +186,14 @@ public class TestDefaultForObject
     
     public void testEnumAsObject() throws Exception
     {
+        final ObjectMapper vanillaMapper = objectMapper();
+        
         // wrapping to be declared as object
         Object[] input = new Object[] { Choice.YES };
         Object[] input2 = new Object[] { ComplexChoice.MAYBE};
         // first, without type info:
-        assertEquals("[\"YES\"]", serializeAsString(input));
-        assertEquals("[\"MAYBE\"]", serializeAsString(input2));
+        assertEquals("[\"YES\"]", vanillaMapper.writeValueAsString(input));
+        assertEquals("[\"MAYBE\"]", vanillaMapper.writeValueAsString(input2));
 
         // and then with it
         ObjectMapper m = jsonMapperBuilder()

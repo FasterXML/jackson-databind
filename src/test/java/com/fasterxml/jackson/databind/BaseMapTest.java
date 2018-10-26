@@ -254,18 +254,6 @@ public abstract class BaseMapTest
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, Map.class);
     }
-    
-    protected String serializeAsString(ObjectMapper m, Object value)
-        throws IOException
-    {
-        return m.writeValueAsString(value);
-    }
-
-    protected String serializeAsString(Object value)
-        throws IOException
-    {
-        return serializeAsString(objectMapper(), value);
-    }
 
     protected String asJSONObjectValueString(Object... args)
         throws IOException

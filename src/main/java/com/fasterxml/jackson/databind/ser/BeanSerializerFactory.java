@@ -537,12 +537,7 @@ public class BeanSerializerFactory
         if (ignorals != null) {
             Set<String> ignored = ignorals.findIgnoredForSerialization();
             if (!ignored.isEmpty()) {
-                Iterator<BeanPropertyWriter> it = props.iterator();
-                while (it.hasNext()) {
-                    if (ignored.contains(it.next().getName())) {
-                        it.remove();
-                    }
-                }
+                props.removeIf(beanPropertyWriter -> ignored.contains(beanPropertyWriter.getName()));
             }
         }
         return props;
@@ -635,15 +630,9 @@ public class BeanSerializerFactory
     protected void removeSetterlessGetters(SerializationConfig config, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)
     {
-        Iterator<BeanPropertyDefinition> it = properties.iterator();
-        while (it.hasNext()) {
-            BeanPropertyDefinition property = it.next();
-            // one caveat: only remove implicit properties;
-            // explicitly annotated ones should remain
-            if (!property.couldDeserialize() && !property.isExplicitlyIncluded()) {
-                it.remove();
-            }
-        }
+        // one caveat: only remove implicit properties;
+        // explicitly annotated ones should remain
+        properties.removeIf(property -> !property.couldDeserialize() && !property.isExplicitlyIncluded());
     }
 
     /**

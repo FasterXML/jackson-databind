@@ -69,6 +69,6 @@ public class Jdk8OptionalSerializer
 
     @Override
     protected Object _getReferencedIfPresent(Optional<?> value) {
-        return value.isPresent() ? value.get() : null;
+        return value.orElse(null);
     }
 }

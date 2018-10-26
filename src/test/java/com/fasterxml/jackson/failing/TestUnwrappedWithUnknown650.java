@@ -23,7 +23,7 @@ public class TestUnwrappedWithUnknown650 extends BaseMapTest
         final String JSON = "{'field': 'value', 'bad':'bad value'}";
         try {
             MAPPER.readValue(aposToQuotes(JSON), A.class);
-            fail("Exception was not thrown on unkown property");
+            fail("Exception was not thrown on unknown property");
         } catch (JsonMappingException e) {
             verifyException(e, "Unrecognized field");
         }

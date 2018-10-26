@@ -271,7 +271,7 @@ public abstract class DeserializationContext
     }
 
     @Override
-    public int getParserFeatures(int defaults) {
+    public int getStreamReadFeatures(int defaults) {
         return _config.getStreamReadFeatures();
     }
 

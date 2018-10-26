@@ -91,7 +91,7 @@ public class ObjectWriterTest
     public void testObjectWriterFeatures() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
-                .without(JsonWriteFeature.QUOTE_FIELD_NAMES);                
+                .without(JsonWriteFeature.QUOTE_FIELD_NAMES);
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("a", 1);
         assertEquals("{a:1}", writer.writeValueAsString(map));

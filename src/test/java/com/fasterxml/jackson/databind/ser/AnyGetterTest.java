@@ -156,11 +156,10 @@ public class AnyGetterTest extends BaseMapTest
         m = jsonMapperBuilder()
                 .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .build();
-        String json = serializeAsString(m, new AnyOnlyBean());
-        assertEquals("{\"a\":3}", json);
+        assertEquals("{\"a\":3}", m.writeValueAsString(new AnyOnlyBean()));
 
         // then without fail
-        json = m.writer()
+        String json = m.writer()
                 .without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .writeValueAsString(new AnyOnlyBean());
         assertEquals("{\"a\":3}", json);

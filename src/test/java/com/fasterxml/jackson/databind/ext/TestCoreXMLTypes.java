@@ -22,10 +22,12 @@ public class TestCoreXMLTypes
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testQNameSer() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
-        assertEquals(quote(qn.toString()), serializeAsString(qn));
+        assertEquals(quote(qn.toString()), MAPPER.writeValueAsString(qn));
     }
 
     public void testDurationSer() throws Exception
@@ -33,7 +35,7 @@ public class TestCoreXMLTypes
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         // arbitrary value
         Duration dur = dtf.newDurationDayTime(false, 15, 19, 58, 1);
-        assertEquals(quote(dur.toString()), serializeAsString(dur));
+        assertEquals(quote(dur.toString()), MAPPER.writeValueAsString(dur));
     }
 
     public void testXMLGregorianCalendarSerAndDeser() throws Exception

@@ -94,9 +94,8 @@ public class TestSerializationOrder
     /*********************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
-    
-    // Test for [JACKSON-170]
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testImplicitOrderByCreator() throws Exception
     {
         assertEquals("{\"c\":1,\"a\":2,\"b\":0}", MAPPER.writeValueAsString(new BeanWithCreator(1, 2)));
@@ -119,7 +118,7 @@ public class TestSerializationOrder
                 .addMixIn(BeanWithOrder.class, OrderMixIn.class)
                 .build();
         assertEquals("{\"b\":2,\"a\":1,\"c\":3,\"d\":4}",
-                serializeAsString(mapper, new BeanWithOrder(1, 2, 3, 4)));
+                mapper.writeValueAsString(new BeanWithOrder(1, 2, 3, 4)));
     }
 
     public void testOrderWrt268() throws Exception

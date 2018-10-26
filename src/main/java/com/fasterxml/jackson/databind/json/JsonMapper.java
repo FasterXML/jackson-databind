@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.json;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -164,5 +166,19 @@ public class JsonMapper extends ObjectMapper
     @Override
     public JsonFactory tokenStreamFactory() {
         return (JsonFactory) _streamFactory;
+    }
+
+    /*
+    /**********************************************************
+    /* Format-specific
+    /**********************************************************
+     */
+
+    public boolean isEnabled(JsonReadFeature f) {
+        return _deserializationConfig.hasFormatFeature(f);
+    }
+
+    public boolean isEnabled(JsonWriteFeature f) {
+        return _serializationConfig.hasFormatFeature(f);
     }
 }

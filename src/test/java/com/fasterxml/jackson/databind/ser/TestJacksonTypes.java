@@ -13,12 +13,13 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class TestJacksonTypes
     extends BaseMapTest
 {
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testLocation() throws IOException
     {
         File f = new File("/tmp/test.json");
         JsonLocation loc = new JsonLocation(f, -1, 100, 13);
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(mapper, loc);
+        Map<String,Object> result = writeAndMap(MAPPER, loc);
         assertEquals(5, result.size());
         assertEquals(f.getAbsolutePath(), result.get("sourceRef"));
         assertEquals(Integer.valueOf(-1), result.get("charOffset"));
@@ -42,7 +43,7 @@ public class TestJacksonTypes
         }
         p.close();
         // Then serialize as String
-        String str = serializeAsString(tb);
+        String str = MAPPER.writeValueAsString(tb);
         tb.close();
         // and verify it looks ok
         verifyJsonSpecSampleDoc(createParserUsingReader(str), true);

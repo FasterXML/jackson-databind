@@ -215,8 +215,8 @@ public class JsonValueTest
 
     public void testJsonValueWithUseSerializer() throws Exception
     {
-        String result = serializeAsString(MAPPER, new ToStringValueClass<Integer>(Integer.valueOf(123)));
-        assertEquals("\"123\"", result);
+        assertEquals("\"123\"",
+                MAPPER.writeValueAsString(new ToStringValueClass<Integer>(Integer.valueOf(123))));
     }
 
     /**
@@ -224,8 +224,8 @@ public class JsonValueTest
      */
     public void testMixedJsonValue() throws Exception
     {
-        String result = serializeAsString(MAPPER, new ToStringValueClass2("xyz"));
-        assertEquals("\"xyz\"", result);
+        assertEquals("\"xyz\"",
+                MAPPER.writeValueAsString(new ToStringValueClass2("xyz")));
     }
 
     public void testDisabling() throws Exception

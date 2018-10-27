@@ -39,11 +39,11 @@ public class TestTokenBuffer extends BaseMapTest
         buf.setCodec(null);
         assertNull(buf.getCodec());
 
-        assertFalse(buf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        buf.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
-        assertTrue(buf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        buf.disable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
-        assertFalse(buf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertFalse(buf.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        buf.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        assertTrue(buf.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        buf.disable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        assertFalse(buf.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
 
         buf.close();
         assertTrue(buf.isClosed());

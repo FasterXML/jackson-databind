@@ -6,7 +6,9 @@ import java.io.StringReader;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class MapperViaParserTest  extends BaseMapTest
 {
@@ -94,60 +96,58 @@ public class MapperViaParserTest  extends BaseMapTest
     /**
      * Test similar to above, but instead reads a sequence of values
      */
-    public void testIncrementalPojoReading()
-        throws IOException
+    public void testIncrementalPojoReading() throws IOException
     {
         JsonFactory jf = new MappingJsonFactory();
         final String JSON = "[ 1, true, null, \"abc\" ]";
-        JsonParser jp = jf.createParser(new StringReader(JSON));
+        JsonParser p = jf.createParser(new StringReader(JSON));
 
         // let's advance past array start to prevent full binding
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(Integer.valueOf(1), jp.readValueAs(Integer.class));
-        assertEquals(Boolean.TRUE, jp.readValueAs(Boolean.class));
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(Integer.valueOf(1), p.readValueAs(Integer.class));
+        assertEquals(Boolean.TRUE, p.readValueAs(Boolean.class));
         /* note: null can be returned both when there is no more
          * data in current scope, AND when Json null literal is
          * bound!
          */
-        assertNull(jp.readValueAs(Object.class));
+        assertNull(p.readValueAs(Object.class));
         // but we can verify that it was Json null by:
-        assertEquals(JsonToken.VALUE_NULL, jp.getLastClearedToken());
+        assertEquals(JsonToken.VALUE_NULL, p.getLastClearedToken());
 
-        assertEquals("abc", jp.readValueAs(String.class));
+        assertEquals("abc", p.readValueAs(String.class));
 
         // this null is for actually hitting the END_ARRAY
-        assertNull(jp.readValueAs(Object.class));
-        assertEquals(JsonToken.END_ARRAY, jp.getLastClearedToken());
+        assertNull(p.readValueAs(Object.class));
+        assertEquals(JsonToken.END_ARRAY, p.getLastClearedToken());
 
         // afrer which there should be nothing to advance to:
-        assertNull(jp.nextToken());
+        assertNull(p.nextToken());
 
-        jp.close();
+        p.close();
     }
 
     @SuppressWarnings("resource")
-    public void testPojoReadingFailing()
-        throws IOException
+    public void testPojoReadingFailing() throws IOException
     {
         // regular factory can't do it, without a call to setCodec()
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         try {
             final String JSON = "{ \"x\" : 9 }";
-            JsonParser jp = jf.createParser(new StringReader(JSON));
-            Pojo p = jp.readValueAs(Pojo.class);
-            fail("Expected an exception: got "+p);
+            JsonParser p = f.createParser(new StringReader(JSON));
+            Pojo pojo = p.readValueAs(Pojo.class);
+            fail("Expected an exception: got "+pojo);
         } catch (IllegalStateException e) {
             verifyException(e, "No ObjectCodec defined");
         }
     }
-    
-    // for [JACKSON-672]
+
     public void testEscapingUsingMapper() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
+        ObjectMapper mapper = JsonMapper.builder()
+               .configure(JsonWriteFeature.ESCAPE_NON_ASCII, true)
+               .build();
         mapper.writeValueAsString(String.valueOf((char) 257));
     }
 }

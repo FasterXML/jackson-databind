@@ -8,10 +8,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.*;
 
 public class ObjectMapperTest extends BaseMapTest
@@ -56,7 +58,7 @@ public class ObjectMapperTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testFactorFeatures()
+    public void testFactoryFeatures()
     {
         assertTrue(MAPPER.isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES));
     }
@@ -64,11 +66,16 @@ public class ObjectMapperTest extends BaseMapTest
     public void testGeneratorFeatures()
     {
         // and also for mapper
-        ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertTrue(mapper.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
-        mapper.disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM,
-                JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        JsonMapper mapper = new JsonMapper();
+        assertTrue(mapper.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        assertFalse(mapper.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertTrue(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
+        mapper = JsonMapper.builder()
+                .disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
+                .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        assertFalse(mapper.isEnabled(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM));
+        assertFalse(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
     }
 
     public void testParserFeatures()

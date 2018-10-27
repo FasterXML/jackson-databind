@@ -252,9 +252,8 @@ public class ObjectWriterTest
     public void testGeneratorFeatures() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertFalse(w.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertNotSame(w, w.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertNotSame(w, w.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertNotSame(w, w.with(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertNotSame(w, w.withFeatures(JsonWriteFeature.ESCAPE_NON_ASCII));
 
         assertTrue(w.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         assertNotSame(w, w.without(JsonGenerator.Feature.AUTO_CLOSE_TARGET));

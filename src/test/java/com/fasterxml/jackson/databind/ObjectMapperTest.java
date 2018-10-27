@@ -62,9 +62,8 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(MAPPER.isEnabled(TokenStreamFactory.Feature.CANONICALIZE_FIELD_NAMES));
 
         // and also for mapper
-        assertFalse(MAPPER.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(MAPPER.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         assertTrue(MAPPER.isEnabled(JsonWriteFeature.QUOTE_FIELD_NAMES));
-
         assertTrue(MAPPER.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
     }
 

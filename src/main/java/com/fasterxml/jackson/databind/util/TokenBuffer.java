@@ -26,7 +26,7 @@ public class TokenBuffer
  */
     extends JsonGenerator
 {
-    protected final static int DEFAULT_GENERATOR_FEATURES = JsonGenerator.Feature.collectDefaults();
+    protected final static int DEFAULT_STREAM_WRITE_FEATURES = JsonGenerator.Feature.collectDefaults();
 
     /*
     /**********************************************************************
@@ -49,7 +49,7 @@ public class TokenBuffer
      *<p>
      * NOTE: most features have no effect on this class
      */
-    protected int _generatorFeatures;
+    protected int _streamWriteFeatures;
 
     protected boolean _closed;
 
@@ -131,7 +131,7 @@ public class TokenBuffer
      */
     public TokenBuffer(boolean hasNativeIds)
     {
-        _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
+        _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
         _tokenWriteContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
@@ -148,7 +148,7 @@ public class TokenBuffer
     protected TokenBuffer(ObjectWriteContext writeContext, boolean hasNativeIds)
     {
         _objectWriteContext = writeContext;
-        _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
+        _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
         _tokenWriteContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
@@ -162,7 +162,7 @@ public class TokenBuffer
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
         _parentContext = p.getParsingContext();
-        _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
+        _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
         _tokenWriteContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
@@ -607,13 +607,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     @Override
     public JsonGenerator enable(Feature f) {
-        _generatorFeatures |= f.getMask();
+        _streamWriteFeatures |= f.getMask();
         return this;
     }
 
     @Override
     public JsonGenerator disable(Feature f) {
-        _generatorFeatures &= ~f.getMask();
+        _streamWriteFeatures &= ~f.getMask();
         return this;
     }
 
@@ -621,14 +621,21 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     @Override
     public boolean isEnabled(Feature f) {
-        return (_generatorFeatures & f.getMask()) != 0;
+        return (_streamWriteFeatures & f.getMask()) != 0;
     }
 
     @Override
     public int getGeneratorFeatures() {
-        return _generatorFeatures;
+        return _streamWriteFeatures;
     }
 
+    @Override // since 3.0
+    public int getFormatFeatures() {
+        // 26-Oct-2018, tatu: Should not have anything format-specific... however,
+        // not all features  default to "false" so this may not be right choice?
+        return 0;
+    }
+    
     @Override
     public JsonGenerator useDefaultPrettyPrinter() {
         // No-op: we don't indent

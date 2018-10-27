@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MapperViaParserTest extends BaseMapTest
@@ -88,7 +89,7 @@ public class MapperViaParserTest extends BaseMapTest
     public void testEscapingUsingMapper() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
-                .enable(JsonGenerator.Feature.ESCAPE_NON_ASCII).build());
+                .enable(JsonWriteFeature.ESCAPE_NON_ASCII).build());
         final String json = mapper.writeValueAsString(String.valueOf((char) 258));
         assertEquals(quote("\\u0102"), json);
     }

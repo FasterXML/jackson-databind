@@ -37,17 +37,15 @@ public class SerConfigTest extends BaseMapTest
     public void testGeneratorFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.serializationConfig();
-        assertFalse(config.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertNotSame(config, config.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        SerializationConfig newConfig = config.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII,
-                JsonGenerator.Feature.IGNORE_UNKNOWN);
+        assertFalse(config.hasFormatFeature(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertNotSame(config, config.with(JsonWriteFeature.ESCAPE_NON_ASCII));
+        SerializationConfig newConfig = config.withFeatures(JsonGenerator.Feature.IGNORE_UNKNOWN);
         assertNotSame(config, newConfig);
-        assertTrue(newConfig.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(newConfig.isEnabled(JsonGenerator.Feature.IGNORE_UNKNOWN));
 
         // no change to settings, same object:
-        assertSame(config, config.without(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertSame(config, config.withoutFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII,
-                JsonGenerator.Feature.IGNORE_UNKNOWN));
+        assertSame(config, config.without(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertSame(config, config.withoutFeatures(JsonGenerator.Feature.IGNORE_UNKNOWN));
     }
 
     public void testFormatFeatures() throws Exception

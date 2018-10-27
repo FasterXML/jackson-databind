@@ -3,9 +3,8 @@ package com.fasterxml.jackson.databind.cfg;
 import java.util.Collections;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
 
 public class SerConfigTest extends BaseMapTest
@@ -51,17 +50,12 @@ public class SerConfigTest extends BaseMapTest
     public void testGeneratorFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
-        JsonFactory f = MAPPER.getFactory();
-        assertFalse(config.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII, f));
-        assertNotSame(config, config.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        SerializationConfig newConfig = config.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII,
-                JsonGenerator.Feature.IGNORE_UNKNOWN);
+        assertNotSame(config, config.with(JsonWriteFeature.ESCAPE_NON_ASCII));
+        SerializationConfig newConfig = config.withFeatures(JsonGenerator.Feature.IGNORE_UNKNOWN);
         assertNotSame(config, newConfig);
-        assertTrue(newConfig.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII, f));
 
-        assertNotSame(config, config.without(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertNotSame(config, config.withoutFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII,
-                JsonGenerator.Feature.IGNORE_UNKNOWN));
+        assertNotSame(config, config.without(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertNotSame(config, config.withoutFeatures(JsonGenerator.Feature.IGNORE_UNKNOWN));
     }
 
     public void testFormatFeatures() throws Exception

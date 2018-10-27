@@ -2,11 +2,15 @@ package com.fasterxml.jackson.databind.json;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.cfg.PackageVersion;
 
 /**
+ * JSON-format specific {@link ObjectMapper} implementation.
  *
  * @since 2.10
  */
@@ -24,6 +28,54 @@ public class JsonMapper extends ObjectMapper
     {
         public Builder(JsonMapper m) {
             super(m);
+        }
+
+        public Builder enable(JsonReadFeature... features)  {
+            for (JsonReadFeature f : features) {
+                _mapper.enable(f.mappedFeature());
+            }
+            return this;
+        }
+
+        public Builder disable(JsonReadFeature... features) {
+            for (JsonReadFeature f : features) {
+                _mapper.disable(f.mappedFeature());
+            }
+            return this;
+        }
+
+        public Builder configure(JsonReadFeature f, boolean state)
+        {
+            if (state) {
+                _mapper.enable(f.mappedFeature());
+            } else {
+                _mapper.disable(f.mappedFeature());
+            }
+            return this;
+        }
+
+        public Builder enable(JsonWriteFeature... features)  {
+            for (JsonWriteFeature f : features) {
+                _mapper.enable(f.mappedFeature());
+            }
+            return this;
+        }
+
+        public Builder disable(JsonWriteFeature... features) {
+            for (JsonWriteFeature f : features) {
+                _mapper.disable(f.mappedFeature());
+            }
+            return this;
+        }
+
+        public Builder configure(JsonWriteFeature f, boolean state)
+        {
+            if (state) {
+                _mapper.enable(f.mappedFeature());
+            } else {
+                _mapper.disable(f.mappedFeature());
+            }
+            return this;
         }
     }
 
@@ -80,5 +132,22 @@ public class JsonMapper extends ObjectMapper
     @Override
     public JsonFactory getFactory() {
         return _jsonFactory;
+    }
+
+    /*
+    /**********************************************************
+    /* JSON-specific accessors, mutators
+    /**********************************************************
+     */
+
+    // // // 25-Oct-2018, tatu: Since for 2.x these will simply map to legacy settings,
+    // // //   we will fake them
+    
+    public boolean isEnabled(JsonReadFeature f) {
+        return isEnabled(f.mappedFeature());
+    }
+
+    public boolean isEnabled(JsonWriteFeature f) {
+        return isEnabled(f.mappedFeature());
     }
 }

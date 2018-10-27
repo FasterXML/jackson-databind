@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -90,12 +91,12 @@ public class ObjectWriterTest
     public void testObjectWriterFeatures() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
-                .without(JsonGenerator.Feature.QUOTE_FIELD_NAMES);                
+                .without(JsonWriteFeature.QUOTE_FIELD_NAMES);                
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("a", 1);
         assertEquals("{a:1}", writer.writeValueAsString(map));
         // but can also reconfigure
-        assertEquals("{\"a\":1}", writer.with(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+        assertEquals("{\"a\":1}", writer.with(JsonWriteFeature.QUOTE_FIELD_NAMES)
                 .writeValueAsString(map));
     }
 
@@ -260,9 +261,8 @@ public class ObjectWriterTest
     public void testGeneratorFeatures() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertFalse(w.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertNotSame(w, w.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertNotSame(w, w.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertNotSame(w, w.with(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertNotSame(w, w.withFeatures(JsonWriteFeature.ESCAPE_NON_ASCII));
 
         assertTrue(w.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         assertNotSame(w, w.without(JsonGenerator.Feature.AUTO_CLOSE_TARGET));

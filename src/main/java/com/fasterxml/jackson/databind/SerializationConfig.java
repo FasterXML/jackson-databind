@@ -5,6 +5,8 @@ import java.text.DateFormat;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
 
@@ -521,6 +523,10 @@ public final class SerializationConfig
      */
     public SerializationConfig with(FormatFeature feature)
     {
+        // 27-Oct-2018, tatu: Alas, complexity due to newly (2.10) refactored json-features:
+        if (feature instanceof JsonWriteFeature) {
+            return _withJsonWriteFeatures(feature);
+        }
         int newSet = _formatWriteFeatures | feature.getMask();
         int newMask = _formatWriteFeaturesToChange | feature.getMask();
         return ((_formatWriteFeatures == newSet) && (_formatWriteFeaturesToChange == newMask)) ? this :
@@ -537,6 +543,10 @@ public final class SerializationConfig
      */
     public SerializationConfig withFeatures(FormatFeature... features)
     {
+        // 27-Oct-2018, tatu: Alas, complexity due to newly (2.10) refactored json-features:
+        if (features.length > 0 && (features[0] instanceof JsonWriteFeature)) {
+            return _withJsonWriteFeatures(features);
+        }
         int newSet = _formatWriteFeatures;
         int newMask = _formatWriteFeaturesToChange;
         for (FormatFeature f : features) {
@@ -558,6 +568,10 @@ public final class SerializationConfig
      */
     public SerializationConfig without(FormatFeature feature)
     {
+        // 27-Oct-2018, tatu: Alas, complexity due to newly (2.10) refactored json-features:
+        if (feature instanceof JsonWriteFeature) {
+            return _withoutJsonWriteFeatures(feature);
+        }
         int newSet = _formatWriteFeatures & ~feature.getMask();
         int newMask = _formatWriteFeaturesToChange | feature.getMask();
         return ((_formatWriteFeatures == newSet) && (_formatWriteFeaturesToChange == newMask)) ? this :
@@ -574,6 +588,9 @@ public final class SerializationConfig
      */
     public SerializationConfig withoutFeatures(FormatFeature... features)
     {
+        if (features.length > 0 && (features[0] instanceof JsonWriteFeature)) {
+            return _withoutJsonWriteFeatures(features);
+        }
         int newSet = _formatWriteFeatures;
         int newMask = _formatWriteFeaturesToChange;
         for (FormatFeature f : features) {
@@ -586,7 +603,61 @@ public final class SerializationConfig
                     _generatorFeatures, _generatorFeaturesToChange,
                     newSet, newMask);
     }
-    
+
+    // temporary for 2.10
+    private SerializationConfig _withJsonWriteFeatures(FormatFeature... features) {
+        int parserSet = _generatorFeatures;
+        int parserMask = _generatorFeaturesToChange;
+        int newSet = _formatWriteFeatures;
+        int newMask = _formatWriteFeaturesToChange;
+        for (FormatFeature f : features) {
+            final int mask = f.getMask();
+            newSet |= mask;
+            newMask |= mask;
+
+            if (f instanceof JsonWriteFeature) {
+                JsonGenerator.Feature oldF = ((JsonWriteFeature) f).mappedFeature();
+                if (oldF != null) {
+                    final int pmask = oldF.getMask();
+                    parserSet |= pmask;
+                    parserMask |= pmask;
+                }
+            }
+        }
+        return ((_formatWriteFeatures == newSet) && (_formatWriteFeaturesToChange == newMask)
+                && (_generatorFeatures == parserSet) && (_generatorFeaturesToChange == parserMask)
+                ) ? this :
+            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
+                    parserSet, parserMask, newSet, newMask);
+    }
+
+    // temporary for 2.10
+    private SerializationConfig _withoutJsonWriteFeatures(FormatFeature... features) {
+        int parserSet = _generatorFeatures;
+        int parserMask = _generatorFeaturesToChange;
+        int newSet = _formatWriteFeatures;
+        int newMask = _formatWriteFeaturesToChange;
+        for (FormatFeature f : features) {
+            final int mask = f.getMask();
+            newSet &= ~mask;
+            newMask |= mask;
+
+            if (f instanceof JsonWriteFeature) {
+                JsonGenerator.Feature oldF = ((JsonWriteFeature) f).mappedFeature();
+                if (oldF != null) {
+                    final int pmask = oldF.getMask();
+                    parserSet &= ~pmask;
+                    parserMask |= pmask;
+                }
+            }
+        }
+        return ((_formatWriteFeatures == newSet) && (_formatWriteFeaturesToChange == newMask)
+                && (_generatorFeatures == parserSet) && (_generatorFeaturesToChange == parserMask)
+                ) ? this :
+            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
+                    parserSet, parserMask, newSet, newMask);
+    }
+
     /*
     /**********************************************************
     /* Factory methods, other

@@ -44,7 +44,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(1, ((List<?>) ob).size());
     }
 
-    public void testParserFeatures() throws Exception
+    public void testJsonReadFeatures() throws Exception
     {
         final String JSON = "[ /* foo */ 7 ]";
         // default won't accept comments, let's change that:

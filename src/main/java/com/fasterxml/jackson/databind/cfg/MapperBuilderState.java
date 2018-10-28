@@ -51,8 +51,8 @@ public abstract class MapperBuilderState
      */
 
     protected final int _mapperFeatures, _serFeatures, _deserFeatures;
-    protected final int _parserFeatures, _generatorFeatures;
-    protected final int _formatParserFeatures, _formatGeneratorFeatures;
+    protected final int _streamReadFeatures, _streamWriteFeatures;
+    protected final int _formatReadFeatures, _formatWriteFeatures;
 
     /*
     /**********************************************************************
@@ -127,10 +127,10 @@ public abstract class MapperBuilderState
         _mapperFeatures = src._mapperFeatures;
         _serFeatures = src._serFeatures;
         _deserFeatures = src._deserFeatures;
-        _parserFeatures = src._streamReadFeatures;
-        _generatorFeatures = src._streamWriteFeatures;
-        _formatParserFeatures = src._formatReadFeatures;
-        _formatGeneratorFeatures = src._formatWriteFeatures;
+        _streamReadFeatures = src._streamReadFeatures;
+        _streamWriteFeatures = src._streamWriteFeatures;
+        _formatReadFeatures = src._formatReadFeatures;
+        _formatWriteFeatures = src._formatWriteFeatures;
 
         // Handlers, introspection
         _typeFactory = Snapshottable.takeSnapshot(src._typeFactory);

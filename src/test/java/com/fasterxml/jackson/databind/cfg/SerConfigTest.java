@@ -34,7 +34,7 @@ public class SerConfigTest extends BaseMapTest
 //        assertNotNull(config.introspectDirectClassAnnotations(getClass()));
     }
 
-    public void testGeneratorFeatures() throws Exception
+    public void testStreamWriteFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.serializationConfig();
         assertFalse(config.hasFormatFeature(JsonWriteFeature.ESCAPE_NON_ASCII));

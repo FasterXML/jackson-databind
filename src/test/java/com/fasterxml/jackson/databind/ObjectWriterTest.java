@@ -249,7 +249,7 @@ public class ObjectWriterTest
                 SerializationFeature.EAGER_SERIALIZER_FETCH));
     }
 
-    public void testGeneratorFeatures() throws Exception
+    public void testStreamWriteFeatures() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
         assertNotSame(w, w.with(JsonWriteFeature.ESCAPE_NON_ASCII));

@@ -102,13 +102,13 @@ public final class SerializationConfig
      */
 
     private SerializationConfig(SerializationConfig src,
-            int serFeatures, int generatorFeatures, int formatWriteFeatures)
+            int serFeatures, int streamWriteFeatures, int formatWriteFeatures)
     {
         super(src);
         _serFeatures = serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _streamWriteFeatures = generatorFeatures;
+        _streamWriteFeatures = streamWriteFeatures;
         _formatWriteFeatures = formatWriteFeatures;
     }
     

@@ -80,7 +80,7 @@ public final class DeserializationConfig
      * @since 3.0
      */
     public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
-            int deserFeatures, int parserFeatures, int formatParserFeatures,
+            int deserFeatures, int streamReadFeatures, int formatReadFeatures,
             ConfigOverrides configOverrides,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
             RootNameLookup rootNames,
@@ -88,8 +88,8 @@ public final class DeserializationConfig
     {
         super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
         _deserFeatures = deserFeatures;
-        _streamReadFeatures = parserFeatures;
-        _formatReadFeatures = formatParserFeatures;
+        _streamReadFeatures = streamReadFeatures;
+        _formatReadFeatures = formatReadFeatures;
         _problemHandlers = b.deserializationProblemHandlers();
         _abstractTypeResolvers = atrs;
     }
@@ -102,13 +102,12 @@ public final class DeserializationConfig
      */
 
     private DeserializationConfig(DeserializationConfig src,
-            int deserFeatures, int parserFeatures,
-            int formatParserFeatures)
+            int deserFeatures, int streamReadFeatures, int formatReadFeatures)
     {
         super(src);
         _deserFeatures = deserFeatures;
-        _streamReadFeatures = parserFeatures;
-        _formatReadFeatures = formatParserFeatures;
+        _streamReadFeatures = streamReadFeatures;
+        _formatReadFeatures = formatReadFeatures;
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }

@@ -39,7 +39,7 @@ public class DeserializationConfigTest extends BaseMapTest
                 DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES));
     }
 
-    public void testParserFeatures() throws Exception
+    public void testStreamReadFeatures() throws Exception
     {
         DeserializationConfig config = MAPPER.deserializationConfig();
 
@@ -52,7 +52,7 @@ public class DeserializationConfigTest extends BaseMapTest
                 JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
     }
 
-    public void testFormatFeatures() throws Exception
+    public void testJsonReadFeatures() throws Exception
     {
         final JsonReadFeature DISABLED_BY_DEFAULT = JsonReadFeature.ALLOW_JAVA_COMMENTS;
         final JsonReadFeature DISABLED_BY_DEFAULT2 = JsonReadFeature.ALLOW_MISSING_VALUES;

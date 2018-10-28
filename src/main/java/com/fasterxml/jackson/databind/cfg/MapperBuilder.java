@@ -293,10 +293,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _baseSettings = state._baseSettings;
         _configOverrides = Snapshottable.takeSnapshot(state._configOverrides);
 
-        _streamReadFeatures = state._parserFeatures;
-        _streamWriteFeatures = state._generatorFeatures;
-        _formatReadFeatures = state._formatParserFeatures;
-        _formatWriteFeatures = state._formatGeneratorFeatures;
+        _streamReadFeatures = state._streamReadFeatures;
+        _streamWriteFeatures = state._streamWriteFeatures;
+        _formatReadFeatures = state._formatReadFeatures;
+        _formatWriteFeatures = state._formatWriteFeatures;
         _mapperFeatures = state._mapperFeatures;
         _deserFeatures = state._deserFeatures;
         _serFeatures = state._serFeatures;
@@ -344,10 +344,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _serFeatures = base._serFeatures;
         _deserFeatures = base._deserFeatures;
 
-        _parserFeatures = base._parserFeatures;
-        _generatorFeatures = base._deserFeatures;
-        _formatParserFeatures = base._formatParserFeatures;
-        _formatGeneratorFeatures = base._formatGeneratorFeatures;
+        _streamReadFeatures = base._streamReadFeatures;
+        _stremWriteFeatures = base._stremWriteFeatures;
+        _formatReadFeatures = base._formatReadFeatures;
+        _formatWriteFeatures = base._formatWriteFeatures;
 
         _typeFactory = base._typeFactory;
         _classIntrospector = base._classIntrospector;

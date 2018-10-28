@@ -625,12 +625,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public int getGeneratorFeatures() {
+    public int streamWriteFeatures() {
         return _streamWriteFeatures;
     }
 
     @Override // since 3.0
-    public int getFormatFeatures() {
+    public int formatWriteFeatures() {
         // 26-Oct-2018, tatu: Should not have anything format-specific... however,
         // not all features  default to "false" so this may not be right choice?
         return 0;

@@ -118,9 +118,9 @@ public class TestValueInstantiator extends BaseMapTest
         public boolean canCreateFromObjectWith() { return true; }
         
         @Override
-        public CreatorProperty[] getFromObjectArguments(DeserializationConfig config) {
+        public CreatorProperty[] getFromObjectArguments(DeserializationContext ctxt) {
             return  new CreatorProperty[] {
-                    new CreatorProperty(new PropertyName("type"), config.constructType(Class.class), null,
+                    new CreatorProperty(new PropertyName("type"), ctxt.constructType(Class.class), null,
                             null, null, null, 0, null,
                             PropertyMetadata.STD_REQUIRED)
             };
@@ -148,9 +148,9 @@ public class TestValueInstantiator extends BaseMapTest
         public boolean canCreateFromObjectWith() { return true; }
 
         @Override
-        public CreatorProperty[] getFromObjectArguments(DeserializationConfig config) {
+        public CreatorProperty[] getFromObjectArguments(DeserializationContext ctxt) {
             return  new CreatorProperty[] {
-                    new CreatorProperty(new PropertyName("name"), config.constructType(String.class), null,
+                    new CreatorProperty(new PropertyName("name"), ctxt.constructType(String.class), null,
                             null, null, null, 0, null,
                             PropertyMetadata.STD_REQUIRED)
             };
@@ -435,9 +435,9 @@ public class TestValueInstantiator extends BaseMapTest
                     public boolean canCreateFromObjectWith() { return true; }
         
                     @Override
-                    public CreatorProperty[] getFromObjectArguments(DeserializationConfig config) {
+                    public CreatorProperty[] getFromObjectArguments(DeserializationContext ctxt) {
                         return  new CreatorProperty[] {
-                                new CreatorProperty(new PropertyName("secret"), config.constructType(String.class), null,
+                                new CreatorProperty(new PropertyName("secret"), ctxt.constructType(String.class), null,
                                         null, null, null, 0, null,
                                         PropertyMetadata.STD_REQUIRED)
                         };

@@ -455,7 +455,7 @@ public class BeanDeserializerFactory
     {
         final boolean isConcrete = !beanDesc.getType().isAbstract();
         final SettableBeanProperty[] creatorProps = isConcrete
-                ? builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig())
+                ? builder.getValueInstantiator().getFromObjectArguments(ctxt)
                 : null;
         final boolean hasCreatorProps = (creatorProps != null);
 

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.PropertyMetadata;
@@ -26,7 +25,7 @@ public class JsonLocationInstantiator
     public boolean canCreateFromObjectWith() { return true; }
     
     @Override
-    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationContext config) {
         JavaType intType = config.constructType(Integer.TYPE);
         JavaType longType = config.constructType(Long.TYPE);
         return new SettableBeanProperty[] {

@@ -138,7 +138,7 @@ public class EnumMapDeserializer
                 }
                 _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
             } else if (_valueInstantiator.canCreateFromObjectWith()) {
-                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt);
                 _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps,
                         ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
             }

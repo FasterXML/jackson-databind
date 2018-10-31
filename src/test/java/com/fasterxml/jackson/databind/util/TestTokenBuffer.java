@@ -134,7 +134,7 @@ public class TestTokenBuffer extends BaseMapTest
                     p.getIntValue();
                     fail("Expected failure for `int` overflow");
                 } catch (JsonParseException e) {
-                    verifyException(e, "Numeric value ("+big+") out of range of int");
+                    verifyException(e, "Numeric value ("+big+") out of range of `int`");
                 }
             }
         }
@@ -149,7 +149,7 @@ public class TestTokenBuffer extends BaseMapTest
                     p.getIntValue();
                     fail("Expected failure for `int` overflow");
                 } catch (JsonParseException e) {
-                    verifyException(e, "Numeric value ("+big+") out of range of int");
+                    verifyException(e, "Numeric value ("+big+") out of range of `int`");
                 }
             }
         }
@@ -167,7 +167,7 @@ public class TestTokenBuffer extends BaseMapTest
                     p.getLongValue();
                     fail("Expected failure for `long` overflow");
                 } catch (JsonParseException e) {
-                    verifyException(e, "Numeric value ("+big+") out of range of long");
+                    verifyException(e, "Numeric value ("+big+") out of range of `long`");
                 }
             }
         }

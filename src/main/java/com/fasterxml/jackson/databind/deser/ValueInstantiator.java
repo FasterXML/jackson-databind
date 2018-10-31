@@ -140,8 +140,11 @@ public abstract class ValueInstantiator
      *<p>
      * NOTE: all properties will be of type
      * {@link com.fasterxml.jackson.databind.deser.CreatorProperty}.
+     *<p>
+     * NOTE: since 3.0, gets passed full {@link DeserializationContext},
+     * not just <code>DeserializationConfig</code>
      */
-    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
         return null;
     }
 

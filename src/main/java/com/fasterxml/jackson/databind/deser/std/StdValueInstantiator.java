@@ -234,7 +234,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
         return _constructorArguments;
     }
 

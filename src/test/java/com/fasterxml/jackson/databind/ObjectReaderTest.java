@@ -79,7 +79,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         ObjectReader r = MAPPER.reader();
         assertFalse(r.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertFalse(r.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+        assertFalse(r.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
         
         r = r.withoutFeatures(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);

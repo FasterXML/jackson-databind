@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collections;
 
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.*;
 
@@ -43,13 +43,13 @@ public class DeserializationConfigTest extends BaseMapTest
     {
         DeserializationConfig config = MAPPER.deserializationConfig();
 
-        assertNotSame(config, config.with(JsonParser.Feature.IGNORE_UNDEFINED));
-        assertNotSame(config, config.withFeatures(JsonParser.Feature.IGNORE_UNDEFINED,
-                JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
+        assertNotSame(config, config.with(StreamReadFeature.IGNORE_UNDEFINED));
+        assertNotSame(config, config.withFeatures(StreamReadFeature.IGNORE_UNDEFINED,
+                StreamReadFeature.STRICT_DUPLICATE_DETECTION));
 
-        assertSame(config, config.without(JsonParser.Feature.IGNORE_UNDEFINED));
-        assertSame(config, config.withoutFeatures(JsonParser.Feature.IGNORE_UNDEFINED,
-                JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
+        assertSame(config, config.without(StreamReadFeature.IGNORE_UNDEFINED));
+        assertSame(config, config.withoutFeatures(StreamReadFeature.IGNORE_UNDEFINED,
+                StreamReadFeature.STRICT_DUPLICATE_DETECTION));
     }
 
     public void testJsonReadFeatures() throws Exception

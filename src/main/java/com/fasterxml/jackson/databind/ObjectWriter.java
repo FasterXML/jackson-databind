@@ -271,23 +271,23 @@ public class ObjectWriter
 
     /*
     /**********************************************************************
-    /* Life-cycle, fluent factories for JsonGenerator.Feature
+    /* Life-cycle, fluent factories for StreamWriteFeature
     /**********************************************************************
      */
 
-    public ObjectWriter with(JsonGenerator.Feature feature)  {
+    public ObjectWriter with(StreamWriteFeature feature)  {
         return _new(this, _config.with(feature));
     }
 
-    public ObjectWriter withFeatures(JsonGenerator.Feature... features) {
+    public ObjectWriter withFeatures(StreamWriteFeature... features) {
         return _new(this, _config.withFeatures(features));
     }
 
-    public ObjectWriter without(JsonGenerator.Feature feature) {
+    public ObjectWriter without(StreamWriteFeature feature) {
         return _new(this, _config.without(feature));
     }
 
-    public ObjectWriter withoutFeatures(JsonGenerator.Feature... features) {
+    public ObjectWriter withoutFeatures(StreamWriteFeature... features) {
         return _new(this, _config.withoutFeatures(features));
     }
 
@@ -756,7 +756,7 @@ public class ObjectWriter
         return _config.isEnabled(f);
     }
 
-    public boolean isEnabled(JsonGenerator.Feature f) {
+    public boolean isEnabled(StreamWriteFeature f) {
         // !!! 09-Oct-2017, tatu: Actually for full answer we really should check
         //   what actual combined settings are....
         return _generatorFactory.isEnabled(f);

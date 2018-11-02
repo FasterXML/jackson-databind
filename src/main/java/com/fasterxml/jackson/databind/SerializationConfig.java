@@ -61,7 +61,7 @@ public final class SerializationConfig
     protected final int _serFeatures;
 
     /**
-     * States of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable.
+     * States of {@link com.fasterxml.jackson.core.StreamWriteFeature}s to enable/disable.
      */
     protected final int _streamWriteFeatures;
 
@@ -318,7 +318,7 @@ public final class SerializationConfig
 
     /*
     /**********************************************************************
-    /* Factory methods for JsonGenerator.Feature
+    /* Factory methods for StreamWriteFeature
     /**********************************************************************
      */
 
@@ -326,7 +326,7 @@ public final class SerializationConfig
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature enabled.
      */
-    public SerializationConfig with(JsonGenerator.Feature feature)
+    public SerializationConfig with(StreamWriteFeature feature)
     {
         int newSet = _streamWriteFeatures | feature.getMask();
         return (_streamWriteFeatures == newSet) ? this :
@@ -338,10 +338,10 @@ public final class SerializationConfig
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
      */
-    public SerializationConfig withFeatures(JsonGenerator.Feature... features)
+    public SerializationConfig withFeatures(StreamWriteFeature... features)
     {
         int newSet = _streamWriteFeatures;
-        for (JsonGenerator.Feature f : features) {
+        for (StreamWriteFeature f : features) {
             newSet |= f.getMask();
         }
         return (_streamWriteFeatures == newSet) ? this :
@@ -353,7 +353,7 @@ public final class SerializationConfig
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
      */
-    public SerializationConfig without(JsonGenerator.Feature feature)
+    public SerializationConfig without(StreamWriteFeature feature)
     {
         int newSet = _streamWriteFeatures & ~feature.getMask();
         return (_streamWriteFeatures == newSet) ? this :
@@ -365,10 +365,10 @@ public final class SerializationConfig
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
      */
-    public SerializationConfig withoutFeatures(JsonGenerator.Feature... features)
+    public SerializationConfig withoutFeatures(StreamWriteFeature... features)
     {
         int newSet = _streamWriteFeatures;
-        for (JsonGenerator.Feature f : features) {
+        for (StreamWriteFeature f : features) {
             newSet &= ~f.getMask();
         }
         return (_streamWriteFeatures == newSet) ? this :

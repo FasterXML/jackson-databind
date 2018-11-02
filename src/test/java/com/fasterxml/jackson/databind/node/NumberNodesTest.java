@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 
@@ -365,7 +365,7 @@ public class NumberNodesTest extends NodeTestBase
     public void testBigDecimalAsPlain() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder(JsonFactory.builder()
-                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
                 .build())
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .build();

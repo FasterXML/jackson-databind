@@ -38,7 +38,7 @@ public final class DeserializationConfig
     protected final int _deserFeatures;
 
     /**
-     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
+     * States of {@link com.fasterxml.jackson.core.StreamReadFeature}s to enable/disable.
      */
     protected final int _streamReadFeatures;
 
@@ -308,7 +308,7 @@ public final class DeserializationConfig
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
      */
-    public DeserializationConfig with(JsonParser.Feature feature)
+    public DeserializationConfig with(StreamReadFeature feature)
     {
         int newSet = _streamReadFeatures | feature.getMask();
         return (_streamReadFeatures == newSet)? this :
@@ -320,10 +320,10 @@ public final class DeserializationConfig
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
      */
-    public DeserializationConfig withFeatures(JsonParser.Feature... features)
+    public DeserializationConfig withFeatures(StreamReadFeature... features)
     {
         int newSet = _streamReadFeatures;
-        for (JsonParser.Feature f : features) {
+        for (StreamReadFeature f : features) {
             newSet |= f.getMask();
         }
         return (_streamReadFeatures == newSet) ? this :
@@ -335,7 +335,7 @@ public final class DeserializationConfig
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
      */
-    public DeserializationConfig without(JsonParser.Feature feature)
+    public DeserializationConfig without(StreamReadFeature feature)
     {
         int newSet = _streamReadFeatures & ~feature.getMask();
         return (_streamReadFeatures == newSet) ? this :
@@ -347,10 +347,10 @@ public final class DeserializationConfig
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
      */
-    public DeserializationConfig withoutFeatures(JsonParser.Feature... features)
+    public DeserializationConfig withoutFeatures(StreamReadFeature... features)
     {
         int newSet = _streamReadFeatures;
-        for (JsonParser.Feature f : features) {
+        for (StreamReadFeature f : features) {
             newSet &= ~f.getMask();
         }
         return (_streamReadFeatures == newSet)? this :
@@ -485,7 +485,7 @@ public final class DeserializationConfig
         return (_deserFeatures & f.getMask()) != 0;
     }
 
-    public final boolean isEnabled(JsonParser.Feature f) {
+    public final boolean isEnabled(StreamReadFeature f) {
         return (_streamReadFeatures & f.getMask()) != 0;
     }
 

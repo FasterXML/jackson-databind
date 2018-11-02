@@ -380,7 +380,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
      */
-    public ObjectReader with(JsonParser.Feature feature) {
+    public ObjectReader with(StreamReadFeature feature) {
         return _with(_config.with(feature));
     }
 
@@ -388,7 +388,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
      */
-    public ObjectReader withFeatures(JsonParser.Feature... features) {
+    public ObjectReader withFeatures(StreamReadFeature... features) {
         return _with(_config.withFeatures(features));
     }    
 
@@ -396,7 +396,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
-    public ObjectReader without(JsonParser.Feature feature) {
+    public ObjectReader without(StreamReadFeature feature) {
         return _with(_config.without(feature)); 
     }
 
@@ -404,7 +404,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
-    public ObjectReader withoutFeatures(JsonParser.Feature... features) {
+    public ObjectReader withoutFeatures(StreamReadFeature... features) {
         return _with(_config.withoutFeatures(features));
     }
 
@@ -696,7 +696,7 @@ public class ObjectReader
         return _config.isEnabled(f);
     }
 
-    public boolean isEnabled(JsonParser.Feature f) {
+    public boolean isEnabled(StreamReadFeature f) {
         return _config.isEnabled(f);
     }
 

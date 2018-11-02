@@ -64,7 +64,7 @@ public class ObjectMapperTest extends BaseMapTest
         // and also for mapper
         assertTrue(MAPPER.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         assertTrue(MAPPER.isEnabled(JsonWriteFeature.QUOTE_FIELD_NAMES));
-        assertTrue(MAPPER.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        assertTrue(MAPPER.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
     }
 
     /*

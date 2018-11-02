@@ -131,7 +131,7 @@ public abstract class Module
         public boolean isEnabled(DeserializationFeature f);
         public boolean isEnabled(SerializationFeature f);
         public boolean isEnabled(TokenStreamFactory.Feature f);
-        public boolean isEnabled(JsonParser.Feature f);
+        public boolean isEnabled(StreamReadFeature f);
         public boolean isEnabled(JsonGenerator.Feature f);
 
         /*

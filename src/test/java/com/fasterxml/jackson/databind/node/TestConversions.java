@@ -231,7 +231,7 @@ public class TestConversions extends BaseMapTest
     public void testBigDecimalAsPlainStringTreeConversion() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
-                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
                 .build());
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";

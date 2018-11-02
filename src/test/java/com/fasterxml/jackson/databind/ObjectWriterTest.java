@@ -224,7 +224,7 @@ public class ObjectWriterTest
     {
         ObjectWriter w = MAPPER.writer();
         assertFalse(w.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertFalse(w.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
+        assertFalse(w.isEnabled(StreamWriteFeature.STRICT_DUPLICATE_DETECTION));
         ObjectWriter newW = w.with(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS,
                 SerializationFeature.INDENT_OUTPUT);
         assertNotSame(w, newW);
@@ -255,9 +255,9 @@ public class ObjectWriterTest
         assertNotSame(w, w.with(JsonWriteFeature.ESCAPE_NON_ASCII));
         assertNotSame(w, w.withFeatures(JsonWriteFeature.ESCAPE_NON_ASCII));
 
-        assertTrue(w.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
-        assertNotSame(w, w.without(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
-        assertNotSame(w, w.withoutFeatures(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        assertTrue(w.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertNotSame(w, w.without(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertNotSame(w, w.withoutFeatures(StreamWriteFeature.AUTO_CLOSE_TARGET));
     }
     
     /*

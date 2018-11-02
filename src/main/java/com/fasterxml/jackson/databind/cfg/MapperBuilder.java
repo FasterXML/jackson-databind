@@ -205,7 +205,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     /**
-     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
+     * States of {@link StreamReadFeature}s to enable/disable.
      */
     protected int _streamReadFeatures;
 
@@ -450,7 +450,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return f.enabledIn(_serFeatures);
     }
 
-    public boolean isEnabled(JsonParser.Feature f) {
+    public boolean isEnabled(StreamReadFeature f) {
         return f.enabledIn(_streamReadFeatures);
     }
     public boolean isEnabled(JsonGenerator.Feature f) {
@@ -724,21 +724,21 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
-    public B enable(JsonParser.Feature... features) {
-        for (JsonParser.Feature f : features) {
+    public B enable(StreamReadFeature... features) {
+        for (StreamReadFeature f : features) {
             _streamReadFeatures |= f.getMask();
         }
         return _this();
     }
 
-    public B disable(JsonParser.Feature... features) {
-        for (JsonParser.Feature f : features) {
+    public B disable(StreamReadFeature... features) {
+        for (StreamReadFeature f : features) {
             _streamReadFeatures &= ~f.getMask();
         }
         return _this();
     }
 
-    public B configure(JsonParser.Feature feature, boolean state) {
+    public B configure(StreamReadFeature feature, boolean state) {
         if (state) {
             _streamReadFeatures |= feature.getMask();
         } else {

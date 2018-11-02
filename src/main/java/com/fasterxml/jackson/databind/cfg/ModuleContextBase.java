@@ -118,7 +118,7 @@ public class ModuleContextBase
     }
 
     @Override
-    public boolean isEnabled(JsonGenerator.Feature f) {
+    public boolean isEnabled(StreamWriteFeature f) {
         return _builder.isEnabled(f);
     }
 

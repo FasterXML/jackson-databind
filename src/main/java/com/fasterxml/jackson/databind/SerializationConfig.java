@@ -507,7 +507,7 @@ public final class SerializationConfig
      * for feature, and only if not, checks state of passed-in
      * factory.
      */
-    public final boolean isEnabled(JsonGenerator.Feature f) {
+    public final boolean isEnabled(StreamWriteFeature f) {
         return (_streamWriteFeatures & f.getMask()) != 0;
     }
 

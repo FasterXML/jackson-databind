@@ -8,6 +8,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.core.util.Named;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -409,7 +410,7 @@ public final class ClassUtil
     {
         // 04-Mar-2014, tatu: Let's try to prevent auto-closing of
         //    structures, which typically causes more damage.
-        g.disable(JsonGenerator.Feature.AUTO_CLOSE_CONTENT);
+        g.disable(StreamWriteFeature.AUTO_CLOSE_CONTENT);
         try {
             g.close();
         } catch (Exception e) {
@@ -432,7 +433,7 @@ public final class ClassUtil
         throws IOException
     {
         if (g != null) {
-            g.disable(JsonGenerator.Feature.AUTO_CLOSE_CONTENT);
+            g.disable(StreamWriteFeature.AUTO_CLOSE_CONTENT);
             try {
                 g.close();
             } catch (Exception e) {

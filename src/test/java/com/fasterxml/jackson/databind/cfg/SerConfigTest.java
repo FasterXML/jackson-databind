@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collections;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
@@ -42,7 +41,7 @@ public class SerConfigTest extends BaseMapTest
         assertNotSame(config, config.with(JsonWriteFeature.ESCAPE_NON_ASCII));
         SerializationConfig newConfig = config.withFeatures(StreamWriteFeature.IGNORE_UNKNOWN);
         assertNotSame(config, newConfig);
-        assertTrue(newConfig.isEnabled(JsonGenerator.Feature.IGNORE_UNKNOWN));
+        assertTrue(newConfig.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
 
         // no change to settings, same object:
         assertSame(config, config.without(JsonWriteFeature.ESCAPE_NON_ASCII));

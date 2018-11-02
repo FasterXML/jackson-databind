@@ -26,7 +26,7 @@ public class TokenBuffer
  */
     extends JsonGenerator
 {
-    protected final static int DEFAULT_STREAM_WRITE_FEATURES = JsonGenerator.Feature.collectDefaults();
+    protected final static int DEFAULT_STREAM_WRITE_FEATURES = StreamWriteFeature.collectDefaults();
 
     /*
     /**********************************************************************
@@ -44,7 +44,7 @@ public class TokenBuffer
 
     /**
      * Bit flag composed of bits that indicate which
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s
+     * {@link StreamWriteFeature}s
      * are enabled.
      *<p>
      * NOTE: most features have no effect on this class
@@ -606,13 +606,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public JsonGenerator enable(Feature f) {
+    public JsonGenerator enable(StreamWriteFeature f) {
         _streamWriteFeatures |= f.getMask();
         return this;
     }
 
     @Override
-    public JsonGenerator disable(Feature f) {
+    public JsonGenerator disable(StreamWriteFeature f) {
         _streamWriteFeatures &= ~f.getMask();
         return this;
     }
@@ -620,7 +620,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     //public JsonGenerator configure(SerializationFeature f, boolean state) { }
 
     @Override
-    public boolean isEnabled(Feature f) {
+    public boolean isEnabled(StreamWriteFeature f) {
         return (_streamWriteFeatures & f.getMask()) != 0;
     }
 

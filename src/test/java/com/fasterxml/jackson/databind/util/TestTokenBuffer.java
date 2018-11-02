@@ -35,11 +35,11 @@ public class TestTokenBuffer extends BaseMapTest
         assertNotNull(buf.getOutputContext());
         assertFalse(buf.isClosed());
 
-        assertFalse(buf.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
-        buf.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        assertTrue(buf.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
-        buf.disable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        assertFalse(buf.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        assertFalse(buf.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
+        buf.enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+        assertTrue(buf.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
+        buf.disable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+        assertFalse(buf.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
         buf.close();
         assertTrue(buf.isClosed());
     }

@@ -99,7 +99,9 @@ public class SqlDateSerializationTest extends BaseMapTest
     // [databind#2064]
     public void testSqlDateConfigOverride() throws Exception
     {
+        // `java.sql.Date` applies system default zone (and not UTC)
         final ObjectMapper mapper = jsonMapperBuilder()
+                .defaultTimeZone(TimeZone.getDefault())
                 .withConfigOverride(java.sql.Date.class,
                         o -> o.setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd")))
                 .build();

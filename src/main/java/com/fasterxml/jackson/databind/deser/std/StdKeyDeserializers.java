@@ -52,15 +52,7 @@ public class StdKeyDeserializers
         // We don't need full deserialization information, just need to know creators.
         BeanDescription beanDesc = ctxt.introspect(type);
 
-        // Ok, so: can we find T(String) constructor?
-        Constructor<?> ctor = beanDesc.findSingleArgConstructor(String.class);
-        if (ctor != null) {
-            if (ctxt.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-            }
-            return new StdKeyDeserializer.StringCtorKeyDeserializer(ctor);
-        }
-        /* or if not, "static T valueOf(String)" (or equivalent marked
+        /* Ok, so: can we find "static T valueOf(String)" (or equivalent marked
          * with @JsonCreator annotation?)
          */
         Method m = beanDesc.findFactoryMethod(String.class);
@@ -70,6 +62,16 @@ public class StdKeyDeserializers
             }
             return new StdKeyDeserializer.StringFactoryKeyDeserializer(m);
         }
+
+        // or if not, a T(String) constructor?
+        Constructor<?> ctor = beanDesc.findSingleArgConstructor(String.class);
+        if (ctor != null) {
+            if (ctxt.canOverrideAccessModifiers()) {
+                ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
+            return new StdKeyDeserializer.StringCtorKeyDeserializer(ctor);
+        }
+
         // nope, no such luck...
         return null;
     }

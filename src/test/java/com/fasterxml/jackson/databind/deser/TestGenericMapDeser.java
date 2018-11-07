@@ -71,7 +71,28 @@ public class TestGenericMapDeser
             return new KeyTypeFactory(str, true);
         }
     }
-    
+
+    static class KeyTypeFactoryPrecedence  {
+        protected String value;
+        public KeyTypeFactoryPrecedence(String v) {
+            this(v, false);
+        }
+
+        private KeyTypeFactoryPrecedence(String v, boolean factory) {
+            if (factory) {
+                value = "factory:" + v;
+            }
+            else {
+                value = "ctor:" + v;
+            }
+        }
+
+        @JsonCreator
+        public static KeyTypeFactoryPrecedence create(String str) {
+            return new KeyTypeFactoryPrecedence(str, true);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods for sub-classing
@@ -165,6 +186,20 @@ public class TestGenericMapDeser
         Object key = entry.getKey();
         assertEquals(KeyTypeFactory.class, key.getClass());
         assertEquals("a", ((KeyTypeFactory) key).value);
+    }
+
+
+    public void testKeyViaFactoryPrecedenceOverConstructor() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<KeyTypeFactoryPrecedence,Integer> map = mapper.readValue("{\"a\":123}",
+                TypeFactory.defaultInstance().constructMapType(HashMap.class, KeyTypeFactoryPrecedence.class, Integer.class));
+        assertEquals(1, map.size());
+        Map.Entry<?,?> entry = map.entrySet().iterator().next();
+        assertEquals(Integer.valueOf(123), entry.getValue());
+        Object key = entry.getKey();
+        assertEquals(KeyTypeFactoryPrecedence.class, key.getClass());
+        assertEquals("factory:a", ((KeyTypeFactoryPrecedence) key).value);
     }
 
 }

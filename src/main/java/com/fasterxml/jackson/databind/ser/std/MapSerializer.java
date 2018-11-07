@@ -196,7 +196,7 @@ public class MapSerializer
         _valueTypeSerializer = src._valueTypeSerializer;
         _keySerializer = (JsonSerializer<Object>) keySerializer;
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
         _property = property;
         _filterId = src._filterId;
         _sortKeys = src._sortKeys;
@@ -236,7 +236,7 @@ public class MapSerializer
         _valueTypeSerializer = src._valueTypeSerializer;
         _keySerializer = src._keySerializer;
         _valueSerializer = src._valueSerializer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
         _property = src._property;
         _filterId = filterId;
         _sortKeys = sortKeys;

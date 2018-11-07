@@ -116,7 +116,7 @@ public abstract class ReferenceTypeSerializer<T>
     {
         super(base);
         _referredType = base._referredType;
-        _dynamicSerializers = base._dynamicSerializers;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _property = property;
         _valueTypeSerializer = vts;
         _valueSerializer = (JsonSerializer<Object>) valueSer;

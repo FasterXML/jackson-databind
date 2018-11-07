@@ -118,7 +118,7 @@ public abstract class AsArraySerializerBase<T>
         _valueTypeSerializer = vts;
         _property = property;
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
-        _dynamicSerializers = src._dynamicSerializers;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _unwrapSingle = unwrapSingle;
     }
 

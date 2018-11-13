@@ -40,9 +40,9 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * offer more advancing reading/writing functionality.
  *<p>
  * Construction of mapper instances proceeds either via no-arguments constructor
- * (producting instance with default configuration); or through one of two build
+ * (producing instance with default configuration); or through one of two build
  * methods.
- * First build method is the static {@link #builder}
+ * First build method is the static <code>builder()</code> on exact type
  * and second {@link #rebuild()} method method on an existing mapper.
  * Former starts with default configuration (same as one that no-arguments constructor
  * created mapper has), and latter starts with configuration of the mapper it is called

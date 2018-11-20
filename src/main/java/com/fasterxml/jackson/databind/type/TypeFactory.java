@@ -463,6 +463,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         for (int i = 0, len = expectedTypes.size(); i < len; ++i) {
             JavaType exp = expectedTypes.get(i);
             JavaType act = actualTypes.get(i);
+
             if (!_verifyAndResolvePlaceholders(exp, act)) {
                 // 14-May-2018, tatu: As per [databind#2034] it seems we better relax assignment
                 //   rules further -- at least likely "raw" (untyped, non-generic) base should probably
@@ -476,6 +477,13 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                 if (i == 0) {
                     if (sourceType.hasRawClass(Map.class)
                             && act.hasRawClass(Object.class)) {
+                        continue;
+                    }
+                }
+                // 19-Nov-2018, tatu: To solve [databind#2155], let's allow type-compatible
+                //   assignment for interfaces at least...
+                if (exp.isInterface()) {
+                    if (exp.isTypeOrSuperTypeOf(act.getRawClass())) {
                         continue;
                     }
                 }

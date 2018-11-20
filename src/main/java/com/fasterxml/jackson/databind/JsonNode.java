@@ -706,7 +706,7 @@ public abstract class JsonNode
      *<p>
      * This method is functionally equivalent to:
      *<pre>
-     *   node.get(fieldName) != null &lt;&lt; !node.get(fieldName).isNull()
+     *   node.get(fieldName) != null &amp;&amp; !node.get(fieldName).isNull()
      *</pre>
      */
     public boolean hasNonNull(String fieldName) {
@@ -720,7 +720,7 @@ public abstract class JsonNode
      *<p>
      * This method is equivalent to:
      *<pre>
-     *   node.get(index) != null &lt;&lt; !node.get(index).isNull()
+     *   node.get(index) != null &amp;&amp; !node.get(index).isNull()
      *</pre>
      */
     public boolean hasNonNull(int index) {

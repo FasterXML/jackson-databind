@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #1662: `ByteBuffer` serialization is broken if offset is not 0
  (reported by j-baker@github)
+#2186: Block more classes from polymorphic deserialization (CVE-2018-19360,
+  CVE-2018-19361, CVE-2018-19362)
+ (reported by Guixiong Wu)
 
 2.9.7 (19-Sep-2018)
 

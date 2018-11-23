@@ -120,8 +120,40 @@ public class DateSerializationTest
 
         serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+00:00");
         serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+00:00");
+        serialize(mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+00:00");
+        serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+00:00");
+
+        // 22-Nov-2018, tatu: Also ensure we use padding...
+        serialize(mapper, judate(911, 1, 1,  00, 00, 00, 0, "UTC"),   "0911-01-01T00:00:00.000+00:00");
+        serialize(mapper, judate(87, 1, 1,  00, 00, 00, 0, "UTC"),   "0087-01-01T00:00:00.000+00:00");
+        serialize(mapper, judate(1, 1, 1,  00, 00, 00, 0, "UTC"),   "0001-01-01T00:00:00.000+00:00");
     }
-    
+
+    // [databind#2167]: beyond year 9999 needs special handling
+    public void testDateISO8601_10k() throws IOException
+    {
+        ObjectWriter w = MAPPER.writer()
+                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        serialize(w, judate(10204, 1, 1,  00, 00, 00, 0, "UTC"),   "+10204-01-01T00:00:00.000+00:00");
+        // and although specification lacks for beyond 5 digits (well, actually even 5...), let's do our best:
+        serialize(w, judate(123456, 1, 1,  00, 00, 00, 0, "UTC"),   "+123456-01-01T00:00:00.000+00:00");
+    }
+
+    // [databind#2167]: dates before Common Era (CE), that is, BCE, need special care:
+    public void testDateISO8601_BCE() throws IOException
+    {
+        ObjectWriter w = MAPPER.writer()
+                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // First: I _think_ BCE-1 is what you get with year 0, and should become "+0000"
+        // and from further back in time, it'll be "-0001" (BCE-2) etc)
+
+        serialize(w, judate(0, 1, 1,  00, 00, 00, 0, "UTC"),   "+0000-01-01T00:00:00.000+00:00");
+        serialize(w, judate(-1, 1, 1,  00, 00, 00, 0, "UTC"),   "-0001-01-01T00:00:00.000+00:00");
+        serialize(w, judate(-49, 1, 1,  00, 00, 00, 0, "UTC"),   "-0049-01-01T00:00:00.000+00:00"); // All hail Caesar
+        serialize(w, judate(-264, 1, 1,  00, 00, 00, 0, "UTC"),   "-0264-01-01T00:00:00.000+00:00"); // Carthage FTW?
+    }
+
     /**
      * Use a default TZ other than UTC. Dates must be serialized using that TZ.
      */
@@ -348,7 +380,10 @@ public class DateSerializationTest
     }
 
     private void serialize(ObjectMapper mapper, Object date, String expected) throws IOException {
-        String actual = mapper.writeValueAsString(date);
-        Assert.assertEquals(quote(expected), actual);
+        Assert.assertEquals(quote(expected), mapper.writeValueAsString(date));
+    }
+
+    private void serialize(ObjectWriter w, Object date, String expected) throws IOException {
+        Assert.assertEquals(quote(expected), w.writeValueAsString(date));
     }
 }

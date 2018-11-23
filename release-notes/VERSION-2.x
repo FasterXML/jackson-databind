@@ -10,6 +10,7 @@ Project: jackson-databind
  (reported by j-baker@github)
 #2155: Type parameters are checked for equality while isAssignableFrom expected
  (reported by frankfiedler@github)
+#2167: Large ISO-8601 Dates are formatted/serialized incorrectly
 #2183: Base64 JsonMappingException: Unexpected end-of-input
  (reported by ViToni@github)
 #2186: Block more classes from polymorphic deserialization (CVE-2018-19360,

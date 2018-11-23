@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.9.5 (not yet released)
+2.7.9.5 (23-Nov-2018)
 
 #1899: Another two gadgets to exploit default typing issue in jackson-databind
  (reported by OneSourceCat@github)

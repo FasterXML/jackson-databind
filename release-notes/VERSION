@@ -10,6 +10,9 @@ Project: jackson-databind
  (reported by OneSourceCat@github)
 #2097: Block more classes from polymorphic deserialization (CVE-2018-14718
   - CVE-2018-14721)
+#2186: Block more classes from polymorphic deserialization (CVE-2018-19360,
+  CVE-2018-19361, CVE-2018-19362)
+ (reported by Guixiong Wu)
 
 2.7.9.4 (08-Jun-2018)
 

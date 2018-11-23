@@ -73,6 +73,11 @@ public class SubTypeValidator
         s.add("com.sun.deploy.security.ruleset.DRSHelper");
         s.add("org.apache.axis2.jaxws.spi.handler.HandlerResolverImpl");
 
+        // [databind#2186]: yet more 3rd party gadgets
+        s.add("org.jboss.util.propertyeditor.DocumentEditor");
+        s.add("org.apache.openjpa.ee.RegistryManagedRuntime");
+        s.add("org.apache.openjpa.ee.JNDIManagedRuntime");
+        s.add("org.apache.axis2.transport.jms.JMSOutTransportInfo");        
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

@@ -196,7 +196,8 @@ public class MapSerializer
         _valueTypeSerializer = src._valueTypeSerializer;
         _keySerializer = (JsonSerializer<Object>) keySerializer;
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
+        // [databind#2181]: may not be safe to reuse, start from empty
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
         _property = property;
         _filterId = src._filterId;
         _sortKeys = src._sortKeys;
@@ -218,6 +219,8 @@ public class MapSerializer
         _valueTypeSerializer = vts;
         _keySerializer = src._keySerializer;
         _valueSerializer = src._valueSerializer;
+        // 22-Nov-2018, tatu: probably safe (even with [databind#2181]) since it's just
+        //   inclusion, type serializer but NOT serializer
         _dynamicValueSerializers = src._dynamicValueSerializers;
         _property = src._property;
         _filterId = src._filterId;
@@ -236,7 +239,8 @@ public class MapSerializer
         _valueTypeSerializer = src._valueTypeSerializer;
         _keySerializer = src._keySerializer;
         _valueSerializer = src._valueSerializer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
+        // [databind#2181]: may not be safe to reuse, start from empty
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
         _property = src._property;
         _filterId = filterId;
         _sortKeys = sortKeys;

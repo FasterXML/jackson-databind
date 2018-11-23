@@ -116,7 +116,8 @@ public abstract class ReferenceTypeSerializer<T>
     {
         super(base);
         _referredType = base._referredType;
-        _dynamicSerializers = base._dynamicSerializers;
+        // [databind#2181]: may not be safe to reuse, start from empty
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _property = property;
         _valueTypeSerializer = vts;
         _valueSerializer = (JsonSerializer<Object>) valueSer;

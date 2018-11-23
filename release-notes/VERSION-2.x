@@ -20,8 +20,11 @@ Project: jackson-databind
 
 #1662: `ByteBuffer` serialization is broken if offset is not 0
  (reported by j-baker@github)
-#215:: Type parameters are checked for equality while isAssignableFrom expected
+#2155: Type parameters are checked for equality while isAssignableFrom expected
  (reported by frankfiedler@github)
+#2167: Large ISO-8601 Dates are formatted/serialized incorrectly
+#2183: Base64 JsonMappingException: Unexpected end-of-input
+ (reported by ViToni@github)
 #2186: Block more classes from polymorphic deserialization (CVE-2018-19360,
   CVE-2018-19361, CVE-2018-19362)
  (reported by Guixiong Wu)

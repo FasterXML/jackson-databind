@@ -143,7 +143,8 @@ public class MapEntrySerializer
         _valueTypeSerializer = src._valueTypeSerializer;
         _keySerializer = (JsonSerializer<Object>) keySer;
         _valueSerializer = (JsonSerializer<Object>) valueSer;
-        _dynamicValueSerializers = src._dynamicValueSerializers;
+        // [databind#2181]: may not be safe to reuse, start from empty
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
         _property = src._property;
         _suppressableValue = suppressableValue;
         _suppressNulls = suppressNulls;

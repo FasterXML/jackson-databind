@@ -826,3 +826,8 @@ Christopher Smith (chrylis@github)
 
 Semyon Levin (remal@github)
   * Contributed #2120: `NioPathDeserializer` improvement
+   (2.9.7)
+
+Pavel Nikitin (morj@github)
+  * Requested #2181: Don't re-use dynamic serializers for property-updating copy constructors
+   (2.9.8)

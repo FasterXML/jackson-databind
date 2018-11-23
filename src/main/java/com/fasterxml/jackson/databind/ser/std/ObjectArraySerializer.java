@@ -75,6 +75,8 @@ public class ObjectArraySerializer
         _elementType = src._elementType;
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
+        // 22-Nov-2018, tatu: probably safe (even with [databind#2181]) since it's just
+        //   inclusion, type serializer but NOT serializer
         _dynamicSerializers = src._dynamicSerializers;
         _elementSerializer = src._elementSerializer;
     }
@@ -88,7 +90,8 @@ public class ObjectArraySerializer
         _elementType = src._elementType;
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
-        _dynamicSerializers = src._dynamicSerializers;
+        // [databind#2181]: may not be safe to reuse, start from empty
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
     }
 

@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.11.3 (not yet released)
+2.8.11.3 (23-Nov-2018)
 
 #2097: Block more classes from polymorphic deserialization (CVE-2018-14718
   - CVE-2018-14721)

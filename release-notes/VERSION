@@ -248,11 +248,6 @@ Project: jackson-databind
 #1277: Add caching of resolved generic types for `TypeFactory`
  (requested by Andriy P)
 
-2.7.10 (not yet released)
-
-#1628: Don't print to error stream about failure to load JDK 7 types
- (reported by Villane@github)
-
 2.7.9 (04-Feb-2017)
 
 #1367: No Object Id found for an instance when using `@ConstructorProperties`

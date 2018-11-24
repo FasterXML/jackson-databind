@@ -1,9 +1,5 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.beans.ConstructorProperties;
-import java.beans.Transient;
-import java.nio.file.Path;
-
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.PropertyName;
@@ -11,8 +7,14 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
+import java.beans.ConstructorProperties;
+import java.beans.Transient;
+import java.nio.file.Path;
+
 /**
  * @since 2.8
+ *
+ * TODO Move this into a Java 7 Module
  */
 public class Java7SupportImpl extends Java7Support
 {

@@ -9,18 +9,18 @@ module com.fasterxml.jackson.databind {
 	exports com.fasterxml.jackson.databind.deser.std;
 
 
-	exports com.fasterxml.jackson.databind.module to com.fasterxml.jackson.module.paranamer;
-	exports com.fasterxml.jackson.databind.introspect  to com.fasterxml.jackson.module.paranamer, com.fasterxml.jackson.module.mrbean, com.fasterxml.jackson.module.guice, com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.module.jaxb;
-	exports com.fasterxml.jackson.databind.cfg to  com.fasterxml.jackson.module.mrbean, com.fasterxml.jackson.module.jaxb;
+	exports com.fasterxml.jackson.databind.module to com.fasterxml.jackson.module.paranamer, com.fasterxml.jackson.module.parameternames, com.fasterxml.jackson.datatype.jsr310;
+	exports com.fasterxml.jackson.databind.introspect  to com.fasterxml.jackson.module.paranamer, com.fasterxml.jackson.module.mrbean, com.fasterxml.jackson.module.guice, com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.module.jaxb, com.fasterxml.jackson.module.parameternames, com.fasterxml.jackson.datatype.jsr310;
+	exports com.fasterxml.jackson.databind.cfg to  com.fasterxml.jackson.module.mrbean, com.fasterxml.jackson.module.jaxb, com.fasterxml.jackson.module.parameternames;
 	exports com.fasterxml.jackson.databind.type to  com.fasterxml.jackson.module.mrbean, com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8, com.fasterxml.jackson.module.jaxb;
-	exports com.fasterxml.jackson.databind.ser to  com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8;
+	exports com.fasterxml.jackson.databind.ser to  com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8, com.fasterxml.jackson.datatype.jsr310;
 	exports com.fasterxml.jackson.databind.ser.impl  to  com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8;
-	exports com.fasterxml.jackson.databind.jsontype to  com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8, com.fasterxml.jackson.module.jaxb;
+	exports com.fasterxml.jackson.databind.jsontype to  com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8, com.fasterxml.jackson.module.jaxb, com.fasterxml.jackson.datatype.jsr310;
 	exports com.fasterxml.jackson.databind.util to  com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8, com.fasterxml.jackson.module.jaxb;
 
-	exports com.fasterxml.jackson.databind.deser to  com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8;
+	exports com.fasterxml.jackson.databind.deser to  com.fasterxml.jackson.module.afterburner, com.fasterxml.jackson.datatype.jdk8, com.fasterxml.jackson.datatype.jsr310;
 	exports com.fasterxml.jackson.databind.deser.impl to  com.fasterxml.jackson.module.afterburner;
-	exports com.fasterxml.jackson.databind.jsonFormatVisitors to  com.fasterxml.jackson.datatype.jdk8, com.fasterxml.jackson.module.jaxb;
+	exports com.fasterxml.jackson.databind.jsonFormatVisitors to  com.fasterxml.jackson.datatype.jdk8, com.fasterxml.jackson.module.jaxb, com.fasterxml.jackson.datatype.jsr310;
 	exports com.fasterxml.jackson.databind.node to com.fasterxml.jackson.module.jaxb;
 	exports com.fasterxml.jackson.databind.jsontype.impl to com.fasterxml.jackson.module.jaxb;
 

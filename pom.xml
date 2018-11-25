@@ -25,21 +25,6 @@
   </scm>
 
   <properties>
-      <!-- With Jackson 2.9 we will require JDK 7 (except for annotations/streaming),
-            and new language features (diamond pattern) may be used.
-            JDK classes are still loaded dynamically since there isn't much downside
-            (small number of types); this allows use on JDK 6 platforms still (including
-            Android)
-         -->
-      <!-- TODO Remove JDK 11 Settings -->
-      <javac.src.version>1.11</javac.src.version>
-      <javac.target.version>1.11</javac.target.version>
-
-      <jdk.version>1.11</jdk.version>
-      <maven.compiler.source>1.11</maven.compiler.source>
-      <maven.compiler.target>1.11</maven.compiler.target>
-      <maven.compiler.release>11</maven.compiler.release>
-
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- but imports should work fine with defaults -->
@@ -158,6 +143,30 @@
         <artifactId>coveralls-maven-plugin</artifactId>
         <version>4.3.0</version>
       </plugin>
+
+         <plugin>
+             <groupId>org.moditect</groupId>
+             <artifactId>moditect-maven-plugin</artifactId>
+             <version>1.0.0.Beta1</version>
+             <executions>
+                 <execution>
+                     <id>add-module-infos</id>
+                     <phase>package</phase>
+                     <goals>
+                         <goal>add-module-info</goal>
+                     </goals>
+                     <configuration>
+                         <overwriteExistingFiles>true</overwriteExistingFiles>
+                         <module>
+                             <moduleInfoFile>
+                                 src/moditect/module-info.java
+                             </moduleInfoFile>
+                         </module>
+                     </configuration>
+                 </execution>
+             </executions>
+         </plugin>
+
     </plugins>
   </build>
 

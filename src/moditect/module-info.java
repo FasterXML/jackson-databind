@@ -37,6 +37,4 @@ module com.fasterxml.jackson.databind {
 	requires static java.sql;
 	//TODThe JDK 7 Impl, Think about getting rid of this
 	requires static java.desktop;
-
-	provides ObjectCodec with com.fasterxml.jackson.databind.ObjectMapper;
 }

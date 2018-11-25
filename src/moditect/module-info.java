@@ -2,6 +2,8 @@ import com.fasterxml.jackson.core.ObjectCodec;
 
 module com.fasterxml.jackson.databind {
 	uses java.nio.file.spi.FileSystemProvider;
+	uses com.fasterxml.jackson.databind.Module;
+
 	exports com.fasterxml.jackson.databind;
 	exports com.fasterxml.jackson.databind.annotation;
 

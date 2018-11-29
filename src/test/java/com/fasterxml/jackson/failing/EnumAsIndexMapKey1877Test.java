@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 public class EnumAsIndexMapKey1877Test extends BaseMapTest
 {
@@ -58,7 +57,6 @@ public class EnumAsIndexMapKey1877Test extends BaseMapTest
         }
         assertNotNull(cont);
         assertEquals(1, container.getMap().size());
-        InvalidFormatException foo = null;
 
         assertSame(Type.OTHER, container.getMap().keySet().iterator().next());
     }

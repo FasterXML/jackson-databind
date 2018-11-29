@@ -1763,7 +1763,7 @@ public class ObjectReader
         return match.getReader()._bindAndClose(p);
     }
 
-    @SuppressWarnings("resource")
+    @SuppressWarnings({ "resource", "deprecation" })
     protected Object _detectBindAndClose(DataFormatReaders.Match match, boolean forceClosing)
         throws IOException
     {
@@ -1780,7 +1780,7 @@ public class ObjectReader
         return match.getReader()._bindAndClose(p);
     }
 
-    @SuppressWarnings("resource")
+    @SuppressWarnings({ "resource", "deprecation" })
     protected <T> MappingIterator<T> _detectBindAndReadValues(DataFormatReaders.Match match, boolean forceClosing)
         throws IOException
     {
@@ -1797,7 +1797,7 @@ public class ObjectReader
         return match.getReader()._bindAndReadValues(p);
     }
     
-    @SuppressWarnings("resource")
+    @SuppressWarnings({ "resource", "deprecation" })
     protected JsonNode _detectBindAndCloseAsTree(InputStream in) throws IOException
     {
         DataFormatReaders.Match match = _dataFormatReaders.findFormat(in);

@@ -47,8 +47,8 @@ public class MapKeyDeserializationTest extends BaseMapTest
 
     public void testBooleanMapKeyDeserialization() throws Exception
     {
-        TypeReference<?> type = new TypeReference<MapWrapper<Boolean, String>>() { };
-        MapWrapper<byte[], String> result = MAPPER.readValue(aposToQuotes("{'map':{'true':'foobar'}}"), type);
+        TypeReference<MapWrapper<Boolean, String>> type = new TypeReference<MapWrapper<Boolean, String>>() { };
+        MapWrapper<Boolean, String> result = MAPPER.readValue(aposToQuotes("{'map':{'true':'foobar'}}"), type);
                 
         assertEquals(1, result.map.size());
         Assert.assertEquals(Boolean.TRUE, result.map.entrySet().iterator().next().getKey());
@@ -60,48 +60,48 @@ public class MapKeyDeserializationTest extends BaseMapTest
 
     public void testByteMapKeyDeserialization() throws Exception
     {
-        TypeReference<?> type = new TypeReference<MapWrapper<Byte, String>>() { };
-        MapWrapper<byte[], String> result = MAPPER.readValue(aposToQuotes("{'map':{'13':'foobar'}}"), type);
+        TypeReference<MapWrapper<Byte, String>> type = new TypeReference<MapWrapper<Byte, String>>() { };
+        MapWrapper<Byte, String> result = MAPPER.readValue(aposToQuotes("{'map':{'13':'foobar'}}"), type);
         assertEquals(1, result.map.size());
         Assert.assertEquals(Byte.valueOf((byte) 13), result.map.entrySet().iterator().next().getKey());
     }
 
     public void testShortMapKeyDeserialization() throws Exception
     {
-        TypeReference<?> type = new TypeReference<MapWrapper<Short, String>>() { };
-        MapWrapper<byte[], String> result = MAPPER.readValue(aposToQuotes("{'map':{'13':'foobar'}}"), type);
+        TypeReference<MapWrapper<Short, String>> type = new TypeReference<MapWrapper<Short, String>>() { };
+        MapWrapper<Short, String> result = MAPPER.readValue(aposToQuotes("{'map':{'13':'foobar'}}"), type);
         assertEquals(1, result.map.size());
         Assert.assertEquals(Short.valueOf((short) 13), result.map.entrySet().iterator().next().getKey());
     }
 
     public void testIntegerMapKeyDeserialization() throws Exception
     {
-        TypeReference<?> type = new TypeReference<MapWrapper<Integer, String>>() { };
-        MapWrapper<byte[], String> result = MAPPER.readValue(aposToQuotes("{'map':{'-3':'foobar'}}"), type);
+        TypeReference<MapWrapper<Integer, String>> type = new TypeReference<MapWrapper<Integer, String>>() { };
+        MapWrapper<Integer, String> result = MAPPER.readValue(aposToQuotes("{'map':{'-3':'foobar'}}"), type);
         assertEquals(1, result.map.size());
         Assert.assertEquals(Integer.valueOf(-3), result.map.entrySet().iterator().next().getKey());
     }
 
     public void testLongMapKeyDeserialization() throws Exception
     {
-        TypeReference<?> type = new TypeReference<MapWrapper<Long, String>>() { };
-        MapWrapper<byte[], String> result = MAPPER.readValue(aposToQuotes("{'map':{'42':'foobar'}}"), type);
+        TypeReference<MapWrapper<Long, String>> type = new TypeReference<MapWrapper<Long, String>>() { };
+        MapWrapper<Long, String> result = MAPPER.readValue(aposToQuotes("{'map':{'42':'foobar'}}"), type);
         assertEquals(1, result.map.size());
         Assert.assertEquals(Long.valueOf(42), result.map.entrySet().iterator().next().getKey());
     }
 
     public void testFloatMapKeyDeserialization() throws Exception
     {
-        TypeReference<?> type = new TypeReference<MapWrapper<Float, String>>() { };
-        MapWrapper<byte[], String> result = MAPPER.readValue(aposToQuotes("{'map':{'3.5':'foobar'}}"), type);
+        TypeReference<MapWrapper<Float, String>> type = new TypeReference<MapWrapper<Float, String>>() { };
+        MapWrapper<Float, String> result = MAPPER.readValue(aposToQuotes("{'map':{'3.5':'foobar'}}"), type);
         assertEquals(1, result.map.size());
         Assert.assertEquals(Float.valueOf(3.5f), result.map.entrySet().iterator().next().getKey());
     }
 
     public void testDoubleMapKeyDeserialization() throws Exception
     {
-        TypeReference<?> type = new TypeReference<MapWrapper<Double, String>>() { };
-        MapWrapper<byte[], String> result = MAPPER.readValue(aposToQuotes("{'map':{'0.25':'foobar'}}"), type);
+        TypeReference<MapWrapper<Double, String>> type = new TypeReference<MapWrapper<Double, String>>() { };
+        MapWrapper<Double, String> result = MAPPER.readValue(aposToQuotes("{'map':{'0.25':'foobar'}}"), type);
         assertEquals(1, result.map.size());
         Assert.assertEquals(Double.valueOf(0.25), result.map.entrySet().iterator().next().getKey());
     }

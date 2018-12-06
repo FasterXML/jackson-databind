@@ -1453,7 +1453,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(String content, TypeReference valueTypeRef)
+    public <T> T readValue(String content, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();

@@ -19,7 +19,8 @@ public class JdkDeserializers
                 UUID.class,
                 AtomicBoolean.class,
                 StackTraceElement.class,
-                ByteBuffer.class
+                ByteBuffer.class,
+                Void.class
         };
         for (Class<?> cls : types) { _classNames.add(cls.getName()); }
         for (Class<?> cls : FromStringDeserializer.types()) { _classNames.add(cls.getName()); }
@@ -44,6 +45,9 @@ public class JdkDeserializers
             }
             if (rawType == ByteBuffer.class) {
                 return new ByteBufferDeserializer();
+            }
+            if (rawType == Void.class) {
+                return NullifyingDeserializer.instance;
             }
         }
         return null;

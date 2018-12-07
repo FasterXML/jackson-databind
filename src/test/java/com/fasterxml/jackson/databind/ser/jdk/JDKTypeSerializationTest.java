@@ -28,7 +28,12 @@ public class JDKTypeSerializationTest
 
         public InetAddressBean(InetAddress i) { value = i; }
     }
-    
+
+    // [databind#2197]
+    static class VoidBean {
+        public Void value;
+    }
+
     public void testBigDecimal() throws Exception
     {
         Map<String, Object> map = new HashMap<String, Object>();
@@ -189,5 +194,12 @@ public class JDKTypeSerializationTest
             String json = MAPPER.writeValueAsString(uuid);
             assertEquals(quote(uuid.toString()), json);
         }
+    }
+
+    // [databind#2197]
+    public void testVoidSerialization() throws Exception
+    {
+        assertEquals(aposToQuotes("{'value':null}"),
+                MAPPER.writeValueAsString(new VoidBean()));
     }
 }

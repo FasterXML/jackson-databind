@@ -30,6 +30,9 @@ Project: jackson-databind
 #2186: Block more classes from polymorphic deserialization (CVE-2018-19360,
   CVE-2018-19361, CVE-2018-19362)
  (reported by Guixiong Wu)
+#2197: Illegal reflective access operation warning when using `java.lang.Void`
+  as value type
+ (reported by René K)
 
 2.9.7 (19-Sep-2018)
 

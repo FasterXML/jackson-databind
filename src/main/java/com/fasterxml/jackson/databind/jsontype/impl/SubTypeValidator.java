@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * Helper class used to encapsulate rules that determine subtypes that
  * are invalid to use, even with default typing, mostly due to security
  * concerns.
- * Used by <code>BeanDeserializerFacotry</code>
+ * Used by <code>BeanDeserializerFactory</code>
  *
  * @since 2.8.11
  */

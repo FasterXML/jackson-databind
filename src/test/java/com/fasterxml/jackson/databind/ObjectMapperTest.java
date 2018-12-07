@@ -71,10 +71,10 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(mapper.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
         assertTrue(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
         mapper = JsonMapper.builder()
-                .disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM)
+                .disable(StreamWriteFeature.FLUSH_PASSED_TO_STREAM)
                 .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
                 .build();
-        assertFalse(mapper.isEnabled(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM));
+        assertFalse(mapper.isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM));
         assertFalse(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
     }
 

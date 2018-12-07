@@ -2247,6 +2247,26 @@ public class ObjectMapper
 
     /*
     /**********************************************************
+    /* Configuration, 2.10+ stream features
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.10
+     */
+    public boolean isEnabled(StreamReadFeature f) {
+        return isEnabled(f.mappedFeature());
+    }
+
+    /**
+     * @since 2.10
+     */
+    public boolean isEnabled(StreamWriteFeature f) {
+        return isEnabled(f.mappedFeature());
+    }
+    
+    /*
+    /**********************************************************
     /* Public API (from ObjectCodec): deserialization
     /* (mapping from JSON to Java types);
     /* main methods

@@ -113,6 +113,11 @@ public class JDKScalarsTest
                 @JsonProperty(value="b",required=true) int b) { }
     }
 
+    // [databind#2197]
+    static class VoidBean {
+        public Void value;
+    }
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     /*
@@ -861,6 +866,14 @@ public class JDKScalarsTest
         }
     }
 
+    // [databind#2197]
+    public void testVoidDeser() throws Exception
+    {
+        VoidBean bean = MAPPER.readValue(aposToQuotes("{'value' : 123 }"),
+                VoidBean.class);
+        assertNull(bean.value);
+    }
+    
     /*
     /**********************************************************
     /* Test for invalid String values

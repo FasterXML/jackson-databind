@@ -372,7 +372,14 @@ public class DateSerializationTest
 
     private static Date judate(int year, int month, int day, int hour, int minutes, int seconds, int millis, String tz) {
         Calendar cal = Calendar.getInstance();
-        cal.set(year, month-1, day, hour, minutes, seconds);
+        // 23-Nov-2018, tatu: Safer this way, even though negative appears to work too
+        if (year < 0) {
+            year = -year + 1;
+            cal.set(Calendar.ERA, GregorianCalendar.BC);
+            cal.set(year, month-1, day, hour, minutes, seconds);
+        } else {
+            cal.set(year, month-1, day, hour, minutes, seconds);
+        }
         cal.set(Calendar.MILLISECOND, millis);
         cal.setTimeZone(TimeZone.getTimeZone(tz));
 

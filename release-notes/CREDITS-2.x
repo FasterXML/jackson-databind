@@ -831,3 +831,8 @@ Semyon Levin (remal@github)
 Pavel Nikitin (morj@github)
   * Requested #2181: Don't re-use dynamic serializers for property-updating copy constructors
    (2.9.8)
+
+René Kschamer (flawi@github)
+  * Reported #2197: Illegal reflective access operation warning when using `java.lang.Void`
+   as value type
+   (2.9.8)

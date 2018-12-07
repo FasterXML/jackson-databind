@@ -147,7 +147,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Changing features: parser, generator
+    /* Changing features: parser, generator, pre-2.10
     /**********************************************************************
      */
 
@@ -178,6 +178,50 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B configure(JsonGenerator.Feature feature, boolean state) {
         _mapper.configure(feature, state);
+        return _this();
+    }
+
+    /*
+    /**********************************************************************
+    /* Changing features: parser, generator, 2.10+
+    /**********************************************************************
+     */
+
+    public B enable(StreamReadFeature... features) {
+        for (StreamReadFeature f : features) {
+            _mapper.enable(f.mappedFeature());
+        }
+        return _this();
+    }
+
+    public B disable(StreamReadFeature... features) {
+        for (StreamReadFeature f : features) {
+            _mapper.disable(f.mappedFeature());
+        }
+        return _this();
+    }
+
+    public B configure(StreamReadFeature feature, boolean state) {
+        _mapper.configure(feature.mappedFeature(), state);
+        return _this();
+    }
+
+    public B enable(StreamWriteFeature... features) {
+        for (StreamWriteFeature f : features) {
+            _mapper.enable(f.mappedFeature());
+        }
+        return _this();
+    }
+
+    public B disable(StreamWriteFeature... features) {
+        for (StreamWriteFeature f : features) {
+            _mapper.disable(f.mappedFeature());
+        }
+        return _this();
+    }
+
+    public B configure(StreamWriteFeature feature, boolean state) {
+        _mapper.configure(feature.mappedFeature(), state);
         return _this();
     }
 

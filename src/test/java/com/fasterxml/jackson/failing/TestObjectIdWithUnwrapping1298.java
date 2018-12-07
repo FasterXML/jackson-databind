@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 // Test case for https://github.com/FasterXML/jackson-databind/issues/1298
 public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
@@ -44,9 +46,10 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
 
     public void testObjectIdWithRepeatedChild() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        // to keep output faithful to original, prevent auto-closing...
-        mapper.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+        ObjectMapper mapper = JsonMapper.builder()
+                // to keep output faithful to original, prevent auto-closing...
+                .disable(StreamWriteFeature.AUTO_CLOSE_CONTENT)
+                .build();
 
         // Equivalent to Spring _embedded for Bean w/ List property
         ListOfParents parents = new ListOfParents();

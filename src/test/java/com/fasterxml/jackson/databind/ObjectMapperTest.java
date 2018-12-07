@@ -68,6 +68,7 @@ public class ObjectMapperTest extends BaseMapTest
         // and also for mapper
         JsonMapper mapper = new JsonMapper();
         assertTrue(mapper.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        assertTrue(mapper.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
         assertFalse(mapper.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
         assertTrue(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
         mapper = JsonMapper.builder()
@@ -85,11 +86,13 @@ public class ObjectMapperTest extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
 
         assertTrue(mapper.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        assertTrue(mapper.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
         assertFalse(mapper.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
 
         mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE,
                 JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
         assertFalse(mapper.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        assertFalse(mapper.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
     }
 
     /*

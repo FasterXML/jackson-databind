@@ -79,7 +79,6 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
     }
 
-    @SuppressWarnings("deprecation")
     public void testParserFeatures()
     {
         // and also for mapper

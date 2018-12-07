@@ -60,11 +60,17 @@ public class ObjectMapperTest extends BaseMapTest
     public void testFeatureDefaults()
     {
         assertTrue(MAPPER.isEnabled(TokenStreamFactory.Feature.CANONICALIZE_FIELD_NAMES));
-
-        // and also for mapper
-        assertTrue(MAPPER.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
         assertTrue(MAPPER.isEnabled(JsonWriteFeature.QUOTE_FIELD_NAMES));
         assertTrue(MAPPER.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        assertTrue(MAPPER.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertFalse(MAPPER.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertTrue(MAPPER.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
+        JsonMapper mapper = JsonMapper.builder()
+                .disable(StreamWriteFeature.FLUSH_PASSED_TO_STREAM)
+                .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        assertFalse(mapper.isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM));
+        assertFalse(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
     }
 
     /*

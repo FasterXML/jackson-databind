@@ -10,13 +10,14 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ObjectReaderTest extends BaseMapTest
 {
-    final ObjectMapper MAPPER = new ObjectMapper();
+    final JsonMapper MAPPER = JsonMapper.builder().build();
 
     static class POJO {
         public Map<String, Object> name;

@@ -150,12 +150,6 @@ public class JsonMapper extends ObjectMapper
         return new Builder((Builder.StateImpl)_savedBuilderState);
     }
 
-    public JsonMapper.Builder  rebuild() {
-        // 09-Dec-2018, tatu: Not as good as what 3.0 has wrt immutability, but best approximation
-        //     we have for 2.x
-        return new Builder(this.copy());
-    }
-
     /*
     /**********************************************************
     /* Standard method overrides

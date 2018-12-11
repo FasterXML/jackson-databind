@@ -35,5 +35,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1994: Limit size of `SerializerCache`, auto-flush on exceeding
 #1995: Limit size of `DeserializerCache`, auto-flush on exceeding
 #2040: Remove `JsonSerializer.isEmpty()` from 3.0
+#2176: Add `JsonMapper.shared()` static method
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)

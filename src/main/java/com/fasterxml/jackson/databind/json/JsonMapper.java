@@ -113,9 +113,9 @@ public class JsonMapper extends ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonMapper() {
@@ -131,9 +131,9 @@ public class JsonMapper extends ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, builders
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static JsonMapper.Builder builder() {
@@ -151,9 +151,25 @@ public class JsonMapper extends ObjectMapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Life-cycle, shared "vanilla" (default configuration) instance
+    /**********************************************************************
+     */
+
+    /**
+     * Accessor method for getting globally shared "default" {@link JsonMapper}
+     * instance: one that has default configuration, no modules registered, no
+     * config overrides. Usable mostly when dealing "untyped" or Tree-style
+     * content reading and writing.
+     */
+    public static JsonMapper shared() {
+        return SharedWrapper.wrapped();
+    }
+
+    /*
+    /**********************************************************************
     /* Standard method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -178,5 +194,21 @@ public class JsonMapper extends ObjectMapper
 
     public boolean isEnabled(JsonWriteFeature f) {
         return _serializationConfig.hasFormatFeature(f);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper class(es)
+    /**********************************************************
+     */
+
+    /**
+     * Helper class to contain dynamically constructed "shared" instance of
+     * mapper, should one be needed via {@link #shared}.
+     */
+    private final static class SharedWrapper {
+        private final static JsonMapper MAPPER = JsonMapper.builder().build();
+
+        public static JsonMapper wrapped() { return MAPPER; }
     }
 }

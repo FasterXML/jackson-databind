@@ -9,6 +9,9 @@ public class TextNodeTest extends NodeTestBase
         assertStandardEquals(empty);
         assertSame(TextNode.EMPTY_STRING_NODE, empty);
 
+        assertEquals(0, empty.size());
+        assertTrue(empty.isEmpty());
+
         assertNodeNumbers(TextNode.valueOf("-3"), -3, -3.0);
         assertNodeNumbers(TextNode.valueOf("17.75"), 17, 17.75);
     

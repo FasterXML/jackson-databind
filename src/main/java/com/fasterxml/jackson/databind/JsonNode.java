@@ -79,6 +79,17 @@ public abstract class JsonNode
     @Override
     public int size() { return 0; }
 
+    /**
+     * Convenience method that is functionally same as:
+     *<pre>
+     *    size() == 0
+     *<pre>
+     * for all node types.
+     *
+     * @since 2.10
+     */
+    public boolean isEmpty() { return size() == 0; }
+
     @Override
     public final boolean isValueNode()
     {

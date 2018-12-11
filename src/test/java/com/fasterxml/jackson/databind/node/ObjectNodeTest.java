@@ -328,7 +328,6 @@ public class ObjectNodeTest
         }
     }
 
-    // [Issue#93]
     public void testSetAll() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();

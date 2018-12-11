@@ -164,19 +164,7 @@ e.getMessage()),
     @Override
     public int hashCode() { return _value.hashCode(); }
 
-    /**
-     * Different from other values, Strings need quoting
-     */
-    @Override
-    public String toString()
-    {
-        int len = _value.length();
-        len = len + 2 + (len >> 4);
-        StringBuilder sb = new StringBuilder(len);
-        appendQuoted(sb, _value);
-        return sb.toString();
-    }
-
+    @Deprecated // since 2.10
     protected static void appendQuoted(StringBuilder sb, String content)
     {
         sb.append('"');

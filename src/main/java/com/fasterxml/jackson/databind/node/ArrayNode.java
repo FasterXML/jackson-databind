@@ -839,21 +839,6 @@ public class ArrayNode
         return _children.hashCode();
     }
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(16 + (size() << 4));
-        sb.append('[');
-        for (int i = 0, len = _children.size(); i < len; ++i) {
-            if (i > 0) {
-                sb.append(',');
-            }
-            sb.append(_children.get(i).toString());
-        }
-        sb.append(']');
-        return sb.toString();
-    }
-
     /*
     /**********************************************************
     /* Internal methods (overridable)

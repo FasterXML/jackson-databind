@@ -15,7 +15,8 @@ public class TestMissingNode extends NodeTestBase
         assertEquals(JsonToken.NOT_AVAILABLE, n.asToken());
         assertEquals("", n.asText());
         assertStandardEquals(n);
-        assertEquals("", n.toString());
+        // 10-Dec-2018, tatu: With 2.10, should serialize same as via ObjectMapper/ObjectWriter
+        assertEquals("null", n.toString());
 
         assertNodeNumbersForNonNumeric(n);
 

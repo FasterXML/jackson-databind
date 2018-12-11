@@ -852,25 +852,6 @@ public class ObjectNode
         return _children.hashCode();
     }
 
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(32 + (size() << 4));
-        sb.append("{");
-        int count = 0;
-        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-            if (count > 0) {
-                sb.append(",");
-            }
-            ++count;
-            TextNode.appendQuoted(sb, en.getKey());
-            sb.append(':');
-            sb.append(en.getValue().toString());
-        }
-        sb.append("}");
-        return sb.toString();
-    }
-
     /*
     /**********************************************************
     /* Internal methods (overridable)

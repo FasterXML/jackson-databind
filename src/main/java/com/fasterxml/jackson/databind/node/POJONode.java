@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Value node that contains a wrapped POJO, to be serialized as
@@ -159,17 +158,4 @@ public class POJONode
     
     @Override
     public int hashCode() { return _value.hashCode(); }
-
-    @Override
-    public String toString()
-    {
-        // [databind#743]: Let's try indicating content type, for debugging purposes
-        if (_value instanceof byte[]) {
-            return String.format("(binary value of %d bytes)", ((byte[]) _value).length);
-        }
-        if (_value instanceof RawValue) {
-            return String.format("(raw value '%s')", ((RawValue) _value).toString());
-        }
-        return String.valueOf(_value);
-    }
 }

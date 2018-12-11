@@ -110,14 +110,4 @@ public class BinaryNode
     public int hashCode() {
         return (_data == null) ? -1 : _data.length;
     }
-
-    /**
-     * Different from other values, since contents need to be surrounded
-     * by (double) quotes.
-     */
-    @Override
-    public String toString()
-    {
-        return Base64Variants.getDefaultVariant().encode(_data, true);
-    }
 }

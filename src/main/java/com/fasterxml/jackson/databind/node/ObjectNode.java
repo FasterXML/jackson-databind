@@ -764,38 +764,13 @@ public class ObjectNode
         return false;
     }
 
-    protected boolean _childrenEqual(ObjectNode other)
-    {
+    protected boolean _childrenEqual(ObjectNode other) {
         return _children.equals(other._children);
     }
     
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return _children.hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder(32 + (size() << 4));
-        sb.append("{");
-        int count = 0;
-        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-            if (count > 0) {
-                sb.append(",");
-            }
-            ++count;
-            // 09-Dec-2017, tatu: Use apostrophes on purpose to prevent use as JSON producer:
-            sb.append('\'')
-//          CharTypes.appendQuoted(sb, content);
-                .append(en.getKey())
-                .append('\'')
-                .append(':')
-                .append(en.getValue().toString());
-        }
-        sb.append("}");
-        return sb.toString();
     }
 
     /*

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class TestDefaultForArrays extends BaseMapTest
 {
@@ -95,7 +96,11 @@ public class TestDefaultForArrays extends BaseMapTest
         Object[] obs = new Object[] { node };
         json = mapper.writeValueAsString(obs);
         Object[] result = mapper.readValue(json, Object[].class);
-        assertEquals("{}", result[0].toString());
+
+        assertEquals(1, result.length);
+        Object elem = result[0];
+        assertTrue(elem instanceof ObjectNode);
+        assertEquals(0, ((ObjectNode) elem).size());
     }
 
     public void testArraysOfArrays() throws Exception

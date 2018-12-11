@@ -81,6 +81,7 @@ public class ObjectNodeTest
         assertFalse(root.isArray());
         assertTrue(root.isObject());
         assertEquals(2, root.size());
+        assertFalse(root.isEmpty());
 
         Iterator<JsonNode> it = root.iterator();
         assertNotNull(it);
@@ -127,7 +128,8 @@ public class ObjectNodeTest
     {
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
         assertStandardEquals(n);
-
+        assertTrue(n.isEmpty());
+        
         assertFalse(n.elements().hasNext());
         assertFalse(n.fields().hasNext());
         assertFalse(n.fieldNames().hasNext());

@@ -87,6 +87,9 @@ public class ObjectNode
         return _children.size();
     }
 
+    @Override // since 2.10
+    public boolean isEmpty() { return _children.isEmpty(); }
+    
     @Override
     public Iterator<JsonNode> elements() {
         return _children.values().iterator();

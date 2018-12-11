@@ -25,9 +25,11 @@ public class ArrayNodeTest
         assertStandardEquals(n);
         assertFalse(n.elements().hasNext());
         assertFalse(n.fieldNames().hasNext());
+        assertTrue(n.isEmpty());
         TextNode text = TextNode.valueOf("x");
         n.add(text);
         assertEquals(1, n.size());
+        assertFalse(n.isEmpty());
         assertFalse(0 == n.hashCode());
         assertTrue(n.elements().hasNext());
         // no field names for arrays
@@ -149,6 +151,7 @@ public class ArrayNodeTest
         n.add(new BigDecimal("0.2"));
         n.add(BigInteger.TEN);
         assertEquals(9, n.size());
+        assertFalse(n.isEmpty());
 
         assertNotNull(n.insertArray(0));
         assertNotNull(n.insertObject(0));

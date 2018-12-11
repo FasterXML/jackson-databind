@@ -83,8 +83,8 @@ public class TestJsonNode extends NodeTestBase
         assertStandardEquals(n);
         assertEquals(n, new POJONode("x"));
         assertEquals("x", n.asText());
-        // not sure if this is what it'll remain as but:
-        assertEquals("x", n.toString());
+        // 10-Dec-2018, tatu: With 2.10, should serialize same as via ObjectMapper/ObjectWriter
+        assertEquals("\"x\"", n.toString());
 
         assertEquals(new POJONode(null), new POJONode(null));
 

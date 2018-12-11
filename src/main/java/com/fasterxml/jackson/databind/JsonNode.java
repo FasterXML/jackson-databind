@@ -920,11 +920,10 @@ public abstract class JsonNode
      */
     
     /**
-     * Method that will produce developer-readable representation of the
-     * node; which may <b>or may not</b> be as valid JSON.
-     * For Jackson 3.0, specifically, it is UNLIKELY TO BE VALID JSON.
-     * If you want valid JSON output (or output formatted using one of
-     * other Jackson supported data formats) make sure to use
+     * Method that will produce valid JSON using
+     * default settings of databind, as String.
+     * If you want other kinds of JSON output (or output formatted using one of
+     * other Jackson-supported data formats) make sure to use
      * {@link ObjectMapper} or {@link ObjectWriter} to serialize an
      * instance, for example:
      *<pre>
@@ -938,6 +937,16 @@ public abstract class JsonNode
     @Override
     public abstract String toString();
 
+    /**
+     * Alternative to {@link #toString} that will serialize this node using
+     * Jackson default pretty-printer.
+     *
+     * @since 2.10
+     */
+    public String toPrettyString() {
+        return toString();
+    }
+    
     /**
      * Equality for node objects is defined as full (deep) value
      * equality. This means that it is possible to compare complete

@@ -102,5 +102,20 @@ public abstract class BaseJsonNode
     @Override
     public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)  throws IOException;
-}
 
+    /*
+   /**********************************************************
+   /* Std method overrides
+   /**********************************************************
+    */
+
+   @Override
+   public final String toString() {
+       return InternalNodeMapper.nodeToString(this);
+   }
+
+   @Override
+   public final String toPrettyString() {
+       return InternalNodeMapper.nodeToPrettyString(this);
+   }
+}

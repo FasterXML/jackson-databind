@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
@@ -111,11 +112,21 @@ public abstract class BaseJsonNode
 
    @Override
    public String toString() {
-       return InternalNodeMapper.nodeToString(this);
+       try {
+           return JsonMapper.shared().writeValueAsString(this);
+       } catch (IOException e) { // should never occur
+           throw new RuntimeException(e);
+       }
    }
 
    @Override
    public String toPrettyString() {
-       return InternalNodeMapper.nodeToPrettyString(this);
+       try {
+           return JsonMapper.shared()
+                   .writerWithDefaultPrettyPrinter()
+                   .writeValueAsString(this);
+       } catch (IOException e) { // should never occur
+           throw new RuntimeException(e);
+       }
    }
 }

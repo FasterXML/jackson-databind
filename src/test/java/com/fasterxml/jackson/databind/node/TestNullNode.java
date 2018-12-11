@@ -40,6 +40,7 @@ public class TestNullNode extends NodeTestBase
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
 
         assertEquals(0, n.size());
+        assertTrue(n.isEmpty());
         assertFalse(n.elements().hasNext());
         assertFalse(n.fieldNames().hasNext());
         // path is never null; but does point to missing node

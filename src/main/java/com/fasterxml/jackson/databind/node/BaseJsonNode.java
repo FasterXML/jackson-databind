@@ -105,12 +105,12 @@ public abstract class BaseJsonNode
     */
 
    @Override
-   public final String toString() {
+   public String toString() {
        return InternalNodeMapper.nodeToString(this);
    }
 
    @Override
-   public final String toPrettyString() {
+   public String toPrettyString() {
        return InternalNodeMapper.nodeToPrettyString(this);
    }
 }

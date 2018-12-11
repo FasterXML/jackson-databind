@@ -25,6 +25,7 @@ abstract class NodeTestBase extends BaseMapTest
         assertEquals((long) expInt, n.asLong(19L));
         assertEquals(expDouble, n.asDouble());
         assertEquals(expDouble, n.asDouble(-19.25));
-    }
 
+        assertTrue(n.isEmpty());
+    }
 }

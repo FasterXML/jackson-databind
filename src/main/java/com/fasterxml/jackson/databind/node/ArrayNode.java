@@ -99,6 +99,9 @@ public class ArrayNode
         return _children.size();
     }
 
+    @Override // since 2.10
+    public boolean isEmpty() { return _children.isEmpty(); }
+
     @Override
     public Iterator<JsonNode> elements() {
         return _children.iterator();
@@ -106,7 +109,7 @@ public class ArrayNode
 
     @Override
     public JsonNode get(int index) {
-        if (index >= 0 && index < _children.size()) {
+        if ((index >= 0) && (index < _children.size())) {
             return _children.get(index);
         }
         return null;

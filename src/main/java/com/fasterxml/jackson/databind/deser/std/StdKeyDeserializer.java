@@ -351,7 +351,7 @@ public class StdKeyDeserializer extends KeyDeserializer
 
         public Class<?> getKeyClass() { return _keyClass; }
     }
-     
+
     @JacksonStdImpl
     final static class EnumKD extends StdKeyDeserializer
     {
@@ -411,6 +411,7 @@ public class StdKeyDeserializer extends KeyDeserializer
                 synchronized (this) {
                     res = EnumResolver.constructUnsafeUsingToString(_byNameResolver.getEnumClass(),
                             ctxt.getAnnotationIntrospector());
+                    _byToStringResolver = res;
                 }
             }
             return res;

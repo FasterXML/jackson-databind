@@ -21,6 +21,8 @@ Project: jackson-databind
 #2197: Illegal reflective access operation warning when using `java.lang.Void`
   as value type
  (reported by René K)
+#2202: StdKeyDeserializer Class method _getToStringResolver is slow causing Thread Block
+ (reported by sushobhitrajan@github)
 
 2.9.7 (19-Sep-2018)
 

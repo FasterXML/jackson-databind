@@ -18,7 +18,7 @@ Project: jackson-databind
 #2187: Make `JsonNode.toString()` use shared `ObjectMapper` to produce valid json
 #2204: Add `JsonNode.isEmpty()` as convenience alias
 
-2.9.8 (not yet released)
+2.9.8 (15-Dec-2018)
 
 #1662: `ByteBuffer` serialization is broken if offset is not 0
  (reported by j-baker@github)

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.8 (not yet released)
+2.9.8 (15-Dec-2018)
 
 #1662: `ByteBuffer` serialization is broken if offset is not 0
  (reported by j-baker@github)

@@ -154,7 +154,7 @@ public class ObjectMapper
          * typing.
          */
         JAVA_LANG_OBJECT,
-        
+
         /**
          * Value that means that default typing will be used for
          * properties with declared type of {@link java.lang.Object}
@@ -173,7 +173,7 @@ public class ObjectMapper
          * Since 2.4, this does NOT apply to {@link TreeNode} and its subtypes.
          */
         NON_CONCRETE_AND_ARRAYS,
-        
+
         /**
          * Value that means that default typing will be used for
          * all non-final types, with exception of small number of
@@ -1534,7 +1534,7 @@ public class ObjectMapper
             throw new IllegalArgumentException("Cannot use includeAs of "+includeAs);
         }
         
-        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(applicability);
+        TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability);
         // we'll always use full class name, when using defaulting
         typer = typer.init(JsonTypeInfo.Id.CLASS, null);
         typer = typer.inclusion(includeAs);
@@ -1557,7 +1557,7 @@ public class ObjectMapper
      */
     public ObjectMapper enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName)
     {
-        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(applicability);
+        TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability);
         // we'll always use full class name, when using defaulting
         typer = typer.init(JsonTypeInfo.Id.CLASS, null);
         typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
@@ -3896,6 +3896,22 @@ public class ObjectMapper
             throw new IllegalArgumentException("type must be provided");
         }
         _serializerProvider(getSerializationConfig()).acceptJsonFormatVisitor(type, visitor);
+    }
+
+    /*
+    /**********************************************************
+    /* Internal factory methods for type ids, overridable
+    /**********************************************************
+     */
+
+    /**
+     * Overridable factory method, separate to allow format-specific mappers (and specifically
+     * XML-backed one, currently) to offer custom {@link TypeResolverBuilder} subtypes.
+     *
+     * @since 2.10
+     */
+    protected TypeResolverBuilder<?> _constructDefaultTypeResolverBuilder(DefaultTyping applicability) {
+        return new DefaultTypeResolverBuilder(applicability);
     }
 
     /*

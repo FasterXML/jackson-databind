@@ -1351,7 +1351,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
             throw new IllegalArgumentException("Cannot use includeAs of "+includeAs+" for Default Typing");
         }
-        return setDefaultTyping(new DefaultTypeResolverBuilder(applicability, includeAs));
+        return setDefaultTyping(_defaultDefaultTypingResolver(applicability, includeAs));
     }
 
     /**
@@ -1370,7 +1370,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName)
     {
-        return setDefaultTyping(new DefaultTypeResolverBuilder(applicability, propertyName));
+        return setDefaultTyping(_defaultDefaultTypingResolver(applicability, propertyName));
     }
 
     /**
@@ -1398,6 +1398,24 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public B setDefaultTyping(TypeResolverBuilder<?> typer) {
         _baseSettings = _baseSettings.with(typer);
         return _this();
+    }
+
+    /**
+     * Overridable method for changing default {@link TypeResolverBuilder} to construct
+     * for "default typing".
+     */
+    protected TypeResolverBuilder<?> _defaultDefaultTypingResolver(DefaultTyping applicability,
+            JsonTypeInfo.As includeAs) {
+        return new DefaultTypeResolverBuilder(applicability, includeAs);
+    }
+
+    /**
+     * Overridable method for changing default {@link TypeResolverBuilder} to construct
+     * for "default typing".
+     */
+    protected TypeResolverBuilder<?> _defaultDefaultTypingResolver(DefaultTyping applicability,
+            String propertyName) {
+        return new DefaultTypeResolverBuilder(applicability, propertyName);
     }
 
     /*

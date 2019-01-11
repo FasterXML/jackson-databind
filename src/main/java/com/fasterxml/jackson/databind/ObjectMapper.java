@@ -2318,7 +2318,7 @@ public class ObjectMapper
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef)
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueTypeRef));
@@ -2477,7 +2477,7 @@ public class ObjectMapper
      * Method for reading sequence of Objects from parser stream.
      */
     @Override
-    public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef)
+    public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef)
         throws IOException, JsonProcessingException
     {
         return readValues(p, _typeFactory.constructType(valueTypeRef));

@@ -994,7 +994,7 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException
     {
         return (T) forType(valueTypeRef).readValue(p);
     }
@@ -1070,10 +1070,10 @@ public class ObjectReader
      * (data-format specific) parser is given.
      */
     @Override
-    public <T> Iterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+    public <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
         return forType(valueTypeRef).readValues(p);
     }
-    
+
     /**
      * Convenience method that is equivalent to:
      *<pre>

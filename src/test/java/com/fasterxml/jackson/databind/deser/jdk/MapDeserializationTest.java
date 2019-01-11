@@ -240,7 +240,7 @@ public class MapDeserializationTest
     {
         // to get typing, must use type reference
         String JSON = "{ \"a\" : \"b\" }";
-        Map<String,Integer> result = MAPPER.readValue
+        TreeMap<String,String> result = MAPPER.readValue
             (JSON, new TypeReference<TreeMap<String,String>>() { });
 
         assertNotNull(result);
@@ -308,7 +308,7 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
         // to get typing, must use type reference
-        Map<Enum<?>,Enum<?>> result = MAPPER.readValue
+        Map<Key,Key> result = MAPPER.readValue
             (JSON, new TypeReference<Map<Key,Key>>() { });
 
         assertNotNull(result);

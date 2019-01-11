@@ -46,7 +46,7 @@ public class NullConversionsForContentTest extends BaseMapTest
     public void testFailOnNullFromDefaults() throws Exception
     {
         final String JSON = aposToQuotes("{'values':[null]}");
-        TypeReference<?> listType = new TypeReference<NullContentUndefined<List<String>>>() { };
+        TypeReference<NullContentUndefined<List<String>>> listType = new TypeReference<NullContentUndefined<List<String>>>() { };
 
         // by default fine to get nulls
         NullContentUndefined<List<String>> result = MAPPER.readValue(JSON, listType);
@@ -78,7 +78,7 @@ public class NullConversionsForContentTest extends BaseMapTest
     
     public void testFailOnNullWithCollections() throws Exception
     {
-        TypeReference<?> typeRef = new TypeReference<NullContentFail<List<Integer>>>() { };
+        TypeReference<NullContentFail<List<Integer>>> typeRef = new TypeReference<NullContentFail<List<Integer>>>() { };
 
         // first, ok if assigning non-null to not-nullable, null for nullable
         NullContentFail<List<Integer>> result = MAPPER.readValue(aposToQuotes("{'nullsOk':[null]}"),
@@ -205,7 +205,7 @@ public class NullConversionsForContentTest extends BaseMapTest
     public void testNullsAsEmptyUsingDefaults() throws Exception
     {
         final String JSON = aposToQuotes("{'values':[null]}");
-        TypeReference<?> listType = new TypeReference<NullContentUndefined<List<Integer>>>() { };
+        TypeReference<NullContentUndefined<List<Integer>>> listType = new TypeReference<NullContentUndefined<List<Integer>>>() { };
 
         // Let's see defaulting in action
         ObjectMapper mapper = newObjectMapper();
@@ -297,7 +297,7 @@ public class NullConversionsForContentTest extends BaseMapTest
     public void testNullsSkipUsingDefaults() throws Exception
     {
         final String JSON = aposToQuotes("{'values':[null]}");
-        TypeReference<?> listType = new TypeReference<NullContentUndefined<List<Long>>>() { };
+        TypeReference<NullContentUndefined<List<Long>>> listType = new TypeReference<NullContentUndefined<List<Long>>>() { };
 
         // Let's see defaulting in action
         ObjectMapper mapper = newObjectMapper();
@@ -317,7 +317,7 @@ public class NullConversionsForContentTest extends BaseMapTest
     public void testNullsSkipWithOverrides() throws Exception
     {
         final String JSON = aposToQuotes("{'values':[null]}");
-        TypeReference<?> listType = new TypeReference<NullContentSkip<List<Long>>>() { };
+        TypeReference<NullContentSkip<List<Long>>> listType = new TypeReference<NullContentSkip<List<Long>>>() { };
 
         ObjectMapper mapper = newObjectMapper();
         // defaults call for fail; but POJO specifies "skip"; latter should win

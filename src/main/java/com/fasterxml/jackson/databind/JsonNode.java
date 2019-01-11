@@ -546,8 +546,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsInt(String, int)}
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -560,8 +560,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsInt(String, int)}
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -574,8 +574,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsLong(String, long)}
      *<p>
      * If representation cannot be converted to an long (including structured types
      * like Objects and Arrays),
@@ -588,8 +588,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsLong(String, long)}
      *<p>
      * If representation cannot be converted to an long (including structured types
      * like Objects and Arrays),
@@ -602,8 +602,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1.0 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsDouble(String, double)}
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -616,8 +616,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1.0 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsDouble(String, double)}
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),

@@ -914,8 +914,7 @@ public class ObjectReader
      * (data-format specific) parser is given.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p) throws IOException
-    {
+    public <T> T readValue(JsonParser p) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext(p);
         return (T) _bind(ctxt, p, _valueToUpdate);
     }
@@ -930,10 +929,8 @@ public class ObjectReader
      * NOTE: this method never tries to auto-detect format, since actual
      * (data-format specific) parser is given.
      */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException
-    {
-        return (T) forType(valueType).readValue(p);
+    public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException {
+        return forType(valueType).readValue(p);
     }
 
     /**
@@ -946,10 +943,8 @@ public class ObjectReader
      * NOTE: this method never tries to auto-detect format, since actual
      * (data-format specific) parser is given.
      */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException
-    {
-        return (T) forType(valueTypeRef).readValue(p);
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
+        return forType(valueTypeRef).readValue(p);
     }
 
     /**
@@ -1023,7 +1018,7 @@ public class ObjectReader
     public <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
         return forType(valueTypeRef).readValues(p);
     }
-    
+
     /**
      * Convenience method that is equivalent to:
      *<pre>

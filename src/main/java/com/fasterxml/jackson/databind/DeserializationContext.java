@@ -335,7 +335,7 @@ public abstract class DeserializationContext
     }
 
     @Override
-    public <T> T readValue(JsonParser p, TypeReference<?> refType) throws IOException {
+    public <T> T readValue(JsonParser p, TypeReference<T> refType) throws IOException {
         return readValue(p, getTypeFactory().constructType(refType));
     }
     

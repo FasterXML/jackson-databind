@@ -1319,8 +1319,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(File src, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+    public <T> T readValue(File src, Class<T> valueType) throws IOException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
@@ -1339,9 +1338,8 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(File src, TypeReference valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(File src, TypeReference<T> valueTypeRef) throws IOException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
@@ -1401,9 +1399,8 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(URL src, TypeReference valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(URL src, TypeReference<T> valueTypeRef) throws IOException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
@@ -1411,8 +1408,7 @@ public class ObjectMapper
     } 
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(URL src, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+    public <T> T readValue(URL src, JavaType valueType) throws IOException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
@@ -1452,9 +1448,8 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(String content, TypeReference valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(String content, TypeReference<T> valueTypeRef) throws IOException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
@@ -1491,8 +1486,8 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(Reader src, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(Reader src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
@@ -1563,8 +1558,8 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(byte[] src, int offset, int len, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(byte[] src, int offset, int len, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();

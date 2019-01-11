@@ -16,6 +16,8 @@ Project: jackson-databind
 #2126: `DeserializationContext.instantiationException()` throws `InvalidDefinitionException`
 #2153: Add `JsonMapper` to replace generic `ObjectMapper` usage
 #2187: Make `JsonNode.toString()` use shared `ObjectMapper` to produce valid json
+#2196: Type safety for `readValue()` with `TypeReference`
+ (suggested by nguyenfilip@github)
 #2204: Add `JsonNode.isEmpty()` as convenience alias
 
 2.9.8 (15-Dec-2018)

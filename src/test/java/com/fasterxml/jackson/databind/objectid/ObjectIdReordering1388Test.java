@@ -48,7 +48,7 @@ public class ObjectIdReordering1388Test extends BaseMapTest
         final UUID id = UUID.fromString("a59aa02c-fe3c-43f8-9b5a-5fe01878a818");
         final NamedThing thing = new NamedThing(id, "Hello");
 
-        final TypeReference<?> namedThingListType = new TypeReference<List<NamedThing>>() { };
+        final TypeReference<List<NamedThing>> namedThingListType = new TypeReference<List<NamedThing>>() { };
 
         {
             final String jsog = mapper.writeValueAsString(Arrays.asList(thing, thing, thing));

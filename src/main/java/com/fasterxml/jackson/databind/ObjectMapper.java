@@ -3696,7 +3696,7 @@ public class ObjectMapper
      * See {@link #convertValue(Object, Class)}
      */
     @SuppressWarnings("unchecked")
-    public <T> T convertValue(Object fromValue, TypeReference<?> toValueTypeRef)
+    public <T> T convertValue(Object fromValue, TypeReference<T> toValueTypeRef)
         throws IllegalArgumentException
     {
         return (T) _convert(fromValue, _typeFactory.constructType(toValueTypeRef));

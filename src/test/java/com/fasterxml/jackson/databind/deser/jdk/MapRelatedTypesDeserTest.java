@@ -71,7 +71,7 @@ public class MapRelatedTypesDeserTest
     // JDK singletonMap
     public void testSingletonMapRoundtrip() throws Exception
     {
-        final TypeReference<?> type = new TypeReference<Map<String,IntWrapper>>() { };
+        final TypeReference<Map<String,IntWrapper>> type = new TypeReference<Map<String,IntWrapper>>() { };
 
         String json = MAPPER.writeValueAsString(Collections.singletonMap("value", new IntWrapper(5)));
         Map<String,IntWrapper> result = MAPPER.readValue(json, type);

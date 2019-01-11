@@ -139,7 +139,7 @@ public class TestTypedContainerSerialization
             List<Issue508A> l2 = new ArrayList<Issue508A>();
             l2.add(new Issue508A());
             l.add(l2);
-            TypeReference<?> typeRef = new TypeReference<List<List<Issue508A>>>() {};
+            TypeReference<List<List<Issue508A>>> typeRef = new TypeReference<List<List<Issue508A>>>() {};
             String json = mapper.writerFor(typeRef).writeValueAsString(l);
 
             List<?> output = mapper.readValue(json, typeRef);

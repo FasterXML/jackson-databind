@@ -1513,8 +1513,8 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(InputStream src, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
@@ -1549,8 +1549,8 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src, offset, len), _typeFactory.constructType(valueType));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(byte[] src, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(byte[] src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();

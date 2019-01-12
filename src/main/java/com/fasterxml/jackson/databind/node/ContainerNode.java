@@ -52,11 +52,26 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
 
     /*
     /**********************************************************
-    /* JsonNodeCreator implementation, just dispatch to
-    /* the real creator
+    /* JsonNodeCreator implementation, Enumerated/singleton types
     /**********************************************************
      */
 
+    @Override
+    public final BooleanNode booleanNode(boolean v) { return _nodeFactory.booleanNode(v); }
+
+    public JsonNode missingNode() {
+        return _nodeFactory.missingNode();
+    }
+
+    @Override
+    public final NullNode nullNode() { return _nodeFactory.nullNode(); }
+
+    /*
+    /**********************************************************
+    /* JsonNodeCreator implementation, just dispatch to real creator
+    /**********************************************************
+     */
+    
     /**
      * Factory method that constructs and returns an empty {@link ArrayNode}
      * Construction is done using registered {@link JsonNodeFactory}.
@@ -78,12 +93,6 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
      */
     @Override
     public final ObjectNode objectNode() { return _nodeFactory.objectNode(); }
-
-    @Override
-    public final NullNode nullNode() { return _nodeFactory.nullNode(); }
-
-    @Override
-    public final BooleanNode booleanNode(boolean v) { return _nodeFactory.booleanNode(v); }
 
     @Override
     public final NumericNode numberNode(byte v) { return _nodeFactory.numberNode(v); }

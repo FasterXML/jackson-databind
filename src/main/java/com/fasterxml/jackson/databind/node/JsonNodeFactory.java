@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
@@ -108,6 +109,10 @@ public class JsonNodeFactory
     @Override
     public NullNode nullNode() { return NullNode.getInstance(); }
 
+    public JsonNode missingNode() {
+        return MissingNode.getInstance();
+    }
+    
     /*
     /**********************************************************
     /* Factory methods for numeric values

@@ -59,6 +59,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     @Override
     public final BooleanNode booleanNode(boolean v) { return _nodeFactory.booleanNode(v); }
 
+    @Override
     public JsonNode missingNode() {
         return _nodeFactory.missingNode();
     }

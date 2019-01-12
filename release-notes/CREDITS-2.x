@@ -836,3 +836,7 @@ René Kschamer (flawi@github)
   * Reported #2197: Illegal reflective access operation warning when using `java.lang.Void`
    as value type
    (2.9.8)
+
+Christoph Breitkopf (bokesan@github)
+  * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
+   (2.10.0)

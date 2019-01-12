@@ -62,7 +62,7 @@ public class TextNode
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
         final String str = _value.trim();
-        ByteArrayBuilder builder = new ByteArrayBuilder(4 + ((str.length() * 3) << 2));
+        ByteArrayBuilder builder = new ByteArrayBuilder(4 + ((str.length() * 3) >> 2));
         try {
             b64variant.decode(str, builder);
         } catch (IllegalArgumentException e) {

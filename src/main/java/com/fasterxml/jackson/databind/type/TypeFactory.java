@@ -1419,7 +1419,18 @@ s     */
         }
         bindings = bindings.withUnboundVariable(name);
 
-        Type[] bounds = var.getBounds();
+        final Type[] bounds;
+
+        // 15-Jan-2019, tatu: As weird as this looks, apparently on some platforms (Arm CPU, mobile
+        //    devices), unsynchronized internal access can lead to issues, see:
+        //
+        //  https://vmlens.com/articles/java-lang-reflect-typevariable-getbounds-is-not-thread-safe/  
+        //
+        //    No good way to reproduce but since this should not be on critical path, let's add
+        //    syncing as it seems potentially necessary.
+        synchronized (var) {
+            bounds = var.getBounds();
+        }
         return _fromAny(context, bounds[0], bindings);
     }
 

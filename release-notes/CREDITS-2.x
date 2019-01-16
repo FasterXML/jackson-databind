@@ -819,6 +819,11 @@ Pavel Nikitin (morj@github)
   * Requested #2181: Don't re-use dynamic serializers for property-updating copy constructors
    (2.9.8)
 
+Thomas Krieger (ThomasKrieger@github)
+  * Reported #1408: Call to `TypeVariable.getBounds()` without synchronization unsafe on
+    some platforms
+   (2.9.9)
+
 René Kschamer (flawi@github)
   * Reported #2197: Illegal reflective access operation warning when using `java.lang.Void`
    as value type

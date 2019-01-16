@@ -23,6 +23,11 @@ Project: jackson-databind
  (reported by Christoph B)
 #2223: Add `missingNode()` method in `JsonNodeFactory`
 
+2.9.9 (not yet released)
+
+#1408: Call to `TypeVariable.getBounds()` without synchronization unsafe on some platforms
+ (reported by Thomas K)
+
 2.9.8 (15-Dec-2018)
 
 #1662: `ByteBuffer` serialization is broken if offset is not 0

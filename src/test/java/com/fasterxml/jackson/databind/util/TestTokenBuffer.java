@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 
@@ -138,7 +139,7 @@ public class TestTokenBuffer extends BaseMapTest
                 try {
                     p.getIntValue();
                     fail("Expected failure for `int` overflow");
-                } catch (JsonParseException e) {
+                } catch (InputCoercionException e) {
                     verifyException(e, "Numeric value ("+big+") out of range of int");
                 }
             }
@@ -153,7 +154,7 @@ public class TestTokenBuffer extends BaseMapTest
                 try {
                     p.getIntValue();
                     fail("Expected failure for `int` overflow");
-                } catch (JsonParseException e) {
+                } catch (InputCoercionException e) {
                     verifyException(e, "Numeric value ("+big+") out of range of int");
                 }
             }
@@ -171,7 +172,7 @@ public class TestTokenBuffer extends BaseMapTest
                 try {
                     p.getLongValue();
                     fail("Expected failure for `long` overflow");
-                } catch (JsonParseException e) {
+                } catch (InputCoercionException e) {
                     verifyException(e, "Numeric value ("+big+") out of range of long");
                 }
             }

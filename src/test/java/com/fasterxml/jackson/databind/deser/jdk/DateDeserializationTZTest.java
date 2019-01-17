@@ -543,8 +543,7 @@ public class DateDeserializationTZTest
         try {
             Date date = read(mapper, input, java.util.Date.class);
             fail("Input "+input+" should not have been accepted but was deserialized into "+FORMAT.format(date));
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             // Is it the expected exception ?
             if (!exceptionType.isAssignableFrom(e.getClass()) ) {
                 fail("Wrong exception thrown when reading "+input+", actual: "+e.getClass().getName() + "("+e.getMessage()+"), expected: "+exceptionType.getName());

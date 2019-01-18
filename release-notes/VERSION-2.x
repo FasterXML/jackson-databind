@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #1408: Call to `TypeVariable.getBounds()` without synchronization unsafe on some platforms
  (reported by Thomas K)
+#2221: `DeserializationProblemHandler.handleUnknownTypeId()` returning `Void.class`,
+  enableDefaultTyping causing NPE
+ (repoted by MeyerNils@github)
 
 2.9.8 (15-Dec-2018)
 

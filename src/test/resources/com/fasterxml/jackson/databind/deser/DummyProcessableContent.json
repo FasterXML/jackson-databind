@@ -1,0 +1,21 @@
+{
+	"_class":"com.fasterxml.jackson.databind.deser.GenericContent",
+	"innerObjects":
+		[
+			"java.util.ArrayList",
+			[
+				[
+					"com.fasterxml.jackson.databind.deser.HandleUnknowTypeIdTest$DummyContent",
+					{
+						"aField":"some value"
+					}
+				],
+				[
+					"com.fasterxml.jackson.databind.deser.HandleUnknowTypeIdTest$AnInventedClassBeingNotOnTheClasspath",
+					{
+						"aField":"some value"
+					}
+				]
+			]
+		]
+}

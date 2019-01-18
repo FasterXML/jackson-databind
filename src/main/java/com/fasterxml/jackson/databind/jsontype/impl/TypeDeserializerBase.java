@@ -161,8 +161,8 @@ public abstract class TypeDeserializerBase
                     // 10-May-2016, tatu: We may get some help...
                     JavaType actual = _handleUnknownTypeId(ctxt, typeId);
                     if (actual == null) { // what should this be taken to mean?
-                        // TODO: try to figure out something better
-                        return null;
+                        // 17-Jan-2019, tatu: As per [databind#2221], better NOT return `null` but...
+                        return NullifyingDeserializer.instance;
                     }
                     // ... would this actually work?
                     deser = ctxt.findContextualValueDeserializer(actual, _property);

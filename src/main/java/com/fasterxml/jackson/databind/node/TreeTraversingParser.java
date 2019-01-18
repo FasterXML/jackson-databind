@@ -271,47 +271,55 @@ public class TreeTraversingParser extends ParserMinimalBase
     /**********************************************************
      */
 
-    //public byte getByteValue() throws IOException, JsonParseException
+    //public byte getByteValue() throws IOException
 
     @Override
-    public NumberType getNumberType() throws IOException, JsonParseException {
+    public NumberType getNumberType() throws IOException {
         JsonNode n = currentNumericNode();
         return (n == null) ? null : n.numberType();
     }
 
     @Override
-    public BigInteger getBigIntegerValue() throws IOException, JsonParseException
+    public BigInteger getBigIntegerValue() throws IOException
     {
         return currentNumericNode().bigIntegerValue();
     }
 
     @Override
-    public BigDecimal getDecimalValue() throws IOException, JsonParseException {
+    public BigDecimal getDecimalValue() throws IOException {
         return currentNumericNode().decimalValue();
     }
 
     @Override
-    public double getDoubleValue() throws IOException, JsonParseException {
+    public double getDoubleValue() throws IOException {
         return currentNumericNode().doubleValue();
     }
 
     @Override
-    public float getFloatValue() throws IOException, JsonParseException {
+    public float getFloatValue() throws IOException {
         return (float) currentNumericNode().doubleValue();
     }
 
     @Override
-    public long getLongValue() throws IOException, JsonParseException {
-        return currentNumericNode().longValue();
+    public int getIntValue() throws IOException {
+        final NumericNode node = (NumericNode) currentNumericNode();
+        if (!node.canConvertToInt()) {
+            reportOverflowInt();
+        }
+        return node.intValue();
     }
 
     @Override
-    public int getIntValue() throws IOException, JsonParseException {
-        return currentNumericNode().intValue();
+    public long getLongValue() throws IOException {
+        final NumericNode node = (NumericNode) currentNumericNode();
+        if (!node.canConvertToInt()) {
+            reportOverflowLong();
+        }
+        return node.longValue();
     }
 
     @Override
-    public Number getNumberValue() throws IOException, JsonParseException {
+    public Number getNumberValue() throws IOException {
         return currentNumericNode().numberValue();
     }
 

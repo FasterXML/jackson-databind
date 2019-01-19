@@ -209,7 +209,7 @@ public class EnumDeserializationTest
             /*Object result =*/ MAPPER.readValue("\"NO-SUCH-VALUE\"", TestEnum.class);
             fail("Expected an exception for bogus enum value...");
         } catch (MismatchedInputException jex) {
-            verifyException(jex, "value not one of declared");
+            verifyException(jex, "not one of the values accepted for Enum class");
         }
         p.close();
     }
@@ -279,7 +279,7 @@ public class EnumDeserializationTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
             // 26-Jan-2017, tatu: as per [databind#1505], should fail bit differently
-            verifyException(e, "value not one of declared Enum");
+            verifyException(e, "not one of the values accepted for Enum class");
         }
     }
 

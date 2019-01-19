@@ -7,6 +7,9 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+/**
+ * Test for validating {@link com.fasterxml.jackson.databind.DeserializationFeature#FAIL_ON_TRAILING_TOKENS}.
+ */
 public class FullStreamReadTest extends BaseMapTest
 {
     private final static String JSON_OK_ARRAY = " [ 1, 2, 3]    ";

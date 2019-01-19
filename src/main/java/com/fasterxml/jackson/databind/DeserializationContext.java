@@ -1531,14 +1531,13 @@ trailingToken, ClassUtil.nameOf(targetType)
      * 
      * @param value String value from input being deserialized
      * @param instClass Type that String should be deserialized into
-     * @param msg Message that describes specific problem
+     * @param msgBase Message that describes specific problem
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass,
-            String msg) {
-        return InvalidFormatException.from(_parser,
-                String.format("Cannot deserialize value of type %s from String %s: %s",
-                        ClassUtil.nameOf(instClass), _quotedString(value), msg),
-                value, instClass);
+            String msgBase) {
+        final String msg = String.format("Cannot deserialize value of type %s from String %s: %s",
+                ClassUtil.nameOf(instClass), _quotedString(value), msgBase);
+        return InvalidFormatException.from(_parser, msg, value, instClass);
     }
 
     /**

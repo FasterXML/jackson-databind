@@ -24,6 +24,8 @@ Project: jackson-databind
 #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
  (reported by Christoph B)
 #2223: Add `missingNode()` method in `JsonNodeFactory`
+#2227: Minor cleanup of exception message for `Enum` binding failure
+ (reported by RightHandedMonkey@github)
 
 2.9.9 (not yet released)
 

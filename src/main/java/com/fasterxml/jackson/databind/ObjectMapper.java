@@ -1063,7 +1063,14 @@ public class ObjectMapper
         DeserializationContext ctxt = createDeserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
     }
-    
+
+    /**
+     * @since 2.10
+     */
+    public JsonNode readTree(byte[] content, int offset, int len) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(content, offset, len));
+    }
+
     /**
      * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
      * Returns root of the resulting tree (where root can consist of just a single node if the current

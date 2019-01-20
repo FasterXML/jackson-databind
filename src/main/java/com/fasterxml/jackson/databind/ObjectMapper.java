@@ -1068,7 +1068,8 @@ public class ObjectMapper
      * @since 2.10
      */
     public JsonNode readTree(byte[] content, int offset, int len) throws IOException {
-        return _readTreeAndClose(_jsonFactory.createParser(content, offset, len));
+        DeserializationContext ctxt = createDeserializationContext();
+        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content, offset, len));
     }
 
     /**

@@ -25,32 +25,32 @@ public class EmptyContentAsTreeTest extends BaseMapTest
 
     public void testNullFromEOFWithParserAndMapper() throws Exception
     {
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY0)) {
+        try (JsonParser p = MAPPER.createParser(EMPTY0)) {
             _assertNullTree(MAPPER.readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY1)) {
+        try (JsonParser p = MAPPER.createParser(EMPTY1)) {
             _assertNullTree(MAPPER.readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(new StringReader(EMPTY0))) {
+        try (JsonParser p = MAPPER.createParser(new StringReader(EMPTY0))) {
             _assertNullTree(MAPPER.readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(new StringReader(EMPTY1))) {
+        try (JsonParser p = MAPPER.createParser(new StringReader(EMPTY1))) {
             _assertNullTree(MAPPER.readTree(p));
         }
 
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY0_BYTES)) {
+        try (JsonParser p = MAPPER.createParser(EMPTY0_BYTES)) {
             _assertNullTree(MAPPER.readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY1_BYTES)) {
+        try (JsonParser p = MAPPER.createParser(EMPTY1_BYTES)) {
             _assertNullTree(MAPPER.readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY1_BYTES, 0, EMPTY1_BYTES.length)) {
+        try (JsonParser p = MAPPER.createParser(EMPTY1_BYTES, 0, EMPTY1_BYTES.length)) {
             _assertNullTree(MAPPER.readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(new ByteArrayInputStream(EMPTY0_BYTES))) {
+        try (JsonParser p = MAPPER.createParser(new ByteArrayInputStream(EMPTY0_BYTES))) {
             _assertNullTree(MAPPER.readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(new ByteArrayInputStream(EMPTY1_BYTES))) {
+        try (JsonParser p = MAPPER.createParser(new ByteArrayInputStream(EMPTY1_BYTES))) {
             _assertNullTree(MAPPER.readTree(p));
         }
     }
@@ -58,33 +58,33 @@ public class EmptyContentAsTreeTest extends BaseMapTest
     // [databind#1406]
     public void testNullFromEOFWithParserAndReader() throws Exception
     {
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY0)) {
+        try (JsonParser p = MAPPER.createParser(EMPTY0)) {
             _assertNullTree(MAPPER.reader().readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY1)) {
+        try (JsonParser p = MAPPER.createParser(EMPTY1)) {
             _assertNullTree(MAPPER.reader().readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(new StringReader(EMPTY0))) {
+        try (JsonParser p = MAPPER.createParser(new StringReader(EMPTY0))) {
             _assertNullTree(MAPPER.reader().readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(new StringReader(EMPTY1))) {
-            _assertNullTree(MAPPER.reader().readTree(p));
-        }
-
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY0_BYTES)) {
-            _assertNullTree(MAPPER.reader().readTree(p));
-        }
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY1_BYTES)) {
-            _assertNullTree(MAPPER.reader().readTree(p));
-        }
-        try (JsonParser p = MAPPER.getFactory().createParser(EMPTY1_BYTES, 0, EMPTY1_BYTES.length)) {
+        try (JsonParser p = MAPPER.createParser(new StringReader(EMPTY1))) {
             _assertNullTree(MAPPER.reader().readTree(p));
         }
 
-        try (JsonParser p = MAPPER.getFactory().createParser(new ByteArrayInputStream(EMPTY0_BYTES))) {
+        try (JsonParser p = MAPPER.createParser(EMPTY0_BYTES)) {
             _assertNullTree(MAPPER.reader().readTree(p));
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(new ByteArrayInputStream(EMPTY1_BYTES))) {
+        try (JsonParser p = MAPPER.createParser(EMPTY1_BYTES)) {
+            _assertNullTree(MAPPER.reader().readTree(p));
+        }
+        try (JsonParser p = MAPPER.createParser(EMPTY1_BYTES, 0, EMPTY1_BYTES.length)) {
+            _assertNullTree(MAPPER.reader().readTree(p));
+        }
+
+        try (JsonParser p = MAPPER.createParser(new ByteArrayInputStream(EMPTY0_BYTES))) {
+            _assertNullTree(MAPPER.reader().readTree(p));
+        }
+        try (JsonParser p = MAPPER.createParser(new ByteArrayInputStream(EMPTY1_BYTES))) {
             _assertNullTree(MAPPER.reader().readTree(p));
         }
     }

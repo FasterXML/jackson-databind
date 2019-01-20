@@ -1307,6 +1307,12 @@ public class ObjectReader
         return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
+    /*
+    /**********************************************************
+    /* Deserialization methods; JsonNode ("tree")
+    /**********************************************************
+     */
+    
     /**
      * Method that reads content from given input source,
      * using configuration of this reader, and binds it as JSON Tree.
@@ -1356,6 +1362,28 @@ public class ObjectReader
             _reportUndetectableSource(json);
         }
         return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json), false));
+    }
+
+    /**
+     * @since 2.10
+     */
+    public JsonNode readTree(byte[] json) throws IOException
+    {
+        if (_dataFormatReaders != null) {
+            _reportUndetectableSource(json);
+        }
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json), false));
+    }
+    
+    /**
+     * @since 2.10
+     */
+    public JsonNode readTree(byte[] json, int offset, int len) throws IOException
+    {
+        if (_dataFormatReaders != null) {
+            _reportUndetectableSource(json);
+        }
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json, offset, len), false));
     }
 
     public JsonNode readTree(DataInput src) throws IOException

@@ -885,9 +885,7 @@ public class ObjectMapper
     public <T extends TreeNode> T readTree(JsonParser p)
         throws IOException, JsonProcessingException
     {
-        /* 05-Aug-2011, tatu: Also, must check for EOF here before
-         *   calling readValue(), since that'll choke on it otherwise
-         */
+        // Must check for EOF here before calling readValue(), since that'll choke on it otherwise
         JsonToken t = p.currentToken();
         if (t == null) {
             t = p.nextToken();
@@ -896,17 +894,13 @@ public class ObjectMapper
             }
         }
         DeserializationContext ctxt = createDeserializationContext(p);
+        // NOTE! _readValue() will check for trailing tokens
         JsonNode n = (JsonNode) _readValue(ctxt, p, JSON_NODE_TYPE);
         if (n == null) {
             n = getNodeFactory().nullNode();
         }
         @SuppressWarnings("unchecked")
         T result = (T) n;
-        /*
-        if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, valueType);
-        }
-*/
         return result;
     }
 

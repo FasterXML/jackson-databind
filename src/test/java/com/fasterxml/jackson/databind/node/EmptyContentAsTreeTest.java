@@ -89,8 +89,7 @@ public class EmptyContentAsTreeTest extends BaseMapTest
             _assertNullTree(MAPPER.reader().readTree(p));
         }
     }
-    */
-
+*/
     // [databind#2211]: when passing content sources OTHER than `JsonParser`,
     // return "missing node" instead of alternate (return `null`, throw exception).
     public void testMissingNodeForEOFOtherMapper() throws Exception

@@ -2393,9 +2393,7 @@ public class ObjectMapper
     public <T extends TreeNode> T readTree(JsonParser p)
         throws IOException, JsonProcessingException
     {
-        /* 05-Aug-2011, tatu: Also, must check for EOF here before
-         *   calling readValue(), since that'll choke on it otherwise
-         */
+        // Must check for EOF here before calling readValue(), since that'll choke on it otherwise
         DeserializationConfig cfg = getDeserializationConfig();
         JsonToken t = p.getCurrentToken();
         if (t == null) {
@@ -2404,17 +2402,13 @@ public class ObjectMapper
                 return null;
             }
         }
+        // NOTE! _readValue() will check for trailing tokens
         JsonNode n = (JsonNode) _readValue(cfg, p, JSON_NODE_TYPE);
         if (n == null) {
             n = getNodeFactory().nullNode();
         }
         @SuppressWarnings("unchecked")
         T result = (T) n;
-        /*
-        if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, valueType);
-        }
-*/
         return result;
     }
 
@@ -4029,14 +4023,13 @@ public class ObjectMapper
             } else {
                 ctxt = createDeserializationContext(p, cfg);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
-                Object result;
                 if (cfg.useRootWrapping()) {
                     resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
                 } else {
                     resultNode = (JsonNode) deser.deserialize(p, ctxt);
                 }
             }
-            if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            if (checkTrailing) {
                 _verifyNoTrailingTokens(p, ctxt, valueType);
             }
             // No ObjectIds so can ignore

@@ -212,12 +212,14 @@ public class ObjectMapperTest extends BaseMapTest
         DataOutput data = new DataOutputStream(bytes);
         final String exp = "{\"a\":1}";
         MAPPER.writeValue(data, input);
+        bytes.flush();
         assertEquals(exp, bytes.toString("UTF-8"));
 
         // and also via ObjectWriter...
         bytes.reset();
         data = new DataOutputStream(bytes);
         MAPPER.writer().writeValue(data, input);
+        bytes.close();
         assertEquals(exp, bytes.toString("UTF-8"));
     }
 

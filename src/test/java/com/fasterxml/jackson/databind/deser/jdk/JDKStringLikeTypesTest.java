@@ -379,6 +379,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         DataOutputStream out = new DataOutputStream(bytes);
         out.writeLong(value.getMostSignificantBits());
         out.writeLong(value.getLeastSignificantBits());
+        out.close();
         byte[] data = bytes.toByteArray();
         assertEquals(16, data.length);
         

@@ -1530,24 +1530,26 @@ public class ObjectReader
         if (t == null) {
             t = p.nextToken();
             if (t == null) { // [databind#1406]: expose end-of-input as `null`
-                return null;
+                // [databind#2211]: return `MissingNode` (supercedes [databind#1406] which dictated
+                // returning `null`
+                return _config.getNodeFactory().missingNode();
             }
         }
-        Object result;
+        JsonNode resultNode;
         if (t == JsonToken.VALUE_NULL) {
-            result = ctxt.getNodeFactory().nullNode();
+            resultNode = ctxt.getNodeFactory().nullNode();
         } else {
-            JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
+            final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
                 // NOTE: will do "check if trailing" check in call
                 return (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
             }
-            result = deser.deserialize(p, ctxt);
+            resultNode = (JsonNode) deser.deserialize(p, ctxt);
         }
         if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
             _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
         }
-        return (JsonNode) result;
+        return resultNode;
     }
 
     protected <T> MappingIterator<T> _bindAndReadValues(DefaultDeserializationContext ctxt,

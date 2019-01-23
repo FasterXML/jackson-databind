@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.node.TestTreeDeserialization.Bean;
  */
 public class TreeReadViaMapperTest extends BaseMapTest
 {
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testSimple() throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
@@ -22,9 +24,9 @@ public class TreeReadViaMapperTest extends BaseMapTest
             JsonNode result;
 
             if (type == 0) {
-                result = objectMapper().readTree(new StringReader(JSON));
+                result = MAPPER.readTree(new StringReader(JSON));
             } else {
-                result = objectMapper().readTree(JSON);
+                result = MAPPER.readTree(JSON);
             }
 
             assertType(result, ObjectNode.class);
@@ -90,9 +92,8 @@ public class TreeReadViaMapperTest extends BaseMapTest
 
     public void testMixed() throws IOException
     {
-        ObjectMapper om = new ObjectMapper();
         String JSON = "{\"node\" : { \"a\" : 3 }, \"x\" : 9 }";
-        Bean bean = om.readValue(JSON, Bean.class);
+        Bean bean = MAPPER.readValue(JSON, Bean.class);
 
         assertEquals(9, bean._x);
         JsonNode n = bean._node;
@@ -115,13 +116,24 @@ public class TreeReadViaMapperTest extends BaseMapTest
             ;
         JsonFactory jf = new JsonFactory();
         JsonParser p = jf.createParser(new StringReader(JSON));
-        JsonNode result = objectMapper().readTree(p);
+        JsonNode result = MAPPER.readTree(p);
 
         assertTrue(result.isObject());
         assertEquals(4, result.size());
 
-        assertNull(objectMapper().readTree(p));
+        assertNull(MAPPER.readTree(p));
         p.close();
+    }
+
+    public void testNullViaParser() throws Exception
+    {
+        final String JSON = " null ";
+        JsonFactory jf = new JsonFactory();
+
+        try (JsonParser p = jf.createParser(new StringReader(JSON))) {
+            final JsonNode result = MAPPER.readTree(p);
+            assertTrue(result.isNull());
+        }
     }
 
     public void testMultiple() throws Exception

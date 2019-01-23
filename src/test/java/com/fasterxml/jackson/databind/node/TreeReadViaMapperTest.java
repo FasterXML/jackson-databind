@@ -151,28 +151,6 @@ public class TreeReadViaMapperTest extends BaseMapTest
         p.close();
     }
 
-    // [databind#1406]
-    public void testNullFromEOFViaMapper() throws Exception
-    {
-        final ObjectMapper mapper = objectMapper();
-
-        assertNull(mapper.readTree(new StringReader("")));
-        assertNull(mapper.readTree(new ByteArrayInputStream(new byte[0])));
-    }
-
-    // [databind#1406]
-    public void testNullFromEOFViaObjectReader() throws Exception
-    {
-        final ObjectMapper mapper = objectMapper();
-
-        assertNull(mapper.readTree(new StringReader("")));
-        assertNull(mapper.readTree(new ByteArrayInputStream(new byte[0])));
-        assertNull(mapper.readerFor(JsonNode.class)
-                .readTree(new StringReader("")));
-        assertNull(mapper.readerFor(JsonNode.class)
-                .readTree(new ByteArrayInputStream(new byte[0])));
-    }
-
     /*
     /**********************************************
     /* Helper methods

@@ -1670,12 +1670,14 @@ public class ObjectReader
         if (t == null) {
             t = p.nextToken();
             if (t == null) { // [databind#1406]: expose end-of-input as `null`
-                return null;
+                // [databind#2211]: return `MissingNode` (supercedes [databind#1406] which dictated
+                // returning `null`
+                return _config.getNodeFactory().missingNode();
             }
         }
         DeserializationContext ctxt = createDeserializationContext(p);
         if (t == JsonToken.VALUE_NULL) {
-            return ctxt.getNodeFactory().nullNode();
+            return _config.getNodeFactory().nullNode();
         }
         JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
         Object result;

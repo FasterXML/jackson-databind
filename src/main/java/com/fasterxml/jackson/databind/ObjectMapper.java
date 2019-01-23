@@ -860,11 +860,14 @@ public class ObjectMapper
     }
 
     /**
-     * Method to deserialize JSON content as tree expressed
-     * using set of {@link JsonNode} instances. Returns
-     * root of the resulting tree (where root can consist
-     * of just a single node if the current event is a
-     * value event, not container).
+     * Method to deserialize JSON content as a tree {@link JsonNode}.
+     * Returns {@link JsonNode} that represents the root of the resulting tree, if there
+     * was content to read, or {@code null} if no more content is accessible
+     * via passed {@link JsonParser}.
+     *<p>
+     * NOTE! Behavior with end-of-input (no more content) differs between this
+     * {@code readTree} method, and all other methods that take input source: latter
+     * will return "missing node", NOT {@code null}
      * 
      * @return a {@link JsonNode}, if valid JSON content found; null
      *   if input has no content to bind -- note, however, that if
@@ -989,27 +992,8 @@ public class ObjectMapper
     }
 
     /**
-     * Method to deserialize JSON content as tree expressed
-     * using set of {@link JsonNode} instances.
-     * Returns root of the resulting tree (where root can consist
-     * of just a single node if the current event is a
-     * value event, not container).
-     *<p>
-     * If a low-level I/O problem (missing input, network error) occurs,
-     * a {@link IOException} will be thrown.
-     * If a parsing problem occurs (invalid JSON),
-     * {@link JsonParseException} will be thrown.
-     * If no content is found from input (end-of-input), Java
-     * <code>null</code> will be returned.
-     *
-     * @param r Reader used to read JSON content
-     *   for building the JSON tree.
-     * 
-     * @return a {@link JsonNode}, if valid JSON content found; null
-     *   if input has no content to bind -- note, however, that if
-     *   JSON <code>null</code> token is found, it will be represented
-     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
-     *   for {@link JsonNode#isNull()}
+     * Same as {@link #readTree(InputStream)} except content accessed through
+     * passed-in {@link Reader}
      */
     public JsonNode readTree(Reader r) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
@@ -1017,27 +1001,8 @@ public class ObjectMapper
     }
 
     /**
-     * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
-     * Returns root of the resulting tree (where root can consist of just a single node if the current
-     * event is a value event, not container).
-     *<p>
-     * If a low-level I/O problem (missing input, network error) occurs,
-     * a {@link IOException} will be thrown.
-     * If a parsing problem occurs (invalid JSON),
-     * {@link JsonParseException} will be thrown.
-     * If no content is found from input (end-of-input), Java
-     * <code>null</code> will be returned.
-     *
-     * @param content JSON content to parse to build the JSON tree.
-     * 
-     * @return a {@link JsonNode}, if valid JSON content found; null
-     *   if input has no content to bind -- note, however, that if
-     *   JSON <code>null</code> token is found, it will be represented
-     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
-     *   for {@link JsonNode#isNull()}
-     *
-     * @throws JsonParseException if underlying input contains invalid content
-     *    of type {@link JsonParser} supports (JSON for default case)
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in {@link String}
      */
     public JsonNode readTree(String content) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
@@ -1045,20 +1010,8 @@ public class ObjectMapper
     }
 
     /**
-     * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
-     * Returns root of the resulting tree (where root can consist of just a single node if the current
-     * event is a value event, not container).
-     *
-     * @param content JSON content to parse to build the JSON tree.
-     * 
-     * @return a {@link JsonNode}, if valid JSON content found; null
-     *   if input has no content to bind -- note, however, that if
-     *   JSON <code>null</code> token is found, it will be represented
-     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
-     *   for {@link JsonNode#isNull()}
-     *
-     * @throws JsonParseException if underlying input contains invalid content
-     *    of type {@link JsonParser} supports (JSON for default case)
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in byte array.
      */
     public JsonNode readTree(byte[] content) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
@@ -1066,7 +1019,8 @@ public class ObjectMapper
     }
 
     /**
-     * @since 2.10
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in byte array.
      */
     public JsonNode readTree(byte[] content, int offset, int len) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
@@ -1074,24 +1028,8 @@ public class ObjectMapper
     }
 
     /**
-     * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
-     * Returns root of the resulting tree (where root can consist of just a single node if the current
-     * event is a value event, not container).
-     *
-     * @param file File of which contents to parse as JSON for building a tree instance
-     * 
-     * @return a {@link JsonNode}, if valid JSON content found; null
-     *   if input has no content to bind -- note, however, that if
-     *   JSON <code>null</code> token is found, it will be represented
-     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
-     *   for {@link JsonNode#isNull()}
-     * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
-     *   network error) occurs (passed through as-is without additional wrapping -- note
-     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
-     *    of type {@link JsonParser} supports (JSON for default case)
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in {@link File}.
      */
     public JsonNode readTree(File file)
         throws IOException, JsonProcessingException
@@ -1101,24 +1039,8 @@ public class ObjectMapper
     }
 
     /**
-     * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
-     * Returns root of the resulting tree (where root can consist of just a single node if the current
-     * event is a value event, not container).
-     *
-     * @param source URL to use for fetching contents to parse as JSON for building a tree instance
-     * 
-     * @return a {@link JsonNode}, if valid JSON content found; null
-     *   if input has no content to bind -- note, however, that if
-     *   JSON <code>null</code> token is found, it will be represented
-     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
-     *   for {@link JsonNode#isNull()}
-     * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
-     *   network error) occurs (passed through as-is without additional wrapping -- note
-     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
-     *    of type {@link JsonParser} supports (JSON for default case)
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in {@link URL}.
      */
     public JsonNode readTree(URL source) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();

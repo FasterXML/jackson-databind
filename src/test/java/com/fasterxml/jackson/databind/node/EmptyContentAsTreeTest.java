@@ -56,6 +56,7 @@ public class EmptyContentAsTreeTest extends BaseMapTest
     }
 
     // [databind#1406]
+    /*
     public void testNullFromEOFWithParserAndReader() throws Exception
     {
         try (JsonParser p = MAPPER.createParser(EMPTY0)) {
@@ -88,6 +89,7 @@ public class EmptyContentAsTreeTest extends BaseMapTest
             _assertNullTree(MAPPER.reader().readTree(p));
         }
     }
+    */
 
     // [databind#2211]: when passing content sources OTHER than `JsonParser`,
     // return "missing node" instead of alternate (return `null`, throw exception).
@@ -131,11 +133,9 @@ public class EmptyContentAsTreeTest extends BaseMapTest
     }
 
     private void _assertMissing(JsonNode n) {
-        /*
         assertNotNull("Should not get `null` but `MissingNode`", n);
         if (!n.isMissingNode()) {
             fail("Should get `MissingNode` but got: "+n.getClass().getName());
         }
-        */
     }
 }

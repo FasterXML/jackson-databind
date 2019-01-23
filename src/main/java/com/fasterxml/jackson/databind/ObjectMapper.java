@@ -882,10 +882,6 @@ public class ObjectMapper
     public <T extends TreeNode> T readTree(JsonParser p)
         throws IOException, JsonProcessingException
     {
-        /* 02-Mar-2009, tatu: One twist; deserialization provider
-         *   will map JSON null straight into Java null. But what
-         *   we want to return is the "null node" instead.
-         */
         /* 05-Aug-2011, tatu: Also, must check for EOF here before
          *   calling readValue(), since that'll choke on it otherwise
          */
@@ -903,6 +899,11 @@ public class ObjectMapper
         }
         @SuppressWarnings("unchecked")
         T result = (T) n;
+        /*
+        if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, valueType);
+        }
+*/
         return result;
     }
 
@@ -2412,26 +2413,30 @@ public class ObjectMapper
             JsonToken t = p.currentToken();
             if (t == null) {
                 t = p.nextToken();
-                if (t == null) { // [databind#1406]: expose end-of-input as `null`
-                    return null;
+                if (t == null) {
+                    // [databind#2211]: return `MissingNode` (supercedes [databind#1406] which dictated
+                    // returning `null`
+                    return cfg.getNodeFactory().missingNode();
                 }
             }
+            JsonNode resultNode;
+
             if (t == JsonToken.VALUE_NULL) {
-                return cfg.getNodeFactory().nullNode();
-            }
-            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
-            Object result;
-            if (cfg.useRootWrapping()) {
-                result = _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
+                resultNode = cfg.getNodeFactory().nullNode();
             } else {
-                result = deser.deserialize(p, ctxt);
-                if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-                    _verifyNoTrailingTokens(p, ctxt, valueType);
+                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
+                if (cfg.useRootWrapping()) {
+                    resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
+                } else {
+                    resultNode = (JsonNode) deser.deserialize(p, ctxt);
                 }
+            }
+            if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                _verifyNoTrailingTokens(p, ctxt, valueType);
             }
             // No ObjectIds so can ignore
 //            ctxt.checkUnresolvedObjectId();
-            return (JsonNode) result;
+            return resultNode;
         }
     }
 

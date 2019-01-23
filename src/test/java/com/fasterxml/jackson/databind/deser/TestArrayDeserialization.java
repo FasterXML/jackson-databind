@@ -105,7 +105,7 @@ public class TestArrayDeserialization
             while (jp.nextToken() != JsonToken.END_ARRAY) {
                 list.add(new NonDeserializable(jp.getText(), false));
             }
-            return list.toArray(new NonDeserializable[list.size()]);
+            return list.toArray(new NonDeserializable[0]);
         }
     }
 

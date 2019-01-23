@@ -187,8 +187,8 @@ public abstract class BeanSerializerBase
                 fpropsOut.add(fpropsIn[i]);
             }
         }
-        _props = propsOut.toArray(new BeanPropertyWriter[propsOut.size()]);
-        _filteredProps = (fpropsOut == null) ? null : fpropsOut.toArray(new BeanPropertyWriter[fpropsOut.size()]);
+        _props = propsOut.toArray(new BeanPropertyWriter[0]);
+        _filteredProps = (fpropsOut == null) ? null : fpropsOut.toArray(new BeanPropertyWriter[0]);
         
         _typeId = src._typeId;
         _anyGetterWriter = src._anyGetterWriter;

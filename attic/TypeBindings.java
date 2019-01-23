@@ -181,7 +181,7 @@ public class TypeBindings
         if (_bindings.size() == 0) {
             return NO_TYPES;
         }
-        return _bindings.values().toArray(new JavaType[_bindings.size()]);
+        return _bindings.values().toArray(new JavaType[0]);
     }
     
     /*

@@ -510,7 +510,7 @@ public class SimpleModule
             context.overrideDefaultNullValueSerializer(_defaultNullValueSerializer);
         }
         if (_subtypes != null && _subtypes.size() > 0) {
-            context.registerSubtypes(_subtypes.toArray(new NamedType[_subtypes.size()]));
+            context.registerSubtypes(_subtypes.toArray(new NamedType[0]));
         }
         if (_mixins != null) {
             for (Map.Entry<Class<?>,Class<?>> entry : _mixins.entrySet()) {

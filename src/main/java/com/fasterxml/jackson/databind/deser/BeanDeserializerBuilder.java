@@ -529,7 +529,7 @@ public class BeanDeserializerBuilder
                 if (result == null) {
                     result = new PropertyName[props.size()][];
                 }
-                result[i] = aliases.toArray(new PropertyName[aliases.size()]);
+                result[i] = aliases.toArray(new PropertyName[0]);
             }
         }
         return result;

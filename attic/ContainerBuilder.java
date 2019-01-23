@@ -130,7 +130,7 @@ public final class ContainerBuilder
         if (list == null) {
             result = Arrays.copyOfRange(b, start, tail);
         } else {
-            result = list.toArray(new Object[tail - start]);
+            result = list.toArray(new Object[0]);
             list = null;
         }
         start = prevStart;

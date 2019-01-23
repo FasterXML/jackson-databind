@@ -1149,6 +1149,13 @@ public class ObjectReader
      * Convenience method that binds content read using given parser, using
      * configuration of this reader, except that content is bound as
      * JSON tree instead of configured root value type.
+     * Returns {@link JsonNode} that represents the root of the resulting tree, if there
+     * was content to read, or {@code null} if no more content is accessible
+     * via passed {@link JsonParser}.
+     *<p>
+     * NOTE! Behavior with end-of-input (no more content) differs between this
+     * {@code readTree} method, and all other methods that take input source: latter
+     * will return "missing node", NOT {@code null}
      *<p>
      * Note: if an object was specified with {@link #withValueToUpdate}, it
      * will be ignored.
@@ -1316,6 +1323,14 @@ public class ObjectReader
     /**
      * Method that reads content from given input source,
      * using configuration of this reader, and binds it as JSON Tree.
+     * Returns {@link JsonNode} that represents the root of the resulting tree, if there
+     * was content to read, or "missing node" (instance of {@JsonNode} for which
+     * {@link JsonNode#isMissingNode()} returns true, and behaves otherwise similar to
+     * "null node") if no more content is accessible through passed-in input source.
+     *<p>
+     * NOTE! Behavior with end-of-input (no more content) differs between this
+     * {@code readTree} method, and {@link #readTree(JsonParser)} -- latter returns
+     * {@code null} for "no content" case.
      *<p>
      * Note that if an object was specified with a call to
      * {@link #withValueToUpdate(Object)}
@@ -1331,13 +1346,8 @@ public class ObjectReader
     }
     
     /**
-     * Method that reads content from given input source,
-     * using configuration of this reader, and binds it as JSON Tree.
-     *<p>
-     * Note that if an object was specified with a call to
-     * {@link #withValueToUpdate(Object)}
-     * it will just be ignored; result is always a newly constructed
-     * {@link JsonNode} instance.
+     * Same as {@link #readTree(InputStream)} except content accessed through
+     * passed-in {@link Reader}
      */
     public JsonNode readTree(Reader r) throws IOException
     {
@@ -1348,13 +1358,8 @@ public class ObjectReader
     }
 
     /**
-     * Method that reads content from given JSON input String,
-     * using configuration of this reader, and binds it as JSON Tree.
-     *<p>
-     * Note that if an object was specified with a call to
-     * {@link #withValueToUpdate(Object)}
-     * it will just be ignored; result is always a newly constructed
-     * {@link JsonNode} instance.
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in {@link String}
      */
     public JsonNode readTree(String json) throws IOException
     {
@@ -1365,7 +1370,8 @@ public class ObjectReader
     }
 
     /**
-     * @since 2.10
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in byte array.
      */
     public JsonNode readTree(byte[] json) throws IOException
     {
@@ -1376,7 +1382,8 @@ public class ObjectReader
     }
     
     /**
-     * @since 2.10
+     * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in byte array.
      */
     public JsonNode readTree(byte[] json, int offset, int len) throws IOException
     {
@@ -1386,6 +1393,10 @@ public class ObjectReader
         return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json, offset, len), false));
     }
 
+    /**
+     * Same as {@link #readTree(InputStream)} except content read using
+     * passed-in {@link DataInput}.
+     */
     public JsonNode readTree(DataInput src) throws IOException
     {
         if (_dataFormatReaders != null) {

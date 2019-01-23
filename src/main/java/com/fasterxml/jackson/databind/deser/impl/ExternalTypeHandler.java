@@ -142,6 +142,9 @@ public class ExternalTypeHandler
         // 28-Nov-2016, tatu: For [databind#291], need separate handling
         if (ob instanceof List<?>) {
             Iterator<Integer> it = ((List<Integer>) ob).iterator();
+            if (!it.hasNext()) {
+                return false;
+            }
             Integer index = it.next();
 
             ExtTypedProperty prop = _properties[index];

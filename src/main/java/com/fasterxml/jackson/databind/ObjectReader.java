@@ -1099,7 +1099,7 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
-        return (T) _bindAsTree(createDeserializationContext(p), p);
+        return (T) _bindAsTreeOrNull(createDeserializationContext(p), p);
     }
 
     /*
@@ -1546,13 +1546,13 @@ public class ObjectReader
         JsonToken t = p.currentToken();
         if (t == null) {
             t = p.nextToken();
-            if (t == null) { // [databind#1406]: expose end-of-input as `null`
+            if (t == null) {
                 // [databind#2211]: return `MissingNode` (supercedes [databind#1406] which dictated
                 // returning `null`
                 return _config.getNodeFactory().missingNode();
             }
         }
-        JsonNode resultNode;
+        final JsonNode resultNode;
         if (t == JsonToken.VALUE_NULL) {
             resultNode = ctxt.getNodeFactory().nullNode();
         } else {
@@ -1569,6 +1569,37 @@ public class ObjectReader
         return resultNode;
     }
 
+    /**
+     * Same as {@link #_bindAsTree} except end-of-input is reported by returning
+     * {@code null}, not "missing node"
+     */
+    protected final JsonNode _bindAsTreeOrNull(DefaultDeserializationContext ctxt,
+            JsonParser p) throws IOException
+    {
+        JsonToken t = p.currentToken();
+        if (t == null) {
+            t = p.nextToken();
+            if (t == null) { // unlike above, here we do return `null`
+                return null;
+            }
+        }
+        final JsonNode resultNode;
+        if (t == JsonToken.VALUE_NULL) {
+            resultNode = ctxt.getNodeFactory().nullNode();
+        } else {
+            final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
+            if (_unwrapRoot) {
+                // NOTE: will do "check if trailing" check in call
+                return (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
+            }
+            resultNode = (JsonNode) deser.deserialize(p, ctxt);
+        }
+        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
+        }
+        return resultNode;
+    }
+    
     protected <T> MappingIterator<T> _bindAndReadValues(DefaultDeserializationContext ctxt,
             JsonParser p) throws IOException
     {

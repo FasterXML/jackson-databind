@@ -1166,14 +1166,14 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     @Override
     public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
-        return (T) _bindAsTree(p);
+        return (T) _bindAsTreeOrNull(p);
     }
-     
+
     @Override
     public void writeTree(JsonGenerator g, TreeNode rootNode) {
         throw new UnsupportedOperationException();
     }
-    
+
     /*
     /**********************************************************
     /* Deserialization methods; others similar to what ObjectMapper has
@@ -1669,9 +1669,7 @@ public class ObjectReader
 
     protected final JsonNode _bindAsTree(JsonParser p) throws IOException
     {
-        // 27-Oct-2016, tatu: Need to inline `_initForReading()` due to
-        //   special requirements by tree reading (no fail on eof)
-        
+        // Need to inline `_initForReading()` due to tree reading handling end-of-input specially
         _config.initialize(p);
         if (_schema != null) {
             p.setSchema(_schema);
@@ -1680,29 +1678,63 @@ public class ObjectReader
         JsonToken t = p.getCurrentToken();
         if (t == null) {
             t = p.nextToken();
-            if (t == null) { // [databind#1406]: expose end-of-input as `null`
-                // [databind#2211]: return `MissingNode` (supercedes [databind#1406] which dictated
-                // returning `null`
+            if (t == null) {
                 return _config.getNodeFactory().missingNode();
             }
         }
-        DeserializationContext ctxt = createDeserializationContext(p);
+        final JsonNode resultNode;
         if (t == JsonToken.VALUE_NULL) {
-            return _config.getNodeFactory().nullNode();
-        }
-        JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
-        Object result;
-        if (_unwrapRoot) {
-            result = _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
+            resultNode = _config.getNodeFactory().nullNode();
         } else {
-            result = deser.deserialize(p, ctxt);
-            if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-                _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
+            final DeserializationContext ctxt = createDeserializationContext(p);
+            final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
+            if (_unwrapRoot) {
+                resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
+            } else {
+                resultNode = (JsonNode) deser.deserialize(p, ctxt);
+                if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                    _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
+                }
             }
         }
-        return (JsonNode) result;
+        return resultNode;
     }
 
+    /**
+     * Same as {@link #_bindAsTree} except end-of-input is reported by returning
+     * {@code null}, not "missing node"
+     */
+    protected final JsonNode _bindAsTreeOrNull(JsonParser p) throws IOException
+    {
+        _config.initialize(p);
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
+        JsonToken t = p.getCurrentToken();
+        if (t == null) {
+            t = p.nextToken();
+            if (t == null) {
+                return null;
+            }
+        }
+        final JsonNode resultNode;
+        if (t == JsonToken.VALUE_NULL) {
+            resultNode = _config.getNodeFactory().nullNode();
+        } else {
+            final DeserializationContext ctxt = createDeserializationContext(p);
+            final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
+            if (_unwrapRoot) {
+                resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
+            } else {
+                resultNode = (JsonNode) deser.deserialize(p, ctxt);
+                if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                    _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
+                }
+            }
+        }
+        return resultNode;
+    }
+    
     /**
      * @since 2.1
      */

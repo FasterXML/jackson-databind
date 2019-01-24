@@ -17,6 +17,10 @@ public class FullStreamReadTest extends BaseMapTest
 
     private final static String JSON_FAIL_ARRAY = JSON_OK_ARRAY + " [ ]";
 
+    private final static String JSON_OK_NULL = " null  ";
+    private final static String JSON_OK_NULL_WITH_COMMENT = " null /* stuff */ ";
+    private final static String JSON_FAIL_NULL = JSON_OK_NULL + " false";
+    
     /*
     /**********************************************************
     /* Test methods, config
@@ -38,6 +42,16 @@ public class FullStreamReadTest extends BaseMapTest
         _verifyCollection(MAPPER.readValue(JSON_OK_ARRAY, List.class));
         _verifyCollection(MAPPER.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class));
         _verifyCollection(MAPPER.readValue(JSON_FAIL_ARRAY, List.class));
+
+        // ditto for getting `null` and some other token
+
+        assertTrue(MAPPER.readTree(JSON_OK_NULL).isNull());
+        assertTrue(MAPPER.readTree(JSON_OK_NULL_WITH_COMMENT).isNull());
+        assertTrue(MAPPER.readTree(JSON_FAIL_NULL).isNull());
+
+        assertNull(MAPPER.readValue(JSON_OK_NULL, Object.class));
+        assertNull(MAPPER.readValue(JSON_OK_NULL_WITH_COMMENT, Object.class));
+        assertNull(MAPPER.readValue(JSON_FAIL_NULL, Object.class));
     }
 
     public void testMapperFailOnTrailing() throws Exception
@@ -92,6 +106,11 @@ public class FullStreamReadTest extends BaseMapTest
                 .readValue(JSON_OK_ARRAY_WITH_COMMENT));
     }
 
+    public void testMapperFailOnTrailingWithNull() throws Exception
+    {
+        // !!! TODO
+    }
+    
     public void testReaderAcceptTrailing() throws Exception
     {
         ObjectReader R = MAPPER.reader();

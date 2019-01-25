@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.databind.testutil.MediaItem;
+
 public class RoundtripTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = new ObjectMapper();

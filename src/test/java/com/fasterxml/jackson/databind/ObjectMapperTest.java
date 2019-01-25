@@ -376,15 +376,17 @@ public class ObjectMapperTest extends BaseMapTest
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         ObjectNode input = MAPPER.createObjectNode();
         input.put("a", 1);
-        DataOutput data = new DataOutputStream(bytes);
         final String exp = "{\"a\":1}";
-        MAPPER.writeValue(data, input);
+        try (DataOutputStream data = new DataOutputStream(bytes)) {
+            MAPPER.writeValue((DataOutput) data, input);
+        }
         assertEquals(exp, bytes.toString("UTF-8"));
 
         // and also via ObjectWriter...
         bytes.reset();
-        data = new DataOutputStream(bytes);
-        MAPPER.writer().writeValue(data, input);
+        try (DataOutputStream data = new DataOutputStream(bytes)) {
+            MAPPER.writer().writeValue((DataOutput) data, input);
+        }
         assertEquals(exp, bytes.toString("UTF-8"));
     }
 

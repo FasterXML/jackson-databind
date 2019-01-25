@@ -359,34 +359,34 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     public void testUUIDAux() throws Exception
     {
-        // [JACKSON-393] fix:
         final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
 
         // first, null should come as null
-        TokenBuffer buf = new TokenBuffer(null, false);
-        buf.writeObject(null);
-        assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
-        buf.close();
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeObject(null);
+            assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
+        }
 
         // then, UUID itself come as is:
-        buf = new TokenBuffer(null, false);
-        buf.writeObject(value);
-        assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
-
-        // and finally from byte[]
-        // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(bytes);
-        out.writeLong(value.getMostSignificantBits());
-        out.writeLong(value.getLeastSignificantBits());
-        byte[] data = bytes.toByteArray();
-        assertEquals(16, data.length);
-        
-        buf.writeObject(data);
-
-        UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
-        
-        assertEquals(value, value2);
-        buf.close();
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeObject(value);
+            assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
+    
+            // and finally from byte[]
+            // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            DataOutputStream out = new DataOutputStream(bytes);
+            out.writeLong(value.getMostSignificantBits());
+            out.writeLong(value.getLeastSignificantBits());
+            out.close();
+            byte[] data = bytes.toByteArray();
+            assertEquals(16, data.length);
+            
+            buf.writeObject(data);
+    
+            UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
+            
+            assertEquals(value, value2);
+        }
     }
 }

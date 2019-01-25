@@ -1682,20 +1682,27 @@ public class ObjectReader
                 return _config.getNodeFactory().missingNode();
             }
         }
+        final DeserializationContext ctxt;
         final JsonNode resultNode;
+        final boolean checkTrailing = _config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+
         if (t == JsonToken.VALUE_NULL) {
             resultNode = _config.getNodeFactory().nullNode();
+            if (!checkTrailing) {
+                return resultNode;
+            }
+            ctxt = createDeserializationContext(p);
         } else {
-            final DeserializationContext ctxt = createDeserializationContext(p);
+            ctxt = createDeserializationContext(p);
             final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
                 resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
             } else {
                 resultNode = (JsonNode) deser.deserialize(p, ctxt);
-                if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-                    _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
-                }
             }
+        }
+        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
         }
         return resultNode;
     }
@@ -1717,20 +1724,26 @@ public class ObjectReader
                 return null;
             }
         }
+        final DeserializationContext ctxt;
         final JsonNode resultNode;
+        final boolean checkTrailing = _config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         if (t == JsonToken.VALUE_NULL) {
             resultNode = _config.getNodeFactory().nullNode();
+            if (!checkTrailing) {
+                return resultNode;
+            }
+            ctxt = createDeserializationContext(p);
         } else {
-            final DeserializationContext ctxt = createDeserializationContext(p);
+            ctxt = createDeserializationContext(p);
             final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
                 resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
             } else {
                 resultNode = (JsonNode) deser.deserialize(p, ctxt);
-                if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-                    _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
-                }
             }
+        }
+        if (checkTrailing) {
+            _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
         }
         return resultNode;
     }

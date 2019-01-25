@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.BrokenStringWriter;
 
 /**
  * Unit test for verifying that exceptions are properly handled (caught,

@@ -1152,9 +1152,11 @@ public class ObjectMapper
         throws JsonProcessingException
     {
         try {
+            // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
+
             // Simple cast when we just want to cast to, say, ObjectNode
-            // ... one caveat; while everything is Object.class, let's not take shortcut
-            if (valueType != Object.class && valueType.isAssignableFrom(n.getClass())) {
+            if (TreeNode.class.isAssignableFrom(valueType)
+                    && valueType.isAssignableFrom(n.getClass())) {
                 return (T) n;
             }
             // 20-Apr-2016, tatu: Another thing: for VALUE_EMBEDDED_OBJECT, assume similar
@@ -2058,20 +2060,7 @@ public class ObjectMapper
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {
-        // [databind#1433] Do not shortcut null values.
-        // This defaults primitives and fires deserializer getNullValue hooks.
-        if (fromValue != null) {
-            // also, as per [databind#11], consider case for simple cast
-            // But with caveats: one is that while everything is Object.class, we don't
-            // want to "optimize" that out; and the other is that we also do not want
-            // to lose conversions of generic types.
-            Class<?> targetType = toValueType.getRawClass();
-            if (targetType != Object.class
-                    && !toValueType.hasGenericTypes()
-                    && targetType.isAssignableFrom(fromValue.getClass())) {
-                return fromValue;
-            }
-        }
+        // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
 
         // inlined 'writeValue' with minor changes:
         // first: disable wrapping when writing

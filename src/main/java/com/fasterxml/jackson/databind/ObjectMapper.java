@@ -1153,7 +1153,6 @@ public class ObjectMapper
     {
         try {
             // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
-
             // Simple cast when we just want to cast to, say, ObjectNode
             if (TreeNode.class.isAssignableFrom(valueType)
                     && valueType.isAssignableFrom(n.getClass())) {
@@ -2060,7 +2059,7 @@ public class ObjectMapper
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {
-        // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
+        // 25-Jan-2019, tatu: [databind#2220] Let's NOT try to short-circuit anything
 
         // inlined 'writeValue' with minor changes:
         // first: disable wrapping when writing

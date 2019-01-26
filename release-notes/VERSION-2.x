@@ -24,6 +24,7 @@ Project: jackson-databind
 #2211: Change of behavior (2.8 -> 2.9) with `ObjectMapper.readTree(input)` with no content
 #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
  (reported by Christoph B)
+#2220: Force serialization always for `convertValue()`; avoid short-cuts
 #2223: Add `missingNode()` method in `JsonNodeFactory`
 #2227: Minor cleanup of exception message for `Enum` binding failure
  (reported by RightHandedMonkey@github)

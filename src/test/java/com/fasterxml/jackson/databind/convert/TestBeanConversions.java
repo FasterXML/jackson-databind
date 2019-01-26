@@ -217,19 +217,10 @@ public class TestBeanConversions
      */
     public void testIssue11() throws Exception
     {
-        // First the expected use case, Node specification
-        ObjectNode root = MAPPER.createObjectNode();
-        JsonNode n = root;
-        ObjectNode ob2 = MAPPER.convertValue(n, ObjectNode.class);
-        assertSame(root, ob2);
-
-        JsonNode n2 = MAPPER.convertValue(n, JsonNode.class);
-        assertSame(root, n2);
-        
         // then some other no-op conversions
-        String STR = "test";
-        CharSequence seq = MAPPER.convertValue(STR, CharSequence.class);
-        assertSame(STR, seq);
+        StringBuilder SB = new StringBuilder("test");
+        CharSequence seq = MAPPER.convertValue(SB, CharSequence.class);
+        assertNotSame(SB, seq);
 
         // and then something that should NOT use short-cut
         Leaf l = new Leaf(13);

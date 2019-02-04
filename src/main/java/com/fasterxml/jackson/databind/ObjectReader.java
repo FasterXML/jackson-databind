@@ -1217,13 +1217,18 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(String src) throws IOException
+    public <T> T readValue(String src) throws JsonProcessingException, JsonMappingException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+        try { // since 2.10 remove "impossible" IOException as per [databind#1675]
+            return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+        } catch (JsonProcessingException e) {
+            throw e;
+        } catch (IOException e) { // shouldn't really happen but being declared need to
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
     }
 
     /**
@@ -1361,12 +1366,18 @@ public class ObjectReader
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link String}
      */
-    public JsonNode readTree(String json) throws IOException
+    public JsonNode readTree(String json) throws JsonProcessingException, JsonMappingException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json), false));
+        try { // since 2.10 remove "impossible" IOException as per [databind#1675]
+            return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json), false));
+        } catch (JsonProcessingException e) {
+            throw e;
+        } catch (IOException e) { // shouldn't really happen but being declared need to
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
     }
 
     /**
@@ -1943,7 +1954,7 @@ public class ObjectReader
         return new FileInputStream(f);
     }
 
-    protected void _reportUndetectableSource(Object src) throws JsonProcessingException
+    protected void _reportUndetectableSource(Object src) throws JsonParseException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
         throw new JsonParseException(null, "Cannot use source of type "

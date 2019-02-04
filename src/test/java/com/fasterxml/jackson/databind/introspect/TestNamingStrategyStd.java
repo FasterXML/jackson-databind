@@ -332,14 +332,12 @@ public class TestNamingStrategyStd extends BaseMapTest
                 FirstNameBean.class);
         assertEquals("Billy", result.firstName);
     }
-
     /*
     /**********************************************************
     /* Test methods for LOWER_DOT_CASE
     /**********************************************************
      */
 
-    /*
     public void testLowerCaseWithDotsStrategyStandAlone()
     {
         assertEquals("some.value",
@@ -367,7 +365,6 @@ public class TestNamingStrategyStd extends BaseMapTest
                 FirstNameBean.class);
         assertEquals("Billy", result.firstName);
     }
-    */
 
     /*
     /**********************************************************

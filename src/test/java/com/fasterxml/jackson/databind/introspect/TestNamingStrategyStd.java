@@ -339,6 +339,42 @@ public class TestNamingStrategyStd extends BaseMapTest
 
     /*
     /**********************************************************
+    /* Test methods for LOWER_DOT_CASE
+    /**********************************************************
+     */
+
+    /*
+    public void testLowerCaseWithDotsStrategyStandAlone()
+    {
+        assertEquals("some.value",
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "someValue"));
+        assertEquals("some.value",
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "SomeValue"));
+        assertEquals("url",
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "URL"));
+        assertEquals("url.stuff",
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "URLStuff"));
+        assertEquals("some.url.stuff",
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "SomeURLStuff"));
+    }
+
+    public void testSimpleLowerCaseWithDots() throws Exception
+    {
+        final ObjectMapper m = jsonMapperBuilder()
+            .propertyNamingStrategy(PropertyNamingStrategy.LOWER_DOT_CASE)
+            .build();
+
+        final FirstNameBean input = new FirstNameBean("Bob");
+        assertEquals(aposToQuotes("{'first.name':'Bob'}"), m.writeValueAsString(input));
+
+        FirstNameBean result = m.readValue(aposToQuotes("{'first.name':'Billy'}"),
+                FirstNameBean.class);
+        assertEquals("Billy", result.firstName);
+    }
+    */
+
+    /*
+    /**********************************************************
     /* Test methods, other
     /**********************************************************
      */

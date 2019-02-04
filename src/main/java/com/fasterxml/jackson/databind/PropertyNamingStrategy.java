@@ -76,6 +76,15 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      */
     public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy();
 
+    /**
+     * Naming convention widely used as configuration properties name, where words are in
+     * lower-case letters, separated by dots.
+     * See {@link LowerDotCaseStrategy} for details.
+     *
+     * @since 2.10
+     */
+    public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy();
+
     /*
     /**********************************************************
     /* API
@@ -396,7 +405,26 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
             return result.toString();
         }
     }
-    
+
+    /**
+     * Naming strategy similar to {@link KebabCaseStrategy}, but instead of hyphens
+     * as separators, uses dots. Naming convention widely used as configuration properties name.
+     *
+     * @since 2.10
+     */
+    public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase {
+        /*
+        @Override
+        public String translate(String input){
+            return translateLowerCaseWithSeparator(input, '.');
+        }
+        */
+        @Override
+        public String translate(String input) {
+            return input.toLowerCase();
+        }
+    }
+
     /*
     /**********************************************************
     /* Deprecated variants, aliases

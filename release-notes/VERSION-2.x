@@ -28,6 +28,8 @@ Project: jackson-databind
 #2223: Add `missingNode()` method in `JsonNodeFactory`
 #2227: Minor cleanup of exception message for `Enum` binding failure
  (reported by RightHandedMonkey@github)
+#2241: Add `JsonPropertyNamingStrategy.LOWER_DOT_CASE` for dot-delimited names
+ (contributed by zenglian@github.com)
 
 2.9.9 (not yet released)
 

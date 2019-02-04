@@ -2531,8 +2531,14 @@ public class ObjectMapper
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link String}
      */
-    public JsonNode readTree(String content) throws IOException {
-        return _readTreeAndClose(_jsonFactory.createParser(content));
+    public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
+        try { // since 2.10 remove "impossible" IOException as per [databind#1675]
+            return _readTreeAndClose(_jsonFactory.createParser(content));
+        } catch (JsonProcessingException e) {
+            throw e;
+        } catch (IOException e) { // shouldn't really happen but being declared need to
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
     }
 
     /**
@@ -2936,49 +2942,35 @@ public class ObjectMapper
 
     /**
      * Method to deserialize JSON content from given JSON content String.
-     * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
-     *   network error) occurs (passed through as-is without additional wrapping -- note
-     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     *   does NOT result in wrapping of exception even if enabled)
+     *
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @SuppressWarnings("unchecked")
     public <T> T readValue(String content, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws JsonProcessingException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createParser(content), _typeFactory.constructType(valueType));
+        return readValue(content, _typeFactory.constructType(valueType));
     } 
 
     /**
      * Method to deserialize JSON content from given JSON content String.
-     * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
-     *   network error) occurs (passed through as-is without additional wrapping -- note
-     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     *   does NOT result in wrapping of exception even if enabled)
+     *
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @SuppressWarnings({ "unchecked" })
     public <T> T readValue(String content, TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+        throws JsonProcessingException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createParser(content), _typeFactory.constructType(valueTypeRef));
+        return readValue(content, _typeFactory.constructType(valueTypeRef));
     } 
 
     /**
      * Method to deserialize JSON content from given JSON content String.
-     * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
-     *   network error) occurs (passed through as-is without additional wrapping -- note
-     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     *   does NOT result in wrapping of exception even if enabled)
+     *
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
@@ -2986,9 +2978,15 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(String content, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws JsonProcessingException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createParser(content), valueType);
+        try { // since 2.10 remove "impossible" IOException as per [databind#1675]
+            return (T) _readMapAndClose(_jsonFactory.createParser(content), valueType);
+        } catch (JsonProcessingException e) {
+            throw e;
+        } catch (IOException e) { // shouldn't really happen but being declared need to
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
     } 
 
     @SuppressWarnings("unchecked")

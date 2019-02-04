@@ -203,9 +203,47 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
         }
         
         public abstract String translate(String propertyName);
-    }
-        
+
+        /**
+         * Helper method to share implementation between snake and dotted case.
+         */
+        protected static String translateLowerCaseWithSeparator(final String input, final char separator)
+        {
+            if (input == null) {
+                return input; // garbage in, garbage out
+            }
+            final int length = input.length();
+            if (length == 0) {
+                return input;
+            }
     
+            final StringBuilder result = new StringBuilder(length + (length >> 1));
+            int upperCount = 0;
+            for (int i = 0; i < length; ++i) {
+                char ch = input.charAt(i);
+                char lc = Character.toLowerCase(ch);
+    
+                if (lc == ch) { // lower-case letter means we can get new word
+                    // but need to check for multi-letter upper-case (acronym), where assumption
+                    // is that the last upper-case char is start of a new word
+                    if (upperCount > 1) {
+                        // so insert hyphen before the last character now
+                        result.insert(result.length() - 1, separator);
+                    }
+                    upperCount = 0;
+                } else {
+                    // Otherwise starts new word, unless beginning of string
+                    if ((upperCount == 0) && (i > 0)) {
+                        result.append(separator);
+                    }
+                    ++upperCount;
+                }
+                result.append(lc);
+            }
+            return result.toString();
+        }
+    }
+
     /*
     /**********************************************************
     /* Standard implementations 
@@ -369,40 +407,8 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class KebabCaseStrategy extends PropertyNamingStrategyBase
     {
         @Override
-        public String translate(String input)
-        {
-            if (input == null) return input; // garbage in, garbage out
-            int length = input.length();
-            if (length == 0) {
-                return input;
-            }
-
-            StringBuilder result = new StringBuilder(length + (length >> 1));
-
-            int upperCount = 0;
-
-            for (int i = 0; i < length; ++i) {
-                char ch = input.charAt(i);
-                char lc = Character.toLowerCase(ch);
-                
-                if (lc == ch) { // lower-case letter means we can get new word
-                    // but need to check for multi-letter upper-case (acronym), where assumption
-                    // is that the last upper-case char is start of a new word
-                    if (upperCount > 1) {
-                        // so insert hyphen before the last character now
-                        result.insert(result.length() - 1, '-');
-                    }
-                    upperCount = 0;
-                } else {
-                    // Otherwise starts new word, unless beginning of string
-                    if ((upperCount == 0) && (i > 0)) {
-                        result.append('-');
-                    }
-                    ++upperCount;
-                }
-                result.append(lc);
-            }
-            return result.toString();
+        public String translate(String input) {
+            return translateLowerCaseWithSeparator(input, '-');
         }
     }
 
@@ -413,15 +419,9 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * @since 2.10
      */
     public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase {
-        /*
         @Override
         public String translate(String input){
             return translateLowerCaseWithSeparator(input, '.');
-        }
-        */
-        @Override
-        public String translate(String input) {
-            return input.toLowerCase();
         }
     }
 

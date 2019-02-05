@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -97,6 +98,9 @@ public class NumberSerializers {
             if (format != null) {
                 switch (format.getShape()) {
                 case STRING:
+                    if (((Class<?>) handledType()) == BigDecimal.class) {
+                        return NumberSerializer.bigDecimalAsStringSerializer();
+                    }
                     return ToStringSerializer.instance;
                 default:
                 }

@@ -5,6 +5,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -55,7 +56,10 @@ public class NumberSerTest extends BaseMapTest
 
     static class BigDecimalAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
-        public BigDecimal value = BigDecimal.valueOf(0.25);
+        public BigDecimal value;
+
+        public BigDecimalAsString() { this(BigDecimal.valueOf(0.25)); }
+        public BigDecimalAsString(BigDecimal v) { value = v; }
     }
     
     static class NumberWrapper {

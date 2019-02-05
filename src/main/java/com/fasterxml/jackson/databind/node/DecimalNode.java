@@ -94,20 +94,9 @@ public class DecimalNode
     }
 
     @Override
-    public final void serialize(JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        // 07-Jul-2013, tatu: Should be handled by propagating setting to JsonGenerator
-        //    so this should not be needed:
-        /*
-        if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
-            if (!(jgen instanceof TokenBuffer)) { // [Issue#232]
-                jgen.writeNumber(((BigDecimal) _value).toPlainString());
-                return;
-            }
-        }
-        */
-        jgen.writeNumber(_value);
+        g.writeNumber(_value);
     }
 
     @Override

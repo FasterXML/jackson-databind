@@ -849,3 +849,7 @@ Christoph Breitkopf (bokesan@github)
 Alexander Saites (saites@github)
   * Reported #2189: `TreeTraversingParser` does not check int bounds
    (2.10.0)
+
+Pavel Chervakov (pacher@github)
+  * Reported #2230: `WRITE_BIGDECIMAL_AS_PLAIN` is ignored if `@JsonFormat` is used
+   (2.10.0)

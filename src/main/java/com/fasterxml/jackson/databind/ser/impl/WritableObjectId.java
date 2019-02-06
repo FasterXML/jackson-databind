@@ -64,12 +64,17 @@ public final class WritableObjectId
         // 03-Aug-2013, tatu: Prefer Native Object Ids if available
         if (gen.canWriteObjectId()) {
             // Need to assume String(ified) ids, for now... could add 'long' variant?
-            gen.writeObjectId(String.valueOf(id));
+            // 05-Feb-2019, tatu: But in special case of `null` we should not coerce -- whether
+            //   we should even call is an open question, but for now do pass to let generator
+            //   decide what to do, if anything.
+            String idStr = (id == null) ? null : String.valueOf(id);
+            gen.writeObjectId(String.valueOf(idStr));
             return;
         }
-        
+
         SerializableString name = w.propertyName;
         if (name != null) {
+            // 05-Feb-2019, tatu: How about `null` id? For now, write
             gen.writeFieldName(name);
             w.serializer.serialize(id, gen, provider);
         }

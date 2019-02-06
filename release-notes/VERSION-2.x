@@ -10,7 +10,9 @@ Project: jackson-databind
  (reported by Thomas K)
 #2221: `DeserializationProblemHandler.handleUnknownTypeId()` returning `Void.class`,
   enableDefaultTyping causing NPE
- (repoted by MeyerNils@github)
+ (reported by MeyerNils@github)
+- Prevent String coercion of `null` in `WritableObjectId` when calling `JsonGenerator.writeObjectId()`,
+  mostly relevant for formats like YAML that have native Object Ids
 
 2.9.8 (15-Dec-2018)
 

@@ -68,7 +68,7 @@ public final class WritableObjectId
             //   we should even call is an open question, but for now do pass to let generator
             //   decide what to do, if anything.
             String idStr = (id == null) ? null : String.valueOf(id);
-            gen.writeObjectId(String.valueOf(idStr));
+            gen.writeObjectId(idStr);
             return;
         }
 

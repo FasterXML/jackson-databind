@@ -10,8 +10,10 @@ public class ToStringForNodesTest extends BaseMapTest
     {
         _verifyToStrings(MAPPER.readTree("{ \"key\" : 1, \"b\" : \"x\", \"array\" : [ 1, false ] }"));
         final ObjectNode n = MAPPER.createObjectNode().put("msg", "hello world");
-        assertEquals("{\"msg\":\"hello world\"}", n.toString());
-        assertEquals("{\n  \"msg\" : \"hello world\"\n}".replace("\n", System.lineSeparator()), n.toPrettyString());
+        assertEquals(MAPPER.writeValueAsString(n), n.toString());
+        final String expPretty = MAPPER.writer().withDefaultPrettyPrinter()
+                .writeValueAsString(n);
+        assertEquals(expPretty, n.toPrettyString());
     }
 
     public void testArrayNode() throws Exception

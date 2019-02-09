@@ -78,6 +78,10 @@ public class MapDeserializationTest
 
     static class ClassStringMap extends HashMap<Class<?>,String> { }
     
+    static class AbstractMapWrapper {
+        public AbstractMap<String, Integer> values;
+    }
+
     /*
     /**********************************************************
     /* Test methods, untyped (Object valued) maps
@@ -273,6 +277,14 @@ public class MapDeserializationTest
         assertEquals(Integer.valueOf(1), result.get("a"));
 
         assertNull(result.get(""));
+    }
+
+    public void testAbstractMapDefault() throws Exception
+    {
+        final AbstractMapWrapper result = MAPPER.readValue("{\"values\":{\"foo\":42}}",
+                AbstractMapWrapper.class);
+        assertNotNull(result);
+        assertEquals(LinkedHashMap.class, result.values.getClass());
     }
 
     /*

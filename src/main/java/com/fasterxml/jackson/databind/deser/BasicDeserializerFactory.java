@@ -61,7 +61,10 @@ public abstract class BasicDeserializerFactory
     final static HashMap<String, Class<? extends Map>> _mapFallbacks =
         new HashMap<String, Class<? extends Map>>();
     static {
-        _mapFallbacks.put(Map.class.getName(), LinkedHashMap.class);
+        @SuppressWarnings("rawtypes")
+        final Class<? extends Map> DEFAULT_MAP = LinkedHashMap.class;
+        _mapFallbacks.put(Map.class.getName(), DEFAULT_MAP);
+        _mapFallbacks.put(AbstractMap.class.getName(), DEFAULT_MAP);
         _mapFallbacks.put(ConcurrentMap.class.getName(), ConcurrentHashMap.class);
         _mapFallbacks.put(SortedMap.class.getName(), TreeMap.class);
 
@@ -78,11 +81,20 @@ public abstract class BasicDeserializerFactory
     final static HashMap<String, Class<? extends Collection>> _collectionFallbacks =
         new HashMap<String, Class<? extends Collection>>();
     static {
-        _collectionFallbacks.put(Collection.class.getName(), ArrayList.class);
-        _collectionFallbacks.put(List.class.getName(), ArrayList.class);
-        _collectionFallbacks.put(Set.class.getName(), HashSet.class);
+        @SuppressWarnings("rawtypes")
+        final Class<? extends Collection> DEFAULT_LIST = ArrayList.class;
+        @SuppressWarnings("rawtypes")
+        final Class<? extends Collection> DEFAULT_SET = HashSet.class;
+
+        _collectionFallbacks.put(Collection.class.getName(), DEFAULT_LIST);
+        _collectionFallbacks.put(List.class.getName(), DEFAULT_LIST);
+        _collectionFallbacks.put(Set.class.getName(), DEFAULT_SET);
         _collectionFallbacks.put(SortedSet.class.getName(), TreeSet.class);
         _collectionFallbacks.put(Queue.class.getName(), LinkedList.class);
+
+        // 09-Feb-2019, tatu: How did we miss these? Related in [databind#2251] problem
+        _collectionFallbacks.put(AbstractList.class.getName(), DEFAULT_LIST);
+        _collectionFallbacks.put(AbstractSet.class.getName(), DEFAULT_SET);
 
         // then JDK 1.6 types:
         /* 17-May-2013, tatu: [databind#216] Should be fine to use straight Class references EXCEPT

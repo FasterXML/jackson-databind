@@ -33,6 +33,8 @@ Project: jackson-databind
  (reported by RightHandedMonkey@github)
 #2230: `WRITE_BIGDECIMAL_AS_PLAIN` is ignored if `@JsonFormat` is used
  (reported by Pavel C)
+#2236: Type id not provided on `Double.NaN`, `Infinity` with `@JsonTypeInfo`
+ (reported by C-B-B@github)
 #2241: Add `JsonPropertyNamingStrategy.LOWER_DOT_CASE` for dot-delimited names
  (contributed by zenglian@github.com)
 

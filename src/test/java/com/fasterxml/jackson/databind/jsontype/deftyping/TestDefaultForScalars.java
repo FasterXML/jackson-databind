@@ -23,6 +23,18 @@ public class TestDefaultForScalars
         public long key;
     }
 
+    // Basic `ObjectWrapper` from base uses delegating ctor, won't work well; should
+    // figure out why, but until then we'll use separate impl
+    protected static class ObjectWrapperForPoly {
+        Object object;
+
+        protected ObjectWrapperForPoly() { }
+        public ObjectWrapperForPoly(final Object o) {
+            object = o;
+        }
+        public Object getObject() { return object; }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -127,5 +139,16 @@ public class TestDefaultForScalars
         Map<?,?> result = mapper.readValue(json, Map.class);
         assertNotNull(result);
         assertEquals(2, result.size());
+    }
+
+    // [databind#2236]: do need type info for NaN
+    public void testDefaultTypingWithNaN() throws Exception
+    {
+        final ObjectWrapperForPoly INPUT = new ObjectWrapperForPoly(Double.POSITIVE_INFINITY);
+        final String json = DEFAULT_TYPING_MAPPER.writeValueAsString(INPUT);
+        final ObjectWrapperForPoly result = DEFAULT_TYPING_MAPPER.readValue(json, ObjectWrapperForPoly.class);
+        assertEquals(Double.class, result.getObject().getClass());
+        assertEquals(INPUT.getObject().toString(), result.getObject().toString());
+        assertTrue(((Double) result.getObject()).isInfinite());
     }
 }

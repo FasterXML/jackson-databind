@@ -7,7 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -220,11 +220,27 @@ public class NumberSerializers {
 
         // IMPORTANT: copied from `NonTypedScalarSerializerBase`
         @Override
-        public void serializeWithType(Object value, JsonGenerator gen,
+        public void serializeWithType(Object value, JsonGenerator g,
                 SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException {
             // no type info, just regular serialization
-            serialize(value, gen, provider);
+            // 08-Feb-2018, tatu: Except that as per [databind#2236], NaN values need
+            //    special handling
+            Double d = (Double) value;
+            if (notFinite(d)) {
+                WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                        // whether to indicate it's number or string is arbitrary; important it is scalar
+                        typeSer.typeId(value, JsonToken.VALUE_NUMBER_FLOAT));
+                g.writeNumber(d);
+                typeSer.writeTypeSuffix(g, typeIdDef);
+            } else {
+                g.writeNumber(d);
+            }
+        }
+
+        public static boolean notFinite(double value) {
+            // `jackson-core` has helper method in 3 but not yet
+            return Double.isNaN(value) || Double.isInfinite(value);
         }
     }
 }

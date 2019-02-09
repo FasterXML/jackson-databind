@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
+import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -1510,12 +1511,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
                 Object value = _currentObject();
                 if (value instanceof Double) {
-                    Double v = (Double) value;
-                    return v.isNaN() || v.isInfinite();
+                    return NumberOutput.notFinite( (Double) value);
                 }
                 if (value instanceof Float) {
-                    Float v = (Float) value;
-                    return v.isNaN() || v.isInfinite();
+                    return NumberOutput.notFinite( (Float) value);
                 }
             }
             return false;

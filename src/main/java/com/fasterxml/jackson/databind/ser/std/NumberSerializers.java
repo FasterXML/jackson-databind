@@ -7,6 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -227,7 +228,7 @@ public class NumberSerializers {
             // 08-Feb-2018, tatu: Except that as per [databind#2236], NaN values need
             //    special handling
             Double d = (Double) value;
-            if (notFinite(d)) {
+            if (NumberOutput.notFinite(d)) {
                 WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                         // whether to indicate it's number or string is arbitrary; important it is scalar
                         typeSer.typeId(value, JsonToken.VALUE_NUMBER_FLOAT));
@@ -236,11 +237,6 @@ public class NumberSerializers {
             } else {
                 g.writeNumber(d);
             }
-        }
-
-        public static boolean notFinite(double value) {
-            // `jackson-core` has helper method in 3 but not yet
-            return Double.isNaN(value) || Double.isInfinite(value);
         }
     }
 }

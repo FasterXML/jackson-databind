@@ -91,10 +91,9 @@ public class DoubleNode
         return NumberOutput.toString(_value);
     }
 
-    // @since 2.9
     @Override
     public boolean isNaN() {
-        return Double.isNaN(_value) || Double.isInfinite(_value);
+        return NumberOutput.notFinite(_value);
     }
 
     @Override

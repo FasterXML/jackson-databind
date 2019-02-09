@@ -56,45 +56,6 @@ public abstract class BasicDeserializerFactory
      * but are marked with `@JsonWrapped` annotation.
      */
     protected final static PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
-    
-    /* We do some defaulting for abstract Map classes and
-     * interfaces, to avoid having to use exact types or annotations in
-     * cases where the most common concrete Maps will do.
-     */
-    @SuppressWarnings("rawtypes")
-    final static HashMap<String, Class<? extends Map>> _mapFallbacks =
-        new HashMap<String, Class<? extends Map>>();
-    static {
-        _mapFallbacks.put(Map.class.getName(), LinkedHashMap.class);
-        _mapFallbacks.put(ConcurrentMap.class.getName(), ConcurrentHashMap.class);
-        _mapFallbacks.put(SortedMap.class.getName(), TreeMap.class);
-
-        _mapFallbacks.put(java.util.NavigableMap.class.getName(), TreeMap.class);
-        _mapFallbacks.put(java.util.concurrent.ConcurrentNavigableMap.class.getName(),
-                java.util.concurrent.ConcurrentSkipListMap.class);
-    }
-
-    /* We do some defaulting for abstract Collection classes and
-     * interfaces, to avoid having to use exact types or annotations in
-     * cases where the most common concrete Collection will do.
-     */
-    @SuppressWarnings("rawtypes")
-    final static HashMap<String, Class<? extends Collection>> _collectionFallbacks =
-        new HashMap<String, Class<? extends Collection>>();
-    static {
-        _collectionFallbacks.put(Collection.class.getName(), ArrayList.class);
-        _collectionFallbacks.put(List.class.getName(), ArrayList.class);
-        _collectionFallbacks.put(Set.class.getName(), HashSet.class);
-        _collectionFallbacks.put(SortedSet.class.getName(), TreeSet.class);
-        _collectionFallbacks.put(Queue.class.getName(), LinkedList.class);
-
-        // then JDK 1.6 types:
-        // 17-May-2013, tatu: [databind#216] Should be fine to use straight Class references EXCEPT
-        //   that some god-forsaken platforms (... looking at you, Android) do not
-        //   include these. So, use "soft" references...
-        _collectionFallbacks.put("java.util.Deque", LinkedList.class);
-        _collectionFallbacks.put("java.util.NavigableSet", TreeSet.class);
-    }
 
     /*
     /**********************************************************************
@@ -1218,14 +1179,13 @@ nonAnnotatedParamIndex, ctor);
 
     protected CollectionType _mapAbstractCollectionType(JavaType type, DeserializationConfig config)
     {
-        Class<?> collectionClass = type.getRawClass();
-        collectionClass = _collectionFallbacks.get(collectionClass.getName());
-        if (collectionClass == null) {
-            return null;
+        final Class<?> collectionClass = ContainerDefaultMappings.findCollectionFallback(type);
+        if (collectionClass != null) {
+            return (CollectionType) config.constructSpecializedType(type, collectionClass);
         }
-        return (CollectionType) config.constructSpecializedType(type, collectionClass);
+        return null;
     }
-    
+
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
     @Override
     public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
@@ -1328,11 +1288,10 @@ nonAnnotatedParamIndex, ctor);
              */
             if (deser == null) {
                 if (type.isInterface() || type.isAbstract()) {
-                    @SuppressWarnings("rawtypes")
-                    Class<? extends Map> fallback = _mapFallbacks.get(mapClass.getName());
+                    MapType fallback = _mapAbstractMapType(type, config);
                     if (fallback != null) {
-                        mapClass = fallback;
-                        type = (MapType) config.constructSpecializedType(type, mapClass);
+                        type = (MapType) fallback;
+                        mapClass = type.getRawClass();
                         // But if so, also need to re-check creators...
                         beanDesc = ctxt.introspectForCreation(type);
                     } else {
@@ -1371,6 +1330,15 @@ nonAnnotatedParamIndex, ctor);
             }
         }
         return deser;
+    }
+
+    protected MapType _mapAbstractMapType(JavaType type, DeserializationConfig config)
+    {
+        final Class<?> mapClass = ContainerDefaultMappings.findMapFallback(type);
+        if (mapClass != null) {
+            return (MapType) config.constructSpecializedType(type, mapClass);
+        }
+        return null;
     }
 
     // Copied almost verbatim from "createMapDeserializer" -- should try to share more code
@@ -2010,5 +1978,70 @@ nonAnnotatedParamIndex, ctor);
             return (mode != null) && (mode != JsonCreator.Mode.DISABLED); 
         }
         return false;
+    }
+
+    /**
+     * Helper class to contain default mappings for abstract JDK {@link java.util.Collection}
+     * and {@link java.util.Map} types. Separated out here to defer cost of creating lookups
+     * until mappings are actually needed.
+     *
+     * @since 2.10
+     */
+    @SuppressWarnings("rawtypes")
+    protected static class ContainerDefaultMappings {
+        // We do some defaulting for abstract Collection classes and
+        // interfaces, to avoid having to use exact types or annotations in
+        // cases where the most common concrete Collection will do.
+        final static HashMap<String, Class<? extends Collection>> _collectionFallbacks;
+        static {
+            HashMap<String, Class<? extends Collection>> fallbacks = new HashMap<>();
+
+            final Class<? extends Collection> DEFAULT_LIST = ArrayList.class;
+            final Class<? extends Collection> DEFAULT_SET = HashSet.class;
+
+            fallbacks.put(Collection.class.getName(), DEFAULT_LIST);
+            fallbacks.put(List.class.getName(), DEFAULT_LIST);
+            fallbacks.put(Set.class.getName(), DEFAULT_SET);
+            fallbacks.put(SortedSet.class.getName(), TreeSet.class);
+            fallbacks.put(Queue.class.getName(), LinkedList.class);
+
+            // 09-Feb-2019, tatu: How did we miss these? Related in [databind#2251] problem
+            fallbacks.put(AbstractList.class.getName(), DEFAULT_LIST);
+            fallbacks.put(AbstractSet.class.getName(), DEFAULT_SET);
+
+            // 09-Feb-2019, tatu: And more esoteric types added in JDK6
+            fallbacks.put(Deque.class.getName(), LinkedList.class);
+            fallbacks.put(NavigableSet.class.getName(), TreeSet.class);
+
+            _collectionFallbacks = fallbacks;
+        }
+
+        // We do some defaulting for abstract Map classes and
+        // interfaces, to avoid having to use exact types or annotations in
+        // cases where the most common concrete Maps will do.
+        final static HashMap<String, Class<? extends Map>> _mapFallbacks;
+        static {
+            HashMap<String, Class<? extends Map>> fallbacks = new HashMap<>();
+
+            final Class<? extends Map> DEFAULT_MAP = LinkedHashMap.class;
+            fallbacks.put(Map.class.getName(), DEFAULT_MAP);
+            fallbacks.put(AbstractMap.class.getName(), DEFAULT_MAP);
+            fallbacks.put(ConcurrentMap.class.getName(), ConcurrentHashMap.class);
+            fallbacks.put(SortedMap.class.getName(), TreeMap.class);
+
+            fallbacks.put(java.util.NavigableMap.class.getName(), TreeMap.class);
+            fallbacks.put(java.util.concurrent.ConcurrentNavigableMap.class.getName(),
+                    java.util.concurrent.ConcurrentSkipListMap.class);
+
+            _mapFallbacks = fallbacks;
+        }
+
+        public static Class<?> findCollectionFallback(JavaType type) {
+            return _collectionFallbacks.get(type.getRawClass().getName());
+        }
+
+        public static Class<?> findMapFallback(JavaType type) {
+            return _mapFallbacks.get(type.getRawClass().getName());
+        }
     }
 }

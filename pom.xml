@@ -44,6 +44,8 @@
 
     <!-- NOTE! can not use packageVersion.package as is -->
     <jdk.module.name>com.fasterxml.jackson.databind</jdk.module.name>
+
+    <version.powermock>2.0.0</version.powermock>
   </properties>
 
   <dependencies>
@@ -69,14 +71,20 @@
 
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>1.7.4</version>
+      <artifactId>powermock-core</artifactId>
+      <version>${version.powermock}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>1.7.4</version>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>${version.powermock}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito2</artifactId>
+      <version>${version.powermock}</version>
       <scope>test</scope>
     </dependency>
     <!-- For testing TestNoClassDefFoundDeserializer -->

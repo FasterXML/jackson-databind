@@ -47,6 +47,15 @@ public class CollectionDeserTest
         public Iterable<String> values;
     }
 
+    // [databind#2251]
+    static class ListAsAbstract {
+        public AbstractList<String> values;
+    }
+
+    static class SetAsAbstract {
+        public AbstractSet<String> values;
+    }
+
     static class ListAsIterableX {
         public Iterable<XBean> nums;
     }
@@ -283,5 +292,19 @@ public class CollectionDeserTest
         } catch (RuntimeException exc) {
             assertEquals("I want to catch this exception", exc.getMessage());
         }
+    }
+
+    // [databind#2251]
+    public void testAbstractListAndSet() throws Exception
+    {
+        final String JSON = "{\"values\":[\"foo\", \"bar\"]}";
+
+        ListAsAbstract list = MAPPER.readValue(JSON, ListAsAbstract.class);
+        assertEquals(2, list.values.size());
+        assertEquals(ArrayList.class, list.values.getClass());
+
+        SetAsAbstract set = MAPPER.readValue(JSON, SetAsAbstract.class);
+        assertEquals(2, set.values.size());
+        assertEquals(HashSet.class, set.values.getClass());
     }
 }

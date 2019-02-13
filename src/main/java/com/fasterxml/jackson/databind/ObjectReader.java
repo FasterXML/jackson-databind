@@ -943,6 +943,13 @@ public class ObjectReader
         return _injectableValues;
     }
 
+    /**
+     * @since 2.10
+     */
+    public JavaType getValueType() {
+        return _valueType;
+    }
+
     /*
     /**********************************************************
     /* Deserialization methods; basic ones to support ObjectCodec first

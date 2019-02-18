@@ -287,9 +287,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                 int offset = p.getTextOffset();
                 int len = p.getTextLength();
     
-                char[] result = new char[len];
-                System.arraycopy(buffer, offset, result, 0, len);
-                return result;
+                return Arrays.copyOfRange(buffer, offset, offset + len);
             }
             if (p.isExpectedStartArrayToken()) {
                 // Let's actually build as a String, then get chars

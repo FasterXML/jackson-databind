@@ -28,8 +28,7 @@ public class BinaryNode
         if (offset == 0 && length == data.length) {
             _data = data;
         } else {
-            _data = new byte[length];
-            System.arraycopy(data, offset, _data, 0, length);
+            _data = Arrays.copyOfRange(data, offset, offset + length);
         }
     }
 

@@ -55,7 +55,10 @@ public class DeserializerFactoryConfig
     protected final ValueInstantiators[] _valueInstantiators;
 
     /**
-     * TODO make this an array?
+     * The validator that knows which POJO types can be deserialized securely.
+     * Used to check whether a desirialized type is dangerous or undesired. The 
+     * default sub-type validator blocks deserialization widgets, i.e. classes that
+     * are known to be dangerous when deserialized from untrusted sources.
      */
     protected final SubTypeValidator _subTypeValidator;
 
@@ -154,13 +157,21 @@ public class DeserializerFactoryConfig
                 _modifiers, all, _subTypeValidator);
     }
 
-    public DeserializerFactoryConfig withSubTypeValidator(SubTypeValidator subTypeValidator)
+    /**
+     * Fluent/factory method used to construct a configuration object that
+     * has same configuration as this instance but uses the specified sub-type validator
+     * instead.
+     * 
+     * @param validator Object that knows which POJO types can be deserialized securely.
+     */
+
+    public DeserializerFactoryConfig withSubTypeValidator(SubTypeValidator validator)
     {
-        if (subTypeValidator == null) {
+        if (validator == null) {
             throw new IllegalArgumentException("Cannot pass null validator");
         }
         return new DeserializerFactoryConfig(_additionalDeserializers, _additionalKeyDeserializers,
-                _modifiers, _valueInstantiators, subTypeValidator);
+                _modifiers, _valueInstantiators, validator);
     }
 
     public boolean hasDeserializers() { return _additionalDeserializers.length > 0; }

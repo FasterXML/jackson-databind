@@ -915,6 +915,6 @@ name, ((AnnotatedParameter) m).getIndex());
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        SubTypeValidator.instance().validateSubType(ctxt, type, beanDesc);
+        this._factoryConfig.subTypeValidator().validateSubType(ctxt, type, beanDesc);
     }
 }

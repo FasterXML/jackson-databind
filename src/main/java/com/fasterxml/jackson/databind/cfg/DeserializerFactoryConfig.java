@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ArrayIterator;
 
@@ -16,6 +17,7 @@ public class DeserializerFactoryConfig
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
     protected final static BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];
     protected final static ValueInstantiators[] NO_VALUE_INSTANTIATORS = new ValueInstantiators[0];
+    private static final SubTypeValidator DEFAULT_SUBTYPE_VALIDATOR = SubTypeValidator.instance();
 
     /**
      * By default we plug default key deserializers using as "just another" set of
@@ -53,11 +55,16 @@ public class DeserializerFactoryConfig
     protected final ValueInstantiators[] _valueInstantiators;
 
     /**
+     * TODO make this an array?
+     */
+    protected final SubTypeValidator _subTypeValidator;
+
+    /**
      * Constructor for creating basic configuration with no additional
      * handlers.
      */
     public DeserializerFactoryConfig() {
-        this(null, null, null, null);
+        this(null, null, null, null, null);
     }
 
     /**
@@ -67,7 +74,8 @@ public class DeserializerFactoryConfig
     protected DeserializerFactoryConfig(Deserializers[] allAdditionalDeserializers,
             KeyDeserializers[] allAdditionalKeyDeserializers,
             BeanDeserializerModifier[] modifiers,
-            ValueInstantiators[] vi)
+            ValueInstantiators[] vi,
+            SubTypeValidator subTypeValidator)
     {
         _additionalDeserializers = (allAdditionalDeserializers == null) ?
                 NO_DESERIALIZERS : allAdditionalDeserializers;
@@ -75,6 +83,7 @@ public class DeserializerFactoryConfig
                 DEFAULT_KEY_DESERIALIZERS : allAdditionalKeyDeserializers;
         _modifiers = (modifiers == null) ? NO_MODIFIERS : modifiers;
         _valueInstantiators = (vi == null) ? NO_VALUE_INSTANTIATORS : vi;
+        _subTypeValidator = (subTypeValidator == null) ? DEFAULT_SUBTYPE_VALIDATOR : subTypeValidator;
     }
 
     /**
@@ -90,7 +99,7 @@ public class DeserializerFactoryConfig
         }
         Deserializers[] all = ArrayBuilders.insertInListNoDup(_additionalDeserializers, additional);
         return new DeserializerFactoryConfig(all, _additionalKeyDeserializers, _modifiers,
-                _valueInstantiators);
+                _valueInstantiators, _subTypeValidator);
     }
 
     /**
@@ -106,7 +115,7 @@ public class DeserializerFactoryConfig
         }
         KeyDeserializers[] all = ArrayBuilders.insertInListNoDup(_additionalKeyDeserializers, additional);
         return new DeserializerFactoryConfig(_additionalDeserializers, all, _modifiers,
-                _valueInstantiators);
+                _valueInstantiators, _subTypeValidator);
     }
 
     /**
@@ -122,7 +131,7 @@ public class DeserializerFactoryConfig
         }
         BeanDeserializerModifier[] all = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
         return new DeserializerFactoryConfig(_additionalDeserializers, _additionalKeyDeserializers,
-                all, _valueInstantiators);
+                all, _valueInstantiators, _subTypeValidator);
     }
 
     /**
@@ -142,9 +151,18 @@ public class DeserializerFactoryConfig
         }
         ValueInstantiators[] all = ArrayBuilders.insertInListNoDup(_valueInstantiators, instantiators);
         return new DeserializerFactoryConfig(_additionalDeserializers, _additionalKeyDeserializers,
-                _modifiers, all);
+                _modifiers, all, _subTypeValidator);
     }
-    
+
+    public DeserializerFactoryConfig withSubTypeValidator(SubTypeValidator subTypeValidator)
+    {
+        if (subTypeValidator == null) {
+            throw new IllegalArgumentException("Cannot pass null validator");
+        }
+        return new DeserializerFactoryConfig(_additionalDeserializers, _additionalKeyDeserializers,
+                _modifiers, _valueInstantiators, subTypeValidator);
+    }
+
     public boolean hasDeserializers() { return _additionalDeserializers.length > 0; }
 
     public boolean hasKeyDeserializers() { return _additionalKeyDeserializers.length > 0; }
@@ -167,5 +185,9 @@ public class DeserializerFactoryConfig
 
     public Iterable<ValueInstantiators> valueInstantiators() {
         return new ArrayIterator<ValueInstantiators>(_valueInstantiators);
+    }
+
+    public SubTypeValidator subTypeValidator() {
+        return _subTypeValidator;
     }
 }

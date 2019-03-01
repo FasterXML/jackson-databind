@@ -87,7 +87,7 @@ public class FloatNode extends NumericNode
 
     @Override
     public String asText() {
-        return NumberOutput.toString(_value);
+        return String.valueOf(_value);
     }
 
     @Override

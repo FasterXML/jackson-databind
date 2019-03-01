@@ -401,7 +401,7 @@ There is really just one main rule, which is that to accept any code contributio
 
 ## Limitation on Dependencies by Core Components
 
-One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependendies are allowed beyond:
+One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependencies are allowed beyond:
 
 * Core components may rely on any methods included in the supported JDK
     * Minimum JDK version is 1.6 as of Jackson 2.4 and above (1.5 was baseline with 2.3 and earlier)

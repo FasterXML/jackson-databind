@@ -5,9 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 
 /**
  * Numeric node that contains simple 16-bit integer values.
@@ -17,21 +15,21 @@ public class ShortNode
 {
     protected final short _value;
 
-    /* 
-    ************************************************
-    * Construction
-    ************************************************
-    */
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
 
     public ShortNode(short v) { _value = v; }
 
     public static ShortNode valueOf(short l) { return new ShortNode(l); }
 
     /* 
-    ************************************************
-    * Overridden JsonNode methods
-    ************************************************
-    */
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
+     */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
 
@@ -76,7 +74,7 @@ public class ShortNode
 
     @Override
     public String asText() {
-        return NumberOutput.toString(_value);
+        return String.valueOf(_value);
     }
 
     @Override

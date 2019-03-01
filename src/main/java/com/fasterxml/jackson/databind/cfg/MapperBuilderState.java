@@ -166,7 +166,7 @@ public abstract class MapperBuilderState
         if (coll == null || coll.isEmpty()) {
             return null;
         }
-        return coll.toArray(new com.fasterxml.jackson.databind.Module[coll.size()]);
+        return coll.toArray(new com.fasterxml.jackson.databind.Module[0]);
     }
 
     /*

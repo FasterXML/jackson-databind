@@ -209,7 +209,7 @@ public abstract class BeanDeserializerBase
         _anySetter = builder.getAnySetter();
         List<ValueInjector> injectables = builder.getInjectables();
         _injectables = (injectables == null || injectables.isEmpty()) ? null
-                : injectables.toArray(new ValueInjector[injectables.size()]);
+                : injectables.toArray(new ValueInjector[0]);
         _objectIdReader = builder.getObjectIdReader();
         _nonStandardCreation = (_unwrappedPropertyHandler != null)
             || _valueInstantiator.canCreateUsingDelegate()

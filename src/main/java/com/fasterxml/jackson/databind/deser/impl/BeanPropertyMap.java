@@ -84,7 +84,7 @@ public class BeanPropertyMap
     {
         _caseInsensitive = caseInsensitive;
         _aliasDefs = aliasDefs;
-        _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
+        _propsInOrder = props.toArray(new SettableBeanProperty[0]);
         // Former `assignIndexes`
         // order is arbitrary, but stable:
         if (assignIndexes) {
@@ -262,7 +262,7 @@ public class BeanPropertyMap
         if (!found) {
             throw new NoSuchElementException("No entry '"+propToRm.getName()+"' found, can't remove");
         }
-        _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
+        _propsInOrder = props.toArray(new SettableBeanProperty[0]);
     }
 
     /*
@@ -293,7 +293,7 @@ public class BeanPropertyMap
                     }
                 }
             }
-            _propsWithAliases = allProps.toArray(new SettableBeanProperty[allProps.size()]);
+            _propsWithAliases = allProps.toArray(new SettableBeanProperty[0]);
         }
         // `true` -> yes, they are intern()ed alright
         if (_caseInsensitive) {

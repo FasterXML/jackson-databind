@@ -130,6 +130,15 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(Integer.valueOf(123), n);
     }
 
+    public void testGetValueType() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
+        assertNull(r.getValueType());
+
+        r = r.forType(String.class);
+        assertEquals(MAPPER.constructType(String.class), r.getValueType());
+    }
+
     /*
     /**********************************************************
     /* Test methods, JsonPointer

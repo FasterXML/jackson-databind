@@ -168,6 +168,8 @@ public class TestNamingStrategyStd extends BaseMapTest
                 // [databind#1026]
                 {"usId", "us_id" },
                 {"uId", "u_id" },
+                // [databind#2267]
+                {"xCoordinate", "x_coordinate" },
     });
     
     private static ObjectMapper _lcWithUndescoreMapper = jsonMapperBuilder()

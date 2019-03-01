@@ -726,6 +726,10 @@ public class ObjectReader
         return _injectableValues;
     }
 
+    public JavaType getValueType() {
+        return _valueType;
+    }
+
     /**
      * @deprecated Since 3.0 use {@link #typeFactory}
      */

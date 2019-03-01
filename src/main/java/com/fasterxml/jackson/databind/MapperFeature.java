@@ -40,7 +40,7 @@ public enum MapperFeature implements ConfigFeature
      * and Map to modify the property, without requiring a setter
      * method.
      * This is similar to how JAXB framework sets Collections and
-     * Maps: no setter is involved, just setter.
+     * Maps: no setter is involved, just getter.
      *<p>
      * Note that such getters-as-setters methods have lower
      * precedence than setters, so they are only used if no

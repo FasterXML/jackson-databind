@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.util;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.*;
@@ -953,8 +954,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          *   seems pointless, so let's not worry about it unless there's some
          *   compelling reason to.
          */
-        byte[] copy = new byte[len];
-        System.arraycopy(data, offset, copy, 0, len);
+        byte[] copy = Arrays.copyOfRange(data, offset, offset + len);
         writeObject(copy);
     }
 

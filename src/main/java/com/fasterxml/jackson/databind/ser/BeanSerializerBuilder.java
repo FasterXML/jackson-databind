@@ -188,7 +188,7 @@ public class BeanSerializerBuilder
             }
             properties = NO_PROPERTIES;
         } else {
-            properties = _properties.toArray(new BeanPropertyWriter[_properties.size()]);
+            properties = _properties.toArray(NO_PROPERTIES);
             if (_config.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                 for (int i = 0, end = properties.length; i < end; ++i) {
                     properties[i].fixAccess(_config);

@@ -99,13 +99,13 @@ public class TestArrayDeserialization
     static class CustomNonDeserArrayDeserializer extends JsonDeserializer<NonDeserializable[]>
     {
         @Override
-        public NonDeserializable[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public NonDeserializable[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             List<NonDeserializable> list = new ArrayList<NonDeserializable>();
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                list.add(new NonDeserializable(jp.getText(), false));
+            while (p.nextToken() != JsonToken.END_ARRAY) {
+                list.add(new NonDeserializable(p.getText(), false));
             }
-            return list.toArray(new NonDeserializable[list.size()]);
+            return list.toArray(new NonDeserializable[0]);
         }
     }
 

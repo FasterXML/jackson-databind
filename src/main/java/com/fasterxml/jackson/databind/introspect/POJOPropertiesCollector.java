@@ -803,7 +803,7 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
-        POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
+        POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[0]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {
             PropertyName fullName = prop.getFullName();

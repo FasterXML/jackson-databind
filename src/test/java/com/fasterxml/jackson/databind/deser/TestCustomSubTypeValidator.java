@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -12,7 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.SubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.ExtensibleSubTypeValidator;
 
 public class TestCustomSubTypeValidator 
     extends BaseMapTest
@@ -140,7 +142,7 @@ public class TestCustomSubTypeValidator
      */
 
     static class DenyAllValidator
-        extends SubTypeValidator
+        implements SubTypeValidator
     {
         @Override
         public void validateSubType(DeserializationContext ctxt, JavaType type, BeanDescription beanDesc)
@@ -154,7 +156,7 @@ public class TestCustomSubTypeValidator
     }
 
     static class FriendlyAnimalValidator
-        extends SubTypeValidator
+        extends com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator
     {
         private static Class<?>[] FRIENDLY_ANIMAL_WHITELIST = new Class<?>[] {
             Animal.class,
@@ -242,6 +244,56 @@ public class TestCustomSubTypeValidator
         }
 
         // fails to deserialize, because the JSON contains objects that are mapped to beans
+        while(true)
+        {
+            try {
+                mapper.readValue(PETTING_ZOO_JSON, Zoo.class);
+            } catch(InvalidDefinitionException e) {
+                break;
+            }
+            fail("Expected InvalidDefinitionException, but got none.");
+        }
+    }
+
+    public void testExtensibleSubTypeValidatorNoPenguins() throws Exception
+    {
+        final ExtensibleSubTypeValidator validator = new ExtensibleSubTypeValidator();
+        validator.addIllegalClassNames(Collections.singleton("com.fasterxml.jackson.databind.deser.TestCustomSubTypeValidator$Penguin"));
+
+        final ObjectMapper mapper = objectMapper(validator);
+
+        // still deserializes primitive JSON types
+        mapper.readValue(STRING_VALUE_JSON, String.class);
+
+        // fails to deserialize, because the zoo has Penguins in it
+        while(true)
+        {
+            try {
+                mapper.readValue(ZOO_JSON, Zoo.class);
+            } catch(InvalidDefinitionException e) {
+                break;
+            }
+            fail("Expected InvalidDefinitionException, but got none.");
+        }
+
+        // deserializes successfully, because the petting zoo has no Penguins in it
+        mapper.readValue(PETTING_ZOO_JSON, Zoo.class);
+    }
+
+    public void testExtensibleSubTypeValidatorNoSheep() throws Exception
+    {
+        final ExtensibleSubTypeValidator validator = new ExtensibleSubTypeValidator();
+        validator.addIllegalClassNames(Collections.singleton("com.fasterxml.jackson.databind.deser.TestCustomSubTypeValidator$Sheep"));
+
+        final ObjectMapper mapper = objectMapper(validator);
+
+        // still deserializes primitive JSON types
+        mapper.readValue(STRING_VALUE_JSON, String.class);
+
+        // deserializes successfully, because the zoo has no Sheep in it
+        mapper.readValue(ZOO_JSON, Zoo.class);
+
+        // fails to deserialize, because the petting zoo has Sheep in it
         while(true)
         {
             try {

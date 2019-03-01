@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  *
  * @since 2.8.11
  */
-public class SubTypeValidator
+public class SubTypeValidator implements com.fasterxml.jackson.databind.jsontype.SubTypeValidator
 {
     protected final static String PREFIX_SPRING = "org.springframework.";
 
@@ -94,6 +94,7 @@ public class SubTypeValidator
 
     public static SubTypeValidator instance() { return instance; }
 
+    @Override
     public void validateSubType(DeserializationContext ctxt, JavaType type,
             BeanDescription beanDesc) throws JsonMappingException
     {

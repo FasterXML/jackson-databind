@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers;
-import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.SubTypeValidator;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ArrayIterator;
 
@@ -17,7 +17,7 @@ public class DeserializerFactoryConfig
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
     protected final static BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];
     protected final static ValueInstantiators[] NO_VALUE_INSTANTIATORS = new ValueInstantiators[0];
-    private static final SubTypeValidator DEFAULT_SUBTYPE_VALIDATOR = SubTypeValidator.instance();
+    private static final SubTypeValidator DEFAULT_SUBTYPE_VALIDATOR = com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator.instance();
 
     /**
      * By default we plug default key deserializers using as "just another" set of

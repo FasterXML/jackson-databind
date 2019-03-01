@@ -168,8 +168,10 @@ public class TestNamingStrategyStd extends BaseMapTest
                 // [databind#1026]
                 {"usId", "us_id" },
                 {"uId", "u_id" },
+                // [databind#2267]
+                {"xCoordinate", "x_coordinate" },
     });
-    
+
     private ObjectMapper _lcWithUndescoreMapper;
     
     @Override
@@ -363,30 +365,30 @@ public class TestNamingStrategyStd extends BaseMapTest
 
     public void testExplicitRename() throws Exception
     {
-      ObjectMapper m = new ObjectMapper();
-      m.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-      m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
-      // by default, renaming will not take place on explicitly named fields
-      assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
-          m.writeValueAsString(new ExplicitBean()));
+        ObjectMapper m = new ObjectMapper();
+        m.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+        // by default, renaming will not take place on explicitly named fields
+        assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
+                m.writeValueAsString(new ExplicitBean()));
 
-      m = new ObjectMapper();
-      m.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-      m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
-      m.enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING);
-      // w/ feature enabled, ALL property names should get re-written
-      assertEquals(aposToQuotes("{'first_name':'Peter','last_name':'Venkman','user_age':'35'}"),
-          m.writeValueAsString(new ExplicitBean()));
+        m = new ObjectMapper();
+        m.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+        m.enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING);
+        // w/ feature enabled, ALL property names should get re-written
+        assertEquals(aposToQuotes("{'first_name':'Peter','last_name':'Venkman','user_age':'35'}"),
+                m.writeValueAsString(new ExplicitBean()));
 
-      // test deserialization as well
-      ExplicitBean bean =
-          m.readValue(aposToQuotes("{'first_name':'Egon','last_name':'Spengler','user_age':'32'}"),
-              ExplicitBean.class);
+        // test deserialization as well
+        ExplicitBean bean =
+                m.readValue(aposToQuotes("{'first_name':'Egon','last_name':'Spengler','user_age':'32'}"),
+                        ExplicitBean.class);
 
-      assertNotNull(bean);
-      assertEquals("Egon", bean.userFirstName);
-      assertEquals("Spengler", bean.userLastName);
-      assertEquals("32", bean.userAge);
+        assertNotNull(bean);
+        assertEquals("Egon", bean.userFirstName);
+        assertEquals("Spengler", bean.userLastName);
+        assertEquals("32", bean.userAge);
     }
 
     // Also verify that "no naming strategy" should be ok

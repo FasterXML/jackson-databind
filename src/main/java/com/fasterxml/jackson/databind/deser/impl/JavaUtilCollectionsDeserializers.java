@@ -40,6 +40,11 @@ public abstract class JavaUtilCollectionsDeserializers
 
     private final static Class<?> CLASS_UNMODIFIABLE_SET;
     private final static Class<?> CLASS_UNMODIFIABLE_LIST;
+
+    /* 02-Mar-2019, tatu: for [databind#2265], need to consider possible alternate type...
+     *    which we essentially coerce into the other one
+     */
+    private final static Class<?> CLASS_UNMODIFIABLE_LIST_ALIAS;
     private final static Class<?> CLASS_UNMODIFIABLE_MAP;
 
     static {
@@ -50,7 +55,9 @@ public abstract class JavaUtilCollectionsDeserializers
         List<?> list = Collections.singletonList(Boolean.TRUE);
         CLASS_SINGLETON_LIST = list.getClass();
         CLASS_UNMODIFIABLE_LIST = Collections.unmodifiableList(list).getClass();
-
+        // for [databind#2265]
+        CLASS_UNMODIFIABLE_LIST_ALIAS = Collections.unmodifiableList(new LinkedList<Object>()).getClass();
+        
         Map<?,?> map = Collections.singletonMap("a", "b");
         CLASS_SINGLETON_MAP = map.getClass();
         CLASS_UNMODIFIABLE_MAP = Collections.unmodifiableMap(map).getClass();
@@ -69,7 +76,8 @@ public abstract class JavaUtilCollectionsDeserializers
             conv = converter(TYPE_SINGLETON_LIST, type, List.class);
         } else if (type.hasRawClass(CLASS_SINGLETON_SET)) {
             conv = converter(TYPE_SINGLETON_SET, type, Set.class);
-        } else if (type.hasRawClass(CLASS_UNMODIFIABLE_LIST)) {
+        // [databind#2265]: we may have another impl type for unmodifiable Lists, check both
+        } else if (type.hasRawClass(CLASS_UNMODIFIABLE_LIST) || type.hasRawClass(CLASS_UNMODIFIABLE_LIST_ALIAS)) {
             conv = converter(TYPE_UNMODIFIABLE_LIST, type, List.class);
         } else if (type.hasRawClass(CLASS_UNMODIFIABLE_SET)) {
             conv = converter(TYPE_UNMODIFIABLE_SET, type, Set.class);

@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// Unit tests for [databind#1868], related
-public class TestDefaultForUtilCollections1868 extends BaseMapTest
+// Unit tests for [databind#1868], [databind#1880], [databind#2265]
+public class UtilCollectionsTypesTest extends BaseMapTest
 {
    private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
            .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
@@ -60,6 +60,21 @@ public class TestDefaultForUtilCollections1868 extends BaseMapTest
        _verifyCollection(Collections.unmodifiableList(Arrays.asList("first", "second")));
    }
 
+   // [databind#2265]
+   public void testUnmodifiableListFromLinkedList() throws Exception {
+       final List<String> input = new LinkedList<>();
+       input.add("first");
+       input.add("second");
+
+       // Can't use simple "_verifyCollection" as type may change; instead use
+       // bit more flexible check:
+       Collection<?> act = _writeReadCollection(Collections.unmodifiableList(input));
+       assertEquals(input, act);
+
+       // and this check may be bit fragile (may need to revisit), but is good enough for now:
+       assertEquals(Collections.unmodifiableList(new ArrayList<>(input)).getClass(), act.getClass());
+   }
+
    public void testUnmodifiableSet() throws Exception
    {
        Set<String> input = new LinkedHashSet<>(Arrays.asList("first", "second"));
@@ -96,15 +111,17 @@ public class TestDefaultForUtilCollections1868 extends BaseMapTest
    /**********************************************************
     */
 
-   protected void _verifyCollection(Collection<?> exp) throws Exception
-   {
-       String json = DEFAULT_MAPPER.writeValueAsString(exp);
-       Collection<?> act = DEFAULT_MAPPER.readValue(json, Collection.class);
-       
+   protected void _verifyCollection(Collection<?> exp) throws Exception {
+       Collection<?> act = _writeReadCollection(exp);
        assertEquals(exp, act);
        assertEquals(exp.getClass(), act.getClass());
    }
 
+   protected Collection<?> _writeReadCollection(Collection<?> input) throws Exception {
+       final String json = DEFAULT_MAPPER.writeValueAsString(input);
+       return DEFAULT_MAPPER.readValue(json, Collection.class);
+   }
+   
    protected void _verifyMap(Map<?,?> exp) throws Exception
    {
        String json = DEFAULT_MAPPER.writeValueAsString(exp);

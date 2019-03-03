@@ -842,6 +842,11 @@ René Kschamer (flawi@github)
    as value type
    (2.9.8)
 
+Joffrey Bion (joffrey-bion@github)
+  * Reported #2265: Inconsistent handling of Collections$UnmodifiableList vs 
+    Collections$UnmodifiableRandomAccessList
+   (2.9.9)
+
 Christoph Breitkopf (bokesan@github)
   * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
    (2.10.0)

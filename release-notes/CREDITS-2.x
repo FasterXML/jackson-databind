@@ -828,3 +828,8 @@ René Kschamer (flawi@github)
   * Reported #2197: Illegal reflective access operation warning when using `java.lang.Void`
    as value type
    (2.9.8)
+
+Joffrey Bion (joffrey-bion@github)
+  * Reported #2265: Inconsistent handling of Collections$UnmodifiableList vs 
+    Collections$UnmodifiableRandomAccessList
+   (2.9.9)

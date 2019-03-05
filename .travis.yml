@@ -1,9 +1,10 @@
 language: java
 
 # Since Jackson 2.7, build requires jdk7, although module itself works on jdk6 still (for now)
+# and since 2.10, will require jdk8 for build
 jdk:
-  - openjdk7
   - openjdk8
+  - oraclejdk11
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
 # http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html

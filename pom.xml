@@ -109,28 +109,6 @@
   <build>
     <plugins>
 
-      <plugin>
-	<groupId>org.jacoco</groupId>
-	<artifactId>jacoco-maven-plugin</artifactId>
-
-<!-- from parent (base)
-    <executions>
-        <execution>
-            <goals>
-                <goal>prepare-agent</goal>
-            </goals>
-        </execution>
-        <execution>
-            <id>report</id>
-            <phase>prepare-package</phase>
-            <goals>
-                <goal>report</goal>
-            </goals>
-        </execution>
-    </executions>
--->
-</plugin>
-
        <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <version>${version.plugin.surefire}</version>

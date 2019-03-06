@@ -130,7 +130,7 @@ public class TestValueInstantiator extends BaseMapTest
         public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
             try {
                 Class<?> cls = (Class<?>) args[0];
-                return cls.newInstance();
+                return cls.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

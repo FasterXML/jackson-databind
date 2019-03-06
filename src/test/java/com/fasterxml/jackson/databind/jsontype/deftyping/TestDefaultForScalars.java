@@ -15,7 +15,7 @@ public class TestDefaultForScalars
 {
     static class Jackson417Bean {
         public String foo = "bar";
-        public java.io.Serializable bar = new Integer(13);
+        public java.io.Serializable bar = Integer.valueOf(13);
     }
 
     // [databind#1395]: prevent attempts at including type info for primitives

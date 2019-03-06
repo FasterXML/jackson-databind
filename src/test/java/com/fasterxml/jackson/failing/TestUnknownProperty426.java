@@ -18,7 +18,7 @@ public class TestUnknownProperty426 extends BaseMapTest
         public void setUserId(CharSequence id) {
             // 21-Dec-2015, tatu: With a fix in 2.7, use of String would not
             //   trigger the problem, so use CharSequence...
-            setUserId(new Integer(id.toString()));
+            setUserId(Integer.valueOf(id.toString()));
         }
 
         public Integer getUserId() {

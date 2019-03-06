@@ -303,7 +303,7 @@ public class TestCreators
     
     public void testSimpleDoubleConstructor() throws Exception
     {
-        Double exp = new Double("0.25");
+        Double exp = Double.valueOf("0.25");
         DoubleConstructorBean bean = MAPPER.readValue(exp.toString(), DoubleConstructorBean.class);
         assertEquals(exp, bean.d);
     }

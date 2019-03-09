@@ -142,8 +142,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.9</link>
-            <link>http://fasterxml.github.com/jackson-core/javadoc/2.9</link>
+            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.10</link>
+            <link>http://fasterxml.github.com/jackson-core/javadoc/2.10</link>
           </links>
         </configuration>
       </plugin>
@@ -154,11 +154,12 @@
         <artifactId>replacer</artifactId>
       </plugin>
 
-      <!-- 18-Oct-2016, tatu: Try to make coveralls work -->
+      <!--  04-Mar-2019, tatu: Add rudimentary JDK9+ module info. To build with JDK 8
+             will have to use `moduleInfoFile` as anything else requires JDK 9+
+        -->
       <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-        <version>4.3.0</version>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

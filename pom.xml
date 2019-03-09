@@ -33,9 +33,6 @@
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
-    <!-- Automatic Module Name default needs changing -->
-    <jdk.module.name>com.fasterxml.jackson.databind</jdk.module.name>
-
     <version.powermock>2.0.0</version.powermock>
   </properties>
 
@@ -154,11 +151,9 @@
         </configuration>
       </plugin>
 
-      <!-- 18-Oct-2016, tatu: Try to make coveralls work -->
       <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-        <version>4.3.0</version>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

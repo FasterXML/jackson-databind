@@ -37,6 +37,7 @@ Project: jackson-databind
  (reported by C-B-B@github)
 #2241: Add `JsonPropertyNamingStrategy.LOWER_DOT_CASE` for dot-delimited names
  (contributed by zenglian@github.com)
+#2273: Add basic Java 9+ module info
 
 2.9.9 (not yet released)
 

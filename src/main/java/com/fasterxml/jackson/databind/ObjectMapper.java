@@ -1035,6 +1035,12 @@ public class ObjectMapper
     /**
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link URL}.
+     *<p>
+     * NOTE: handling of {@link java.net.URL} is delegated to
+     * {@link JsonFactory#createParser(java.net.URL)} and usually simply
+     * calls {@link java.net.URL#openStream()}, meaning no special handling
+     * is done. If different HTTP connection options are needed you will need
+     * to create {@link java.io.InputStream} separately.
      */
     public JsonNode readTree(URL source) throws IOException {
         DeserializationContext ctxt = createDeserializationContext();
@@ -1294,6 +1300,12 @@ public class ObjectMapper
 
     /**
      * Method to deserialize JSON content from given resource into given Java type.
+     *<p>
+     * NOTE: handling of {@link java.net.URL} is delegated to
+     * {@link JsonFactory#createParser(java.net.URL)} and usually simply
+     * calls {@link java.net.URL#openStream()}, meaning no special handling
+     * is done. If different HTTP connection options are needed you will need
+     * to create {@link java.io.InputStream} separately.
      * 
      * @throws IOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
@@ -1314,16 +1326,7 @@ public class ObjectMapper
     } 
 
     /**
-     * Method to deserialize JSON content from given resource into given Java type.
-     * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
-     *   network error) occurs (passed through as-is without additional wrapping -- note
-     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
-     *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
-     *   expected for result type (or has other mismatch issues)
+     * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link TypeReference}.
      */
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(URL src, TypeReference<T> valueTypeRef) throws IOException
@@ -1333,6 +1336,9 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     } 
 
+    /**
+     * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link JavaType}.
+     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, JavaType valueType) throws IOException
     {

@@ -1,14 +1,14 @@
-// Generated 08-Mar-2019 using Moditect maven plugin
+// Generated 14-Mar-2019 using Moditect maven plugin
 module com.fasterxml.jackson.databind {
     requires java.desktop;
     requires java.logging;
-
-    requires transitive com.fasterxml.jackson.annotation;
-    requires transitive com.fasterxml.jackson.core;
-    // these types were suggested as transitive, but aren't actually
-    // exposed externally (only within internal APIs)
     requires java.sql;
     requires java.xml;
+
+    // but we probably do want to expose streaming, annotations
+    // as transitive dependencies streaming types at least part of API
+    requires transitive com.fasterxml.jackson.annotation;
+    requires transitive com.fasterxml.jackson.core;
 
     exports com.fasterxml.jackson.databind;
     exports com.fasterxml.jackson.databind.annotation;
@@ -18,10 +18,10 @@ module com.fasterxml.jackson.databind {
     exports com.fasterxml.jackson.databind.deser.std;
     exports com.fasterxml.jackson.databind.exc;
     exports com.fasterxml.jackson.databind.ext;
+    exports com.fasterxml.jackson.databind.ext.jdk8;
     exports com.fasterxml.jackson.databind.introspect;
     exports com.fasterxml.jackson.databind.json;
     exports com.fasterxml.jackson.databind.jsonFormatVisitors;
-    exports com.fasterxml.jackson.databind.jsonschema;
     exports com.fasterxml.jackson.databind.jsontype;
     exports com.fasterxml.jackson.databind.jsontype.impl;
     exports com.fasterxml.jackson.databind.module;
@@ -32,6 +32,6 @@ module com.fasterxml.jackson.databind {
     exports com.fasterxml.jackson.databind.type;
     exports com.fasterxml.jackson.databind.util;
 
-    provides com.fasterxml.jackson.core.ObjectCodec with
-        com.fasterxml.jackson.databind.ObjectMapper;
+    provides com.fasterxml.jackson.core.databind.ObjectMapper with
+        com.fasterxml.jackson.databind.json.JsonMapper;
 }

@@ -1286,6 +1286,13 @@ public class ObjectReader
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
+     *<p>
+     *<p>
+     * NOTE: handling of {@link java.net.URL} is delegated to
+     * {@link JsonFactory#createParser(java.net.URL)} and usually simply
+     * calls {@link java.net.URL#openStream()}, meaning no special handling
+     * is done. If different HTTP connection options are needed you will need
+     * to create {@link java.io.InputStream} separately.
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src)
@@ -1550,6 +1557,12 @@ public class ObjectReader
 
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
+     *<p>
+     * NOTE: handling of {@link java.net.URL} is delegated to
+     * {@link JsonFactory#createParser(java.net.URL)} and usually simply
+     * calls {@link java.net.URL#openStream()}, meaning no special handling
+     * is done. If different HTTP connection options are needed you will need
+     * to create {@link java.io.InputStream} separately.
      * 
      * @param src URL to read to access JSON content to parse.
      */

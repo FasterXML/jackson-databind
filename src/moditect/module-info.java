@@ -32,6 +32,6 @@ module com.fasterxml.jackson.databind {
     exports com.fasterxml.jackson.databind.type;
     exports com.fasterxml.jackson.databind.util;
 
-    provides com.fasterxml.jackson.core.databind.ObjectMapper with
+    provides com.fasterxml.jackson.databind.ObjectMapper with
         com.fasterxml.jackson.databind.json.JsonMapper;
 }

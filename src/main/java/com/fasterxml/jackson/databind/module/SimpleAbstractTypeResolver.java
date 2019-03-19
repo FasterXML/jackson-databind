@@ -81,13 +81,6 @@ public class SimpleAbstractTypeResolver
     }
 
     @Override
-    @Deprecated
-    public JavaType resolveAbstractType(DeserializationConfig config, JavaType type){
-        // never materialize anything, so:
-        return null;
-    }
-
-    @Override
     public JavaType resolveAbstractType(DeserializationConfig config,
             BeanDescription typeDesc) {
         // never materialize anything, so:

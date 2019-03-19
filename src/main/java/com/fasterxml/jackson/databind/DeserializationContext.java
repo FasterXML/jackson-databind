@@ -4,14 +4,16 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.tree.ArrayTreeNode;
+import com.fasterxml.jackson.core.tree.ObjectTreeNode;
+import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
@@ -22,7 +24,9 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -34,70 +38,75 @@ import com.fasterxml.jackson.databind.util.*;
  * Context for the process of deserialization a single root-level value.
  * Used to allow passing in configuration settings and reusable temporary
  * objects (scrap arrays, containers).
- *<p>
- * Instance life-cycle is such that a partially configured "blueprint" object
- * is registered with {@link ObjectMapper} (and {@link ObjectReader},
- * and when actual instance is needed for deserialization,
- * a fully configured instance will be created using a method in extended internal
- *  API of sub-class
- * ({@link com.fasterxml.jackson.databind.deser.DefaultDeserializationContext#createInstance}).
- * Each instance is guaranteed to only be used from single-threaded context;
- * instances may be reused if (and only if) no configuration has changed.
- *<p>
- * Defined as abstract class so that implementations must define methods
- * for reconfiguring blueprints and creating instances.
+ * Constructed by {@link ObjectMapper} (and {@link ObjectReader} based on
+ * configuration,
+ * used mostly by {@link JsonDeserializer}s to access contextual information.
  */
 public abstract class DeserializationContext
     extends DatabindContext
-    implements java.io.Serializable
+    implements ObjectReadContext // 3.0
 {
-    private static final long serialVersionUID = 1L; // 2.6
-
     /*
-    /**********************************************************
-    /* Configuration, immutable
-    /**********************************************************
+    /**********************************************************************
+    /* Per-mapper configuration (immutable via ObjectReader)
+    /**********************************************************************
      */
-    
+
     /**
-     * Object that handle details of {@link JsonDeserializer} caching.
+     * Low-level {@link TokenStreamFactory} that may be used for constructing
+     * embedded parsers.
      */
-    protected final DeserializerCache _cache;
-
-    /*
-    /**********************************************************
-    /* Configuration, changeable via fluent factories
-    /**********************************************************
-     */
+    final protected TokenStreamFactory _streamFactory;
 
     /**
      * Read-only factory instance; exposed to let
      * owners (<code>ObjectMapper</code>, <code>ObjectReader</code>)
      * access it.
      */
-    protected final DeserializerFactory _factory;
+    final protected DeserializerFactory _factory;
+
+    /**
+     * Object that handle details of {@link JsonDeserializer} caching.
+     */
+    final protected DeserializerCache _cache;
 
     /*
-    /**********************************************************
-    /* Configuration that gets set for instances (not blueprints)
-    /* (partly denormalized for performance)
-    /**********************************************************
+    /**********************************************************************
+    /* Configuration that may vary by ObjectReader
+    /**********************************************************************
      */
 
     /**
      * Generic deserialization processing configuration
      */
-    protected final DeserializationConfig _config;
+    final protected DeserializationConfig _config;
 
     /**
      * Bitmap of {@link DeserializationFeature}s that are enabled
      */
-    protected final int _featureFlags;
+    final protected int _featureFlags;
 
     /**
      * Currently active view, if any.
      */
-    protected final Class<?> _view;
+    final protected Class<?> _activeView;
+
+    /**
+     * Schema for underlying parser to use, if any.
+     */
+    final protected FormatSchema _schema;
+
+    /**
+     * Object used for resolving references to injectable
+     * values.
+     */
+    final protected InjectableValues _injectableValues;
+
+    /*
+    /**********************************************************************
+    /* Other State
+    /**********************************************************************
+     */
 
     /**
      * Currently active parser used for deserialization.
@@ -105,17 +114,11 @@ public abstract class DeserializationContext
      * when content is buffered.
      */
     protected transient JsonParser _parser;
-    
-    /**
-     * Object used for resolving references to injectable
-     * values.
-     */
-    protected final InjectableValues _injectableValues;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Per-operation reusable helper objects (not for blueprints)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected transient ArrayBuilders _arrayBuilders;
@@ -126,104 +129,50 @@ public abstract class DeserializationContext
 
     /**
      * Lazily-constructed holder for per-call attributes.
-     * 
-     * @since 2.3
      */
     protected transient ContextAttributes _attributes;
 
     /**
-     * Type of {@link JsonDeserializer} (or, more specifically,
-     *   {@link ContextualDeserializer}) that is being
-     *   contextualized currently.
-     *
-     * @since 2.5
+     * Type of {@link JsonDeserializer} on which {@link JsonDeserializer#createContextual}
+     * is being called currently.
      */
     protected LinkedNode<JavaType> _currentType;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected DeserializationContext(DeserializerFactory df) {
-        this(df, null);
-    }
-    
-    protected DeserializationContext(DeserializerFactory df,
-            DeserializerCache cache)
-    {
-        if (df == null) {
-            throw new IllegalArgumentException("Cannot pass null DeserializerFactory");
-        }
-        _factory = df;
-        if (cache == null) {
-            cache = new DeserializerCache();
-        }
-        _cache = cache;
-        _featureFlags = 0;
-        _config = null;
-        _injectableValues = null;
-        _view = null;
-        _attributes = null;
-    }
-
-    protected DeserializationContext(DeserializationContext src,
-            DeserializerFactory factory)
-    {
-        _cache = src._cache;
-        _factory = factory;
-        
-        _config = src._config;
-        _featureFlags = src._featureFlags;
-        _view = src._view;
-        _parser = src._parser;
-        _injectableValues = src._injectableValues;
-        _attributes = src._attributes;
-    }
-
-    /**
-     * Constructor used for creating actual per-call instances.
-     */
-    protected DeserializationContext(DeserializationContext src,
-            DeserializationConfig config, JsonParser p,
+    protected DeserializationContext(TokenStreamFactory streamFactory, 
+            DeserializerFactory df, DeserializerCache cache,
+            DeserializationConfig config, FormatSchema schema,
             InjectableValues injectableValues)
     {
-        _cache = src._cache;
-        _factory = src._factory;
-        
+        _streamFactory = streamFactory;
+        _factory = df;
+        _cache = cache;
+
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
-        _view = config.getActiveView();
-        _parser = p;
+        _activeView = config.getActiveView();
+        _schema = schema;
+
         _injectableValues = injectableValues;
         _attributes = config.getAttributes();
     }
 
-    /**
-     * Copy-constructor for use with <code>copy()</code> by {@link ObjectMapper#copy()}
-     */
-    protected DeserializationContext(DeserializationContext src) {
-        _cache = new DeserializerCache();
-        _factory = src._factory;
-
-        _config = src._config;
-        _featureFlags = src._featureFlags;
-        _view = src._view;
-        _injectableValues = null;
-    }
-    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* DatabindContext implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public DeserializationConfig getConfig() { return _config; }
 
     @Override
-    public final Class<?> getActiveView() { return _view; }
+    public final Class<?> getActiveView() { return _activeView; }
 
     @Override
     public final boolean canOverrideAccessModifiers() {
@@ -273,9 +222,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
-    /* Access to per-call state, like generic attributes (2.3+)
-    /**********************************************************
+    /**********************************************************************
+    /* Access to per-call state, like generic attributes
+    /**********************************************************************
      */
 
     @Override
@@ -292,15 +241,13 @@ public abstract class DeserializationContext
 
     /**
      * Accessor to {@link JavaType} of currently contextualized
-     * {@link ContextualDeserializer}, if any.
+     * {@link JsonDeserializer}, if any.
      * This is sometimes useful for generic {@link JsonDeserializer}s that
      * do not get passed (or do not retain) type information when being
      * constructed: happens for example for deserializers constructed
      * from annotations.
-     * 
-     * @since 2.5
      *
-     * @return Type of {@link ContextualDeserializer} being contextualized,
+     * @return Type of {@link JsonDeserializer} being contextualized,
      *   if process is on-going; null if not.
      */
     public JavaType getContextualType() {
@@ -308,9 +255,113 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* ObjectReadContext impl, config access
+    /**********************************************************************
+     */
+
+    @Override
+    public TokenStreamFactory getParserFactory() {
+        return _streamFactory;
+    }
+
+    @Override
+    public FormatSchema getSchema() {
+        return _schema;
+    }
+
+    @Override
+    public int getStreamReadFeatures(int defaults) {
+        return _config.getStreamReadFeatures();
+    }
+
+    @Override
+    public int getFormatReadFeatures(int defaults) {
+        return _config.getFormatReadFeatures();
+    }
+
+    /*
+    /**********************************************************************
+    /* ObjectReadContext impl, Tree creation
+    /**********************************************************************
+     */
+    
+    @Override
+    public ArrayTreeNode createArrayNode() {
+        return getNodeFactory().arrayNode();
+    }
+
+    @Override
+    public ObjectTreeNode createObjectNode() {
+        return getNodeFactory().objectNode();
+    }        
+
+    /*
+    /**********************************************************************
+    /* ObjectReadContext impl, databind
+    /**********************************************************************
+     */
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+        // NOTE: inlined version of `_bindAsTree()` from `ObjectReader`
+        JsonToken t = p.currentToken();
+        if (t == null) {
+            t = p.nextToken();
+            if (t == null) { // [databind#1406]: expose end-of-input as `null`
+                return null;
+            }
+        }
+        if (t == JsonToken.VALUE_NULL) {
+            return (T) getNodeFactory().nullNode();
+        }
+        JsonDeserializer<Object> deser = findRootValueDeserializer(ObjectReader.JSON_NODE_TYPE);
+        return (T) deser.deserialize(p, this);
+    }
+
+    /**
+     * Convenience method that may be used by composite or container deserializers,
+     * for reading one-off values contained (for sequences, it is more efficient
+     * to actually fetch deserializer once for the whole collection).
+     *<p>
+     * NOTE: when deserializing values of properties contained in composite types,
+     * rather use {@link #readPropertyValue(JsonParser, BeanProperty, Class)};
+     * this method does not allow use of contextual annotations.
+     */
+    @Override
+    public <T> T readValue(JsonParser p, Class<T> type) throws IOException {
+        return readValue(p, getTypeFactory().constructType(type));
+    }
+
+    @Override
+    public <T> T readValue(JsonParser p, TypeReference<T> refType) throws IOException {
+        return readValue(p, getTypeFactory().constructType(refType));
+    }
+    
+    @Override
+    public <T> T readValue(JsonParser p, ResolvedType type) throws IOException {
+        if (!(type instanceof JavaType)) {
+            throw new UnsupportedOperationException(
+"Only support `JavaType` implementation of `ResolvedType`, not: "+type.getClass().getName());
+        }
+        return readValue(p, (JavaType) type);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(JsonParser p, JavaType type) throws IOException {
+        JsonDeserializer<Object> deser = findRootValueDeserializer(type);
+        if (deser == null) {
+            reportBadDefinition(type,
+                    "Could not find JsonDeserializer for type "+type);
+        }
+        return (T) deser.deserialize(p, this);
+    }
+
+    /*
+    /**********************************************************************
     /* Public API, config setting accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -334,8 +385,6 @@ public abstract class DeserializationContext
     /**
      * Bulk access method for getting the bit mask of all {@link DeserializationFeature}s
      * that are enabled.
-     *
-     * @since 2.6
      */
     public final int getDeserializationFeatures() {
         return _featureFlags;
@@ -405,34 +454,37 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
-    /* Public API, pass-through to DeserializerCache
-    /**********************************************************
+    /**********************************************************************
+    /* Introspection support
+    /**********************************************************************
      */
 
     /**
-     * Method for checking whether we could find a deserializer
-     * for given type.
-     *
-     * @param type
-     * @since 2.3
+     * Convenience method for doing full "for serialization" introspection of specified
+     * type; results may be cached during lifespan of this context as well.
      */
-    public boolean hasValueDeserializerFor(JavaType type, AtomicReference<Throwable> cause) {
-        try {
-            return _cache.hasValueDeserializerFor(this, _factory, type);
-        } catch (JsonMappingException e) {
-            if (cause != null) {
-                cause.set(e);
-            }
-        } catch (RuntimeException e) {
-            if (cause == null) { // earlier behavior
-                throw e;
-            }
-            cause.set(e);
-        }
-        return false;
+    public BeanDescription introspect(JavaType type) throws JsonMappingException {
+        return _config.introspect(type);
     }
-    
+
+    public BeanDescription introspectClassAnnotations(JavaType type) throws JsonMappingException {
+        return _config.introspectClassAnnotations(type);
+    }
+
+    public BeanDescription introspectForCreation(JavaType type) throws JsonMappingException{
+        return _config.introspectForCreation(type);
+    }
+
+    public BeanDescription introspectForBuilder(JavaType type) throws JsonMappingException {
+        return _config.introspectForBuilder(type);
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, value deserializer access
+    /**********************************************************************
+     */
+
     /**
      * Method for finding a value deserializer, and creating a contextual
      * version if necessary, for value reached via specified property.
@@ -453,13 +505,11 @@ public abstract class DeserializationContext
      * performing any contextualization (unlike {@link #findContextualValueDeserializer})
      * or checking for need to create a {@link TypeDeserializer} (unlike
      * {@link #findRootValueDeserializer(JavaType)}.
-     * This method is usually called from within {@link ResolvableDeserializer#resolve},
+     * This method is usually called from within {@link JsonDeserializer#resolve},
      * and expectation is that caller then calls either
      * {@link #handlePrimaryContextualization(JsonDeserializer, BeanProperty, JavaType)} or
      * {@link #handleSecondaryContextualization(JsonDeserializer, BeanProperty, JavaType)} at a
      * later point, as necessary.
-     *
-     * @since 2.5
      */
     public final JsonDeserializer<Object> findNonContextualValueDeserializer(JavaType type)
         throws JsonMappingException
@@ -480,7 +530,7 @@ public abstract class DeserializationContext
             return null;
         }
         deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null, type);
-        TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
+        TypeDeserializer typeDeser = findTypeDeserializer(type);
         if (typeDeser != null) {
             // important: contextualize to indicate this is for root value
             typeDeser = typeDeser.forProperty(null);
@@ -489,14 +539,92 @@ public abstract class DeserializationContext
         return deser;
     }
 
-    /**
-     * Convenience method, functionally same as:
-     *<pre>
-     *  getDeserializerProvider().findKeyDeserializer(getConfig(), prop.getType(), prop);
-     *</pre>
+    /*
+    /**********************************************************************
+    /* Public API, value type deserializer access
+    /**********************************************************************
      */
+
+    /**
+     * Method called to find and create a type information deserializer for given base type,
+     * if one is needed. If not needed (no polymorphic handling configured for type),
+     * should return null.
+     *<p>
+     * Note that this method is usually only directly called for values of container (Collection,
+     * array, Map) types and root values, but not for bean property values.
+     *
+     * @param baseType Declared base type of the value to deserializer (actual
+     *    deserializer type will be this type or its subtype)
+     * 
+     * @return Type deserializer to use for given base type, if one is needed; null if not.
+     */
+    public TypeDeserializer findTypeDeserializer(JavaType baseType)
+        throws JsonMappingException
+    {
+        return findTypeDeserializer(baseType, introspectClassAnnotations(baseType));
+    }
+
+    public TypeDeserializer findTypeDeserializer(JavaType baseType,
+            BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        return _config.getTypeResolverProvider().findTypeDeserializer(this,
+                baseType, beanDesc.getClassInfo());
+    }
+
+    /**
+     * Method called to create a type information deserializer for values of
+     * given non-container property, if one is needed.
+     * If not needed (no polymorphic handling configured for property), should return null.
+     *<p>
+     * Note that this method is only called for non-container bean properties,
+     * and not for values in container types or root values (or container properties)
+     *
+     * @param baseType Declared base type of the value to deserializer (actual
+     *    deserializer type will be this type or its subtype)
+     * 
+     * @return Type deserializer to use for given base type, if one is needed; null if not.
+     *
+     * @since 3.0
+     */
+    public TypeDeserializer findPropertyTypeDeserializer(JavaType baseType,
+            AnnotatedMember accessor)
+        throws JsonMappingException
+    {
+        return _config.getTypeResolverProvider().findPropertyTypeDeserializer(this,
+                accessor, baseType);
+    }
+
+    /**
+     * Method called to find and create a type information deserializer for values of
+     * given container (list, array, map) property, if one is needed.
+     * If not needed (no polymorphic handling configured for property), should return null.
+     *<p>
+     * Note that this method is only called for container bean properties,
+     * and not for values in container types or root values (or non-container properties)
+     * 
+     * @param containerType Type of property; must be a container type
+     * @param accessor Field or method that contains container property
+     *
+     * @since 3.0
+     */    
+    public TypeDeserializer findPropertyContentTypeDeserializer(JavaType containerType,
+            AnnotatedMember accessor)
+        throws JsonMappingException
+    {
+        return _config.getTypeResolverProvider().findPropertyContentTypeDeserializer(this,
+                accessor, containerType);
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, key deserializer access
+    /**********************************************************************
+     */
+
     public final KeyDeserializer findKeyDeserializer(JavaType keyType,
-            BeanProperty prop) throws JsonMappingException {
+            BeanProperty prop) throws JsonMappingException
+    {
         KeyDeserializer kd = _cache.findKeyDeserializer(this,
                 _factory, keyType);
         // Second: contextualize?
@@ -505,11 +633,11 @@ public abstract class DeserializationContext
         }
         return kd;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, ObjectId handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -528,9 +656,9 @@ public abstract class DeserializationContext
         throws UnresolvedForwardReference;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, type handling
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -548,8 +676,6 @@ public abstract class DeserializationContext
      * Class instance, the reason being that it may be necessary to work around
      * various ClassLoader limitations, as well as to handle primitive type
      * signatures.
-     *
-     * @since 2.6
      */
     public Class<?> findClass(String className) throws ClassNotFoundException
     {
@@ -558,9 +684,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, helper object recycling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -610,9 +736,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API: handler instantiation
-    /**********************************************************
+    /**********************************************************************
      */
 
     public abstract JsonDeserializer<Object> deserializerInstance(Annotated annotated,
@@ -624,31 +750,28 @@ public abstract class DeserializationContext
         throws JsonMappingException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API: resolving contextual deserializers; called
-    /* by structured deserializers for their value/component
-    /* deserializers
-    /**********************************************************
+    /* by structured deserializers for their value/component deserializers
+    /**********************************************************************
      */
 
     /**
      * Method called for primary property deserializers (ones
      * directly created to deserialize values of a POJO property),
-     * to handle details of resolving
-     * {@link ContextualDeserializer} with given property context.
+     * to handle details of calling
+     * {@link JsonDeserializer#createContextual} with given property context.
      * 
      * @param prop Property for which the given primary deserializer is used; never null.
-     * 
-     * @since 2.5
      */
     public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
             BeanProperty prop, JavaType type)
         throws JsonMappingException
     {
-        if (deser instanceof ContextualDeserializer) {
+        if (deser != null) {
             _currentType = new LinkedNode<JavaType>(type, _currentType);
             try {
-                deser = ((ContextualDeserializer) deser).createContextual(this, prop);
+                deser = deser.createContextual(this, prop);
             } finally {
                 _currentType = _currentType.next();
             }
@@ -662,24 +785,22 @@ public abstract class DeserializationContext
      * but instead created as a component -- such as value deserializers
      * for structured types, or deserializers for root values)
      * to handle details of resolving
-     * {@link ContextualDeserializer} with given property context.
+     * {@link JsonDeserializer#createContextual} with given property context.
      * Given that these deserializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
      * 
      * @param prop Property for which deserializer is used, if any; null
      *    when deserializing root values
-     * 
-     * @since 2.5
      */
     public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
             BeanProperty prop, JavaType type)
         throws JsonMappingException
     {
-        if (deser instanceof ContextualDeserializer) {
+        if (deser != null) {
             _currentType = new LinkedNode<JavaType>(type, _currentType);
             try {
-                deser = ((ContextualDeserializer) deser).createContextual(this, prop);
+                deser =deser.createContextual(this, prop);
             } finally {
                 _currentType = _currentType.next();
             }
@@ -688,9 +809,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parsing methods that may use reusable/-cyclable objects
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -727,54 +848,21 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Convenience methods for reading parsed values
-    /**********************************************************
+    /**********************************************************************
      */
-
-    /**
-     * Convenience method that may be used by composite or container deserializers,
-     * for reading one-off values contained (for sequences, it is more efficient
-     * to actually fetch deserializer once for the whole collection).
-     *<p>
-     * NOTE: when deserializing values of properties contained in composite types,
-     * rather use {@link #readPropertyValue(JsonParser, BeanProperty, Class)};
-     * this method does not allow use of contextual annotations.
-     * 
-     * @since 2.4
-     */
-    public <T> T readValue(JsonParser p, Class<T> type) throws IOException {
-        return readValue(p, getTypeFactory().constructType(type));
-    }
-
-    /**
-     * @since 2.4
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, JavaType type) throws IOException {
-        JsonDeserializer<Object> deser = findRootValueDeserializer(type);
-        if (deser == null) {
-            reportBadDefinition(type,
-                    "Could not find JsonDeserializer for type "+type);
-        }
-        return (T) deser.deserialize(p, this);
-    }
-
+    
     /**
      * Convenience method that may be used by composite or container deserializers,
      * for reading one-off values for the composite type, taking into account
      * annotations that the property (passed to this method -- usually property that
      * has custom serializer that called this method) has.
-     * 
-     * @since 2.4
      */
     public <T> T readPropertyValue(JsonParser p, BeanProperty prop, Class<T> type) throws IOException {
         return readPropertyValue(p, prop, getTypeFactory().constructType(type));
     }
 
-    /**
-     * @since 2.4
-     */
     @SuppressWarnings("unchecked")
     public <T> T readPropertyValue(JsonParser p, BeanProperty prop, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
@@ -787,9 +875,9 @@ public abstract class DeserializationContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for problem handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -840,8 +928,6 @@ public abstract class DeserializationContext
      * @return Key value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
-     * @since 2.8
      */
     public Object handleWeirdKey(Class<?> keyClass, String keyValue,
             String msg, Object... msgArgs)
@@ -884,8 +970,6 @@ public abstract class DeserializationContext
      * @return Property value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
-     * @since 2.8
      */
     public Object handleWeirdStringValue(Class<?> targetClass, String value,
             String msg, Object... msgArgs)
@@ -928,8 +1012,6 @@ public abstract class DeserializationContext
      * @return Property value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
-     * @since 2.8
      */
     public Object handleWeirdNumberValue(Class<?> targetClass, Number value,
             String msg, Object... msgArgs)
@@ -990,8 +1072,6 @@ targetType, goodValue.getClass()));
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
-     *
-     * @since 2.9 (2.8 had alternate that did not take <code>ValueInstantiator</code>)
      */
     @SuppressWarnings("resource")
     public Object handleMissingInstantiator(Class<?> instClass, ValueInstantiator valueInst,
@@ -1023,7 +1103,7 @@ targetType, goodValue.getClass()));
         //   exists), or input mismatch problem (otherwise) since none of existing creators
         //   match with token.
         if ((valueInst != null) && !valueInst.canInstantiate()) {
-            msg = String.format("Cannot construct instance of %s (no Creators, like default construct, exist): %s",
+            msg = String.format("Cannot construct instance of %s (no Creators, like default constructor, exist): %s",
                     ClassUtil.nameOf(instClass), msg);
             return reportBadDefinition(constructType(instClass), msg);
         }
@@ -1046,8 +1126,6 @@ targetType, goodValue.getClass()));
      * @param t Exception that caused failure
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
-     *
-     * @since 2.8
      */
     public Object handleInstantiationProblem(Class<?> instClass, Object argument,
             Throwable t)
@@ -1084,13 +1162,11 @@ targetType, goodValue.getClass()));
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
-     *
-     * @since 2.8
      */
     public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
         throws IOException
     {
-        return handleUnexpectedToken(instClass, p.getCurrentToken(), p, null);
+        return handleUnexpectedToken(instClass, p.currentToken(), p, null);
     }
 
     /**
@@ -1105,8 +1181,6 @@ targetType, goodValue.getClass()));
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
-     *
-     * @since 2.8
      */
     public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)
@@ -1157,8 +1231,6 @@ targetType, goodValue.getClass()));
      *
      * @throws IOException To indicate unrecoverable problem, if resolution cannot
      *    be made to work
-     *
-     * @since 2.8
      */
     public JavaType handleUnknownTypeId(JavaType baseType, String id,
             TypeIdResolver idResolver, String extraDesc) throws IOException
@@ -1187,9 +1259,6 @@ targetType, goodValue.getClass()));
         throw invalidTypeIdException(baseType, id, extraDesc);
     }
 
-    /**
-     * @since 2.9
-     */
     public JavaType handleMissingTypeId(JavaType baseType,
             TypeIdResolver idResolver, String extraDesc) throws IOException
     {
@@ -1218,9 +1287,6 @@ targetType, goodValue.getClass()));
         throw missingTypeIdException(baseType, extraDesc);
     }
 
-    /**
-     * @since 2.9.2
-     */
     protected boolean _isCompatible(Class<?> target, Object value)
     {
         if ((value == null) || target.isInstance(value)) {
@@ -1232,10 +1298,10 @@ targetType, goodValue.getClass()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for problem reporting, in cases where recovery
     /* is not considered possible: input problem
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1245,8 +1311,6 @@ targetType, goodValue.getClass()));
      * Note that this method will throw a {@link JsonMappingException} and no
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
-     * 
-     * @since 2.9
      */
     public void reportWrongTokenException(JsonDeserializer<?> deser,
             JsonToken expToken, String msg, Object... msgArgs)
@@ -1263,8 +1327,6 @@ targetType, goodValue.getClass()));
      * Note that this method will throw a {@link JsonMappingException} and no
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
-     * 
-     * @since 2.9
      */
     public void reportWrongTokenException(JavaType targetType,
             JsonToken expToken, String msg, Object... msgArgs)
@@ -1281,8 +1343,6 @@ targetType, goodValue.getClass()));
      * Note that this method will throw a {@link JsonMappingException} and no
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
-     * 
-     * @since 2.9
      */
     public void reportWrongTokenException(Class<?> targetType,
             JsonToken expToken, String msg, Object... msgArgs)
@@ -1292,9 +1352,6 @@ targetType, goodValue.getClass()));
         throw wrongTokenException(getParser(), targetType, expToken, msg);
     }
 
-    /**
-     * @since 2.8
-     */
     public <T> T reportUnresolvedObjectId(ObjectIdReader oidReader, Object bean)
         throws JsonMappingException
     {
@@ -1306,8 +1363,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
      */
     public <T> T reportInputMismatch(BeanProperty prop,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1320,8 +1375,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
      */
     public <T> T reportInputMismatch(JsonDeserializer<?> src,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1333,8 +1386,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
      */
     public <T> T reportInputMismatch(Class<?> targetType,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1346,8 +1397,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
      */
     public <T> T reportInputMismatch(JavaType targetType,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1365,49 +1414,6 @@ trailingToken, ClassUtil.nameOf(targetType)
                 ));
     }
 
-    @Deprecated // since 2.9
-    public void reportWrongTokenException(JsonParser p,
-            JsonToken expToken, String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        msg = _format(msg, msgArgs);
-        throw wrongTokenException(p, expToken, msg);
-    }
-    
-    /**
-     * Helper method for reporting a problem with unhandled unknown property.
-     * 
-     * @param instanceOrClass Either value being populated (if one has been
-     *   instantiated), or Class that indicates type that would be (or
-     *   have been) instantiated
-     * @param deser Deserializer that had the problem, if called by deserializer
-     *   (or on behalf of one)
-     *
-     * @deprecated Since 2.8 call {@link #handleUnknownProperty} instead
-     */
-    @Deprecated
-    public void reportUnknownProperty(Object instanceOrClass, String fieldName,
-            JsonDeserializer<?> deser)
-        throws JsonMappingException
-    {
-        if (isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            // Do we know properties that are expected instead?
-            Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
-            throw UnrecognizedPropertyException.from(_parser,
-                    instanceOrClass, fieldName, propIds);
-        }
-    }
-
-    /**
-     * @since 2.8
-     *
-     * @deprecated Since 2.9: not clear this ever occurs
-     */
-    @Deprecated // since 2.9
-    public void reportMissingContent(String msg, Object... msgArgs) throws JsonMappingException {
-        throw MismatchedInputException.from(getParser(), (JavaType) null, "No content to map due to end-of-input");
-    }
-
     /*
     /**********************************************************
     /* Methods for problem reporting, in cases where recovery
@@ -1419,8 +1425,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link JsonMappingException}.
-     *
-     * @since 2.9
      */
     public <T> T reportBadTypeDefinition(BeanDescription bean,
             String msg, Object... msgArgs) throws JsonMappingException {
@@ -1434,8 +1438,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific property (of a type), unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link JsonMappingException}.
-     *
-     * @since 2.9
      */
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
             String msg, Object... msgArgs) throws JsonMappingException {
@@ -1460,8 +1462,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Note that if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled,
      * this method will simply return null; otherwise {@link InvalidDefinitionException}
      * will be thrown.
-     *
-     * @since 2.9
      */
     public <T> T reportBadMerge(JsonDeserializer<?> deser) throws JsonMappingException
     {
@@ -1474,10 +1474,10 @@ trailingToken, ClassUtil.nameOf(targetType)
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for constructing semantic exceptions; usually not
     /* to be called directly, call `handleXxx()` instead
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1487,14 +1487,12 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Note that most of the time this method should NOT be directly called;
      * instead, {@link #reportWrongTokenException} should be called and will
      * call this method as necessary.
-     *
-     * @since 2.9
      */
     public JsonMappingException wrongTokenException(JsonParser p, JavaType targetType,
             JsonToken expToken, String extra)
     {
         String msg = String.format("Unexpected token (%s), expected %s",
-                p.getCurrentToken(), expToken);
+                p.currentToken(), expToken);
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
     }
@@ -1502,17 +1500,10 @@ trailingToken, ClassUtil.nameOf(targetType)
     public JsonMappingException wrongTokenException(JsonParser p, Class<?> targetType,
             JsonToken expToken, String extra)
     {
-        String msg = String.format("Unexpected token (%s), expected %s",
-                p.getCurrentToken(), expToken);
+        JsonToken t = (p == null) ? null : p.currentToken();
+        String msg = String.format("Unexpected token (%s), expected %s", t, expToken);
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
-    }
-    
-    @Deprecated // since 2.9
-    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken,
-            String msg)
-    {
-        return wrongTokenException(p, (JavaType) null, expToken, msg);
     }
 
     /**
@@ -1540,16 +1531,13 @@ trailingToken, ClassUtil.nameOf(targetType)
      * 
      * @param value String value from input being deserialized
      * @param instClass Type that String should be deserialized into
-     * @param msg Message that describes specific problem
-     * 
-     * @since 2.1
+     * @param msgBase Message that describes specific problem
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass,
-            String msg) {
-        return InvalidFormatException.from(_parser,
-                String.format("Cannot deserialize value of type %s from String %s: %s",
-                        ClassUtil.nameOf(instClass), _quotedString(value), msg),
-                value, instClass);
+            String msgBase) {
+        final String msg = String.format("Cannot deserialize value of type %s from String %s: %s",
+                ClassUtil.nameOf(instClass), _quotedString(value), msgBase);
+        return InvalidFormatException.from(_parser, msg, value, instClass);
     }
 
     /**
@@ -1574,8 +1562,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * and can not be used to construct value of specified type (usually POJO).
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleWeirdNativeValue} should be called which will call this method
-     *
-     * @since 2.9
      */
     public JsonMappingException weirdNativeValueException(Object value, Class<?> instClass)
     {
@@ -1595,8 +1581,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * if necessary.
      */
     public JsonMappingException instantiationException(Class<?> instClass, Throwable cause) {
-        // Most likely problem with Creator definition, right?
-        final JavaType type = constructType(instClass);
         String excMsg;
         if (cause == null) {
             excMsg = "N/A";
@@ -1605,9 +1589,9 @@ trailingToken, ClassUtil.nameOf(targetType)
         }
         String msg = String.format("Cannot construct instance of %s, problem: %s",
                 ClassUtil.nameOf(instClass), excMsg);
-        InvalidDefinitionException e = InvalidDefinitionException.from(_parser, msg, type);
-        e.initCause(cause);
-        return e;
+        // [databind#2162]: use specific exception type as we don't know if it's
+        // due to type definition, input, or neither
+        return ValueInstantiationException.from(_parser, msg, constructType(instClass), cause);
     }
 
     /**
@@ -1620,11 +1604,12 @@ trailingToken, ClassUtil.nameOf(targetType)
      * if necessary.
      */
     public JsonMappingException instantiationException(Class<?> instClass, String msg0) {
-        // Most likely problem with Creator definition, right?
-        JavaType type = constructType(instClass);
-        String msg = String.format("Cannot construct instance of %s: %s",
-                ClassUtil.nameOf(instClass), msg0);
-        return InvalidDefinitionException.from(_parser, msg, type);
+        // [databind#2162]: use specific exception type as we don't know if it's
+        // due to type definition, input, or neither
+        return ValueInstantiationException.from(_parser,
+                String.format("Cannot construct instance of %s: %s",
+                        ClassUtil.nameOf(instClass), msg0),
+                constructType(instClass));
     }
 
     @Override
@@ -1635,9 +1620,6 @@ trailingToken, ClassUtil.nameOf(targetType)
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 
-    /**
-     * @since 2.9
-     */
     public JsonMappingException missingTypeIdException(JavaType baseType,
             String extraDesc) {
         String msg = String.format("Missing type id when trying to resolve subtype of %s",
@@ -1646,130 +1628,27 @@ trailingToken, ClassUtil.nameOf(targetType)
     }
 
     /*
-    /**********************************************************
-    /* Deprecated exception factory methods
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.5
-     *
-     * @deprecated Since 2.8 use {@link #handleUnknownTypeId} instead
-     */
-    @Deprecated
-    public JsonMappingException unknownTypeException(JavaType type, String id,
-            String extraDesc)
-    {
-        String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
-                id, type);
-        msg = _colonConcat(msg, extraDesc);
-        return MismatchedInputException.from(_parser, type, msg);
-    }
-
-    /**
-     * Helper method for constructing exception to indicate that end-of-input was
-     * reached while still expecting more tokens to deserialize value of specified type.
-     *
-     * @deprecated Since 2.8; currently no way to catch EOF at databind level
-     */
-    @Deprecated
-    public JsonMappingException endOfInputException(Class<?> instClass) {
-        return MismatchedInputException.from(_parser, instClass,
-                "Unexpected end-of-input when trying to deserialize a "+instClass.getName());
-    }
-
-    /*
-    /**********************************************************
-    /* Deprecated methods for constructing, throwing non-specific
-    /* JsonMappingExceptions: as of 2.9, should use more specific
-    /* ones.
-    /**********************************************************
-     */
-    
-    /**
-     * Fallback method that may be called if no other <code>reportXxx</code>
-     * is applicable -- but only in that case.
-     *
-     * @since 2.8
-     * 
-     * @deprecated Since 2.9: use a more specific method, or {@link #reportBadDefinition(JavaType, String)},
-     *    or {@link #reportInputMismatch} instead
-     */
-    @Deprecated // since 2.9
-    public void reportMappingException(String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        throw JsonMappingException.from(getParser(), _format(msg, msgArgs));
-    }
-
-    /**
-     * Helper method for constructing generic mapping exception with specified
-     * message and current location information.
-     * Note that application code should almost always call
-     * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
-     * instead.
-     * 
-     * @since 2.6
-     * 
-     * @deprecated Since 2.9 use more specific error reporting methods instead
-     */
-    @Deprecated
-    public JsonMappingException mappingException(String message) {
-        return JsonMappingException.from(getParser(), message);
-    }
-
-    /**
-     * Helper method for constructing generic mapping exception with specified
-     * message and current location information
-     * Note that application code should almost always call
-     * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
-     * instead.
-     * 
-     * @since 2.6
-     *
-     * @deprecated Since 2.9 use more specific error reporting methods instead
-     */
-    @Deprecated
-    public JsonMappingException mappingException(String msg, Object... msgArgs) {
-        return JsonMappingException.from(getParser(), _format(msg, msgArgs));
-    }
-
-    /**
-     * Helper method for constructing generic mapping exception for specified type
-     * 
-     * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
-     */
-    @Deprecated
-    public JsonMappingException mappingException(Class<?> targetClass) {
-        return mappingException(targetClass, _parser.getCurrentToken());
-    }
-
-    /**
-     * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
-     */
-    @Deprecated
-    public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
-        return JsonMappingException.from(_parser,
-                String.format("Cannot deserialize instance of %s out of %s token",
-                        ClassUtil.nameOf(targetClass), token));
-    }
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* Other internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
+    /**
+     * Helper method to get a non-shared instance of {@link DateFormat} with default
+     * configuration; instance is lazily constructed, reused within same instance of
+     * context (that is, within same life-cycle of <code>readValue()</code> from mapper
+     * or reader). Reuse is safe since access will not occur from multiple threads
+     * (unless caller somehow manages to share context objects across threads which is not
+     * supported).
+     */
     protected DateFormat getDateFormat()
     {
         if (_dateFormat != null) {
             return _dateFormat;
         }
-        /* 24-Feb-2012, tatu: At this point, all timezone configuration
-         *    should have occurred, with respect to default dateformat
-         *    and timezone configuration. But we still better clone
-         *    an instance as formatters may be stateful.
-         */
+        // 24-Feb-2012, tatu: At this point, all timezone configuration should have
+        // occurred, with respect to default date format and time zone configuration. 
+        // But we still better clone an instance as formatters may be stateful.
         DateFormat df = _config.getDateFormat();
         _dateFormat = df = (DateFormat) df.clone();
         return df;

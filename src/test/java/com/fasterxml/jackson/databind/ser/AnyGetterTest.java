@@ -82,7 +82,7 @@ public class AnyGetterTest extends BaseMapTest
     static class Issue705Serializer extends StdSerializer<Object>
     {
         public Issue705Serializer() {
-            super(Map.class, false);
+            super(Map.class);
         }
 
         @Override
@@ -153,15 +153,15 @@ public class AnyGetterTest extends BaseMapTest
         ObjectMapper m;
 
         // First, with normal fail settings:
-        m = new ObjectMapper();
-        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true);
-        String json = serializeAsString(m, new AnyOnlyBean());
-        assertEquals("{\"a\":3}", json);
+        m = jsonMapperBuilder()
+                .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .build();
+        assertEquals("{\"a\":3}", m.writeValueAsString(new AnyOnlyBean()));
 
         // then without fail
-        m = new ObjectMapper();
-        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        json = serializeAsString(m, new AnyOnlyBean());
+        String json = m.writer()
+                .without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .writeValueAsString(new AnyOnlyBean());
         assertEquals("{\"a\":3}", json);
     }
 

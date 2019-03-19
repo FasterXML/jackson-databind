@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Unit tests for verifying that it is possible to annotate
@@ -100,16 +99,6 @@ public class TestCreators
     }
 
     /**
-     * Simple demonstration of INVALID construtor annotation (only
-     * defining name for first arg)
-     */
-    static class BrokenBean {
-        @JsonCreator protected BrokenBean(@JsonProperty("a") int a,
-                                          int b) {
-        }
-    }
-
-    /**
      * Bean that defines both creator and factory methor as
      * creators. Constructors have priority; but it is possible
      * to hide it using mix-in annotations.
@@ -159,7 +148,6 @@ public class TestCreators
         @JsonCreator public MultiBean(boolean v) { value = v; }
     }
 
-    // for [JACKSON-850]
     static class NoArgFactoryBean {
         public int x;
         public int y;
@@ -170,7 +158,7 @@ public class TestCreators
         public static NoArgFactoryBean create() { return new NoArgFactoryBean(123); }
     }
 
-    // [Issue#208]
+    // [databind#208]
     static class FromStringBean {
         protected String value;
 
@@ -315,7 +303,7 @@ public class TestCreators
     
     public void testSimpleDoubleConstructor() throws Exception
     {
-        Double exp = new Double("0.25");
+        Double exp = Double.valueOf("0.25");
         DoubleConstructorBean bean = MAPPER.readValue(exp.toString(), DoubleConstructorBean.class);
         assertEquals(exp, bean.d);
     }
@@ -436,8 +424,9 @@ public class TestCreators
 
     public void testFactoryCreatorWithMixin() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(CreatorBean.class, MixIn.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(CreatorBean.class, MixIn.class)
+                .build();
         CreatorBean bean = m.readValue
             ("{ \"a\" : \"xyz\", \"x\" : 12 }", CreatorBean.class);
         assertEquals(11, bean.x);
@@ -446,8 +435,9 @@ public class TestCreators
 
     public void testFactoryCreatorWithRenamingMixin() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(FactoryBean.class, FactoryBeanMixIn.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(FactoryBean.class, FactoryBeanMixIn.class)
+                .build();
         // override changes property name from "f" to "mixed"
         FactoryBean bean = m.readValue("{ \"mixed\" :  20.5 }", FactoryBean.class);
         assertEquals(20.5, bean.d);
@@ -489,13 +479,4 @@ public class TestCreators
     /* Test methods, invalid/broken cases
     /**********************************************************
      */
-
-    public void testBrokenConstructor() throws Exception
-    {
-        try {
-            /*BrokenBean bean =*/ MAPPER.readValue("{ \"x\" : 42 }", BrokenBean.class);
-        } catch (InvalidDefinitionException je) {
-            verifyException(je, "has no property name");
-        }
-    }
 }

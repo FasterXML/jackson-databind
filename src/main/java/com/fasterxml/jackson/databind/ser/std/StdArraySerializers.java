@@ -1,17 +1,16 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -141,8 +140,7 @@ public class StdArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
-            g.writeStartArray(len);
-            g.setCurrentValue(value);
+            g.writeStartArray(value, len);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
@@ -154,14 +152,6 @@ public class StdArraySerializers
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeBoolean(value[i]);
             }
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            ObjectNode o = createSchemaNode("array", true);
-            o.set("items", createSchemaNode("boolean"));
-            return o;
         }
 
         @Override
@@ -219,8 +209,7 @@ public class StdArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
-            g.writeStartArray(len);
-            g.setCurrentValue(value);
+            g.writeStartArray(value, len);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
@@ -235,14 +224,6 @@ public class StdArraySerializers
             }
         }
 
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            //no "short" type defined by json
-            ObjectNode o = createSchemaNode("array", true);
-            return o.set("items", createSchemaNode("integer"));
-        }
-        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
@@ -274,8 +255,7 @@ public class StdArraySerializers
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
-                g.writeStartArray(value.length);
-                g.setCurrentValue(value);
+                g.writeStartArray(value, value.length);
                 _writeArrayContents(g, value);
                 g.writeEndArray();
             } else {
@@ -312,15 +292,6 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            ObjectNode o = createSchemaNode("array", true);
-            ObjectNode itemSchema = createSchemaNode("string");
-            itemSchema.put("type", "string");
-            return o.set("items", itemSchema);
-        }
-        
-        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
         {
@@ -337,9 +308,6 @@ public class StdArraySerializers
 
         public IntArraySerializer() { super(int[].class); }
 
-        /**
-         * @since 2.6
-         */
         protected IntArraySerializer(IntArraySerializer src,
                 BeanProperty prop, Boolean unwrapSingle) {
             super(src, prop, unwrapSingle);
@@ -402,11 +370,6 @@ public class StdArraySerializers
             }
         }
 
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("array", true).set("items", createSchemaNode("integer"));
-        }
-        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
@@ -476,13 +439,6 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            return createSchemaNode("array", true)
-                .set("items", createSchemaNode("number", true));
-        }
-
-        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
         {
@@ -539,8 +495,7 @@ public class StdArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
-            g.writeStartArray(len);
-            g.setCurrentValue(value);
+            g.writeStartArray(value, len);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
@@ -554,11 +509,6 @@ public class StdArraySerializers
             }
         }
 
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("array", true).set("items", createSchemaNode("number"));
-        }
-        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
@@ -639,11 +589,6 @@ public class StdArraySerializers
             }
         }
 
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("array", true).set("items", createSchemaNode("number"));
-        }
-        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException

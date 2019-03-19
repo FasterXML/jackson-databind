@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Simple serializer for {@link java.net.InetAddress}. Main complexity is
@@ -25,31 +24,23 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @SuppressWarnings("serial")
 public class InetAddressSerializer
     extends StdScalarSerializer<InetAddress>
-    implements ContextualSerializer
 {
-    /**
-     * @since 2.9
-     */
     protected final boolean _asNumeric;
 
     public InetAddressSerializer() {
         this(false);
     }
 
-    /**
-     * @since 2.9
-     */
     public InetAddressSerializer(boolean asNumeric) {
         super(InetAddress.class);
         _asNumeric = asNumeric;
     }
     
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        JsonFormat.Value format = findFormatOverrides(serializers,
-                property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         boolean asNumeric = false;
         if (format != null) {
             JsonFormat.Shape shape = format.getShape();

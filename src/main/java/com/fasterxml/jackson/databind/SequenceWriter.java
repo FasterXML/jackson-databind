@@ -25,16 +25,14 @@ import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
  *  <li>Explicit {@link #close} is needed after all values have been written
  *     ({@link ObjectWriter} can auto-close after individual value writes)
  *</ul>
- * 
- * @since 2.5
  */
 public class SequenceWriter
     implements Versioned, java.io.Closeable, java.io.Flushable
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final DefaultSerializerProvider _provider;
@@ -49,9 +47,9 @@ public class SequenceWriter
     protected final boolean _cfgCloseCloseable;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -70,9 +68,9 @@ public class SequenceWriter
     protected boolean _closed;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public SequenceWriter(DefaultSerializerProvider prov, JsonGenerator gen,
@@ -103,9 +101,9 @@ public class SequenceWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, basic accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -118,9 +116,9 @@ public class SequenceWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write operations, related
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -239,9 +237,9 @@ public class SequenceWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods, serializer lookups
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected SequenceWriter _writeCloseableValue(Object value) throws IOException
@@ -306,7 +304,8 @@ public class SequenceWriter
             result = _dynamicSerializers.findAndAddRootValueSerializer(type, _provider);
         } else {
             result = _dynamicSerializers.addSerializer(type,
-                    new TypeWrappedSerializer(_typeSerializer, _provider.findValueSerializer(type, null)));
+                    new TypeWrappedSerializer(_typeSerializer,
+                            _provider.findRootValueSerializer(type)));
         }
         _dynamicSerializers = result.map;
         return result.serializer;
@@ -319,7 +318,8 @@ public class SequenceWriter
             result = _dynamicSerializers.findAndAddRootValueSerializer(type, _provider);
         } else {
             result = _dynamicSerializers.addSerializer(type,
-                    new TypeWrappedSerializer(_typeSerializer, _provider.findValueSerializer(type, null)));
+                    new TypeWrappedSerializer(_typeSerializer,
+                            _provider.findRootValueSerializer(type)));
         }
         _dynamicSerializers = result.map;
         return result.serializer;

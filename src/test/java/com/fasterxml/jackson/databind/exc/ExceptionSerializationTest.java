@@ -70,7 +70,7 @@ public class ExceptionSerializationTest
     // to double-check [databind#1413]
     public void testSimpleOther() throws Exception
     {
-        JsonParser p = MAPPER.getFactory().createParser("{ }");
+        JsonParser p = MAPPER.createParser("{ }");
         InvalidFormatException exc = InvalidFormatException.from(p, "Test", getClass(), String.class);
         String json = MAPPER.writeValueAsString(exc);
         p.close();
@@ -96,9 +96,10 @@ public class ExceptionSerializationTest
         assertNotNull(result.get("bogus2"));
 
         // and then also remova second property with config overrides
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(ExceptionWithIgnoral.class)
-            .setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("bogus2"));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(ExceptionWithIgnoral.class,
+                        o -> o.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("bogus2")))
+                .build();
         String json2 = mapper
                 .writeValueAsString(new ExceptionWithIgnoral("foobar"));
 

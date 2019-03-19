@@ -377,9 +377,9 @@ public class TestCustomValueInstDefaults extends BaseTest
     // When all values are in the source, no defaults should be used.
     public void testAllPresent() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket allPresent = mapper.readValue(
                 "{\"a\":8,\"b\":9,\"c\":\"y\",\"d\":\"z\"}",
                 Bucket.class);
@@ -393,9 +393,9 @@ public class TestCustomValueInstDefaults extends BaseTest
     // When no values are in the source, all defaults should be used.
     public void testAllAbsent() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket allAbsent = mapper.readValue(
                 "{}",
                 Bucket.class);
@@ -410,9 +410,9 @@ public class TestCustomValueInstDefaults extends BaseTest
     // be used for the missing values.
     public void testMixedPresentAndAbsent() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket aAbsent = mapper.readValue(
                 "{\"b\":9,\"c\":\"y\",\"d\":\"z\"}",
                 Bucket.class);
@@ -453,9 +453,9 @@ public class TestCustomValueInstDefaults extends BaseTest
     // Ensure that 0 is not mistaken for a missing int value.
     public void testPresentZeroPrimitive() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket aZeroRestAbsent = mapper.readValue(
                 "{\"a\":0}",
                 Bucket.class);
@@ -469,9 +469,9 @@ public class TestCustomValueInstDefaults extends BaseTest
     // Ensure that null is not mistaken for a missing String value.
     public void testPresentNullReference() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket cNullRestAbsent = mapper.readValue(
                 "{\"c\":null}",
                 Bucket.class);
@@ -487,9 +487,9 @@ public class TestCustomValueInstDefaults extends BaseTest
     // has seen.  Ensure that nothing breaks in that case.
     public void testMoreThan32CreatorParams() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         BigBucket big = mapper.readValue(
                 "{\"i03\":0,\"i11\":1,\"s05\":null,\"s08\":\"x\"}",
                 BigBucket.class);
@@ -542,8 +542,9 @@ public class TestCustomValueInstDefaults extends BaseTest
         }
         sb.append("\n}\n");
         String json = sb.toString();
-        ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new ClassWith32Module());
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addModule(new ClassWith32Module())
+            .build();
         ClassWith32Props result = mapper.readValue(json, ClassWith32Props.class);
         // let's assume couple of first, last ones suffice
         assertEquals("NotNull1", result.p1);

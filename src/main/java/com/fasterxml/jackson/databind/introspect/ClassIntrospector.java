@@ -15,49 +15,24 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  */
 public abstract class ClassIntrospector
 {
-    /*
-    /**********************************************************
-    /* Helper interfaces
-    /**********************************************************
-     */
-
-    /**
-     * Interface used for decoupling details of how mix-in annotation
-     * definitions are accessed (via this interface), and how
-     * they are stored (defined by classes that implement the interface)
-     */
-    public interface MixInResolver
-    {
-        /**
-         * Method that will check if there are "mix-in" classes (with mix-in
-         * annotations) for given class
-         */
-        public Class<?> findMixInClassFor(Class<?> cls);
-
-        /**
-         * Method called to create a new, non-shared copy, to be used by different
-         * <code>ObjectMapper</code> instance, and one that should not be connected
-         * to this instance, if resolver has mutable state.
-         * If resolver is immutable may simply return `this`.
-         * 
-         * @since 2.6
-         */
-        public MixInResolver copy();
-    }
-
     protected ClassIntrospector() { }
 
     /**
-     * Method that may be needed when `copy()`ing `ObjectMapper` instances.
+     * Method called to create an instance to be exclusive used by specified
+     * mapper. Needed to ensure that no sharing through cache occurs.
      *
-     * @since 2.9.6
+     * @param mapper "owner" of this instance: always of type
+     *    {@link com.fasterxml.jackson.databind.ObjectMapper}, but not fully
+     *     typed to avoid compile dependency
+     *
+     * @since 3.0
      */
-    public abstract ClassIntrospector copy();
+    public abstract ClassIntrospector forMapper(Object mapper);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API: factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

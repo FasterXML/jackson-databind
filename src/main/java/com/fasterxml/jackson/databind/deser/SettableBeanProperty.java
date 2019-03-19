@@ -30,8 +30,6 @@ public abstract class SettableBeanProperty
     /**
      * To avoid nasty NPEs, let's use a placeholder for _valueDeserializer,
      * if real deserializer is not (yet) available.
-     * 
-     * @since 2.2
      */
     protected static final JsonDeserializer<Object> MISSING_VALUE_DESERIALIZER = new FailingDeserializer(
             "No _valueDeserializer assigned");
@@ -47,9 +45,6 @@ public abstract class SettableBeanProperty
      */
     protected final JavaType _type;
 
-    /**
-     * @since 2.2
-     */
     protected final PropertyName _wrapperName;
 
     /**
@@ -61,8 +56,6 @@ public abstract class SettableBeanProperty
 
     /**
      * Deserializer used for handling property value.
-     *<p>
-     * NOTE: has been immutable since 2.3
      */
     protected final JsonDeserializer<Object> _valueDeserializer;
 
@@ -77,8 +70,6 @@ public abstract class SettableBeanProperty
      * Entity used for possible translation from `null` into non-null
      * value of type of this property.
      * Often same as <code>_valueDeserializer</code>, but not always.
-     *
-     * @since 2.9
      */
     protected final NullValueProvider _nullProvider;
 
@@ -168,8 +159,6 @@ public abstract class SettableBeanProperty
 
     /**
      * Constructor only used by {@link com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty}.
-     * 
-     * @since 2.3
      */
     protected SettableBeanProperty(PropertyName propName, JavaType type, 
             PropertyMetadata metadata, JsonDeserializer<Object> valueDeser)
@@ -280,12 +269,15 @@ public abstract class SettableBeanProperty
      */
     public abstract SettableBeanProperty withName(PropertyName newName);
 
-    /**
-     * @since 2.3
-     */
     public SettableBeanProperty withSimpleName(String simpleName) {
-        PropertyName n = (_propName == null)
-                ? new PropertyName(simpleName) : _propName.withSimpleName(simpleName);
+        PropertyName n;
+
+        if (_propName == null) {
+            n = new PropertyName(simpleName);
+        } else {
+            n = _propName.withSimpleName(simpleName);
+        }
+        n = n.internSimpleName();
         return (n == _propName) ? this : withName(n);
     }
 
@@ -315,7 +307,9 @@ public abstract class SettableBeanProperty
      */
     public void assignIndex(int index) {
         if (_propertyIndex != -1) {
-            throw new IllegalStateException("Property '"+getName()+"' already had index ("+_propertyIndex+"), trying to assign "+index);
+            if (_propertyIndex != index) {
+                throw new IllegalStateException("Property '"+getName()+"' already had index ("+_propertyIndex+"), trying to assign "+index);
+            }
         }
         _propertyIndex = index;
     }
@@ -598,10 +592,7 @@ public abstract class SettableBeanProperty
         }
         _throwAsIOE(p, e);
     }
-    
-    /**
-     * @since 2.7
-     */
+
     protected IOException _throwAsIOE(JsonParser p, Exception e) throws IOException
     {
         ClassUtil.throwIfIOE(e);
@@ -609,11 +600,6 @@ public abstract class SettableBeanProperty
         // let's wrap the innermost problem
         Throwable th = ClassUtil.getRootCause(e);
         throw JsonMappingException.from(p, ClassUtil.exceptionMessage(th), th);
-    }
-
-    @Deprecated // since 2.7
-    protected IOException _throwAsIOE(Exception e) throws IOException {
-        return _throwAsIOE((JsonParser) null, e);
     }
 
     // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining
@@ -637,8 +623,6 @@ public abstract class SettableBeanProperty
      *<p>
      * Class was specifically added to help with {@code Afterburner}
      * module, but its use is not limited to only support it.
-     *
-     * @since 2.9
      */
     public static abstract class Delegating
         extends SettableBeanProperty

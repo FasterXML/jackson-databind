@@ -6,10 +6,9 @@ import com.fasterxml.jackson.databind.*;
 
 public class NotANumberConversionTest extends BaseMapTest
 {
-    private final ObjectMapper m = new ObjectMapper();
-    {
-        m.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
-    }
+    private final ObjectMapper m = jsonMapperBuilder()
+        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+        .build();
 
     public void testBigDecimalWithNaN() throws Exception
     {

@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 public enum DeserializationFeature implements ConfigFeature
 {
     /*
-    /******************************************************
-    /* Value (mostly scalar) conversion features
-    /******************************************************
+    /**********************************************************************
+    /* Value (mostly scalar) mapping features
+    /**********************************************************************
      */
 
     /**
@@ -33,7 +33,13 @@ public enum DeserializationFeature implements ConfigFeature
      * or {@link java.util.Collection} context) is available.
      * If enabled such values will be deserialized as {@link java.math.BigDecimal}s;
      * if disabled, will be deserialized as {@link Double}s.
-     * <p>
+     *<p>
+     * NOTE: one aspect of {@link java.math.BigDecimal} handling that may need
+     * configuring is whether trailing zeroes are trimmed:
+     * {@link com.fasterxml.jackson.databind.node.JsonNodeFactory} has
+     * {@link com.fasterxml.jackson.databind.node.JsonNodeFactory#withExactBigDecimals} for
+     * changing default behavior (default is for trailing zeroes to be trimmed).
+     *<p>
      * Feature is disabled by default, meaning that "untyped" floating
      * point numbers will by default be deserialized as {@link Double}s
      * (choice is for performance reason -- BigDecimals are slower than
@@ -77,16 +83,14 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default, meaning that "untyped" integral
      * numbers will by default be deserialized using {@link java.lang.Integer}
      * if value fits.
-     * 
-     * @since 2.6
      */
     USE_LONG_FOR_INTS(false),
     
     /**
      * Feature that determines whether JSON Array is mapped to
-     * <code>Object[]</code> or <code>List&lt;Object></code> when binding
+     * <code>Object[]</code> or <code>List&lt;Object&gt;</code> when binding
      * "untyped" objects (ones with nominal type of <code>java.lang.Object</code>).
-     * If true, binds as <code>Object[]</code>; if false, as <code>List&lt;Object></code>.
+     * If true, binds as <code>Object[]</code>; if false, as <code>List&lt;Object&gt;</code>.
      *<p>
      * Feature is disabled by default, meaning that JSON arrays are bound as
      * {@link java.util.List}s.
@@ -94,9 +98,9 @@ public enum DeserializationFeature implements ConfigFeature
     USE_JAVA_ARRAY_FOR_JSON_ARRAY(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Error handling features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -148,8 +152,6 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default so that exception is thrown for missing or invalid
      * type information.
-     * 
-     * @since 2.2
      */
     FAIL_ON_INVALID_SUBTYPE(true),
 
@@ -165,8 +167,6 @@ public enum DeserializationFeature implements ConfigFeature
      * keys. New features may be added to control additional cases.
      *<p>
      * Feature is disabled by default so that no exception is thrown.
-     * 
-     * @since 2.3
      */
     FAIL_ON_READING_DUP_TREE_KEY(false),
 
@@ -176,8 +176,6 @@ public enum DeserializationFeature implements ConfigFeature
      * {@link JsonMappingException} is thrown; if false, property is quietly skipped.
      *<p>
      * Feature is disabled by default so that no exception is thrown.
-     *
-     * @since 2.3
      */
     FAIL_ON_IGNORED_PROPERTIES(false),
 
@@ -192,8 +190,6 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default, so that unknown Object Ids will result in an
      * exception being thrown, at the end of deserialization.
-     * 
-     * @since 2.5
      */
     FAIL_ON_UNRESOLVED_OBJECT_IDS(true),
 
@@ -213,8 +209,6 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default, so that no exception is thrown for missing creator
      * property values, unless they are explicitly marked as `required`.
-     * 
-     * @since 2.6
      */
     FAIL_ON_MISSING_CREATOR_PROPERTIES(false),
 
@@ -226,8 +220,6 @@ public enum DeserializationFeature implements ConfigFeature
       * if you are using Java or Scala optionals for non-mandatory fields.
       * Feature is disabled by default, so that no exception is thrown for missing creator
       * property values, unless they are explicitly marked as `required`.
-      *
-      * @since 2.8
       */
     FAIL_ON_NULL_CREATOR_PROPERTIES(false),
 
@@ -240,8 +232,6 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default, so that exception is thrown when a subtype property is
      * missing.
-     *
-     * @since 2.9
      */
     FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY(true),
 
@@ -260,8 +250,6 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default (so that no check is made for possible trailing
      * token(s)) for backwards compatibility reasons.
-     *
-     * @since 2.9
      */
     FAIL_ON_TRAILING_TOKENS(false),
     
@@ -283,9 +271,9 @@ public enum DeserializationFeature implements ConfigFeature
     WRAP_EXCEPTIONS(true),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Structural conversion features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -308,7 +296,6 @@ public enum DeserializationFeature implements ConfigFeature
      * <p>
      * 
      * Feature is disabled by default
-     * @since 2.4
      */
     UNWRAP_SINGLE_VALUE_ARRAYS(false),
 
@@ -325,10 +312,32 @@ public enum DeserializationFeature implements ConfigFeature
     UNWRAP_ROOT_VALUE(false),
 
     /*
-    /******************************************************
-    /* Value conversion features
-    /******************************************************
+    /**********************************************************************
+    /* Value conversion/coercion features
+    /**********************************************************************
      */
+
+    /**
+     * Feature that determines whether coercions from secondary representations are allowed
+     * for simple non-textual scalar types: numbers and booleans. This includes `primitive`
+     * types and their wrappers, but excludes `java.lang.String` and date/time types.
+     *<p>
+     * When feature is disabled, only strictly compatible input may be bound: numbers for
+     * numbers, boolean values for booleans. When feature is enabled, conversions from
+     * JSON String are allowed, as long as textual value matches (for example, String
+     * "true" is allowed as equivalent of JSON boolean token `true`; or String "1.0"
+     * for `double`).
+     *<p>
+     * Note that it is possible that other configurability options can override this
+     * in closer scope (like on per-type or per-property basis); this is just the global
+     * default.
+     *<p>
+     * Feature is enabled by default (for backwards compatibility since this was the
+     * default behavior)
+     *
+     * @since 3.0 (in 2.x was a `MapperFeature` instead)
+     */
+    ALLOW_COERCION_OF_SCALARS(true),
     
     /**
      * Feature that can be enabled to allow JSON empty String
@@ -342,7 +351,7 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * NOTE: this does NOT apply to scalar values such as booleans and numbers;
      * whether they can be coerced depends on
-     * {@link MapperFeature#ALLOW_COERCION_OF_SCALARS}.
+     * {@link #ALLOW_COERCION_OF_SCALARS}.
      *<p>
      * Feature is disabled by default.
      */
@@ -359,8 +368,6 @@ public enum DeserializationFeature implements ConfigFeature
      * to be equivalent of JSON null.
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.5
      */
     ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT(false),
 
@@ -373,8 +380,6 @@ public enum DeserializationFeature implements ConfigFeature
      * will be thrown.
      *<p>
      * Feature is enabled by default.
-     * 
-     * @since 2.6
      */
     ACCEPT_FLOAT_AS_INT(true),
 
@@ -401,8 +406,6 @@ public enum DeserializationFeature implements ConfigFeature
      * cases).
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.0
      */
     READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
 
@@ -413,8 +416,6 @@ public enum DeserializationFeature implements ConfigFeature
      * If enabled, but no predefined default Enum value is specified, an exception will be thrown as well.
      *<p>
      * Feature is disabled by default.
-     *
-     * @since 2.8
      */
     READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE(false),
 
@@ -430,8 +431,6 @@ public enum DeserializationFeature implements ConfigFeature
      * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
      * Feature is enabled by default, to support most accurate time values possible.
-     * 
-     * @since 2.2
      */
     READ_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
 
@@ -454,15 +453,13 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Taking above into account, this feature is supported only by extension modules for
      * Joda and Java 8 date/tyime datatypes.
-     * 
-     * @since 2.2
      */
     ADJUST_DATES_TO_CONTEXT_TIME_ZONE(true),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Other
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -476,8 +473,6 @@ public enum DeserializationFeature implements ConfigFeature
      * feature: only consider that if there are actual perceived problems.
      *<p>
      * Feature is enabled by default.
-     * 
-     * @since 2.1
      */
     EAGER_DESERIALIZER_FETCH(true)
     

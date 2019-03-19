@@ -4,16 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -32,7 +24,6 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 @JacksonStdImpl
 public class UntypedObjectDeserializer
     extends StdDeserializer<Object>
-    implements ResolvableDeserializer, ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -63,23 +54,10 @@ public class UntypedObjectDeserializer
     /**
      * If {@link java.util.Map} has been mapped to non-default implementation,
      * we'll store type here
-     *
-     * @since 2.6
      */
     protected JavaType _mapType;
 
-    /**
-     * @since 2.9
-     */
     protected final boolean _nonMerging;
-    
-    /**
-     * @deprecated Since 2.6 use variant takes type arguments
-     */
-    @Deprecated
-    public UntypedObjectDeserializer() {
-        this(null, null);
-    }
 
     public UntypedObjectDeserializer(JavaType listType, JavaType mapType) {
         super(Object.class);
@@ -103,9 +81,6 @@ public class UntypedObjectDeserializer
         _nonMerging = base._nonMerging;
     }
 
-    /**
-     * @since 2.9
-     */
     protected UntypedObjectDeserializer(UntypedObjectDeserializer base,
             boolean nonMerging)
     {
@@ -236,7 +211,7 @@ public class UntypedObjectDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_FIELD_NAME:
             // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
@@ -303,7 +278,7 @@ public class UntypedObjectDeserializer
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         // First: does it look like we had type id wrapping of some kind?
         case JsonTokenId.ID_START_ARRAY:
         case JsonTokenId.ID_START_OBJECT:
@@ -363,7 +338,7 @@ public class UntypedObjectDeserializer
             return deserialize(p, ctxt);
         }
 
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_FIELD_NAME:
             // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
@@ -493,12 +468,12 @@ public class UntypedObjectDeserializer
     {
         String key1;
 
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         
         if (t == JsonToken.START_OBJECT) {
             key1 = p.nextFieldName();
         } else if (t == JsonToken.FIELD_NAME) {
-            key1 = p.getCurrentName();
+            key1 = p.currentName();
         } else {
             if (t != JsonToken.END_OBJECT) {
                 return ctxt.handleUnexpectedToken(handledType(), p);
@@ -571,7 +546,7 @@ public class UntypedObjectDeserializer
     protected Object mapObject(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> m) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         }
@@ -579,7 +554,7 @@ public class UntypedObjectDeserializer
             return m;
         }
         // NOTE: we are guaranteed to point to FIELD_NAME
-        String key = p.getCurrentName();
+        String key = p.currentName();
         do {
             p.nextToken();
             // and possibly recursive merge here
@@ -642,7 +617,7 @@ public class UntypedObjectDeserializer
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_START_OBJECT:
                 {
                     JsonToken t = p.nextToken();
@@ -705,7 +680,7 @@ public class UntypedObjectDeserializer
         @Override
         public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_START_ARRAY:
             case JsonTokenId.ID_START_OBJECT:
             case JsonTokenId.ID_FIELD_NAME:
@@ -749,7 +724,7 @@ public class UntypedObjectDeserializer
                 return deserialize(p, ctxt);
             }
 
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_END_OBJECT:
             case JsonTokenId.ID_END_ARRAY:
                 return intoValue;
@@ -764,7 +739,7 @@ public class UntypedObjectDeserializer
                 if (intoValue instanceof Map<?,?>) {
                     Map<Object,Object> m = (Map<Object,Object>) intoValue;
                     // NOTE: we are guaranteed to point to FIELD_NAME
-                    String key = p.getCurrentName();
+                    String key = p.currentName();
                     do {
                         p.nextToken();
                         // and possibly recursive merge here

@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import org.junit.Assert;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -52,17 +51,17 @@ public class TestConversions extends BaseMapTest
     
     static class Issue467Serializer extends JsonSerializer<Issue467Bean> {
         @Override
-        public void serialize(Issue467Bean value, JsonGenerator jgen,
+        public void serialize(Issue467Bean value, JsonGenerator g,
                 SerializerProvider provider) throws IOException {
-            jgen.writeObject(new Issue467TmpBean(value.i));
+            g.writeObject(new Issue467TmpBean(value.i));
         }
     }    
 
     static class Issue467TreeSerializer extends JsonSerializer<Issue467Tree> {
         @Override
-        public void serialize(Issue467Tree value, JsonGenerator jgen,
+        public void serialize(Issue467Tree value, JsonGenerator g,
                 SerializerProvider provider) throws IOException {
-            jgen.writeTree(BooleanNode.TRUE);
+            g.writeTree(BooleanNode.TRUE);
         }
     }    
     
@@ -132,8 +131,9 @@ public class TestConversions extends BaseMapTest
     public void testTreeToValue() throws Exception
     {
         String JSON = "{\"leaf\":{\"value\":13}}";
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Leaf.class, LeafMixIn.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(Leaf.class, LeafMixIn.class)
+                .build();
         JsonNode root = mapper.readTree(JSON);
         // Ok, try converting to bean using two mechanisms
         Root r1 = mapper.treeToValue(root, Root.class);
@@ -217,7 +217,7 @@ public class TestConversions extends BaseMapTest
 
     public void testEmbeddedByteArray() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(new byte[3]);
         JsonNode node = MAPPER.readTree(buf.asParser());
         buf.close();
@@ -230,8 +230,9 @@ public class TestConversions extends BaseMapTest
     // [databind#232]
     public void testBigDecimalAsPlainStringTreeConversion() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build());
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";
         map.put("pi", new BigDecimal(PI_STR));
@@ -248,11 +249,11 @@ public class TestConversions extends BaseMapTest
         public void setFoo(final String foo) {
             node.put("foo", foo);
         }
-    
+
         @Override
-        public void serialize(final JsonGenerator jgen, final SerializerProvider provider) throws IOException
+        public void serialize(final JsonGenerator g, final SerializerProvider provider) throws IOException
         {
-            jgen.writeTree(node);
+            g.writeTree(node);
         }
 
         @Override

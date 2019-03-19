@@ -12,7 +12,7 @@ public class CollectionFormatShapeTest extends BaseMapTest
 {
     // [databind#40]: Allow serialization 'as POJO' (resulting in JSON Object) 
     @JsonPropertyOrder({ "size", "value" })
-    @JsonFormat(shape=Shape.OBJECT)
+    @JsonFormat(shape=Shape.POJO)
     @JsonIgnoreProperties({ "empty" }) // from 'isEmpty()'
     static class CollectionAsPOJO
         extends ArrayList<String>
@@ -40,7 +40,7 @@ public class CollectionFormatShapeTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = newObjectMapper();    
+    private final static ObjectMapper MAPPER = newJsonMapper();    
 
     public void testListAsObjectRoundtrip() throws Exception
     {

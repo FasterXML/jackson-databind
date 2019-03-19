@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * {@link com.fasterxml.jackson.databind.node}.
  *<p>
  * Note that it is possible to "read" from nodes, using
- * method {@link TreeNode#traverse(ObjectCodec)}, which will result in
+ * method {@link TreeNode#traverse}, which will result in
  * a {@link JsonParser} being constructed. This can be used for (relatively)
  * efficient conversations between different representations; and it is what
  * core databind uses for methods like {@link ObjectMapper#treeToValue(TreeNode, Class)}
@@ -41,9 +41,9 @@ public abstract class JsonNode
     implements TreeNode, Iterable<JsonNode>
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, related
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected JsonNode() { }
@@ -59,18 +59,16 @@ public abstract class JsonNode
      * Note: return type is guaranteed to have same type as the
      * node method is called on; which is why method is declared
      * with local generic type.
-     * 
-     * @since 2.0
-     * 
+     *
      * @return Node that is either a copy of this node (and all non-leaf
      *    children); or, for immutable leaf nodes, node itself.
      */
     public abstract <T extends JsonNode> T deepCopy();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* TreeNode implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
 //  public abstract JsonToken asToken();
@@ -80,6 +78,17 @@ public abstract class JsonNode
 
     @Override
     public int size() { return 0; }
+
+    /**
+     * Convenience method that is functionally same as:
+     *<pre>
+     *    size() == 0
+     *<pre>
+     * for all node types.
+     *
+     * @since 2.10
+     */
+    public boolean isEmpty() { return size() == 0; }
 
     @Override
     public final boolean isValueNode()
@@ -190,8 +199,6 @@ public abstract class JsonNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link #isMissingNode()} returns true.
-     * 
-     * @since 2.3
      */
     @Override
     public final JsonNode at(JsonPointer ptr)
@@ -222,8 +229,6 @@ public abstract class JsonNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
-     * 
-     * @since 2.3
      */
     @Override
     public final JsonNode at(String jsonPtrExpr) {
@@ -233,9 +238,9 @@ public abstract class JsonNode
     protected abstract JsonNode _at(JsonPointer ptr);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, type introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // First high-level division between values, containers and "missing"
@@ -244,8 +249,6 @@ public abstract class JsonNode
      * Return the type of this node
      *
      * @return the node type as a {@link JsonNodeType} enum value
-     *
-     * @since 2.2
      */
     public abstract JsonNodeType getNodeType();
 
@@ -317,9 +320,6 @@ public abstract class JsonNode
      */
     public boolean isLong() { return false; }
 
-    /**
-     * @since 2.2
-     */
     public boolean isFloat() { return false; }
 
     public boolean isDouble() { return false; }
@@ -373,8 +373,6 @@ public abstract class JsonNode
      * from JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asInt} could still succeed
      * if node is a JSON String representing integral number, or boolean.
-     * 
-     * @since 2.0
      */
     public boolean canConvertToInt() { return false; }
 
@@ -389,15 +387,13 @@ public abstract class JsonNode
      * from JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asLong} could still succeed
      * if node is a JSON String representing integral number, or boolean.
-     * 
-     * @since 2.0
      */
     public boolean canConvertToLong() { return false; }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, straight value access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -490,8 +486,6 @@ public abstract class JsonNode
      * that an overflow is possible for `long` values
      *
      * @return 32-bit float value this node contains, if any; 0.0 for non-number nodes.
-     *
-     * @since 2.2
      */
     public float floatValue() { return 0.0f; }
 
@@ -503,8 +497,6 @@ public abstract class JsonNode
      * in overflows with {@link BigInteger} values.
      *
      * @return 64-bit double value this node contains, if any; 0.0 for non-number nodes.
-     *
-     * @since 2.2
      */
     public double doubleValue() { return 0.0; }
 
@@ -518,7 +510,7 @@ public abstract class JsonNode
     public BigDecimal decimalValue() { return BigDecimal.ZERO; }
 
     /**
-     * Returns integer value for this node (as {@link BigDecimal}), <b>if and only if</b>
+     * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
      * this node is numeric ({@link #isNumber} returns true). For other
      * types returns <code>BigInteger.ZERO</code>.
      *
@@ -527,9 +519,9 @@ public abstract class JsonNode
     public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, value access with conversion(s)/coercion(s)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -545,8 +537,6 @@ public abstract class JsonNode
      * <code>defaultValue</code> in cases where null value would be returned;
      * either for missing nodes (trying to access missing property, or element
      * at invalid item for array) or explicit nulls.
-     * 
-     * @since 2.4
      */
     public String asText(String defaultValue) {
         String str = asText();
@@ -556,8 +546,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsInt(String, int)}
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -570,8 +560,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsInt(String, int)}
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -584,8 +574,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsLong(String, long)}
      *<p>
      * If representation cannot be converted to an long (including structured types
      * like Objects and Arrays),
@@ -598,8 +588,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsLong(String, long)}
      *<p>
      * If representation cannot be converted to an long (including structured types
      * like Objects and Arrays),
@@ -612,8 +602,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1.0 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsDouble(String, double)}
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -626,8 +616,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using default Java language integer
-     * parsing rules.
+     * and 1.0 (true), and Strings are parsed using
+     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsDouble(String, double)}
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -666,9 +656,9 @@ public abstract class JsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, value find / existence check methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -729,8 +719,6 @@ public abstract class JsonNode
      *<pre>
      *   node.get(fieldName) != null &amp;&amp; !node.get(fieldName).isNull()
      *</pre>
-     * 
-     * @since 2.1
      */
     public boolean hasNonNull(String fieldName) {
         JsonNode n = get(fieldName);
@@ -745,8 +733,6 @@ public abstract class JsonNode
      *<pre>
      *   node.get(index) != null &amp;&amp; !node.get(index).isNull()
      *</pre>
-     * 
-     * @since 2.1
      */
     public boolean hasNonNull(int index) {
         JsonNode n = get(index);
@@ -754,9 +740,9 @@ public abstract class JsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, container access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -786,9 +772,9 @@ public abstract class JsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, find methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -881,9 +867,9 @@ public abstract class JsonNode
     public abstract List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, path handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -913,9 +899,9 @@ public abstract class JsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, comparison
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -933,24 +919,22 @@ public abstract class JsonNode
      * 
      * @param comparator Object called to compare two scalar {@link JsonNode} 
      *   instances, and return either 0 (are equals) or non-zero (not equal)
-     *
-     * @since 2.6
      */
     public boolean equals(Comparator<JsonNode> comparator, JsonNode other) {
         return comparator.compare(this, other) == 0;
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden standard methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
-     * Method that will produce developer-readable representation of the
-     * node; which may <b>or may not</b> be as valid JSON.
-     * If you want valid JSON output (or output formatted using one of
-     * other Jackson supported data formats) make sure to use
+     * Method that will produce valid JSON using
+     * default settings of databind, as String.
+     * If you want other kinds of JSON output (or output formatted using one of
+     * other Jackson-supported data formats) make sure to use
      * {@link ObjectMapper} or {@link ObjectWriter} to serialize an
      * instance, for example:
      *<pre>
@@ -964,6 +948,16 @@ public abstract class JsonNode
     @Override
     public abstract String toString();
 
+    /**
+     * Alternative to {@link #toString} that will serialize this node using
+     * Jackson default pretty-printer.
+     *
+     * @since 2.10
+     */
+    public String toPrettyString() {
+        return toString();
+    }
+    
     /**
      * Equality for node objects is defined as full (deep) value
      * equality. This means that it is possible to compare complete

@@ -155,12 +155,11 @@ public class TestTypeFactory
      * Test for verifying that parametric types can be constructed
      * programmatically
      */
-    @SuppressWarnings("deprecation")
     public void testParametricTypes()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         // first, simple class based
-        JavaType t = tf.constructParametrizedType(ArrayList.class, Collection.class, String.class); // ArrayList<String>
+        JavaType t = tf.constructParametricType(ArrayList.class, String.class); // ArrayList<String>
         assertEquals(CollectionType.class, t.getClass());
         JavaType strC = tf.constructType(String.class);
         assertEquals(1, t.containedTypeCount());
@@ -168,7 +167,7 @@ public class TestTypeFactory
         assertNull(t.containedType(1));
 
         // Then using JavaType
-        JavaType t2 = tf.constructParametrizedType(Map.class, Map.class, strC, t); // Map<String,ArrayList<String>>
+        JavaType t2 = tf.constructParametricType(Map.class, strC, t); // Map<String,ArrayList<String>>
         // should actually produce a MapType
         assertEquals(MapType.class, t2.getClass());
         assertEquals(2, t2.containedTypeCount());
@@ -176,28 +175,38 @@ public class TestTypeFactory
         assertEquals(t, t2.containedType(1));
         assertNull(t2.containedType(2));
 
-        // and then custom generic type as well
-        JavaType custom = tf.constructParametrizedType(SingleArgGeneric.class, SingleArgGeneric.class,
-                String.class);
+        // Then using TypeBindings
+        JavaType t3 = tf.constructParametricType(HashSet.class, t.getBindings()); // HashSet<String>
+        assertEquals(CollectionType.class, t3.getClass());
+        assertEquals(1, t3.containedTypeCount());
+        assertEquals(strC, t3.containedType(0));
+        assertNull(t3.containedType(1));
+
+        // Then custom generic type as well
+        JavaType custom = tf.constructParametricType(SingleArgGeneric.class, String.class);
         assertEquals(SimpleType.class, custom.getClass());
         assertEquals(1, custom.containedTypeCount());
         assertEquals(strC, custom.containedType(0));
         assertNull(custom.containedType(1));
 
-        // should also be able to access variable name:
-        assertEquals("X", custom.containedTypeName(0));
+        // and then custom generic type from TypeBindings
+        JavaType custom2 = tf.constructParametricType(SingleArgGeneric.class, t.getBindings());
+        assertEquals(SimpleType.class, custom2.getClass());
+        assertEquals(1, custom2.containedTypeCount());
+        assertEquals(strC, custom2.containedType(0));
+        assertNull(custom2.containedType(1));
 
         // And finally, ensure that we can't create invalid combinations
         try {
             // Maps must take 2 type parameters, not just one
-            tf.constructParametrizedType(Map.class, Map.class, strC);
+            tf.constructParametricType(Map.class, strC);
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot create TypeBindings for class java.util.Map");
         }
 
         try {
             // Type only accepts one type param
-            tf.constructParametrizedType(SingleArgGeneric.class, SingleArgGeneric.class, strC, strC);
+            tf.constructParametricType(SingleArgGeneric.class, strC, strC);
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot create TypeBindings for class ");
         }

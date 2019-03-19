@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
@@ -23,6 +24,18 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************
+    /* Defaulting for introspection
+    /**********************************************************
+     */
+    
+    @Override
+    public boolean isMissingNode() { return false; }
+
+    @Override
+    public boolean isEmbeddedValue() { return false; }
+
+    /*
+    /**********************************************************
     /* Basic definitions for non-container types
     /**********************************************************
      */
@@ -37,7 +50,7 @@ public abstract class BaseJsonNode
         return value;
     }
 
-    // Also, force (re)definition (2.7)
+    // Also, force (re)definition
     @Override public abstract int hashCode();
 
     /*
@@ -47,15 +60,10 @@ public abstract class BaseJsonNode
      */
 
     @Override
-    public JsonParser traverse() {
-        return new TreeTraversingParser(this);
+    public JsonParser traverse(ObjectReadContext readCtxt) {
+        return new TreeTraversingParser(this, readCtxt);
     }
 
-    @Override
-    public JsonParser traverse(ObjectCodec codec) {
-        return new TreeTraversingParser(this, codec);
-    }
-    
     /**
      * Method that can be used for efficient type detection
      * when using stream abstraction for traversing nodes.
@@ -86,16 +94,39 @@ public abstract class BaseJsonNode
      * Method called to serialize node instances using given generator.
      */
     @Override
-    public abstract void serialize(JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonProcessingException;
+    public abstract void serialize(JsonGenerator jgen, SerializerProvider provider) throws IOException;
 
     /**
      * Type information is needed, even if JsonNode instances are "plain" JSON,
      * since they may be mixed with other types.
      */
-   @Override
+    @Override
     public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonProcessingException;
-}
+            TypeSerializer typeSer)  throws IOException;
 
+    /*
+   /**********************************************************
+   /* Std method overrides
+   /**********************************************************
+    */
+
+   @Override
+   public String toString() {
+       try {
+           return JsonMapper.shared().writeValueAsString(this);
+       } catch (IOException e) { // should never occur
+           throw new RuntimeException(e);
+       }
+   }
+
+   @Override
+   public String toPrettyString() {
+       try {
+           return JsonMapper.shared()
+                   .writerWithDefaultPrettyPrinter()
+                   .writeValueAsString(this);
+       } catch (IOException e) { // should never occur
+           throw new RuntimeException(e);
+       }
+   }
+}

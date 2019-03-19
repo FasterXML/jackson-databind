@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 @JacksonStdImpl
 public class ObjectArrayDeserializer
     extends ContainerDeserializerBase<Object[]>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -237,8 +236,7 @@ public class ObjectArrayDeserializer
                 return intoValue;
             }
             final int offset = intoValue.length;
-            Object[] result = new Object[offset + arr.length];
-            System.arraycopy(intoValue, 0, result, 0, offset);
+            Object[] result = Arrays.copyOf(intoValue, offset + arr.length);
             System.arraycopy(arr, 0, result, offset, arr.length);
             return result;
         }
@@ -321,7 +319,7 @@ public class ObjectArrayDeserializer
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
             // One exception; byte arrays are generally serialized as base64, so that should be handled
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_STRING
                     // note: not `byte[]`, but `Byte[]` -- former is primitive array
                     && _elementClass == Byte.class) {
@@ -329,7 +327,7 @@ public class ObjectArrayDeserializer
             }
             return (Object[]) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
         }
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {

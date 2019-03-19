@@ -1,14 +1,22 @@
 package com.fasterxml.jackson.databind.deser.std;
 
+import static java.lang.Character.isLetter;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.Currency;
 import java.util.Locale;
+import java.util.ServiceLoader;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -58,6 +66,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             File.class,
             URL.class,
             URI.class,
+            Path.class, // since 3.0
             Class.class,
             JavaType.class,
             Currency.class,
@@ -70,11 +79,11 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             StringBuilder.class,
         };
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializer implementations
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected FromStringDeserializer(Class<?> vc) {
@@ -94,6 +103,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             kind = Std.STD_URL;
         } else if (rawType == URI.class) {
             kind = Std.STD_URI;
+        } else if (rawType == Path.class) {
+            kind = Std.STD_PATH;
         } else if (rawType == Class.class) {
             kind = Std.STD_CLASS;
         } else if (rawType == JavaType.class) {
@@ -121,9 +132,9 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializer implementations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -135,7 +146,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         if (text != null) { // has String representation
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
                 // Usually should become null; but not always
-                return _deserializeFromEmptyString();
+                return _deserializeFromEmptyString(ctxt);
             }
             Exception cause = null;
             try {
@@ -158,7 +169,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             throw e;
             // nothing to do here, yet? We'll fail anyway
         }
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         // [databind#381]
         if (t == JsonToken.START_ARRAY) {
             return _deserializeFromArray(p, ctxt);
@@ -183,25 +194,24 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         // default impl: error out
         ctxt.reportInputMismatch(this,
                 "Don't know how to convert embedded Object of type %s into %s",
-                ob.getClass().getName(), _valueClass.getName());
+                ClassUtil.classNameOf(ob), _valueClass.getName());
         return null;
     }
 
-    protected T _deserializeFromEmptyString() throws IOException {
-        return null;
+    @SuppressWarnings("unchecked")
+    protected T _deserializeFromEmptyString(DeserializationContext ctxt) throws IOException {
+        return (T) _coerceEmptyString(ctxt, false);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* A general-purpose implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * "Chameleon" deserializer that works on simple types that are deserialized
      * from a simple String.
-     * 
-     * @since 2.4
      */
     public static class Std extends FromStringDeserializer<Object>
     {
@@ -210,16 +220,17 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         public final static int STD_FILE = 1;
         public final static int STD_URL = 2;
         public final static int STD_URI = 3;
-        public final static int STD_CLASS = 4;
-        public final static int STD_JAVA_TYPE = 5;
-        public final static int STD_CURRENCY = 6;
-        public final static int STD_PATTERN = 7;
-        public final static int STD_LOCALE = 8;
-        public final static int STD_CHARSET = 9;
-        public final static int STD_TIME_ZONE = 10;
-        public final static int STD_INET_ADDRESS = 11;
-        public final static int STD_INET_SOCKET_ADDRESS = 12;
-        public final static int STD_STRING_BUILDER = 13;
+        public final static int STD_PATH = 4;
+        public final static int STD_CLASS = 5;
+        public final static int STD_JAVA_TYPE = 6;
+        public final static int STD_CURRENCY = 7;
+        public final static int STD_PATTERN = 8;
+        public final static int STD_LOCALE = 9;
+        public final static int STD_CHARSET = 10;
+        public final static int STD_TIME_ZONE = 11;
+        public final static int STD_INET_ADDRESS = 12;
+        public final static int STD_INET_SOCKET_ADDRESS = 13;
+        public final static int STD_STRING_BUILDER = 14;
 
         protected final int _kind;
         
@@ -238,6 +249,9 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 return new URL(value);
             case STD_URI:
                 return URI.create(value);
+            case STD_PATH:
+                // 06-Sep-2018, tatu: Offlined due to additions in [databind#2120]
+                return NioPathHelper.deserialize(ctxt, value);
             case STD_CLASS:
                 try {
                     return ctxt.findClass(value);
@@ -305,7 +319,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         }
 
         @Override
-        protected Object _deserializeFromEmptyString() throws IOException {
+        protected Object _deserializeFromEmptyString(DeserializationContext ctxt) throws IOException {
             // As per [databind#398], URI requires special handling
             if (_kind == STD_URI) {
                 return URI.create("");
@@ -317,7 +331,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             if (_kind == STD_STRING_BUILDER) {
                 return new StringBuilder();
             }
-            return super._deserializeFromEmptyString();
+            return super._deserializeFromEmptyString(ctxt);
         }
 
         protected int _firstHyphenOrUnderscore(String str)
@@ -330,5 +344,60 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             }
             return -1;
         }
+    }
+
+    private static class NioPathHelper {
+        private static final boolean areWindowsFilePathsSupported;
+        static {
+            boolean isWindowsRootFound = false;
+            for (File file : File.listRoots()) {
+                String path = file.getPath();
+                if (path.length() >= 2 && isLetter(path.charAt(0)) && path.charAt(1) == ':') {
+                    isWindowsRootFound = true;
+                    break;
+                }
+            }
+            areWindowsFilePathsSupported = isWindowsRootFound;
+        }
+
+        public static Path deserialize(DeserializationContext ctxt, String value) throws IOException {
+            // If someone gives us an input with no : at all, treat as local path, instead of failing
+            // with invalid URI.
+            if (value.indexOf(':') < 0) {
+                return Paths.get(value);
+            }
+
+            if (areWindowsFilePathsSupported) {
+                if (value.length() >= 2 && isLetter(value.charAt(0)) && value.charAt(1) == ':') {
+                    return Paths.get(value);
+                }
+            }
+
+            final URI uri;
+            try {
+                uri = new URI(value);
+            } catch (URISyntaxException e) {
+                return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+            }
+            try {
+                return Paths.get(uri);
+            } catch (FileSystemNotFoundException cause) {
+                try {
+                    final String scheme = uri.getScheme();
+                    // We want to use the current thread's context class loader, not system class loader that is used in Paths.get():
+                    for (FileSystemProvider provider : ServiceLoader.load(FileSystemProvider.class)) {
+                        if (provider.getScheme().equalsIgnoreCase(scheme)) {
+                            return provider.getPath(uri);
+                        }
+                    }
+                    return (Path) ctxt.handleInstantiationProblem(Path.class, value, cause);
+                } catch (Throwable e) {
+                    e.addSuppressed(cause);
+                    return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+                }
+            } catch (Throwable e) {
+                return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
+            }
+        }        
     }
 }

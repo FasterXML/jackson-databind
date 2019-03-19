@@ -1,22 +1,21 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ObjectReaderTest extends BaseMapTest
 {
-    final ObjectMapper MAPPER = new ObjectMapper();
+    final JsonMapper MAPPER = JsonMapper.builder().build();
 
     static class POJO {
         public Map<String, Object> name;
@@ -25,7 +24,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void testSimpleViaParser() throws Exception
     {
         final String JSON = "[1]";
-        JsonParser p = MAPPER.getFactory().createParser(JSON);
+        JsonParser p = MAPPER.createParser(JSON);
         Object ob = MAPPER.readerFor(Object.class)
                 .readValue(p);
         p.close();
@@ -46,12 +45,12 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(1, ((List<?>) ob).size());
     }
 
-    public void testParserFeatures() throws Exception
+    public void testJsonReadFeatures() throws Exception
     {
         final String JSON = "[ /* foo */ 7 ]";
         // default won't accept comments, let's change that:
         ObjectReader reader = MAPPER.readerFor(int[].class)
-                .with(JsonParser.Feature.ALLOW_COMMENTS);
+                .with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
 
         int[] value = reader.readValue(JSON);
         assertNotNull(value);
@@ -60,7 +59,7 @@ public class ObjectReaderTest extends BaseMapTest
 
         // but also can go back
         try {
-            reader.without(JsonParser.Feature.ALLOW_COMMENTS).readValue(JSON);
+            reader.without(JsonReadFeature.ALLOW_JAVA_COMMENTS).readValue(JSON);
             fail("Should not have passed");
         } catch (JsonProcessingException e) {
             verifyException(e, "foo");
@@ -81,7 +80,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         ObjectReader r = MAPPER.reader();
         assertFalse(r.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertFalse(r.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(r.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
         
         r = r.withoutFeatures(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
@@ -100,14 +99,9 @@ public class ObjectReaderTest extends BaseMapTest
     public void testMiscSettings() throws Exception
     {
         ObjectReader r = MAPPER.reader();
-        assertSame(MAPPER.getFactory(), r.getFactory());
+        assertSame(MAPPER.tokenStreamFactory(), r.parserFactory());
 
-        JsonFactory f = new JsonFactory();
-        r = r.with(f);
-        assertSame(f, r.getFactory());
-        assertSame(r, r.with(f));
-
-        assertNotNull(r.getTypeFactory());
+        assertNotNull(r.typeFactory());
         assertNull(r.getInjectableValues());
 
         r = r.withAttributes(Collections.emptyMap());
@@ -128,27 +122,21 @@ public class ObjectReaderTest extends BaseMapTest
         r = newR;
     }
 
-    @SuppressWarnings("deprecation")
-    public void testDeprecatedSettings() throws Exception
-    {
-        ObjectReader r = MAPPER.reader();
-
-        // and deprecated variants
-        ObjectReader newR = r.forType(MAPPER.constructType(String.class));
-        assertSame(newR, newR.withType(String.class));
-        assertSame(newR, newR.withType(MAPPER.constructType(String.class)));
-
-        newR = newR.withRootName(PropertyName.construct("foo"));
-        assertNotSame(r, newR);
-        assertSame(newR, newR.withRootName(PropertyName.construct("foo")));
-    }
-
     public void testNoPrefetch() throws Exception
     {
         ObjectReader r = MAPPER.reader()
                 .without(DeserializationFeature.EAGER_DESERIALIZER_FETCH);
         Number n = r.forType(Integer.class).readValue("123 ");
         assertEquals(Integer.valueOf(123), n);
+    }
+
+    public void testGetValueType() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
+        assertNull(r.getValueType());
+
+        r = r.forType(String.class);
+        assertEquals(MAPPER.constructType(String.class), r.getValueType());
     }
 
     /*
@@ -184,7 +172,10 @@ public class ObjectReaderTest extends BaseMapTest
 
         JsonNode node = reader.readTree(source);
         assertTrue(node.has("name"));
-        assertEquals("{\"value\":1234}", node.get("name").toString());
+        JsonNode entry = node.get("name");
+        assertNotNull(entry);
+        assertTrue(entry.isObject());
+        assertEquals(1234, entry.get("value").asInt());
     }
 
     public void testPointerLoadingMappingIteratorOne() throws Exception {
@@ -266,28 +257,6 @@ public class ObjectReaderTest extends BaseMapTest
         ObjectReader r = MAPPER.readerFor(String.class);
         List<?> list = r.treeToValue(n, List.class);
         assertEquals(1, list.size());
-    }
-    
-    public void testCodecUnsupportedWrites() throws Exception
-    {
-        ObjectReader r = MAPPER.readerFor(String.class);
-        JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
-        ObjectNode n = MAPPER.createObjectNode();
-        try {
-            r.writeTree(g, n);
-            fail("Should not pass");
-        } catch (UnsupportedOperationException e) {
-            ;
-        }
-        try {
-            r.writeValue(g, "Foo");
-            fail("Should not pass");
-        } catch (UnsupportedOperationException e) {
-            ;
-        }
-        g.close();
-
-        g.close();
     }
 
     /*

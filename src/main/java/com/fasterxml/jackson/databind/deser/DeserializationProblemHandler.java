@@ -35,8 +35,6 @@ public abstract class DeserializationProblemHandler
     /**
      * Marker value returned by some handler methods to indicate that
      * they could not handle problem and produce replacement value.
-     *
-     * @since 2.7
      */
     public final static Object NOT_HANDLED = new Object();
     
@@ -95,8 +93,6 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use as key (possibly
      *    <code>null</code>
-     *
-     * @since 2.8
      */
     public Object handleWeirdKey(DeserializationContext ctxt,
             Class<?> rawKeyType, String keyValue,
@@ -129,8 +125,6 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use as (possibly
      *    <code>null</code>)
-     *
-     * @since 2.8
      */
     public Object handleWeirdStringValue(DeserializationContext ctxt,
             Class<?> targetType, String valueToConvert,
@@ -163,8 +157,6 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use as (possibly
      *    <code>null</code>)
-     *
-     * @since 2.8
      */
     public Object handleWeirdNumberValue(DeserializationContext ctxt,
             Class<?> targetType, Number valueToConvert, String failureMsg)
@@ -191,8 +183,6 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>)
-     *
-     * @since 2.9
      */
     public Object handleWeirdNativeValue(DeserializationContext ctxt,
             JavaType targetType, Object valueToConvert, JsonParser p)
@@ -225,8 +215,6 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
-     *
-     * @since 2.8
      */
     public Object handleUnexpectedToken(DeserializationContext ctxt,
             Class<?> targetType, JsonToken t, JsonParser p,
@@ -260,8 +248,6 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
-     *
-     * @since 2.8
      */
     public Object handleInstantiationProblem(DeserializationContext ctxt,
             Class<?> instClass, Object argument, Throwable t)
@@ -293,17 +279,13 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
-     *
-     * @since 2.9
      */
     public Object handleMissingInstantiator(DeserializationContext ctxt,
             Class<?> instClass, ValueInstantiator valueInsta, JsonParser p,
             String msg)
         throws IOException
     {
-        // 16-Oct-2016, tatu: Need to delegate to deprecated method from 2.8;
-        //   remove redirect from later versions (post-2.9)
-        return handleMissingInstantiator(ctxt, instClass, p, msg);
+        return NOT_HANDLED;
     }
 
     /**
@@ -333,8 +315,6 @@ public abstract class DeserializationProblemHandler
      * @return Actual type to use, if resolved; `null` if handler does not know what
      *     to do; or `Void.class` to indicate that nothing should be deserialized for
      *     type with the id (which caller may choose to do... or not)
-     *
-     * @since 2.8
      */
     public JavaType handleUnknownTypeId(DeserializationContext ctxt,
             JavaType baseType, String subTypeId, TypeIdResolver idResolver,
@@ -369,8 +349,6 @@ public abstract class DeserializationProblemHandler
      * @return Actual type to use, if resolved; `null` if handler does not know what
      *     to do; or `Void.class` to indicate that nothing should be deserialized for
      *     type with the id (which caller may choose to do... or not)
-     *
-     * @since 2.9
      */
     public JavaType handleMissingTypeId(DeserializationContext ctxt,
             JavaType baseType, TypeIdResolver idResolver,
@@ -378,23 +356,5 @@ public abstract class DeserializationProblemHandler
         throws IOException
     {
         return null;
-    }
-
-    /*
-    /**********************************************************
-    /* Deprecated
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.8
-     * @deprecated Since 2.9: use variant that takes {@link ValueInstantiator}
-     */
-    @Deprecated
-    public Object handleMissingInstantiator(DeserializationContext ctxt,
-            Class<?> instClass, JsonParser p, String msg)
-        throws IOException
-    {
-        return NOT_HANDLED;
     }
 }

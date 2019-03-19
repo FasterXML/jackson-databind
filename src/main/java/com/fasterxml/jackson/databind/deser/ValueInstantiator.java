@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
 /**
@@ -31,36 +30,35 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 public abstract class ValueInstantiator
 {
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Introspection
+    /**********************************************************************
+     */
+
+    /**
+     * Tag-on interface to let deserializers indicate that they make use of
+     * {@link ValueInstantiator}s and there is access for instantiator assigned.
+     */
+    public interface Gettable {
+        public ValueInstantiator getValueInstantiator();
+    }
+    
+    /*
+    /**********************************************************************
     /* Metadata accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Accessor for raw (type-erased) type of instances to create.
-     *<p>
-     * NOTE: since this method has not existed since beginning of
-     * Jackson 2.0 series, default implementation will just return
-     * <code>Object.class</code>; implementations are expected
-     * to override it with real value.
-     *
-     * @since 2.8
      */
-    public Class<?> getValueClass() {
-        return Object.class;
-    }
+    public abstract Class<?> getValueClass();
 
-    /**
+        /**
      * Method that returns description of the value type this instantiator
      * handles. Used for error messages, diagnostics.
      */
-    public String getValueTypeDesc() {
-        Class<?> cls = getValueClass();
-        if (cls == null) {
-            return "UNKNOWN";
-        }
-        return cls.getName();
-    }
+    public abstract String getValueTypeDesc();
 
     /**
      * Method that will return true if any of <code>canCreateXxx</code> method
@@ -123,8 +121,6 @@ public abstract class ValueInstantiator
      * Method that can be called to check whether a array-delegate-based creator
      * (single-arg constructor or factory method)
      * is available for this instantiator
-     *
-     * @since 2.7
      */
     public boolean canCreateUsingArrayDelegate() { return false; }
 
@@ -144,8 +140,11 @@ public abstract class ValueInstantiator
      *<p>
      * NOTE: all properties will be of type
      * {@link com.fasterxml.jackson.databind.deser.CreatorProperty}.
+     *<p>
+     * NOTE: since 3.0, gets passed full {@link DeserializationContext},
+     * not just <code>DeserializationConfig</code>
      */
-    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
         return null;
     }
 
@@ -164,15 +163,13 @@ public abstract class ValueInstantiator
      * non-null type is returned, deserializer will bind JSON into specified
      * type (using standard deserializer for that type), and pass that to
      * instantiator.
-     *
-     * @since 2.7
      */
     public JavaType getArrayDelegateType(DeserializationConfig config) { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Instantiation methods for JSON Object
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -219,8 +216,6 @@ public abstract class ValueInstantiator
      * {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} to safely
      * read the present properties only, and to have some other behavior for the
      * missing properties.
-     * 
-     * @since 2.8
      */
     public Object createFromObjectWith(DeserializationContext ctxt,
             SettableBeanProperty[] props, PropertyValueBuffer buffer)
@@ -248,10 +243,9 @@ public abstract class ValueInstantiator
     }
 
     /*
-    /**********************************************************
-    /* Instantiation methods for JSON scalar types
-    /* (String, Number, Boolean)
-    /**********************************************************
+    /**********************************************************************
+    /* Instantiation methods for JSON scalar types (String, Number, Boolean)
+    /**********************************************************************
      */
     
     public Object createFromString(DeserializationContext ctxt, String value) throws IOException {
@@ -283,9 +277,9 @@ public abstract class ValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors for underlying creator objects (optional)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -331,21 +325,12 @@ public abstract class ValueInstantiator
      */
     public AnnotatedWithParams getWithArgsCreator() { return null; }
 
-    /**
-     * If an incomplete creator was found, this is the first parameter that
-     * needs further annotation to help make the creator complete.
-     */
-    public AnnotatedParameter getIncompleteParameter() { return null; }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.4 (demoted from <code>StdValueInstantiator</code>)
-     */
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
             throws IOException
     {
@@ -374,22 +359,28 @@ public abstract class ValueInstantiator
     }
 
     /*
-    /**********************************************************
-    /* Introspection
-    /**********************************************************
+    /**********************************************************************
+    /* Std method overrides for testing
+    /**********************************************************************
      */
-
-    /**
-     * @since 2.9
-     */
-    public interface Gettable {
-        public ValueInstantiator getValueInstantiator();
-    }
 
     /*
-    /**********************************************************
-    /* Standard Base implementation (since 2.8)
-    /**********************************************************
+    @Override
+    public String toString() {
+        return String.format(
+"(StdValueInstantiator: default=%s, delegate=%s, props=%s; str/int/long/double/boolean =  %s/%s/%s/%s/%s)",
+            canCreateUsingDefault(), canCreateUsingDelegate()
+            , canCreateFromObjectWith(), canCreateFromString()
+            , canCreateFromInt(), canCreateFromLong()
+            , canCreateFromDouble(), canCreateFromBoolean()
+            );
+    }
+*/
+
+    /*
+    /**********************************************************************
+    /* Standard Base implementation
+    /**********************************************************************
      */
 
     /**
@@ -407,7 +398,7 @@ public abstract class ValueInstantiator
         public Base(JavaType type) {
             _valueType = type.getRawClass();
         }
-        
+
         @Override
         public String getValueTypeDesc() {
             return _valueType.getName();

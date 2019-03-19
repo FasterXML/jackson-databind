@@ -163,23 +163,26 @@ public class TestBeanConversions
     // should work regardless of wrapping...
     public void testWrapping() throws Exception
     {
-        ObjectMapper wrappingMapper = new ObjectMapper();
-        wrappingMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        ObjectMapper wrappingMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+                .enable(SerializationFeature.WRAP_ROOT_VALUE)
+                .build();
 
         // conversion is ok, even if it's bogus one
         _convertAndVerifyPoint(wrappingMapper);
 
         // also: ok to have mismatched settings, since as per [JACKSON-710], should
         // not actually use wrapping internally in these cases
-        wrappingMapper = new ObjectMapper();
-        wrappingMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.disable(SerializationFeature.WRAP_ROOT_VALUE);
+        wrappingMapper = jsonMapperBuilder()
+            .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+            .disable(SerializationFeature.WRAP_ROOT_VALUE)
+            .build();
         _convertAndVerifyPoint(wrappingMapper);
 
-        wrappingMapper = new ObjectMapper();
-        wrappingMapper.disable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        wrappingMapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+                .enable(SerializationFeature.WRAP_ROOT_VALUE)
+                .build();
         _convertAndVerifyPoint(wrappingMapper);
     }
 
@@ -213,23 +216,15 @@ public class TestBeanConversions
     }
 
     /**
-     * Need to test "shortcuts" introduced by [databind#11]
+     * Need to test "shortcuts" introduced by [databind#11] -- but
+     * removed with [databind#2220]
      */
     public void testIssue11() throws Exception
     {
-        // First the expected use case, Node specification
-        ObjectNode root = MAPPER.createObjectNode();
-        JsonNode n = root;
-        ObjectNode ob2 = MAPPER.convertValue(n, ObjectNode.class);
-        assertSame(root, ob2);
-
-        JsonNode n2 = MAPPER.convertValue(n, JsonNode.class);
-        assertSame(root, n2);
-        
         // then some other no-op conversions
-        String STR = "test";
-        CharSequence seq = MAPPER.convertValue(STR, CharSequence.class);
-        assertSame(STR, seq);
+        StringBuilder SB = new StringBuilder("test");
+        CharSequence seq = MAPPER.convertValue(SB, CharSequence.class);
+        assertNotSame(SB, seq);
 
         // and then something that should NOT use short-cut
         Leaf l = new Leaf(13);
@@ -257,10 +252,12 @@ public class TestBeanConversions
             verifyException(e, "no properties discovered");
         }
         
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .build();
         try {
-            assertEquals("{}", mapper.writeValueAsString(plaino));
+            assertEquals("{}", mapper.writer()
+                    .writeValueAsString(plaino));
         } catch (Exception e) {
             throw (Exception) e.getCause();
         }

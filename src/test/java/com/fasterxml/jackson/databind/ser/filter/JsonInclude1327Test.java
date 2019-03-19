@@ -5,12 +5,10 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Unit tests for checking that alternative settings for
- * {@link JsonSerialize#include} annotation property work
- * as expected.
+ * inclusion annotation properties work as expected.
  */
 public class JsonInclude1327Test
     extends BaseMapTest
@@ -33,9 +31,9 @@ public class JsonInclude1327Test
 
     // for [databind#1327]
     public void testClassDefaultsForEmpty() throws Exception {
-        ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
+        ObjectMapper om = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
         final String jsonString = om.writeValueAsString(new Issue1327BeanEmpty());
 
         if (jsonString.contains("myList")) {
@@ -44,11 +42,10 @@ public class JsonInclude1327Test
     }
 
     public void testClassDefaultsForAlways() throws Exception {
-        ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
+        ObjectMapper om = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
         final String jsonString = om.writeValueAsString(new Issue1327BeanAlways());
-
         if (!jsonString.contains("myList")) {
             fail("Should contain `myList` with Include.ALWAYS: "+jsonString);
         }

@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -15,37 +18,69 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 public abstract class ContainerSerializer<T>
     extends StdSerializer<T>
 {
-    /*
-    /**********************************************************
-    /* Construction, initialization
-    /**********************************************************
+    /**
+     * Property that contains values handled by this serializer, if known; `null`
+     * for root value serializers (ones directly called by {@link ObjectMapper} and
+     * {@link ObjectWriter}).
+     *
+     * @since 3.0
      */
-
-    protected ContainerSerializer(Class<T> t) {
-        super(t);
-    }
+    protected final BeanProperty _property;
 
     /**
-     * @since 2.5
+     * If value type cannot be statically determined, mapping from
+     * runtime value types to serializers are stored in this object.
+     *
+     * @since 3.0 (in 2.x subtypes contained it)
      */
-    protected ContainerSerializer(JavaType fullType) {
-        super(fullType);
-    }
+    protected PropertySerializerMap _dynamicValueSerializers;
     
+    /*
+    /**********************************************************************
+    /* Construction, initialization
+    /**********************************************************************
+     */
+
+    protected ContainerSerializer(Class<?> t) {
+        super(t);
+        _property = null;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
     /**
      * Alternate constructor that is (alas!) needed to work
      * around kinks of generic type handling
-     * 
-     * @param t
      */
+    @Deprecated
     protected ContainerSerializer(Class<?> t, boolean dummy) {
-        super(t, dummy);
+        super(t);
+        _property = null;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
+    @Deprecated // since 3.0
+    protected ContainerSerializer(JavaType fullType) {
+        this(fullType, null);
+    }
+
+    protected ContainerSerializer(JavaType fullType, BeanProperty prop) {
+        super(fullType);
+        _property = prop;
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     protected ContainerSerializer(ContainerSerializer<?> src) {
-        super(src._handledType, false);
+        this(src, src._property);
     }
-    
+
+    protected ContainerSerializer(ContainerSerializer<?> src, BeanProperty prop) {
+        super(src._handledType);
+        _property = prop;
+        // 16-Apr-2018, tatu: Could retain, possibly, in some cases... but may be
+        //    dangerous as general practice so reset
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
+    }
+
     /**
      * Factory(-like) method that can be used to construct a new container
      * serializer that uses specified {@link TypeSerializer} for decorating
@@ -62,9 +97,9 @@ public abstract class ContainerSerializer<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -85,14 +120,13 @@ public abstract class ContainerSerializer<T>
     public abstract JsonSerializer<?> getContentSerializer();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract methods for sub-classes to implement
-    /**********************************************************
+    /**********************************************************************
      */
 
-// since 2.5: should be declared abstract in future (2.9?)
-//    @Override
-//    public abstract boolean isEmpty(SerializerProvider prov, T value);
+    @Override
+    public abstract boolean isEmpty(SerializerProvider prov, T value) throws IOException;
 
     /**
      * Method called to determine if the given value (of type handled by
@@ -103,11 +137,17 @@ public abstract class ContainerSerializer<T>
      * containers that do not keep track of size (like linked lists may
      * not).
      *<p>
-     * Note, too, that as of now (2.9) this method is only called by serializer
+     * Note, too, that this method is only called by serializer
      * itself; and specifically is not used for non-array/collection types
      * like <code>Map</code> or <code>Map.Entry</code> instances.
      */
     public abstract boolean hasSingleElement(T value);
+
+    /*
+    /**********************************************************************
+    /* Helper methods for locating, caching element/value serializers
+    /**********************************************************************
+     */
 
     /**
      * Method that needs to be implemented to allow construction of a new
@@ -116,37 +156,33 @@ public abstract class ContainerSerializer<T>
      */
     protected abstract ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts);
 
-    /*
-    /**********************************************************
-    /* Helper methods for sub-types
-    /**********************************************************
+    /**
+     * @since 3.0
      */
+    protected JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
+            throws JsonMappingException
+    {
+        PropertySerializerMap map = _dynamicValueSerializers;
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
+        // did we get a new map of serializers? If so, start using it
+        if (map != result.map) {
+            _dynamicValueSerializers = result.map;
+        }
+        return result.serializer;
+    }
 
     /**
-     * Helper method used to encapsulate logic for determining whether there is
-     * a property annotation that overrides element type; if so, we can
-     * and need to statically find the serializer.
-     * 
-     * @since 2.1
-     *
-     * @deprecated Since 2.7: should not be needed; should be enough to see if
-     *     type has 'isStatic' modifier
+     * @since 3.0
      */
-    @Deprecated
-    protected boolean hasContentTypeAnnotation(SerializerProvider provider,
-            BeanProperty property)
+    protected JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
+            throws JsonMappingException
     {
-        /*
-        if (property != null) {
-            AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-            AnnotatedMember m = property.getMember();
-            if ((m != null) && (intr != null)) {
-                if (intr.findSerializationContentType(m, property.getType()) != null) {
-                    return true;
-                }
-            }
+        PropertySerializerMap map = _dynamicValueSerializers;
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
+        // did we get a new map of serializers? If so, start using it
+        if (map != result.map) {
+            _dynamicValueSerializers = result.map;
         }
-        */
-        return false;
+        return result.serializer;
     }
 }

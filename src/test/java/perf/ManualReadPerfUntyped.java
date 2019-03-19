@@ -2,8 +2,9 @@ package perf;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class ManualReadPerfUntyped extends ObjectReaderTestBase
 {
@@ -18,13 +19,14 @@ public class ManualReadPerfUntyped extends ObjectReaderTestBase
         }
         byte[] data = readAll(args[0]);
 
-        JsonFactory f = new JsonFactory();
         boolean doIntern = true;
 
-        f.configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern);
-        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern);
+        JsonFactory f = JsonFactory.builder()
+            .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern)
+            .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern)
+            .build();
         
-        ObjectMapper m = new ObjectMapper();
+        JsonMapper m = new JsonMapper(f);
         
         // Either Object or Map
         final Class<?> UNTYPED = Map.class;

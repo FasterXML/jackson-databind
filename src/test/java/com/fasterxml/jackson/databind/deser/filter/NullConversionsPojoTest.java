@@ -43,7 +43,7 @@ public class NullConversionsPojoTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testFailOnNull() throws Exception
     {
@@ -69,10 +69,11 @@ public class NullConversionsPojoTest extends BaseMapTest
         String json = aposToQuotes("{'name':null}");
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
-        
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configOverride(String.class)
-            .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.FAIL));
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(String.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.FAIL)))
+                .build();
         try {
             mapper.readValue(json, NullsForString.class);
             fail("Should not pass");
@@ -98,9 +99,10 @@ public class NullConversionsPojoTest extends BaseMapTest
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
 
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configOverride(String.class)
-            .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(String.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY)))
+                .build();
         NullsForString named = mapper.readValue(json, NullsForString.class);
         assertEquals("", named.getName());
     }

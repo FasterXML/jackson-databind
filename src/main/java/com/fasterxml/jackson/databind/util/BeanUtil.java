@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
  * Helper class that contains functionality needed by both serialization
@@ -20,23 +20,16 @@ public class BeanUtil
     /**********************************************************
      */
 
-    /**
-     * @since 2.5
-     */
-    public static String okNameForGetter(AnnotatedMethod am, boolean stdNaming) {
+    public static String okNameForGetter(AnnotatedMember am) {
         String name = am.getName();
-        String str = okNameForIsGetter(am, name, stdNaming);
+        String str = okNameForIsGetter(am, name);
         if (str == null) {
-            str = okNameForRegularGetter(am, name, stdNaming);
+            str = okNameForRegularGetter(am, name);
         }
         return str;
     }
-    
-    /**
-     * @since 2.5
-     */
-    public static String okNameForRegularGetter(AnnotatedMethod am, String name,
-            boolean stdNaming)
+
+    public static String okNameForRegularGetter(AnnotatedMember am, String name)
     {
         if (name.startsWith("get")) {
             /* 16-Feb-2009, tatu: To handle [JACKSON-53], need to block
@@ -56,54 +49,27 @@ public class BeanUtil
                     return null;
                 }
             }
-            return stdNaming
-                    ? stdManglePropertyName(name, 3)
-                    : legacyManglePropertyName(name, 3);
+            return stdManglePropertyName(name, 3);
         }
         return null;
     }
 
-    /**
-     * @since 2.5
-     */
-    public static String okNameForIsGetter(AnnotatedMethod am, String name,
-            boolean stdNaming)
+    public static String okNameForIsGetter(AnnotatedMember am, String name)
     {
         if (name.startsWith("is")) { // plus, must return a boolean
             Class<?> rt = am.getRawType();
             if (rt == Boolean.class || rt == Boolean.TYPE) {
-                return stdNaming
-                        ? stdManglePropertyName(name, 2)
-                        : legacyManglePropertyName(name, 2);
+                return stdManglePropertyName(name, 2);
             }
         }
         return null;
     }
 
-    /**
-     * @since 2.5
-     */
-    @Deprecated // since 2.9, not used any more
-    public static String okNameForSetter(AnnotatedMethod am, boolean stdNaming) {
-        String name = okNameForMutator(am, "set", stdNaming);
-        if ((name != null) 
-            // 26-Nov-2009, tatu: need to suppress this internal groovy method
-                && (!"metaClass".equals(name) || !isGroovyMetaClassSetter(am))) {
-            return name;
-        }
-        return null;
-    }
-
-    /**
-     * @since 2.5
-     */
-    public static String okNameForMutator(AnnotatedMethod am, String prefix,
-            boolean stdNaming) {
+    public static String okNameForMutator(AnnotatedMember am, String prefix)
+    {
         String name = am.getName();
         if (name.startsWith(prefix)) {
-            return stdNaming
-                    ? stdManglePropertyName(name, prefix.length())
-                    : legacyManglePropertyName(name, prefix.length());
+            return stdManglePropertyName(name, prefix.length());
         }
         return null;
     }
@@ -124,8 +90,6 @@ public class BeanUtil
      * and for structured (Maps, Collections, arrays) and reference types, criteria
      * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
      * is used.
-     *
-     * @since 2.7
      */
     public static Object getDefaultValue(JavaType type)
     {
@@ -172,7 +136,7 @@ public class BeanUtil
      * indeed injectect by Cglib. We do this by verifying that the
      * result type is "net.sf.cglib.proxy.Callback[]"
      */
-    protected static boolean isCglibGetCallbacks(AnnotatedMethod am)
+    protected static boolean isCglibGetCallbacks(AnnotatedMember am)
     {
         Class<?> rt = am.getRawType();
         // Ok, first: must return an array type
@@ -198,20 +162,9 @@ public class BeanUtil
     }
 
     /**
-     * Similar to {@link #isCglibGetCallbacks}, need to suppress
-     * a cyclic reference.
-     */
-    protected static boolean isGroovyMetaClassSetter(AnnotatedMethod am)
-    {
-        Class<?> argType = am.getRawParameterType(0);
-        String pkgName = ClassUtil.getPackageName(argType);
-        return (pkgName != null) && pkgName.startsWith("groovy.lang");
-    }
-
-    /**
      * Another helper method to deal with Groovy's problematic metadata accessors
      */
-    protected static boolean isGroovyMetaClassGetter(AnnotatedMethod am)
+    protected static boolean isGroovyMetaClassGetter(AnnotatedMember am)
     {
         String pkgName = ClassUtil.getPackageName(am.getRawType());
         return (pkgName != null) && pkgName.startsWith("groovy.lang");
@@ -223,45 +176,9 @@ public class BeanUtil
     /**********************************************************
      */
 
-    /**
-     * Method called to figure out name of the property, given 
-     * corresponding suggested name based on a method or field name.
-     *
-     * @param basename Name of accessor/mutator method, not including prefix
-     *  ("get"/"is"/"set")
-     */
-    protected static String legacyManglePropertyName(final String basename, final int offset)
-    {
-        final int end = basename.length();
-        if (end == offset) { // empty name, nope
-            return null;
-        }
-        // next check: is the first character upper case? If not, return as is
-        char c = basename.charAt(offset);
-        char d = Character.toLowerCase(c);
-        
-        if (c == d) {
-            return basename.substring(offset);
-        }
-        // otherwise, lower case initial chars. Common case first, just one char
-        StringBuilder sb = new StringBuilder(end - offset);
-        sb.append(d);
-        int i = offset+1;
-        for (; i < end; ++i) {
-            c = basename.charAt(i);
-            d = Character.toLowerCase(c);
-            if (c == d) {
-                sb.append(basename, i, end);
-                break;
-            }
-            sb.append(d);
-        }
-        return sb.toString();
-    }
-
-    /**
-     * @since 2.5
-     */
+    // 24-Sep-2017, tatu: note that "std" here refers to earlier (1.x, 2.x) distinction
+    //   between "legacy" (slightly non-conforming) and "std" (fully conforming): with 3.x
+    //   only latter exists.
     protected static String stdManglePropertyName(final String basename, final int offset)
     {
         final int end = basename.length();

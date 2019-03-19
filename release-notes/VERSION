@@ -1,0 +1,40 @@
+Project: jackson-databind 
+Versions: 3.x (for earlier see VERSION-2.x)
+
+------------------------------------------------------------------------
+=== Releases === 
+------------------------------------------------------------------------
+
+3.0.0 (not yet released)
+
+#1058: Add a way to pass std and format-specific parser/generator flags during
+  parser/generation construction
+#1600: Serializing locale with underscore, not standard hyphen
+ (requested by Alexander K)
+#1762: `StdDateFormat`: serialize time offset using colon
+#1772: Remove `MapperFeature. USE_STD_BEAN_NAMING`
+#1773: Remove `MapperFeature.AUTO_DETECT_xxx` features
+#1774: Merge Java8 datatype (`Optional`, `Stream`) support (`jackson-datatype-jdk8`
+#1775: Merge Java8 parameter name support (`jackson-module-parameter-names`)
+#1781: Return `ObjectNode` from `ObjectNode` set-methods in order to allow better chaining
+ (reported by timo-schmid@github)
+#1789: Add `createGenerator` methods in `ObjectMapper`, `ObjectWriter`
+#1790: Add `createParser` methods in `ObjectMapper`, `ObjectReader`
+#1883: Add "abstract type mapping" for deserialization from `Map<ENUMTYPE,V>`
+  into `EnumMap` (and `Set<ENUMTYPE>` to `EnumSet<EnumType>`) 
+#1888: Merge `ResolvableSerializer` into `JsonSerializer`, `ResolvableDeserializer`
+ into `JsonDeserializer`
+#1889: Merge `ContextualSerializer` into `JsonSerializer`, `ContextualDeserializer`
+ into `JsonDeserializer`
+#1916: Change `MapperFeature.USE_GETTERS_AS_SETTERS)` default to `false`
+#1917: Remove `canSerialize` and `canDeserialize` methods from `ObjectMapper`
+#1954: Add Builder pattern for creating configured `ObjectMapper` instances
+#1955: Change the way `Module`s configure, interact with `ObjectMapper`
+#1973: Remove support for "default [Map] key serializer" configuration from
+  `SerializerProvider`
+#1994: Limit size of `SerializerCache`, auto-flush on exceeding
+#1995: Limit size of `DeserializerCache`, auto-flush on exceeding
+#2040: Remove `JsonSerializer.isEmpty()` from 3.0
+#2176: Add `JsonMapper.shared()` static method
+- Remove `MappingJsonFactory`
+- Add context parameter for `TypeSerializer` contextualization (`forProperty()`)

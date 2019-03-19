@@ -85,9 +85,10 @@ public class SqlDateSerializationTest extends BaseMapTest
     
     public void testPatternWithSqlDate() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // `java.sql.Date` applies system default zone (and not UTC)
-        mapper.setTimeZone(TimeZone.getDefault());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultTimeZone(TimeZone.getDefault())
+                .build();
 
         Person i = new Person();
         i.dateOfBirth = java.sql.Date.valueOf("1980-04-14");
@@ -98,9 +99,12 @@ public class SqlDateSerializationTest extends BaseMapTest
     // [databind#2064]
     public void testSqlDateConfigOverride() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configOverride(java.sql.Date.class)
-            .setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd"));        
+        // `java.sql.Date` applies system default zone (and not UTC)
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .defaultTimeZone(TimeZone.getDefault())
+                .withConfigOverride(java.sql.Date.class,
+                        o -> o.setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd")))
+                .build();
         assertEquals("\"1980+04+14\"",
             mapper.writeValueAsString(java.sql.Date.valueOf("1980-04-14")));
     }

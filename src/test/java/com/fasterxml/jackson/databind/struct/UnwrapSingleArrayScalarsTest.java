@@ -35,8 +35,9 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     public void testBooleanPrimitiveArrayUnwrap() throws Exception
     {
         // [databind#381]
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         BooleanBean result = mapper.readValue(new StringReader("{\"v\":[true]}"), BooleanBean.class);
         assertTrue(result._v);
 
@@ -72,8 +73,9 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         final byte byteTest = (byte) 43;
         final char charTest = 'c';
 
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
 
         final int intValue = mapper.readValue(asArray(intTest), Integer.TYPE);
         assertEquals(intTest, intValue);
@@ -121,8 +123,9 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     }
 
     public void testSingleElementArrayDisabled() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         try {
             mapper.readValue("[42]", Integer.class);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
@@ -248,8 +251,9 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     
     public void testSingleStringWrapped() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         
         String value = "FOO!";
         try {
@@ -260,7 +264,9 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             verifyException(exp, "out of START_ARRAY");
         }
         
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         
         try {
             mapper.readValue("[\""+value+"\",\""+value+"\"]", String.class);
@@ -274,8 +280,9 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
 
     public void testBigDecimal() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         
         BigDecimal value = new BigDecimal("0.001");
         BigDecimal result = mapper.readValue(value.toString(), BigDecimal.class);
@@ -287,8 +294,10 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             verifyException(exp, "Cannot deserialize");
             verifyException(exp, "out of START_ARRAY");
         }
-        
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+
+        mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         result = mapper.readValue("[" + value.toString() + "]", BigDecimal.class);
         assertEquals(value, result);
         
@@ -302,9 +311,10 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
 
     public void testBigInteger() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
+
         BigInteger value = new BigInteger("-1234567890123456789012345567809");
         BigInteger result = mapper.readValue(value.toString(), BigInteger.class);
         assertEquals(value, result);
@@ -317,7 +327,9 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             verifyException(exp, "out of START_ARRAY");
         }
         
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         result = mapper.readValue("[" + value.toString() + "]", BigInteger.class);
         assertEquals(value, result);
         

@@ -28,8 +28,7 @@ public class BinaryNode
         if (offset == 0 && length == data.length) {
             _data = data;
         } else {
-            _data = new byte[length];
-            System.arraycopy(data, offset, _data, 0, length);
+            _data = Arrays.copyOfRange(data, offset, offset + length);
         }
     }
 
@@ -109,15 +108,5 @@ public class BinaryNode
     @Override
     public int hashCode() {
         return (_data == null) ? -1 : _data.length;
-    }
-
-    /**
-     * Different from other values, since contents need to be surrounded
-     * by (double) quotes.
-     */
-    @Override
-    public String toString()
-    {
-        return Base64Variants.getDefaultVariant().encode(_data, true);
     }
 }

@@ -2,11 +2,12 @@ package com.fasterxml.jackson.databind.util;
 
 /**
  * Node of a forward-only linked list.
- * 
- * @author tatu
  */
 public final class LinkedNode<T>
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     private final T value;
 
     private LinkedNode<T> next;

@@ -82,8 +82,9 @@ public class TestIgnoredTypes extends BaseMapTest
     public void testSingleWithMixins() throws Exception {
         SimpleModule module = new SimpleModule();
         module.setMixInAnnotation(Person.class, PersonMixin.class);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         PersonWrapper input = new PersonWrapper();
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"value\":1}", json);
@@ -92,8 +93,9 @@ public class TestIgnoredTypes extends BaseMapTest
     public void testListWithMixins() throws Exception {
         SimpleModule module = new SimpleModule();
         module.setMixInAnnotation(Person.class, PersonMixin.class);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         List<Person> persons = new ArrayList<Person>();
         persons.add(new Person("Bob"));
         String json = mapper.writeValueAsString(persons);
@@ -102,8 +104,10 @@ public class TestIgnoredTypes extends BaseMapTest
 
     public void testIgnoreUsingConfigOverride() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
-        mapper.configOverride(Wrapped.class).setIsIgnoredType(true);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Wrapped.class,
+                        o -> o.setIsIgnoredType(true))
+                .build();
 
         // serialize , first
         String json = mapper.writeValueAsString(new Wrapper());

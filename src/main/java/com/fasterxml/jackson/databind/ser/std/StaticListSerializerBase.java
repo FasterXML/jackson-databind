@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Intermediate base class for Lists, Collections and Arrays
@@ -20,34 +18,25 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @SuppressWarnings("serial")
 public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends StdSerializer<T>
-    implements ContextualSerializer
 {
     /**
      * Setting for specific local override for "unwrap single element arrays":
      * true for enable unwrapping, false for preventing it, `null` for using
      * global configuration.
-     *
-     * @since 2.6
      */
     protected final Boolean _unwrapSingle;
 
     protected StaticListSerializerBase(Class<?> cls) {
-        super(cls, false);
+        super(cls);
         _unwrapSingle = null;
     }
 
-    /**
-     * @since 2.9
-     */
     protected StaticListSerializerBase(StaticListSerializerBase<?> src,
             Boolean unwrapSingle) {
         super(src);
         _unwrapSingle = unwrapSingle;
     }
 
-    /**
-     * @since 2.9
-     */
     public abstract JsonSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle);
 
@@ -64,18 +53,16 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         throws JsonMappingException
     {
         JsonSerializer<?> ser = null;
-        Boolean unwrapSingle = null;
         
         if (property != null) {
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                Object serDef = intr.findContentSerializer(m);
-                if (serDef != null) {
-                    ser = serializers.serializerInstance(m, serDef);
-                }
+                ser = serializers.serializerInstance(m,
+                        intr.findContentSerializer(serializers.getConfig(), m));
             }
         }
+        Boolean unwrapSingle = null;
         JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
         if (format != null) {
             unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
@@ -83,7 +70,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         // [databind#124]: May have a content converter
         ser = findContextualConvertingSerializer(serializers, property, ser);
         if (ser == null) {
-            ser = serializers.findValueSerializer(String.class, property);
+            ser = serializers.findSecondaryPropertySerializer(String.class, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {
@@ -101,11 +88,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     @Override
     public boolean isEmpty(SerializerProvider provider, T value) {
         return (value == null) || (value.size() == 0);
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode("array", true).set("items", contentSchema());
     }
 
     @Override

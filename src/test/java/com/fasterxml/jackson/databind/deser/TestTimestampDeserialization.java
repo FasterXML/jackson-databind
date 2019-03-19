@@ -28,8 +28,9 @@ public class TestTimestampDeserialization
     
     public void testTimestampUtilSingleElementArray() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         
         long now = System.currentTimeMillis();
         java.sql.Timestamp value = new java.sql.Timestamp(now);

@@ -82,8 +82,9 @@ public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
     // And then case that fails with [databind#1001]
     public void testWithNamedParameters() throws Exception
     {
-        ObjectMapper sut = new ObjectMapper()
-            .setAnnotationIntrospector(new CreatorNameIntrospector());
+        ObjectMapper sut = jsonMapperBuilder()
+            .annotationIntrospector(new CreatorNameIntrospector())
+            .build();
 
         D d = D.make("abc:def");
 

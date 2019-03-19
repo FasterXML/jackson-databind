@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
@@ -63,7 +62,7 @@ public class TextNode
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
         final String str = _value.trim();
-        ByteArrayBuilder builder = new ByteArrayBuilder(4 + ((str.length() * 3) << 2));
+        ByteArrayBuilder builder = new ByteArrayBuilder(4 + ((str.length() * 3) >> 2));
         try {
             b64variant.decode(str, builder);
         } catch (IllegalArgumentException e) {
@@ -163,24 +162,4 @@ e.getMessage()),
     
     @Override
     public int hashCode() { return _value.hashCode(); }
-
-    /**
-     * Different from other values, Strings need quoting
-     */
-    @Override
-    public String toString()
-    {
-        int len = _value.length();
-        len = len + 2 + (len >> 4);
-        StringBuilder sb = new StringBuilder(len);
-        appendQuoted(sb, _value);
-        return sb.toString();
-    }
-
-    protected static void appendQuoted(StringBuilder sb, String content)
-    {
-        sb.append('"');
-        CharTypes.appendQuoted(sb, content);
-        sb.append('"');
-    }
 }

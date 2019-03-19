@@ -82,9 +82,8 @@ public class BeanDeserializerFactory
      */
 
     /**
-     * Method that {@link DeserializerCache}s call to create a new
-     * deserializer for types other than Collections, Maps, arrays and
-     * enums.
+     * Method that called to create a new deserializer for types other than Collections,
+     * Maps, arrays, referential types or enums, or "well-known" JDK scalar types.
      */
     @Override
     public JsonDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
@@ -113,10 +112,9 @@ public class BeanDeserializerFactory
             // Let's make it possible to materialize abstract types.
             JavaType concreteType = materializeAbstractType(ctxt, type, beanDesc);
             if (concreteType != null) {
-                /* important: introspect actual implementation (abstract class or
-                 * interface doesn't have constructors, for one)
-                 */
-                beanDesc = config.introspect(concreteType);
+                // important: introspect actual implementation (abstract class or
+                // interface doesn't have constructors, for one)
+                beanDesc = ctxt.introspect(concreteType);
                 return buildBeanDeserializer(ctxt, concreteType, beanDesc);
             }
         }
@@ -138,13 +136,19 @@ public class BeanDeserializerFactory
     }
 
     @Override
-    public JsonDeserializer<Object> createBuilderBasedDeserializer(DeserializationContext ctxt,
-            JavaType valueType, BeanDescription beanDesc, Class<?> builderClass)
-                    throws JsonMappingException
+    public JsonDeserializer<Object> createBuilderBasedDeserializer(
+            DeserializationContext ctxt, JavaType valueType, BeanDescription beanDesc,
+            Class<?> builderClass)
+        throws JsonMappingException
     {
         // First: need a BeanDescription for builder class
-        JavaType builderType = ctxt.constructType(builderClass);
-        BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
+        JavaType builderType;
+        if (ctxt.isEnabled(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)) {
+            builderType = ctxt.getTypeFactory().constructParametricType(builderClass, valueType.getBindings());
+        } else {
+            builderType = ctxt.constructType(builderClass);
+        }
+        BeanDescription builderDesc = ctxt.introspectForBuilder(builderType);
         return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
     }
 
@@ -169,14 +173,15 @@ public class BeanDeserializerFactory
         }
         return deser;
     }
-    
+
     protected JavaType materializeAbstractType(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
+        final DeserializationConfig config = ctxt.getConfig();
         // May have multiple resolvers, call in precedence order until one returns non-null
-        for (AbstractTypeResolver r : _factoryConfig.abstractTypeResolvers()) {
-            JavaType concrete = r.resolveAbstractType(ctxt.getConfig(), beanDesc);
+        for (AbstractTypeResolver r : config.abstractTypeResolvers()) {
+            JavaType concrete = r.resolveAbstractType(config, beanDesc);
             if (concrete != null) {
                 return concrete;
             }
@@ -381,8 +386,8 @@ public class BeanDeserializerFactory
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
                     am.getParameterType(0));
             if (prop != null) {
-                // 21-Aug-2011, tatus: We may actually have found 'cause' property
-                //   to set... but let's replace it just in case, otherwise can end up with odd errors.
+                // 21-Aug-2011, tatus: We may actually have found 'cause' property to set...
+                //    but let's replace it just in case, otherwise can end up with odd errors.
                 builder.addOrReplaceProperty(prop, true);
             }
         }
@@ -450,7 +455,7 @@ public class BeanDeserializerFactory
     {
         final boolean isConcrete = !beanDesc.getType().isAbstract();
         final SettableBeanProperty[] creatorProps = isConcrete
-                ? builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig())
+                ? builder.getValueInstantiator().getFromObjectArguments(ctxt)
                 : null;
         final boolean hasCreatorProps = (creatorProps != null);
 
@@ -490,8 +495,10 @@ public class BeanDeserializerFactory
                 }
             }
         }
-        final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
-                && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS);
+        final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS);
+        // 24-Sep-2017, tatu: Legacy setting removed from 3.x, not sure if other visibility checks
+        //    should be checked?
+        // && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS);
 
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
@@ -673,14 +680,6 @@ name, ((AnnotatedParameter) m).getIndex());
                         beanDesc, refProp, refProp.getPrimaryType()));
             }
         }
-    }
-
-    @Deprecated // since 2.9 (rename)
-    protected void addReferenceProperties(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanDeserializerBuilder builder)
-        throws JsonMappingException
-    {
-        addBackReferenceProperties(ctxt, beanDesc, builder);
     }
 
     /**

@@ -179,7 +179,9 @@ public class TestJsonSerialize2
     public void testEmptyInclusionContainers() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
-        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        ObjectMapper inclMapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
 
         ListWrapper<String> list = new ListWrapper<String>();
         assertEquals("{\"list\":[]}", defMapper.writeValueAsString(list));
@@ -199,7 +201,6 @@ public class TestJsonSerialize2
 
     public void testNullSerializer() throws Exception
     {
-        String json = MAPPER.writeValueAsString(new NullBean());
-        assertEquals("{\"value\":null}", json);
+        assertEquals("{\"value\":null}", MAPPER.writeValueAsString(new NullBean()));
     }
 }

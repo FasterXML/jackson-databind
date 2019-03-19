@@ -33,11 +33,11 @@ public class TestCustomFactory
         }
 
         @Override
-        public T deserialize(JsonParser jp, DeserializationContext ctxt)
+        public T deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
             // need to skip, if structured...
-            jp.skipChildren();
+            p.skipChildren();
             return value;
         }
     }
@@ -61,35 +61,34 @@ public class TestCustomFactory
     static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
     {
         @Override
-        public CustomBean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public CustomBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             int a = 0, b = 0;
-            JsonToken t = jp.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.START_OBJECT) {
-                t = jp.nextToken();
+                t = p.nextToken();
             } else if (t != JsonToken.FIELD_NAME) {
                 throw new Error();
             }
             while(t == JsonToken.FIELD_NAME) {
-                final String fieldName = jp.getCurrentName();
-                t = jp.nextToken();
+                final String fieldName = p.currentName();
+                t = p.nextToken();
                 if (t != JsonToken.VALUE_NUMBER_INT) {
-                    throw new JsonParseException(jp, "expecting number got "+ t);
+                    throw new JsonParseException(p, "expecting number got "+ t);
                 }
                 if (fieldName.equals("a")) {
-                    a = jp.getIntValue();
+                    a = p.getIntValue();
                 } else if (fieldName.equals("b")) {
-                    b = jp.getIntValue();
+                    b = p.getIntValue();
                 } else {
                     throw new Error();
                 }
-                t = jp.nextToken();
+                t = p.nextToken();
             }
             return new CustomBean(a, b);
         }
     }
 
-    
     /*
     /**********************************************************
     /* Unit tests

@@ -33,5 +33,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
         assertTrue(f.numberNode((BigDecimal) null).isNull());
 
         assertTrue(f.numberNode((BigInteger) null).isNull());
+
+        assertTrue(f.missingNode().isMissingNode());
     }
 }

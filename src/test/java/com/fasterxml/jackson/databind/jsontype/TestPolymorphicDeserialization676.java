@@ -85,8 +85,9 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
     }
 
     public void testDeSerCorrect() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+                .build();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("1", 1);
         // commenting out the following statement will fail the test

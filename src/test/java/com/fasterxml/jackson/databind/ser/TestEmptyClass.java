@@ -54,8 +54,8 @@ public class TestEmptyClass
     /**********************************************************
      */
 
-    protected final ObjectMapper mapper = new ObjectMapper();
-    
+    protected final ObjectMapper MAPPER = objectMapper();
+
     /**
      * Test to check that [JACKSON-201] works if there is a recognized
      * annotation (which indicates type is serializable)
@@ -64,17 +64,19 @@ public class TestEmptyClass
     {
         // First: without annotations, should complain
         try {
-            serializeAsString(mapper, new Empty());
+            MAPPER.writeValueAsString(new Empty());
+            fail("Should fail");
         } catch (JsonMappingException e) {
             verifyException(e, "No serializer found for class");
         }
 
         // But not if there is a recognized annotation
-        assertEquals("{}", serializeAsString(mapper, new EmptyWithAnno()));
+        assertEquals("{}", MAPPER.writeValueAsString(new EmptyWithAnno()));
 
         // Including class annotation through mix-ins
-        ObjectMapper m2 = new ObjectMapper();
-        m2.addMixIn(Empty.class, EmptyWithAnno.class);
+        ObjectMapper m2 = jsonMapperBuilder()
+                .addMixIn(Empty.class, EmptyWithAnno.class)
+                .build();
         assertEquals("{}", m2.writeValueAsString(new Empty()));
     }
 
@@ -85,17 +87,18 @@ public class TestEmptyClass
     public void testEmptyWithFeature() throws Exception
     {
         // should be enabled by default
-        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        assertEquals("{}", serializeAsString(mapper, new Empty()));
+        assertTrue(MAPPER.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
+        assertEquals("{}",
+                MAPPER.writer()
+                    .without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                    .writeValueAsString(new Empty()));
     }
 
-    // [JACKSON-695], JsonSerializer.isEmpty()
     public void testCustomNoEmpty() throws Exception
     {
         // first non-empty:
-        assertEquals("{\"value\":123}", mapper.writeValueAsString(new NonZeroWrapper(123)));
+        assertEquals("{\"value\":123}", MAPPER.writeValueAsString(new NonZeroWrapper(123)));
         // then empty:
-        assertEquals("{}", mapper.writeValueAsString(new NonZeroWrapper(0)));
+        assertEquals("{}", MAPPER.writeValueAsString(new NonZeroWrapper(0)));
     }
 }

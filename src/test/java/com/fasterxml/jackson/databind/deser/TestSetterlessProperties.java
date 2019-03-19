@@ -47,10 +47,12 @@ public class TestSetterlessProperties
     /**********************************************************
      */
 
-    public void testSimpleSetterlessCollectionOk()
-        throws Exception
+    public void testSimpleSetterlessCollectionOk() throws Exception
     {
-        CollectionBean result = new ObjectMapper().readValue
+        CollectionBean result = jsonMapperBuilder()
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build()
+                .readValue
             ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
         List<String> l = result._values;
         assertEquals(2, l.size());
@@ -62,13 +64,9 @@ public class TestSetterlessProperties
      * Let's also verify that disabling the feature makes
      * deserialization fail for setterless bean
      */
-    public void testSimpleSetterlessCollectionFailure()
-        throws Exception
+    public void testSimpleSetterlessCollectionFailure() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        // by default, it should be enabled
-        assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
-        m.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
         assertFalse(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
 
         // and now this should fail
@@ -77,17 +75,18 @@ public class TestSetterlessProperties
                 ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
             fail("Expected an exception");
         } catch (JsonMappingException e) {
-            /* Not a good exception, ideally could suggest a need for
-             * a setter...?
-             */
+            // Not a good exception, ideally could suggest a need for
+            // a setter...?
             verifyException(e, "Unrecognized field");
         }
     }
 
-    public void testSimpleSetterlessMapOk()
-        throws Exception
+    public void testSimpleSetterlessMapOk() throws Exception
     {
-        MapBean result = new ObjectMapper().readValue
+        MapBean result = jsonMapperBuilder()
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build()
+                .readValue
             ("{\"values\":{ \"a\": 15, \"b\" : -3 }}", MapBean.class);
         Map<String,Integer> m = result._values;
         assertEquals(2, m.size());
@@ -95,11 +94,11 @@ public class TestSetterlessProperties
         assertEquals(Integer.valueOf(-3), m.get("b"));
     }
 
-    public void testSimpleSetterlessMapFailure()
-        throws Exception
+    public void testSimpleSetterlessMapFailure() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
+        ObjectMapper m = jsonMapperBuilder()
+                .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build();
         // so this should fail now without a setter
         try {
             m.readValue
@@ -115,8 +114,9 @@ public class TestSetterlessProperties
      */
     public void testSetterlessPrecedence() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.USE_GETTERS_AS_SETTERS, true);
+        ObjectMapper m = jsonMapperBuilder()
+                .enable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build();
         Dual value = m.readValue("{\"list\":[1,2,3]}, valueType)", Dual.class);
         assertNotNull(value);
         assertEquals(3, value.values.size());

@@ -1,8 +1,8 @@
 # Overview
 
 This project contains the general-purpose data-binding functionality
-and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome).
-It builds on [core streaming parser/generator](../../../jackson-core) package,
+and tree-model for [Jackson Data Processor](../../../jackson).
+It builds on [Streaming API](../../../jackson-core) (stream parser/generator) package,
 and uses [Jackson Annotations](../../../jackson-annotations) for configuration.
 Project is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
@@ -10,7 +10,7 @@ While the original use case for Jackson was JSON data-binding, it can now be use
 Naming of classes uses word 'JSON' in many places even though there is no actual hard dependency to JSON format.
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-databind.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-databind) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.core/jackson-databind/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind)
+[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind)
 [![Coverage Status](https://coveralls.io/repos/github/FasterXML/jackson-databind/badge.svg?branch=master)](https://coveralls.io/github/FasterXML/jackson-databind?branch=master)
 
 -----
@@ -25,7 +25,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.9.0</jackson.version>
+  <jackson.version>2.9.8</jackson.version>
   ...
 </properties>
 
@@ -180,7 +180,7 @@ But let's look at a simple teaser to whet your appetite.
 JsonFactory f = mapper.getFactory(); // may alternatively construct directly too
 
 // First: write simple JSON output
-File jsonFile = new JsonFile("test.json");
+File jsonFile = new File("test.json");
 JsonGenerator g = f.createGenerator(jsonFile);
 // write JSON: { "message" : "Hello world!" }
 g.writeStartObject();
@@ -401,7 +401,7 @@ There is really just one main rule, which is that to accept any code contributio
 
 ## Limitation on Dependencies by Core Components
 
-One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependendies are allowed beyond:
+One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependencies are allowed beyond:
 
 * Core components may rely on any methods included in the supported JDK
     * Minimum JDK version is 1.6 as of Jackson 2.4 and above (1.5 was baseline with 2.3 and earlier)
@@ -412,19 +412,19 @@ usually a Jackson module.
 
 -----
 
-# Differences from Jackson 1.x
+## Differences from Jackson 1.x
 
-Project contains versions 2.0 and above: source code for earlier (1.x) versions was available from [Codehaus](http://jackson.codehaus.org) SVN repository, but due to Codehaus closure is currently (July 2015) not officially available.
-We may try to create Jackson1x repository at Github in future (if you care about this, ping Jackson team via mailing lists, or file an issue for this project).
+Project contains versions 2.0 and above: source code for last (1.x) release, 1.9, is available at
+[Jackson-1](../../../jackson-1) repo.
 
-Main differences compared to 1.0 "mapper" jar are:
+Main differences compared to 1.x "mapper" jar are:
 
 * Maven build instead of Ant
 * Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)
 
 -----
 
-# Further reading
+## Further reading
 
 * [Overall Jackson Docs](../../../jackson-docs)
 * [Project wiki page](https://github.com/FasterXML/jackson-databind/wiki)
@@ -433,4 +433,5 @@ Related:
 
 * [Core annotations](https://github.com/FasterXML/jackson-annotations) package defines annotations commonly used for configuring databinding details
 * [Core parser/generator](https://github.com/FasterXML/jackson-core) package defines low-level incremental/streaming parsers, generators
-* [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome) has additional documentation (although much of it for Jackson 1.x)
+* [Jackson Project Home](../../../jackson) has links to all modules
+* [Jackson Docs](../../../jackson-docs) is project's documentation hub

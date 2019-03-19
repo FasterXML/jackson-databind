@@ -83,25 +83,26 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
 );
 
     public void testWithDeserializationProblemHandler() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper()
-                .enableDefaultTyping();
-        mapper.addHandler(new DeserializationProblemHandler() {
-            @Override
-            public JavaType handleUnknownTypeId(DeserializationContext ctxt, JavaType baseType, String subTypeId, TypeIdResolver idResolver, String failureMsg) throws IOException {
-//                System.out.println("Print out a warning here");
-                return ctxt.constructType(Void.class);
-            }
-        });
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public JavaType handleUnknownTypeId(DeserializationContext ctxt, JavaType baseType, String subTypeId, TypeIdResolver idResolver, String failureMsg) throws IOException {
+                        return ctxt.constructType(Void.class);
+                    }
+                })
+        .build();
+
         GenericContent processableContent = mapper.readValue(JSON, GenericContent.class);
         assertNotNull(processableContent.getInnerObjects());
         assertEquals(2, processableContent.getInnerObjects().size());
     }
 
     public void testWithDisabledFAIL_ON_INVALID_SUBTYPE() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
                 .enableDefaultTyping()
-        ;
+                .build();
         GenericContent processableContent = mapper.readValue(JSON, GenericContent.class);
         assertNotNull(processableContent.getInnerObjects());
         assertEquals(2, processableContent.getInnerObjects().size());

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -31,7 +30,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     // And then a round-trip test for singleton collections
     public void testSingletonCollections() throws Exception
     {
-        final TypeReference<?> xbeanListType = new TypeReference<List<XBean>>() { };
+        final TypeReference<List<XBean>> xbeanListType = new TypeReference<List<XBean>>() { };
 
         String json = MAPPER.writeValueAsString(Collections.singleton(new XBean(3)));
         Collection<XBean> result = MAPPER.readValue(json, xbeanListType);
@@ -49,9 +48,9 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     // [databind#1868]: Verify class name serialized as is
     public void testUnmodifiableSet() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
         Set<String> theSet = Collections.unmodifiableSet(Collections.singleton("a"));
         String json = mapper.writeValueAsString(theSet);
 

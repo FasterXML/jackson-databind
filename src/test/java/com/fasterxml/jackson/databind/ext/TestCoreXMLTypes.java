@@ -4,8 +4,6 @@ import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ext.CoreXMLDeserializers;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Core XML types (javax.xml) are considered "external" (or more precisely "optional")
@@ -24,10 +22,12 @@ public class TestCoreXMLTypes
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testQNameSer() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
-        assertEquals(quote(qn.toString()), serializeAsString(qn));
+        assertEquals(quote(qn.toString()), MAPPER.writeValueAsString(qn));
     }
 
     public void testDurationSer() throws Exception
@@ -35,7 +35,7 @@ public class TestCoreXMLTypes
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         // arbitrary value
         Duration dur = dtf.newDurationDayTime(false, 15, 19, 58, 1);
-        assertEquals(quote(dur.toString()), serializeAsString(dur));
+        assertEquals(quote(dur.toString()), MAPPER.writeValueAsString(dur));
     }
 
     public void testXMLGregorianCalendarSerAndDeser() throws Exception
@@ -57,10 +57,11 @@ public class TestCoreXMLTypes
         assertEquals(timestamp, calOut.toGregorianCalendar().getTimeInMillis());
 
         // and then textual variant
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         // this is ALMOST same as default for XMLGregorianCalendar... just need to unify Z/+0000
         String exp = cal.toXMLFormat();
-        String act = mapper.writeValueAsString(cal);
+        String act = mapper.writer()
+                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(cal);
         act = act.substring(1, act.length() - 1); // remove quotes
         exp = removeZ(exp);
         act = removeZ(act);
@@ -71,8 +72,8 @@ public class TestCoreXMLTypes
         if (dateStr.endsWith("Z")) {
             return dateStr.substring(0, dateStr.length()-1);
         }
-        if (dateStr.endsWith("+0000")) {
-            return dateStr.substring(0, dateStr.length()-5);
+        if (dateStr.endsWith("+00:00")) {
+            return dateStr.substring(0, dateStr.length()-6);
         }
         return dateStr;
     }
@@ -82,16 +83,6 @@ public class TestCoreXMLTypes
     /* Deserializer tests
     /**********************************************************
      */
-    
-    // First things first: must be able to load the deserializers...
-    public void testDeserializerLoading()
-    {
-        CoreXMLDeserializers sers = new CoreXMLDeserializers();
-        TypeFactory f = TypeFactory.defaultInstance();
-        sers.findBeanDeserializer(f.constructType(Duration.class), null, null);
-        sers.findBeanDeserializer(f.constructType(XMLGregorianCalendar.class), null, null);
-        sers.findBeanDeserializer(f.constructType(QName.class), null, null);
-    }
 
     public void testQNameDeser() throws Exception
     {

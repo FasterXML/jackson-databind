@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -359,8 +360,10 @@ public class POJOPropertiesCollectorTest
 
     public void testGlobalVisibilityForGetters()
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+        ObjectMapper m = jsonMapperBuilder()
+                .changeDefaultVisibility(vc ->
+                    vc.withVisibility(PropertyAccessor.GETTER, Visibility.NONE))
+                .build();
         POJOPropertiesCollector coll = collector(m, SimpleGetterVisibility.class, true);
         // should be 1, expect that we disabled getter auto-detection, so
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
@@ -414,21 +417,22 @@ public class POJOPropertiesCollectorTest
 
     public void testInnerClassWithAnnotationsInCreator() throws Exception
     {
-        BasicBeanDescription beanDesc;
+        BeanDescription beanDesc;
         // first with serialization
-        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
+        beanDesc = MAPPER.serializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
         assertNotNull(beanDesc);
         // then with deserialization
-        beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
+        beanDesc = MAPPER.deserializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
         assertNotNull(beanDesc);
     }
 
     public void testUseAnnotationsFalse() throws Exception
     {
         // note: need a separate mapper, need to reconfigure
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(MapperFeature.USE_ANNOTATIONS, false);
-        BasicBeanDescription beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Jackson703.class));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.USE_ANNOTATIONS)
+                .build();
+        BeanDescription beanDesc = mapper.serializationConfig().introspect(mapper.constructType(Jackson703.class));
         assertNotNull(beanDesc);
 
         Jackson703 bean = new Jackson703();
@@ -438,7 +442,7 @@ public class POJOPropertiesCollectorTest
 
     public void testJackson744() throws Exception
     {
-        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect
+        BeanDescription beanDesc = MAPPER.deserializationConfig().introspect
                 (MAPPER.constructType(Issue744Bean.class));
         assertNotNull(beanDesc);
         AnnotatedMember setter = beanDesc.findAnySetterAccessor();
@@ -451,19 +455,19 @@ public class POJOPropertiesCollectorTest
     public void testPropertyDesc() throws Exception
     {
         // start via deser
-        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
+        BeanDescription beanDesc = MAPPER.deserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, true, false, "13");
         // and then via ser:
-        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
+        beanDesc = MAPPER.serializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, true, false, "13");
     }
 
     // [databind#438]: Support @JsonProperty.index
     public void testPropertyIndex() throws Exception
     {
-        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
+        BeanDescription beanDesc = MAPPER.deserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, false, true, "13");
-        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
+        beanDesc = MAPPER.serializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, false, true, "13");
     }
 
@@ -538,10 +542,10 @@ public class POJOPropertiesCollectorTest
         BasicClassIntrospector bci = new BasicClassIntrospector();
         // no real difference between serialization, deserialization, at least here
         if (forSerialization) {
-            return bci.collectProperties(m0.getSerializationConfig(),
+            return bci.collectProperties(m0.serializationConfig(),
                     m0.constructType(cls), null, true, "set");
         }
-        return bci.collectProperties(m0.getDeserializationConfig(),
+        return bci.collectProperties(m0.deserializationConfig(),
                 m0.constructType(cls), null, false, "set");
     }
 }

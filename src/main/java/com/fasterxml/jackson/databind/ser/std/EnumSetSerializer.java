@@ -11,9 +11,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class EnumSetSerializer
     extends AsArraySerializerBase<EnumSet<? extends Enum<?>>>
 {
-    /**
-     * @since 2.6
-     */
     public EnumSetSerializer(JavaType elemType) {
         super(EnumSet.class, elemType, true, null, null);
     }
@@ -36,7 +33,7 @@ public class EnumSetSerializer
             Boolean unwrapSingle) {
         return new EnumSetSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, EnumSet<? extends Enum<?>> value) {
         return value.isEmpty();
@@ -60,29 +57,27 @@ public class EnumSetSerializer
                 return;
             }
         }
-        gen.writeStartArray(len);
+        gen.writeStartArray(value, len);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
     
     @Override
     public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
-            SerializerProvider provider)
+            SerializerProvider ctxt)
         throws IOException
     {
         JsonSerializer<Object> enumSer = _elementSerializer;
-        /* Need to dynamically find instance serializer; unfortunately
-         * that seems to be the only way to figure out type (no accessors
-         * to the enum class that set knows)
-         */
+        // Need to dynamically find instance serializer; unfortunately that seems
+        // to be the only way to figure out type (no accessors to the enum class that set knows)
         for (Enum<?> en : value) {
             if (enumSer == null) {
-                /* 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
-                 *   not bother with typed serializer variant here
-                 */
-                enumSer = provider.findValueSerializer(en.getDeclaringClass(), _property);
+                // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
+                //   not bother with typed serializer variant here
+                enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
+
             }
-            enumSer.serialize(en, gen, provider);
+            enumSer.serialize(en, gen, ctxt);
         }
     }
 }

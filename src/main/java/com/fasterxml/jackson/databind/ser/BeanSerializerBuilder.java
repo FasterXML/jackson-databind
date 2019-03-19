@@ -94,8 +94,6 @@ public class BeanSerializerBuilder
      *<p>
      * Note: ideally should be passed in constructor, but for backwards
      * compatibility, needed to add a setter instead
-     * 
-     * @since 2.1
      */
     protected void setConfig(SerializationConfig config) {
         _config = config;
@@ -190,7 +188,7 @@ public class BeanSerializerBuilder
             }
             properties = NO_PROPERTIES;
         } else {
-            properties = _properties.toArray(new BeanPropertyWriter[_properties.size()]);
+            properties = _properties.toArray(NO_PROPERTIES);
             if (_config.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                 for (int i = 0, end = properties.length; i < end; ++i) {
                     properties[i].fixAccess(_config);
@@ -213,6 +211,12 @@ _properties.size(), _filteredProperties.length));
                 _typeId.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
         }
+        JsonSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(
+                    _beanDesc.getType(), this,
+                    properties, _filteredProperties);
+        if (ser != null) {
+            return ser;
+        }
         return new BeanSerializer(_beanDesc.getType(), this,
                 properties, _filteredProperties);
     }
@@ -226,4 +230,3 @@ _properties.size(), _filteredProperties.length));
         return BeanSerializer.createDummy(_beanDesc.getType());
     }
 }
-

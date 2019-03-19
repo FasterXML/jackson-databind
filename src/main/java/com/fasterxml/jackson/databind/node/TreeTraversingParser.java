@@ -24,7 +24,10 @@ public class TreeTraversingParser extends ParserMinimalBase
     /**********************************************************
      */
 
-    protected ObjectCodec _objectCodec;
+    /**
+     * @since 3.0
+     */
+    protected final JsonNode _source;
 
     /**
      * Traversal context within tree
@@ -64,10 +67,10 @@ public class TreeTraversingParser extends ParserMinimalBase
 
     public TreeTraversingParser(JsonNode n) { this(n, null); }
 
-    public TreeTraversingParser(JsonNode n, ObjectCodec codec)
+    public TreeTraversingParser(JsonNode n, ObjectReadContext readContext)
     {
-        super(0);
-        _objectCodec = codec;
+        super(readContext, 0);
+        _source = n;
         if (n.isArray()) {
             _nextToken = JsonToken.START_ARRAY;
             _nodeCursor = new NodeCursor.ArrayCursor(n, null);
@@ -80,20 +83,15 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     @Override
-    public void setCodec(ObjectCodec c) {
-        _objectCodec = c;
-    }
-
-    @Override
-    public ObjectCodec getCodec() {
-        return _objectCodec;
-    }
-
-    @Override
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
-    
+
+    @Override
+    public JsonNode getInputSource() {
+        return _source;
+    }
+
     /*
     /**********************************************************
     /* Closeable implementation
@@ -187,8 +185,8 @@ public class TreeTraversingParser extends ParserMinimalBase
      */
 
     @Override
-    public String getCurrentName() {
-        return (_nodeCursor == null) ? null : _nodeCursor.getCurrentName();
+    public String currentName() {
+        return (_nodeCursor == null) ? null : _nodeCursor.currentName();
     }
 
     @Override
@@ -200,7 +198,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
     
     @Override
-    public JsonStreamContext getParsingContext() {
+    public TokenStreamContext getParsingContext() {
         return _nodeCursor;
     }
 
@@ -229,7 +227,7 @@ public class TreeTraversingParser extends ParserMinimalBase
         // need to separate handling a bit...
         switch (_currToken) {
         case FIELD_NAME:
-            return _nodeCursor.getCurrentName();
+            return _nodeCursor.currentName();
         case VALUE_STRING:
             return currentNode().textValue();
         case VALUE_NUMBER_INT:
@@ -273,47 +271,55 @@ public class TreeTraversingParser extends ParserMinimalBase
     /**********************************************************
      */
 
-    //public byte getByteValue() throws IOException, JsonParseException
+    //public byte getByteValue() throws IOException
 
     @Override
-    public NumberType getNumberType() throws IOException, JsonParseException {
+    public NumberType getNumberType() throws IOException {
         JsonNode n = currentNumericNode();
         return (n == null) ? null : n.numberType();
     }
 
     @Override
-    public BigInteger getBigIntegerValue() throws IOException, JsonParseException
+    public BigInteger getBigIntegerValue() throws IOException
     {
         return currentNumericNode().bigIntegerValue();
     }
 
     @Override
-    public BigDecimal getDecimalValue() throws IOException, JsonParseException {
+    public BigDecimal getDecimalValue() throws IOException {
         return currentNumericNode().decimalValue();
     }
 
     @Override
-    public double getDoubleValue() throws IOException, JsonParseException {
+    public double getDoubleValue() throws IOException {
         return currentNumericNode().doubleValue();
     }
 
     @Override
-    public float getFloatValue() throws IOException, JsonParseException {
+    public float getFloatValue() throws IOException {
         return (float) currentNumericNode().doubleValue();
     }
 
     @Override
-    public long getLongValue() throws IOException, JsonParseException {
-        return currentNumericNode().longValue();
+    public int getIntValue() throws IOException {
+        final NumericNode node = (NumericNode) currentNumericNode();
+        if (!node.canConvertToInt()) {
+            reportOverflowInt();
+        }
+        return node.intValue();
     }
 
     @Override
-    public int getIntValue() throws IOException, JsonParseException {
-        return currentNumericNode().intValue();
+    public long getLongValue() throws IOException {
+        final NumericNode node = (NumericNode) currentNumericNode();
+        if (!node.canConvertToInt()) {
+            reportOverflowLong();
+        }
+        return node.longValue();
     }
 
     @Override
-    public Number getNumberValue() throws IOException, JsonParseException {
+    public Number getNumberValue() throws IOException {
         return currentNumericNode().numberValue();
     }
 

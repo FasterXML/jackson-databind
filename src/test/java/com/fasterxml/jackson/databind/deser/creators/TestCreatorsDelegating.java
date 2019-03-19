@@ -30,8 +30,8 @@ public class TestCreatorsDelegating extends BaseMapTest
     {
         protected String name;
         protected int age;
-        
-        @JsonCreator
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public CtorBean711(@JacksonInject String n, int a)
         {
             name = n;
@@ -45,14 +45,14 @@ public class TestCreatorsDelegating extends BaseMapTest
         protected String name1;
         protected String name2;
         protected int age;
-        
+
         private FactoryBean711(int a, String n1, String n2) {
             age = a;
             name1 = n1;
             name2 = n2;
         }
-        
-        @JsonCreator
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public static FactoryBean711 create(@JacksonInject String n1, int a, @JacksonInject String n2) {
             return new FactoryBean711(a, n1, n2);
         }
@@ -65,7 +65,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         protected Value592(Object ob, boolean bogus) {
             stuff = ob;
         }
-        
+
         @JsonCreator
         public static Value592 from(TokenBuffer buffer) {
             return new Value592(buffer, false);
@@ -88,7 +88,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testBooleanDelegate() throws Exception
     {
@@ -104,10 +104,10 @@ public class TestCreatorsDelegating extends BaseMapTest
     // As per [JACKSON-711]: should also work with delegate model (single non-annotated arg)
     public void testWithCtorAndDelegate() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-            .addValue(String.class, "Pooka")
-            );
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std()
+                        .addValue(String.class, "Pooka"))
+                .build();
         CtorBean711 bean = null;
         try {
             bean = mapper.readValue("38", CtorBean711.class);
@@ -120,10 +120,10 @@ public class TestCreatorsDelegating extends BaseMapTest
 
     public void testWithFactoryAndDelegate() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-            .addValue(String.class, "Fygar")
-            );
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std()
+                        .addValue(String.class, "Fygar"))
+                .build();
         FactoryBean711 bean = null;
         try {
             bean = mapper.readValue("38", FactoryBean711.class);
@@ -145,11 +145,11 @@ public class TestCreatorsDelegating extends BaseMapTest
         JsonParser jp = ((TokenBuffer) ob).asParser();
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("a", jp.getCurrentName());
+        assertEquals("a", jp.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(1, jp.getIntValue());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("b", jp.getCurrentName());
+        assertEquals("b", jp.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(2, jp.getIntValue());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());

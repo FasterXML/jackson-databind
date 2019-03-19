@@ -113,10 +113,10 @@ public class PropertyMergeTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
-    ;
+            .build();
 
     public void testBeanMergingViaProp() throws Exception
     {
@@ -138,8 +138,10 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(0, config.loc.b); // not passed, nor merge from original
 
         // but with type-overrides
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configOverride(AB.class).setMergeable(true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(AB.class,
+                        o -> o.setMergeable(true))
+                .build();
         config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
@@ -148,8 +150,9 @@ public class PropertyMergeTest extends BaseMapTest
     public void testBeanMergingViaGlobal() throws Exception
     {
         // but with type-overrides
-        ObjectMapper mapper = newObjectMapper()
-                .setDefaultMergeable(true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultMergeable(true)
+                .build();
         NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
@@ -247,8 +250,9 @@ public class PropertyMergeTest extends BaseMapTest
 
     public void testInvalidPropertyMerge() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper()
-                .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
+                .build();
 
         try {
             mapper.readValue("{\"value\":3}", CantMergeInts.class);

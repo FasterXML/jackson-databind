@@ -73,7 +73,7 @@ public final class IndexedStringListSerializer
                 return;
             }
         }
-        g.writeStartArray(len);
+        g.writeStartArray(value, len);
         serializeContents(value, g, provider, len);
         g.writeEndArray();
     }
@@ -85,6 +85,7 @@ public final class IndexedStringListSerializer
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
+        g.setCurrentValue(value);
         serializeContents(value, g, provider, value.size());
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
@@ -92,13 +93,12 @@ public final class IndexedStringListSerializer
     private final void serializeContents(List<String> value, JsonGenerator g,
             SerializerProvider provider, int len) throws IOException
     {
-        g.setCurrentValue(value);
         int i = 0;
         try {
             for (; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
-                    provider.defaultSerializeNull(g);
+                    provider.defaultSerializeNullValue(g);
                 } else {
                     g.writeString(str);
                 }

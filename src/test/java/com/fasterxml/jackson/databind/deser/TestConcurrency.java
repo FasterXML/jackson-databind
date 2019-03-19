@@ -3,12 +3,15 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
+
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Testing for [JACKSON-237] (NPE due to race condition)
+ * Testing for a NPE due to race condition
  */
 public class TestConcurrency extends BaseMapTest
 {
@@ -18,7 +21,7 @@ public class TestConcurrency extends BaseMapTest
     /**********************************************
      */
 
-    @JsonDeserialize(using=BeanDeserializer.class)
+    @JsonDeserialize(using=TestBeanDeserializer.class)
     static class Bean
     {
         public int value = 42;
@@ -34,14 +37,13 @@ public class TestConcurrency extends BaseMapTest
      * Dummy deserializer used for verifying that partially handled (i.e. not yet
      * resolved) deserializers are not allowed to be used.
      */
-    static class BeanDeserializer
+    static class TestBeanDeserializer
         extends JsonDeserializer<Bean>
-        implements ResolvableDeserializer
     {
         protected volatile boolean resolved = false;
         
         @Override
-        public Bean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException
+        public Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             if (!resolved) {
                 throw new IOException("Deserializer not yet completely resolved");
@@ -52,7 +54,7 @@ public class TestConcurrency extends BaseMapTest
         }
 
         @Override
-        public void resolve(DeserializationContext ctxt) throws JsonMappingException
+        public void resolve(DeserializationContext ctxt)
         {
             try {
                 Thread.sleep(100L);
@@ -69,9 +71,8 @@ public class TestConcurrency extends BaseMapTest
 
     public void testDeserializerResolution() throws Exception
     {
-        /* Let's repeat couple of times, just to be sure; thread timing is not
-         * exact science; plus caching plays a role too
-         */
+        // Let's repeat couple of times, just to be sure; thread timing is not
+        // exact science; plus caching plays a role too
         final String JSON = "{\"value\":42}";
         
         for (int i = 0; i < 5; ++i) {

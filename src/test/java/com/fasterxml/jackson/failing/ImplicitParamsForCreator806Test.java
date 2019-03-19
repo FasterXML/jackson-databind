@@ -32,21 +32,20 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
-
-    private final ObjectMapper MAPPER = newObjectMapper()
-            .setAnnotationIntrospector(new MyParamIntrospector())
-            .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
-            ;
 
     // for [databind#806]: problem is that renaming occurs too late for implicitly detected
     // Creators
     public void testImplicitNameWithNamingStrategy() throws Exception
     {
-        XY value = MAPPER.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .annotationIntrospector(new MyParamIntrospector())
+                .build();
+        XY value = mapper.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);
         assertNotNull(value);
         assertEquals(1, value.x);
         assertEquals(2, value.y);

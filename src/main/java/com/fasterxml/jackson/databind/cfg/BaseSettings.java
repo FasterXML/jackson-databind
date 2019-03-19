@@ -5,11 +5,11 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.Base64Variant;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
@@ -20,31 +20,18 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 public final class BaseSettings
     implements java.io.Serializable
 {
-    // for 2.6
     private static final long serialVersionUID = 1L;
 
     /**
      * We will use a default TimeZone as the baseline.
      */
-    private static final TimeZone DEFAULT_TIMEZONE = 
-            //  TimeZone.getDefault()
-            /* [databind#915] 05-Nov-2015, tatu: Changed to UTC, from earlier
-             * baseline of GMT (up to 2.6)
-             */
-            TimeZone.getTimeZone("UTC");
-    
+    private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC");
+
     /*
     /**********************************************************
     /* Configuration settings; introspection, related
     /**********************************************************
      */
-    
-    /**
-     * Introspector used to figure out Bean properties needed for bean serialization
-     * and deserialization. Overridable so that it is possible to change low-level
-     * details of introspection, like adding new annotation types.
-     */
-    protected final ClassIntrospector _classIntrospector;
 
     /**
      * Introspector used for accessing annotation value based configuration.
@@ -56,13 +43,6 @@ public final class BaseSettings
      */
     protected final PropertyNamingStrategy _propertyNamingStrategy;
 
-    /**
-     * Specific factory used for creating {@link JavaType} instances;
-     * needed to allow modules to add more custom type handling
-     * (mostly to support types of non-Java JVM languages)
-     */
-    protected final TypeFactory _typeFactory;
-
     /*
     /**********************************************************
     /* Configuration settings; type resolution
@@ -70,11 +50,10 @@ public final class BaseSettings
      */
 
     /**
-     * Type information handler used for "untyped" values (ones declared
-     * to have type <code>Object.class</code>)
+     * Type information handler used for "default typing".
      */
-    protected final TypeResolverBuilder<?> _typeResolverBuilder;
-    
+    protected final TypeResolverBuilder<?> _defaultTyper;
+
     /*
     /**********************************************************
     /* Configuration settings; other
@@ -119,52 +98,35 @@ public final class BaseSettings
      * Explicitly default {@link Base64Variant} to use for handling
      * binary data (<code>byte[]</code>), used with data formats
      * that use base64 encoding (like JSON, CSV).
-     * 
-     * @since 2.1
      */
     protected final Base64Variant _defaultBase64;
-    
+
+    /**
+     * Factory used for constructing {@link com.fasterxml.jackson.databind.JsonNode} instances.
+     */
+    protected final JsonNodeFactory _nodeFactory;
+
     /*
     /**********************************************************
     /* Construction
     /**********************************************************
      */
 
-    public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
-            PropertyNamingStrategy pns, TypeFactory tf,
-            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
-            Locale locale, TimeZone tz, Base64Variant defaultBase64)
+    public BaseSettings(AnnotationIntrospector ai,
+            PropertyNamingStrategy pns,
+            TypeResolverBuilder<?> defaultTyper, DateFormat dateFormat, HandlerInstantiator hi,
+            Locale locale, TimeZone tz, Base64Variant defaultBase64,
+            JsonNodeFactory nodeFactory)
     {
-        _classIntrospector = ci;
         _annotationIntrospector = ai;
         _propertyNamingStrategy = pns;
-        _typeFactory = tf;
-        _typeResolverBuilder = typer;
+        _defaultTyper = defaultTyper;
         _dateFormat = dateFormat;
         _handlerInstantiator = hi;
         _locale = locale;
         _timeZone = tz;
         _defaultBase64 = defaultBase64;
-    }
-
-    /**
-     * Turns out we are not necessarily 100% stateless, alas, since {@link ClassIntrospector}
-     * typically has a cache. So this method is needed for deep copy() of Mapper.
-     *
-     * @since 2.9.6
-     */
-    public BaseSettings copy() {
-        return new BaseSettings(_classIntrospector.copy(),
-            _annotationIntrospector,
-            _propertyNamingStrategy,
-            _typeFactory,
-            _typeResolverBuilder,
-            _dateFormat,
-            _handlerInstantiator,
-            _locale,
-            _timeZone,
-            _defaultBase64);
-
+        _nodeFactory = nodeFactory;
     }
 
     /*
@@ -172,23 +134,14 @@ public final class BaseSettings
     /* Factory methods
     /**********************************************************
      */
-    
-    public BaseSettings withClassIntrospector(ClassIntrospector ci) {
-        if (_classIntrospector == ci) {
-            return this;
-        }
-        return new BaseSettings(ci, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
-    }
-    
+
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {
         if (_annotationIntrospector == ai) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, ai, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+        return new BaseSettings(ai, _propertyNamingStrategy,
+                _defaultTyper, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _nodeFactory);
     }
 
     public BaseSettings withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -199,44 +152,25 @@ public final class BaseSettings
         return withAnnotationIntrospector(AnnotationIntrospectorPair.create(_annotationIntrospector, ai));
     }
 
-    /*
-    public BaseSettings withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
-        return new BaseSettings(_classIntrospector, _annotationIntrospector,
-                _visibilityChecker.withVisibility(forMethod, visibility),
-                _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
-    }
-    */
-    
-    public BaseSettings withPropertyNamingStrategy(PropertyNamingStrategy pns) {
+    public BaseSettings with(PropertyNamingStrategy pns) {
         if (_propertyNamingStrategy == pns) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, pns, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+        return new BaseSettings(_annotationIntrospector, pns,
+                _defaultTyper, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _nodeFactory);
     }
 
-    public BaseSettings withTypeFactory(TypeFactory tf) {
-        if (_typeFactory == tf) {
+    public BaseSettings with(TypeResolverBuilder<?> typer) {
+        if (_defaultTyper == typer) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, tf,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
-    }
-
-    public BaseSettings withTypeResolverBuilder(TypeResolverBuilder<?> typer) {
-        if (_typeResolverBuilder == typer) {
-            return this;
-        }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
                 typer, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _nodeFactory);
     }
     
-    public BaseSettings withDateFormat(DateFormat df) {
+    public BaseSettings with(DateFormat df) {
         if (_dateFormat == df) {
             return this;
         }
@@ -245,27 +179,27 @@ public final class BaseSettings
         if ((df != null) && hasExplicitTimeZone()) {
             df = _force(df, _timeZone);
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+                _defaultTyper, df, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _nodeFactory);
     }
 
-    public BaseSettings withHandlerInstantiator(HandlerInstantiator hi) {
+    public BaseSettings with(HandlerInstantiator hi) {
         if (_handlerInstantiator == hi) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, hi, _locale,
-                _timeZone, _defaultBase64);
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+                _defaultTyper, _dateFormat, hi, _locale,
+                _timeZone, _defaultBase64, _nodeFactory);
     }
 
     public BaseSettings with(Locale l) {
         if (_locale == l) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, l,
-                _timeZone, _defaultBase64);
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+                _defaultTyper, _dateFormat, _handlerInstantiator, l,
+                _timeZone, _defaultBase64, _nodeFactory);
     }
 
     /**
@@ -283,35 +217,38 @@ public final class BaseSettings
         }
         
         DateFormat df = _force(_dateFormat, tz);
-        return new BaseSettings(_classIntrospector, _annotationIntrospector,
-                _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                tz, _defaultBase64);
+        return new BaseSettings(_annotationIntrospector,
+                _propertyNamingStrategy,
+                _defaultTyper, df, _handlerInstantiator, _locale,
+                tz, _defaultBase64, _nodeFactory);
     }
 
-    /**
-     * @since 2.1
-     */
     public BaseSettings with(Base64Variant base64) {
         if (base64 == _defaultBase64) {
             return this;
         }
-        return new BaseSettings(_classIntrospector, _annotationIntrospector,
-                _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, base64);
+        return new BaseSettings(_annotationIntrospector,
+                _propertyNamingStrategy,
+                _defaultTyper, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, base64, _nodeFactory);
     }
-    
+
+    public BaseSettings with(JsonNodeFactory nodeFactory) {
+        if (nodeFactory == _nodeFactory) {
+            return this;
+        }
+        return new BaseSettings(_annotationIntrospector,
+                _propertyNamingStrategy,
+                _defaultTyper, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, nodeFactory);
+    }
+
     /*
     /**********************************************************
     /* API
     /**********************************************************
      */
 
-    public ClassIntrospector getClassIntrospector() {
-        return _classIntrospector;
-    }
-    
     public AnnotationIntrospector getAnnotationIntrospector() {
         return _annotationIntrospector;
     }
@@ -320,12 +257,8 @@ public final class BaseSettings
         return _propertyNamingStrategy;
     }
 
-    public TypeFactory getTypeFactory() {
-        return _typeFactory;
-    }
-
-    public TypeResolverBuilder<?> getTypeResolverBuilder() {
-        return _typeResolverBuilder;
+    public TypeResolverBuilder<?> getDefaultTyper() {
+        return _defaultTyper;
     }
     
     public DateFormat getDateFormat() {
@@ -349,8 +282,6 @@ public final class BaseSettings
      * Accessor that may be called to determine whether this settings object
      * has been explicitly configured with a TimeZone (true), or is still
      * relying on the default settings (false).
-     *
-     * @since 2.7
      */
     public boolean hasExplicitTimeZone() {
         return (_timeZone != null);
@@ -358,6 +289,10 @@ public final class BaseSettings
     
     public Base64Variant getBase64Variant() {
         return _defaultBase64;
+    }
+
+    public JsonNodeFactory getNodeFactory() {
+        return _nodeFactory;
     }
 
     /*

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.lang.reflect.TypeVariable;
-
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -24,45 +22,14 @@ public final class MapType extends MapLikeType
                 keyT, valueT, valueHandler, typeHandler, asStatic);
     }
 
-    /**
-     * @since 2.7
-     */
     protected MapType(TypeBase base, JavaType keyT, JavaType valueT) {
         super(base, keyT, valueT);
     }
 
-    /**
-     * @since 2.7
-     */
     public static MapType construct(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInts,
             JavaType keyT, JavaType valueT) {
         return new MapType(rawType, bindings, superClass, superInts, keyT, valueT, null, null, false);
-    }
-    
-    @Deprecated // since 2.7
-    public static MapType construct(Class<?> rawType, JavaType keyT, JavaType valueT)
-    {
-        // First: may need to fabricate TypeBindings (needed for refining into
-        // concrete collection types, as per [databind#1102])
-        TypeVariable<?>[] vars = rawType.getTypeParameters();
-        TypeBindings bindings;
-        if ((vars == null) || (vars.length != 2)) {
-            bindings = TypeBindings.emptyBindings();
-        } else {
-            bindings = TypeBindings.create(rawType, keyT, valueT);
-        }
-        // !!! TODO: Wrong, does have supertypes
-        return new MapType(rawType, bindings, _bogusSuperClass(rawType), null,
-                keyT, valueT, null, null, false);
-    }
-
-    @Deprecated // since 2.7
-    @Override
-    protected JavaType _narrow(Class<?> subclass) {
-        return new MapType(subclass, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType,
-                _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override

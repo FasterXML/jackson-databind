@@ -148,8 +148,9 @@ public class CollectionDeserTest
     public void testImplicitArrays() throws Exception
     {
         // can't share mapper, custom configs (could create ObjectWriter tho)
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
 
         // first with simple scalar types (numbers), with collections
         List<Integer> ints = mapper.readValue("4", List.class);
@@ -271,8 +272,9 @@ public class CollectionDeserTest
     // for [databind#828]
     public void testWrapExceptions() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.WRAP_EXCEPTIONS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.WRAP_EXCEPTIONS)
+                .build();
 
         try {
             mapper.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
@@ -282,8 +284,9 @@ public class CollectionDeserTest
             fail("The RuntimeException should have been wrapped with a JsonMappingException.");
         }
 
-        ObjectMapper mapperNoWrap = new ObjectMapper();
-        mapperNoWrap.disable(DeserializationFeature.WRAP_EXCEPTIONS);
+        ObjectMapper mapperNoWrap = jsonMapperBuilder()
+                .disable(DeserializationFeature.WRAP_EXCEPTIONS)
+                .build();
 
         try {
             mapperNoWrap.readValue("[{}]", new TypeReference<List<SomeObject>>() {});

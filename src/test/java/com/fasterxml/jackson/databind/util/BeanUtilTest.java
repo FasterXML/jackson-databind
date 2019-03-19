@@ -37,10 +37,8 @@ public class BeanUtilTest extends BaseMapTest
 
     public void testNameMangle()
     {
-        assertEquals("foo", BeanUtil.legacyManglePropertyName("getFoo", 3));
         assertEquals("foo", BeanUtil.stdManglePropertyName("getFoo", 3));
 
-        assertEquals("url", BeanUtil.legacyManglePropertyName("getURL", 3));
         assertEquals("URL", BeanUtil.stdManglePropertyName("getURL", 3));
     }
 
@@ -86,9 +84,9 @@ public class BeanUtilTest extends BaseMapTest
     
     public void testOkNameForSetter() throws Exception
     {
-        _testOkNameForSetter("setFoo", "foo");
-        _testOkNameForSetter("notSetter", null);
-        _testOkNameForSetter("set", null);
+        _testOkNameForMutator("setFoo", "foo");
+        _testOkNameForMutator("notSetter", null);
+        _testOkNameForMutator("set", null);
     }
 
     /*
@@ -98,49 +96,32 @@ public class BeanUtilTest extends BaseMapTest
      */
 
     private void _testIsGetter(String name, String expName) throws Exception {
-        _testIsGetter(name, expName, true);
-        _testIsGetter(name, expName, false);
-    }
-
-    private void _testIsGetter(String name, String expName, boolean useStd) throws Exception
-    {
         AnnotatedMethod m = _method(IsGetters.class, name);
         if (expName == null) {
-            assertNull(BeanUtil.okNameForIsGetter(m, name, useStd));
+            assertNull(BeanUtil.okNameForIsGetter(m, name));
         } else {
-            assertEquals(expName, BeanUtil.okNameForIsGetter(m, name, useStd));
+            assertEquals(expName, BeanUtil.okNameForIsGetter(m, name));
         }
     }
 
     private void _testOkNameForGetter(String name, String expName) throws Exception {
-        _testOkNameForGetter(name, expName, true);
-        _testOkNameForGetter(name, expName, false);
-    }
-
-    private void _testOkNameForGetter(String name, String expName, boolean useStd) throws Exception {
         AnnotatedMethod m = _method(Getters.class, name);
         if (expName == null) {
-            assertNull(BeanUtil.okNameForGetter(m, useStd));
+            assertNull(BeanUtil.okNameForGetter(m));
         } else {
-            assertEquals(expName, BeanUtil.okNameForGetter(m, useStd));
+            assertEquals(expName, BeanUtil.okNameForGetter(m));
         }
     }
 
-    private void _testOkNameForSetter(String name, String expName) throws Exception {
-        _testOkNameForSetter(name, expName, true);
-        _testOkNameForSetter(name, expName, false);
-    }
-
-    @SuppressWarnings("deprecation")
-    private void _testOkNameForSetter(String name, String expName, boolean useStd) throws Exception {
+    private void _testOkNameForMutator(String name, String expName) throws Exception {
         AnnotatedMethod m = _method(Setters.class, name);
         if (expName == null) {
-            assertNull(BeanUtil.okNameForSetter(m, useStd));
+            assertNull(BeanUtil.okNameForMutator(m, "set"));
         } else {
-            assertEquals(expName, BeanUtil.okNameForSetter(m, useStd));
+            assertEquals(expName, BeanUtil.okNameForMutator(m, "set"));
         }
     }
-    
+
     private AnnotatedMethod _method(Class<?> cls, String name, Class<?>...parameterTypes) throws Exception {
         return new AnnotatedMethod(null, cls.getMethod(name, parameterTypes), null, null);
     }

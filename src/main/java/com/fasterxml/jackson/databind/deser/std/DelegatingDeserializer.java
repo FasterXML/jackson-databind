@@ -15,12 +15,9 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
  * that mostly delegate functionality to another deserializer implementation
  * (possibly forming a chaing of deserializers delegating functionality
  * in some cases)
- * 
- * @since 2.1
  */
 public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>
-    implements ContextualDeserializer, ResolvableDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -54,8 +51,8 @@ public abstract class DelegatingDeserializer
 
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException {
-        if (_delegatee instanceof ResolvableDeserializer) {
-            ((ResolvableDeserializer) _delegatee).resolve(ctxt);
+        if (_delegatee != null) {
+            _delegatee.resolve(ctxt);
         }
     }
 
@@ -71,6 +68,12 @@ public abstract class DelegatingDeserializer
             return this;
         }
         return newDelegatingInstance(del);
+    }
+
+    @Override
+    public SettableBeanProperty findBackReference(String logicalName) {
+        // [databind#253]: Hope this works....
+        return _delegatee.findBackReference(logicalName);
     }
 
     @Override
@@ -119,22 +122,8 @@ public abstract class DelegatingDeserializer
      */
 
     @Override
-    public boolean isCachable() { return _delegatee.isCachable(); }
-
-    @Override // since 2.9
-    public Boolean supportsUpdate(DeserializationConfig config) {
-        return _delegatee.supportsUpdate(config);
-    }
-
-    @Override
     public JsonDeserializer<?> getDelegatee() {
         return _delegatee;
-    }
-
-    @Override
-    public SettableBeanProperty findBackReference(String logicalName) {
-        // [databind#253]: Hope this works....
-        return _delegatee.findBackReference(logicalName);
     }
 
     @Override
@@ -156,5 +145,17 @@ public abstract class DelegatingDeserializer
     public Collection<Object> getKnownPropertyNames() { return _delegatee.getKnownPropertyNames(); }
 
     @Override
-    public ObjectIdReader getObjectIdReader() { return _delegatee.getObjectIdReader(); }
+    public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) {
+        return _delegatee.getObjectIdReader(ctxt);
+    }
+
+    @Override
+    public boolean isCachable() {
+        return (_delegatee != null) && _delegatee.isCachable();
+    }
+
+    @Override
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _delegatee.supportsUpdate(config);
+    }
 }

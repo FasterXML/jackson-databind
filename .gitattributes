@@ -5,3 +5,9 @@
 # (and if ever need to disable change `true` to `false`
 
 pom.xml merge=ours
+.travis.yml merge=ours
+
+# 28-Sep-2017, tatu: For 2.x -> 3.0 also block these
+
+release-notes/VERSION merge=ours
+release-notes/CREDITS merge=ours

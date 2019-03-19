@@ -57,8 +57,9 @@ public class IllegalTypesCheckTest extends BaseMapTest
 +" ]\n"
 +"}"
         );
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping();
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping()
+                .build();
         try {
             mapper.readValue(JSON, Bean1599.class);
             fail("Should not pass");
@@ -79,7 +80,11 @@ public class IllegalTypesCheckTest extends BaseMapTest
     public void testJDKTypes1855() throws Exception
     {
         // apparently included by JDK?
+        // 05-Mar-2019, tatu: may or may not be included; but breaks tests for Java 11.
+        //   Also not sure if it ever was widely included so...
+        /*
         _testIllegalType("com.sun.org.apache.bcel.internal.util.ClassLoader");
+        */
 
         // also: we can try some form of testing, even if bit contrived...
         _testIllegalType(BogusPointcutAdvisor.class);
@@ -101,8 +106,9 @@ public class IllegalTypesCheckTest extends BaseMapTest
     // // // Tests for [databind#1872]
     public void testJDKTypes1872() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
 
         String json = aposToQuotes(String.format("{'@class':'%s','authorities':['java.util.ArrayList',[]]}",
                 Authentication1872.class.getName()));

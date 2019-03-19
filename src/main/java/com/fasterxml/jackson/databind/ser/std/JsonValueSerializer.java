@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -12,14 +11,11 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -37,17 +33,19 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @SuppressWarnings("serial")
 @JacksonStdImpl
 public class JsonValueSerializer
-    extends StdSerializer<Object>
-    implements ContextualSerializer, JsonFormatVisitable, SchemaAware
+    extends StdDynamicSerializer<Object>
 {
     /**
-     * @since 2.9
+     * Accessor (field, getter) used to access value to serialize.
      */
     protected final AnnotatedMember _accessor;
 
-    protected final JsonSerializer<Object> _valueSerializer;
+    /**
+     * Value for annotated accessor.
+     */
+    protected final JavaType _valueType;
 
-    protected final BeanProperty _property;
+    protected final boolean _staticTyping;
 
     /**
      * This is a flag that is set in rare (?) cases where this serializer
@@ -58,9 +56,9 @@ public class JsonValueSerializer
     protected final boolean _forceTypeInformation;
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -68,50 +66,43 @@ public class JsonValueSerializer
      *    occurs if and only if the "value method" was annotated with
      *    {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *    null
-     *    
-     * @since 2.8 Earlier method took "raw" Method, but that does not work with access
-     *    to information we need
      */
-    @SuppressWarnings("unchecked")
-    public JsonValueSerializer(AnnotatedMember accessor, JsonSerializer<?> ser)
+    public JsonValueSerializer(JavaType nominalType,
+            JavaType valueType, boolean staticTyping,
+            TypeSerializer vts, JsonSerializer<?> ser,
+            AnnotatedMember accessor)
     {
-        super(accessor.getType());
+        super(nominalType, null, vts, ser);
+        _valueType = valueType;
+        _staticTyping = staticTyping;
         _accessor = accessor;
-        _valueSerializer = (JsonSerializer<Object>) ser;
-        _property = null;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
     }
 
-    @SuppressWarnings("unchecked")
-    public JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
+    protected JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
-        super(_notNullClass(src.handledType()));
+        super(src, property, src._valueTypeSerializer, ser);
+        _valueType = src._valueType;
         _accessor = src._accessor;
-        _valueSerializer = (JsonSerializer<Object>) ser;
-        _property = property;
+        _staticTyping = src._staticTyping;
         _forceTypeInformation = forceTypeInfo;
     }
 
-    @SuppressWarnings("unchecked")
-    private final static Class<Object> _notNullClass(Class<?> cls) {
-        return (cls == null) ? Object.class : (Class<Object>) cls;
-    }
-    
     public JsonValueSerializer withResolved(BeanProperty property,
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
-        if (_property == property && _valueSerializer == ser
-                && forceTypeInfo == _forceTypeInformation) {
+        if ((_property == property) && (_valueSerializer == ser)
+                && (forceTypeInfo == _forceTypeInformation)) {
             return this;
         }
         return new JsonValueSerializer(this, property, ser, forceTypeInfo);
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Post-processing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -125,24 +116,24 @@ public class JsonValueSerializer
     {
         JsonSerializer<?> ser = _valueSerializer;
         if (ser == null) {
-            /* Can only assign serializer statically if the declared type is final:
-             * if not, we don't really know the actual type until we get the instance.
-             */
+            // Can only assign serializer statically if the declared type is final:
+            // if not, we don't really know the actual type until we get the instance.
+
             // 10-Mar-2010, tatu: Except if static typing is to be used
-            JavaType t = _accessor.getType();
-            if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || t.isFinal()) {
+            if (_staticTyping || provider.isEnabled(MapperFeature.USE_STATIC_TYPING)
+                    || _valueType.isFinal()) {
                 // false -> no need to cache
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
                  *   serializer from value serializer; but, alas, there's no access
                  *   to serializer factory at this point... 
                  */
-                // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-                ser = provider.findPrimaryPropertySerializer(t, property);
+                // I _think_ this can be considered a primary property...
+                ser = provider.findPrimaryPropertySerializer(_valueType, property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
-                boolean forceTypeInformation = isNaturalTypeWithStdHandling(t.getRawClass(), ser);
+                boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
                 return withResolved(property, ser, forceTypeInformation);
             }
         } else {
@@ -152,86 +143,95 @@ public class JsonValueSerializer
         }
         return this;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual serialization
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     @Override
-    public void serialize(Object bean, JsonGenerator gen, SerializerProvider prov) throws IOException
+    public void serialize(Object bean, JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
+        Object value;
         try {
-            Object value = _accessor.getValue(bean);
-            if (value == null) {
-                prov.defaultSerializeNull(gen);
-                return;
-            }
-            JsonSerializer<Object> ser = _valueSerializer;
-            if (ser == null) {
-                Class<?> c = value.getClass();
-                /* 10-Mar-2010, tatu: Ideally we would actually separate out type
-                 *   serializer from value serializer; but, alas, there's no access
-                 *   to serializer factory at this point... 
-                 */
-                // let's cache it, may be needed soon again
-                ser = prov.findTypedValueSerializer(c, true, _property);
-            }
-            ser.serialize(value, gen, prov);
+            value = _accessor.getValue(bean);
         } catch (Exception e) {
-            wrapAndThrow(prov, e, bean, _accessor.getName() + "()");
+            wrapAndThrow(ctxt, e, bean, _accessor.getName() + "()");
+            return; // never gets here
+        }
+        if (value == null) {
+            ctxt.defaultSerializeNullValue(gen);
+            return;
+        }
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null) {
+            Class<?> cc = value.getClass();
+            if (_valueType.hasGenericTypes()) {
+                ser = _findAndAddDynamic(ctxt,
+                        ctxt.constructSpecializedType(_valueType, cc));
+            } else {
+                ser = _findAndAddDynamic(ctxt, cc);
+            }
+        }
+        if (_valueTypeSerializer != null) {
+            ser.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
+        } else {
+            ser.serialize(value, gen, ctxt);
         }
     }
 
     @Override
-    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer0) throws IOException
     {
         // Regardless of other parts, first need to find value to serialize:
-        Object value = null;
+        Object value;
         try {
             value = _accessor.getValue(bean);
-            // and if we got null, can also just write it directly
-            if (value == null) {
-                provider.defaultSerializeNull(gen);
-                return;
-            }
-            JsonSerializer<Object> ser = _valueSerializer;
-            if (ser == null) { // no serializer yet? Need to fetch
-                ser = provider.findValueSerializer(value.getClass(), _property);
-            } else {
-                // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
-                //    this (note: type is for the wrapper type, not enclosed value!)
-                if (_forceTypeInformation) {
-                    // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
-                    WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
-                            typeSer0.typeId(bean, JsonToken.VALUE_STRING));
-                    ser.serialize(value, gen, provider);
-                    typeSer0.writeTypeSuffix(gen, typeIdDef);
-
-                    return;
-                }
-            }
-            // 28-Sep-2016, tatu: As per [databind#1385], we do need to do some juggling
-            //    to use different Object for type id (logical type) and actual serialization
-            //    (delegat type).
-            TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
-            ser.serializeWithType(value, gen, provider, rr);
         } catch (Exception e) {
-            wrapAndThrow(provider, e, bean, _accessor.getName() + "()");
+            wrapAndThrow(ctxt, e, bean, _accessor.getName() + "()");
+            return; // never gets here
         }
-    }
-    
-    @SuppressWarnings("deprecation")
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
-        if (_valueSerializer instanceof SchemaAware) {
-            return ((SchemaAware)_valueSerializer).getSchema(provider, null);
+        // and if we got null, can also just write it directly
+        if (value == null) {
+            ctxt.defaultSerializeNullValue(gen);
+            return;
         }
-        return com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null) {
+            Class<?> cc = value.getClass();
+            if (_valueType.hasGenericTypes()) {
+                ser = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_valueType, cc));
+            } else {
+                ser = _findAndAddDynamic(ctxt, cc);
+            }
+        }
+
+        // 16-Apr-2018, tatu: This is interesting piece of vestigal code but...
+        //    I guess it is still needed, too.
+
+        // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
+        //    this (note: type is for the wrapper type, not enclosed value!)
+        if (_forceTypeInformation) {
+            // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
+            WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
+                    typeSer0.typeId(bean, JsonToken.VALUE_STRING));
+            ser.serialize(value, gen, ctxt);
+            typeSer0.writeTypeSuffix(gen, typeIdDef);
+            return;
+        }
+
+        // 28-Sep-2016, tatu: As per [databind#1385], we do need to do some juggling
+        //    to use different Object for type id (logical type) and actual serialization
+        //    (delegate type).
+
+        // 16-Apr-2018, tatu: What seems suspicious is that we do not use `_valueTypeSerializer`
+        //    for anything but... it appears to work wrt existing tests, and alternative
+        //    is not very clear. So most likely it'll fail at some point and require
+        //    full investigation. But not today.
+        TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
+        ser.serializeWithType(value, gen, ctxt, rr);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class JsonValueSerializer
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = visitor.getProvider().findTypedValueSerializer(type, false, _property);
+            ser = visitor.getProvider().findPrimaryPropertySerializer(type, _property);
             if (ser == null) { // can this ever occur?
                 visitor.expectAnyFormat(typeHint);
                 return;
@@ -271,8 +271,6 @@ public class JsonValueSerializer
      * 
      * @return True if method handled callbacks; false if not; in latter case caller will
      *   send default callbacks
-     *
-     * @since 2.6
      */
     protected boolean _acceptJsonFormatVisitorForEnum(JsonFormatVisitorWrapper visitor,
             JavaType typeHint, Class<?> enumType)
@@ -319,20 +317,9 @@ public class JsonValueSerializer
     }
 
     /*
-    /**********************************************************
-    /* Other methods
-    /**********************************************************
-     */
-
-    @Override
-    public String toString() {
-        return "(@JsonValue serializer for method " + _accessor.getDeclaringClass() + "#" + _accessor.getName() + ")";
-    }
-
-    /*
-    /**********************************************************
-    /* Helper class
-    /**********************************************************
+    /**********************************************************************
+    /* Helper class(es)
+    /**********************************************************************
      */
 
     /**
@@ -352,7 +339,8 @@ public class JsonValueSerializer
         }
 
         @Override
-        public TypeSerializer forProperty(BeanProperty prop) { // should never get called
+        public TypeSerializer forProperty(SerializerProvider ctxt,
+                BeanProperty prop) { // should never get called
             throw new UnsupportedOperationException();
         }
 
@@ -371,9 +359,7 @@ public class JsonValueSerializer
             return _typeSerializer.getTypeIdResolver();
         }
 
-        // // // New Write API, 2.9+
-        
-        @Override // since 2.9
+        @Override
         public WritableTypeId writeTypePrefix(JsonGenerator g,
                 WritableTypeId typeId) throws IOException {
             // 28-Jun-2017, tatu: Important! Need to "override" value
@@ -381,110 +367,11 @@ public class JsonValueSerializer
             return _typeSerializer.writeTypePrefix(g, typeId);
         }
 
-        @Override // since 2.9
+        @Override
         public WritableTypeId writeTypeSuffix(JsonGenerator g,
                 WritableTypeId typeId) throws IOException {
             // NOTE: already overwrote value object so:
             return _typeSerializer.writeTypeSuffix(g, typeId);
-        }
-
-        // // // Old Write API, pre-2.9
-
-        @Override
-        @Deprecated
-        public void writeTypePrefixForScalar(Object value, JsonGenerator gen) throws IOException {
-            _typeSerializer.writeTypePrefixForScalar(_forObject, gen);
-        }
-
-        @Override
-        @Deprecated
-        public void writeTypePrefixForObject(Object value, JsonGenerator gen) throws IOException {
-            _typeSerializer.writeTypePrefixForObject(_forObject, gen);
-        }
-
-        @Override
-        @Deprecated
-        public void writeTypePrefixForArray(Object value, JsonGenerator gen) throws IOException {
-            _typeSerializer.writeTypePrefixForArray(_forObject, gen);
-        }
-
-        @Override
-        @Deprecated
-        public void writeTypeSuffixForScalar(Object value, JsonGenerator gen) throws IOException {
-            _typeSerializer.writeTypeSuffixForScalar(_forObject, gen);
-        }
-
-        @Override
-        @Deprecated
-        public void writeTypeSuffixForObject(Object value, JsonGenerator gen) throws IOException {
-            _typeSerializer.writeTypeSuffixForObject(_forObject, gen);
-        }
-
-        @Override
-        @Deprecated
-        public void writeTypeSuffixForArray(Object value, JsonGenerator gen) throws IOException {
-            _typeSerializer.writeTypeSuffixForArray(_forObject, gen);
-        }
-
-        @Override
-        @Deprecated
-        public void writeTypePrefixForScalar(Object value, JsonGenerator gen, Class<?> type) throws IOException {
-            _typeSerializer.writeTypePrefixForScalar(_forObject, gen, type);
-        }
-
-        @Override
-        @Deprecated
-        public void writeTypePrefixForObject(Object value, JsonGenerator gen, Class<?> type) throws IOException {
-            _typeSerializer.writeTypePrefixForObject(_forObject, gen, type);
-        }
-
-        @Override
-        @Deprecated
-        public void writeTypePrefixForArray(Object value, JsonGenerator gen, Class<?> type) throws IOException {
-            _typeSerializer.writeTypePrefixForArray(_forObject, gen, type);
-        }
-
-        /*
-        /**********************************************************
-        /* Deprecated methods (since 2.9)
-        /**********************************************************
-         */
-
-        @Override
-        @Deprecated
-        public void writeCustomTypePrefixForScalar(Object value, JsonGenerator gen, String typeId)
-                throws IOException {
-            _typeSerializer.writeCustomTypePrefixForScalar(_forObject, gen, typeId);
-        }
-
-        @Override
-        @Deprecated
-        public void writeCustomTypePrefixForObject(Object value, JsonGenerator gen, String typeId) throws IOException {
-            _typeSerializer.writeCustomTypePrefixForObject(_forObject, gen, typeId);
-        }
-
-        @Override
-        @Deprecated
-        public void writeCustomTypePrefixForArray(Object value, JsonGenerator gen, String typeId) throws IOException {
-            _typeSerializer.writeCustomTypePrefixForArray(_forObject, gen, typeId);
-        }
-
-        @Override
-        @Deprecated
-        public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator gen, String typeId) throws IOException {
-            _typeSerializer.writeCustomTypeSuffixForScalar(_forObject, gen, typeId);
-        }
-
-        @Override
-        @Deprecated
-        public void writeCustomTypeSuffixForObject(Object value, JsonGenerator gen, String typeId) throws IOException {
-            _typeSerializer.writeCustomTypeSuffixForObject(_forObject, gen, typeId);
-        }
-
-        @Override
-        @Deprecated
-        public void writeCustomTypeSuffixForArray(Object value, JsonGenerator gen, String typeId) throws IOException {
-            _typeSerializer.writeCustomTypeSuffixForArray(_forObject, gen, typeId);
         }
     }
 }

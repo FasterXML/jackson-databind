@@ -304,9 +304,10 @@ public class BuilderSimpleTest extends BaseMapTest
         }
 
         // but with config overrides should pass
-        ObjectMapper ignorantMapper = new ObjectMapper();
-        ignorantMapper.configOverride(SimpleBuilderXY.class)
-                .setIgnorals(JsonIgnoreProperties.Value.forIgnoreUnknown(true));
+        ObjectMapper ignorantMapper = jsonMapperBuilder()
+                .withConfigOverride(SimpleBuilderXY.class,
+                        override -> override.setIgnorals(JsonIgnoreProperties.Value.forIgnoreUnknown(true)))
+                .build();
         o = ignorantMapper.readValue(json, ValueClassXY.class);
         assertNotNull(o);
         assertSame(ValueClassXY.class, o.getClass());
@@ -315,7 +316,7 @@ public class BuilderSimpleTest extends BaseMapTest
         assertEquals(value._x, 2);
         assertEquals(value._y, 3);
     }
-    
+
     public void testMultiAccess() throws Exception
     {
         String json = aposToQuotes("{'c':3,'a':2,'b':-9}");
@@ -390,9 +391,10 @@ public class BuilderSimpleTest extends BaseMapTest
 
     public void testPOJOConfigResolution1557() throws Exception
     {
-        final String json = "{\"value\":1}";
-        MAPPER.registerModule(new NopModule1557());
-        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new NopModule1557())
+                .build();
+        ValueFoo value = mapper.readValue("{\"value\":1}", ValueFoo.class);
         assertEquals(1, value.value);
     }
 }

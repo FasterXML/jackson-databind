@@ -36,8 +36,6 @@ public class TypeBindings
 
     /**
      * Names of potentially unresolved type variables.
-     *
-     * @since 2.3
      */
     private final String[] _unboundVariables;
     
@@ -83,7 +81,7 @@ public class TypeBindings
     public static TypeBindings create(Class<?> erasedType, List<JavaType> typeList)
     {
         JavaType[] types = (typeList == null || typeList.isEmpty()) ?
-                NO_TYPES : typeList.toArray(new JavaType[typeList.size()]);
+                NO_TYPES : typeList.toArray(NO_TYPES);
         return create(erasedType, types);
     }
 

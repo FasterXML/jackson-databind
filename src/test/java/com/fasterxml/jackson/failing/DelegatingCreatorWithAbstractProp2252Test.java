@@ -26,7 +26,7 @@ public class DelegatingCreatorWithAbstractProp2252Test extends BaseMapTest
     @SuppressWarnings("serial")
     static abstract class MyAbstractList extends ArrayList<String> { }
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // loosely based on [databind#2251], in which delegating creator is used, but
     // theoretically necessary type for setter can cause issues -- shouldn't, as no

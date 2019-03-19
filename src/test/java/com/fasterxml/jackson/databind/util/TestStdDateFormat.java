@@ -8,17 +8,8 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-public class TestStdDateFormat
-    extends BaseMapTest
+public class TestStdDateFormat extends BaseMapTest
 {
-    @SuppressWarnings("deprecation")
-    public void testFactories() {
-        TimeZone tz = TimeZone.getTimeZone("GMT");
-        Locale loc = Locale.US;
-        assertNotNull(StdDateFormat.getISO8601Format(tz, loc));
-        assertNotNull(StdDateFormat.getRFC1123Format(tz, loc));
-    }
-
     // [databind#803]
     public void testLenientDefaults() throws Exception
     {

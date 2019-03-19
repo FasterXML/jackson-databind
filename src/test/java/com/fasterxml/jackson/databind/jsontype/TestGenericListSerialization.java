@@ -48,15 +48,16 @@ public class TestGenericListSerialization
 
     public void testSubTypesFor356() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        
         JSONResponse<List<Parent>> input = new JSONResponse<List<Parent>>();
 
         List<Parent> embedded = new ArrayList<Parent>();
         embedded.add(new Child1());
         embedded.add(new Child2());
         input.setResult(embedded);
-        mapper.configure(MapperFeature.USE_STATIC_TYPING, true);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
 
         JavaType rootType = TypeFactory.defaultInstance().constructType(new TypeReference<JSONResponse<List<Parent>>>() { });
         byte[] json = mapper.writerFor(rootType).writeValueAsBytes(input);

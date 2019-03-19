@@ -83,8 +83,8 @@ public class TestJsonNode extends NodeTestBase
         assertStandardEquals(n);
         assertEquals(n, new POJONode("x"));
         assertEquals("x", n.asText());
-        // not sure if this is what it'll remain as but:
-        assertEquals("x", n.toString());
+        // 10-Dec-2018, tatu: With 2.10, should serialize same as via ObjectMapper/ObjectWriter
+        assertEquals("\"x\"", n.toString());
 
         assertEquals(new POJONode(null), new POJONode(null));
 
@@ -176,13 +176,12 @@ public class TestJsonNode extends NodeTestBase
     // [databind#793]
     public void testArrayWithDefaultTyping() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
-            .enableDefaultTyping();
-
+        ObjectMapper mapper = jsonMapperBuilder()
+            .enableDefaultTyping()
+            .build();
         JsonNode array = mapper.readTree("[ 1, 2 ]");
         assertTrue(array.isArray());
         assertEquals(2, array.size());
-
         JsonNode obj = mapper.readTree("{ \"a\" : 2 }");
         assertTrue(obj.isObject());
         assertEquals(1, obj.size());

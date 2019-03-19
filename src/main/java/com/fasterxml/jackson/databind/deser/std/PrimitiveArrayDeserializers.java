@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;
@@ -23,8 +22,8 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
  * arrays that contain non-object java primitive types.
  */
 @SuppressWarnings("serial")
-public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
-    implements ContextualDeserializer // since 2.7
+public abstract class PrimitiveArrayDeserializers<T>
+    extends StdDeserializer<T>
 {
     /**
      * Specific override for this instance (from proper, or global per-type overrides)
@@ -281,16 +280,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
              * convert other tokens to Strings... but let's not bother
              * yet, doesn't seem to make sense)
              */
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_STRING) {
                 // note: can NOT return shared internal buffer, must copy:
                 char[] buffer = p.getTextCharacters();
                 int offset = p.getTextOffset();
                 int len = p.getTextLength();
     
-                char[] result = new char[len];
-                System.arraycopy(buffer, offset, result, 0, len);
-                return result;
+                return Arrays.copyOfRange(buffer, offset, offset + len);
             }
             if (p.isExpectedStartArrayToken()) {
                 // Let's actually build as a String, then get chars
@@ -468,7 +465,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             
             // Most likely case: base64 encoded String?
             if (t == JsonToken.VALUE_STRING) {
@@ -538,7 +535,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException
         {
             byte value;
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
                 // should we catch overflow exceptions?
                 value = p.getByteValue();

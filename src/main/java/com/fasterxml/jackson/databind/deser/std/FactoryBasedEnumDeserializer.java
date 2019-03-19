@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
@@ -19,12 +18,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Deserializer that uses a single-String static factory method
  * for locating Enum values by String id.
- * 
- * @since 2.8 (as stand-alone class; was static inner class of {@link EnumDeserializer}
  */
 class FactoryBasedEnumDeserializer
     extends StdDeserializer<Object>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1;
 
@@ -110,7 +106,7 @@ class FactoryBasedEnumDeserializer
         if (_deser != null) {
             value = _deser.deserialize(p, ctxt);
         } else if (_hasArgs) {
-            JsonToken curr = p.getCurrentToken();
+            JsonToken curr = p.currentToken();
             //There can be a JSON object passed for deserializing an Enum,
             //the below case handles it.
             if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
@@ -161,9 +157,9 @@ class FactoryBasedEnumDeserializer
     {
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
     
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
     
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);

@@ -228,11 +228,11 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
 
         // and then directly, iff registered
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
-        mapper.registerModule(module);
-        
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
         assertNotNull(elem);
         assertEquals(StackTraceBean.NUM, elem.getLineNumber());
@@ -281,17 +281,20 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertEquals(exp, MAPPER.readValue("\""+exp.toString()+"\"", URL.class));
 
         // trivial case; null to null, embedded URL to URL
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
 
         // then, URLitself come as is:
-        buf = new TokenBuffer(null, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeObject(exp);
         assertSame(exp, MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
+    }
 
+    public void testURLInvalid() throws Exception
+    {
         // and finally, invalid URL should be handled appropriately too
         try {
             URL result = MAPPER.readValue(quote("a b"), URL.class);
@@ -300,11 +303,12 @@ public class JDKStringLikeTypesTest extends BaseMapTest
             verifyException(e, "not a valid textual representation");
         }
     }
-
+    
     public void testUUID() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
-        
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
         // first, couple of generated UUIDs:
         for (String value : new String[] {
@@ -315,9 +319,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
                 "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
                 "00000007-0000-0000-0000-000000000000"
         }) {
-            
-            mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-            
             UUID uuid = UUID.fromString(value);
             assertEquals(uuid,
                     mapper.readValue(quote(value), UUID.class));
@@ -359,34 +360,35 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     public void testUUIDAux() throws Exception
     {
-        // [JACKSON-393] fix:
         final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
 
         // first, null should come as null
-        TokenBuffer buf = new TokenBuffer(null, false);
-        buf.writeObject(null);
-        assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
-        buf.close();
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writeObject(null);
+            assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
+        }
 
         // then, UUID itself come as is:
-        buf = new TokenBuffer(null, false);
-        buf.writeObject(value);
-        assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
-
-        // and finally from byte[]
-        // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(bytes);
-        out.writeLong(value.getMostSignificantBits());
-        out.writeLong(value.getLeastSignificantBits());
-        byte[] data = bytes.toByteArray();
-        assertEquals(16, data.length);
-        
-        buf.writeObject(data);
-
-        UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
-        
-        assertEquals(value, value2);
-        buf.close();
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writeObject(value);
+            assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
+    
+            // and finally from byte[]
+            // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            DataOutputStream out = new DataOutputStream(bytes);
+            out.writeLong(value.getMostSignificantBits());
+            out.writeLong(value.getLeastSignificantBits());
+            out.close();
+            byte[] data = bytes.toByteArray();
+            assertEquals(16, data.length);
+            
+            buf.writeObject(data);
+    
+            UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
+            
+            assertEquals(value, value2);
+            buf.close();
+        }
     }
 }

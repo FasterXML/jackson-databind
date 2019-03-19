@@ -25,8 +25,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public class AbstractDeserializer
     extends JsonDeserializer<Object>
-    implements ContextualDeserializer, // since 2.9
-        java.io.Serializable
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -71,12 +70,6 @@ public class AbstractDeserializer
         _acceptBoolean = (cls == Boolean.TYPE) || cls.isAssignableFrom(Boolean.class);
         _acceptInt = (cls == Integer.TYPE) || cls.isAssignableFrom(Integer.class);
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
-    }
-
-    @Deprecated // since 2.9
-    public AbstractDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps) {
-        this(builder, beanDesc, backRefProps, null);
     }
 
     protected AbstractDeserializer(BeanDescription beanDesc)
@@ -126,7 +119,7 @@ public class AbstractDeserializer
         if (property != null && intr != null) {
             final AnnotatedMember accessor = property.getMember();
             if (accessor != null) {
-                ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+                ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(ctxt.getConfig(), accessor);
                 if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                     JavaType idType;
                     ObjectIdGenerator<?> idGen;
@@ -134,7 +127,7 @@ public class AbstractDeserializer
                     ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
 
                     // 2.1: allow modifications by "id ref" annotations as well:
-                    objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
+                    objectIdInfo = intr.findObjectReferenceInfo(ctxt.getConfig(), accessor, objectIdInfo);
                     Class<?> implClass = objectIdInfo.getGeneratorType();
 
                     if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
@@ -203,7 +196,7 @@ handledType().getName()));
      * (either via value type or referring property).
      */
     @Override
-    public ObjectIdReader getObjectIdReader() {
+    public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) {
         return _objectIdReader;
     }
 
@@ -230,7 +223,7 @@ handledType().getName()));
         // Hmmh. One tricky question; for scalar, is it an Object Id, or "Natural" type?
         // for now, prefer Object Id:
         if (_objectIdReader != null) {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t != null) {
                 // Most commonly, a scalar (int id, uuid String, ...)
                 if (t.isScalarValue()) {
@@ -241,7 +234,7 @@ handledType().getName()));
                     t = p.nextToken();
                 }
                 if ((t == JsonToken.FIELD_NAME) && _objectIdReader.maySerializeAsObject()
-                        && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
+                        && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                     return _deserializeFromObjectId(p, ctxt);
                 }
             }
@@ -280,7 +273,7 @@ handledType().getName()));
          * Finally, we may have to consider possibility of custom handlers for
          * these values: but for now this should work ok.
          */
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             if (_acceptString) {
                 return p.getText();

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -90,12 +91,12 @@ public class ObjectWriterTest
     public void testObjectWriterFeatures() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
-                .without(JsonGenerator.Feature.QUOTE_FIELD_NAMES);                
+                .without(JsonWriteFeature.QUOTE_FIELD_NAMES);
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("a", 1);
         assertEquals("{a:1}", writer.writeValueAsString(map));
         // but can also reconfigure
-        assertEquals("{\"a\":1}", writer.with(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+        assertEquals("{\"a\":1}", writer.with(JsonWriteFeature.QUOTE_FIELD_NAMES)
                 .writeValueAsString(map));
     }
 
@@ -117,12 +118,6 @@ public class ObjectWriterTest
         assertEquals(aposToQuotes("{'type':'A','value':3}"), json);
         json = writer.writeValueAsString(new ImplB(-5));
         assertEquals(aposToQuotes("{'type':'B','b':-5}"), json);
-    }
-
-    public void testCanSerialize() throws Exception
-    {
-        assertTrue(MAPPER.writer().canSerialize(String.class));
-        assertTrue(MAPPER.writer().canSerialize(String.class, null));
     }
 
     public void testNoPrefetch() throws Exception
@@ -148,7 +143,7 @@ public class ObjectWriterTest
         input.close();
 
         // and via explicitly passed generator
-        JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
+        JsonGenerator g = MAPPER.createGenerator(new StringWriter());
         input = new CloseableValue();
         assertFalse(input.closed);
         w.writeValue(g, input);
@@ -172,13 +167,10 @@ public class ObjectWriterTest
     public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertSame(MAPPER.getFactory(), w.getFactory());
+        assertSame(MAPPER.tokenStreamFactory(), w.generatorFactory());
         assertFalse(w.hasPrefetchedSerializer());
-        assertNotNull(w.getTypeFactory());
+        assertNotNull(w.typeFactory());
 
-        JsonFactory f = new JsonFactory();
-        w = w.with(f);
-        assertSame(f, w.getFactory());
         ObjectWriter newW = w.with(Base64Variants.MODIFIED_FOR_URL);
         assertNotSame(w, newW);
         assertSame(newW, newW.with(Base64Variants.MODIFIED_FOR_URL));
@@ -232,7 +224,7 @@ public class ObjectWriterTest
     {
         ObjectWriter w = MAPPER.writer();
         assertFalse(w.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertFalse(w.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
+        assertFalse(w.isEnabled(StreamWriteFeature.STRICT_DUPLICATE_DETECTION));
         ObjectWriter newW = w.with(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS,
                 SerializationFeature.INDENT_OUTPUT);
         assertNotSame(w, newW);
@@ -257,16 +249,15 @@ public class ObjectWriterTest
                 SerializationFeature.EAGER_SERIALIZER_FETCH));
     }
 
-    public void testGeneratorFeatures() throws Exception
+    public void testStreamWriteFeatures() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertFalse(w.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertNotSame(w, w.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
-        assertNotSame(w, w.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertNotSame(w, w.with(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertNotSame(w, w.withFeatures(JsonWriteFeature.ESCAPE_NON_ASCII));
 
-        assertTrue(w.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
-        assertNotSame(w, w.without(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
-        assertNotSame(w, w.withoutFeatures(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        assertTrue(w.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertNotSame(w, w.without(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertNotSame(w, w.withoutFeatures(StreamWriteFeature.AUTO_CLOSE_TARGET));
     }
     
     /*

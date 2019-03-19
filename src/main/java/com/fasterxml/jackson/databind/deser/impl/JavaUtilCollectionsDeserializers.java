@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdConvertingDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -84,7 +84,7 @@ public abstract class JavaUtilCollectionsDeserializers
         } else {
             return null;
         }
-        return new StdDelegatingDeserializer<Object>(conv);
+        return new StdConvertingDeserializer<Object>(conv);
     }
 
     public static JsonDeserializer<?> findForMap(DeserializationContext ctxt,
@@ -101,7 +101,7 @@ public abstract class JavaUtilCollectionsDeserializers
         } else {
             return null;
         }
-        return new StdDelegatingDeserializer<Object>(conv);
+        return new StdConvertingDeserializer<Object>(conv);
     }
     
     static JavaUtilCollectionsConverter converter(int kind,

@@ -84,7 +84,7 @@ public class IteratorSerializer
         do {
             Object elem = value.next();
             if (elem == null) {
-                provider.defaultSerializeNull(g);
+                provider.defaultSerializeNullValue(g);
             } else if (typeSer == null) {
                 serializer.serialize(elem, g, provider);
             } else {
@@ -94,31 +94,29 @@ public class IteratorSerializer
     }
     
     protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
-            SerializerProvider provider) throws IOException
+            SerializerProvider ctxt) throws IOException
     {
         final TypeSerializer typeSer = _valueTypeSerializer;
-        PropertySerializerMap serializers = _dynamicSerializers;
         do {
             Object elem = value.next();
             if (elem == null) {
-                provider.defaultSerializeNull(g);
+                ctxt.defaultSerializeNullValue(g);
                 continue;
             }
             Class<?> cc = elem.getClass();
-            JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+            JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
             if (serializer == null) {
                 if (_elementType.hasGenericTypes()) {
-                    serializer = _findAndAddDynamic(serializers,
-                            provider.constructSpecializedType(_elementType, cc), provider);
+                    serializer = _findAndAddDynamic(ctxt,
+                            ctxt.constructSpecializedType(_elementType, cc));
                 } else {
-                    serializer = _findAndAddDynamic(serializers, cc, provider);
+                    serializer = _findAndAddDynamic(ctxt, cc);
                 }
-                serializers = _dynamicSerializers;
             }
             if (typeSer == null) {
-                serializer.serialize(elem, g, provider);
+                serializer.serialize(elem, g, ctxt);
             } else {
-                serializer.serializeWithType(elem, g, provider, typeSer);
+                serializer.serializeWithType(elem, g, ctxt, typeSer);
             }
         } while (value.hasNext());
     }

@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -69,10 +67,10 @@ public class TestArrayDeserialization
         }
 
         @Override
-        public void serialize(JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(JsonGenerator gen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
-            jgen.writeString(_desc);
+            gen.writeString(_desc);
         }
 
         @Override public String toString() { return _desc; }
@@ -84,7 +82,7 @@ public class TestArrayDeserialization
         }
 
         @Override
-        public void serializeWithType(JsonGenerator jgen,
+        public void serializeWithType(JsonGenerator gen,
                 SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException, JsonProcessingException {
         }
@@ -101,13 +99,13 @@ public class TestArrayDeserialization
     static class CustomNonDeserArrayDeserializer extends JsonDeserializer<NonDeserializable[]>
     {
         @Override
-        public NonDeserializable[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public NonDeserializable[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             List<NonDeserializable> list = new ArrayList<NonDeserializable>();
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                list.add(new NonDeserializable(jp.getText(), false));
+            while (p.nextToken() != JsonToken.END_ARRAY) {
+                list.add(new NonDeserializable(p.getText(), false));
             }
-            return list.toArray(new NonDeserializable[list.size()]);
+            return list.toArray(new NonDeserializable[0]);
         }
     }
 
@@ -185,22 +183,24 @@ public class TestArrayDeserialization
         }
     }
 
-    // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
+    // allow "" to mean 'null' for Arrays, List and Maps
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        ObjectMapper m = jsonMapperBuilder()
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .build();
         assertNull(m.readValue(quote(""), Object[].class));
         assertNull( m.readValue(quote(""), String[].class));
         assertNull( m.readValue(quote(""), int[].class));
     }
 
-    // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
+    // allow "" to mean 'null' for Arrays, List and Maps
     public void testFromEmptyString2() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        m.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        ObjectMapper m = jsonMapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,
+                        DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
         Product p = m.readValue("{\"thelist\":\"\"}", Product.class);
         assertNotNull(p);
         assertNull(p.thelist);
@@ -250,13 +250,13 @@ public class TestArrayDeserialization
             "a", "b", "abcd", "", "???", "\"quoted\"", "lf: \n",
         };
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = MAPPER.getFactory().createGenerator(sw);
-        jg.writeStartArray();
+        JsonGenerator g = MAPPER.createGenerator(sw);
+        g.writeStartArray();
         for (String str : STRS) {
-            jg.writeString(str);
+            g.writeString(str);
         }
-        jg.writeEndArray();
-        jg.close();
+        g.writeEndArray();
+        g.close();
 
         String[] result = MAPPER.readValue(sw.toString(), String[].class);
         assertNotNull(result);
@@ -331,7 +331,6 @@ public class TestArrayDeserialization
          * get proper base64 encoding. Plus, not always using that
          * silly sample from Wikipedia.
          */
-        JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter();
 
         int LEN = 9000;
@@ -340,9 +339,9 @@ public class TestArrayDeserialization
             TEST[i] = (byte) i;
         }
 
-        JsonGenerator jg = jf.createGenerator(sw);
-        jg.writeBinary(TEST);
-        jg.close();
+        JsonGenerator g = MAPPER.createGenerator(sw);
+        g.writeBinary(TEST);
+        g.close();
         String inputData = sw.toString();
 
         byte[] result = MAPPER.readValue(inputData, byte[].class);
@@ -356,13 +355,12 @@ public class TestArrayDeserialization
      */
     public void testByteArraysAsBase64() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter(1000);
 
         final int entryCount = 15;
 
-        JsonGenerator jg = jf.createGenerator(sw);
-        jg.writeStartArray();
+        JsonGenerator g = MAPPER.createGenerator(sw);
+        g.writeStartArray();
 
         byte[][] entries = new byte[entryCount][];
         for (int i = 0; i < entryCount; ++i) {
@@ -371,10 +369,10 @@ public class TestArrayDeserialization
                 b[x] = (byte) (i + x);
             }
             entries[i] = b;
-            jg.writeBinary(b);
+            g.writeBinary(b);
         }
-        jg.writeEndArray();
-        jg.close();
+        g.writeEndArray();
+        g.close();
 
         String inputData = sw.toString();
 
@@ -575,10 +573,11 @@ public class TestArrayDeserialization
 
     public void testCustomDeserializers() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule testModule = new SimpleModule("test", Version.unknownVersion());
         testModule.addDeserializer(NonDeserializable[].class, new CustomNonDeserArrayDeserializer());
-        mapper.registerModule(testModule);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(testModule)
+                .build();
         
         NonDeserializable[] result = mapper.readValue("[\"a\"]", NonDeserializable[].class);
         assertNotNull(result);

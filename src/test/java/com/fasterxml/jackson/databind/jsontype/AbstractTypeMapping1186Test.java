@@ -34,7 +34,9 @@ public class AbstractTypeMapping1186Test extends BaseMapTest
 
     public void testDeserializeMyContainer() throws Exception {
         SimpleModule module = new SimpleModule().addAbstractTypeMapping(IContainer.class, MyContainer.class);
-        final ObjectMapper mapper = new ObjectMapper().registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         String json = "{\"ts\": [ { \"msg\": \"hello\"} ] }";
         final Object o = mapper.readValue(json,
                 mapper.getTypeFactory().constructParametricType(IContainer.class, MyObject.class));

@@ -431,7 +431,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         pool.put(3, new WithCustomResolution(3, 3));
         pool.put(4, new WithCustomResolution(4, 4));
         pool.put(5, new WithCustomResolution(5, 5));
-        ContextAttributes attrs = MAPPER.getDeserializationConfig().getAttributes().withSharedAttribute(POOL_KEY, pool);
+        ContextAttributes attrs = MAPPER.deserializationConfig().getAttributes().withSharedAttribute(POOL_KEY, pool);
         String content = "{\"data\":[1,2,3,4,5]}";
         CustomResolutionWrapper wrapper = MAPPER.readerFor(CustomResolutionWrapper.class).with(attrs).readValue(content);
         assertFalse(wrapper.data.isEmpty());

@@ -147,7 +147,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         protected BaseContainer() { throw new IllegalStateException("wrong constructor called"); }
 
         @JsonCreator
-        public BaseContainer(@JsonProperty("baseContainerProperty") String bcp, @JsonProperty("base") Base b) {
+        BaseContainer(@JsonProperty("baseContainerProperty") String bcp, @JsonProperty("base") Base b) {
             baseContainerProperty = bcp;
             base = b;
         }
@@ -291,8 +291,9 @@ public class ExternalTypeIdTest extends BaseMapTest
     
     public void testSimpleSerialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(ValueBean.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(ValueBean.class)
+                .build();
         // This may look odd, but one implementation nastiness is the fact
         // that we cannot properly serialize type id before the object,
         // because call is made after property name (for object) has already
@@ -314,8 +315,9 @@ public class ExternalTypeIdTest extends BaseMapTest
     // for [databind#942]
     public void testExternalTypeIdWithNull() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(ValueBean.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(ValueBean.class)
+                .build();
         ExternalBean b;
         b = mapper.readValue(aposToQuotes("{'bean':null,'extType':'vbean'}"),
                 ExternalBean.class);
@@ -333,8 +335,9 @@ public class ExternalTypeIdTest extends BaseMapTest
     
     public void testSimpleDeserialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(ValueBean.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(ValueBean.class)
+                .build();
         ExternalBean result = mapper.readValue("{\"bean\":{\"value\":11},\"extType\":\"vbean\"}", ExternalBean.class);
         assertNotNull(result);
         assertNotNull(result.bean);
@@ -353,8 +356,9 @@ public class ExternalTypeIdTest extends BaseMapTest
     // externally typed things, mixed with other stuff...
     public void testMultipleTypeIdsDeserialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(ValueBean.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(ValueBean.class)
+                .build();
         String json = mapper.writeValueAsString(new ExternalBean3(3));
         ExternalBean3 result = mapper.readValue(json, ExternalBean3.class);
         assertNotNull(result);
@@ -370,8 +374,9 @@ public class ExternalTypeIdTest extends BaseMapTest
     // Also, it should be ok to use @JsonCreator as well...
     public void testExternalTypeWithCreator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(ValueBean.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(ValueBean.class)
+                .build();
         String json = mapper.writeValueAsString(new ExternalBeanWithCreator(7));
         ExternalBeanWithCreator result = mapper.readValue(json, ExternalBeanWithCreator.class);
         assertNotNull(result);
@@ -399,7 +404,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         Base base = new Derived1("derived1 prop val", "base prop val");
         BaseContainer baseContainer = new BaseContainer("bc prop val", base);
         String generatedJson = MAPPER.writeValueAsString(baseContainer);
-        BaseContainer baseContainer2 = MAPPER.readValue(generatedJson,BaseContainer.class);
+        BaseContainer baseContainer2 = MAPPER.readValue(generatedJson, BaseContainer.class);
         assertEquals("bc prop val", baseContainer.getBaseContainerProperty());
 
         Base b = baseContainer2.getBase();

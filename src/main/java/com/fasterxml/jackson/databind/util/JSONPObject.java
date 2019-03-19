@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.util;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.util.JsonpCharacterEscapes;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -69,7 +69,7 @@ public class JSONPObject
         gen.writeRaw('(');
 
         if (_value == null) {
-            provider.defaultSerializeNull(gen);
+            provider.defaultSerializeNullValue(gen);
         } else {
             // NOTE: Escape line-separator characters that break JSONP only if no custom character escapes are set.
             // If custom escapes are in place JSONP-breaking characters will not be escaped and it is recommended to
@@ -81,9 +81,9 @@ public class JSONPObject
 
             try {
                 if (_serializationType != null) {
-                    provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, gen, provider);
+                    provider.findTypedValueSerializer(_serializationType, true).serialize(_value, gen, provider);
                 } else {
-                    provider.findTypedValueSerializer(_value.getClass(), true, null).serialize(_value, gen, provider);
+                    provider.findTypedValueSerializer(_value.getClass(), true).serialize(_value, gen, provider);
                 }
             } finally {
                 if (override) {

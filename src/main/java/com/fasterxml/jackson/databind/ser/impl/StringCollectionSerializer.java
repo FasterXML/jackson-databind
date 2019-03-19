@@ -77,7 +77,7 @@ public class StringCollectionSerializer
                 return;
             }
         }
-        g.writeStartArray(len);
+        g.writeStartArray(value, len);
         serializeContents(value, g, provider);
         g.writeEndArray();
     }
@@ -103,7 +103,7 @@ public class StringCollectionSerializer
         try {
             for (String str : value) {
                 if (str == null) {
-                    provider.defaultSerializeNull(g);
+                    provider.defaultSerializeNullValue(g);
                 } else {
                     g.writeString(str);
                 }

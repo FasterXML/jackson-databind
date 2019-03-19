@@ -37,11 +37,13 @@ public class TestBaseTypeAsDefault extends BaseMapTest
     /**********************************************************
      */
 
-    protected ObjectMapper MAPPER_WITH_BASE = new ObjectMapper()
-                .enable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL);
+    protected ObjectMapper MAPPER_WITH_BASE =  jsonMapperBuilder()
+                .enable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
+                .build();
 
-    protected ObjectMapper MAPPER_WITHOUT_BASE = new ObjectMapper()
-            .disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL);
+    protected ObjectMapper MAPPER_WITHOUT_BASE = jsonMapperBuilder()
+            .disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
+            .build();
     
     public void testPositiveForParent() throws IOException {
         Object o = MAPPER_WITH_BASE.readerFor(Parent.class).readValue("{}");

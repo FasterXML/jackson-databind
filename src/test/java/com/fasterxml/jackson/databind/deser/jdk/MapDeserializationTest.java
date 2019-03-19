@@ -77,7 +77,9 @@ public class MapDeserializationTest
     }
 
     static class ClassStringMap extends HashMap<Class<?>,String> { }
-    
+
+    static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
+
     static class AbstractMapWrapper {
         public AbstractMap<String, Integer> values;
     }
@@ -155,14 +157,12 @@ public class MapDeserializationTest
             "{ \"double\":42.0, \"string\":\"string\","
             +"\"boolean\":true, \"list\":[\"list0\"],"
             +"\"null\":null }";
-    
-    static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
-    
+
     public void testSpecialMap() throws IOException
     {
-       final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
-       assertNotNull(map);
-       _doTestUntyped(map);
+        final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
+        assertNotNull(map);
+        _doTestUntyped(map);
     }
 
     public void testGenericMap() throws IOException
@@ -185,12 +185,12 @@ public class MapDeserializationTest
         assertNull(map.get("null"));
         assertEquals(5, map.size());
     }
-    
-    // [JACKSON-620]: allow "" to mean 'null' for Maps
+
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        ObjectMapper m = jsonMapperBuilder()
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .build();
         Map<?,?> result = m.readValue(quote(""), Map.class);
         assertNull(result);
     }
@@ -227,9 +227,8 @@ public class MapDeserializationTest
     {
         // to get typing, must use type reference
         String JSON = "{ \"1\" : true, \"-1\" : false }";
-        Map<?,Object> result = MAPPER.readValue
-            (JSON, new TypeReference<HashMap<Integer,Object>>() { });
-
+        Map<?,?> result = MAPPER.readValue
+            (JSON, new TypeReference<HashMap<Integer,Boolean>>() { });
         assertNotNull(result);
         assertEquals(HashMap.class, result.getClass());
         assertEquals(2, result.size());
@@ -244,7 +243,7 @@ public class MapDeserializationTest
     {
         // to get typing, must use type reference
         String JSON = "{ \"a\" : \"b\" }";
-        Map<String,Integer> result = MAPPER.readValue
+        Map<String,String> result = MAPPER.readValue
             (JSON, new TypeReference<TreeMap<String,String>>() { });
 
         assertNotNull(result);
@@ -320,8 +319,7 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
         // to get typing, must use type reference
-        Map<Enum<?>,Enum<?>> result = MAPPER.readValue
-            (JSON, new TypeReference<Map<Key,Key>>() { });
+        Map<?,?> result = MAPPER.readValue(JSON, new TypeReference<Map<Key,Key>>() { });
 
         assertNotNull(result);
         assertTrue(result instanceof Map<?,?>);
@@ -386,7 +384,7 @@ public class MapDeserializationTest
     public void testCalendarMap() throws Exception
     {
         // 18-Jun-2015, tatu: Should be safest to use default timezone that mapper would use
-        TimeZone tz = MAPPER.getSerializationConfig().getTimeZone();        
+        TimeZone tz = MAPPER.serializationConfig().getTimeZone();
         Calendar c = Calendar.getInstance(tz);
 
         c.setTimeInMillis(123456000L);

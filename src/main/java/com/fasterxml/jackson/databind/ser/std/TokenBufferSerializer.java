@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -56,14 +54,6 @@ public class TokenBufferSerializer
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
-        // Not 100% sure what we should say here: type is basically not known.
-        // This seems like closest approximation
-        return createSchemaNode("any", true);
-    }
-    
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

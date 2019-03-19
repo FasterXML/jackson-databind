@@ -45,6 +45,11 @@ public class NodeContext2049Test extends BaseMapTest
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
              return new ArrayList<>();
         }
+
+        @Override
+        public Class<?> getValueClass() {
+            return List.class;
+        }
     }
 
     static class ParentSettingDeserializerModifier extends BeanDeserializerModifier {
@@ -71,7 +76,7 @@ public class NodeContext2049Test extends BaseMapTest
              if (retValue instanceof HasParent) {
                   HasParent obj = (HasParent) retValue;
                   Parent parent = null;
-                  JsonStreamContext parsingContext = jp.getParsingContext();
+                  TokenStreamContext parsingContext = jp.getParsingContext();
                   while (parent == null && parsingContext != null) {
                        Object currentValue = parsingContext.getCurrentValue();
                        if (currentValue != null && currentValue instanceof Parent) {
@@ -93,8 +98,8 @@ public class NodeContext2049Test extends BaseMapTest
 
    }
     
-    static class ParentSettingDeserializerContextual extends JsonDeserializer<Object> implements ContextualDeserializer {
-
+    static class ParentSettingDeserializerContextual extends JsonDeserializer<Object>
+    {
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
                   throws JsonMappingException {
@@ -122,32 +127,33 @@ public class NodeContext2049Test extends BaseMapTest
              // TODO Auto-generated method stub
              return null;
         }
+    }
 
-   }
-    
     /*
     /**********************************************************************
     /* Test methods
     /**********************************************************************
      */
-    
+
     private ObjectMapper objectMapper;
     {
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new com.fasterxml.jackson.databind.Module() {
-              @Override
-              public String getModuleName() {
-                   return "parentSetting";
-              }
-              @Override
-              public Version version() {
-                   return Version.unknownVersion();
-              }
-              @Override
-              public void setupModule(SetupContext context) {
-                   context.addBeanDeserializerModifier(new ParentSettingDeserializerModifier());
-              }
-         });
+        com.fasterxml.jackson.databind.Module module = new com.fasterxml.jackson.databind.Module() {
+            @Override
+            public String getModuleName() {
+                return "parentSetting";
+            }
+            @Override
+            public Version version() {
+                return Version.unknownVersion();
+            }
+            @Override
+            public void setupModule(SetupContext context) {
+                context.addDeserializerModifier(new ParentSettingDeserializerModifier());
+            }
+        };
+        objectMapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
     }
 
     final static String JSON = "{\n" + 

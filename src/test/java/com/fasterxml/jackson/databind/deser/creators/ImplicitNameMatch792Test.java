@@ -54,11 +54,14 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     {
         private int value;
 
-        private ReadWriteBean(@JsonProperty(value="value",
+        // 22-Sep-2017, tatu: Note that must be either `public`; annotated with JsonCreator,
+        //    or visibility min level for creator auto-detection needs to be raised
+        public ReadWriteBean(@JsonProperty(value="value",
                 access=JsonProperty.Access.READ_WRITE) int v) {
             value = v;
         }
 
+        @JsonProperty("value")
         public int testValue() { return value; }
 
         // Let's also add setter to ensure conflict resolution works
@@ -93,8 +96,9 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     
     public void testBindingOfImplicitCreatorNames() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setAnnotationIntrospector(new ConstructorNameAI());
+        ObjectMapper m = jsonMapperBuilder()
+                .annotationIntrospector(new ConstructorNameAI())
+                .build();
         String json = m.writeValueAsString(new Issue792Bean("a", "b"));
         assertEquals(aposToQuotes("{'first':'a','other':3}"), json);
     }

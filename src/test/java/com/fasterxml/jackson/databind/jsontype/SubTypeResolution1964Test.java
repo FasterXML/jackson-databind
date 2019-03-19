@@ -72,7 +72,7 @@ public class SubTypeResolution1964Test extends BaseMapTest
     /**********************************************************************
      */
 
-    final ObjectMapper MAPPER = newObjectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1964]
     public void testTypeCompatibility1964() throws Exception
@@ -85,7 +85,7 @@ public class SubTypeResolution1964Test extends BaseMapTest
         Collection<String> values = new HashSet<>();
         values.add("ARTIFACTS_RESOLVE");
         repoPrivilegesMap.put(key, values);
-        
+
         AccessModel accessModel = new AccessModel();
         accessModel.setRepositoryPrivileges(repoPrivilegesMap);
 

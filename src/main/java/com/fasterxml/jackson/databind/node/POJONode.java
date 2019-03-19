@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Value node that contains a wrapped POJO, to be serialized as
@@ -20,15 +19,18 @@ public class POJONode
     public POJONode(Object v) { _value = v; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Base class overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public JsonNodeType getNodeType() {
         return JsonNodeType.POJO;
     }
+
+    @Override
+    public boolean isEmbeddedValue() { return true; }
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
 
@@ -47,9 +49,9 @@ public class POJONode
     }
     
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* General type coercions
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -94,31 +96,31 @@ public class POJONode
         }
         return defaultValue;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public final void serialize(JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
         if (_value == null) {
-            ctxt.defaultSerializeNull(gen);
+            ctxt.defaultSerializeNullValue(gen);
         } else if (_value instanceof JsonSerializable) {
             ((JsonSerializable) _value).serialize(gen, ctxt);
         } else {
             // 25-May-2018, tatu: [databind#1991] do not call via generator but through context;
             //    this to preserve contextual information
-            ctxt.defaultSerializeValue(_value, gen);
+            ctxt.writeValue(gen, _value);
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -127,9 +129,9 @@ public class POJONode
     public Object getPojo() { return _value; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -156,17 +158,4 @@ public class POJONode
     
     @Override
     public int hashCode() { return _value.hashCode(); }
-
-    @Override
-    public String toString()
-    {
-        // [databind#743]: Let's try indicating content type, for debugging purposes
-        if (_value instanceof byte[]) {
-            return String.format("(binary value of %d bytes)", ((byte[]) _value).length);
-        }
-        if (_value instanceof RawValue) {
-            return String.format("(raw value '%s')", ((RawValue) _value).toString());
-        }
-        return String.valueOf(_value);
-    }
 }

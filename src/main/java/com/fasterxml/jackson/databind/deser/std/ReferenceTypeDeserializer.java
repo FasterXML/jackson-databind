@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
@@ -16,14 +15,11 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
  * Base deserializer implementation for properties {@link ReferenceType} values.
  * Implements most of functionality, only leaving couple of abstract
  * methods for sub-classes to implement
- *
- * @since 2.8
  */
 public abstract class ReferenceTypeDeserializer<T>
     extends StdDeserializer<T>
-    implements ContextualDeserializer
 {
-    private static final long serialVersionUID = 2L; // 2.9
+    private static final long serialVersionUID = 2L;
 
     /**
      * Full type of property (or root value) for which this deserializer
@@ -51,13 +47,6 @@ public abstract class ReferenceTypeDeserializer<T>
         _fullType = fullType;
         _valueDeserializer = (JsonDeserializer<Object>) deser;
         _valueTypeDeserializer = typeDeser;
-    }
-
-    @Deprecated // since 2.9
-    public ReferenceTypeDeserializer(JavaType fullType,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
-    {
-        this(fullType, null, typeDeser, deser);
     }
 
     @Override
@@ -218,7 +207,7 @@ public abstract class ReferenceTypeDeserializer<T>
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException
     {
-        final JsonToken t = p.getCurrentToken();
+        final JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) { // can this actually happen?
             return getNullValue(ctxt);
         }

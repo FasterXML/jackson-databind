@@ -263,8 +263,9 @@ public class EnumCreatorTest extends BaseMapTest
     // [databind#745]
     public void testDeserializerForCreatorWithEnumMaps() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new DelegatingDeserializersModule());
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new DelegatingDeserializersModule())
+                .build();
         EnumMap<EnumWithCreator,String> value = mapper.readValue("{\"enumA\":\"value\"}",
                 new TypeReference<EnumMap<EnumWithCreator,String>>() {});
         assertEquals("value", value.get(EnumWithCreator.A));

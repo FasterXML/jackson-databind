@@ -9,7 +9,6 @@ import java.util.List;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -17,8 +16,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Helper class that contains logic for resolving annotations to construct
  * {@link AnnotatedClass} instances.
- *
- * @since 2.9
  */
 public class AnnotatedClassResolver
 {
@@ -128,9 +125,9 @@ public class AnnotatedClassResolver
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Class annotation resolution
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

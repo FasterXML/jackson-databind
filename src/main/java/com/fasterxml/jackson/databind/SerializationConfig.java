@@ -2,17 +2,16 @@ package com.fasterxml.jackson.databind;
 
 import java.text.DateFormat;
 
-import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
 
 import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -28,18 +27,14 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  */
 public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>
-    implements java.io.Serializable // since 2.1
+    implements java.io.Serializable
 {
-    // since 2.5
-    private static final long serialVersionUID = 1;
-
-    // since 2.6
-    protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
+    private static final long serialVersionUID = 3L;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configured helper objects
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -51,15 +46,13 @@ public final class SerializationConfig
     /**
      * If "default pretty-printing" is enabled, it will create the instance
      * from this blueprint object.
-     *
-     * @since 2.6
      */
     protected final PrettyPrinter _defaultPrettyPrinter;
 
     /*
-    /**********************************************************
-    /* Serialization features 
-    /**********************************************************
+    /**********************************************************************
+    /* Feature flags
+    /**********************************************************************
      */
 
     /**
@@ -67,111 +60,56 @@ public final class SerializationConfig
      */
     protected final int _serFeatures;
 
-    /*
-    /**********************************************************
-    /* Generator features: generic, format-specific
-    /**********************************************************
-     */
     /**
-     * States of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable.
+     * States of {@link com.fasterxml.jackson.core.StreamWriteFeature}s to enable/disable.
      */
-    protected final int _generatorFeatures;
-
-    /**
-     * Bitflag of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable
-     */
-    protected final int _generatorFeaturesToChange;
+    protected final int _streamWriteFeatures;
 
     /**
      * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
-     *
-     * @since 2.7
      */
     protected final int _formatWriteFeatures;
 
-    /**
-     * Bitflag of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable
-     *
-     * @since 2.7
-     */
-    protected final int _formatWriteFeaturesToChange;
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, primary constructors for new instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * Constructor used by ObjectMapper to create default configuration object instance.
-     *
-     * @since 2.9
+     * @since 3.0
      */
-    public SerializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+    public SerializationConfig(MapperBuilder<?,?> b,
+            int mapperFeatures, int serFeatures, int streamWriteFeatures, int formatWriteFeatures,
+            ConfigOverrides configOverrides,
+            TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
+            RootNameLookup rootNames,
+            FilterProvider filterProvider)
     {
-        super(base, str, mixins, rootNames, configOverrides);
-        _serFeatures = collectFeatureDefaults(SerializationFeature.class);
-        _filterProvider = null;
-        _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
-        _generatorFeatures = 0;
-        _generatorFeaturesToChange = 0;
-        _formatWriteFeatures = 0;
-        _formatWriteFeaturesToChange = 0;
-    }
-
-    /**
-     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
-     *
-     * @since 2.9
-     */
-    protected SerializationConfig(SerializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
-    {
-        super(src, mixins, rootNames, configOverrides);
-        _serFeatures = src._serFeatures;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
-        _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
+        super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
+        _serFeatures = serFeatures;
+        _filterProvider = filterProvider;
+        _streamWriteFeatures = streamWriteFeatures;
+        _formatWriteFeatures = formatWriteFeatures;
+        _defaultPrettyPrinter = b.defaultPrettyPrinter();
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, secondary constructors to support
     /* "mutant factories", with single property changes
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private SerializationConfig(SerializationConfig src, SubtypeResolver str)
-    {
-        super(src, str);
-        _serFeatures = src._serFeatures;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
-        _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
-    }
-
     private SerializationConfig(SerializationConfig src,
-            int mapperFeatures, int serFeatures,
-            int generatorFeatures, int generatorFeatureMask,
-            int formatFeatures, int formatFeaturesMask)
+            int serFeatures, int streamWriteFeatures, int formatWriteFeatures)
     {
-        super(src, mapperFeatures);
+        super(src);
         _serFeatures = serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = generatorFeatures;
-        _generatorFeaturesToChange = generatorFeatureMask;
-        _formatWriteFeatures = formatFeatures;
-        _formatWriteFeaturesToChange = formatFeaturesMask;
+        _streamWriteFeatures = streamWriteFeatures;
+        _formatWriteFeatures = formatWriteFeatures;
     }
     
     private SerializationConfig(SerializationConfig src, BaseSettings base)
@@ -180,10 +118,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
     private SerializationConfig(SerializationConfig src, FilterProvider filters)
@@ -192,10 +128,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = filters;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
     private SerializationConfig(SerializationConfig src, Class<?> view)
@@ -204,10 +138,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
     private SerializationConfig(SerializationConfig src, PropertyName rootName)
@@ -216,73 +148,39 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
-    /**
-     * @since 2.1
-     */
     protected SerializationConfig(SerializationConfig src, ContextAttributes attrs)
     {
         super(src, attrs);
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
-    /**
-     * @since 2.1
-     */
-    protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins)
-    {
-        super(src, mixins);
-        _serFeatures = src._serFeatures;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
-        _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
-    }
-    
-    /**
-     * @since 2.6
-     */
     protected SerializationConfig(SerializationConfig src, PrettyPrinter defaultPP)
     {
         super(src);
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = defaultPP;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _streamWriteFeatures = src._streamWriteFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, factory methods from MapperConfig(Base)
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override // since 2.9
+    @Override
     protected final SerializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new SerializationConfig(this, newBase);
-    }
-
-    @Override // since 2.9
-    protected final SerializationConfig _withMapperFeatures(int mapperFeatures) {
-        return new SerializationConfig(this, mapperFeatures, _serFeatures,
-                        _generatorFeatures, _generatorFeaturesToChange,
-                        _formatWriteFeatures, _formatWriteFeaturesToChange);
     }
 
     @Override
@@ -298,11 +196,6 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig with(SubtypeResolver str) {
-        return (str == _subtypeResolver)? this : new SerializationConfig(this, str);
-    }
-
-    @Override
     public SerializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new SerializationConfig(this, view);
     }
@@ -313,9 +206,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -334,9 +227,9 @@ public final class SerializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods for SerializationFeature
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -347,9 +240,8 @@ public final class SerializationConfig
     {
         int newSerFeatures = _serFeatures | feature.getMask();
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
-                        _generatorFeatures, _generatorFeaturesToChange,
-                        _formatWriteFeatures, _formatWriteFeaturesToChange);
+                : new SerializationConfig(this,
+                        newSerFeatures, _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /**
@@ -363,9 +255,8 @@ public final class SerializationConfig
             newSerFeatures |= f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
-                        _generatorFeatures, _generatorFeaturesToChange,
-                        _formatWriteFeatures, _formatWriteFeaturesToChange);
+                : new SerializationConfig(this,
+                        newSerFeatures, _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /**
@@ -379,9 +270,8 @@ public final class SerializationConfig
             newSerFeatures |= f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
-                        _generatorFeatures, _generatorFeaturesToChange,
-                        _formatWriteFeatures, _formatWriteFeaturesToChange);
+                : new SerializationConfig(this,
+                        newSerFeatures, _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /**
@@ -392,9 +282,8 @@ public final class SerializationConfig
     {
         int newSerFeatures = _serFeatures & ~feature.getMask();
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
-                        _generatorFeatures, _generatorFeaturesToChange,
-                        _formatWriteFeatures, _formatWriteFeaturesToChange);
+                : new SerializationConfig(this,
+                        newSerFeatures, _streamWriteFeatures,  _formatWriteFeatures);
     }
 
     /**
@@ -408,9 +297,8 @@ public final class SerializationConfig
             newSerFeatures &= ~f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
-                        _generatorFeatures, _generatorFeaturesToChange,
-                        _formatWriteFeatures, _formatWriteFeaturesToChange);
+                : new SerializationConfig(this, newSerFeatures,
+                        _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /**
@@ -424,204 +312,147 @@ public final class SerializationConfig
             newSerFeatures &= ~f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
-                        _generatorFeatures, _generatorFeaturesToChange,
-                        _formatWriteFeatures, _formatWriteFeaturesToChange);
+                : new SerializationConfig(this, newSerFeatures,
+                        _streamWriteFeatures, _formatWriteFeatures);
     }
 
     /*
-    /**********************************************************
-    /* Factory methods for JsonGenerator.Feature (2.5)
-    /**********************************************************
+    /**********************************************************************
+    /* Factory methods for StreamWriteFeature
+    /**********************************************************************
      */
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature enabled.
-     *
-     * @since 2.5
      */
-    public SerializationConfig with(JsonGenerator.Feature feature)
+    public SerializationConfig with(StreamWriteFeature feature)
     {
-        int newSet = _generatorFeatures | feature.getMask();
-        int newMask = _generatorFeaturesToChange | feature.getMask();
-        return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
-                    newSet, newMask,
-                    _formatWriteFeatures, _formatWriteFeaturesToChange);
+        int newSet = _streamWriteFeatures | feature.getMask();
+        return (_streamWriteFeatures == newSet) ? this :
+            new SerializationConfig(this, _serFeatures, newSet,
+                    _formatWriteFeatures);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.5
      */
-    public SerializationConfig withFeatures(JsonGenerator.Feature... features)
+    public SerializationConfig withFeatures(StreamWriteFeature... features)
     {
-        int newSet = _generatorFeatures;
-        int newMask = _generatorFeaturesToChange;
-        for (JsonGenerator.Feature f : features) {
-            int mask = f.getMask();
-            newSet |= mask;
-            newMask |= mask;
+        int newSet = _streamWriteFeatures;
+        for (StreamWriteFeature f : features) {
+            newSet |= f.getMask();
         }
-        return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
-                    newSet, newMask,
-                    _formatWriteFeatures, _formatWriteFeaturesToChange);
+        return (_streamWriteFeatures == newSet) ? this :
+            new SerializationConfig(this, _serFeatures, newSet,
+                    _formatWriteFeatures);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
-     *
-     * @since 2.5
      */
-    public SerializationConfig without(JsonGenerator.Feature feature)
+    public SerializationConfig without(StreamWriteFeature feature)
     {
-        int newSet = _generatorFeatures & ~feature.getMask();
-        int newMask = _generatorFeaturesToChange | feature.getMask();
-        return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
-                    newSet, newMask,
-                    _formatWriteFeatures, _formatWriteFeaturesToChange);
+        int newSet = _streamWriteFeatures & ~feature.getMask();
+        return (_streamWriteFeatures == newSet) ? this :
+            new SerializationConfig(this, _serFeatures, newSet,
+                    _formatWriteFeatures);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
-     *
-     * @since 2.5
      */
-    public SerializationConfig withoutFeatures(JsonGenerator.Feature... features)
+    public SerializationConfig withoutFeatures(StreamWriteFeature... features)
     {
-        int newSet = _generatorFeatures;
-        int newMask = _generatorFeaturesToChange;
-        for (JsonGenerator.Feature f : features) {
-            int mask = f.getMask();
-            newSet &= ~mask;
-            newMask |= mask;
+        int newSet = _streamWriteFeatures;
+        for (StreamWriteFeature f : features) {
+            newSet &= ~f.getMask();
         }
-        return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
-                    newSet, newMask,
-                    _formatWriteFeatures, _formatWriteFeaturesToChange);
+        return (_streamWriteFeatures == newSet) ? this :
+            new SerializationConfig(this, _serFeatures, newSet,
+                    _formatWriteFeatures);
     }
 
     /*
-    /**********************************************************
-    /* Factory methods for FormatFeature (2.7)
-    /**********************************************************
+    /**********************************************************************
+    /* Factory methods for FormatFeature
+    /**********************************************************************
      */
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature enabled.
-     *
-     * @since 2.7
      */
     public SerializationConfig with(FormatFeature feature)
     {
         int newSet = _formatWriteFeatures | feature.getMask();
-        int newMask = _formatWriteFeaturesToChange | feature.getMask();
-        return ((_formatWriteFeatures == newSet) && (_formatWriteFeaturesToChange == newMask)) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
-                    _generatorFeatures, _generatorFeaturesToChange,
-                    newSet, newMask);
+        return (_formatWriteFeatures == newSet) ? this :
+            new SerializationConfig(this,
+                    _serFeatures, _streamWriteFeatures, newSet);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.7
      */
     public SerializationConfig withFeatures(FormatFeature... features)
     {
         int newSet = _formatWriteFeatures;
-        int newMask = _formatWriteFeaturesToChange;
         for (FormatFeature f : features) {
-            int mask = f.getMask();
-            newSet |= mask;
-            newMask |= mask;
+            newSet |= f.getMask();
         }
-        return ((_formatWriteFeatures == newSet) && (_formatWriteFeaturesToChange == newMask)) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
-                    _generatorFeatures, _generatorFeaturesToChange,
-                    newSet, newMask);
+        return (_formatWriteFeatures == newSet) ? this :
+            new SerializationConfig(this,
+                    _serFeatures, _streamWriteFeatures, newSet);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
-     *
-     * @since 2.7
      */
     public SerializationConfig without(FormatFeature feature)
     {
         int newSet = _formatWriteFeatures & ~feature.getMask();
-        int newMask = _formatWriteFeaturesToChange | feature.getMask();
-        return ((_formatWriteFeatures == newSet) && (_formatWriteFeaturesToChange == newMask)) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
-                    _generatorFeatures, _generatorFeaturesToChange,
-                    newSet, newMask);
+        return (_formatWriteFeatures == newSet) ? this :
+            new SerializationConfig(this,
+                    _serFeatures, _streamWriteFeatures, newSet);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
-     *
-     * @since 2.7
      */
     public SerializationConfig withoutFeatures(FormatFeature... features)
     {
         int newSet = _formatWriteFeatures;
-        int newMask = _formatWriteFeaturesToChange;
         for (FormatFeature f : features) {
-            int mask = f.getMask();
-            newSet &= ~mask;
-            newMask |= mask;
+            newSet &= ~f.getMask();
         }
-        return ((_formatWriteFeatures == newSet) && (_formatWriteFeaturesToChange == newMask)) ? this :
-            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
-                    _generatorFeatures, _generatorFeaturesToChange,
-                    newSet, newMask);
+        return (_formatWriteFeatures == newSet) ? this :
+            new SerializationConfig(this, _serFeatures, _streamWriteFeatures, newSet);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     public SerializationConfig withFilters(FilterProvider filterProvider) {
         return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
     }
 
-    /**
-     * Mutant factory method for constructing a new instance with different
-     * default inclusion criteria configuration.
-     *
-     * @since 2.7
-     *
-     * @deprecated Since 2.9; not needed any more
-     */
-    @Deprecated
-    public SerializationConfig withPropertyInclusion(JsonInclude.Value incl) {
-        _configOverrides.setDefaultInclusion(incl);
-        return this;
-    }
-
-    /**
-     * @since 2.6
-     */
     public SerializationConfig withDefaultPrettyPrinter(PrettyPrinter pp) {
         return (_defaultPrettyPrinter == pp) ? this:  new SerializationConfig(this, pp);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factories for objects configured here
-    /**********************************************************
+    /**********************************************************************
      */
 
     public PrettyPrinter constructDefaultPrettyPrinter() {
@@ -631,70 +462,31 @@ public final class SerializationConfig
         }
         return pp;
     }
-    
+
     /*
-    /**********************************************************
-    /* JsonParser initialization
-    /**********************************************************
+    /**********************************************************************
+    /* Support for ObjectWriteContext
+    /**********************************************************************
      */
 
     /**
-     * Method called by {@link ObjectMapper} and {@link ObjectWriter}
-     * to modify those {@link com.fasterxml.jackson.core.JsonGenerator.Feature} settings
-     * that have been configured via this config instance.
-     * 
-     * @since 2.5
+     * @since 3.0
      */
-    public void initialize(JsonGenerator g)
-    {
-        if (SerializationFeature.INDENT_OUTPUT.enabledIn(_serFeatures)) {
-            // but do not override an explicitly set one
-            if (g.getPrettyPrinter() == null) {
-                PrettyPrinter pp = constructDefaultPrettyPrinter();
-                if (pp != null) {
-                    g.setPrettyPrinter(pp);
-                }
-            }
-        }
-        @SuppressWarnings("deprecation")
-        boolean useBigDec = SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_serFeatures);
-
-        int mask = _generatorFeaturesToChange;
-        if ((mask != 0) || useBigDec) {
-            int newFlags = _generatorFeatures;
-            // although deprecated, needs to be supported for now
-            if (useBigDec) {
-                int f = JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN.getMask();
-                newFlags |= f;
-                mask |= f;
-            }
-            g.overrideStdFeatures(newFlags, mask);
-        }
-        if (_formatWriteFeaturesToChange != 0) {
-            g.overrideFormatFeatures(_formatWriteFeatures, _formatWriteFeaturesToChange);
-        }
+    public int getStreamWriteFeatures() {
+        return _streamWriteFeatures;
     }
-
-    /*
-    /**********************************************************
-    /* Configuration: default settings with per-type overrides
-    /**********************************************************
-     */
 
     /**
-     * @deprecated Since 2.7 use {@link #getDefaultPropertyInclusion} instead
+     * @since 3.0
      */
-    @Deprecated
-    public JsonInclude.Include getSerializationInclusion()
-    {
-        JsonInclude.Include incl = getDefaultPropertyInclusion().getValueInclusion();
-        return (incl == JsonInclude.Include.USE_DEFAULTS) ? JsonInclude.Include.ALWAYS : incl;
+    public int getFormatWriteFeatures() {
+        return _formatWriteFeatures;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -714,22 +506,18 @@ public final class SerializationConfig
      * Accessor method that first checks if we have any overrides
      * for feature, and only if not, checks state of passed-in
      * factory.
-     * 
-     * @since 2.5
      */
-    public final boolean isEnabled(JsonGenerator.Feature f, JsonFactory factory) {
-        int mask = f.getMask();
-        if ((_generatorFeaturesToChange & mask) != 0) {
-            return (_generatorFeatures & f.getMask()) != 0;
-        }
-        return factory.isEnabled(f);
+    public final boolean isEnabled(StreamWriteFeature f) {
+        return (_streamWriteFeatures & f.getMask()) != 0;
     }
-    
+
+    public final boolean hasFormatFeature(FormatFeature f) {
+        return (_formatWriteFeatures & f.getMask()) != 0;
+    }
+
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
-     * 
-     * @since 2.3
      */
     public final boolean hasSerializationFeatures(int featureMask) {
         return (_serFeatures & featureMask) == featureMask;
@@ -756,25 +544,22 @@ public final class SerializationConfig
      * NOTE: returns the "blueprint" instance, and does NOT construct
      * an instance ready to use; call {@link #constructDefaultPrettyPrinter()} if
      * actually usable instance is desired.
-     *
-     * @since 2.6
      */
     public PrettyPrinter getDefaultPrettyPrinter() {
         return _defaultPrettyPrinter;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method that will introspect full bean properties for the purpose
      * of building a bean serializer
      */
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspect(JavaType type) {
-        return (T) getClassIntrospector().forSerialization(this, type, this);
+    public BeanDescription introspect(JavaType type) {
+        return getClassIntrospector().forSerialization(this, type, this);
     }
 }

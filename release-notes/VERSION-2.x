@@ -4,6 +4,43 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.0 (not yet released)
+
+#1675: Remove "impossible" `IOException` in `readTree()` and `readValue()` `ObjectMapper`
+  methods which accept Strings
+ (requested by matthew-pwnieexpress@github)
+#2059: Remove `final` modifier for `TypeFactory`
+ (requested by Thibaut R)
+#2115: Support naive deserialization of `Serializable` values as "untyped", same
+  as `java.lang.Object`
+ (requested by Christopher S)
+#2116: Make NumberSerializers.Base public and its inherited classes not final
+ (requested by Édouard M)
+#2126: `DeserializationContext.instantiationException()` throws `InvalidDefinitionException`
+#2153: Add `JsonMapper` to replace generic `ObjectMapper` usage
+#2187: Make `JsonNode.toString()` use shared `ObjectMapper` to produce valid json
+#2189: `TreeTraversingParser` does not check int bounds
+ (reported by Alexander S)
+#2196: Type safety for `readValue()` with `TypeReference`
+ (suggested by nguyenfilip@github)
+#2204: Add `JsonNode.isEmpty()` as convenience alias
+#2211: Change of behavior (2.8 -> 2.9) with `ObjectMapper.readTree(input)` with no content
+#2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
+ (reported by Christoph B)
+#2220: Force serialization always for `convertValue()`; avoid short-cuts
+#2223: Add `missingNode()` method in `JsonNodeFactory`
+#2227: Minor cleanup of exception message for `Enum` binding failure
+ (reported by RightHandedMonkey@github)
+#2230: `WRITE_BIGDECIMAL_AS_PLAIN` is ignored if `@JsonFormat` is used
+ (reported by Pavel C)
+#2236: Type id not provided on `Double.NaN`, `Infinity` with `@JsonTypeInfo`
+ (reported by C-B-B@github)
+#2241: Add `JsonPropertyNamingStrategy.LOWER_DOT_CASE` for dot-delimited names
+ (contributed by zenglian@github.com)
+#2251: Getter that returns an abstract collection breaks a delegating `@JsonCreator`
+#2265: Inconsistent handling of Collections$UnmodifiableList vs Collections$UnmodifiableRandomAccessListq
+#2273: Add basic Java 9+ module info
+
 2.9.9 (not yet released)
 
 #1408: Call to `TypeVariable.getBounds()` without synchronization unsafe on some platforms

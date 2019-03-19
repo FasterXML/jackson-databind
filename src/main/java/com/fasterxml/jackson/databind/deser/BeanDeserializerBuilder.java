@@ -26,9 +26,6 @@ public class BeanDeserializerBuilder
 
     final protected DeserializationConfig _config;
 
-    /**
-     * @since 2.9
-     */
     final protected DeserializationContext _context;
 
     /*
@@ -348,10 +345,16 @@ public class BeanDeserializerBuilder
     {
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
+        if (_objectIdReader != null) {
+            // 18-Nov-2012, tatu: May or may not have annotations for id property;
+            //   but no easy access. But hard to see id property being optional,
+            //   so let's consider required at this point.
+            props = _addIdProp(_properties,
+                    new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
+        }
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
                 _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
                 _collectAliases(props));
-        propertyMap.assignIndexes();
 
         // view processing must be enabled if:
         // (a) fields are not included by default (when deserializing with view), OR
@@ -366,16 +369,6 @@ public class BeanDeserializerBuilder
             }
         }
 
-        // one more thing: may need to create virtual ObjectId property:
-        if (_objectIdReader != null) {
-            /* 18-Nov-2012, tatu: May or may not have annotations for id property;
-             *   but no easy access. But hard to see id property being optional,
-             *   so let's consider required at this point.
-             */
-            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED);
-            propertyMap = propertyMap.withProperty(prop);
-        }
-
         return new BeanDeserializer(this,
                 _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 anyViews);
@@ -385,8 +378,6 @@ public class BeanDeserializerBuilder
      * Alternate build method used when we must be using some form of
      * abstract resolution, usually by using addition Type Id
      * ("polymorphic deserialization")
-     * 
-     * @since 2.0
      */
     public AbstractDeserializer buildAbstract() {
         return new AbstractDeserializer(this, _beanDesc, _backRefProperties, _properties);
@@ -422,13 +413,20 @@ public class BeanDeserializerBuilder
                         valueType.getRawClass().getName()));
             }
         }
+        _fixAccess(_properties.values());
         // And if so, we can try building the deserializer
-        Collection<SettableBeanProperty> props = _properties.values();
-        _fixAccess(props);
+        Collection<SettableBeanProperty> props;
+        if (_objectIdReader != null) {
+            // May or may not have annotations for id property; but no easy access.
+            // But hard to see id property being optional, so let's consider required at this point.
+            props = _addIdProp(_properties,
+                    new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
+        } else {
+            props = _properties.values();
+        }
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
                 _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
                 _collectAliases(props));
-        propertyMap.assignIndexes();
 
         boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
 
@@ -439,14 +437,6 @@ public class BeanDeserializerBuilder
                     break;
                 }
             }
-        }
-
-        if (_objectIdReader != null) {
-            // May or may not have annotations for id property; but no easy access.
-            // But hard to see id property being optional, so let's consider required at this point.
-            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader,
-                    PropertyMetadata.STD_REQUIRED);
-            propertyMap = propertyMap.withProperty(prop);
         }
 
         return new BuilderBasedDeserializer(this,
@@ -500,25 +490,48 @@ public class BeanDeserializerBuilder
         }
     }
 
-    protected Map<String,List<PropertyName>> _collectAliases(Collection<SettableBeanProperty> props)
+    protected Collection<SettableBeanProperty> _addIdProp(Map<String, SettableBeanProperty> props,
+            SettableBeanProperty idProp)
     {
-        Map<String,List<PropertyName>> mapping = null;
+        String name = idProp.getName();
+        ArrayList<SettableBeanProperty> result = new ArrayList<>(props.values());
+        if (!props.containsKey(name)) {
+            result.add(idProp);
+        } else {
+            // Otherwise need to replace; couple of ways to go about it
+            ListIterator<SettableBeanProperty> it = result.listIterator();
+            while (true) { // no need to check, we must bump into it
+                if (it.next().getName().equals(name)) {
+                    it.set(idProp);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    
+    protected PropertyName[][] _collectAliases(Collection<SettableBeanProperty> props)
+    {
+        PropertyName[][] result = null;
         AnnotationIntrospector intr = _config.getAnnotationIntrospector();
         if (intr != null) {
+            int i = -1;
             for (SettableBeanProperty prop : props) {
-                List<PropertyName> aliases = intr.findPropertyAliases(prop.getMember());
+                ++i;
+                AnnotatedMember member = prop.getMember();
+                if (member == null) {
+                    continue;
+                }
+                List<PropertyName> aliases = intr.findPropertyAliases(member);
                 if ((aliases == null) || aliases.isEmpty()) {
                     continue;
                 }
-                if (mapping == null) {
-                    mapping = new HashMap<>();
+                if (result == null) {
+                    result = new PropertyName[props.size()][];
                 }
-                mapping.put(prop.getName(), aliases);
+                result[i] = aliases.toArray(new PropertyName[0]);
             }
         }
-        if (mapping == null) {
-            return Collections.emptyMap();
-        }
-        return mapping;
+        return result;
     }
 }

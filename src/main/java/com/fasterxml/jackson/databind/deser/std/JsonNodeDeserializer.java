@@ -63,12 +63,12 @@ public class JsonNodeDeserializer
     @Override
     public JsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (p.getCurrentTokenId()) {
-        case JsonTokenId.ID_START_OBJECT:
+        JsonToken t = p.currentToken();
+        if (t == JsonToken.START_OBJECT) {
             return deserializeObject(p, ctxt, ctxt.getNodeFactory());
-        case JsonTokenId.ID_START_ARRAY:
+        }
+        if (t == JsonToken.START_ARRAY) {
             return deserializeArray(p, ctxt, ctxt.getNodeFactory());
-        default:
         }
         return deserializeAny(p, ctxt, ctxt.getNodeFactory());
     }
@@ -109,8 +109,6 @@ public class JsonNodeDeserializer
 
         /**
          * Variant needed to support both root-level `updateValue()` and merging.
-         *
-         * @since 2.9
          */
         @Override
         public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt,
@@ -145,8 +143,6 @@ public class JsonNodeDeserializer
 
         /**
          * Variant needed to support both root-level `updateValue()` and merging.
-         *
-         * @since 2.9
          */
         @Override
         public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt,
@@ -243,8 +239,12 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             final JsonNodeFactory nodeFactory) throws IOException
     {
         final ObjectNode node = nodeFactory.objectNode();
+
+        // 13-Dec-2017, tatu: Unrolling is a mysterious optimization. Looks like doing TWO
+        //    operations per loop yields non-trivial +5% improvement. Yet doing more does not.
+        //    So we'll go with 2...
         String key = p.nextFieldName();
-        for (; key != null; key = p.nextFieldName()) {
+        while (key != null) {
             JsonNode value;
             JsonToken t = p.nextToken();
             if (t == null) { // can this ever occur?
@@ -256,9 +256,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 break;
             case JsonTokenId.ID_START_ARRAY:
                 value = deserializeArray(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_EMBEDDED_OBJECT:
-                value = _fromEmbedded(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_STRING:
                 value = nodeFactory.textNode(p.getText());
@@ -278,11 +275,56 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             default:
                 value = deserializeAny(p, ctxt, nodeFactory);
             }
-            JsonNode old = node.replace(key, value);
-            if (old != null) {
-                _handleDuplicateField(p, ctxt, nodeFactory,
-                        key, node, old, value);
+            {
+                JsonNode old = node.replace(key, value);
+                if (old != null) {
+                    _handleDuplicateField(p, ctxt, nodeFactory,
+                            key, node, old, value);
+                }
             }
+
+            if ((key = p.nextFieldName()) == null) {
+                break;
+            }
+            t = p.nextToken();
+            if (t == null) { // can this ever occur?
+                t = JsonToken.NOT_AVAILABLE; // can this ever occur?
+            }
+            switch (t.id()) {
+            case JsonTokenId.ID_START_OBJECT:
+                value = deserializeObject(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_START_ARRAY:
+                value = deserializeArray(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_STRING:
+                value = nodeFactory.textNode(p.getText());
+                break;
+            case JsonTokenId.ID_NUMBER_INT:
+                value = _fromInt(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_TRUE:
+                value = nodeFactory.booleanNode(true);
+                break;
+            case JsonTokenId.ID_FALSE:
+                value = nodeFactory.booleanNode(false);
+                break;
+            case JsonTokenId.ID_NULL:
+                value = nodeFactory.nullNode();
+                break;
+            default:
+                value = deserializeAny(p, ctxt, nodeFactory);
+            }
+            {
+                JsonNode old = node.replace(key, value);
+                if (old != null) {
+                    _handleDuplicateField(p, ctxt, nodeFactory,
+                            key, node, old, value);
+                }
+            }
+
+            // for next round
+            key = p.nextFieldName();
         }
         return node;
     }
@@ -290,14 +332,12 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**
      * Alternate deserialization method used when parser already points to first
      * FIELD_NAME and not START_OBJECT.
-     *
-     * @since 2.9
      */
     protected final ObjectNode deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
         final ObjectNode node = nodeFactory.objectNode();
-        String key = p.getCurrentName();
+        String key = p.currentName();
         for (; key != null; key = p.nextFieldName()) {
             JsonNode value;
             JsonToken t = p.nextToken();
@@ -310,9 +350,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 break;
             case JsonTokenId.ID_START_ARRAY:
                 value = deserializeArray(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_EMBEDDED_OBJECT:
-                value = _fromEmbedded(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_STRING:
                 value = nodeFactory.textNode(p.getText());
@@ -344,8 +381,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**
      * Alternate deserialization method that is to update existing {@link ObjectNode}
      * if possible.
-     *
-     * @since 2.9
      */
     protected final JsonNode updateObject(JsonParser p, DeserializationContext ctxt,
         final ObjectNode node) throws IOException
@@ -357,8 +392,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             if (!p.hasToken(JsonToken.FIELD_NAME)) {
                 return deserialize(p, ctxt);
             }
-            key = p.getCurrentName();
+            key = p.currentName();
         }
+        final JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
         for (; key != null; key = p.nextFieldName()) {
             // If not, fall through to regular handling
             JsonToken t = p.nextToken();
@@ -385,7 +421,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 t = JsonToken.NOT_AVAILABLE;
             }
             JsonNode value;
-            JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 value = deserializeObject(p, ctxt, nodeFactory);
@@ -426,7 +461,11 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     protected final ArrayNode deserializeArray(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
-        ArrayNode node = nodeFactory.arrayNode();
+        final ArrayNode node = nodeFactory.arrayNode();
+        // 13-Dec-2017, tatu: Unrolling is a mysterious optimization. Looks like doing TWO
+        //    operations per loop yields non-trivial +5% improvement. Yet doing more does not.
+        //    So we'll go with 2...
+
         while (true) {
             JsonToken t = p.nextToken();
             switch (t.id()) {
@@ -438,9 +477,36 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 break;
             case JsonTokenId.ID_END_ARRAY:
                 return node;
-            case JsonTokenId.ID_EMBEDDED_OBJECT:
-                node.add(_fromEmbedded(p, ctxt, nodeFactory));
+            case JsonTokenId.ID_STRING:
+                node.add(nodeFactory.textNode(p.getText()));
                 break;
+            case JsonTokenId.ID_NUMBER_INT:
+                node.add(_fromInt(p, ctxt, nodeFactory));
+                break;
+            case JsonTokenId.ID_TRUE:
+                node.add(nodeFactory.booleanNode(true));
+                break;
+            case JsonTokenId.ID_FALSE:
+                node.add(nodeFactory.booleanNode(false));
+                break;
+            case JsonTokenId.ID_NULL:
+                node.add(nodeFactory.nullNode());
+                break;
+            default:
+                node.add(deserializeAny(p, ctxt, nodeFactory));
+                break;
+            }
+
+            t = p.nextToken();
+            switch (t.id()) {
+            case JsonTokenId.ID_START_OBJECT:
+                node.add(deserializeObject(p, ctxt, nodeFactory));
+                break;
+            case JsonTokenId.ID_START_ARRAY:
+                node.add(deserializeArray(p, ctxt, nodeFactory));
+                break;
+            case JsonTokenId.ID_END_ARRAY:
+                return node;
             case JsonTokenId.ID_STRING:
                 node.add(nodeFactory.textNode(p.getText()));
                 break;
@@ -466,8 +532,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**
      * Alternate deserialization method that is to update existing {@link ObjectNode}
      * if possible.
-     *
-     * @since 2.9
      */
     protected final JsonNode updateArray(JsonParser p, DeserializationContext ctxt,
         final ArrayNode node) throws IOException
@@ -512,7 +576,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     protected final JsonNode deserializeAny(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this?
             return nodeFactory.objectNode();
         case JsonTokenId.ID_FIELD_NAME:

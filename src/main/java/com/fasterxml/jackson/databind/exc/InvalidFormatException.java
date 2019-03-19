@@ -1,19 +1,16 @@
 package com.fasterxml.jackson.databind.exc;
 
-import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 
 /**
  * Specialized sub-class of {@link MismatchedInputException}
  * that is used when the underlying problem appears to be that
  * of bad formatting of a value to deserialize.
- * 
- * @since 2.1
  */
 public class InvalidFormatException
-    extends MismatchedInputException // since 2.9
+    extends MismatchedInputException
 {
-    private static final long serialVersionUID = 1L; // silly Eclipse, warnings
+    private static final long serialVersionUID = 1L;
 
     /**
      * Underlying value that could not be deserialized into
@@ -27,33 +24,6 @@ public class InvalidFormatException
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.7 Use variant that takes {@link JsonParser}
-     */
-    @Deprecated // since 2.7
-    public InvalidFormatException(String msg,
-            Object value, Class<?> targetType)
-    {
-        super(null, msg);
-        _value = value;
-        _targetType = targetType;
-    }
-
-    /**
-     * @deprecated Since 2.7 Use variant that takes {@link JsonParser}
-     */
-    @Deprecated // since 2.7
-    public InvalidFormatException(String msg, JsonLocation loc,
-            Object value, Class<?> targetType)
-    {
-        super(null, msg, loc);
-        _value = value;
-        _targetType = targetType;
-    }
-
-    /**
-     * @since 2.7
-     */
     public InvalidFormatException(JsonParser p,
             String msg, Object value, Class<?> targetType)
     {

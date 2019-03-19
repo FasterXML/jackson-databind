@@ -171,35 +171,33 @@ public class TestMixinSerWithViews
 
     public void testIssue560() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         A a = new A("myname", 29, "mysurname");
 
         // Property SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION set to false
-        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, Boolean.FALSE);
-        mapper.addMixIn(A.class, AMixInAnnotation.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .addMixIn(A.class, AMixInAnnotation.class)
+                .build();
         String json = mapper.writerWithView(AView.class).writeValueAsString(a);
-
         assertTrue(json.indexOf("\"name\"") > 0);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
-    
-    private ObjectMapper createObjectMapper( )
+
+    private ObjectMapper createObjectMapper()
     {
-        ObjectMapper objectMapper = new ObjectMapper( );
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false );
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
-        objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false );
-    
         Map<Class<?>, Class<?>> sourceMixins = new HashMap<Class<?>, Class<?>>( );
         sourceMixins.put( SimpleTestData.class, TestDataJAXBMixin.class );
         sourceMixins.put( ComplexTestData.class, TestComplexDataJAXBMixin.class );
-
-        objectMapper.setMixIns(sourceMixins);
-        return objectMapper;
+        return jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .addMixIns(sourceMixins)
+                .build();
     }
 }

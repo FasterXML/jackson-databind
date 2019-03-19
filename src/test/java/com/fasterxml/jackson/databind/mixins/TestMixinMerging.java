@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.mixins;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -34,19 +35,20 @@ public class TestMixinMerging extends BaseMapTest
     /**********************************************************
      */
     
-    // for [Issue#515]
+    // for [databind#515]
     public void testDisappearingMixins515() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
-            .disable(MapperFeature.AUTO_DETECT_FIELDS)
-            .disable(MapperFeature.AUTO_DETECT_GETTERS)
-            .disable(MapperFeature.AUTO_DETECT_IS_GETTERS)
-            .disable(MapperFeature.INFER_PROPERTY_MUTATORS);
         SimpleModule module = new SimpleModule("Test");
         module.setMixInAnnotation(Person.class, PersonMixin.class);        
-        mapper.registerModule(module);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
+                .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .changeDefaultVisibility(vc -> vc
+                        .withVisibility(PropertyAccessor.FIELD, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.GETTER, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE))
+                .addModule(module)
+                .build();
         assertEquals("{\"city\":\"Seattle\"}", mapper.writeValueAsString(new PersonImpl()));
     }
 }

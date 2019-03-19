@@ -1,15 +1,13 @@
 package com.fasterxml.jackson.databind;
 
 import java.util.Collection;
+import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.core.*;
+
+import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
-import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.fasterxml.jackson.databind.deser.Deserializers;
-import com.fasterxml.jackson.databind.deser.KeyDeserializers;
-import com.fasterxml.jackson.databind.deser.ValueInstantiators;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -25,11 +23,11 @@ public abstract class Module
     implements Versioned
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple accessors
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Method that returns a display that can be used by Jackson
      * for informational purposes, as well as in associating extensions with
@@ -47,38 +45,28 @@ public abstract class Module
     /**
      * Method that returns an id that may be used to determine if two {@link Module}
      * instances are considered to be of same type, for purpose of preventing
-     * multiple registrations of "same type of" module
-     * (see {@link com.fasterxml.jackson.databind.MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS})
-     * If `null` is returned, every instance is considered unique.
-     * If non-null value is returned, equality of id Objects is used to check whether
-     * modules should be considered to be "of same type"
+     * multiple registrations of "same" module,
      *<p>
      * Default implementation returns value of class name ({@link Class#getName}).
      *
-     * @since 2.5
+     * @since 3.0
      */
-    public Object getTypeId() {
+    public Object getRegistrationId() {
         return getClass().getName();
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: registration
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Method called by {@link ObjectMapper} when module is registered.
      * It is called to let module register functionality it provides,
      * using callback methods passed-in context object exposes.
      */
     public abstract void setupModule(SetupContext context);
-    
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
 
     /**
      * Interface Jackson exposes to modules for purpose of registering
@@ -90,11 +78,11 @@ public abstract class Module
     public static interface SetupContext
     {
         /*
-        /**********************************************************
+        /******************************************************************
         /* Simple accessors
-        /**********************************************************
+        /******************************************************************
          */
-        
+
         /**
          * Method that returns version information about {@link ObjectMapper} 
          * that implements this context. Modules can use this to choose
@@ -104,8 +92,13 @@ public abstract class Module
         public Version getMapperVersion();
 
         /**
+         * @since 3.0
+         */
+        public String getFormatName();
+
+        /**
          * Fallback access method that allows modules to refer to the
-         * {@link ObjectMapper} that provided this context.
+         * {@link MapperBuilder} that provided this context.
          * It should NOT be needed by most modules; and ideally should
          * not be used -- however, there may be cases where this may
          * be necessary due to various design constraints.
@@ -115,14 +108,13 @@ public abstract class Module
          * to allow access to new features in cases where Module API
          * has not yet been extended, or there are oversights.
          *<p>
-         * Return value is chosen to not leak dependency to {@link ObjectMapper};
-         * however, instance will always be of that type.
-         * This is why return value is declared generic, to allow caller to
-         * specify context to often avoid casting.
-         * 
-         * @since 2.0
+         * Return value is chosen to force casting, to make caller aware that
+         * this is a fallback accessor, used only when everything else fails:
+         * type is, however, guaranteed to be {@link MapperBuilder} (and more
+         * specifally format-specific subtype that mapper constructed, in case
+         * format-specific access is needed).
          */
-        public <C extends ObjectCodec> C getOwner();
+        public Object getOwner();
 
         /**
          * Accessor for finding {@link TypeFactory} that is currently configured
@@ -130,27 +122,22 @@ public abstract class Module
          *<p>
          * NOTE: since it is possible that other modules might change or replace
          * TypeFactory, use of this method adds order-dependency for registrations.
-         * 
-         * @since 2.0
          */
-        public TypeFactory getTypeFactory();
-        
+        public TypeFactory typeFactory();
+
+        public TokenStreamFactory tokenStreamFactory();
+
         public boolean isEnabled(MapperFeature f);
-        
         public boolean isEnabled(DeserializationFeature f);
-
         public boolean isEnabled(SerializationFeature f);
-
-        public boolean isEnabled(JsonFactory.Feature f);
-        
-        public boolean isEnabled(JsonParser.Feature f);
-
-        public boolean isEnabled(JsonGenerator.Feature f);
+        public boolean isEnabled(TokenStreamFactory.Feature f);
+        public boolean isEnabled(StreamReadFeature f);
+        public boolean isEnabled(StreamWriteFeature f);
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Mutant accessors
-        /**********************************************************
+        /******************************************************************
          */
 
         /**
@@ -163,92 +150,42 @@ public abstract class Module
          *<pre>
          *   mapper.configOverride(java.util.Date.class)
          *       .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd"));
-         *<pre>
+         *</pre>
          * to change the default format to use for properties of type
          * {@link java.util.Date} (possibly further overridden by per-property
          * annotations)
-         *
-         * @since 2.8
          */
         public MutableConfigOverride configOverride(Class<?> type);
-        
+
         /*
-        /**********************************************************
-        /* Handler registration; serializers/deserializers
-        /**********************************************************
+        /******************************************************************
+        /* Handler registration; deserializers, related
+        /******************************************************************
          */
         
         /**
          * Method that module can use to register additional deserializers to use for
          * handling types.
-         * 
+         *
          * @param d Object that can be called to find deserializer for types supported
          *   by module (null returned for non-supported types)
          */
-        public void addDeserializers(Deserializers d);
+        public SetupContext addDeserializers(Deserializers d);
 
         /**
          * Method that module can use to register additional deserializers to use for
          * handling Map key values (which are separate from value deserializers because
          * they are always serialized from String values)
          */
-        public void addKeyDeserializers(KeyDeserializers s);
-        
-        /**
-         * Method that module can use to register additional serializers to use for
-         * handling types.
-         * 
-         * @param s Object that can be called to find serializer for types supported
-         *   by module (null returned for non-supported types)
-         */
-        public void addSerializers(Serializers s);
-
-        /**
-         * Method that module can use to register additional serializers to use for
-         * handling Map key values (which are separate from value serializers because
-         * they must write <code>JsonToken.FIELD_NAME</code> instead of String value).
-         */
-        public void addKeySerializers(Serializers s);
-
-        /*
-        /**********************************************************
-        /* Handler registration; other
-        /**********************************************************
-         */
+        public SetupContext addKeyDeserializers(KeyDeserializers s);
         
         /**
          * Method that module can use to register additional modifier objects to
          * customize configuration and construction of bean deserializers.
-         * 
+         *
          * @param mod Modifier to register
          */
-        public void addBeanDeserializerModifier(BeanDeserializerModifier mod);
-
-        /**
-         * Method that module can use to register additional modifier objects to
-         * customize configuration and construction of bean serializers.
-         * 
-         * @param mod Modifier to register
-         */
-        public void addBeanSerializerModifier(BeanSerializerModifier mod);
-
-        /**
-         * Method that module can use to register additional
-         * {@link AbstractTypeResolver} instance, to handle resolution of
-         * abstract to concrete types (either by defaulting, or by materializing).
-         * 
-         * @param resolver Resolver to add.
-         */
-        public void addAbstractTypeResolver(AbstractTypeResolver resolver);
-
-        /**
-         * Method that module can use to register additional
-         * {@link TypeModifier} instance, which can augment {@link com.fasterxml.jackson.databind.JavaType}
-         * instances constructed by {@link com.fasterxml.jackson.databind.type.TypeFactory}.
-         * 
-         * @param modifier to add
-         */
-        public void addTypeModifier(TypeModifier modifier);
+        public SetupContext addDeserializerModifier(BeanDeserializerModifier mod);
 
         /**
          * Method that module can use to register additional {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s,
@@ -258,17 +195,61 @@ public abstract class Module
          * @param instantiators Object that can provide {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s for
          *    constructing POJO values during deserialization
          */
-        public void addValueInstantiators(ValueInstantiators instantiators);
+        public SetupContext addValueInstantiators(ValueInstantiators instantiators);
+
+        /*
+        /******************************************************************
+        /* Handler registration; serializers, related
+        /******************************************************************
+         */
 
         /**
-         * Method for replacing the default class introspector with a derived class that
-         * overrides specific behavior.
+         * Method that module can use to register additional serializers to use for
+         * handling types.
          *
-         * @param ci Derived class of ClassIntrospector with overriden behavior
-         *
-         * @since 2.2
+         * @param s Object that can be called to find serializer for types supported
+         *   by module (null returned for non-supported types)
          */
-        public void setClassIntrospector(ClassIntrospector ci);
+        public SetupContext addSerializers(Serializers s);
+
+        /**
+         * Method that module can use to register additional serializers to use for
+         * handling Map key values (which are separate from value serializers because
+         * they must write <code>JsonToken.FIELD_NAME</code> instead of String value).
+         */
+        public SetupContext addKeySerializers(Serializers s);
+
+        /**
+         * Method that module can use to register additional modifier objects to
+         * customize configuration and construction of bean serializers.
+         *
+         * @param mod Modifier to register
+         */
+        public SetupContext addSerializerModifier(BeanSerializerModifier mod);
+
+        /**
+         * Method that module can use to override handler called to write JSON Object key
+         * for {@link java.util.Map} values.
+         *
+         * @param ser Serializer called to write output for JSON Object key of which value
+         *   on Java side is `null`
+         */
+        public SetupContext overrideDefaultNullKeySerializer(JsonSerializer<?> ser);
+
+        /**
+         * Method that module can use to override handler called to write Java `null` as
+         * a value (Property or Map value, Collection/array element).
+         *
+         * @param ser Serializer called to write output for Java `null` as value (as distinct from
+         *    key_
+         */
+        public SetupContext overrideDefaultNullValueSerializer(JsonSerializer<?> ser);
+
+        /*
+        /******************************************************************
+        /* Handler registration, annotation introspectors
+        /******************************************************************
+         */
 
         /**
          * Method for registering specified {@link AnnotationIntrospector} as the highest
@@ -277,7 +258,7 @@ public abstract class Module
          * 
          * @param ai Annotation introspector to register.
          */
-        public void insertAnnotationIntrospector(AnnotationIntrospector ai);
+        public SetupContext insertAnnotationIntrospector(AnnotationIntrospector ai);
 
         /**
          * Method for registering specified {@link AnnotationIntrospector} as the lowest
@@ -286,28 +267,71 @@ public abstract class Module
          * 
          * @param ai Annotation introspector to register.
          */
-        public void appendAnnotationIntrospector(AnnotationIntrospector ai);
+        public SetupContext appendAnnotationIntrospector(AnnotationIntrospector ai);
+
+        /*
+        /******************************************************************
+        /* Type handling
+        /******************************************************************
+         */
+
+        /**
+         * Method that module can use to register additional
+         * {@link AbstractTypeResolver} instance, to handle resolution of
+         * abstract to concrete types (either by defaulting, or by materializing).
+         * 
+         * @param resolver Resolver to add.
+         */
+        public SetupContext addAbstractTypeResolver(AbstractTypeResolver resolver);
+
+        /**
+         * Method that module can use to register additional
+         * {@link TypeModifier} instance, which can augment {@link com.fasterxml.jackson.databind.JavaType}
+         * instances constructed by {@link com.fasterxml.jackson.databind.type.TypeFactory}.
+         * 
+         * @param modifier to add
+         */
+        public SetupContext addTypeModifier(TypeModifier modifier);
 
         /**
          * Method for registering specified classes as subtypes (of supertype(s)
          * they have)
          */
-        public void registerSubtypes(Class<?>... subtypes);
+        public SetupContext registerSubtypes(Class<?>... subtypes);
 
         /**
          * Method for registering specified classes as subtypes (of supertype(s)
          * they have), using specified type names.
          */
-        public void registerSubtypes(NamedType... subtypes);
+        public SetupContext registerSubtypes(NamedType... subtypes);
 
         /**
          * Method for registering specified classes as subtypes (of supertype(s)
          * they have)
-         *
-         * @since 2.9
          */
-        public void registerSubtypes(Collection<Class<?>> subtypes);
-        
+        public SetupContext registerSubtypes(Collection<Class<?>> subtypes);
+ 
+        /*
+        /******************************************************************
+        /* Handler registration, other
+        /******************************************************************
+         */
+
+        /**
+         * Add a deserialization problem handler
+         *
+         * @param handler The deserialization problem handler
+         */
+        public SetupContext addHandler(DeserializationProblemHandler handler);
+
+        /**
+         * Replace default {@link InjectableValues} that have been configured to be
+         * used for mapper being built.
+         *
+         * @since 3.0
+         */
+        public SetupContext overrideInjectableValues(UnaryOperator<InjectableValues> v);
+
         /**
          * Method used for defining mix-in annotations to use for augmenting
          * specified class or interface.
@@ -326,21 +350,6 @@ public abstract class Module
          * @param mixinSource Class (or interface) whose annotations are to
          *   be "added" to target's annotations, overriding as necessary
          */
-        public void setMixInAnnotations(Class<?> target, Class<?> mixinSource);
-
-        /**
-         * Add a deserialization problem handler
-         *
-         * @param handler The deserialization problem handler
-         */
-        public void addDeserializationProblemHandler(DeserializationProblemHandler handler);
-
-        /**
-         * Method that may be used to override naming strategy that is used
-         * by {@link ObjectMapper}.
-         * 
-         * @since 2.3
-         */
-        public void setNamingStrategy(PropertyNamingStrategy naming);
+        public SetupContext setMixIn(Class<?> target, Class<?> mixinSource);
     }
 }

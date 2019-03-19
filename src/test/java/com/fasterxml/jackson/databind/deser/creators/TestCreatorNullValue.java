@@ -95,8 +95,9 @@ public class TestCreatorNullValue extends BaseMapTest
      */
 
     public void testUsesDeserializersNullValue() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new TestModule());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new TestModule())
+                .build();
         Container container = mapper.readValue("{}", Container.class);
         assertEquals(NULL_CONTAINED, container.contained);
     }

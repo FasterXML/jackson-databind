@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Simple serializer that will call configured type serializer, passing
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
  */
 public final class TypeWrappedSerializer
     extends JsonSerializer<Object>
-    implements ContextualSerializer // since 2.9
 {
     final protected TypeSerializer _typeSerializer;
     final protected JsonSerializer<Object> _serializer;
@@ -45,18 +43,18 @@ public final class TypeWrappedSerializer
     public Class<Object> handledType() { return Object.class; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ContextualDeserializer
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override // since 2.9
+    @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
         // 13-Mar-2017, tatu: Should we call `TypeSerializer.forProperty()`?
         JsonSerializer<?> ser = _serializer;
-        if (ser instanceof ContextualSerializer) {
+        if (ser != null) {
             ser = provider.handleSecondaryContextualization(ser, property);
         }
         if (ser == _serializer) {
@@ -66,9 +64,9 @@ public final class TypeWrappedSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API for other core classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonSerializer<Object> valueSerializer() {

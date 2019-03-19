@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestPolymorphicDelegating extends BaseMapTest
 {
-
     // For [databind#580]
-    
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     static abstract class Issue580Base {
     }
@@ -34,9 +32,9 @@ public class TestPolymorphicDelegating extends BaseMapTest
     }
 
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     public void testAbstractDelegateWithCreator() throws Exception

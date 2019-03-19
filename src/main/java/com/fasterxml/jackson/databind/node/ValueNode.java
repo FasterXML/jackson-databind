@@ -17,13 +17,15 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public abstract class ValueNode
     extends BaseJsonNode
 {
+    protected final static JsonNode MISSING = MissingNode.getInstance();
+
     protected ValueNode() { }
 
     @Override
     protected JsonNode _at(JsonPointer ptr) {
         // will only allow direct matches, but no traversal through
         // (base class checks for direct match)
-        return MissingNode.getInstance();
+        return MISSING;
     }
 
     /**
@@ -49,24 +51,24 @@ public abstract class ValueNode
 
     /*
     /**********************************************************************
-    /* Base impls for standard methods
+    /* Basic property access
     /**********************************************************************
      */
 
     @Override
-    public String toString() { return asText(); }
-
+    public boolean isEmpty() { return true; }
+    
     /*
-     **********************************************************************
-     * Navigation methods
-     **********************************************************************
+    /**********************************************************************
+    /* Navigation methods
+    /**********************************************************************
      */
 
     @Override
     public final JsonNode get(int index) { return null; }
 
     @Override
-    public final JsonNode path(int index) { return MissingNode.getInstance(); }
+    public final JsonNode path(int index) { return MISSING; }
 
     @Override
     public final boolean has(int index) { return false; }
@@ -78,7 +80,7 @@ public abstract class ValueNode
     public final JsonNode get(String fieldName) { return null; }
 
     @Override
-    public final JsonNode path(String fieldName) { return MissingNode.getInstance(); }
+    public final JsonNode path(String fieldName) { return MISSING; }
 
     @Override
     public final boolean has(String fieldName) { return false; }

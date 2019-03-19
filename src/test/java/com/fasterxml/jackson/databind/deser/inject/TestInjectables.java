@@ -90,16 +90,16 @@ public class TestInjectables extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testSimple() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std()
             .addValue(String.class, "stuffValue")
             .addValue("myId", "xyz")
             .addValue(Long.TYPE, Long.valueOf(37))
-            );
+            ).build();
         InjectedBean bean = mapper.readValue("{\"value\":3}", InjectedBean.class);
         assertEquals(3, bean.value);
         assertEquals("stuffValue", bean.stuff);
@@ -135,12 +135,12 @@ public class TestInjectables extends BaseMapTest
         final Object methodInjected = "methodInjected";
         final Object fieldInjected = "fieldInjected";
 
-        ObjectMapper mapper = newObjectMapper()
-                        .setInjectableValues(new InjectableValues.Std()
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std()
                                 .addValue("constructor_injected", constructorInjected)
                                 .addValue("method_injected", methodInjected)
-                                .addValue("field_injected", fieldInjected));
-
+                                .addValue("field_injected", fieldInjected))
+                .build();
         Bean471 bean = mapper.readValue(aposToQuotes(
 "{'x':13,'constructor_value':'constructor','method_value':'method','field_value':'field'}"),
                 Bean471.class);

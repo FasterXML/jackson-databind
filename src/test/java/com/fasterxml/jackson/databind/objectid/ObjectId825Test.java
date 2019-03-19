@@ -24,11 +24,10 @@ public class ObjectId825Test extends BaseMapTest
 
     static class TestD extends AbstractEntity { }
 
-    private final ObjectMapper DEF_TYPING_MAPPER = new ObjectMapper();
-    {
-        DEF_TYPING_MAPPER.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-    }
-    
+    private final ObjectMapper DEF_TYPING_MAPPER = jsonMapperBuilder()
+            .enableDefaultTyping(DefaultTyping.NON_FINAL)
+            .build();
+
     public void testDeserialize() throws Exception {
         TestA a = new TestA();
         a.oidString = "oidA";

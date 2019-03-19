@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @JacksonStdImpl
 public class MapEntryDeserializer
     extends ContainerDeserializerBase<Map.Entry<Object,Object>>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1;
 
@@ -167,7 +166,7 @@ public class MapEntryDeserializer
     public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
             // String may be ok however:
             // slightly redundant (since String was passed above), but
@@ -188,7 +187,7 @@ public class MapEntryDeserializer
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        final String keyStr = p.getCurrentName();
+        final String keyStr = p.currentName();
         Object key = keyDes.deserializeKey(keyStr, ctxt);
         Object value = null;
         // And then the value...
@@ -212,7 +211,7 @@ public class MapEntryDeserializer
             if (t == JsonToken.FIELD_NAME) { // most likely
                 ctxt.reportInputMismatch(this,
                         "Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '%s')",
-                        p.getCurrentName());
+                        p.currentName());
             } else {
                 // how would this occur?
                 ctxt.reportInputMismatch(this,

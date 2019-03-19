@@ -43,10 +43,6 @@ public class SettableAnyProperty
     protected JsonDeserializer<Object> _valueDeserializer;
 
     protected final TypeDeserializer _valueTypeDeserializer;
-
-    /**
-     * @since 2.9
-     */
     protected final KeyDeserializer _keyDeserializer;
 
     /*
@@ -66,13 +62,6 @@ public class SettableAnyProperty
         _valueTypeDeserializer = typeDeser;
         _keyDeserializer = keyDeser;
         _setterIsField = setter instanceof AnnotatedField;
-    }
-
-    @Deprecated // since 2.9
-    public SettableAnyProperty(BeanProperty property, AnnotatedMember setter, JavaType type,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
-    {
-        this(property, setter, type, null, valueDeser, typeDeser);
     }
 
     public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
@@ -133,7 +122,7 @@ public class SettableAnyProperty
                     : _keyDeserializer.deserializeKey(propName, ctxt);
             set(instance, key, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
-            if (!(_valueDeserializer.getObjectIdReader() != null)) {
+            if (_valueDeserializer.getObjectIdReader(ctxt) == null) {
                 throw JsonMappingException.from(p, "Unresolved forward reference but no identity info.", reference);
             }
             AnySetterReferring referring = new AnySetterReferring(this, reference,
@@ -144,7 +133,7 @@ public class SettableAnyProperty
 
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) {
             return _valueDeserializer.getNullValue(ctxt);
         }

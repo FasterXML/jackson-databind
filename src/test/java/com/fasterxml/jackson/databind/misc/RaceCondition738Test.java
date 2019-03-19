@@ -63,7 +63,7 @@ public class RaceCondition738Test extends BaseMapTest
     }
     
     void runOnce(int round, int max) throws Exception {
-        final ObjectMapper mapper = newObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         Callable<String> writeJson = new Callable<String>() {
             @Override
             public String call() throws Exception {

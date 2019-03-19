@@ -1,22 +1,18 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-
-import com.fasterxml.jackson.core.Version;
-
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
+public class TestSubtypes extends BaseMapTest
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     static abstract class SuperType {
@@ -52,22 +48,6 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         
         public PropertyBean() { this(null); }
         public PropertyBean(SuperType v) { value = v; }
-    }
-
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY,
-            property="#type",
-            defaultImpl=DefaultImpl.class)
-    static abstract class SuperTypeWithDefault { }
-
-    static class DefaultImpl extends SuperTypeWithDefault {
-        public int a;
-    }
-
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="#type")
-    static abstract class SuperTypeWithoutDefault { }
-
-    static class DefaultImpl505 extends SuperTypeWithoutDefault {
-        public int a;
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="type")
@@ -163,18 +143,19 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     static class Factory1311ImplB implements Factory1311 { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testPropertyWithSubtypes() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // must register subtypes
-        mapper.registerSubtypes(SubB.class, SubC.class, SubD.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(SubB.class, SubC.class, SubD.class)
+                .build();
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         PropertyBean result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
@@ -183,23 +164,25 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     // also works via modules
     public void testSubtypesViaModule() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.registerSubtypes(SubB.class, SubC.class, SubD.class);
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         PropertyBean result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
 
         // and as per [databind#1653]:
-        mapper = new ObjectMapper();
         module = new SimpleModule();
         List<Class<?>> l = new ArrayList<>();
         l.add(SubB.class);
         l.add(SubC.class);
         l.add(SubD.class);
         module.registerSubtypes(l);
-        mapper.registerModule(module);
+        mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
@@ -212,8 +195,9 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals("{\"@type\":\"TypeB\",\"b\":1}", MAPPER.writeValueAsString(bean));
 
         // but we can override type name here too
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(new NamedType(SubB.class, "typeB"));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(new NamedType(SubB.class, "typeB"))
+                .build();
         assertEquals("{\"@type\":\"typeB\",\"b\":1}", mapper.writeValueAsString(bean));
 
         // and default name ought to be simple class name; with context
@@ -222,9 +206,9 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     public void testDeserializationNonNamed() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(SubC.class);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(SubC.class)
+                .build();
         // default name should be unqualified class name
         SuperType bean = mapper.readValue("{\"@type\":\"TestSubtypes$SubC\", \"c\":1}", SuperType.class);
         assertSame(SubC.class, bean.getClass());
@@ -233,9 +217,10 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     public void testDeserializatioNamed() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(SubB.class);
-        mapper.registerSubtypes(new NamedType(SubD.class, "TypeD"));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(SubB.class)
+                .registerSubtypes(new NamedType(SubD.class, "TypeD"))
+                .build();
 
         SuperType bean = mapper.readValue("{\"@type\":\"TypeB\", \"b\":13}", SuperType.class);
         assertSame(SubB.class, bean.getClass());
@@ -247,76 +232,28 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(-4, ((SubD) bean).d);
     }
 
-    // Trying to reproduce [JACKSON-366]
     public void testEmptyBean() throws Exception
     {
         // First, with annotations
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true)
+                .build();
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
 
-        mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper = jsonMapperBuilder()
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .build();
         json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
 
         // and then with defaults
-        mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper = jsonMapperBuilder()
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .enableDefaultTyping(DefaultTyping.NON_FINAL)
+            .build();
         json = mapper.writeValueAsString(new EmptyNonFinal());
         assertEquals("[\"com.fasterxml.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
-    }
-
-    public void testDefaultImpl() throws Exception
-    {
-        // first, test with no type information
-        SuperTypeWithDefault bean = MAPPER.readValue("{\"a\":13}", SuperTypeWithDefault.class);
-        assertEquals(DefaultImpl.class, bean.getClass());
-        assertEquals(13, ((DefaultImpl) bean).a);
-
-        // and then with unmapped info
-        bean = MAPPER.readValue("{\"a\":14,\"#type\":\"foobar\"}", SuperTypeWithDefault.class);
-        assertEquals(DefaultImpl.class, bean.getClass());
-        assertEquals(14, ((DefaultImpl) bean).a);
-
-        bean = MAPPER.readValue("{\"#type\":\"foobar\",\"a\":15}", SuperTypeWithDefault.class);
-        assertEquals(DefaultImpl.class, bean.getClass());
-        assertEquals(15, ((DefaultImpl) bean).a);
-
-        bean = MAPPER.readValue("{\"#type\":\"foobar\"}", SuperTypeWithDefault.class);
-        assertEquals(DefaultImpl.class, bean.getClass());
-        assertEquals(0, ((DefaultImpl) bean).a);
-    }
-
-    // [JACKSON-505]: ok to also default to mapping there might be for base type
-    public void testDefaultImplViaModule() throws Exception
-    {
-        final String JSON = "{\"a\":123}";
-        
-        // first: without registration etc, epic fail:
-        try {
-            MAPPER.readValue(JSON, SuperTypeWithoutDefault.class);
-            fail("Expected an exception");
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "missing type id property '#type'");
-        }
-
-        // but then succeed when we register default impl
-        ObjectMapper mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        module.addAbstractTypeMapping(SuperTypeWithoutDefault.class, DefaultImpl505.class);
-        mapper.registerModule(module);
-        SuperTypeWithoutDefault bean = mapper.readValue(JSON, SuperTypeWithoutDefault.class);
-        assertNotNull(bean);
-        assertEquals(DefaultImpl505.class, bean.getClass());
-        assertEquals(123, ((DefaultImpl505) bean).a);
-
-        bean = mapper.readValue("{\"#type\":\"foobar\"}", SuperTypeWithoutDefault.class);
-        assertEquals(DefaultImpl505.class, bean.getClass());
-        assertEquals(0, ((DefaultImpl505) bean).a);
-    
     }
 
     public void testErrorMessage() throws Exception {

@@ -65,9 +65,10 @@ public class ObjectWithCreator1261Test
 
     public void testObjectIds1261() throws Exception
     {
-         ObjectMapper mapper = new ObjectMapper();
-         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-         mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+         ObjectMapper mapper = jsonMapperBuilder()
+                 .enable(SerializationFeature.INDENT_OUTPUT)
+                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                 .build();
 
          Answer initialAnswer = createInitialAnswer();
          String initialAnswerString = mapper.writeValueAsString(initialAnswer);

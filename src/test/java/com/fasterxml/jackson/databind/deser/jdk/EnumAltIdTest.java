@@ -41,11 +41,9 @@ public class EnumAltIdTest extends BaseMapTest
      */
 
     protected final ObjectMapper MAPPER = new ObjectMapper();
-    protected final ObjectMapper MAPPER_IGNORE_CASE;
-    {
-        MAPPER_IGNORE_CASE = new ObjectMapper();
-        MAPPER_IGNORE_CASE.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-    }
+    protected final ObjectMapper MAPPER_IGNORE_CASE = jsonMapperBuilder()
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .build();
 
     protected final ObjectReader READER_DEFAULT = MAPPER.reader();
     protected final ObjectReader READER_IGNORE_CASE = MAPPER_IGNORE_CASE.reader();
@@ -57,7 +55,8 @@ public class EnumAltIdTest extends BaseMapTest
             READER_DEFAULT.forType(TestEnum.class).readValue("\"Jackson\"");
             fail("InvalidFormatException expected");
         } catch (InvalidFormatException e) {
-            verifyException(e, "value not one of declared Enum instance names: [JACKSON, OK, RULES]");
+            verifyException(e, "not one of the values accepted for Enum class");
+            verifyException(e, "[JACKSON, OK, RULES]");
         }
     }
     
@@ -68,7 +67,8 @@ public class EnumAltIdTest extends BaseMapTest
             r.readValue("\"A\"");
             fail("InvalidFormatException expected");
         } catch (InvalidFormatException e) {
-            verifyException(e, "value not one of declared Enum instance names: [a, b, c]");
+            verifyException(e, "not one of the values accepted for Enum class");
+            verifyException(e,"[a, b, c]");
         }
     }
 
@@ -126,7 +126,8 @@ public class EnumAltIdTest extends BaseMapTest
                     .readValue(JSON);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
-            verifyException(e, "value not one of declared Enum instance names: [JACKSON, OK, RULES]");
+            verifyException(e, "not one of the values accepted for Enum class");
+            verifyException(e, "[JACKSON, OK, RULES]");
         }
     }
 }

@@ -7,17 +7,15 @@ import java.util.*;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 @SuppressWarnings("serial")
 public class TestJacksonAnnotationIntrospector
@@ -116,16 +114,6 @@ public class TestJacksonAnnotationIntrospector
         }
     }
 
-    public static class DummyBuilder extends StdTypeResolverBuilder
-    //<DummyBuilder>
-    {
-    }
-
-    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
-    @JsonTypeResolver(DummyBuilder.class)
-    static class TypeResolverBean { }
-
-    // @since 1.7
     @JsonIgnoreType
     static class IgnoredType { }
 
@@ -157,8 +145,9 @@ public class TestJacksonAnnotationIntrospector
      */
     public void testSerializeDeserializeWithJaxbAnnotations() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
         JacksonExample ex = new JacksonExample();
         QName qname = new QName("urn:hi", "hello");
         ex.setQname(qname);
@@ -181,22 +170,11 @@ public class TestJacksonAnnotationIntrospector
         assertEquals(ex.enumProperty, readEx.enumProperty);
     }
 
-    public void testJsonTypeResolver() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(mapper.getSerializationConfig(),
-                TypeResolverBean.class);
-        JavaType baseType = TypeFactory.defaultInstance().constructType(TypeResolverBean.class);
-        TypeResolverBuilder<?> rb = ai.findTypeResolver(mapper.getDeserializationConfig(), ac, baseType);
-        assertNotNull(rb);
-        assertSame(DummyBuilder.class, rb.getClass());
-    }
-
     public void testEnumHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new LcEnumIntrospector());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new LcEnumIntrospector())
+                .build();
         assertEquals("\"value1\"", mapper.writeValueAsString(EnumExample.VALUE1));
         EnumExample result = mapper.readValue(quote("value1"), EnumExample.class);
         assertEquals(EnumExample.VALUE1, result);

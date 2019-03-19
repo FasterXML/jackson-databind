@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -9,13 +8,11 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Serializer used for primitive boolean, as well as java.util.Boolean
@@ -26,9 +23,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
  */
 @JacksonStdImpl
 public final class BooleanSerializer
-//In 2.9, removed use of intermediate type `NonTypedScalarSerializerBase`
     extends StdScalarSerializer<Object>
-    implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -71,11 +66,6 @@ public final class BooleanSerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode("boolean", !_forPrimitive);
-    }
-
-    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         visitor.expectBooleanFormat(typeHint);
     }
@@ -83,12 +73,9 @@ public final class BooleanSerializer
     /**
      * Alternate implementation that is used when values are to be serialized
      * as numbers <code>0</code> (false) or <code>1</code> (true).
-     * 
-     * @since 2.9
      */
     final static class AsNumber
         extends StdScalarSerializer<Object>
-        implements ContextualSerializer
     {
         private static final long serialVersionUID = 1L;
 

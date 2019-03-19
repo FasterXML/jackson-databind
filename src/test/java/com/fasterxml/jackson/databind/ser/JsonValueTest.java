@@ -215,8 +215,8 @@ public class JsonValueTest
 
     public void testJsonValueWithUseSerializer() throws Exception
     {
-        String result = serializeAsString(MAPPER, new ToStringValueClass<Integer>(Integer.valueOf(123)));
-        assertEquals("\"123\"", result);
+        assertEquals("\"123\"",
+                MAPPER.writeValueAsString(new ToStringValueClass<Integer>(Integer.valueOf(123))));
     }
 
     /**
@@ -224,8 +224,8 @@ public class JsonValueTest
      */
     public void testMixedJsonValue() throws Exception
     {
-        String result = serializeAsString(MAPPER, new ToStringValueClass2("xyz"));
-        assertEquals("\"xyz\"", result);
+        assertEquals("\"xyz\"",
+                MAPPER.writeValueAsString(new ToStringValueClass2("xyz")));
     }
 
     public void testDisabling() throws Exception
@@ -240,8 +240,9 @@ public class JsonValueTest
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writeValueAsString(new ValueWrapper()));
 
         // then static
-        ObjectMapper staticMapper = new ObjectMapper();
-        staticMapper.configure(MapperFeature.USE_STATIC_TYPING, true);
+        ObjectMapper staticMapper = jsonMapperBuilder()
+                .configure(MapperFeature.USE_STATIC_TYPING, true)
+                .build();
         assertEquals("{\"a\":\"a\"}", staticMapper.writeValueAsString(new ValueWrapper()));
     }
 
@@ -288,10 +289,10 @@ public class JsonValueTest
         assertEquals(quote("value"), MAPPER.writeValueAsString(INPUT));
 
         // but custom serializer should override it
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule()
-            .addSerializer(Bean838.class, new Bean838Serializer())
-            );
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addSerializer(Bean838.class, new Bean838Serializer()))
+                .build();
         assertEquals("42", mapper.writeValueAsString(INPUT));
     }
 }

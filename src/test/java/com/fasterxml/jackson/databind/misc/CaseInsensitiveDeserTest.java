@@ -50,14 +50,12 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
-    private final ObjectMapper INSENSITIVE_MAPPER = new ObjectMapper();
-    {
-        INSENSITIVE_MAPPER.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
-        
-    }
+    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper INSENSITIVE_MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+            .build();
 
-// [databind#566]
+    // [databind#566]
     public void testCaseInsensitiveDeserialization() throws Exception
     {
         final String JSON = "{\"Value1\" : {\"nAme\" : \"fruit\", \"vALUe\" : \"apple\"}, \"valUE2\" : {\"NAME\" : \"color\", \"value\" : \"red\"}}";
@@ -113,10 +111,11 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     // And allow config overrides too
     public void testCaseInsensitiveWithClassFormat() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Role.class)
-            .setFormat(JsonFormat.Value.empty()
-                    .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Role.class,
+                        o -> o.setFormat(JsonFormat.Value.empty()
+                                .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)))
+                .build();
         Role role = mapper.readValue
                 (aposToQuotes("{'id':'12','name':'Foo'}"),
                         Role.class);

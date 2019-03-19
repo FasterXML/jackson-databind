@@ -75,8 +75,9 @@ public class ExceptionDeserializationTest
 
     public void testWithNullMessage() throws IOException
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
         String json = mapper.writeValueAsString(new IOException((String) null));
         IOException result = mapper.readValue(json, IOException.class);
         assertNotNull(result);
@@ -98,8 +99,9 @@ public class ExceptionDeserializationTest
     
     // [databind#381]
     public void testSingleValueArrayDeserialization() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         final IOException exp;
         try {
             throw new IOException("testing");
@@ -142,8 +144,9 @@ public class ExceptionDeserializationTest
     }
 
     public void testSingleValueArrayDeserializationException() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .build();
         
         final IOException exp;
         try {

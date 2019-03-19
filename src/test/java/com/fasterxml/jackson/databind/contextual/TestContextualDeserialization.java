@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -88,7 +87,6 @@ public class TestContextualDeserialization extends BaseMapTest
     
     static class MyContextualDeserializer
         extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
     {
         protected final String _fieldName;
         
@@ -118,7 +116,6 @@ public class TestContextualDeserialization extends BaseMapTest
      */
     static class AnnotatedContextualDeserializer
         extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
     {
         protected final String _fieldName;
         
@@ -149,7 +146,6 @@ public class TestContextualDeserialization extends BaseMapTest
 
     static class GenericStringDeserializer
         extends StdScalarDeserializer<Object>
-        implements ContextualDeserializer
     {
         final String _value;
 
@@ -183,10 +179,11 @@ public class TestContextualDeserialization extends BaseMapTest
 
     public void testSimple() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(StringValue.class, new MyContextualDeserializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         ContextualBean bean = mapper.readValue("{\"a\":\"1\",\"b\":\"2\"}", ContextualBean.class);
         assertEquals("a=1", bean.a.value);
         assertEquals("b=2", bean.b.value);
@@ -298,10 +295,10 @@ public class TestContextualDeserialization extends BaseMapTest
 
     private ObjectMapper _mapperWithAnnotatedContextual()
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(StringValue.class, new AnnotatedContextualDeserializer());
-        mapper.registerModule(module);
-        return mapper;
+        return jsonMapperBuilder()
+                .addModule(module)
+                .build();
     }
 }

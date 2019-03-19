@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -27,7 +26,6 @@ public class TestContextualKeyTypes extends BaseMapTest
 
     static class ContextualKeySerializer
         extends JsonSerializer<String>
-        implements ContextualSerializer
     {
         protected final String _prefix;
     
@@ -90,10 +88,11 @@ public class TestContextualKeyTypes extends BaseMapTest
 
     public void testSimpleKeySer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addKeySerializer(String.class, new ContextualKeySerializer("prefix"));
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         Map<String,Object> input = new HashMap<String,Object>();
         input.put("a", Integer.valueOf(3));
         String json = mapper.writerFor(TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, Object.class))
@@ -109,10 +108,11 @@ public class TestContextualKeyTypes extends BaseMapTest
 
     public void testSimpleKeyDeser() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addKeyDeserializer(String.class, new ContextualDeser("???"));
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         MapBean result = mapper.readValue("{\"map\":{\"a\":3}}", MapBean.class);
         Map<String,Integer> map = result.map;
         assertNotNull(map);

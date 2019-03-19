@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @SuppressWarnings("serial")
@@ -186,11 +185,13 @@ public class TestMapSerialization extends BaseMapTest
         assertEquals(aposToQuotes("[{'answer':42}]"), json);
 
         // and maybe with bit of extra typing?
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTyping(DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .build();
         json = mapper.writeValueAsString(input);
         assertEquals(aposToQuotes("['"+StringIntMapEntry.class.getName()+"',{'answer':42}]"),
                 json);
-    }        
+    }
 
     public void testMapEntryWrapper() throws IOException
     {
@@ -216,9 +217,10 @@ public class TestMapSerialization extends BaseMapTest
     public void testNullJsonInTypedMap691() throws Exception {
         Map<String, String> map = new HashMap<String, String>();
         map.put("NULL", null);
-    
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Object.class, Mixin691.class);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(Object.class, Mixin691.class)
+                .build();
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
     }

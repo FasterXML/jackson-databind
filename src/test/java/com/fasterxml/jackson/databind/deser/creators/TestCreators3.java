@@ -131,23 +131,16 @@ public class TestCreators3 extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testCreator541() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(
-                MapperFeature.AUTO_DETECT_CREATORS,
-                MapperFeature.AUTO_DETECT_FIELDS,
-                MapperFeature.AUTO_DETECT_GETTERS,
-                MapperFeature.AUTO_DETECT_IS_GETTERS,
-                MapperFeature.AUTO_DETECT_SETTERS,
-                MapperFeature.USE_GETTERS_AS_SETTERS
-        );
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);  
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
         final String JSON = "{\n"
                 + "    \"foo\": {\n"
                 + "        \"0\": {\n"
@@ -181,9 +174,9 @@ public class TestCreators3 extends BaseMapTest
     // [databind#421]
     public void testMultiCtor421() throws Exception
     {
-        final ObjectMapper mapper = newObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector());
-
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new MyParamIntrospector())
+                .build();
         MultiCtor bean = mapper.readValue(aposToQuotes("{'a':'123','b':'foo'}"), MultiCtor.class);
         assertNotNull(bean);
         assertEquals("123", bean._a);

@@ -26,8 +26,6 @@ public class SimpleDeserializers
 
     /**
      * Flag to help find "generic" enum deserializer, if one has been registered.
-     * 
-     * @since 2.3
      */
     protected boolean _hasEnumDeserializer = false;
     
@@ -39,14 +37,11 @@ public class SimpleDeserializers
     
     public SimpleDeserializers() { }
 
-    /**
-     * @since 2.1
-     */
     public SimpleDeserializers(Map<Class<?>,JsonDeserializer<?>> desers) {
         addDeserializers(desers);
     }
     
-    public <T> void addDeserializer(Class<T> forClass, JsonDeserializer<? extends T> deser)
+    public <T> SimpleDeserializers addDeserializer(Class<T> forClass, JsonDeserializer<? extends T> deser)
     {
         ClassKey key = new ClassKey(forClass);
         if (_classMappings == null) {
@@ -57,13 +52,11 @@ public class SimpleDeserializers
         if (forClass == Enum.class) {
             _hasEnumDeserializer = true;
         }
+        return this;
     }
 
-    /**
-     * @since 2.1
-     */
     @SuppressWarnings("unchecked")
-    public void addDeserializers(Map<Class<?>,JsonDeserializer<?>> desers)
+    public SimpleDeserializers addDeserializers(Map<Class<?>,JsonDeserializer<?>> desers)
     {
         for (Map.Entry<Class<?>,JsonDeserializer<?>> entry : desers.entrySet()) {
             Class<?> cls = entry.getKey();
@@ -71,6 +64,7 @@ public class SimpleDeserializers
             JsonDeserializer<Object> deser = (JsonDeserializer<Object>) entry.getValue();
             addDeserializer((Class<Object>) cls, deser);
         }
+        return this;
     }
     
     /*

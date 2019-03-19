@@ -5,12 +5,12 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.9.9-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.9.9-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -25,15 +25,6 @@
   </scm>
 
   <properties>
-    <!-- With Jackson 2.9 we will require JDK 7 (except for annotations/streaming),
-         and new language features (diamond pattern) may be used.
-         JDK classes are still loaded dynamically since there isn't much downside
-         (small number of types); this allows use on JDK 6 platforms still (including
-         Android)
-      -->
-    <javac.src.version>1.7</javac.src.version>
-    <javac.target.version>1.7</javac.target.version>
-
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- but imports should work fine with defaults -->
@@ -42,8 +33,7 @@
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
-    <!-- since 2.9.1: NOTE! can not use packageVersion.package as is -->
-    <jdk.module.name>com.fasterxml.jackson.databind</jdk.module.name>
+    <version.powermock>2.0.0</version.powermock>
   </properties>
 
   <dependencies>
@@ -66,19 +56,31 @@
     <!-- and for testing we need a few libraries
          libs for which we use reflection for code, but direct dep for testing
       -->
-
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-core</artifactId>
+      <version>${version.powermock}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>1.7.4</version>
+      <version>${version.powermock}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-      <version>1.7.4</version>
+      <artifactId>powermock-api-mockito2</artifactId>
+      <version>${version.powermock}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.9.1</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- For testing TestNoClassDefFoundDeserializer -->
     <dependency>
       <groupId>javax.measure</groupId>
@@ -86,6 +88,7 @@
       <version>1.0.0</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
@@ -101,20 +104,9 @@
   </repositories>
 
   <build>
-     <plugins>
-      <!-- Important: enable enforcer plug-in: -->
-      <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions> <!-- or?  combine.children="merge"> -->
-          <execution>
-            <id>enforce-properties</id>
-	    <phase>validate</phase>
-            <goals><goal>enforce</goal></goals>
-          </execution>
-        </executions>
-      </plugin>
+    <plugins>
 
-      <plugin>
+       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <version>${version.plugin.surefire}</version>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -128,41 +120,43 @@
         </configuration>
       </plugin>
 
-      <!-- parent definitions should be ok, but need to add more links -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.9</link>
-            <link>http://fasterxml.github.com/jackson-core/javadoc/2.9</link>
+            <link>http://fasterxml.github.com/jackson-annotations/javadoc/3.0</link>
+            <link>http://fasterxml.github.com/jackson-core/javadoc/3.0</link>
           </links>
         </configuration>
       </plugin>
 
-      <!-- settings are fine, but needed to trigger execution! -->
-      <plugin>
+      <plugin> <!-- default settings are fine, just need to enable here -->
+        <!-- Inherited from oss-base. Generate PackageVersion.java.-->
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
       </plugin>
 
-      <!-- 18-Oct-2016, tatu: Try to make coveralls work -->
+      <!-- 17-Sep-2017, tatu: With 3.0 need to ensure parameter names compiled in
+        -->
       <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-        <version>4.3.0</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <optimize>true</optimize>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </reporting>
 
   <profiles>
     <profile>

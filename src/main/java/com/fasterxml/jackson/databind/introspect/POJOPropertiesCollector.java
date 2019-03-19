@@ -38,11 +38,6 @@ public class POJOPropertiesCollector
     protected final boolean _forSerialization;
 
     /**
-     * @since 2.5
-     */
-    protected final boolean _stdBeanNaming;
-
-    /**
      * Type of POJO for which properties are being collected.
      */
     protected final JavaType _type;
@@ -52,13 +47,10 @@ public class POJOPropertiesCollector
      */
     protected final AnnotatedClass _classDef;
 
-    protected final VisibilityChecker<?> _visibilityChecker;
+    protected final VisibilityChecker _visibilityChecker;
 
     protected final AnnotationIntrospector _annotationIntrospector;
 
-    /**
-     * @since 2.9
-     */
     protected final boolean _useAnnotations;
 
     /**
@@ -127,7 +119,6 @@ public class POJOPropertiesCollector
             JavaType type, AnnotatedClass classDef, String mutatorPrefix)
     {
         _config = config;
-        _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
@@ -178,18 +169,6 @@ public class POJOPropertiesCollector
         return _injectables;
     }
 
-    @Deprecated // since 2.9
-    public AnnotatedMethod getJsonValueMethod() {
-        AnnotatedMember m = getJsonValueAccessor();
-        if (m instanceof AnnotatedMethod) {
-            return (AnnotatedMethod) m;
-        }
-        return null;
-    }
-
-    /**
-     * @since 2.9
-     */
     public AnnotatedMember getJsonValueAccessor()
     {
         if (!_collected) {
@@ -267,9 +246,9 @@ public class POJOPropertiesCollector
      */
     public ObjectIdInfo getObjectIdInfo()
     {
-        ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(_classDef);
-        if (info != null) { // 2.1: may also have different defaults for refs:
-            info = _annotationIntrospector.findObjectReferenceInfo(_classDef, info);
+        ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(_config, _classDef);
+        if (info != null) {
+            info = _annotationIntrospector.findObjectReferenceInfo(_config, _classDef, info);
         }
         return info;
     }
@@ -278,7 +257,7 @@ public class POJOPropertiesCollector
      * Method for finding Class to use as POJO builder, if any.
      */
     public Class<?> findPOJOBuilderClass() {
-        return _annotationIntrospector.findPOJOBuilder(_classDef);
+        return _annotationIntrospector.findPOJOBuilder(_config, _classDef);
     }
     
     // for unit tests:
@@ -297,8 +276,6 @@ public class POJOPropertiesCollector
 
     /**
      * Internal method that will collect actual property information.
-     *
-     * @since 2.6
      */
     protected void collectAll()
     {
@@ -319,34 +296,28 @@ public class POJOPropertiesCollector
         _removeUnwantedProperties(props);
         // and then remove unneeded accessors (wrt read-only, read-write)
         _removeUnwantedAccessor(props);
-
         // Rename remaining properties
         _renameProperties(props);
-
-        // then merge annotations, to simplify further processing
-        // 26-Sep-2017, tatu: Before 2.9.2 was done earlier but that prevented some of
-        //   annotations from getting properly merged
+        // then merge annotations, to simplify further processing: has to be done AFTER
+        // preceding renaming step to get right propagation
         for (POJOPropertyBuilder property : props.values()) {
             property.mergeAnnotations(_forSerialization);
         }
-
         // And use custom naming strategy, if applicable...
         PropertyNamingStrategy naming = _findNamingStrategy();
         if (naming != null) {
             _renameUsing(props, naming);
         }
 
-        /* Sort by visibility (explicit over implicit); drop all but first
-         * of member type (getter, setter etc) if there is visibility
-         * difference
-         */
+        // Sort by visibility (explicit over implicit); drop all but first
+        // of member type (getter, setter etc) if there is visibility
+        // difference
         for (POJOPropertyBuilder property : props.values()) {
             property.trimByVisibility();
         }
 
-        /* and, if required, apply wrapper name: note, MUST be done after
-         * annotations are merged.
-         */
+        // and, if required, apply wrapper name: note, MUST be done after
+        // annotations are merged.
         if (_config.isEnabled(MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME)) {
             _renameWithWrappers(props);
         }
@@ -362,7 +333,7 @@ public class POJOPropertiesCollector
     /* Overridable internal methods, adding members
     /**********************************************************
      */
-    
+
     /**
      * Method for collecting basic information on all fields found
      */
@@ -377,7 +348,6 @@ public class POJOPropertiesCollector
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
         
         for (AnnotatedField f : _classDef.fields()) {
-            String implName = ai.findImplicitPropertyName(f);
             // @JsonValue?
             if (Boolean.TRUE.equals(ai.hasAsValue(f))) {
                 if (_jsonValueAccessors == null) {
@@ -394,6 +364,7 @@ public class POJOPropertiesCollector
                 _anySetterField.add(f);
                 continue;
             }
+            String implName = ai.findImplicitPropertyName(f);
             if (implName == null) {
                 implName = f.getName();
             }
@@ -475,9 +446,6 @@ public class POJOPropertiesCollector
         }
     }
 
-    /**
-     * @since 2.4
-     */
     protected void _addCreatorParam(Map<String, POJOPropertyBuilder> props,
             AnnotatedParameter param)
     {
@@ -580,10 +548,10 @@ public class POJOPropertiesCollector
         if (!nameExplicit) { // no explicit name; must consider implicit
             implName = ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForRegularGetter(m, m.getName(), _stdBeanNaming);
+                implName = BeanUtil.okNameForRegularGetter(m, m.getName());
             }
             if (implName == null) { // if not, must skip
-                implName = BeanUtil.okNameForIsGetter(m, m.getName(), _stdBeanNaming);
+                implName = BeanUtil.okNameForIsGetter(m, m.getName());
                 if (implName == null) {
                     return;
                 }
@@ -595,7 +563,7 @@ public class POJOPropertiesCollector
             // we still need implicit name to link with other pieces
             implName = ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForGetter(m, _stdBeanNaming);
+                implName = BeanUtil.okNameForGetter(m);
             }
             // if not regular getter name, use method name as is
             if (implName == null) {
@@ -622,7 +590,7 @@ public class POJOPropertiesCollector
         if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix, _stdBeanNaming);
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
             }
             if (implName == null) { // if not, must skip
             	return;
@@ -632,7 +600,7 @@ public class POJOPropertiesCollector
             // we still need implicit name to link with other pieces
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix, _stdBeanNaming);
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
             }
             // if not regular getter name, use method name as is
             if (implName == null) {
@@ -835,7 +803,7 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
-        POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
+        POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[0]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {
             PropertyName fullName = prop.getFullName();
@@ -933,8 +901,8 @@ public class POJOPropertiesCollector
     /**********************************************************
      */
     
-    /* First, order by [JACKSON-90] (explicit ordering and/or alphabetic)
-     * and then for [JACKSON-170] (implicitly order creator properties before others)
+    /* First, explicit ordering and/or alphabetic
+     * and then implicitly order creator properties before others.
      */
     protected void _sortProperties(Map<String, POJOPropertyBuilder> props)
     {
@@ -1043,7 +1011,7 @@ public class POJOPropertiesCollector
         }
         return prop;
     }
-    
+
     // !!! TODO: deprecate, require use of PropertyName
     protected POJOPropertyBuilder _property(Map<String, POJOPropertyBuilder> props,
             String implName)
@@ -1066,9 +1034,8 @@ public class POJOPropertiesCollector
         if (namingDef instanceof PropertyNamingStrategy) {
             return (PropertyNamingStrategy) namingDef;
         }
-        /* Alas, there's no way to force return type of "either class
-         * X or Y" -- need to throw an exception after the fact
-         */
+        // Alas, there's no way to force return type of "either class
+        // X or Y" -- need to throw an exception after the fact
         if (!(namingDef instanceof Class)) {
             throw new IllegalStateException("AnnotationIntrospector returned PropertyNamingStrategy definition of type "
                     +namingDef.getClass().getName()+"; expected type PropertyNamingStrategy or Class<PropertyNamingStrategy> instead");

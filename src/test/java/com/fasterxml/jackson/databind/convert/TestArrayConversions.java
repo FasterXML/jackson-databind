@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.*;
 public class TestArrayConversions
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    final static String OVERFLOW_MSG_BYTE = "out of range of Java byte";
+    final static String OVERFLOW_MSG_BYTE = "out of range of `byte`";
     final static String OVERFLOW_MSG = "overflow";
 
-    final static String OVERFLOW_MSG_INT = "out of range of int";
-    final static String OVERFLOW_MSG_LONG = "out of range of long";
+    final static String OVERFLOW_MSG_INT = "out of range of `int`";
+    final static String OVERFLOW_MSG_LONG = "out of range of `long`";
 
     final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -112,8 +112,7 @@ public class TestArrayConversions
             verifyException(e, OVERFLOW_MSG_INT);
         }
         // Longs need help of BigInteger...
-        BigInteger biggie = BigInteger.valueOf(Long.MAX_VALUE);
-        biggie.add(BigInteger.ONE);
+        BigInteger biggie = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         List<BigInteger> l = new ArrayList<BigInteger>();
         l.add(biggie);
         try {

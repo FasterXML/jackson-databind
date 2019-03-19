@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -18,7 +17,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @SuppressWarnings("rawtypes")
 public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L; // since 2.5
 
@@ -32,8 +30,6 @@ public class EnumSetDeserializer
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
-     *
-     * @since 2.7
      */
     protected final Boolean _unwrapSingle;
 
@@ -57,9 +53,6 @@ public class EnumSetDeserializer
         _unwrapSingle = null;
     }
 
-    /**
-     * @since 2.7
-     */
     @SuppressWarnings("unchecked" )
     protected EnumSetDeserializer(EnumSetDeserializer base,
             JsonDeserializer<?> deser, Boolean unwrapSingle) {

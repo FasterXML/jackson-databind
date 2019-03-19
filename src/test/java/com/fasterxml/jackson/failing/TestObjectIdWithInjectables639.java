@@ -60,11 +60,12 @@ public class TestObjectIdWithInjectables639 extends BaseMapTest
 
         public void testObjectIdWithInjectables() throws Exception
         {
-            ObjectMapper mapper = new ObjectMapper();
             Context context = new Context();
             InjectableValues iv = new InjectableValues.Std().
                     addValue(Context.class, context);
-            mapper.setInjectableValues(iv);
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .injectableValues(iv)
+                    .build();
 
             Parent1 parent1 = new Parent1();
             Child1 child1 = new Child1(parent1);

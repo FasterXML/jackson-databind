@@ -36,7 +36,7 @@ public class IterableSerializer
             Boolean unwrapSingle) {
         return new IterableSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, Iterable<?> value) {
         // Not really good way to implement this, but has to do for now:
@@ -59,54 +59,53 @@ public class IterableSerializer
     }
 
     @Override
-    public final void serialize(Iterable<?> value, JsonGenerator gen,
-        SerializerProvider provider)throws IOException
+    public final void serialize(Iterable<?> value, JsonGenerator g,
+        SerializerProvider ctxt) throws IOException
     {
         if (((_unwrapSingle == null) &&
-                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
             if (hasSingleElement(value)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, ctxt);
                 return;
             }
         }
-        gen.writeStartArray();
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        g.setCurrentValue(value);
+        g.writeStartArray();
+        serializeContents(value, g, ctxt);
+        g.writeEndArray();
     }
-    
+
     @Override
-    public void serializeContents(Iterable<?> value, JsonGenerator jgen,
-        SerializerProvider provider) throws IOException
+    public void serializeContents(Iterable<?> value, JsonGenerator g,
+        SerializerProvider ctxt) throws IOException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
             final TypeSerializer typeSer = _valueTypeSerializer;
-            JsonSerializer<Object> prevSerializer = null;
-            Class<?> prevClass = null;
-            
             do {
                 Object elem = it.next();
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    ctxt.defaultSerializeNullValue(g);
                     continue;
                 }
-                JsonSerializer<Object> currSerializer = _elementSerializer;
-                if (currSerializer == null) {
-                    // Minor optimization to avoid most lookups:
+                JsonSerializer<Object> serializer = _elementSerializer;
+                if (serializer == null) {
                     Class<?> cc = elem.getClass();
-                    if (cc == prevClass) {
-                        currSerializer = prevSerializer;
-                    } else {
-                        currSerializer = provider.findValueSerializer(cc, _property);
-                        prevSerializer = currSerializer;
-                        prevClass = cc;
+                    serializer = _dynamicValueSerializers.serializerFor(cc);
+                    if (serializer == null) {
+                        if (_elementType.hasGenericTypes()) {
+                            serializer = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc));
+                        } else {
+                            serializer = _findAndAddDynamic(ctxt, cc);
+                        }
                     }
                 }
                 if (typeSer == null) {
-                    currSerializer.serialize(elem, jgen, provider);
+                    serializer.serialize(elem, g, ctxt);
                 } else {
-                    currSerializer.serializeWithType(elem, jgen, provider, typeSer);
+                    serializer.serializeWithType(elem, g, ctxt, typeSer);
                 }
             } while (it.hasNext());
         }

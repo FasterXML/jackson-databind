@@ -70,11 +70,10 @@ public class TestRootType
     /**********************************************************
      */
 
-    final ObjectMapper WRAP_ROOT_MAPPER = new ObjectMapper();
-    {
-        WRAP_ROOT_MAPPER.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-    }
-    
+    final ObjectMapper WRAP_ROOT_MAPPER = jsonMapperBuilder()
+            .enable(SerializationFeature.WRAP_ROOT_VALUE)
+            .build();
+
     @SuppressWarnings("unchecked")
     public void testSuperClass() throws Exception
     {
@@ -114,9 +113,10 @@ public class TestRootType
 
     public void testInArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // must force static typing, otherwise won't matter a lot
-        mapper.configure(MapperFeature.USE_STATIC_TYPING, true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(MapperFeature.USE_STATIC_TYPING)
+                .build();
         SubType[] ob = new SubType[] { new SubType() };
         String json = mapper.writerFor(BaseInterface[].class).writeValueAsString(ob);
         // should propagate interface type through due to root declaration; static typing
@@ -164,8 +164,7 @@ public class TestRootType
         assertEquals(EXP, json);
 
         StringWriter out = new StringWriter();
-        JsonFactory f = new JsonFactory();
-        mapper.writerFor(collectionType).writeValue(f.createGenerator(out), typedList);
+        mapper.writerFor(collectionType).writeValue(mapper.createGenerator(out), typedList);
 
         assertEquals(EXP, out.toString());
     }

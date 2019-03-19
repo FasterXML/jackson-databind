@@ -5,6 +5,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -55,7 +56,10 @@ public class NumberSerTest extends BaseMapTest
 
     static class BigDecimalAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
-        public BigDecimal value = BigDecimal.valueOf(0.25);
+        public BigDecimal value;
+
+        public BigDecimalAsString() { this(BigDecimal.valueOf(0.25)); }
+        public BigDecimalAsString(BigDecimal v) { value = v; }
     }
     
     static class NumberWrapper {
@@ -112,13 +116,16 @@ public class NumberSerTest extends BaseMapTest
 
     public void testConfigOverridesForNumbers() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Integer.TYPE) // for `int`
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
-        mapper.configOverride(Double.TYPE) // for `double`
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
-        mapper.configOverride(BigDecimal.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withAllConfigOverrides(all -> { // could have used separate but test for funsies
+                    all.findOrCreateOverride(Integer.TYPE) // for `int`
+                        .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+                    all.findOrCreateOverride(Double.TYPE) // for `double`
+                        .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+                    all.findOrCreateOverride(BigDecimal.class)
+                        .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+                })
+                .build();
 
         assertEquals(aposToQuotes("{'i':'3'}"),
                 mapper.writeValueAsString(new IntWrapper(3)));

@@ -9,10 +9,8 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
- * <code>JsonNode</code> implementation for efficiently containing 32-bit
+ * {@code JsonNode} implementation for efficiently containing 32-bit
  * `float` values.
- * 
- * @since 2.2
  */
 public class FloatNode extends NumericNode
 {
@@ -89,13 +87,12 @@ public class FloatNode extends NumericNode
 
     @Override
     public String asText() {
-        return NumberOutput.toString(_value);
+        return String.valueOf(_value);
     }
 
-    // @since 2.9
     @Override
     public boolean isNaN() {
-        return Float.isNaN(_value) || Float.isInfinite(_value);
+        return NumberOutput.notFinite(_value);
     }
 
     @Override
@@ -110,7 +107,7 @@ public class FloatNode extends NumericNode
         if (o == null) return false;
         if (o instanceof FloatNode) {
             // We must account for NaNs: NaN does not equal NaN, therefore we have
-            // to use Double.compare().
+            // to use Float.compare().
             final float otherValue = ((FloatNode) o)._value;
             return Float.compare(_value, otherValue) == 0;
         }

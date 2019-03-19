@@ -52,7 +52,7 @@ public class NullConversionsSkipTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSkipNullField() throws Exception
     {
@@ -103,9 +103,10 @@ public class NullConversionsSkipTest extends BaseMapTest
         StringValue result = MAPPER.readValue(json, StringValue.class);
         assertNull(result.value);
 
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configOverride(String.class)
-            .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(String.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.SKIP)))
+                .build();
         result = mapper.readValue(json, StringValue.class);
         assertEquals("default", result.value);
     }

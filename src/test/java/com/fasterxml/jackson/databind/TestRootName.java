@@ -124,9 +124,9 @@ public class TestRootName extends BaseMapTest
     
     private ObjectMapper rootMapper()
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-        mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-        return mapper;
+        return jsonMapperBuilder()
+                .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
+                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true)
+                .build();
     }
 }

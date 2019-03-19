@@ -116,30 +116,26 @@ public class TestPropertyConflicts extends BaseMapTest
 
     public void testInferredNameConflictsWithGetters() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new InferingIntrospector())
+                .build();
         String json = mapper.writeValueAsString(new Infernal());
         assertEquals(aposToQuotes("{'name':'Bob'}"), json);
     }
     
     public void testInferredNameConflictsWithSetters() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new InferingIntrospector())
+                .build();
         Infernal inf = mapper.readValue(aposToQuotes("{'stuff':'Bob'}"), Infernal.class);
         assertNotNull(inf);
     }
 
     public void testIssue541() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(
-                MapperFeature.AUTO_DETECT_CREATORS,
-                MapperFeature.AUTO_DETECT_FIELDS,
-                MapperFeature.AUTO_DETECT_GETTERS,
-                MapperFeature.AUTO_DETECT_IS_GETTERS,
-                MapperFeature.AUTO_DETECT_SETTERS,
-                MapperFeature.USE_GETTERS_AS_SETTERS
-        );
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build();
         Bean541 data = mapper.readValue("{\"str\":\"the string\"}", Bean541.class);
         if (data == null) {
             throw new IllegalStateException("data is null");

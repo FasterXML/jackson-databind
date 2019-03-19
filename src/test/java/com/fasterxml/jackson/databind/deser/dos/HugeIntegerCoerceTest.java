@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.dos;
 
-import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.databind.*;
 
 // for [databind#2157]
@@ -27,8 +26,8 @@ public class HugeIntegerCoerceTest extends BaseMapTest
         try {
             /*ABC value =*/ MAPPER.readValue(BIG_POS_INTEGER, ABC.class);
             fail("Should not pass");
-        } catch (JsonParseException e) {
-            verifyException(e, "out of range of int");
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range of `int`");
             verifyException(e, "Integer with "+BIG_NUM_LEN+" digits");
         }
     }    

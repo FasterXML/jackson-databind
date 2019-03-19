@@ -811,6 +811,19 @@ Brandon Krieger (bkrieger@github)
   * Reported #2064: Cannot set custom format for `SqlDateSerializer` globally
    (2.9.7)
 
+Thibaut Robert (trobert@github)
+  * Requested #2059: Remove `final` modifier for `TypeFactory`
+   (2.10.0)
+
+Christopher Smith (chrylis@github)
+  * Suggested #2115: Support naive deserialization of `Serializable` values as "untyped",
+    same as `java.lang.Object`		     
+   (2.10.0)
+
+Édouard Mercier (edouardmercier@github)
+  * Requested #2116: Make NumberSerializers.Base public and its inherited classes not final
+   (2.9.6)
+
 Semyon Levin (remal@github)
   * Contributed #2120: `NioPathDeserializer` improvement
    (2.9.7)
@@ -833,3 +846,15 @@ Joffrey Bion (joffrey-bion@github)
   * Reported #2265: Inconsistent handling of Collections$UnmodifiableList vs 
     Collections$UnmodifiableRandomAccessList
    (2.9.9)
+
+Christoph Breitkopf (bokesan@github)
+  * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
+   (2.10.0)
+
+Alexander Saites (saites@github)
+  * Reported #2189: `TreeTraversingParser` does not check int bounds
+   (2.10.0)
+
+Pavel Chervakov (pacher@github)
+  * Reported #2230: `WRITE_BIGDECIMAL_AS_PLAIN` is ignored if `@JsonFormat` is used
+   (2.10.0)

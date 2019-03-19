@@ -1,18 +1,18 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.io.NumberOutput;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided
@@ -46,8 +46,18 @@ public class NumberSerializers {
     /**********************************************************
      */
 
-    protected abstract static class Base<T> extends StdScalarSerializer<T>
-            implements ContextualSerializer {
+    /**
+     * Base class for actual primitive/wrapper value serializers.
+     *<p>
+     * NOTE: while you can extend this class yourself it is not designed as
+     * an extension point, and as such is not part of public API. This means that
+     * the compatibility across minor versions is only guaranteed on minor-to-minor
+     * basis, and class methods may be changed and/or removed via deprecation
+     * mechanism. Intent is, however, to allow for gradual upgrading so that methods
+     * to remove are marked deprecated for at least one minor version.
+     */
+    public abstract static class Base<T> extends StdScalarSerializer<T>
+    {
         protected final JsonParser.NumberType _numberType;
         protected final String _schemaType;
         protected final boolean _isInt;
@@ -60,11 +70,6 @@ public class NumberSerializers {
             _isInt = (numberType == JsonParser.NumberType.INT)
                     || (numberType == JsonParser.NumberType.LONG)
                     || (numberType == JsonParser.NumberType.BIG_INTEGER);
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode(_schemaType, true);
         }
 
         @Override
@@ -86,6 +91,9 @@ public class NumberSerializers {
             if (format != null) {
                 switch (format.getShape()) {
                 case STRING:
+                    if (((Class<?>) handledType()) == BigDecimal.class) {
+                        return NumberSerializer.bigDecimalAsStringSerializer();
+                    }
                     return ToStringSerializer.instance;
                 default:
                 }
@@ -101,7 +109,7 @@ public class NumberSerializers {
      */
 
     @JacksonStdImpl
-    public final static class ShortSerializer extends Base<Object> {
+    public static class ShortSerializer extends Base<Object> {
         final static ShortSerializer instance = new ShortSerializer();
 
         public ShortSerializer() {
@@ -119,14 +127,11 @@ public class NumberSerializers {
      * This is the special serializer for regular {@link java.lang.Integer}s
      * (and primitive ints)
      * <p>
-     * Since this is one of "native" types, no type information is ever included
-     * on serialization (unlike for most scalar types)
-     * <p>
-     * NOTE: as of 2.6, generic signature changed to Object, to avoid generation
-     * of bridge methods.
+     * Since this is one of "natural" types, no type information is ever included
+     * on serialization (unlike for most scalar types, except for {@code double}).
      */
     @JacksonStdImpl
-    public final static class IntegerSerializer extends Base<Object> {
+    public static class IntegerSerializer extends Base<Object> {
         public IntegerSerializer(Class<?> type) {
             super(type, JsonParser.NumberType.INT, "integer");
         }
@@ -153,7 +158,7 @@ public class NumberSerializers {
      * calling {@link java.lang.Number#intValue}.
      */
     @JacksonStdImpl
-    public final static class IntLikeSerializer extends Base<Object> {
+    public static class IntLikeSerializer extends Base<Object> {
         final static IntLikeSerializer instance = new IntLikeSerializer();
 
         public IntLikeSerializer() {
@@ -168,7 +173,7 @@ public class NumberSerializers {
     }
 
     @JacksonStdImpl
-    public final static class LongSerializer extends Base<Object> {
+    public static class LongSerializer extends Base<Object> {
         public LongSerializer(Class<?> cls) {
             super(cls, JsonParser.NumberType.LONG, "number");
         }
@@ -181,7 +186,7 @@ public class NumberSerializers {
     }
 
     @JacksonStdImpl
-    public final static class FloatSerializer extends Base<Object> {
+    public static class FloatSerializer extends Base<Object> {
         final static FloatSerializer instance = new FloatSerializer();
 
         public FloatSerializer() {
@@ -203,7 +208,7 @@ public class NumberSerializers {
      * on serialization (unlike for most scalar types as of 1.5)
      */
     @JacksonStdImpl
-    public final static class DoubleSerializer extends Base<Object> {
+    public static class DoubleSerializer extends Base<Object> {
         public DoubleSerializer(Class<?> cls) {
             super(cls, JsonParser.NumberType.DOUBLE, "number");
         }
@@ -216,11 +221,22 @@ public class NumberSerializers {
 
         // IMPORTANT: copied from `NonTypedScalarSerializerBase`
         @Override
-        public void serializeWithType(Object value, JsonGenerator gen,
+        public void serializeWithType(Object value, JsonGenerator g,
                 SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException {
             // no type info, just regular serialization
-            serialize(value, gen, provider);
+            // 08-Feb-2018, tatu: Except that as per [databind#2236], NaN values need
+            //    special handling
+            Double d = (Double) value;
+            if (NumberOutput.notFinite(d)) {
+                WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                        // whether to indicate it's number or string is arbitrary; important it is scalar
+                        typeSer.typeId(value, JsonToken.VALUE_NUMBER_FLOAT));
+                g.writeNumber(d);
+                typeSer.writeTypeSuffix(g, typeIdDef);
+            } else {
+                g.writeNumber(d);
+            }
         }
     }
 }

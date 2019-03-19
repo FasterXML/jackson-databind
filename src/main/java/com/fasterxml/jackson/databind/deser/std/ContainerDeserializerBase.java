@@ -25,8 +25,6 @@ public abstract class ContainerDeserializerBase<T>
 
     /**
      * Handler we need for dealing with nulls.
-     *
-     * @since 2.9
      */
     protected final NullValueProvider _nullProvider;
 
@@ -34,16 +32,12 @@ public abstract class ContainerDeserializerBase<T>
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
-     *
-     * @since 2.9 (demoted from sub-classes where added in 2.7)
      */
     protected final Boolean _unwrapSingle;
 
     /**
      * Marker flag set if the <code>_nullProvider</code> indicates that all null
      * content values should be skipped (instead of being possibly converted).
-     *
-     * @since 2.9
      */
     protected final boolean _skipNullValues;
 
@@ -60,16 +54,10 @@ public abstract class ContainerDeserializerBase<T>
         this(selfType, null, null);
     }
 
-    /**
-     * @since 2.9
-     */
     protected ContainerDeserializerBase(ContainerDeserializerBase<?> base) {
         this(base, base._nullProvider, base._unwrapSingle);
     }
 
-    /**
-     * @since 2.9
-     */
     protected ContainerDeserializerBase(ContainerDeserializerBase<?> base,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(base._containerType);
@@ -85,10 +73,10 @@ public abstract class ContainerDeserializerBase<T>
     /**********************************************************
      */
 
-    @Override // since 2.9
+    @Override
     public JavaType getValueType() { return _containerType; }
     
-    @Override // since 2.9
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
     }
@@ -126,22 +114,19 @@ public abstract class ContainerDeserializerBase<T>
      */
     public abstract JsonDeserializer<Object> getContentDeserializer();
 
-    /**
-     * @since 2.9
-     */
     @Override
     public ValueInstantiator getValueInstantiator() {
         return null;
     }
 
-    @Override // since 2.9
+    @Override
     public AccessPattern getEmptyAccessPattern() {
         // 02-Feb-2017, tatu: Empty containers are usually constructed as needed
         //   and may not be shared; for some deserializers this may be further refined.
         return AccessPattern.DYNAMIC;
     }
     
-    @Override // since 2.9
+    @Override
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         ValueInstantiator vi = getValueInstantiator();
         if (vi == null || !vi.canCreateUsingDefault()) {

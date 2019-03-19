@@ -5,19 +5,19 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -34,19 +34,13 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * that is shared between different types of instances.
  */
 public abstract class MapperConfig<T extends MapperConfig<T>>
-    implements ClassIntrospector.MixInResolver,
+    implements MixInResolver,
         java.io.Serializable
 {
-    private static final long serialVersionUID = 2L; // since 2.9
+    private static final long serialVersionUID = 3L; // since 3.0
 
-    /**
-     * @since 2.7
-     */
     protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
-    /**
-     * @since 2.7
-     */
     protected final static JsonFormat.Value EMPTY_FORMAT = JsonFormat.Value.empty();
 
     /**
@@ -60,20 +54,14 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     protected final BaseSettings _base;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected MapperConfig(BaseSettings base, int mapperFeatures)
     {
         _base = base;
-        _mapperFeatures = mapperFeatures;
-    }
-
-    protected MapperConfig(MapperConfig<T> src, int mapperFeatures)
-    {
-        _base = src._base;
         _mapperFeatures = mapperFeatures;
     }
 
@@ -105,32 +93,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /*
-    /**********************************************************
-    /* Life-cycle: factory methods
-    /**********************************************************
-     */
-    
-    /**
-     * Method for constructing and returning a new instance with specified
-     * mapper features enabled.
-     */
-    public abstract T with(MapperFeature... features);
-
-    /**
-     * Method for constructing and returning a new instance with specified
-     * mapper features disabled.
-     */
-    public abstract T without(MapperFeature... features);
-
-    /**
-     * @since 2.3
-     */
-    public abstract T with(MapperFeature feature, boolean state);
-    
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: simple features
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -144,8 +109,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
-     * 
-     * @since 2.3
      */
     public final boolean hasMapperFeatures(int featureMask) {
         return (_mapperFeatures & featureMask) == featureMask;
@@ -192,9 +155,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract boolean useRootWrapping();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -205,26 +168,20 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @param src Text to represent
      * 
      * @return Optimized text object constructed
-     * 
-     * @since 2.4
      */
     public SerializableString compileString(String src) {
-        /* 20-Jan-2014, tatu: For now we will just construct it directly, but
-         *    for 2.4 need to allow overriding to support non-standard extensions
-         *    to be used by extensions like Afterburner.
-         */
+        // 20-Jan-2014, tatu: For now we will just construct it directly but in distant
+        //   future might want to allow overriding somehow?
         return new SerializedString(src);
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: introspectors, mix-ins
-    /**********************************************************
+    /**********************************************************************
      */
-    
-    public ClassIntrospector getClassIntrospector() {
-        return _base.getClassIntrospector();
-    }
+
+    public abstract ClassIntrospector getClassIntrospector();
 
     /**
      * Method for getting {@link AnnotationIntrospector} configured
@@ -248,26 +205,29 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: type and subtype handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method called to locate a type info handler for types that do not have
      * one explicitly declared via annotations (or other configuration).
-     * If such default handler is configured, it is returned; otherwise
+     * If such a default handler is configured, it is returned; otherwise
      * null is returned.
      */
     public final TypeResolverBuilder<?> getDefaultTyper(JavaType baseType) {
-        return _base.getTypeResolverBuilder();
+        return _base.getDefaultTyper();
     }
-    
+
+    /**
+     * @since 3.0
+     */
+    public abstract TypeResolverProvider getTypeResolverProvider();
+
     public abstract SubtypeResolver getSubtypeResolver();
 
-    public final TypeFactory getTypeFactory() {
-        return _base.getTypeFactory();
-    }
+    public abstract TypeFactory getTypeFactory();
 
     /**
      * Helper method that will construct {@link JavaType} for given
@@ -277,9 +237,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *    getTypeFactory().constructType(cls);
      *</pre>
      */
-    public final JavaType constructType(Class<?> cls) {
-        return getTypeFactory().constructType(cls);
-    }
+    public abstract JavaType constructType(Class<?> cls);
 
     /**
      * Helper method that will construct {@link JavaType} for given
@@ -289,18 +247,14 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *    getTypeFactory().constructType(valueTypeRef);
      *</pre>
      */
-    public final JavaType constructType(TypeReference<?> valueTypeRef) {
-        return getTypeFactory().constructType(valueTypeRef.getType());
-    }
+    public abstract JavaType constructType(TypeReference<?> valueTypeRef);
 
-    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
-        return getTypeFactory().constructSpecializedType(baseType, subclass);
-    }
+    public abstract JavaType constructSpecializedType(JavaType baseType, Class<?> subclass);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: introspection support
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -319,15 +273,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return getClassIntrospector().forClassAnnotations(this, type, this);
     }
 
-    /**
-     * Accessor for getting bean description that only contains immediate class
-     * annotations: ones from the class, and its direct mix-in, if any, but
-     * not from super types.
-     */
-    public BeanDescription introspectDirectClassAnnotations(Class<?> cls) {
-        return introspectDirectClassAnnotations(constructType(cls));
-    }
-
+    // 23-May-2018, tatu: Used by Avro for schema generation
     /**
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
@@ -338,9 +284,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: default settings with per-type overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -349,8 +295,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * Note that only directly associated override
      * is found; no type hierarchy traversal is performed.
-     *
-     * @since 2.8
      * 
      * @return Override object to use for the type, if defined; null if none.
      */
@@ -363,8 +307,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * Note that only directly associated override
      * is found; no type hierarchy traversal is performed.
-     *
-     * @since 2.9
      * 
      * @return Override object to use for the type, never null (but may be empty)
      */
@@ -373,8 +315,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Accessor for default property inclusion to use for serialization,
      * used unless overridden by per-type or per-property overrides.
-     *
-     * @since 2.7
      */
     public abstract JsonInclude.Value getDefaultPropertyInclusion();
 
@@ -383,8 +323,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * considering possible per-type override for given base type.<br>
      * NOTE: if no override found, defaults to value returned by
      * {@link #getDefaultPropertyInclusion()}.
-     *
-     * @since 2.7
      */
     public abstract JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType);
 
@@ -394,8 +332,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * if none found, returning given <code>defaultIncl</code>
      *
      * @param defaultIncl Inclusion setting to return if no overrides found.
-     * 
-     * @since 2.8.2
      */
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
             JsonInclude.Value defaultIncl)
@@ -416,8 +352,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *
      * @param baseType Type of the instance containing the targeted property.
      * @param propertyType Type of the property to look up inclusion setting for.
-     *
-     * @since 2.9
      */
     public abstract JsonInclude.Value getDefaultInclusion(Class<?> baseType,
             Class<?> propertyType);
@@ -431,8 +365,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @param baseType Type of the instance containing the targeted property.
      * @param propertyType Type of the property to look up inclusion setting for.
      * @param defaultIncl Inclusion setting to return if no overrides found.
-     *
-     * @since 2.9
      */
     public JsonInclude.Value getDefaultInclusion(Class<?> baseType,
             Class<?> propertyType, JsonInclude.Value defaultIncl)
@@ -449,15 +381,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * deserialization), considering baseline settings and per-type defaults
      * for given base type (if any).
      *
-     * @since 2.7
+     * @return (non-null) Format settings to use, possibly `JsonFormat.Value.empty()`
      */
     public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
 
     /**
      * Accessor for default property ignorals to use, if any, for given base type,
      * based on config overrides settings (see {@link #findConfigOverride(Class)}).
-     *
-     * @since 2.8
      */
     public abstract JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType);
 
@@ -466,8 +396,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * definitions from annotations (via {@link AnnotatedClass}) or through
      * "config overrides". If both exist, config overrides have precedence
      * over class annotations.
-     *
-     * @since 2.8
      */
     public abstract JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType,
             AnnotatedClass actualClass);
@@ -481,7 +409,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * can further override active checker used (using
      * {@link JsonAutoDetect} annotation)
      */
-    public abstract VisibilityChecker<?> getDefaultVisibilityChecker();
+    public abstract VisibilityChecker getDefaultVisibilityChecker();
 
     /**
      * Accessor for object used for determining whether specific property elements
@@ -490,29 +418,25 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * (as would be returned by {@link #getDefaultVisibilityChecker()}, but
      * then modified by possible class annotation (see {@link JsonAutoDetect})
      * and/or per-type config override (see {@link ConfigOverride#getVisibility()}).
-     *
-     * @since 2.9
      */
-    public abstract VisibilityChecker<?> getDefaultVisibilityChecker(Class<?> baseType,
+    public abstract VisibilityChecker getDefaultVisibilityChecker(Class<?> baseType,
             AnnotatedClass actualClass);
 
     /**
      * Accessor for the baseline setter info used as the global baseline,
      * not considering possible per-type overrides.
      *
-     * @return Global base settings; never null
+     * @since 3.0
      *
-     * @since 2.9
+     * @return Global base settings; never null
      */
-    public abstract JsonSetter.Value getDefaultSetterInfo();
+    public abstract JsonSetter.Value getDefaultNullHandling();
 
     /**
      * Accessor for the baseline merge info used as the global baseline,
      * not considering possible per-type overrides.
      *
      * @return Global base settings, if any; `null` if none.
-     *
-     * @since 2.9
      */
     public abstract Boolean getDefaultMergeable();
 
@@ -523,15 +447,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @return Type-specific settings (if any); global defaults (same as
      *    {@link #getDefaultMergeable()}) otherwise, if any defined; or `null`
      *    if neither defined
-     *
-     * @since 2.9
      */
     public abstract Boolean getDefaultMergeable(Class<?> baseType);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration: other
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -582,29 +504,24 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return _base.getBase64Variant();
     }
 
+    public final JsonNodeFactory getNodeFactory() {
+        return _base.getNodeFactory();
+    }
     /**
      * Method for accessing per-instance shared (baseline/default)
      * attribute values; these are used as the basis for per-call
      * attributes.
-     * 
-     * @since 2.3
      */
     public abstract ContextAttributes getAttributes();
 
-    /**
-     * @since 2.6
-     */
     public abstract PropertyName findRootName(JavaType rootType);
 
-    /**
-     * @since 2.6
-     */
     public abstract PropertyName findRootName(Class<?> rawRootType);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for instantiating handlers
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

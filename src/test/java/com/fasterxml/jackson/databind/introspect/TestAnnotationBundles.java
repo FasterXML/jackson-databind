@@ -79,7 +79,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
     static class RecursiveHolder3 {
         public int x;
 
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         @HolderA
         public RecursiveHolder3(int x) { this.x = x; }
     }
@@ -119,8 +119,10 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
 
     public void testKeepAnnotationBundle() throws Exception
     {
-        MAPPER.setAnnotationIntrospector(new BundleAnnotationIntrospector());
-        assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new InformingHolder()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new BundleAnnotationIntrospector())
+                .build();
+        assertEquals("{\"important\":42}", mapper.writeValueAsString(new InformingHolder()));
     }
 
     public void testRecursiveBundlesField() throws Exception {

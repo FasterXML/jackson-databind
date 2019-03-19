@@ -226,21 +226,7 @@ public abstract class TypeDeserializerBase
 
     /**
      * Helper method called when {@link JsonParser} indicates that it can use
-     * so-called native type ids. Assumption from there is that only native
-     * type ids are to be used.
-     * 
-     * @since 2.3
-     */
-    @Deprecated
-    protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserializeWithNativeTypeId(jp, ctxt, jp.getTypeId());
-    }
-
-    /**
-     * Helper method called when {@link JsonParser} indicates that it can use
      * so-called native type ids, and such type id has been found.
-     * 
-     * @since 2.4
      */
     protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt, Object typeId)
         throws IOException
@@ -272,8 +258,6 @@ public abstract class TypeDeserializerBase
      * @return If it is possible to resolve type id into a {@link JsonDeserializer}
      *   should return that deserializer; otherwise throw an exception to indicate
      *   the problem.
-     *
-     * @since 2.8
      */
     protected JavaType _handleUnknownTypeId(DeserializationContext ctxt, String typeId)
         throws IOException

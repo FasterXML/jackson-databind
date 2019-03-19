@@ -6,9 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link ValueInstantiator} implementation, which supports
@@ -28,9 +26,6 @@ public class StdValueInstantiator
      */
     protected final String _valueTypeDesc;
 
-    /**
-     * @since 2.8
-     */
     protected final Class<?> _valueClass;
 
     // // // Default (no-args) construction
@@ -66,27 +61,20 @@ public class StdValueInstantiator
     protected AnnotatedWithParams _fromDoubleCreator;
     protected AnnotatedWithParams _fromBooleanCreator;
 
-    // // // Incomplete creator
-    protected AnnotatedParameter  _incompleteParameter;
-    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
-
-    /**
-     * @deprecated Since 2.7 use constructor that takes {@link JavaType} instead
-     */
-    @Deprecated
-    public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
-        _valueTypeDesc = ClassUtil.nameOf(valueType);
-        _valueClass = (valueType == null) ? Object.class : valueType;
-    }
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
-        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
-        _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
+        if (valueType == null) {
+            _valueTypeDesc = "UNKNOWN TYPE";
+            _valueClass = Object.class;
+        } else {
+            _valueTypeDesc = valueType.toString();
+            _valueClass = valueType.getRawClass();
+        }
     }
 
     /**
@@ -165,14 +153,10 @@ public class StdValueInstantiator
         _fromBooleanCreator = creator;
     }
 
-    public void configureIncompleteParameter(AnnotatedParameter parameter) {
-        _incompleteParameter = parameter;
-    }
-    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; metadata
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -250,14 +234,14 @@ public class StdValueInstantiator
     }
 
     @Override
-    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
         return _constructorArguments;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; instantiation from JSON Object
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -311,9 +295,9 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; instantiation from JSON scalars
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -402,9 +386,9 @@ public class StdValueInstantiator
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API: configuration mutators, accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -427,52 +411,17 @@ public class StdValueInstantiator
         return _withArgsCreator;
     }
 
-    @Override
-    public AnnotatedParameter getIncompleteParameter() {
-        return _incompleteParameter;
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * @deprecated Since 2.7 call either {@link #unwrapAndWrapException} or
-     *  {@link #wrapAsJsonMappingException}
-     */
-    @Deprecated // since 2.7
-    protected JsonMappingException wrapException(Throwable t)
-    {
-        // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
-        //   does so if and until `JsonMappingException` is found.
-        for (Throwable curr = t; curr != null; curr = curr.getCause()) {
-            if (curr instanceof JsonMappingException) {
-                return (JsonMappingException) curr;
-            }
-        }
-        return new JsonMappingException(null,
-                "Instantiation of "+getValueTypeDesc()+" value failed: "+ClassUtil.exceptionMessage(t), t);
-    }
-
-    /**
-     * @since 2.7
-     */
-    protected JsonMappingException unwrapAndWrapException(DeserializationContext ctxt, Throwable t)
-    {
-        // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
-        //   does so if and until `JsonMappingException` is found.
-        for (Throwable curr = t; curr != null; curr = curr.getCause()) {
-            if (curr instanceof JsonMappingException) {
-                return (JsonMappingException) curr;
-            }
-        }
-        return ctxt.instantiationException(getValueClass(), t);
-    }
-
-    /**
-     * @since 2.7
+     * Helper method that will return given {@link Throwable} case as
+     * a {@link JsonMappingException} (if it is of that type), or call
+     * {@link DeserializationContext#instantiationException(Class, Throwable)} to
+     * produce and return suitable {@link JsonMappingException}.
      */
     protected JsonMappingException wrapAsJsonMappingException(DeserializationContext ctxt,
             Throwable t)
@@ -485,7 +434,9 @@ public class StdValueInstantiator
     }
 
     /**
-     * @since 2.7
+     * Method that subclasses may call for standard handling of an exception thrown when
+     * calling constructor or factory method. Will unwrap {@link ExceptionInInitializerError}
+     * and {@link InvocationTargetException}s, then call {@link #wrapAsJsonMappingException}.
      */
     protected JsonMappingException rewrapCtorProblem(DeserializationContext ctxt,
             Throwable t)
@@ -504,16 +455,15 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private Object _createUsingDelegate(AnnotatedWithParams delegateCreator,
             SettableBeanProperty[] delegateArguments,
-            DeserializationContext ctxt,
-            Object delegate)
-            throws IOException
+            DeserializationContext ctxt, Object delegate)
+                    throws IOException
     {
         if (delegateCreator == null) { // sanity-check; caller should check
             throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());

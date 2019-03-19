@@ -4,19 +4,32 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 public class TestAutoDetect
     extends BaseMapTest
 {
-    static class PrivateBean {
+    // 21-Sep-2017, tatu: With 2.x, private delegating ctor was acceptable; with 3.x
+    //    must be non-private OR annotated
+    static class ProtectedBean {
         String a;
 
-        private PrivateBean() { }
-
-        private PrivateBean(String a) { this.a = a; }
+        protected ProtectedBean(String a) { this.a = a; }
     }
 
+    // Private scalar constructor ok, but only if annotated (or level changed)
+    static class PrivateBeanAnnotated {
+        String a;
+
+        @JsonCreator
+        private PrivateBeanAnnotated(String a) { this.a = a; }
+    }
+
+    static class PrivateBeanNonAnnotated {
+        String a;
+        private PrivateBeanNonAnnotated(String a) { this.a = a; }
+    }
+    
     // test for [databind#1347], config overrides for visibility
     @JsonPropertyOrder(alphabetic=true)
     static class Feature1347SerBean {
@@ -43,24 +56,46 @@ public class TestAutoDetect
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testPrivateCtor() throws Exception
+    public void testProtectedDelegatingCtor() throws Exception
     {
         // first, default settings, with which construction works ok
         ObjectMapper m = new ObjectMapper();
-        PrivateBean bean = m.readValue("\"abc\"", PrivateBean.class);
+        ProtectedBean bean = m.readValue(quote("abc"), ProtectedBean.class);
         assertEquals("abc", bean.a);
 
         // then by increasing visibility requirement:
-        m = new ObjectMapper();
-        VisibilityChecker<?> vc = m.getVisibilityChecker();
-        vc = vc.withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY);
-        m.setVisibility(vc);
+        m = jsonMapperBuilder()
+                .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY))
+                .build();
         try {
-            m.readValue("\"abc\"", PrivateBean.class);
+            m.readValue("\"abc\"", ProtectedBean.class);
             fail("Expected exception for missing constructor");
         } catch (JsonProcessingException e) {
-            verifyException(e, "no String-argument constructor/factory");
+            verifyException(e, InvalidDefinitionException.class, "no String-argument constructor/factory");
         }
+    }
+
+    public void testPrivateDelegatingCtor() throws Exception
+    {
+        // first, default settings, with which construction works ok
+        ObjectMapper m = new ObjectMapper();
+        PrivateBeanAnnotated bean = m.readValue(quote("abc"), PrivateBeanAnnotated.class);
+        assertEquals("abc", bean.a);
+
+        // but not so much without
+        try {
+            m.readValue("\"abc\"", PrivateBeanNonAnnotated.class);
+            fail("Expected exception for missing constructor");
+        } catch (JsonProcessingException e) {
+            verifyException(e, InvalidDefinitionException.class, "no String-argument constructor/factory");
+        }
+
+        // except if we lower requirement
+        m = jsonMapperBuilder()
+                .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.ANY))
+                .build();
+        bean = m.readValue(quote("xyz"), PrivateBeanAnnotated.class);
+        assertEquals("xyz", bean.a);
     }
 
     // [databind#1347]
@@ -71,10 +106,11 @@ public class TestAutoDetect
         assertEquals(aposToQuotes("{'field':2,'value':3}"),
                 MAPPER.writeValueAsString(input));
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Feature1347SerBean.class)
-            .setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.GETTER,
-                            Visibility.NONE));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Feature1347SerBean.class,
+                        o -> o.setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.GETTER,
+                            Visibility.NONE)))
+                .build();
         assertEquals(aposToQuotes("{'field':2}"),
                 mapper.writeValueAsString(input));
     }
@@ -94,10 +130,11 @@ public class TestAutoDetect
         }
 
         // but when instructed to ignore setter, should work
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Feature1347DeserBean.class)
-            .setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.SETTER,
-                        Visibility.NONE));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Feature1347DeserBean.class,
+                        o -> o.setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.SETTER,
+                                Visibility.NONE)))
+                .build();
         Feature1347DeserBean result = mapper.readValue(JSON, Feature1347DeserBean.class);
         assertEquals(3, result.value);
     }

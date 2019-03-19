@@ -14,9 +14,6 @@ import com.fasterxml.jackson.databind.util.EnumValues;
 @SuppressWarnings("serial")
 public abstract class StdKeySerializers
 {
-    @SuppressWarnings("deprecation")
-    protected final static JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();
-
     protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
 
     /**
@@ -81,8 +78,6 @@ public abstract class StdKeySerializers
     /**
      * Method called if no specified key serializer was located; will return a
      * "default" key serializer.
-     *
-     * @since 2.7
      */
     @SuppressWarnings("unchecked")
     public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
@@ -105,14 +100,6 @@ public abstract class StdKeySerializers
         }
         // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
         return new Default(Default.TYPE_TO_STRING, rawKeyType);
-    }
-
-    /**
-     * @deprecated since 2.7
-     */
-    @Deprecated
-    public static JsonSerializer<Object> getDefault() {
-        return DEFAULT_KEY_SERIALIZER;
     }
 
     /*
@@ -142,7 +129,7 @@ public abstract class StdKeySerializers
         protected final int _typeId;
         
         public Default(int typeId, Class<?> type) {
-            super(type, false);
+            super(type);
             _typeId = typeId;
         }
 
@@ -202,7 +189,7 @@ public abstract class StdKeySerializers
         protected transient PropertySerializerMap _dynamicSerializers;
         
         public Dynamic() {
-            super(String.class, false);
+            super(String.class);
             _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         }
 
@@ -256,7 +243,7 @@ public abstract class StdKeySerializers
      */
     public static class StringKeySerializer extends StdSerializer<Object>
     {
-        public StringKeySerializer() { super(String.class, false); }
+        public StringKeySerializer() { super(String.class); }
 
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
@@ -266,15 +253,13 @@ public abstract class StdKeySerializers
 
     /**
      * Specialized instance to use for Enum keys, as per [databind#1322]
-     *
-     * @since 2.8
      */
     public static class EnumKeySerializer extends StdSerializer<Object>
     {
         protected final EnumValues _values;
 
         protected EnumKeySerializer(Class<?> enumType, EnumValues values) {
-            super(enumType, false);
+            super(enumType);
             _values = values;
         }
 

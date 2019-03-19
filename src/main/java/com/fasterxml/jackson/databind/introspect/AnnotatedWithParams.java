@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 
 import com.fasterxml.jackson.databind.JavaType;
 
@@ -32,9 +32,6 @@ public abstract class AnnotatedWithParams
         _paramAnnotations = paramAnnotations;
     }
 
-    /**
-     * @since 2.8.1
-     */
     protected AnnotatedWithParams(AnnotatedWithParams base, AnnotationMap[] paramAnnotations) {
         super(base);
         _paramAnnotations = paramAnnotations;
@@ -45,7 +42,8 @@ public abstract class AnnotatedWithParams
      * usually due to a mix-in
      * annotation masking or overriding an annotation 'real' method
      * has.
-     */
+     *
+    @Deprecated // since 3.0
     public final void addOrOverrideParam(int paramIndex, Annotation a)
     {
         AnnotationMap old = _paramAnnotations[paramIndex];
@@ -55,6 +53,7 @@ public abstract class AnnotatedWithParams
         }
         old.add(a);
     }
+    */
 
     /**
      * Method called by parameter object when an augmented instance is created;
@@ -88,19 +87,20 @@ public abstract class AnnotatedWithParams
     }
 
     public abstract int getParameterCount();
-
     public abstract Class<?> getRawParameterType(int index);
-
-    /**
-     * @since 2.7
-     */
     public abstract JavaType getParameterType(int index);
 
     /**
-     * @deprecated Since 2.7, remove in 2.9
+     * @since 3.0
      */
-    @Deprecated
-    public abstract Type getGenericParameterType(int index);
+    public abstract Parameter[] getNativeParameters();
+
+    /**
+     * @since 3.0
+     */
+    public boolean isStatic() {
+        return Modifier.isStatic(getModifiers());
+    }
 
     public final int getAnnotationCount() { return _annotations.size(); }
 

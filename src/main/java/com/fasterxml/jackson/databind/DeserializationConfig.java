@@ -1,14 +1,13 @@
 package com.fasterxml.jackson.databind;
 
-import java.util.*;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.*;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ArrayIterator;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
@@ -23,15 +22,35 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  */
 public final class DeserializationConfig
     extends MapperConfigBase<DeserializationFeature, DeserializationConfig>
-    implements java.io.Serializable // since 2.1
+    implements java.io.Serializable
 {
-    // since 2.9
-    private static final long serialVersionUID = 2;
+    private static final long serialVersionUID = 3L;
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Deserialization, parser, format features 
+    /**********************************************************************
+     */
+
+    /**
+     * Set of {@link DeserializationFeature}s enabled.
+     */
+    protected final int _deserFeatures;
+
+    /**
+     * States of {@link com.fasterxml.jackson.core.StreamReadFeature}s to enable/disable.
+     */
+    protected final int _streamReadFeatures;
+
+    /**
+     * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
+     */
+    protected final int _formatReadFeatures;
+
+    /*
+    /**********************************************************************
     /* Configured helper objects
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -42,166 +61,77 @@ public final class DeserializationConfig
     protected final LinkedNode<DeserializationProblemHandler> _problemHandlers;
 
     /**
-     * Factory used for constructing {@link com.fasterxml.jackson.databind.JsonNode} instances.
-     */
-    protected final JsonNodeFactory _nodeFactory;
-
-    /*
-    /**********************************************************
-    /* Deserialization features 
-    /**********************************************************
-     */
-
-    /**
-     * Set of {@link DeserializationFeature}s enabled.
-     */
-    protected final int _deserFeatures;
-
-    /*
-    /**********************************************************
-    /* Parser features: generic, format-specific
-    /**********************************************************
-     */
-
-    /**
-     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
-     */
-    protected final int _parserFeatures;
-
-    /**
-     * Bitflag of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable
-     */
-    protected final int _parserFeaturesToChange;
-
-    /**
-     * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
+     * List of objects that may be able to resolve abstract types to
+     * concrete types. Used by functionality like "mr Bean" to materialize
+     * types as needed, although may be used for other kinds of defaulting
+     * as well.
      *
-     * @since 2.7
+     * @since 3.0
      */
-    protected final int _formatReadFeatures;
-
-    /**
-     * Bitflag of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable
-     *
-     * @since 2.7
-     */
-    protected final int _formatReadFeaturesToChange;
+    protected final AbstractTypeResolver[] _abstractTypeResolvers;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, primary constructors for new instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * Constructor used by ObjectMapper to create default configuration object instance.
+     * @since 3.0
      */
-    public DeserializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+    public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
+            int deserFeatures, int streamReadFeatures, int formatReadFeatures,
+            ConfigOverrides configOverrides,
+            TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
+            RootNameLookup rootNames,
+            AbstractTypeResolver[] atrs)
     {
-        super(base, str, mixins, rootNames, configOverrides);
-        _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
-        _nodeFactory = JsonNodeFactory.instance;
-        _problemHandlers = null;
-        _parserFeatures = 0;
-        _parserFeaturesToChange = 0;
-        _formatReadFeatures = 0;
-        _formatReadFeaturesToChange = 0;
-    }
-
-    /**
-     * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
-     *
-     * @since 2.9
-     */
-    protected DeserializationConfig(DeserializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
-    {
-        super(src, mixins, rootNames, configOverrides);
-        _deserFeatures = src._deserFeatures;
-        _problemHandlers = src._problemHandlers;
-        _nodeFactory = src._nodeFactory;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
+        _deserFeatures = deserFeatures;
+        _streamReadFeatures = streamReadFeatures;
+        _formatReadFeatures = formatReadFeatures;
+        _problemHandlers = b.deserializationProblemHandlers();
+        _abstractTypeResolvers = atrs;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, secondary constructors to support
     /* "mutant factories", with single property changes
-    /**********************************************************
+    /**********************************************************************
      */
 
     private DeserializationConfig(DeserializationConfig src,
-            int mapperFeatures, int deserFeatures,
-            int parserFeatures, int parserFeatureMask,
-            int formatFeatures, int formatFeatureMask)
+            int deserFeatures, int streamReadFeatures, int formatReadFeatures)
     {
-        super(src, mapperFeatures);
+        super(src);
         _deserFeatures = deserFeatures;
-        _nodeFactory = src._nodeFactory;
+        _streamReadFeatures = streamReadFeatures;
+        _formatReadFeatures = formatReadFeatures;
         _problemHandlers = src._problemHandlers;
-        _parserFeatures = parserFeatures;
-        _parserFeaturesToChange = parserFeatureMask;
-        _formatReadFeatures = formatFeatures;
-        _formatReadFeaturesToChange = formatFeatureMask;
-    }
-    
-    /**
-     * Copy constructor used to create a non-shared instance with given mix-in
-     * annotation definitions and subtype resolver.
-     */
-    private DeserializationConfig(DeserializationConfig src, SubtypeResolver str)
-    {
-        super(src, str);
-        _deserFeatures = src._deserFeatures;
-        _nodeFactory = src._nodeFactory;
-        _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
     {
         super(src, base);
         _deserFeatures = src._deserFeatures;
-        _nodeFactory = src._nodeFactory;
-        _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-    }
-    
-    private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
-    {
-        super(src);
-        _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
-        _nodeFactory = f;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     private DeserializationConfig(DeserializationConfig src,
-            LinkedNode<DeserializationProblemHandler> problemHandlers)
+            LinkedNode<DeserializationProblemHandler> problemHandlers,
+            AbstractTypeResolver[] atr)
     {
         super(src);
         _deserFeatures = src._deserFeatures;
-        _problemHandlers = problemHandlers;
-        _nodeFactory = src._nodeFactory;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _problemHandlers = problemHandlers;
+        _abstractTypeResolvers = atr;
     }
 
     private DeserializationConfig(DeserializationConfig src, PropertyName rootName)
@@ -209,11 +139,9 @@ public final class DeserializationConfig
         super(src, rootName);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
-        _nodeFactory = src._nodeFactory;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     private DeserializationConfig(DeserializationConfig src, Class<?> view)
@@ -221,11 +149,9 @@ public final class DeserializationConfig
         super(src, view);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
-        _nodeFactory = src._nodeFactory;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
@@ -233,56 +159,30 @@ public final class DeserializationConfig
         super(src, attrs);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
-        _nodeFactory = src._nodeFactory;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-    }
-
-    protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins)
-    {
-        super(src, mixins);
-        _deserFeatures = src._deserFeatures;
-        _problemHandlers = src._problemHandlers;
-        _nodeFactory = src._nodeFactory;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
     }
 
     // for unit tests only:
     protected BaseSettings getBaseSettings() { return _base; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, general factory methods from MapperConfig(Base)
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override // since 2.9
+    @Override
     protected final DeserializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
     }
 
-    @Override // since 2.9
-    protected final DeserializationConfig _withMapperFeatures(int mapperFeatures) {
-        return new DeserializationConfig(this, mapperFeatures, _deserFeatures,
-                        _parserFeatures, _parserFeaturesToChange,
-                        _formatReadFeatures, _formatReadFeaturesToChange);
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, specific factory methods from MapperConfig
-    /**********************************************************
+    /**********************************************************************
      */
-
-    @Override
-    public DeserializationConfig with(SubtypeResolver str) {
-        return (_subtypeResolver == str) ? this : new DeserializationConfig(this, str);
-    }
 
     @Override
     public DeserializationConfig withRootName(PropertyName rootName) {
@@ -307,9 +207,9 @@ public final class DeserializationConfig
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, DeserializationFeature-based factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -320,9 +220,8 @@ public final class DeserializationConfig
     {
         int newDeserFeatures = (_deserFeatures | feature.getMask());
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this, newDeserFeatures, _streamReadFeatures,
+                    _formatReadFeatures);
     }
 
     /**
@@ -337,9 +236,8 @@ public final class DeserializationConfig
             newDeserFeatures |= f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this, newDeserFeatures, _streamReadFeatures,
+                    _formatReadFeatures);
     }
 
     /**
@@ -353,9 +251,8 @@ public final class DeserializationConfig
             newDeserFeatures |= f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this, newDeserFeatures,
+                    _streamReadFeatures, _formatReadFeatures);
     }
     
     /**
@@ -366,9 +263,8 @@ public final class DeserializationConfig
     {
         int newDeserFeatures = _deserFeatures & ~feature.getMask();
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this, newDeserFeatures,
+                    _streamReadFeatures, _formatReadFeatures);
     }
 
     /**
@@ -383,9 +279,8 @@ public final class DeserializationConfig
             newDeserFeatures &= ~f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this, newDeserFeatures, _streamReadFeatures,
+                    _formatReadFeatures);
     }
 
     /**
@@ -399,187 +294,134 @@ public final class DeserializationConfig
             newDeserFeatures &= ~f.getMask();
         }
         return (newDeserFeatures == _deserFeatures) ? this :
-            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+            new DeserializationConfig(this,
+                    newDeserFeatures, _streamReadFeatures, _formatReadFeatures);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, JsonParser.Feature-based factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.5
      */
-    public DeserializationConfig with(JsonParser.Feature feature)
+    public DeserializationConfig with(StreamReadFeature feature)
     {
-        int newSet = _parserFeatures | feature.getMask();
-        int newMask = _parserFeaturesToChange | feature.getMask();
-        return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    newSet, newMask,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+        int newSet = _streamReadFeatures | feature.getMask();
+        return (_streamReadFeatures == newSet)? this :
+            new DeserializationConfig(this,
+                    _deserFeatures, newSet, _formatReadFeatures);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.5
      */
-    public DeserializationConfig withFeatures(JsonParser.Feature... features)
+    public DeserializationConfig withFeatures(StreamReadFeature... features)
     {
-        int newSet = _parserFeatures;
-        int newMask = _parserFeaturesToChange;
-        for (JsonParser.Feature f : features) {
-            int mask = f.getMask();
-            newSet |= mask;
-            newMask |= mask;
+        int newSet = _streamReadFeatures;
+        for (StreamReadFeature f : features) {
+            newSet |= f.getMask();
         }
-        return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    newSet, newMask,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+        return (_streamReadFeatures == newSet) ? this :
+            new DeserializationConfig(this, _deserFeatures, newSet,
+                    _formatReadFeatures);
     }
     
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
-     *
-     * @since 2.5
      */
-    public DeserializationConfig without(JsonParser.Feature feature)
+    public DeserializationConfig without(StreamReadFeature feature)
     {
-        int newSet = _parserFeatures & ~feature.getMask();
-        int newMask = _parserFeaturesToChange | feature.getMask();
-        return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    newSet, newMask,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+        int newSet = _streamReadFeatures & ~feature.getMask();
+        return (_streamReadFeatures == newSet) ? this :
+            new DeserializationConfig(this, _deserFeatures, newSet,
+                    _formatReadFeatures);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
-     *
-     * @since 2.5
      */
-    public DeserializationConfig withoutFeatures(JsonParser.Feature... features)
+    public DeserializationConfig withoutFeatures(StreamReadFeature... features)
     {
-        int newSet = _parserFeatures;
-        int newMask = _parserFeaturesToChange;
-        for (JsonParser.Feature f : features) {
-            int mask = f.getMask();
-            newSet &= ~mask;
-            newMask |= mask;
+        int newSet = _streamReadFeatures;
+        for (StreamReadFeature f : features) {
+            newSet &= ~f.getMask();
         }
-        return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    newSet, newMask,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
+        return (_streamReadFeatures == newSet)? this :
+            new DeserializationConfig(this, _deserFeatures, newSet, _formatReadFeatures);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, JsonParser.FormatFeature-based factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.7
      */
     public DeserializationConfig with(FormatFeature feature)
     {
         int newSet = _formatReadFeatures | feature.getMask();
-        int newMask = _formatReadFeaturesToChange | feature.getMask();
-        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    newSet, newMask);
+        return (_formatReadFeatures == newSet) ? this
+                : new DeserializationConfig(this,
+                        _deserFeatures, _streamReadFeatures,  newSet);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.7
      */
     public DeserializationConfig withFeatures(FormatFeature... features)
     {
         int newSet = _formatReadFeatures;
-        int newMask = _formatReadFeaturesToChange;
         for (FormatFeature f : features) {
-            int mask = f.getMask();
-            newSet |= mask;
-            newMask |= mask;
+            newSet |= f.getMask();
         }
-        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    newSet, newMask);
+        return (_formatReadFeatures == newSet) ? this
+                : new DeserializationConfig(this,
+                        _deserFeatures, _streamReadFeatures, newSet);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
-     *
-     * @since 2.7
      */
     public DeserializationConfig without(FormatFeature feature)
     {
         int newSet = _formatReadFeatures & ~feature.getMask();
-        int newMask = _formatReadFeaturesToChange | feature.getMask();
-        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    newSet, newMask);
+        return (_formatReadFeatures == newSet) ? this
+                : new DeserializationConfig(this,
+                        _deserFeatures, _streamReadFeatures, newSet);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
-     *
-     * @since 2.7
      */
     public DeserializationConfig withoutFeatures(FormatFeature... features)
     {
         int newSet = _formatReadFeatures;
-        int newMask = _formatReadFeaturesToChange;
         for (FormatFeature f : features) {
-            int mask = f.getMask();
-            newSet &= ~mask;
-            newMask |= mask;
+            newSet &= ~f.getMask();
         }
-        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    newSet, newMask);
-    }    
+        return (_formatReadFeatures == newSet) ? this
+                : new DeserializationConfig(this,
+                        _deserFeatures, _streamReadFeatures, newSet);
+    }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, deserialization-specific factory methods
-    /**********************************************************
+    /**********************************************************************
      */
-
-    /**
-     * Fluent factory method that will construct a new instance with
-     * specified {@link JsonNodeFactory}
-     */
-    public DeserializationConfig with(JsonNodeFactory f) {
-        if (_nodeFactory == f) {
-            return this;
-        }
-        return new DeserializationConfig(this, f);
-    }
 
     /**
      * Method that can be used to add a handler that can (try to)
@@ -588,11 +430,10 @@ public final class DeserializationConfig
     public DeserializationConfig withHandler(DeserializationProblemHandler h)
     {
         // Sanity check: let's prevent adding same handler multiple times
-        if (LinkedNode.contains(_problemHandlers, h)) {
-            return this;
-        }
-        return new DeserializationConfig(this,
-                new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers));
+        return LinkedNode.contains(_problemHandlers, h) ? this
+                : new DeserializationConfig(this,
+                        new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers),
+                        _abstractTypeResolvers);
     }
 
     /**
@@ -600,39 +441,35 @@ public final class DeserializationConfig
      * existing handler(s) with different one(s)
      */
     public DeserializationConfig withNoProblemHandlers() {
-        if (_problemHandlers == null) {
-            return this;
-        }
-        return new DeserializationConfig(this,
-                (LinkedNode<DeserializationProblemHandler>) null);
+        return (_problemHandlers == null) ? this
+                : new DeserializationConfig(this,
+                        (LinkedNode<DeserializationProblemHandler>) null, _abstractTypeResolvers);
     }
 
     /*
-    /**********************************************************
-    /* JsonParser initialization
-    /**********************************************************
+    /**********************************************************************
+    /* Support for ObjectReadContext
+    /**********************************************************************
      */
 
     /**
-     * Method called by {@link ObjectMapper} and {@link ObjectReader}
-     * to modify those {@link com.fasterxml.jackson.core.JsonParser.Feature} settings
-     * that have been configured via this config instance.
-     * 
-     * @since 2.5
+     * @since 3.0
      */
-    public void initialize(JsonParser p) {
-        if (_parserFeaturesToChange != 0) {
-            p.overrideStdFeatures(_parserFeatures, _parserFeaturesToChange);
-        }
-        if (_formatReadFeaturesToChange != 0) {
-            p.overrideFormatFeatures(_formatReadFeatures, _formatReadFeaturesToChange);
-        }
+    public int getStreamReadFeatures() {
+        return _streamReadFeatures;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public int getFormatReadFeatures() {
+        return _formatReadFeatures;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* MapperConfig implementation/overrides: other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -648,19 +485,17 @@ public final class DeserializationConfig
         return (_deserFeatures & f.getMask()) != 0;
     }
 
-    public final boolean isEnabled(JsonParser.Feature f, JsonFactory factory) {
-        int mask = f.getMask();
-        if ((_parserFeaturesToChange & mask) != 0) {
-            return (_parserFeatures & f.getMask()) != 0;
-        }
-        return factory.isEnabled(f);
+    public final boolean isEnabled(StreamReadFeature f) {
+        return (_streamReadFeatures & f.getMask()) != 0;
     }
 
+    public final boolean hasFormatFeature(FormatFeature f) {
+        return (_formatReadFeatures & f.getMask()) != 0;
+    }
+    
     /**
      * Bulk access method for checking that all features specified by
      * mask are enabled.
-     * 
-     * @since 2.3
      */
     public final boolean hasDeserializationFeatures(int featureMask) {
         return (_deserFeatures & featureMask) == featureMask;
@@ -669,8 +504,6 @@ public final class DeserializationConfig
     /**
      * Bulk access method for checking that at least one of features specified by
      * mask is enabled.
-     * 
-     * @since 2.6
      */
     public final boolean hasSomeOfFeatures(int featureMask) {
         return (_deserFeatures & featureMask) != 0;
@@ -685,21 +518,78 @@ public final class DeserializationConfig
     }
 
     /**
-     * Convenience method equivalant to:
+     * Convenience method equivalent to:
      *<code>
      *   isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
      *</code>
-     *
-     * @since 2.9
      */
     public final boolean requiresFullValue() {
         return DeserializationFeature.FAIL_ON_TRAILING_TOKENS.enabledIn(_deserFeatures);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Abstract type mapping
+    /**********************************************************************
+     */
+
+    /**
+     * @since 3.0
+     */
+    public boolean hasAbstractTypeResolvers() { return _abstractTypeResolvers.length > 0; }
+
+    /**
+     * @since 3.0
+     */
+    public Iterable<AbstractTypeResolver> abstractTypeResolvers() {
+        return new ArrayIterator<AbstractTypeResolver>(_abstractTypeResolvers);
+    }
+
+    /**
+     * @since 3.0
+     */
+    public JavaType mapAbstractType(JavaType type)
+    {
+        if (!hasAbstractTypeResolvers()) {
+            return type;
+        }
+        // first, general mappings
+        while (true) {
+            JavaType next = _mapAbstractType2(type);
+            if (next == null) {
+                return type;
+            }
+            // Should not have to worry about cycles; but better verify since they will invariably occur... :-)
+            // (also: guard against invalid resolution to a non-related type)
+            Class<?> prevCls = type.getRawClass();
+            Class<?> nextCls = next.getRawClass();
+            if ((prevCls == nextCls) || !prevCls.isAssignableFrom(nextCls)) {
+                throw new IllegalArgumentException("Invalid abstract type resolution from "+type+" to "+next+": latter is not a subtype of former");
+            }
+            type = next;
+        }
+    }
+
+    /**
+     * Method that will find abstract type mapping for specified type, doing a single
+     * lookup through registered abstract type resolvers; will not do recursive lookups.
+     */
+    private JavaType _mapAbstractType2(JavaType type)
+    {
+        Class<?> currClass = type.getRawClass();
+        for (AbstractTypeResolver resolver : abstractTypeResolvers()) {
+            JavaType concrete = resolver.findTypeMapping(this, type);
+            if ((concrete != null) && !concrete.hasRawClass(currClass)) {
+                return concrete;
+            }
+        }
+        return null;
+    }
+
+    /*
+    /**********************************************************************
     /* Other configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -709,15 +599,11 @@ public final class DeserializationConfig
     public LinkedNode<DeserializationProblemHandler> getProblemHandlers() {
         return _problemHandlers;
     }
-
-    public final JsonNodeFactory getNodeFactory() {
-        return _nodeFactory;
-    }
-
+    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Introspection methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -726,60 +612,19 @@ public final class DeserializationConfig
      *
      * @param type Type of class to be introspected
      */
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspect(JavaType type) {
-        return (T) getClassIntrospector().forDeserialization(this, type, this);
+    public BeanDescription introspect(JavaType type) {
+        return getClassIntrospector().forDeserialization(this, type, this);
     }
 
     /**
      * Method that will introspect subset of bean properties needed to
      * construct bean instance.
      */
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspectForCreation(JavaType type) {
-        return (T) getClassIntrospector().forCreation(this, type, this);
+    public BeanDescription introspectForCreation(JavaType type) {
+        return getClassIntrospector().forCreation(this, type, this);
     }
 
-    /**
-     * @since 2.0
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspectForBuilder(JavaType type) {
-        return (T) getClassIntrospector().forDeserializationWithBuilder(this, type, this);
-    }
-
-    /*
-    /**********************************************************
-    /* Support for polymorphic type handling
-    /**********************************************************
-     */
-    
-    /**
-     * Helper method that is needed to properly handle polymorphic referenced
-     * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
-     * or various "optional" types.
-     * 
-     * @since 2.4
-     */
-    public TypeDeserializer findTypeDeserializer(JavaType baseType)
-        throws JsonMappingException
-    {
-        BeanDescription bean = introspectClassAnnotations(baseType.getRawClass());
-        AnnotatedClass ac = bean.getClassInfo();
-        TypeResolverBuilder<?> b = getAnnotationIntrospector().findTypeResolver(this, ac, baseType);
-
-        /* Ok: if there is no explicit type info handler, we may want to
-         * use a default. If so, config object knows what to use.
-         */
-        Collection<NamedType> subtypes = null;
-        if (b == null) {
-            b = getDefaultTyper(baseType);
-            if (b == null) {
-                return null;
-            }
-        } else {
-            subtypes = getSubtypeResolver().collectAndResolveSubtypesByTypeId(this, ac);
-        }
-        return b.buildTypeDeserializer(this, baseType, subtypes);
+    public BeanDescription introspectForBuilder(JavaType type) {
+        return getClassIntrospector().forDeserializationWithBuilder(this, type, this);
     }
 }

@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.*;
@@ -20,9 +18,9 @@ public abstract class BaseMapTest
     private final static Object SINGLETON_OBJECT = new Object();
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Shared helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static class BogusSchema implements FormatSchema {
@@ -79,11 +77,13 @@ public abstract class BaseMapTest
 
     protected static class ObjectWrapper {
         final Object object;
-        protected ObjectWrapper(final Object object) {
+
+        public ObjectWrapper(final Object object) {
             this.object = object;
         }
         public Object getObject() { return object; }
-        @JsonCreator
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         static ObjectWrapper jsonValue(final Object object) {
             return new ObjectWrapper(object);
         }
@@ -163,9 +163,9 @@ public abstract class BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Shared serializers
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("serial")
@@ -193,44 +193,18 @@ public abstract class BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected BaseMapTest() { super(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
-
-    private static ObjectMapper SHARED_MAPPER;
-
-    protected ObjectMapper objectMapper() {
-        if (SHARED_MAPPER == null) {
-            SHARED_MAPPER = newObjectMapper();
-        }
-        return SHARED_MAPPER;
-    }
-
-    protected ObjectWriter objectWriter() {
-        return objectMapper().writer();
-    }
-
-    protected ObjectReader objectReader() {
-        return objectMapper().reader();
-    }
-    
-    protected ObjectReader objectReader(Class<?> cls) {
-        return objectMapper().readerFor(cls);
-    }
-
-    // @since 2.9
-    protected static ObjectMapper newObjectMapper() {
-        return new ObjectMapper();
-    }
 
     // @since 2.7
     protected TypeFactory newTypeFactory() {
@@ -239,9 +213,9 @@ public abstract class BaseMapTest
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional assert methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void assertEquals(int[] exp, int[] act)
@@ -269,9 +243,9 @@ public abstract class BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -281,39 +255,11 @@ public abstract class BaseMapTest
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, Map.class);
     }
-    
-    protected String serializeAsString(ObjectMapper m, Object value)
-        throws IOException
-    {
-        return m.writeValueAsString(value);
-    }
-
-    protected String serializeAsString(Object value)
-        throws IOException
-    {
-        return serializeAsString(objectMapper(), value);
-    }
-
-    protected String asJSONObjectValueString(Object... args)
-        throws IOException
-    {
-        return asJSONObjectValueString(objectMapper(), args);
-    }
-
-    protected String asJSONObjectValueString(ObjectMapper m, Object... args)
-        throws IOException
-    {
-        LinkedHashMap<Object,Object> map = new LinkedHashMap<Object,Object>();
-        for (int i = 0, len = args.length; i < len; i += 2) {
-            map.put(args[i], args[i+1]);
-        }
-        return m.writeValueAsString(map);
-    }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, deserialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected <T> T readAndMapFromString(String input, Class<T> cls)

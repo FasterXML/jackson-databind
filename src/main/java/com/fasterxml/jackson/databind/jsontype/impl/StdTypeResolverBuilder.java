@@ -5,7 +5,6 @@ import java.util.Collection;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.*;
 
@@ -46,31 +45,63 @@ public class StdTypeResolverBuilder
 
     public StdTypeResolverBuilder() { }
 
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
+        if (settings != null) {
+            _idType = settings.getIdType();
+            if (_idType == null) {
+                throw new IllegalArgumentException("idType cannot be null");
+            }
+            _includeAs = settings.getInclusionType();
+            _typeProperty = _propName(settings.getPropertyName(), _idType);
+            _defaultImpl = settings.getDefaultImpl();
+        }
+    }
+
     /**
      * @since 2.9
      */
-    protected StdTypeResolverBuilder(JsonTypeInfo.Id idType,
-            JsonTypeInfo.As idAs, String propName) {
-        _idType = idType;
-        _includeAs = idAs;
-        _typeProperty = propName;
-    }
-
-    public static StdTypeResolverBuilder noTypeInfoBuilder() {
-        return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
-    }
-
-    @Override
-    public StdTypeResolverBuilder init(JsonTypeInfo.Id idType, TypeIdResolver idRes)
+    public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
+            JsonTypeInfo.As idAs, String propName)
     {
-        // sanity checks
         if (idType == null) {
             throw new IllegalArgumentException("idType cannot be null");
         }
         _idType = idType;
+        _includeAs = idAs;
+        _typeProperty = _propName(propName, _idType);
+    }
+
+    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
+        if (propName == null) {
+            propName = idType.getDefaultPropertyName();
+        }
+        return propName;
+    }
+
+    public static StdTypeResolverBuilder noTypeInfoBuilder() {
+        return new StdTypeResolverBuilder(JsonTypeInfo.Id.NONE, null, null);
+    }
+
+    @Override
+    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings, TypeIdResolver idRes)
+    {
         _customIdResolver = idRes;
-        // Let's also initialize property name as per idType default
-        _typeProperty = idType.getDefaultPropertyName();
+
+        if (settings != null) {
+            _idType = settings.getIdType();
+            if (_idType == null) {
+                throw new IllegalArgumentException("idType cannot be null");
+            }
+            _includeAs = settings.getInclusionType();
+    
+            // Let's also initialize property name as per idType default
+            _typeProperty = settings.getPropertyName();
+            if (_typeProperty == null) {
+                _typeProperty = _idType.getDefaultPropertyName();
+            }
+            _typeIdVisible = settings.getIdVisible();
+            _defaultImpl = settings.getDefaultImpl();
+        }
         return this;
     }
 
@@ -101,12 +132,6 @@ public class StdTypeResolverBuilder
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
 
-    // as per [#368]
-    // removed when fix [#528]
-    //private IllegalArgumentException _noExisting() {
-    //    return new IllegalArgumentException("Inclusion type "+_includeAs+" not yet supported");
-    //}
-
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
@@ -119,7 +144,6 @@ public class StdTypeResolverBuilder
         }
 
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
-
         JavaType defaultImpl = defineDefaultImpl(config, baseType);
 
         // First, method for converting type info to type id:
@@ -151,14 +175,12 @@ public class StdTypeResolverBuilder
                 defaultImpl = null;
             }
         } else {
-            // 20-Mar-2016, tatu: It is important to do specialization go through
-            //   TypeFactory to ensure proper resolution; with 2.7 and before, direct
-            //   call to JavaType was used, but that cannot work reliably with 2.7
             // 20-Mar-2016, tatu: Can finally add a check for type compatibility BUT
             //   if so, need to add explicit checks for marker types. Not ideal, but
             //   seems like a reasonable compromise.
-            if ((_defaultImpl == Void.class)
-                    || (_defaultImpl == NoClass.class)) {
+            // NOTE: `Void` actually means that for unknown type id we should get `null`
+            //  value -- NOT that there is no default implementation.
+            if (_defaultImpl == Void.class) {
                 defaultImpl = config.getTypeFactory().constructType(_defaultImpl);
             } else {
                 if (baseType.hasRawClass(_defaultImpl)) { // common enough to check
@@ -192,40 +214,11 @@ public class StdTypeResolverBuilder
      */
 
     @Override
-    public StdTypeResolverBuilder inclusion(JsonTypeInfo.As includeAs) {
-        if (includeAs == null) {
-            throw new IllegalArgumentException("includeAs cannot be null");
-        }
-        _includeAs = includeAs;
-        return this;
-    }
-
-    /**
-     * Method for constructing an instance with specified type property name
-     * (property name to use for type id when using "as-property" inclusion).
-     */
-    @Override
-    public StdTypeResolverBuilder typeProperty(String typeIdPropName) {
-        // ok to have null/empty; will restore to use defaults
-        if (typeIdPropName == null || typeIdPropName.length() == 0) {
-            typeIdPropName = _idType.getDefaultPropertyName();
-        }
-        _typeProperty = typeIdPropName;
-        return this;
-    }
-
-    @Override
     public StdTypeResolverBuilder defaultImpl(Class<?> defaultImpl) {
         _defaultImpl = defaultImpl;
         return this;
     }
 
-    @Override
-    public StdTypeResolverBuilder typeIdVisibility(boolean isVisible) {
-        _typeIdVisible = isVisible;
-        return this;
-    }
-    
     /*
     /**********************************************************
     /* Accessors

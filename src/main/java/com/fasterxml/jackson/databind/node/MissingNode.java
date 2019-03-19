@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * conversions. 
  */
 public final class MissingNode
-    extends ValueNode
+    extends BaseJsonNode // NOTE! Does NOT extend `ValueNode` unlike in 2.x
 {
     private final static MissingNode instance = new MissingNode();
 
@@ -30,11 +31,6 @@ public final class MissingNode
      */
     protected MissingNode() { }
 
-    @Override
-    public boolean isMissingNode() {
-        return true;
-    }
-
     // Immutable: no need to copy
     @SuppressWarnings("unchecked")
     @Override
@@ -43,9 +39,13 @@ public final class MissingNode
     public static MissingNode getInstance() { return instance; }
     
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.MISSING;
+    }
+
+    @Override
+    public final boolean isMissingNode() {
+        return true;
     }
 
     @Override public JsonToken asToken() { return JsonToken.NOT_AVAILABLE; }
@@ -99,13 +99,48 @@ public final class MissingNode
     }
 
     @Override
-    public String toString() {
-        // toString() should never return null
-        return "";
+    public int hashCode() {
+        return JsonNodeType.MISSING.ordinal();
     }
 
     @Override
-    public int hashCode() {
-        return JsonNodeType.MISSING.ordinal();
+    public JsonNode get(int index) {
+        return null;
+    }
+
+    @Override
+    public JsonNode path(String fieldName) { return this; }
+
+    @Override
+    public JsonNode path(int index) { return this; }
+
+    @Override
+    protected JsonNode _at(JsonPointer ptr) {
+        return this;
+    }
+
+    @Override
+    public JsonNode findValue(String fieldName) {
+        return null;
+    }
+
+    @Override
+    public JsonNode findParent(String fieldName) {
+        return null;
+    }
+
+    @Override
+    public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar) {
+        return foundSoFar;
+    }
+
+    @Override
+    public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+        return foundSoFar;
+    }
+
+    @Override
+    public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
+        return foundSoFar;
     }
 }

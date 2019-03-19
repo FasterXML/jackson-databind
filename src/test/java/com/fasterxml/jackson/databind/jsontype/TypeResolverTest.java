@@ -37,13 +37,14 @@ public class TypeResolverTest extends BaseMapTest
 
     public static void testSubtypeResolution() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
         resolver.addMapping(Map.class, MyMap.class);
 
         SimpleModule basicModule = new SimpleModule();
         basicModule.setAbstractTypes(resolver);
-        mapper.registerModule(basicModule);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(basicModule)
+                .build();
         String value = "{\"z\": {\"zz\": {\"a\": 42}}}";
         A a = mapper.readValue(value, A.class);
         

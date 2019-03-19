@@ -29,7 +29,6 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
 @JacksonStdImpl
 public class MapDeserializer
     extends ContainerDeserializerBase<Map<Object,Object>>
-    implements ContextualDeserializer, ResolvableDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -228,7 +227,7 @@ public class MapDeserializer
             _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
         }
         if (_valueInstantiator.canCreateFromObjectWith()) {
-            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt);
             _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps,
                     ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         }
@@ -350,7 +349,7 @@ public class MapDeserializer
                     "no default constructor found");
         }
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
             // (empty) String may be ok however; or single-String-arg ctor
             if (t == JsonToken.VALUE_STRING) {
@@ -378,7 +377,7 @@ public class MapDeserializer
         p.setCurrentValue(result);
         
         // Ok: must point to START_OBJECT or FIELD_NAME
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
             return (Map<Object,Object>) ctxt.handleUnexpectedToken(getMapClass(), p);
         }
@@ -425,7 +424,7 @@ public class MapDeserializer
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        boolean useObjectId = valueDes.getObjectIdReader(ctxt) != null;
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
                     result);
@@ -435,14 +434,14 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t != JsonToken.FIELD_NAME) {
                 if (t == JsonToken.END_OBJECT) {
                     return;
                 }
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            keyStr = p.getCurrentName();
+            keyStr = p.currentName();
         }
         
         for (; keyStr != null; keyStr = p.nextFieldName()) {
@@ -490,7 +489,7 @@ public class MapDeserializer
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = (valueDes.getObjectIdReader() != null);
+        boolean useObjectId = (valueDes.getObjectIdReader(ctxt) != null);
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
@@ -499,14 +498,14 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            key = p.getCurrentName();
+            key = p.currentName();
         }
 
         for (; key != null; key = p.nextFieldName()) {
@@ -556,7 +555,7 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else if (p.hasToken(JsonToken.FIELD_NAME)) {
-            key = p.getCurrentName();
+            key = p.currentName();
         } else {
             key = null;
         }
@@ -638,14 +637,14 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            keyStr = p.getCurrentName();
+            keyStr = p.currentName();
         }
         
         for (; keyStr != null; keyStr = p.nextFieldName()) {
@@ -703,14 +702,14 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            key = p.getCurrentName();
+            key = p.currentName();
         }
 
         for (; key != null; key = p.nextFieldName()) {

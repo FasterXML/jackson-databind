@@ -18,11 +18,10 @@ public class TestDefaultForTreeNodes extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper DEFAULT_MAPPER = new ObjectMapper();
-    {
-        DEFAULT_MAPPER.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-    }
-    
+    private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
+            .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+            .build();
+
     public void testValueAsStringWithDefaultTyping() throws Exception
     {
         Foo foo = new Foo("baz");

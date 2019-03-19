@@ -5,11 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -19,12 +15,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Deserializer for {@link EnumMap} values.
  * <p>
  * Note: casting within this class is all messed up -- just could not figure out a way
- * to properly deal with recursive definition of "EnumMap&lt;K extends Enum&lt;K>, V>
+ * to properly deal with recursive definition of "EnumMap&lt;K extends Enum&lt;K&gt;, V&gt;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" }) 
 public class EnumMapDeserializer
     extends ContainerDeserializerBase<EnumMap<?,?>>
-    implements ContextualDeserializer, ResolvableDeserializer
 {
     private static final long serialVersionUID = 1;
 
@@ -41,10 +36,7 @@ public class EnumMapDeserializer
     protected final TypeDeserializer _valueTypeDeserializer;
 
     // // Instance construction settings:
-    
-    /**
-     * @since 2.9
-     */
+
     protected final ValueInstantiator _valueInstantiator;
 
     /**
@@ -100,13 +92,6 @@ public class EnumMapDeserializer
         _propertyBasedCreator = base._propertyBasedCreator;
     }
 
-    @Deprecated // since 2.9
-    public EnumMapDeserializer(JavaType mapType, KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer vtd)
-    {
-        this(mapType, null, keyDeser, valueDeser, vtd, null);
-    }
-    
     public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer,
             JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller)
@@ -153,7 +138,7 @@ public class EnumMapDeserializer
                 }
                 _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
             } else if (_valueInstantiator.canCreateFromObjectWith()) {
-                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+                SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt);
                 _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps,
                         ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
             }
@@ -235,7 +220,7 @@ public class EnumMapDeserializer
                     _delegateDeserializer.deserialize(p, ctxt));
         }
         // Ok: must point to START_OBJECT
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if ((t != JsonToken.START_OBJECT) && (t != JsonToken.FIELD_NAME) && (t != JsonToken.END_OBJECT)) {
             // (empty) String may be ok however; or single-String-arg ctor
             if (t == JsonToken.VALUE_STRING) {
@@ -263,14 +248,14 @@ public class EnumMapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyStr = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t != JsonToken.FIELD_NAME) {
                 if (t == JsonToken.END_OBJECT) {
                     return result;
                 }
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            keyStr = p.getCurrentName();
+            keyStr = p.currentName();
         }
 
         for (; keyStr != null; keyStr = p.nextFieldName()) {
@@ -347,7 +332,7 @@ public class EnumMapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyName = p.nextFieldName();
         } else if (p.hasToken(JsonToken.FIELD_NAME)) {
-            keyName = p.getCurrentName();
+            keyName = p.currentName();
         } else {
             keyName = null;
         }

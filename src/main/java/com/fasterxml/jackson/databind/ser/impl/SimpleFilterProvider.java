@@ -2,21 +2,19 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.ser.*;
 
 /**
  * Simple {@link FilterProvider} implementation that just stores
  * direct id-to-filter mapping.
- *<p>
- * Note that version 2.3 was a partial rewrite, now that
- * {@link PropertyFilter} is set to replace <code>BeanPropertyFilter</code>.
  */
 public class SimpleFilterProvider
     extends FilterProvider
-    implements java.io.Serializable // since 2.1
+    implements java.io.Serializable
 {
-    // for 2.5+
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Mappings from ids to filters.
@@ -43,65 +41,34 @@ public class SimpleFilterProvider
     /* Life-cycle: constructing, configuring
     /**********************************************************
      */
-    
+
     public SimpleFilterProvider() {
-        this(new HashMap<String,Object>());
+        this(new HashMap<>());
     }
 
     /**
      * @param mapping Mapping from id to filter; used as is if if possible
      */
-    @SuppressWarnings("unchecked")
-    public SimpleFilterProvider(Map<String,?> mapping)
+    public SimpleFilterProvider(Map<String,PropertyFilter> mapping)
     {
-        /* 16-Oct-2013, tatu: Since we can now be getting both new and old
-         *   obsolete filters (PropertyFilter vs BeanPropertyFilter), need
-         *   to verify contents.
-         */
-        for (Object ob : mapping.values()) {
-            if (!(ob instanceof PropertyFilter)) {
-                _filtersById = _convert(mapping);
-                return;
-            }
-        }
-        _filtersById = (Map<String,PropertyFilter>) mapping;
+        _filtersById = mapping;
     }
 
-    @SuppressWarnings("deprecation")
-    private final static Map<String,PropertyFilter> _convert(Map<String,?> filters)
-    {
-        HashMap<String,PropertyFilter> result = new HashMap<String,PropertyFilter>();
-        for (Map.Entry<String, ?> entry : filters.entrySet()) {
-            Object f = entry.getValue();
-            if (f instanceof PropertyFilter) {
-                result.put(entry.getKey(), (PropertyFilter) f);
-            } else if (f instanceof BeanPropertyFilter) {
-                result.put(entry.getKey(), _convert((BeanPropertyFilter) f));
-            } else {
-                throw new IllegalArgumentException("Unrecognized filter type ("+f.getClass().getName()+")");
-            }
+    protected SimpleFilterProvider(SimpleFilterProvider src) {
+        _defaultFilter = Snapshottable.takeSnapshot(src._defaultFilter);
+        _cfgFailOnUnknownId = src._cfgFailOnUnknownId;
+        Map<String,PropertyFilter> f = src._filtersById;
+        if (f.isEmpty()) {
+            _filtersById = new HashMap<>();
+        } else {
+            _filtersById = new HashMap<>(f.size());
+            f.forEach((k,v) -> _filtersById.put(k, v.snapshot()));
         }
-        return result;
     }
 
-    @SuppressWarnings("deprecation") 
-    private final static PropertyFilter _convert(BeanPropertyFilter f) {
-        return SimpleBeanPropertyFilter.from((BeanPropertyFilter) f);   
-    }
-    
-    /**
-     * Method for defining filter to return for "unknown" filters; cases
-     * where there is no mapping from given id to an explicit filter.
-     * 
-     * @param f Filter to return when no filter is found for given id
-     * 
-     * @deprecated Since 2.3 should use {@link PropertyFilter} instead of {@link BeanPropertyFilter}
-     */
-    @Deprecated
-    public SimpleFilterProvider setDefaultFilter(BeanPropertyFilter f)
-    {
-        _defaultFilter = SimpleBeanPropertyFilter.from(f);
-        return this;
+    @Override
+    public SimpleFilterProvider snapshot() {
+        return new SimpleFilterProvider(this);
     }
 
     public SimpleFilterProvider setDefaultFilter(PropertyFilter f)
@@ -132,15 +99,6 @@ public class SimpleFilterProvider
         return _cfgFailOnUnknownId;
     }
 
-    /**
-     * @deprecated since 2.3
-     */
-    @Deprecated
-    public SimpleFilterProvider addFilter(String id, BeanPropertyFilter filter) {
-        _filtersById.put(id, _convert(filter));
-        return this;
-    }
-
     public SimpleFilterProvider addFilter(String id, PropertyFilter filter) {
         _filtersById.put(id, filter);
         return this;
@@ -159,18 +117,11 @@ public class SimpleFilterProvider
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public lookup API
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Deprecated // since 2.3
-    @Override
-    public BeanPropertyFilter findFilter(Object filterId)
-    {
-        throw new UnsupportedOperationException("Access to deprecated filters not supported");
-    }
-    
     @Override
     public PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter)
     {

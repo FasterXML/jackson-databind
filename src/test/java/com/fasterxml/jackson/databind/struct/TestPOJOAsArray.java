@@ -194,16 +194,18 @@ public class TestPOJOAsArray extends BaseMapTest
      */
 
     public void testSerializeAsArrayWithSingleProperty() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .build();
         String json = mapper.writeValueAsString(new SingleBean());
         assertEquals("\"foo\"", json);
     }
 
     public void testBeanAsArrayUnwrapped() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
         SingleBean result = mapper.readValue("[\"foobar\"]", SingleBean.class);
         assertNotNull(result);
         assertEquals("foobar", result.name);
@@ -221,8 +223,9 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals("{\"value\":{\"x\":1,\"y\":2}}", MAPPER.writeValueAsString(new A()));
 
         // but override should change it:
-        ObjectMapper mapper2 = new ObjectMapper();
-        mapper2.setAnnotationIntrospector(new ForceArraysIntrospector());
+        ObjectMapper mapper2 = jsonMapperBuilder()
+                .annotationIntrospector(new ForceArraysIntrospector())
+                .build();
         assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
 
         // and allow reading back, too
@@ -251,9 +254,10 @@ public class TestPOJOAsArray extends BaseMapTest
 
     public void testWithConfigOverrides() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(NonAnnotatedXY.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(NonAnnotatedXY.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY)))
+                .build();
         String json = mapper.writeValueAsString(new NonAnnotatedXY(2, 3));
         assertEquals("[2,3]", json);
 

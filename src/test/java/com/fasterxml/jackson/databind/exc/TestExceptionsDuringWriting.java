@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.BrokenStringWriter;
 
 /**
  * Unit test for verifying that exceptions are properly handled (caught,
@@ -48,15 +49,14 @@ public class TestExceptionsDuringWriting
     public void testCatchAndRethrow()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test-exceptions", Version.unknownVersion());
         module.addSerializer(Bean.class, new SerializerWithErrors());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         try {
             StringWriter sw = new StringWriter();
-            /* And just to make things more interesting, let's create
-             * a nested data struct...
-             */
+            // And just to make things more interesting, let's create a nested data struct...
             Bean[] b = { new Bean() };
             List<Bean[]> l = new ArrayList<Bean[]>();
             l.add(b);
@@ -91,54 +91,11 @@ public class TestExceptionsDuringWriting
             verifyException(e, IOException.class, "TEST");
         }
     }
-
-    @SuppressWarnings("resource")
-    public void testExceptionWithMapperAndGenerator()
-        throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonFactory f = new MappingJsonFactory();
-        BrokenStringWriter sw = new BrokenStringWriter("TEST");
-        JsonGenerator jg = f.createGenerator(sw);
-
-        try {
-            mapper.writeValue(jg, createLongObject());
-            fail("Should have gotten an exception");
-        } catch (IOException e) {
-            verifyException(e, IOException.class, "TEST");
-        }
-    }
-
-    @SuppressWarnings("resource")
-    public void testExceptionWithGeneratorMapping()
-        throws Exception
-    {
-        JsonFactory f = new MappingJsonFactory();
-        JsonGenerator jg = f.createGenerator(new BrokenStringWriter("TEST"));
-        try {
-            jg.writeObject(createLongObject());
-            fail("Should have gotten an exception");
-        } catch (Exception e) {
-            verifyException(e, IOException.class, "TEST");
-        }
-    }
-
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
-
-    void verifyException(Exception e, Class<?> expType, String expMsg)
-        throws Exception
-    {
-        if (e.getClass() != expType) {
-            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
-        }
-        if (expMsg != null) {
-            verifyException(e, expMsg);
-        }
-    }
 
     Object createLongObject()
     {

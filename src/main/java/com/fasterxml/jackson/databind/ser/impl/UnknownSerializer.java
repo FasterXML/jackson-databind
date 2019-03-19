@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -18,11 +17,8 @@ public class UnknownSerializer
         super(Object.class);
     }
 
-    /**
-     * @since 2.6
-     */
     public UnknownSerializer(Class<?> cls) {
-        super(cls, false);
+        super(cls);
     }
     
     @Override
@@ -54,11 +50,6 @@ public class UnknownSerializer
         return true;
     }
 
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-        return null;
-    }
-    
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

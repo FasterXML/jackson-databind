@@ -129,8 +129,6 @@ public class StdDateFormat
      *<p>
      * Cannot be `final` because {@link #setLenient(boolean)} returns
      * `void`.
-     *
-     * @since 2.7
      */
     protected Boolean _lenient;
 
@@ -145,10 +143,10 @@ public class StdDateFormat
 
     /** 
      * Whether the TZ offset must be formatted with a colon between hours and minutes ({@code HH:mm} format)
-     *
-     * @since 2.9.1
+     *<p>
+     * NOTE: default changed to `true` in Jackson 3.0; was `false` earlier.
      */
-    private boolean _tzSerializedWithColon = false;
+    protected boolean _tzSerializedWithColon = true;
     
     /*
     /**********************************************************
@@ -158,12 +156,6 @@ public class StdDateFormat
 
     public StdDateFormat() {
         _locale = DEFAULT_LOCALE;
-    }
-
-    @Deprecated // since 2.7
-    public StdDateFormat(TimeZone tz, Locale loc) {
-        _timezone = tz;
-        _locale = loc;
     }
 
     protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient) {
@@ -251,35 +243,6 @@ public class StdDateFormat
         // Although there is that much state to share, we do need to
         // orchestrate a bit, mostly since timezones may be changed
         return new StdDateFormat(_timezone, _locale, _lenient, _tzSerializedWithColon);
-    }
-
-    /**
-     * Method for getting a non-shared DateFormat instance
-     * that uses specified timezone and can handle simple ISO-8601
-     * compliant date format.
-     * 
-     * @since 2.4
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    public static DateFormat getISO8601Format(TimeZone tz, Locale loc) {
-        return _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, tz, loc, null);
-    }
-
-    /**
-     * Method for getting a non-shared DateFormat instance
-     * that uses specific timezone and can handle RFC-1123
-     * compliant date format.
-     * 
-     * @since 2.4
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    public static DateFormat getRFC1123Format(TimeZone tz, Locale loc) {
-        return _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
-                tz, loc, null);
     }
 
     /*
@@ -478,12 +441,11 @@ public class StdDateFormat
             // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
             //   mandate use of full `+0000`
 //            formatted.append('Z');
-	        	if( _tzSerializedWithColon ) {
-	            buffer.append("+00:00");
-	        	}
-	        	else {
-	        		buffer.append("+0000");
-	        	}
+            if (_tzSerializedWithColon ) {
+                buffer.append("+00:00");
+            } else {
+                buffer.append("+0000");
+            }
         }
     }
 
@@ -565,12 +527,12 @@ public class StdDateFormat
         return sb.toString();
     }
 
-    @Override // since 2.7[.2], as per [databind#1130]
+    @Override
     public boolean equals(Object o) {
         return (o == this);
     }
 
-    @Override // since 2.7[.2], as per [databind#1130]
+    @Override
     public int hashCode() {
         return System.identityHashCode(this);
     }

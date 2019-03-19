@@ -27,24 +27,20 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
  * characters).
  */
 @SuppressWarnings("serial")
-public class PropertyNamingStrategy // NOTE: was abstract until 2.7
+public class PropertyNamingStrategy
     implements java.io.Serializable
 {
     /**
      * Naming convention used in languages like C, where words are in lower-case
      * letters, separated by underscores.
      * See {@link SnakeCaseStrategy} for details.
-     *
-     * @since 2.7 (was formerly called {@link #CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES})
      */
     public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy();
 
     /**
      * Naming convention used in languages like Pascal, where words are capitalized
      * and no separator is used between words.
-     * See {@link PascalCaseStrategy} for details.
-     *
-     * @since 2.7 (was formerly called {@link #PASCAL_CASE_TO_CAMEL_CASE})
+     * See {@link UpperCamelCaseStrategy} for details.
      */
     public static final PropertyNamingStrategy UPPER_CAMEL_CASE = new UpperCamelCaseStrategy();
 
@@ -53,8 +49,6 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * and no separator is used between words. Since this is the native Java naming convention,
      * naming strategy will not do any transformation between names in data (JSON) and
      * POJOS.
-     *
-     * @since 2.7 (was formerly called {@link #PASCAL_CASE_TO_CAMEL_CASE})
      */
     public static final PropertyNamingStrategy LOWER_CAMEL_CASE = new PropertyNamingStrategy();
     
@@ -62,8 +56,6 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Naming convention in which all words of the logical name are in lower case, and
      * no separator is used between words.
      * See {@link LowerCaseStrategy} for details.
-     * 
-     * @since 2.4
      */
     public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy();
 
@@ -71,10 +63,15 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Naming convention used in languages like Lisp, where words are in lower-case
      * letters, separated by hyphens.
      * See {@link KebabCaseStrategy} for details.
-     * 
-     * @since 2.7
      */
     public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy();
+
+    /**
+     * Naming convention widely used as configuration properties name, where words are in
+     * lower-case letters, separated by dots.
+     * See {@link LowerDotCaseStrategy} for details.
+     */
+    public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy();
 
     /*
     /**********************************************************
@@ -194,9 +191,47 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
         }
         
         public abstract String translate(String propertyName);
-    }
-        
+
+        /**
+         * Helper method to share implementation between snake and dotted case.
+         */
+        protected static String translateLowerCaseWithSeparator(final String input, final char separator)
+        {
+            if (input == null) {
+                return input; // garbage in, garbage out
+            }
+            final int length = input.length();
+            if (length == 0) {
+                return input;
+            }
     
+            final StringBuilder result = new StringBuilder(length + (length >> 1));
+            int upperCount = 0;
+            for (int i = 0; i < length; ++i) {
+                char ch = input.charAt(i);
+                char lc = Character.toLowerCase(ch);
+    
+                if (lc == ch) { // lower-case letter means we can get new word
+                    // but need to check for multi-letter upper-case (acronym), where assumption
+                    // is that the last upper-case char is start of a new word
+                    if (upperCount > 1) {
+                        // so insert hyphen before the last character now
+                        result.insert(result.length() - 1, separator);
+                    }
+                    upperCount = 0;
+                } else {
+                    // Otherwise starts new word, unless beginning of string
+                    if ((upperCount == 0) && (i > 0)) {
+                        result.append(separator);
+                    }
+                    ++upperCount;
+                }
+                result.append(lc);
+            }
+            return result.toString();
+        }
+    }
+
     /*
     /**********************************************************
     /* Standard implementations 
@@ -251,8 +286,6 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * (the first of two underscores was removed)</li>
      * <li>&quot;user__name&quot; is translated to &quot;user__name&quot;
      * (unchanged, with two underscores)</li></ul>
-     *
-     * @since 2.7 (was previously called }
      */
     public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
     {
@@ -303,8 +336,6 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * This rules result in the following example translation from 
      * Java property names to JSON element names.
      * <ul><li>&quot;userName&quot; is translated to &quot;UserName&quot;</li></ul>
-     * 
-     * @since 2.7 (was formerly called {@link PascalCaseStrategy})
      */
     public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
     {
@@ -354,77 +385,24 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Naming strategy similar to {@link SnakeCaseStrategy}, but instead of underscores
      * as separators, uses hyphens. Naming convention traditionally used for languages
      * like Lisp.
-     *
-     * @since 2.7
      */
     public static class KebabCaseStrategy extends PropertyNamingStrategyBase
     {
         @Override
-        public String translate(String input)
-        {
-            if (input == null) return input; // garbage in, garbage out
-            int length = input.length();
-            if (length == 0) {
-                return input;
-            }
-
-            StringBuilder result = new StringBuilder(length + (length >> 1));
-
-            int upperCount = 0;
-
-            for (int i = 0; i < length; ++i) {
-                char ch = input.charAt(i);
-                char lc = Character.toLowerCase(ch);
-                
-                if (lc == ch) { // lower-case letter means we can get new word
-                    // but need to check for multi-letter upper-case (acronym), where assumption
-                    // is that the last upper-case char is start of a new word
-                    if (upperCount > 1) {
-                        // so insert hyphen before the last character now
-                        result.insert(result.length() - 1, '-');
-                    }
-                    upperCount = 0;
-                } else {
-                    // Otherwise starts new word, unless beginning of string
-                    if ((upperCount == 0) && (i > 0)) {
-                        result.append('-');
-                    }
-                    ++upperCount;
-                }
-                result.append(lc);
-            }
-            return result.toString();
+        public String translate(String input) {
+            return translateLowerCaseWithSeparator(input, '-');
         }
     }
-    
-    /*
-    /**********************************************************
-    /* Deprecated variants, aliases
-    /**********************************************************
-     */
-    
-    /**
-     * @deprecated Since 2.7 use {@link #SNAKE_CASE} instead;
-     */
-    @Deprecated // since 2.7
-    public static final PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES = SNAKE_CASE;
 
     /**
-     * @deprecated Since 2.7 use {@link #UPPER_CAMEL_CASE} instead;
+     * Naming strategy similar to {@link KebabCaseStrategy}, but instead of hyphens
+     * as separators, uses dots. Naming convention widely used as configuration properties name.
      */
-    @Deprecated // since 2.7
-    public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE = UPPER_CAMEL_CASE;
-
-    /**
-     * @deprecated In 2.7 use {@link SnakeCaseStrategy} instead
-     */
-    @Deprecated
-    public static class LowerCaseWithUnderscoresStrategy extends SnakeCaseStrategy {}
-
-    /**
-     * @deprecated In 2.7 use {@link UpperCamelCaseStrategy} instead
-     */
-    @Deprecated
-    public static class PascalCaseStrategy extends UpperCamelCaseStrategy {}
+    public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase {
+        @Override
+        public String translate(String input){
+            return translateLowerCaseWithSeparator(input, '.');
+        }
+    }
 }
 

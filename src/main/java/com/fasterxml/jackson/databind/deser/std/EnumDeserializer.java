@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -20,38 +19,26 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  * Deserializer class that can deserialize instances of
  * specified Enum class from Strings and Integers.
  */
-@JacksonStdImpl // was missing until 2.6
+@JacksonStdImpl
 public class EnumDeserializer
     extends StdScalarDeserializer<Object>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
     protected Object[] _enumsByIndex;
-    
-    /**
-     * @since 2.8
-     */
+
     private final Enum<?> _enumDefaultValue;
 
-    /**
-     * @since 2.7.3
-     */
     protected final CompactStringObjectMap _lookupByName;
 
     /**
      * Alternatively, we may need a different lookup object if "use toString"
      * is defined.
-     *
-     * @since 2.7.3
      */
     protected CompactStringObjectMap _lookupByToString;
 
     protected final Boolean _caseInsensitive;
 
-    /**
-     * @since 2.9
-     */
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
         super(byNameResolver.getEnumClass());
@@ -61,9 +48,6 @@ public class EnumDeserializer
         _caseInsensitive = caseInsensitive;
     }
 
-    /**
-     * @since 2.9
-     */
     protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive)
     {
         super(base);
@@ -74,29 +58,10 @@ public class EnumDeserializer
     }
 
     /**
-     * @deprecated Since 2.9
-     */
-    @Deprecated
-    public EnumDeserializer(EnumResolver byNameResolver) {
-        this(byNameResolver, null);
-    }
-    
-    /**
-     * @deprecated Since 2.8
-     */
-    @Deprecated
-    public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
-            Class<?> enumClass, AnnotatedMethod factory) {
-        return deserializerForCreator(config, enumClass, factory, null, null);
-    }
-
-    /**
      * Factory method used when Enum instances are to be deserialized
      * using a creator (static factory method)
      * 
      * @return Deserializer based on given factory method
-     *
-     * @since 2.8
      */
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory,
@@ -116,8 +81,6 @@ public class EnumDeserializer
      * using a zero-/no-args factory method
      * 
      * @return Deserializer based on given no-args factory method
-     *
-     * @since 2.8
      */
     public static JsonDeserializer<?> deserializerForNoArgsCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory)
@@ -129,9 +92,6 @@ public class EnumDeserializer
         return new FactoryBasedEnumDeserializer(enumClass, factory);
     }
 
-    /**
-     * @since 2.9
-     */
     public EnumDeserializer withResolved(Boolean caseInsensitive) {
         if (_caseInsensitive == caseInsensitive) {
             return this;
@@ -139,7 +99,7 @@ public class EnumDeserializer
         return new EnumDeserializer(this, caseInsensitive);
     }
     
-    @Override // since 2.9
+    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
@@ -167,7 +127,7 @@ public class EnumDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken curr = p.getCurrentToken();
+        JsonToken curr = p.currentToken();
         
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
@@ -233,9 +193,9 @@ public class EnumDeserializer
                 if (c >= '0' && c <= '9') {
                     try {
                         int index = Integer.parseInt(name);
-                        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+                        if (!ctxt.isEnabled(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)) {
                             return ctxt.handleWeirdStringValue(_enumClass(), name,
-"value looks like quoted Enum index, but `MapperFeature.ALLOW_COERCION_OF_SCALARS` prevents use"
+"value looks like quoted Enum index, but `DeserializationFeature.ALLOW_COERCION_OF_SCALARS` prevents use"
                                     );
                         }
                         if (index >= 0 && index < _enumsByIndex.length) {
@@ -253,7 +213,7 @@ public class EnumDeserializer
         }
         if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
             return ctxt.handleWeirdStringValue(_enumClass(), name,
-                    "value not one of declared Enum instance names: %s", lookup.keys());
+                    "not one of the values accepted for Enum class: %s",  lookup.keys());
         }
         return null;
     }

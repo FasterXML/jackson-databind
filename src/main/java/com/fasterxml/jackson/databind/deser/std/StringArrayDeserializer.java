@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -24,7 +24,6 @@ public final class StringArrayDeserializer
 //    extends ContainerDeserializerBase<String[]>
 // but for now won't:
     extends StdDeserializer<String[]>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 2L;
 
@@ -144,7 +143,7 @@ public final class StringArrayDeserializer
             while (true) {
                 String value = p.nextTextValue();
                 if (value == null) {
-                    JsonToken t = p.getCurrentToken();
+                    JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
                         break;
                     }
@@ -200,7 +199,7 @@ public final class StringArrayDeserializer
                  */
                 String value;
                 if (p.nextTextValue() == null) {
-                    JsonToken t = p.getCurrentToken();
+                    JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
                         break;
                     }
@@ -247,8 +246,7 @@ public final class StringArrayDeserializer
                 return intoValue;
             }
             final int offset = intoValue.length;
-            String[] result = new String[offset + arr.length];
-            System.arraycopy(intoValue, 0, result, 0, offset);
+            String[] result = Arrays.copyOf(intoValue, offset + arr.length);
             System.arraycopy(arr, 0, result, offset, arr.length);
             return result;
         }
@@ -264,7 +262,7 @@ public final class StringArrayDeserializer
             while (true) {
                 String value = p.nextTextValue();
                 if (value == null) {
-                    JsonToken t = p.getCurrentToken();
+                    JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
                         break;
                     }

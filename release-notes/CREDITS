@@ -1,0 +1,11 @@
+Here are people who have contributed to the development of Jackson JSON processor
+databind core component, version 3.x
+Version numbers in brackets indicate release in which the problem was fixed
+
+(note: for older credits, see `CREDITS-2.x` instead)
+
+Tatu Saloranta, tatu.saloranta@iki.fi: author
+
+Alexander Koshman (akoshman@github)
+ * Requested #1600: Serializing locale with underscore, not standard hyphen	
+  [3.0.0]

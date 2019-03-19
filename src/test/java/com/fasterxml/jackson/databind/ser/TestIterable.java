@@ -100,17 +100,16 @@ public class TestIterable extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final ObjectMapper STATIC_MAPPER = new ObjectMapper();
-    {
-        STATIC_MAPPER.enable(MapperFeature.USE_STATIC_TYPING);
-    }
+    private final ObjectMapper STATIC_MAPPER = jsonMapperBuilder()
+        .enable(MapperFeature.USE_STATIC_TYPING)
+        .build();
 
     public void testIterator() throws IOException
     {
@@ -137,6 +136,18 @@ public class TestIterable extends BaseMapTest
                 STATIC_MAPPER.writeValueAsString(new BeanWithIterable()));
         assertEquals("[1,2,3]",
                 STATIC_MAPPER.writeValueAsString(new IntIterable()));
+
+        assertEquals("{\"values\":[\"value\"]}",
+                MAPPER.writeValueAsString(new BeanWithIterable()));
+        assertEquals("[1,2,3]",
+                MAPPER.writeValueAsString(new IntIterable()));
+        
+        // 17-Apr-2018, tatu: Turns out we may need "fresh" mapper for some failures?
+        ObjectMapper freshMapper = new ObjectMapper();
+        assertEquals("{\"values\":[\"value\"]}",
+                freshMapper.writeValueAsString(new BeanWithIterable()));
+        assertEquals("[1,2,3]",
+                freshMapper.writeValueAsString(new IntIterable()));
     }
     
     public void testWithIterator() throws IOException

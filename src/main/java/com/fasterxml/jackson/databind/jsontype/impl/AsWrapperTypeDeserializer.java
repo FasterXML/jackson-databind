@@ -89,7 +89,7 @@ public class AsWrapperTypeDeserializer
             }
         }
         // first, sanity checks
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             // should always get field name, but just in case...
             if (p.nextToken() != JsonToken.FIELD_NAME) {
@@ -105,19 +105,19 @@ public class AsWrapperTypeDeserializer
         p.nextToken();
 
         // Minor complication: we may need to merge type id in?
-        if (_typeIdVisible && p.getCurrentToken() == JsonToken.START_OBJECT) {
+        if (_typeIdVisible && p.isExpectedStartObjectToken()) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
-            TokenBuffer tb = new TokenBuffer(null, false);
+            TokenBuffer tb = TokenBuffer.forInputBuffering(p, ctxt);
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeFieldName(_typePropertyName);
             tb.writeString(typeId);
             // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
             //   try to access current token; ensure there isn't one
             p.clearCurrentToken();
-            p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
+            p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);
             p.nextToken();
         }
-        
+
         Object value = deser.deserialize(p, ctxt);
         // And then need the closing END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {

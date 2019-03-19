@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * {@link com.fasterxml.jackson.databind.annotation.JsonAppend}
  * to add "virtual" properties in addition to regular ones.
  * 
- * @since 2.5
- * 
  * @see com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter
  */
 public abstract class VirtualBeanPropertyWriter
@@ -33,7 +31,7 @@ public abstract class VirtualBeanPropertyWriter
             Annotations contextAnnotations, JavaType declaredType)
     {
         this(propDef, contextAnnotations, declaredType, null, null, null,
-                propDef.findInclusion());
+                propDef.findInclusion(), null);
     }
 
     /**
@@ -60,15 +58,6 @@ public abstract class VirtualBeanPropertyWriter
                 includeInViews);
     }
 
-    @Deprecated // since 2.8
-    protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
-            Annotations contextAnnotations, JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-            JsonInclude.Value inclusion)
-    {
-        this(propDef, contextAnnotations, declaredType, ser, typeSer, serType, inclusion, null);
-    }
-    
     protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base) {
         super(base);
     }

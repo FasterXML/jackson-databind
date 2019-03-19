@@ -2,20 +2,31 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 /**
  * Container for individual {@link ConfigOverride} values.
- * 
- * @since 2.8
  */
 public class ConfigOverrides
-    implements java.io.Serializable
+    implements java.io.Serializable,
+        Snapshottable<ConfigOverrides>
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Convenience value used as the default root setting.
+     *
+     * @since 3.0
+     */
+    public final static JsonInclude.Value INCLUDE_ALL
+        = JsonInclude.Value.construct(JsonInclude.Include.ALWAYS, JsonInclude.Include.ALWAYS);
+    
     /**
      * Per-type override definitions
      */
@@ -23,38 +34,25 @@ public class ConfigOverrides
 
     // // // Global defaulting
 
-    /**
-     * @since 2.9
-     */
     protected JsonInclude.Value _defaultInclusion;
 
-    /**
-     * @since 2.9
-     */
-    protected JsonSetter.Value _defaultSetterInfo;
+    protected JsonSetter.Value _defaultNullHandling;
 
-    /**
-     * @since 2.9
-     */
-    protected VisibilityChecker<?> _visibilityChecker;
+    protected VisibilityChecker _visibilityChecker;
 
-    /**
-     * @since 2.9
-     */
     protected Boolean _defaultMergeable;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public ConfigOverrides() {
         this(null,
-                // !!! TODO: change to (ALWAYS, ALWAYS)?
-                JsonInclude.Value.empty(),
+                INCLUDE_ALL,
                 JsonSetter.Value.empty(),
-                VisibilityChecker.Std.defaultInstance(),
+                VisibilityChecker.defaultInstance(),
                 null
         );
     }
@@ -62,16 +60,17 @@ public class ConfigOverrides
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl,
             JsonSetter.Value defSetter,
-            VisibilityChecker<?> defVisibility,
+            VisibilityChecker defVisibility,
             Boolean defMergeable) {
         _overrides = overrides;
         _defaultInclusion = defIncl;
-        _defaultSetterInfo = defSetter;
+        _defaultNullHandling = defSetter;
         _visibilityChecker = defVisibility;
         _defaultMergeable = defMergeable;
     }
 
-    public ConfigOverrides copy()
+    @Override
+    public ConfigOverrides snapshot()
     {
         Map<Class<?>, MutableConfigOverride> newOverrides;
         if (_overrides == null) {
@@ -83,13 +82,13 @@ public class ConfigOverrides
             }
         }
         return new ConfigOverrides(newOverrides,
-                _defaultInclusion, _defaultSetterInfo, _visibilityChecker, _defaultMergeable);
+                _defaultInclusion, _defaultNullHandling, _visibilityChecker, _defaultMergeable);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Per-type override access
-    /**********************************************************
+    /**********************************************************************
      */
     
     public ConfigOverride findOverride(Class<?> type) {
@@ -112,64 +111,93 @@ public class ConfigOverrides
     }
 
     /*
-    /**********************************************************
-    /* Global defaults access
-    /**********************************************************
+    /**********************************************************************
+    /* Global defaults accessors
+    /**********************************************************************
      */
 
     public JsonInclude.Value getDefaultInclusion() {
         return _defaultInclusion;
     }
 
-    public JsonSetter.Value getDefaultSetterInfo() {
-        return _defaultSetterInfo;
+    public JsonSetter.Value getDefaultNullHandling() {
+        return _defaultNullHandling;
     }
 
     public Boolean getDefaultMergeable() {
         return _defaultMergeable;
     }
 
-    /**
-     * @since 2.9
-     */
-    public VisibilityChecker<?> getDefaultVisibility() {
+    public VisibilityChecker getDefaultVisibility() {
         return _visibilityChecker;
     }
 
-    /**
-     * @since 2.9
+    /*
+    /**********************************************************************
+    /* Global defaults mutators
+    /**********************************************************************
      */
-    public void setDefaultInclusion(JsonInclude.Value v) {
+
+    public ConfigOverrides setDefaultInclusion(JsonInclude.Value v) {
         _defaultInclusion = v;
+        return this;
     }
 
-    /**
-     * @since 2.9
-     */
-    public void setDefaultSetterInfo(JsonSetter.Value v) {
-        _defaultSetterInfo = v;
+    public ConfigOverrides setDefaultNullHandling(JsonSetter.Value v) {
+        _defaultNullHandling = v;
+        return this;
     }
 
-    /**
-     * @since 2.9
-     */
-    public void setDefaultMergeable(Boolean v) {
+    public ConfigOverrides setDefaultMergeable(Boolean v) {
         _defaultMergeable = v;
+        return this;
     }
 
-    /**
-     * @since 2.9
-     */
-    public void setDefaultVisibility(VisibilityChecker<?> v) {
+    public ConfigOverrides setDefaultVisibility(VisibilityChecker v) {
         _visibilityChecker = v;
+        return this;
+    }
+
+    public ConfigOverrides setDefaultVisibility(JsonAutoDetect.Value vis) {
+        _visibilityChecker = VisibilityChecker.construct(vis);
+        return this;
     }
 
     /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
+    /**********************************************************************
+    /* Standard methods (for diagnostics)
+    /**********************************************************************
      */
-    
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[ConfigOverrides ")
+                .append("incl=").append(_defaultInclusion)
+                .append(", nulls=").append(_defaultNullHandling)
+                .append(", merge=").append(_defaultMergeable)
+                .append(", visibility=").append(_visibilityChecker)
+                .append(", typed=")
+                ;
+        if (_overrides == null) {
+            sb.append("NLLL");
+        } else {
+            sb.append("(").append(_overrides.size()).append("){");
+            TreeMap<String, MutableConfigOverride> sorted = new TreeMap<>();
+            _overrides.forEach((k, v) -> sorted.put(k.getName(), v));
+            sorted.forEach((k, v) -> {
+                sb.append(String.format("'%s'->%s", k, v));
+            });
+            sb.append("}");
+        }
+        return sb.append("]").toString();
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods
+    /**********************************************************************
+     */
+
     protected Map<Class<?>, MutableConfigOverride> _newMap() {
         return new HashMap<Class<?>, MutableConfigOverride>();
     }

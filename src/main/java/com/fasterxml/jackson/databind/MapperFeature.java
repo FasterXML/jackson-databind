@@ -40,15 +40,15 @@ public enum MapperFeature implements ConfigFeature
      * and Map to modify the property, without requiring a setter
      * method.
      * This is similar to how JAXB framework sets Collections and
-     * Maps: no setter is involved, just setter.
+     * Maps: no setter is involved, just getter.
      *<p>
      * Note that such getters-as-setters methods have lower
      * precedence than setters, so they are only used if no
      * setter is found for the Map/Collection property.
      *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default since 3.0 (with 2.x was enabled)
      */
-    USE_GETTERS_AS_SETTERS(true),
+    USE_GETTERS_AS_SETTERS(false),
 
     /**
      * Feature that determines how <code>transient</code> modifier for fields
@@ -58,98 +58,8 @@ public enum MapperFeature implements ConfigFeature
      * Feature is disabled by default, meaning that existence of `transient`
      * for a field does not necessarily lead to ignoral of getters or setters
      * but just ignoring the use of field for access.
-     *
-     * @since 2.6
      */
     PROPAGATE_TRANSIENT_MARKER(false),
-
-    /*
-    /******************************************************
-    /* Introspection-based property auto-detection
-    /******************************************************
-     */
-
-    /**
-     * Feature that determines whether "creator" methods are
-     * automatically detected by consider public constructors,
-     * and static single argument methods with name "valueOf".
-     * If disabled, only methods explicitly annotated are considered
-     * creator methods (except for the no-arg default constructor which
-     * is always considered a factory method).
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<P>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_CREATORS(true),
-    
-    /**
-     * Feature that determines whether non-static fields are recognized as
-     * properties.
-     * If yes, then all public member fields
-     * are considered as properties. If disabled, only fields explicitly
-     * annotated are considered property fields.
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<p>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_FIELDS(true),
-    
-    /**
-     * Feature that determines whether regular "getter" methods are
-     * automatically detected based on standard Bean naming convention
-     * or not. If yes, then all public zero-argument methods that
-     * start with prefix "get" 
-     * are considered as getters.
-     * If disabled, only methods explicitly  annotated are considered getters.
-     *<p>
-     * Note that since version 1.3, this does <b>NOT</b> include
-     * "is getters" (see {@link #AUTO_DETECT_IS_GETTERS} for details)
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<p>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_GETTERS(true),
-
-    /**
-     * Feature that determines whether "is getter" methods are
-     * automatically detected based on standard Bean naming convention
-     * or not. If yes, then all public zero-argument methods that
-     * start with prefix "is", and whose return type is boolean
-     * are considered as "is getters".
-     * If disabled, only methods explicitly annotated are considered getters.
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<p>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_IS_GETTERS(true),
-
-    /**
-     * Feature that determines whether "setter" methods are
-     * automatically detected based on standard Bean naming convention
-     * or not. If yes, then all public one-argument methods that
-     * start with prefix "set"
-     * are considered setters. If disabled, only methods explicitly
-     * annotated are considered setters.
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<P>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_SETTERS(true),
 
     /**
      * Feature that determines whether getters (getter methods)
@@ -171,8 +81,6 @@ public enum MapperFeature implements ConfigFeature
      * explicitly annotated for such use.
      *<p>
      * Feature is enabled by default, for backwards compatibility reasons.
-     *
-     * @since 2.2
      */
     ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
 
@@ -189,27 +97,23 @@ public enum MapperFeature implements ConfigFeature
      * bean-style naming) or explicitly annotated.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.2
      */
     INFER_PROPERTY_MUTATORS(true),
 
     /**
-     * Feature that determines handling of <code>java.beans.ConstructorProperties<code>
+     * Feature that determines handling of {@code java.beans.ConstructorProperties}
      * annotation: when enabled, it is considered as alias of
      * {@link com.fasterxml.jackson.annotation.JsonCreator}, to mean that constructor
      * should be considered a property-based Creator; when disabled, only constructor
      * parameter name information is used, but constructor is NOT considered an explicit
      * Creator (although may be discovered as one using other annotations or heuristics).
      *<p>
-     * Feature is mostly used to help interoperability with frameworks like Lombok
-     * that may automatically generate <code>ConstructorProperties</code> annotation
+     * Feature is mostly used to help inter-operability with frameworks like Lombok
+     * that may automatically generate {@code ConstructorProperties} annotation
      * but without necessarily meaning that constructor should be used as Creator
      * for deserialization.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.9
      */
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 
@@ -258,8 +162,6 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default, for legacy reasons (it was the behavior
      * until 2.6)
-     *
-     * @since 2.7
      */
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
 
@@ -285,6 +187,18 @@ public enum MapperFeature implements ConfigFeature
      * are used (instead of declared static types) for serialization.
      */
     USE_STATIC_TYPING(false),
+
+    /**
+     * Feature that enables inferring builder type bindings from the value type
+     * being deserialized. This requires that the generic type declaration on
+     * the value type match that on the builder exactly.
+     *<p>
+     * Feature is disabled by default which means that deserialization does
+     * not support deserializing types via builders with type parameters.
+     *<p>
+     * See: https://github.com/FasterXML/jackson-databind/issues/921
+     */
+    INFER_BUILDER_TYPE_BINDINGS(false),
 
     /**
      * Feature that specifies whether the declared base type of a polymorphic value
@@ -364,8 +278,6 @@ public enum MapperFeature implements ConfigFeature
      * letters. Overhead for names that are already lower-case should be negligible however.
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.5
      */
     ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
 
@@ -377,8 +289,6 @@ public enum MapperFeature implements ConfigFeature
      * explicit override) do not need to match.
      * <p>
      * Feature is disabled by default.
-     *
-     * @since 2.9
      */
     ACCEPT_CASE_INSENSITIVE_ENUMS(false),
 
@@ -391,26 +301,8 @@ public enum MapperFeature implements ConfigFeature
      * If disabled, wrapper name is only used for wrapping (if anything).
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.1
      */
     USE_WRAPPER_NAME_AS_PROPERTY_NAME(false),
-
-    /**
-     * Feature that may be enabled to enforce strict compatibility with
-     * Bean name introspection, instead of slightly different mechanism
-     * Jackson defaults to.
-     * Specific difference is that Jackson always lower cases leading upper-case
-     * letters, so "getURL()" becomes "url" property; whereas standard Bean
-     * naming <b>only</b> lower-cases the first letter if it is NOT followed by
-     * another upper-case letter (so "getURL()" would result in "URL" property).
-     *<p>
-     * Feature is disabled by default for backwards compatibility purposes: earlier
-     * Jackson versions used Jackson's own mechanism.
-     *
-     * @since 2.5
-     */
-    USE_STD_BEAN_NAMING(false),
 
     /**
      * Feature that when enabled will allow explicitly named properties (i.e., fields or methods
@@ -418,63 +310,14 @@ public enum MapperFeature implements ConfigFeature
      * be re-named by a {@link PropertyNamingStrategy}, if one is configured.
      * <p>
      * Feature is disabled by default.
-     *
-     * @since 2.7
      */
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
-
-    /*
-    /******************************************************
-    /* Coercion features
-    /******************************************************
-     */
-
-    /**
-     * Feature that determines whether coercions from secondary representations are allowed
-     * for simple non-textual scalar types: numbers and booleans. This includes `primitive`
-     * types and their wrappers, but excludes `java.lang.String` and date/time types.
-     *<p>
-     * When feature is disabled, only strictly compatible input may be bound: numbers for
-     * numbers, boolean values for booleans. When feature is enabled, conversions from
-     * JSON String are allowed, as long as textual value matches (for example, String
-     * "true" is allowed as equivalent of JSON boolean token `true`; or String "1.0"
-     * for `double`).
-     *<p>
-     * Note that it is possible that other configurability options can override this
-     * in closer scope (like on per-type or per-property basis); this is just the global
-     * default.
-     *<p>
-     * Feature is enabled by default (for backwards compatibility since this was the
-     * default behavior)
-     *
-     * @since 2.9
-     */
-    ALLOW_COERCION_OF_SCALARS(true),
 
     /*
     /******************************************************
     /* Other features
     /******************************************************
      */
-
-    /**
-     * Feature that determines whether multiple registrations of same module
-     * should be ignored or not; if enabled, only the first registration call
-     * results in module being called, and possible duplicate calls are silently
-     * ignored; if disabled, no checking is done and all registration calls are
-     * dispatched to module.
-     *<p>
-     * Definition of "same module" is based on using {@link Module#getTypeId()};
-     * modules with same non-null <code>type id</code> are considered same for
-     * purposes of duplicate registration. This also avoids having to keep track
-     * of actual module instances; only ids will be kept track of (and only if
-     * this feature is enabled).
-     *<p>
-     * Feature is enabled by default.
-     *
-     * @since 2.5
-     */
-    IGNORE_DUPLICATE_MODULE_REGISTRATIONS(true),
 
     /**
      * Setting that determines what happens if an attempt is made to explicitly
@@ -485,8 +328,6 @@ public enum MapperFeature implements ConfigFeature
      * Feature is disabled by default since non-mergeable property types are ignored
      * even if defaults call for merging, and usually explicit per-type or per-property
      * settings for such types should result in an exception.
-     *
-     * @since 2.9
      */
     IGNORE_MERGE_FOR_UNMERGEABLE(true)
 

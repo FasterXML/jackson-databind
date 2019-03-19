@@ -50,15 +50,16 @@ public class BooleanFormatTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = newObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
 
     public void testShapeViaDefaults() throws Exception
     {
         assertEquals(aposToQuotes("{'b':true}"),
                 MAPPER.writeValueAsString(new BooleanWrapper(true)));
-        ObjectMapper m = newObjectMapper();
-        m.configOverride(Boolean.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
+        ObjectMapper m = jsonMapperBuilder()
+                .withConfigOverride(Boolean.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER)))
+                .build();
         assertEquals(aposToQuotes("{'b':1}"),
                 m.writeValueAsString(new BooleanWrapper(true)));
     }

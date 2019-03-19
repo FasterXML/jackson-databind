@@ -90,7 +90,7 @@ public class DateDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testDateUtil() throws Exception
     {
@@ -494,10 +494,11 @@ public class DateDeserializationTest
 
     public void testCustom() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("PST"));
-        mapper.setDateFormat(df);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultDateFormat(df)
+                .build();
 
         String dateStr = "1972-12-28X15:45:00";
         java.util.Date exp = df.parse(dateStr);
@@ -623,13 +624,14 @@ public class DateDeserializationTest
 
         // Standard mapper with timezone UTC: shared instance should be ok.
         // ... but, Travis manages to have fails, so insist on newly created
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         Date dateUTC = mapper.readValue(json, Date.class);  // 1970-01-01T00:00:00.000+00:00
     
         // Mapper with timezone GMT-2
         // note: must construct new one, not share
-        mapper = new ObjectMapper();
-        mapper.setTimeZone(TimeZone.getTimeZone("GMT-2"));
+        mapper = jsonMapperBuilder()
+            .defaultTimeZone(TimeZone.getTimeZone("GMT-2"))
+            .build();
         Date dateGMT1 = mapper.readValue(json, Date.class);  // 1970-01-01T00:00:00.000-02:00
     
         // Underlying timestamps should be the same
@@ -745,9 +747,10 @@ public class DateDeserializationTest
         }
 
         // similarly with Date...
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(java.util.Date.class)
-            .setFormat(JsonFormat.Value.forLeniency(Boolean.FALSE));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(java.util.Date.class,
+                        o -> o.setFormat(JsonFormat.Value.forLeniency(Boolean.FALSE)))
+                .build();
         try {
             mapper.readValue(quote("2015-11-32"), java.util.Date.class);
             fail("Should not pass with invalid (with strict) date value");

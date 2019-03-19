@@ -31,10 +31,11 @@ public class TestKeyDeserializers extends BaseMapTest
 
     public void testKeyDeserializers() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addKeyDeserializer(Foo.class, new FooKeyDeserializer());
-        mapper.registerModule(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         Map<Foo,Integer> map = mapper.readValue("{\"a\":3}",
                 new TypeReference<Map<Foo,Integer>>() {} );
         assertNotNull(map);

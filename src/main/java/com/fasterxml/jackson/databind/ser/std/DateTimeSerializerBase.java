@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,13 +15,11 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 @SuppressWarnings("serial")
 public abstract class DateTimeSerializerBase<T>
     extends StdScalarSerializer<T>
-    implements ContextualSerializer
 {
     /**
      * Flag that indicates that serialization must be done as the
@@ -147,12 +144,6 @@ df0.getClass().getName()));
     }
 
     protected abstract long _timestamp(T value);
-
-    @Override
-    public JsonNode getSchema(SerializerProvider serializers, Type typeHint) {
-        //todo: (ryan) add a format for the date in the schema?
-        return createSchemaNode(_asTimestamp(serializers) ? "number" : "string", true);
-    }
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException

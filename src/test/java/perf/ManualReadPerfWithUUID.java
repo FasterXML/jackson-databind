@@ -5,9 +5,9 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class ManualReadPerfWithUUID extends ObjectReaderTestBase
 {
@@ -53,7 +53,7 @@ public class ManualReadPerfWithUUID extends ObjectReaderTestBase
         UUIDNative input1 = new UUIDNative(uuids);
         UUIDWithJdk input2 = new UUIDWithJdk(uuids);
 
-        ObjectMapper m = new ObjectMapper();
+        JsonMapper m = new JsonMapper();
 
         new ManualReadPerfWithRecord().testFromBytes(
                 m, "JSON-as-Object", input1, UUIDNative.class,

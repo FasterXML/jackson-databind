@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 
 /**
  * Unit tests for checking how combination of interfaces, implementation
@@ -97,8 +96,9 @@ public class TestAbstractTypeNames  extends BaseMapTest
 
     public void testEmptyCollection() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .configure(SerializationFeature.INDENT_OUTPUT, true)
+                .build();
         List<User>friends = new ArrayList<User>();
         friends.add(new DefaultUser("Joe Hildebrandt", null));
         friends.add(new DefaultEmployee("Richard Nasr",null,"MDA"));
@@ -109,10 +109,11 @@ public class TestAbstractTypeNames  extends BaseMapTest
         /* 24-Feb-2011, tatu: For now let's simply require registration of
          *   concrete subtypes; can't think of a way to avoid that for now
          */
-        mapper = new ObjectMapper();
-        mapper.registerSubtypes(DefaultEmployee.class);
-        mapper.registerSubtypes(DefaultUser.class);
-        
+        mapper = jsonMapperBuilder()
+                .registerSubtypes(DefaultEmployee.class,
+                        DefaultUser.class)
+                .build();
+
         User result = mapper.readValue(json, User.class);
         assertNotNull(result);
         assertEquals(DefaultEmployee.class, result.getClass());
@@ -126,8 +127,9 @@ public class TestAbstractTypeNames  extends BaseMapTest
     // [JACKSON-584]: change anonymous non-static inner type into static type:
     public void testInnerClassWithType() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .build();
         String json = mapper.writeValueAsString(new BeanWithAnon());
         BeanWithAnon result = mapper.readValue(json, BeanWithAnon.class);
         assertEquals(BeanWithAnon.class, result.getClass());

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @JacksonStdImpl
 public final class StringCollectionDeserializer
     extends ContainerDeserializerBase<Collection<String>>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -190,7 +188,7 @@ public final class StringCollectionDeserializer
                     result.add(value);
                     continue;
                 }
-                JsonToken t = p.getCurrentToken();
+                JsonToken t = p.currentToken();
                 if (t == JsonToken.END_ARRAY) {
                     break;
                 }
@@ -221,7 +219,7 @@ public final class StringCollectionDeserializer
              */
             String value;
             if (p.nextTextValue() == null) {
-                JsonToken t = p.getCurrentToken();
+                JsonToken t = p.currentToken();
                 if (t == JsonToken.END_ARRAY) {
                     break;
                 }
@@ -267,7 +265,7 @@ public final class StringCollectionDeserializer
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved
         JsonDeserializer<String> valueDes = _valueDeserializer;
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
 
         String value;
         

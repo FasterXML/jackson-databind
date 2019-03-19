@@ -3,18 +3,18 @@ package com.fasterxml.jackson.databind.ser;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -34,13 +34,11 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * this is to reduce likelihood of data corruption and synchronization issues.
  */
 @JacksonStdImpl
-// since 2.6. NOTE: sub-classes typically are not
 public class BeanPropertyWriter extends PropertyWriter // which extends
                                                        // `ConcreteBeanPropertyBase`
-        implements java.io.Serializable // since 2.6
+        implements java.io.Serializable
 {
-    // As of 2.7
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Marker object used to indicate "do not serialize if empty"
@@ -66,8 +64,6 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Wrapper name to use for this element, if any
-     * 
-     * @since 2.2
      */
     protected final PropertyName _wrapperName;
 
@@ -247,24 +243,10 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         _includeInViews = includeInViews;
     }
 
-    @Deprecated // Since 2.9
-    public BeanPropertyWriter(BeanPropertyDefinition propDef,
-            AnnotatedMember member, Annotations contextAnnotations,
-            JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-            boolean suppressNulls, Object suppressableValue)
-    {
-        this(propDef, member, contextAnnotations, declaredType,
-                ser, typeSer, serType, suppressNulls, suppressableValue,
-                null);
-    }
-
     /**
      * Constructor that may be of use to virtual properties, when there is need
      * for the zero-arg ("default") constructor, and actual initialization is
      * done after constructor call.
-     * 
-     * @since 2.5
      */
     protected BeanPropertyWriter() {
         super(PropertyMetadata.STD_REQUIRED_OR_OPTIONAL);
@@ -296,16 +278,12 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         this(base, base._name);
     }
 
-    /**
-     * @since 2.5
-     */
     protected BeanPropertyWriter(BeanPropertyWriter base, PropertyName name) {
         super(base);
         /*
          * 02-Dec-2014, tatu: This is a big mess, alas, what with dependency to
-         * MapperConfig to encode, and Afterburner having heartburn for
-         * SerializableString (vs SerializedString). Hope it can be
-         * resolved/reworked in 2.6 timeframe, if not for 2.5
+         * MapperConfig to encode, and Afterburner having heart-burn for
+         * SerializableString (vs SerializedString).
          */
         _name = new SerializedString(name.getSimpleName());
         _wrapperName = base._wrapperName;
@@ -368,18 +346,17 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Overridable factory method used by sub-classes
-     *
-     * @since 2.6
      */
     protected BeanPropertyWriter _new(PropertyName newName) {
+        if (getClass() != BeanPropertyWriter.class) {
+            throw new IllegalStateException("Method must be overridden by "+getClass());
+        }
         return new BeanPropertyWriter(this, newName);
     }
 
     /**
      * Method called to set, reset or clear the configured type serializer for
      * property.
-     *
-     * @since 2.6
      */
     public void assignTypeSerializer(TypeSerializer typeSer) {
         _typeSerializer = typeSer;
@@ -432,8 +409,6 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Method called to ensure that the mutator has proper access rights to
      * be called, as per configuration. Overridden by implementations that
      * have mutators that require access, fields and setters.
-     *
-     * @since 2.8.3
      */
     public void fixAccess(SerializationConfig config) {
         _member.fixAccess(config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -627,44 +602,6 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         return _cfgSerializationType;
     }
 
-    @Deprecated // since 2.9
-    public Class<?> getRawSerializationType() {
-        return (_cfgSerializationType == null) ? null : _cfgSerializationType
-                .getRawClass();
-    }
-
-    /**
-     * @deprecated Since 2.7, to be removed from 2.9, use {@link #getType()} instead.
-     */
-    @Deprecated
-    public Class<?> getPropertyType() {
-        if (_accessorMethod != null) {
-            return _accessorMethod.getReturnType();
-        }
-        if (_field != null) {
-            return _field.getType();
-        }
-        return null;
-    }
-
-    /**
-     * Get the generic property type of this property writer.
-     *
-     * @return The property type, or null if not found.
-     *
-     * @deprecated Since 2.7, to be removed from 2.9, use {@link #getType()} instead.
-     */
-    @Deprecated
-    public Type getGenericPropertyType() {
-        if (_accessorMethod != null) {
-            return _accessorMethod.getGenericReturnType();
-        }
-        if (_field != null) {
-            return _field.getGenericType();
-        }
-        return null;
-    }
-
     public Class<?>[] getViews() {
         return _includeInViews;
     }
@@ -749,8 +686,6 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Alternative to {@link #serializeAsField} that is used when a POJO is
      * serialized as JSON Array; the difference is that no field names are
      * written.
-     * 
-     * @since 2.3
      */
     @Override
     public void serializeAsElement(Object bean, JsonGenerator gen,
@@ -831,7 +766,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     // Also part of BeanProperty implementation
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor v,
-            SerializerProvider provider) throws JsonMappingException {
+            SerializerProvider provider) throws JsonMappingException
+    {
         if (v != null) {
             if (isRequired()) {
                 v.property(this);
@@ -841,61 +777,23 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         }
     }
 
-    // // // Legacy support for JsonFormatVisitable
-
-    /**
-     * Attempt to add the output of the given {@link BeanPropertyWriter} in the
-     * given {@link ObjectNode}. Otherwise, add the default schema
-     * {@link JsonNode} in place of the writer's output
-     * 
-     * @param propertiesNode
-     *            Node which the given property would exist within
-     * @param provider
-     *            Provider that can be used for accessing dynamic aspects of
-     *            serialization processing
-     */
-    @Override
-    @Deprecated
-    public void depositSchemaProperty(ObjectNode propertiesNode,
-            SerializerProvider provider) throws JsonMappingException {
-        JavaType propType = getSerializationType();
-        // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas
-        // it doesn't...
-        Type hint = (propType == null) ? getType() : propType.getRawClass();
-        JsonNode schemaNode;
-        // Maybe it already has annotated/statically configured serializer?
-        JsonSerializer<Object> ser = getSerializer();
-        if (ser == null) { // nope
-            ser = provider.findValueSerializer(getType(), this);
-        }
-        boolean isOptional = !isRequired();
-        if (ser instanceof SchemaAware) {
-            schemaNode = ((SchemaAware) ser).getSchema(provider, hint,
-                    isOptional);
-        } else {
-            schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema
-                    .getDefaultSchemaNode();
-        }
-        _depositSchemaProperty(propertiesNode, schemaNode);
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected JsonSerializer<Object> _findAndAddDynamic(
-            PropertySerializerMap map, Class<?> type,
-            SerializerProvider provider) throws JsonMappingException {
-        PropertySerializerMap.SerializerAndMapResult result;
+    protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+            Class<?> rawType, SerializerProvider provider) throws JsonMappingException
+    {
+        JavaType t;
         if (_nonTrivialBaseType != null) {
-            JavaType t = provider.constructSpecializedType(_nonTrivialBaseType,
-                    type);
-            result = map.findAndAddPrimarySerializer(t, provider, this);
+            t = provider.constructSpecializedType(_nonTrivialBaseType,
+                    rawType);
         } else {
-            result = map.findAndAddPrimarySerializer(type, provider, this);
+            t = provider.constructType(rawType);
         }
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddPrimarySerializer(t, provider, this);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicSerializers = result.map;

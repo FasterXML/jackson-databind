@@ -11,21 +11,19 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.LRUMap;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 public class BasicClassIntrospector
     extends ClassIntrospector
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /* We keep a small set of pre-constructed descriptions to use for
      * common non-structured values, such as Numbers and Strings.
      * This is strictly performance optimization to reduce what is
      * usually one-time cost, but seems useful for some cases considering
      * simplicity.
-     *
-     * @since 2.4
      */
     protected final static BasicBeanDescription STRING_DESC;
     static {
@@ -49,33 +47,38 @@ public class BasicClassIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
+
+    // Looks like 'forClassAnnotations()' gets called so frequently that we
+    // should consider caching to avoid some of the lookups.
 
     /**
-     * Looks like 'forClassAnnotations()' gets called so frequently that we
-     * should consider caching to avoid some of the lookups.
-     * 
-     * @since 2.5
+     * Transient cache: note that we do NOT have to add `readResolve()` for JDK serialization
+     * because {@link #forMapper(Object)} initializes it properly, when mapper get
+     * constructed.
      */
-    protected final LRUMap<JavaType,BasicBeanDescription> _cachedFCA;
+    protected final transient SimpleLookupCache<JavaType,BasicBeanDescription> _cachedFCA;
 
     public BasicClassIntrospector() {
-        // a small cache should go a long way here
-        _cachedFCA = new LRUMap<JavaType,BasicBeanDescription>(16, 64);
+        this(null);
+    }
+
+    protected BasicClassIntrospector(SimpleLookupCache<JavaType,BasicBeanDescription> cache) {
+        _cachedFCA = cache;
     }
 
     @Override
-    public ClassIntrospector copy() {
-        return new BasicClassIntrospector();
+    public ClassIntrospector forMapper(Object mapper) {
+        return new BasicClassIntrospector(new SimpleLookupCache<JavaType,BasicBeanDescription>(16, 64));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory method impls
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -179,9 +182,9 @@ public class BasicClassIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
@@ -198,7 +201,8 @@ public class BasicClassIntrospector
     {
         AnnotatedClass ac = _resolveAnnotatedClass(config, type, r);
         AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
-        JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
+        JsonPOJOBuilder.Value builderConfig = (ai == null) ? null
+                : ai.findPOJOBuilderConfig(config, ac);
         String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
         return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
     }
@@ -253,9 +257,8 @@ public class BasicClassIntrospector
         if (pkgName != null) {
             if (pkgName.startsWith("java.lang")
                     || pkgName.startsWith("java.util")) {
-                /* 23-Sep-2014, tatu: Should we be conservative here (minimal number
-                 *    of matches), or ambitious? Let's do latter for now.
-                 */
+                // 23-Sep-2014, tatu: Should we be conservative here (minimal number
+                //    of matches), or ambitious? Let's do latter for now.
                 if (Collection.class.isAssignableFrom(raw)
                         || Map.class.isAssignableFrom(raw)) {
                     return true;
@@ -274,17 +277,11 @@ public class BasicClassIntrospector
         return null;
     }
 
-    /**
-     * @since 2.9
-     */
     protected AnnotatedClass _resolveAnnotatedClass(MapperConfig<?> config,
             JavaType type, MixInResolver r) {
         return AnnotatedClassResolver.resolve(config, type, r);
     }
 
-    /**
-     * @since 2.9
-     */
     protected AnnotatedClass _resolveAnnotatedWithoutSuperTypes(MapperConfig<?> config,
             JavaType type, MixInResolver r) {
         return AnnotatedClassResolver.resolveWithoutSuperTypes(config, type, r);

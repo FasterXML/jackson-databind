@@ -57,7 +57,7 @@ public class ObjectIdWithBuilder1496Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testBuilderId1496() throws Exception
     {

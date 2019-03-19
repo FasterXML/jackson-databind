@@ -60,45 +60,45 @@ public class JSONWrappedObject implements JsonSerializable
     }
     
     /*
-    /**************************************************************
-    /* JsonSerializable(WithType) implementation
-    /**************************************************************
+    /**********************************************************************
+    /* JsonSerializable implementation
+    /**********************************************************************
      */
 
     @Override
-    public void serializeWithType(JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
             throws IOException, JsonProcessingException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
-        serialize(jgen, provider);
+        serialize(g, provider);
     }
 
     @Override
-    public void serialize(JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(JsonGenerator g, SerializerProvider provider)
             throws IOException, JsonProcessingException
     {
         // First, wrapping:
-    	if (_prefix != null) jgen.writeRaw(_prefix);
+    	if (_prefix != null) g.writeRaw(_prefix);
         if (_value == null) {
-            provider.defaultSerializeNull(jgen);
+            provider.defaultSerializeNullValue(g);
         } else if (_serializationType != null) {
-            provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, jgen, provider);
+            provider.findTypedValueSerializer(_serializationType, true)
+                .serialize(_value, g, provider);
         } else {
-            Class<?> cls = _value.getClass();
-            provider.findTypedValueSerializer(cls, true, null).serialize(_value, jgen, provider);
+            provider.findTypedValueSerializer(_value.getClass(), true)
+                .serialize(_value, g, provider);
         }
-        if (_suffix != null) jgen.writeRaw(_suffix);
+        if (_suffix != null) g.writeRaw(_suffix);
     }
 
     /*
-    /**************************************************************
+    /**********************************************************************
     /* Accessors
-    /**************************************************************
+    /**********************************************************************
      */
     
     public String getPrefix() { return _prefix; }
     public String getSuffix() { return _suffix; }
     public Object getValue() { return _value; }
     public JavaType getSerializationType() { return _serializationType; }
-
 }

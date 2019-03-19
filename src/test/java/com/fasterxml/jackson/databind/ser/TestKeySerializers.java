@@ -9,32 +9,41 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+@SuppressWarnings("serial")
 public class TestKeySerializers extends BaseMapTest
 {
-    public static class KarlSerializer extends JsonSerializer<String>
+    public static class KarlSerializer extends StdSerializer<String>
     {
+        public KarlSerializer() { super(String.class); }
         @Override
         public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeFieldName("Karl");
         }
     }
 
-    public static class NullKeySerializer extends JsonSerializer<Object>
+    public static class NullKeySerializer extends StdSerializer<Object>
     {
         private String _null;
-        public NullKeySerializer(String s) { _null = s; }
+        public NullKeySerializer(String s) {
+            super(String.class);
+            _null = s;
+        }
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeFieldName(_null);
         }
     }
 
-    public static class NullValueSerializer extends JsonSerializer<Object>
+    public static class NullValueSerializer extends StdSerializer<Object>
     {
         private String _null;
-        public NullValueSerializer(String s) { _null = s; }
+        public NullValueSerializer(String s) { super(String.class);
+            _null = s;
+            }
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeString(_null);
@@ -71,7 +80,8 @@ public class TestKeySerializers extends BaseMapTest
         }
     }
     
-    static class ABCKeySerializer extends JsonSerializer<ABC> {
+    static class ABCKeySerializer extends StdSerializer<ABC> {
+        public ABCKeySerializer() { super(ABC.class); }
         @Override
         public void serialize(ABC value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException {
@@ -159,20 +169,23 @@ public class TestKeySerializers extends BaseMapTest
     public void testCustomForEnum() throws IOException
     {
         // cannot use shared mapper as we are registering a module
-        final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         String json = mapper.writeValueAsString(new ABCMapWrapper());
         assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
     }
 
     public void testCustomNullSerializers() throws IOException
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer("NULL-KEY"));
-        mapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer("NULL"));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .setDefaultNullKeySerializer(new NullKeySerializer("NULL-KEY"))
+                        .setDefaultNullValueSerializer(new NullValueSerializer("NULL"))
+                        )
+                .build();
         Map<String,Integer> input = new HashMap<>();
         input.put(null, 3);
         String json = mapper.writeValueAsString(input);
@@ -188,12 +201,12 @@ public class TestKeySerializers extends BaseMapTest
         innerMap.put("one", "1");
         map.put(ABC.A, innerMap);
         outerMap.put(Outer.inner, map);
-        final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.setMixInAnnotation(ABC.class, ABCMixin.class);
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         JsonNode tree = mapper.convertValue(outerMap, JsonNode.class);
 
         JsonNode innerNode = tree.get("inner");
@@ -203,17 +216,15 @@ public class TestKeySerializers extends BaseMapTest
 
     // [databind#838]
     public void testUnWrappedMapWithDefaultType() throws Exception{
-        final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
-
-        TypeResolverBuilder<?> typer = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
-        typer = typer.init(JsonTypeInfo.Id.NAME, null);
-        typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
-        //typer = typer.typeProperty(TYPE_FIELD);
-        typer = typer.typeIdVisibility(true);
-        mapper.setDefaultTyping(typer);
+        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY, JsonTypeInfo.Id.NAME, null)
+            .typeIdVisibility(true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .setDefaultTyping(typer)
+                .build();
 
         Map<ABC,String> stuff = new HashMap<ABC,String>();
         stuff.put(ABC.B, "bar");
@@ -223,18 +234,16 @@ public class TestKeySerializers extends BaseMapTest
     }
 
     // [databind#838]
-    @SuppressWarnings("deprecation")
     public void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(mod)
-            .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .disable(SerializationFeature.WRITE_NULL_MAP_VALUES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .addModule(mod)
+                .build()
             ;
-
         Map<ABC,BAR<?>> stuff = new HashMap<ABC,BAR<?>>();
         stuff.put(ABC.B, new BAR<String>("bar"));
         String json = mapper.writerFor(new TypeReference<Map<ABC,BAR<?>>>() {})

@@ -66,10 +66,10 @@ public class MergeWithNullTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
-    ;
+            .build();
 
     public void testBeanMergingWithNullDefault() throws Exception
     {
@@ -83,9 +83,10 @@ public class MergeWithNullTest extends BaseMapTest
 
         // First: via specific type override
         // important! We'll specify for value type to be merged
-        ObjectMapper mapper = newObjectMapper();
-        mapper.configOverride(AB.class)
-            .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(AB.class,
+                        o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.SKIP)))
+                .build();
         config = mapper.readerForUpdating(new ConfigDefault(137, -3))
                 .readValue(aposToQuotes("{'loc':null}"));
         assertNotNull(config.loc);
@@ -93,8 +94,9 @@ public class MergeWithNullTest extends BaseMapTest
         assertEquals(-3, config.loc.b);
 
         // Second: by global defaults
-        mapper = newObjectMapper();
-        mapper.setDefaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));
+        mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.SKIP))
+                .build();
         config = mapper.readerForUpdating(new ConfigDefault(12, 34))
                 .readValue(aposToQuotes("{'loc':null}"));
         assertNotNull(config.loc);

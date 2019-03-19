@@ -143,9 +143,11 @@ public class FormatFeatureUnwrapSingleTest extends BaseMapTest
                 .writeValueAsString(new WrapWriteWithArrays()));
 
         // And then without SerializationFeature but with config override:
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(String[].class).setFormat(JsonFormat.Value.empty()
-                .withFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(String[].class,
+                        v -> v.setFormat(JsonFormat.Value.empty()
+                                .withFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)))
+                .build();
         assertEquals(aposToQuotes("{'values':'a'}"),
                 mapper.writeValueAsString(new StringArrayNotAnnoted("a")));
     }

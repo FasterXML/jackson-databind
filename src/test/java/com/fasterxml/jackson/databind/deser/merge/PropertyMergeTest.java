@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 /**
  * Tests to make sure that the new "merging" property of
  * <code>JsonSetter</code> annotation works as expected.
- * 
+ *
  * @since 2.9
  */
 @SuppressWarnings("serial")
@@ -35,7 +35,7 @@ public class PropertyMergeTest extends BaseMapTest
     // another variant where all we got is a getter
     static class NoSetterConfig {
         AB _value = new AB(1, 2);
- 
+
         @JsonMerge
         public AB getValue() { return _value; }
     }
@@ -79,7 +79,27 @@ public class PropertyMergeTest extends BaseMapTest
         public MergedX(T v) { value = v; }
         protected MergedX() { }
     }
-    
+
+    static class ConstructorArgsPojo {
+        static class MergeablePojo {
+            public String foo;
+            public String bar;
+
+            public MergeablePojo(String foo, String bar) {
+                this.foo = foo;
+                this.bar = bar;
+            }
+        }
+
+        public MergeablePojo mergeableBean;
+
+        @JsonCreator
+        public ConstructorArgsPojo(@JsonMerge @JsonProperty("mergeableBean") MergeablePojo mergeableBean) {
+            this.mergeableBean = mergeableBean;
+        }
+    }
+
+
     // // // Classes with invalid merge definition(s)
 
     static class CantMergeInts {
@@ -153,6 +173,17 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(1, config._value.a);
     }
 
+    public void testBeanMergeUsingConstructors() throws Exception {
+        ConstructorArgsPojo input = new ConstructorArgsPojo(new ConstructorArgsPojo.MergeablePojo("foo", "bar"));
+
+        ConstructorArgsPojo result = MAPPER.setDefaultMergeable(true)
+                .readerForUpdating(input)
+                .readValue(aposToQuotes("{'mergeableBean': {'foo': 'newFoo'}}"));
+
+        assertEquals("newFoo", result.mergeableBean.foo);
+        assertEquals("bar", result.mergeableBean.bar);
+    }
+
     /*
     /********************************************************
     /* Test methods, as array
@@ -218,7 +249,7 @@ public class PropertyMergeTest extends BaseMapTest
     {
         ObjectMapper mapper = newObjectMapper()
                 .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE);
-        
+
         try {
             mapper.readValue("{\"value\":3}", CantMergeInts.class);
             fail("Should not pass");

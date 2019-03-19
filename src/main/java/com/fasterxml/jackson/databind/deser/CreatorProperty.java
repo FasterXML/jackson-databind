@@ -51,7 +51,7 @@ public class CreatorProperty
      *<p>
      * Mutable only to allow setting after construction, but must be strictly
      * set before any use.
-     * 
+     *
      * @since 2.3
      */
     protected SettableBeanProperty _fallbackSetter;
@@ -83,7 +83,7 @@ public class CreatorProperty
      * @param param Representation of property, constructor or factory
      *    method parameter; used for accessing annotations of the property
      * @param index Index of this property within creator invocation
-     * 
+     *
      * @since 2.3
      */
     public CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
@@ -121,11 +121,20 @@ public class CreatorProperty
         _ignorable = src._ignorable;
     }
 
+    protected CreatorProperty(CreatorProperty src, PropertyMetadata metadata) {
+        super(src);
+        _annotated = src._annotated;
+        _injectableValueId = src._injectableValueId;
+        _fallbackSetter = src._fallbackSetter;
+        _creatorIndex = src._creatorIndex;
+        _ignorable = src._ignorable;
+    }
+
     @Override
     public SettableBeanProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);
     }
-    
+
     @Override
     public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
@@ -138,7 +147,7 @@ public class CreatorProperty
     public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new CreatorProperty(this, _valueDeserializer, nva);
     }
-    
+
     @Override
     public void fixAccess(DeserializationConfig config) {
         if (_fallbackSetter != null) {
@@ -149,7 +158,7 @@ public class CreatorProperty
     /**
      * NOTE: one exception to immutability, due to problems with CreatorProperty instances
      * being shared between Bean, separate PropertyBasedCreator
-     * 
+     *
      * @since 2.6
      */
     public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
@@ -201,7 +210,7 @@ public class CreatorProperty
     /* BeanProperty impl
     /**********************************************************
      */
-    
+
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         if (_annotated == null) {
@@ -215,7 +224,7 @@ public class CreatorProperty
     @Override public int getCreatorIndex() {
         return _creatorIndex;
     }
-    
+
     /*
     /**********************************************************
     /* Overridden methods
@@ -237,7 +246,7 @@ public class CreatorProperty
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
     }
-    
+
     @Override
     public void set(Object instance, Object value) throws IOException
     {
@@ -251,7 +260,7 @@ public class CreatorProperty
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, value);
     }
-    
+
     @Override
     public Object getInjectableValueId() {
         return _injectableValueId;
@@ -279,4 +288,14 @@ public class CreatorProperty
             throw InvalidDefinitionException.from(p, msg, getType());
         }
     }
+
+    @Override
+    public PropertyMetadata getMetadata() {
+        if (this._fallbackSetter != null) {
+            return super.getMetadata().withMergeInfo(this._fallbackSetter.getMetadata().getMergeInfo());
+        } else {
+            return super.getMetadata();
+        }
+    }
+
 }

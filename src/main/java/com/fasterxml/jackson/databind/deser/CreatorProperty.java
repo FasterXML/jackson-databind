@@ -121,15 +121,6 @@ public class CreatorProperty
         _ignorable = src._ignorable;
     }
 
-    protected CreatorProperty(CreatorProperty src, PropertyMetadata metadata) {
-        super(src);
-        _annotated = src._annotated;
-        _injectableValueId = src._injectableValueId;
-        _fallbackSetter = src._fallbackSetter;
-        _creatorIndex = src._creatorIndex;
-        _ignorable = src._ignorable;
-    }
-
     @Override
     public SettableBeanProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);

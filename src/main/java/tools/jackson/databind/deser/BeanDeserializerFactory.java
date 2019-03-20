@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -935,14 +936,10 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         // Does the Method specify the deserializer to use? If so, let's use it.
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
         SettableBeanProperty prop;
-        if (mutator instanceof AnnotatedMethod) {
-            prop = new MethodProperty(propDef, type, typeDeser,
-                    beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
-        } else {
-            // 08-Sep-2016, tatu: wonder if we should verify it is `AnnotatedField` to be safe?
-            prop = new FieldProperty(propDef, type, typeDeser,
-                    beanDesc.getClassAnnotations(), (AnnotatedField) mutator);
+        if (isFinalField(mutator)) {
+            return null;
         }
+        prop = new MethodProperty(propDef, type, typeDeser, beanDesc.getClassAnnotations(), mutator);
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
             deser = (ValueDeserializer<?>) type.getValueHandler();
@@ -961,6 +958,11 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             prop.setObjectIdInfo(objectIdInfo);
         }
         return prop;
+    }
+
+    private boolean isFinalField(AnnotatedMember am) {
+        return am instanceof AnnotatedField
+                && Modifier.isFinal(am.getMember().getModifiers());
     }
 
     /**

@@ -16,6 +16,13 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * serializers and deserializers. For serialization defaults to using
  * an ISO-8601 compliant format (format String "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
  * and for deserialization, both ISO-8601 and RFC-1123.
+ *<br>
+ * Note that `Z` in format String refers to RFC-822 timezone notation which produces
+ * values like "-0800" -- that is, full minute/hour combo without colon, and not using `Z`
+ * as alias for "+0000".
+ *<p>
+ * Note also that to enable use of colon in timezone is possible by using method
+ * {@link #withColonInTimeZone} for creating new differently configured format instance.
  */
 @SuppressWarnings("serial")
 public class StdDateFormat
@@ -145,6 +152,8 @@ public class StdDateFormat
 
     /** 
      * Whether the TZ offset must be formatted with a colon between hours and minutes ({@code HH:mm} format)
+     *<p>
+     * Defaults to {@code false} for backwards compatibility reasons
      *
      * @since 2.9.1
      */

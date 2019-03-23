@@ -14,8 +14,15 @@ import com.fasterxml.jackson.core.io.NumberInput;
 /**
  * Default {@link DateFormat} implementation used by standard Date
  * serializers and deserializers. For serialization defaults to using
- * an ISO-8601 compliant format (format String "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+ * an ISO-8601 compliant format (format String "yyyy-MM-dd'T'HH:mm:ss.SSSX")
  * and for deserialization, both ISO-8601 and RFC-1123.
+ *<br>
+ * Note that `X` in format String refers to ISO-8601 timezone notation which produces
+ * values like "-08:00" -- that is, full minute/hour combo without colon, not using `Z`
+ * as alias for "+0000".
+ *<p>
+ * Note also that to enable use of colon in timezone is possible by using method
+ * {@link #withColonInTimeZone} for creating new differently configured format instance.
  */
 @SuppressWarnings("serial")
 public class StdDateFormat
@@ -147,7 +154,7 @@ public class StdDateFormat
      * NOTE: default changed to `true` in Jackson 3.0; was `false` earlier.
      */
     protected boolean _tzSerializedWithColon = true;
-    
+
     /*
     /**********************************************************
     /* Life cycle, accessing singleton "standard" formats

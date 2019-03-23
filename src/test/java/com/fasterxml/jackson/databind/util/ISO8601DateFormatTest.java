@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.util;
 import java.text.DateFormat;
 import java.util.*;
 
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 
 @SuppressWarnings("deprecation")

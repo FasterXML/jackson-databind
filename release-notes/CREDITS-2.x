@@ -847,6 +847,10 @@ Joffrey Bion (joffrey-bion@github)
     Collections$UnmodifiableRandomAccessList
    (2.9.9)
 
+Yona Appletree (YonaAppletree@github)
+  * Reported, fixed #2283: JsonProperty.Access.READ_ONLY fails with collections when a property name is specified
+   (2.9.9)
+
 Christoph Breitkopf (bokesan@github)
   * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
    (2.10.0)

@@ -1,18 +1,16 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.reflect.Modifier;
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.databind.*;
-
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 /**
  * Helper class used for aggregating information about all possible
@@ -58,7 +56,7 @@ public class POJOPropertiesCollector
      * but differs for builder objects ("with" by default).
      */
     protected final String _mutatorPrefix;
-    
+
     /*
     /**********************************************************
     /* Collected property information
@@ -70,7 +68,7 @@ public class POJOPropertiesCollector
      * has been collected or not.
      */
     protected boolean _collected;
-    
+
     /**
      * Set of logical property information collected so far.
      *<p>
@@ -81,11 +79,11 @@ public class POJOPropertiesCollector
     protected LinkedHashMap<String, POJOPropertyBuilder> _properties;
 
     protected LinkedList<POJOPropertyBuilder> _creatorProperties;
-    
+
     protected LinkedList<AnnotatedMember> _anyGetters;
 
     protected LinkedList<AnnotatedMethod> _anySetters;
-    
+
     protected LinkedList<AnnotatedMember> _anySetterField;
 
     /**
@@ -96,11 +94,12 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
-     * Lazily collected list of properties that can be implicitly
+     * Lazily collected map of property names that can be implicitly
      * ignored during serialization; only updated when collecting
-     * information for deserialization purposes
+     * information for deserialization purposes. Values are the
+     * list of property builder that triggered the ignoral.
      */
-    protected HashSet<String> _ignoredPropertyNames;
+    protected HashMap<String, HashSet<POJOPropertyBuilder>> _ignoredPropertyNameToProps;
 
     /**
      * Lazily collected list of members that were annotated to
@@ -108,7 +107,7 @@ public class POJOPropertiesCollector
      * value injection.
      */
     protected LinkedHashMap<Object, AnnotatedMember> _injectables;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -147,7 +146,7 @@ public class POJOPropertiesCollector
     public JavaType getType() {
         return _type;
     }
-    
+
     public AnnotatedClass getClassDef() {
         return _classDef;
     }
@@ -155,7 +154,7 @@ public class POJOPropertiesCollector
     public AnnotationIntrospector getAnnotationIntrospector() {
         return _annotationIntrospector;
     }
-    
+
     public List<BeanPropertyDefinition> getProperties() {
         // make sure we return a copy, so caller can remove entries if need be:
         Map<String, POJOPropertyBuilder> props = getPropertyMap();
@@ -198,7 +197,7 @@ public class POJOPropertiesCollector
                         _anyGetters.get(0), _anyGetters.get(1));
             }
             return _anyGetters.getFirst();
-        }        
+        }
         return null;
     }
 
@@ -237,7 +236,7 @@ public class POJOPropertiesCollector
      * via per-property markers (but NOT class annotations).
      */
     public Set<String> getIgnoredPropertyNames() {
-        return _ignoredPropertyNames;
+        return _ignoredPropertyNameToProps == null ? null : _ignoredPropertyNameToProps.keySet();
     }
 
     /**
@@ -259,7 +258,7 @@ public class POJOPropertiesCollector
     public Class<?> findPOJOBuilderClass() {
         return _annotationIntrospector.findPOJOBuilder(_config, _classDef);
     }
-    
+
     // for unit tests:
     protected Map<String, POJOPropertyBuilder> getPropertyMap() {
         if (!_collected) {
@@ -346,7 +345,7 @@ public class POJOPropertiesCollector
          */
         final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
-        
+
         for (AnnotatedField f : _classDef.fields()) {
             // @JsonValue?
             if (Boolean.TRUE.equals(ai.hasAsValue(f))) {
@@ -521,7 +520,7 @@ public class POJOPropertiesCollector
         if (!m.hasReturnType()) {
             return;
         }
-        
+
         // any getter?
         // @JsonAnyGetter?
         if (Boolean.TRUE.equals(ai.hasAnyGetter(m))) {
@@ -624,7 +623,7 @@ public class POJOPropertiesCollector
         for (AnnotatedField f : _classDef.fields()) {
             _doAddInjectable(ai.findInjectableValue(f), f);
         }
-        
+
         for (AnnotatedMethod m : _classDef.memberMethods()) {
             // for now, only allow injection of a single arg (to be changed in future?)
             if (m.getParameterCount() != 1) {
@@ -657,7 +656,7 @@ public class POJOPropertiesCollector
     private PropertyName _propNameFromSimple(String simpleName) {
         return PropertyName.construct(simpleName, null);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods; removing ignored properties
@@ -684,13 +683,13 @@ public class POJOPropertiesCollector
                 // first: if one or more ignorals, and no explicit markers, remove the whole thing
                 if (!prop.isExplicitlyIncluded()) {
                     it.remove();
-                    _collectIgnorals(prop.getName());
+                    _collectIgnorals(prop);
                     continue;
                 }
                 // otherwise just remove ones marked to be ignored
                 prop.removeIgnored();
                 if (!prop.couldDeserialize()) {
-                    _collectIgnorals(prop.getName());
+                    _collectIgnorals(prop);
                 }
             }
         }
@@ -711,7 +710,7 @@ public class POJOPropertiesCollector
             // 26-Jan-2017, tatu: [databind#935]: need to denote removal of
             JsonProperty.Access acc = prop.removeNonVisible(inferMutators);
             if (acc == JsonProperty.Access.READ_ONLY) {
-                _collectIgnorals(prop.getName());
+                _collectIgnorals(prop);
             }
         }
     }
@@ -721,14 +720,18 @@ public class POJOPropertiesCollector
      * of known ignored properties; this helps in proper reporting of
      * errors.
      */
-    private void _collectIgnorals(String name)
+    private void _collectIgnorals(POJOPropertyBuilder prop)
     {
-        if (!_forSerialization) {
-            if (_ignoredPropertyNames == null) {
-                _ignoredPropertyNames = new HashSet<String>();
-            }
-            _ignoredPropertyNames.add(name);
+        if (_ignoredPropertyNameToProps == null) {
+            _ignoredPropertyNameToProps = new HashMap<>();
         }
+
+        final String name = prop.getName();
+
+        if (! _ignoredPropertyNameToProps.containsKey(name))
+            _ignoredPropertyNameToProps.put(name, new HashSet<>());
+
+        _ignoredPropertyNameToProps.get(name).add(prop);
     }
 
     /*
@@ -741,7 +744,7 @@ public class POJOPropertiesCollector
     {
         // With renaming need to do in phases: first, find properties to rename
         Iterator<Map.Entry<String,POJOPropertyBuilder>> it = props.entrySet().iterator();
-        LinkedList<POJOPropertyBuilder> renamed = null;
+        Map<POJOPropertyBuilder, POJOPropertyBuilder> renamedToOriginal = null;
         while (it.hasNext()) {
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();
@@ -753,17 +756,19 @@ public class POJOPropertiesCollector
                 continue;
             }
             it.remove(); // need to replace with one or more renamed
-            if (renamed == null) {
-                renamed = new LinkedList<POJOPropertyBuilder>();
+            if (renamedToOriginal == null) {
+                renamedToOriginal = new HashMap<>();
             }
             // simple renaming? Just do it
             if (l.size() == 1) {
                 PropertyName n = l.iterator().next();
-                renamed.add(prop.withName(n));
+                renamedToOriginal.put(prop.withName(n), prop);
                 continue;
             }
             // but this may be problematic...
-            renamed.addAll(prop.explode(l));
+            for (POJOPropertyBuilder renamedProp : prop.explode(l)) {
+                renamedToOriginal.put(renamedProp, prop);
+            }
 
             /*
             String newName = prop.findNewName();
@@ -777,24 +782,44 @@ public class POJOPropertiesCollector
             }
             */
         }
-        
+
         // and if any were renamed, merge back in...
-        if (renamed != null) {
-            for (POJOPropertyBuilder prop : renamed) {
-                String name = prop.getName();
-                POJOPropertyBuilder old = props.get(name);
-                if (old == null) {
-                    props.put(name, prop);
+        if (renamedToOriginal != null) {
+            for (Map.Entry<POJOPropertyBuilder, POJOPropertyBuilder> pair : renamedToOriginal.entrySet()) {
+                POJOPropertyBuilder renamedProp = pair.getKey();
+                POJOPropertyBuilder originalProp = pair.getValue();
+                String renamedName = renamedProp.getName();
+                String originalName = originalProp.getName();
+
+                POJOPropertyBuilder existingRenamedProp = props.get(renamedName);
+                if (existingRenamedProp == null) {
+                    props.put(renamedName, renamedProp);
                 } else {
-                    old.addAll(prop);
+                    existingRenamedProp.addAll(renamedProp);
                 }
                 // replace the creatorProperty too, if there is one
-                _updateCreatorProperty(prop, _creatorProperties);
+                _updateCreatorProperty(renamedProp, _creatorProperties);
                 // [databind#2001]: New name of property was ignored previously? Remove from ignored
                 // 01-May-2018, tatu: I have a feeling this will need to be revisited at some point,
                 //   to avoid removing some types of removals, possibly. But will do for now.
-                if (_ignoredPropertyNames != null) {
-                    _ignoredPropertyNames.remove(name);
+                // 26-Mar-2019, YonaAppletree: I revisited this to fix #2283 and handle read-only collection props
+                //   with MapperFeature.USE_GETTERS_AS_SETTERS
+                if (_ignoredPropertyNameToProps != null) {
+                    HashSet<POJOPropertyBuilder> ignoredPropsWithRenamedName = _ignoredPropertyNameToProps.get(renamedName);
+                    HashSet<POJOPropertyBuilder> ignoredPropsWithOriginalName = _ignoredPropertyNameToProps.get(originalName);
+
+                    // Handle #2001 fix -- unignore renamed properties where the renaming happened at a different
+                    // definition than the original ignoring
+                    if (ignoredPropsWithRenamedName != null && ! ignoredPropsWithRenamedName.contains(originalProp)) {
+                        _ignoredPropertyNameToProps.remove(renamedName);
+                    }
+
+                    // Handle ignored properties by renaming them in the ignored map
+                    if (ignoredPropsWithOriginalName != null) {
+                        // Remove first because the names may actually be the same.
+                        _ignoredPropertyNameToProps.remove(originalName);
+                        _ignoredPropertyNameToProps.put(renamedName, ignoredPropsWithOriginalName);
+                    }
                 }
             }
         }

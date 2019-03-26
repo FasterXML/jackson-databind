@@ -53,6 +53,8 @@ Project: jackson-databind
  (reported by Joffrey B)
 - Prevent String coercion of `null` in `WritableObjectId` when calling `JsonGenerator.writeObjectId()`,
   mostly relevant for formats like YAML that have native Object Ids
+#2283: JsonProperty.Access.READ_ONLY fails with collections when a property name is specified
+ (reported by Yona A)
 
 2.9.8 (15-Dec-2018)
 

@@ -1488,7 +1488,7 @@ public abstract class BeanDeserializerBase
         unknownTokens.writeEndObject();
 
         // note: buffer does NOT have starting START_OBJECT
-        JsonParser bufferParser = unknownTokens.asParser();
+        JsonParser bufferParser = unknownTokens.asParser(ctxt);
         while (bufferParser.nextToken() != JsonToken.END_OBJECT) {
             String propName = bufferParser.currentName();
             // Unknown: let's call handler method
@@ -1578,7 +1578,7 @@ public abstract class BeanDeserializerBase
             if (unknownTokens != null) {
                 // need to add END_OBJECT marker first
                 unknownTokens.writeEndObject();
-                JsonParser p2 = unknownTokens.asParser();
+                JsonParser p2 = unknownTokens.asParser(ctxt);
                 p2.nextToken(); // to get to first data field
                 bean = subDeser.deserialize(p2, ctxt, bean);
             }

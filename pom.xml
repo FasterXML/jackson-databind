@@ -27,7 +27,11 @@
   <properties>
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
-    <!-- but imports should work fine with defaults -->
+    <osgi.import>
+        <!-- Fix for using jackson-databind in an OSGi environment under Android --> 
+        org.w3c.dom.bootstrap;resolution:=optional,
+        *
+    </osgi.import>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>

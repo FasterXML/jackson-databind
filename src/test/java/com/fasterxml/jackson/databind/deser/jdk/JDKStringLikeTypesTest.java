@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
+import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -283,13 +283,13 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         // trivial case; null to null, embedded URL to URL
         TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(null);
-        assertNull(MAPPER.readValue(buf.asParser(), URL.class));
+        assertNull(MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), URL.class));
         buf.close();
 
         // then, URLitself come as is:
         buf = TokenBuffer.forGeneration();
         buf.writeObject(exp);
-        assertSame(exp, MAPPER.readValue(buf.asParser(), URL.class));
+        assertSame(exp, MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), URL.class));
         buf.close();
     }
 
@@ -365,13 +365,13 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         // first, null should come as null
         try (TokenBuffer buf = TokenBuffer.forGeneration()) {
             buf.writeObject(null);
-            assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
+            assertNull(MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class));
         }
 
         // then, UUID itself come as is:
         try (TokenBuffer buf = TokenBuffer.forGeneration()) {
             buf.writeObject(value);
-            assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
+            assertSame(value, MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class));
     
             // and finally from byte[]
             // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
@@ -385,7 +385,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
             
             buf.writeObject(data);
     
-            UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
+            UUID value2 = MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class);
             
             assertEquals(value, value2);
             buf.close();

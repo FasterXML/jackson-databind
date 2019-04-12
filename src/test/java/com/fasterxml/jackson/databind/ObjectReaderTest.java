@@ -24,6 +24,15 @@ public class ObjectReaderTest extends BaseMapTest
         public Map<String, Object> name;
     }
 
+    static class A2297 {
+        private String knownField;
+
+        @JsonCreator
+        private A2297(@JsonProperty("knownField") String knownField) {
+            this.knownField = knownField;
+        }
+    }
+    
     public void testSimpleViaParser() throws Exception
     {
         final String JSON = "[1]";
@@ -143,9 +152,9 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, JsonPointer
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testNoPointerLoading() throws Exception {
@@ -248,9 +257,9 @@ public class ObjectReaderTest extends BaseMapTest
     }    
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, ObjectCodec
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testTreeToValue() throws Exception
@@ -263,9 +272,9 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, failures, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testMissingType() throws Exception
@@ -297,7 +306,8 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
-    public void testUnknownFields() throws Exception
+    // For [databind#2297]
+    public void testUnknownFields2297() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder().addHandler(new DeserializationProblemHandler(){
             @Override
@@ -306,16 +316,8 @@ public class ObjectReaderTest extends BaseMapTest
                 return true;
             }
         }).build();
-        A aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}", A.class);
+        A2297 aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}", A2297.class);
 
         assertEquals("test", aObject.knownField);
-    }
-    private static class A{
-        private String knownField;
-
-        @JsonCreator
-        private A(@JsonProperty("knownField") String knownField) {
-            this.knownField = knownField;
-        }
     }
 }

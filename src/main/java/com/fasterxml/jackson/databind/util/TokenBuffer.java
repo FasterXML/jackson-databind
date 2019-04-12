@@ -257,22 +257,37 @@ public class TokenBuffer
     /* Parser construction
     /**********************************************************************
      */
-    
+
     /**
      * Method used to create a {@link JsonParser} that can read contents
-     * stored in this buffer. Will use default <code>_objectCodec</code> for
-     * object conversions.
+     * stored in this buffer. Will create an "empty" read context
+     * (see {@link ObjectReadContext#empty()} which usually is not what you want.
      *<p>
      * Note: instances are not synchronized, that is, they are not thread-safe
      * if there are concurrent appends to the underlying buffer.
      * 
      * @return Parser that can be used for reading contents stored in this buffer
+     *
+     * @deprecated Since 3.0: most of the time should instead use method that takes
+     *    {@link ObjectReadContext} argument.
      */
+    @Deprecated // since 3.0
     public JsonParser asParser() {
-        return new Parser(null, this,
+        return new Parser(ObjectReadContext.empty(), this,
                 _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
 
+    /**
+     * Method used to create a {@link JsonParser} that can read contents
+     * stored in this buffer.
+     *<p>
+     * Note: instances are not synchronized, that is, they are not thread-safe
+     * if there are concurrent appends to the underlying buffer.
+     *
+     * @param readCtxt Active read context to use.
+     * 
+     * @return Parser that can be used for reading contents stored in this buffer
+     */
     public JsonParser asParser(ObjectReadContext readCtxt)
     {
         return new Parser(readCtxt, this,

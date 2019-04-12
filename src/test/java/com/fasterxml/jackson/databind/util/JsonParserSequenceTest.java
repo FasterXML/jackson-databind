@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.BaseMapTest;
 
@@ -18,13 +19,13 @@ public class JsonParserSequenceTest extends BaseMapTest
         buf1.writeStartObject();
         buf1.writeFieldName("foo");
         buf1.writeStartObject();
-        JsonParser parser1 = buf1.asParser();
+        JsonParser parser1 = buf1.asParser(ObjectReadContext.empty());
 
         // Create parser from second TokenBuffer that completes the object started by the first buffer
         TokenBuffer buf2 = TokenBuffer.forGeneration();
         buf2.writeEndObject();
         buf2.writeEndObject();
-        JsonParser parser2 = buf2.asParser();
+        JsonParser parser2 = buf2.asParser(ObjectReadContext.empty());
 
         // Create sequence of both parsers and verify tokens
         JsonParser parserSequence = JsonParserSequence.createFlattened(false, parser1, parser2);

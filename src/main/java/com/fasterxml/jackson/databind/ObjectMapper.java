@@ -1037,7 +1037,7 @@ public class ObjectMapper
      * passed-in {@link URL}.
      *<p>
      * NOTE: handling of {@link java.net.URL} is delegated to
-     * {@link JsonFactory#createParser(java.net.URL)} and usually simply
+     * {@link TokenStreamFactory#createParser(ObjectReadContext, java.net.URL)}s and usually simply
      * calls {@link java.net.URL#openStream()}, meaning no special handling
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
@@ -1223,7 +1223,8 @@ public class ObjectMapper
         try {
             // Equivalent to `writeValue()`, basically:
             prov.serializeValue(buf, fromValue);
-            JsonParser p = buf.asParser();
+            // 11-Apr-2019, tatu: Should we create "real" DeserializationContext or is this ok?
+            JsonParser p = buf.asParser(ObjectReadContext.empty());
             result = readTree(p);
             p.close();
         } catch (IOException e) { // should not occur, no real i/o...
@@ -1302,7 +1303,7 @@ public class ObjectMapper
      * Method to deserialize JSON content from given resource into given Java type.
      *<p>
      * NOTE: handling of {@link java.net.URL} is delegated to
-     * {@link JsonFactory#createParser(java.net.URL)} and usually simply
+     * {@link TokenStreamFactory#createParser(ObjectReadContext, java.net.URL)} and usually simply
      * calls {@link java.net.URL#openStream()}, meaning no special handling
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
@@ -2113,7 +2114,7 @@ public class ObjectMapper
      * <li>Serialize `updateWithValue` into {@link TokenBuffer}</li>
      * <li>Construct {@link ObjectReader} with `valueToUpdate` (using {@link #readerForUpdating(Object)})
      *   </li>
-     * <li>Construct {@link JsonParser} (using {@link TokenBuffer#asParser()})
+     * <li>Construct {@link JsonParser} (using {@link TokenBuffer#asParser(ObjectReadContext)})
      *   </li>
      * <li>Update using {@link ObjectReader#readValue(JsonParser)}.
      *   </li>
@@ -2155,7 +2156,8 @@ public class ObjectMapper
         T result;
         try {
             prov.serializeValue(buf, overrides);
-            JsonParser p = buf.asParser();
+            // 11-Apr-2019, tatu: Should we create "real" DeserializationContext or is this ok?
+            JsonParser p = buf.asParser(ObjectReadContext.empty());
             result = readerForUpdating(valueToUpdate).readValue(p);
             p.close();
         } catch (IOException e) { // should not occur, no real i/o...

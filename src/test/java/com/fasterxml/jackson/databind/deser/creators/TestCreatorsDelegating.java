@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
+import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -142,7 +142,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         assertNotNull(value);
         Object ob = value.stuff;
         assertEquals(TokenBuffer.class, ob.getClass());
-        JsonParser jp = ((TokenBuffer) ob).asParser();
+        JsonParser jp = ((TokenBuffer) ob).asParser(ObjectReadContext.empty());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("a", jp.currentName());

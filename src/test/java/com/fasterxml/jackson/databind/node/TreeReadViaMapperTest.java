@@ -114,7 +114,6 @@ public class TreeReadViaMapperTest extends BaseMapTest
             +"},  \"type\": 3, \"url\": \"http://www.google.com\" } ],\n"
             +"\"name\": \"xyz\", \"type\": 1, \"url\" : null }\n  "
             ;
-        final ObjectMapper mapper = objectMapper();
         JsonParser p = MAPPER.createParser(new StringReader(JSON));
         JsonNode result = MAPPER.readTree(p);
 

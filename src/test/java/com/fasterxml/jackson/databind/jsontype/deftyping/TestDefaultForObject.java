@@ -280,7 +280,7 @@ public class TestDefaultForObject
         ObjectHolder holder = mapper.readValue(json, ObjectHolder.class);
         assertNotNull(holder.value);
         assertSame(TokenBuffer.class, holder.value.getClass());
-        JsonParser jp = ((TokenBuffer) holder.value).asParser();
+        JsonParser jp = ((TokenBuffer) holder.value).asParser(ObjectReadContext.empty());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -298,7 +298,7 @@ public class TestDefaultForObject
         holder = mapper.readValue(json, ObjectHolder.class);
         assertNotNull(holder.value);
         assertSame(TokenBuffer.class, holder.value.getClass());
-        jp = ((TokenBuffer) holder.value).asParser();
+        jp = ((TokenBuffer) holder.value).asParser(ObjectReadContext.empty());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
@@ -313,7 +313,7 @@ public class TestDefaultForObject
         holder = mapper.readValue(json, ObjectHolder.class);
         assertNotNull(holder.value);
         assertSame(TokenBuffer.class, holder.value.getClass());
-        jp = ((TokenBuffer) holder.value).asParser();
+        jp = ((TokenBuffer) holder.value).asParser(ObjectReadContext.empty());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(321, jp.getIntValue());
         assertNull(jp.nextToken());

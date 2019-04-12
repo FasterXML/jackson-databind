@@ -337,7 +337,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             tb.writeString(key);
             try {
                 // Ugh... should not have to give parser which may or may not be correct one...
-                JsonParser p = tb.asParser();
+                JsonParser p = tb.asParser(ctxt);
                 p.nextToken();
                 Object result = _delegate.deserialize(p, ctxt);
                 if (result != null) {

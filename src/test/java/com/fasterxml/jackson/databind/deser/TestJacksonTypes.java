@@ -50,7 +50,7 @@ public class TestJacksonTypes
     {
         // First, try standard sample doc:
         TokenBuffer result = MAPPER.readValue(SAMPLE_DOC_JSON_SPEC, TokenBuffer.class);
-        verifyJsonSpecSampleDoc(result.asParser(), true);
+        verifyJsonSpecSampleDoc(result.asParser(ObjectReadContext.empty()), true);
         result.close();
     }
 
@@ -65,14 +65,14 @@ public class TestJacksonTypes
         TokenBuffer buf = MAPPER.readValue(p, TokenBuffer.class);
 
         // check manually...
-        JsonParser bufParser = buf.asParser();
+        JsonParser bufParser = buf.asParser(ObjectReadContext.empty());
         assertToken(JsonToken.VALUE_NUMBER_INT, bufParser.nextToken());
         assertEquals(32, bufParser.getIntValue());
         assertNull(bufParser.nextToken());
 
         // then bind to another
         buf = MAPPER.readValue(p, TokenBuffer.class);
-        bufParser = buf.asParser();
+        bufParser = buf.asParser(ObjectReadContext.empty());
         assertToken(JsonToken.START_ARRAY, bufParser.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, bufParser.nextToken());
         assertEquals(1, bufParser.getIntValue());
@@ -81,12 +81,12 @@ public class TestJacksonTypes
 
         // third one, with automatic binding
         buf = MAPPER.readValue(p, TokenBuffer.class);
-        String str = MAPPER.readValue(buf.asParser(), String.class);
+        String str = MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), String.class);
         assertEquals("abc", str);
 
         // and ditto for last one
         buf = MAPPER.readValue(p, TokenBuffer.class);
-        Map<?,?> map = MAPPER.readValue(buf.asParser(), Map.class);
+        Map<?,?> map = MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), Map.class);
         assertEquals(1, map.size());
         assertEquals(Boolean.TRUE, map.get("a"));
         

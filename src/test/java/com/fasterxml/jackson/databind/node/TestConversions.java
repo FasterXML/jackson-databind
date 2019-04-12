@@ -219,7 +219,7 @@ public class TestConversions extends BaseMapTest
     {
         TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(new byte[3]);
-        JsonNode node = MAPPER.readTree(buf.asParser());
+        JsonNode node = MAPPER.readTree(buf.asParser(ObjectReadContext.empty()));
         buf.close();
         assertTrue(node.isBinary());
         byte[] data = node.binaryValue();

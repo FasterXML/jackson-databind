@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.databind;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
@@ -291,6 +294,28 @@ public class ObjectReaderTest extends BaseMapTest
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot use FormatSchema");
+        }
+    }
+
+    public void testUnknownFields() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder().addHandler(new DeserializationProblemHandler(){
+            @Override
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
+                p.readValueAsTree();
+                return true;
+            }
+        }).build();
+        A aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}", A.class);
+
+        assertEquals("test", aObject.knownField);
+    }
+    private static class A{
+        private String knownField;
+
+        @JsonCreator
+        private A(@JsonProperty("knownField") String knownField) {
+            this.knownField = knownField;
         }
     }
 }

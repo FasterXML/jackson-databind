@@ -38,6 +38,7 @@
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
     <osgi.import> <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android --> 
         org.w3c.dom.bootstrap;resolution:=optional,
+        *
     </osgi.import>
 
     <!-- Generate PackageVersion.java into this directory. -->

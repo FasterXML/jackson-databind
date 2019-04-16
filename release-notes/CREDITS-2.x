@@ -833,3 +833,7 @@ Joffrey Bion (joffrey-bion@github)
   * Reported #2265: Inconsistent handling of Collections$UnmodifiableList vs 
     Collections$UnmodifiableRandomAccessList
    (2.9.9)
+
+Christoph (cfiehe@github.com)
+  * Contributed #2299: Fix for using jackson-databind in an OSGi environment under Android
+   (2.9.9)

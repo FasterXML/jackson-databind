@@ -847,6 +847,10 @@ Joffrey Bion (joffrey-bion@github)
     Collections$UnmodifiableRandomAccessList
    (2.9.9)
 
+Christoph Fiehe (cfiehe@github.com)
+  * Contributed #2299: Fix for using jackson-databind in an OSGi environment under Android
+   (2.9.9)
+
 Christoph Breitkopf (bokesan@github)
   * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
    (2.10.0)

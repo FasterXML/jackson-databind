@@ -374,8 +374,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
 
     /**
-     * Method to call to create actual mapper instance, usually passing {@code this}
-     * builder to its constructor.
+     * Method to call to create actual mapper instance.
+     *<p>
+     * Implementation detail: in 2.10 (but not 3.x) underlying mapper is eagerly
+     * constructed when builder is constructed, and method simply returns that
+     * instance.
      */
     public abstract M build();
 

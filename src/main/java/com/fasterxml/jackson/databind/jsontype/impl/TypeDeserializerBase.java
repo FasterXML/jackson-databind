@@ -133,8 +133,8 @@ public abstract class TypeDeserializerBase
         sb.append('[').append(getClass().getName());
         sb.append("; base-type:").append(_baseType);
         sb.append("; id-resolver: ").append(_idResolver);
-    	    sb.append(']');
-    	    return sb.toString();
+        sb.append(']');
+        return sb.toString();
     }
     
     /*
@@ -242,14 +242,13 @@ public abstract class TypeDeserializerBase
      * 
      * @since 2.4
      */
-    protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt, Object typeId)
+    protected Object _deserializeWithNativeTypeId(JsonParser p, DeserializationContext ctxt, Object typeId)
         throws IOException
     {
         JsonDeserializer<Object> deser;
         if (typeId == null) {
-            /* 04-May-2014, tatu: Should error be obligatory, or should there be another method
-             *   for "try to deserialize with native tpye id"?
-             */
+            // 04-May-2014, tatu: Should error be obligatory, or should there be another method
+            //   for "try to deserialize with native type id"?
             deser = _findDefaultImplDeserializer(ctxt);
             if (deser == null) {
                 return ctxt.reportInputMismatch(baseType(),
@@ -259,7 +258,7 @@ public abstract class TypeDeserializerBase
             String typeIdStr = (typeId instanceof String) ? (String) typeId : String.valueOf(typeId);
             deser = _findDeserializer(ctxt, typeIdStr);
         }
-        return deser.deserialize(jp, ctxt);
+        return deser.deserialize(p, ctxt);
     }
 
     /**

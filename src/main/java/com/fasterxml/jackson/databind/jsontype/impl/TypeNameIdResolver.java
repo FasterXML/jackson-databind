@@ -113,9 +113,8 @@ public class TypeNameIdResolver extends TypeIdResolverBase
 
     @Override
     public String idFromValueAndType(Object value, Class<?> type) {
-        /* 18-Jan-2013, tatu: We may be called with null value occasionally
-         *   it seems; nothing much we can figure out that way.
-         */
+        // 18-Jan-2013, tatu: We may be called with null value occasionally
+        //   it seems; nothing much we can figure out that way.
         if (value == null) {
             return idFromClass(type);
         }
@@ -128,11 +127,10 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     }
     
     protected JavaType _typeFromId(String id) {
-        /* Now: if no type is found, should we try to locate it by
-         * some other means? (specifically, if in same package as base type,
-         * could just try Class.forName)
-         * For now let's not add any such workarounds; can add if need be
-         */
+        // Now: if no type is found, should we try to locate it by
+        // some other means? (specifically, if in same package as base type,
+        // could just try Class.forName)
+        // For now let's not add any such workarounds; can add if need be
         return _idToType.get(id);
     }    
 

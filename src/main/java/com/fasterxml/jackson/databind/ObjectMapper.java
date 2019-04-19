@@ -274,6 +274,34 @@ public class ObjectMapper
         }
     }
 
+    /**
+     * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed.
+     * Does not do any validation, allows all subtypes. Only used for backwards-compatibility
+     * reasons: users should not usually use such a permissive implementation but use
+     * allow-list/criteria - based implementation.
+     *
+     * @since 2.10
+     */
+    protected final static class LaissezFaireValidator
+        extends PolymorphicTypeValidator
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static LaissezFaireValidator instance = new LaissezFaireValidator(); 
+        
+        @Override
+        public Validity validateSubClassName(MapperConfig<?> ctxt,
+                JavaType baseType, String subClassName) {
+            return Validity.INDETERMINATE;
+        }
+
+        @Override
+        public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType,
+                JavaType subType) {
+            return Validity.ALLOWED;
+        }
+    }
+    
     /*
     /**********************************************************
     /* Internal constants, singletons
@@ -301,7 +329,8 @@ public class ObjectMapper
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
             null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
-            Base64Variants.getDefaultVariant() // 2.1
+            Base64Variants.getDefaultVariant(), // 2.1
+            LaissezFaireValidator.instance
     );
 
     /*
@@ -1376,6 +1405,18 @@ public class ObjectMapper
     @Deprecated
     public void setVisibilityChecker(VisibilityChecker<?> vc) {
         setVisibility(vc);
+    }
+
+    /**
+     * Method for specifying {@link PolymorphicTypeValidator} to use for validating
+     * polymorphic subtypes on deserialization.
+     *
+     * @since 2.10
+     */
+    public ObjectMapper setPolymorphicTypeValidator(PolymorphicTypeValidator ptv) {
+        BaseSettings s = _deserializationConfig.getBaseSettings().with(ptv);
+        _deserializationConfig = _deserializationConfig._withBase(s);
+        return this;
     }
 
     /*

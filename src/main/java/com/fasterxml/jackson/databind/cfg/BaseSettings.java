@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
@@ -65,16 +66,24 @@ public final class BaseSettings
 
     /*
     /**********************************************************
-    /* Configuration settings; type resolution
+    /* Configuration settings; poly type resolution
     /**********************************************************
      */
 
     /**
-     * Type information handler used for "untyped" values (ones declared
-     * to have type <code>Object.class</code>)
+     * Builder used to create type resolver for serializing and deserializing
+     * values for which polymorphic type handling is needed.
      */
     protected final TypeResolverBuilder<?> _typeResolverBuilder;
-    
+
+    /**
+     * Validator that is used to limit allowed polymorphic subtypes, mostly
+     * for security reasons when dealing with untrusted content.
+     *
+     * @since 2.10
+     */
+    protected final PolymorphicTypeValidator _typeValidator;
+
     /*
     /**********************************************************
     /* Configuration settings; other
@@ -130,10 +139,14 @@ public final class BaseSettings
     /**********************************************************
      */
 
+    /**
+     * @since 2.10
+     */
     public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
             PropertyNamingStrategy pns, TypeFactory tf,
             TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
-            Locale locale, TimeZone tz, Base64Variant defaultBase64)
+            Locale locale, TimeZone tz, Base64Variant defaultBase64,
+            PolymorphicTypeValidator ptv)
     {
         _classIntrospector = ci;
         _annotationIntrospector = ai;
@@ -145,6 +158,16 @@ public final class BaseSettings
         _locale = locale;
         _timeZone = tz;
         _defaultBase64 = defaultBase64;
+        _typeValidator = ptv;
+    }
+
+    @Deprecated // since 2.10 
+    public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
+            PropertyNamingStrategy pns, TypeFactory tf,
+            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
+            Locale locale, TimeZone tz, Base64Variant defaultBase64)
+    {
+        this(ci, ai, pns, tf, typer, dateFormat, hi, locale, tz, defaultBase64, null);
     }
 
     /**
@@ -163,7 +186,8 @@ public final class BaseSettings
             _handlerInstantiator,
             _locale,
             _timeZone,
-            _defaultBase64);
+            _defaultBase64,
+            _typeValidator);
 
     }
 
@@ -179,7 +203,7 @@ public final class BaseSettings
         }
         return new BaseSettings(ci, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
     
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -188,7 +212,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, ai, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
 
     public BaseSettings withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -205,7 +229,7 @@ public final class BaseSettings
                 _visibilityChecker.withVisibility(forMethod, visibility),
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
     */
     
@@ -215,7 +239,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, pns, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
 
     public BaseSettings withTypeFactory(TypeFactory tf) {
@@ -224,7 +248,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, tf,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
 
     public BaseSettings withTypeResolverBuilder(TypeResolverBuilder<?> typer) {
@@ -233,7 +257,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 typer, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
     
     public BaseSettings withDateFormat(DateFormat df) {
@@ -247,7 +271,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
 
     public BaseSettings withHandlerInstantiator(HandlerInstantiator hi) {
@@ -256,7 +280,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, hi, _locale,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
 
     public BaseSettings with(Locale l) {
@@ -265,7 +289,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, l,
-                _timeZone, _defaultBase64);
+                _timeZone, _defaultBase64, _typeValidator);
     }
 
     /**
@@ -286,7 +310,7 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                tz, _defaultBase64);
+                tz, _defaultBase64, _typeValidator);
     }
 
     /**
@@ -299,7 +323,20 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, base64);
+                _timeZone, base64, _typeValidator);
+    }
+
+    /**
+     * @since 2.10
+     */
+    public BaseSettings with(PolymorphicTypeValidator v) {
+        if (v == _typeValidator) {
+            return this;
+        }
+        return new BaseSettings(_classIntrospector, _annotationIntrospector,
+                _propertyNamingStrategy, _typeFactory,
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, v);
     }
     
     /*
@@ -326,6 +363,13 @@ public final class BaseSettings
 
     public TypeResolverBuilder<?> getTypeResolverBuilder() {
         return _typeResolverBuilder;
+    }
+
+    /**
+     * @since 2.10
+     */
+    public PolymorphicTypeValidator getPolymorphicTypeValidator() {
+        return _typeValidator;
     }
     
     public DateFormat getDateFormat() {

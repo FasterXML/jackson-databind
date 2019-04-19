@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.READ_ENUMS_USING_TO_STRING;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -526,5 +529,34 @@ public class EnumDeserializationTest
         } catch (MismatchedInputException e) {
             assertTrue(e.getMessage().contains("Undefined AnEnum"));
         }
+    }
+
+    // see here for real world example:
+    // https://github.com/facebook/facebook-java-business-sdk/blob/v3.2.11/src/main/java/com/facebook/ads/sdk/CustomAudience.java#L4139
+    static enum EnumWithToStringNullValue {
+        NON_NULL("NON_NULL"),
+        NULL(null);
+
+        private String value;
+
+        private EnumWithToStringNullValue(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    static class PojoWithEnum {
+      public EnumWithToStringNullValue enumWithToStringNullValue;
+    }
+
+    public void testEnumWithToStringNullValue() {
+        ObjectMapper mapper = new ObjectMapper().enable(READ_ENUMS_USING_TO_STRING);
+        ObjectNode on = mapper.createObjectNode();
+        on.put("enumWithToStringNullValue", "NON_NULL");
+        mapper.convertValue(on, PojoWithEnum.class);
     }
 }

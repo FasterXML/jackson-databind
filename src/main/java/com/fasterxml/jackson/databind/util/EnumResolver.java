@@ -76,7 +76,7 @@ public class EnumResolver implements java.io.Serializable
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumValues.length; --i >= 0; ) {
             Enum<?> e = enumValues[i];
-            map.put(e.toString(), e);
+            map.put(e.toString() + "", e);
         }
         Enum<?> defaultEnum = (ai == null) ? null : ai.findDefaultEnumValue(enumCls);
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);

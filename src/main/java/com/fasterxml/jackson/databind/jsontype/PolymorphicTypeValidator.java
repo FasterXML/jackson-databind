@@ -22,7 +22,10 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * @since 2.10
  */
 public abstract class PolymorphicTypeValidator
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Definition of return values to indicate determination regarding validity.
      */

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.Base64Variant;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
@@ -53,6 +54,13 @@ public final class BaseSettings
      * Type information handler used for "default typing".
      */
     protected final TypeResolverBuilder<?> _defaultTyper;
+
+    /**
+     * Validator that is used to limit allowed subtypes during polymorphic
+     * deserialization,
+     * mostly for security reasons when dealing with untrusted content.
+     */
+    protected final PolymorphicTypeValidator _typeValidator;
 
     /*
     /**********************************************************
@@ -112,15 +120,16 @@ public final class BaseSettings
     /**********************************************************
      */
 
-    public BaseSettings(AnnotationIntrospector ai,
-            PropertyNamingStrategy pns,
-            TypeResolverBuilder<?> defaultTyper, DateFormat dateFormat, HandlerInstantiator hi,
+    public BaseSettings(AnnotationIntrospector ai, PropertyNamingStrategy pns,
+            TypeResolverBuilder<?> defaultTyper, PolymorphicTypeValidator ptv,
+            DateFormat dateFormat, HandlerInstantiator hi,
             Locale locale, TimeZone tz, Base64Variant defaultBase64,
             JsonNodeFactory nodeFactory)
     {
         _annotationIntrospector = ai;
         _propertyNamingStrategy = pns;
         _defaultTyper = defaultTyper;
+        _typeValidator = ptv;
         _dateFormat = dateFormat;
         _handlerInstantiator = hi;
         _locale = locale;
@@ -140,7 +149,7 @@ public final class BaseSettings
             return this;
         }
         return new BaseSettings(ai, _propertyNamingStrategy,
-                _defaultTyper, _dateFormat, _handlerInstantiator, _locale,
+                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
 
@@ -157,7 +166,7 @@ public final class BaseSettings
             return this;
         }
         return new BaseSettings(_annotationIntrospector, pns,
-                _defaultTyper, _dateFormat, _handlerInstantiator, _locale,
+                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
 
@@ -166,10 +175,19 @@ public final class BaseSettings
             return this;
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
-                typer, _dateFormat, _handlerInstantiator, _locale,
+                typer, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
     
+    public BaseSettings with(PolymorphicTypeValidator ptv) {
+        if (_typeValidator == ptv) {
+            return this;
+        }
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+                _defaultTyper, ptv, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _nodeFactory);
+    }
+
     public BaseSettings with(DateFormat df) {
         if (_dateFormat == df) {
             return this;
@@ -180,7 +198,7 @@ public final class BaseSettings
             df = _force(df, _timeZone);
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
-                _defaultTyper, df, _handlerInstantiator, _locale,
+                _defaultTyper, _typeValidator, df, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
 
@@ -189,7 +207,7 @@ public final class BaseSettings
             return this;
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
-                _defaultTyper, _dateFormat, hi, _locale,
+                _defaultTyper, _typeValidator, _dateFormat, hi, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
 
@@ -198,7 +216,7 @@ public final class BaseSettings
             return this;
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
-                _defaultTyper, _dateFormat, _handlerInstantiator, l,
+                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, l,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
 
@@ -219,7 +237,7 @@ public final class BaseSettings
         DateFormat df = _force(_dateFormat, tz);
         return new BaseSettings(_annotationIntrospector,
                 _propertyNamingStrategy,
-                _defaultTyper, df, _handlerInstantiator, _locale,
+                _defaultTyper, _typeValidator, df, _handlerInstantiator, _locale,
                 tz, _defaultBase64, _nodeFactory);
     }
 
@@ -229,7 +247,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector,
                 _propertyNamingStrategy,
-                _defaultTyper, _dateFormat, _handlerInstantiator, _locale,
+                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, base64, _nodeFactory);
     }
 
@@ -239,7 +257,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector,
                 _propertyNamingStrategy,
-                _defaultTyper, _dateFormat, _handlerInstantiator, _locale,
+                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, nodeFactory);
     }
 
@@ -260,7 +278,11 @@ public final class BaseSettings
     public TypeResolverBuilder<?> getDefaultTyper() {
         return _defaultTyper;
     }
-    
+
+    public PolymorphicTypeValidator getPolymorphicTypeValidator() {
+        return _typeValidator;
+    }
+
     public DateFormat getDateFormat() {
         return _dateFormat;
     }

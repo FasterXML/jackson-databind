@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.introspect.MixInResolver;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.NoneShallPassValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
@@ -51,17 +53,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected final static int DEFAULT_DESER_FEATURES = MapperConfig.collectFeatureDefaults(DeserializationFeature.class);
 
     protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
-
-    // 16-May-2009, tatu: Ditto ^^^
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
-    
+
+    protected final static PolymorphicTypeValidator DEFAULT_TYPE_VALIDATOR = new NoneShallPassValidator();    
+
     protected final static BaseSettings DEFAULT_BASE_SETTINGS = new BaseSettings(
             DEFAULT_ANNOTATION_INTROSPECTOR,
              null,
             null, // no default typing, by default
+            DEFAULT_TYPE_VALIDATOR, // and polymorphic type by class won't pass either
             StdDateFormat.instance, null,
             Locale.getDefault(),
-            null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
+            null, // to indicate "use Jackson default TimeZone" (UTC)
             Base64Variants.getDefaultVariant(),
             JsonNodeFactory.instance
     );
@@ -1047,6 +1050,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B subtypeResolver(SubtypeResolver r) {
         _subtypeResolver = r;
+        return _this();
+    }
+
+    public B polymorphicTypeValidator(PolymorphicTypeValidator ptv) {
+        _baseSettings = _baseSettings.with(ptv);
         return _this();
     }
 

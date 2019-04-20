@@ -557,6 +557,10 @@ public class EnumDeserializationTest
         ObjectMapper mapper = new ObjectMapper().enable(READ_ENUMS_USING_TO_STRING);
         ObjectNode on = mapper.createObjectNode();
         on.put("enumWithToStringNullValue", "NON_NULL");
-        mapper.convertValue(on, PojoWithEnum.class);
+        PojoWithEnum nonNull = mapper.convertValue(on, PojoWithEnum.class);
+        assertEquals(EnumWithToStringNullValue.NON_NULL, nonNull.enumWithToStringNullValue);
+        on.put("enumWithToStringNullValue", "null");
+        PojoWithEnum nully = mapper.convertValue(on, PojoWithEnum.class);
+        assertEquals(EnumWithToStringNullValue.NULL, nully.enumWithToStringNullValue);
     }
 }

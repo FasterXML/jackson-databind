@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.failing;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 public class AnyPropSorting518Test extends BaseMapTest
 {
@@ -15,7 +15,7 @@ public class AnyPropSorting518Test extends BaseMapTest
     {
         public int b;
 
-        protected Map<String,Object> extra = new HashMap<>();
+        protected Map<String,Object> extra;
 
         public int a;
 
@@ -39,7 +39,7 @@ public class AnyPropSorting518Test extends BaseMapTest
 
     public void testAnyBeanWithSort() throws Exception
     {
-        Map<String,Object> extra = new LinkedHashMap<>();
+        Map<String,Object> extra = new TreeMap<>();
         extra.put("y", 4);
         extra.put("x", 3);
         String json = MAPPER.writeValueAsString(new Bean(1, 2, extra));

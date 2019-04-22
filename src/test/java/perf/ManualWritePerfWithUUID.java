@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
-public class ManulWritePerfWithUUID
+public class ManualWritePerfWithUUID
     extends ObjectWriterTestBase<UUIDFast, UUIDSlow>
 {
     @Override
@@ -27,7 +27,7 @@ public class ManulWritePerfWithUUID
         for (int i = 0; i < uuids.length; ++i) {
             uuids[i] = UUID.randomUUID();
         }
-        new ManulWritePerfWithUUID().test(new JsonMapper(),
+        new ManualWritePerfWithUUID().test(new JsonMapper(),
                 "faster-UUID", new UUIDFast(uuids), UUIDFast.class,
                 "JDK-UUID", new UUIDSlow(uuids), UUIDSlow.class);
     }

@@ -46,7 +46,8 @@ public class ClassNameIdResolver
 
     protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
     {
-        JavaType t = ctxt.resolveSubType(_baseType, id);
+        // 24-Apr-2019, tatu: [databind#2195] validate as well as resolve:
+        JavaType t = ctxt.resolveAndValidateSubType(_baseType, id);
         if (t == null) {
             if (ctxt instanceof DeserializationContext) {
                 // First: we may have problem handlers that can deal with it?

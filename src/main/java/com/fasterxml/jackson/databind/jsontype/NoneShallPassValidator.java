@@ -22,6 +22,15 @@ public class NoneShallPassValidator
     @Override
     public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType,
             JavaType subType) {
+        /* 24-Apr-2019, tatu: We do need to make it restrictive, BUT... as of now
+         *    tests would fail; need to get back to that right after 2.10
         return Validity.DENIED;
+        */
+        /*
+        if (baseType.hasRawClass(Object.class)) {
+            return Validity.DENIED;
+        }
+        */
+        return Validity.ALLOWED;
     }
 }

@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -163,7 +165,7 @@ public abstract class DatabindContext
 
     /**
      * Lookup method called when code needs to resolve class name from input;
-     * usually simple lookup
+     * usually simple lookup.
      *
      * @since 2.9
      */
@@ -201,6 +203,100 @@ public abstract class DatabindContext
         throw invalidTypeIdException(baseType, subClass, "Not a subtype");
     }
 
+    /**
+     * Lookup method similar to {@link #resolveSubType} but one that also validates
+     * that resulting subtype is valid according to the default {@link PolymorphicTypeValidator}
+     * for the originating {@link ObjectMapper}.
+     *
+     * @since 2.10
+     */
+    public abstract JavaType resolveAndValidateSubType(JavaType baseType, String subClass)
+        throws JsonMappingException;
+
+    /**
+     * Lookup method similar to {@link #resolveSubType} but one that also validates
+     * that resulting subtype is valid according to given {@link PolymorphicTypeValidator}.
+     *
+     * @since 2.10
+     */
+    public JavaType resolveAndValidateSubType(JavaType baseType, String subClass,
+            PolymorphicTypeValidator ptv)
+        throws JsonMappingException
+    {
+        // Off-line the special case of generic (parameterized) type:
+        final int ltIndex = subClass.indexOf('<');
+        if (ltIndex > 0) {
+            return _resolveAndValidateGeneric(baseType, subClass, ptv, ltIndex);
+        }
+        final MapperConfig<?> config = getConfig();
+        PolymorphicTypeValidator.Validity vld = ptv.validateSubClassName(config, baseType, subClass);
+        if (vld == Validity.DENIED) {
+            return _throwSubtypeNameNotAllowed(baseType, subClass, ptv);
+        }
+        final Class<?> cls;
+        try {
+            cls =  getTypeFactory().findClass(subClass);
+        } catch (ClassNotFoundException e) { // let caller handle this problem
+            return null;
+        } catch (Exception e) {
+            throw invalidTypeIdException(baseType, subClass, String.format(
+                    "problem: (%s) %s",
+                    e.getClass().getName(),
+                    ClassUtil.exceptionMessage(e)));
+        }
+        if (!baseType.isTypeOrSuperTypeOf(cls)) {
+            return _throwNotASubtype(baseType, subClass);
+        }
+        final JavaType subType = config.getTypeFactory().constructSpecializedType(baseType, cls);
+        if (vld != Validity.ALLOWED) {
+            if (ptv.validateSubType(config, baseType, subType) != Validity.ALLOWED) {
+                return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);
+            }
+        }
+        return subType;
+    }
+
+    private JavaType _resolveAndValidateGeneric(JavaType baseType, String subClass,
+            PolymorphicTypeValidator ptv, int ltIndex)
+        throws JsonMappingException
+    {
+        final MapperConfig<?> config = getConfig();
+        // 24-Apr-2019, tatu: Not 100% sure if we should pass name with type parameters
+        //    or not, but guessing it's more convenient not to have to worry about it so
+        //    strip out
+        PolymorphicTypeValidator.Validity vld = ptv.validateSubClassName(config, baseType, subClass.substring(0, ltIndex));
+        if (vld == Validity.DENIED) {
+            return _throwSubtypeNameNotAllowed(baseType, subClass, ptv);
+        }
+        JavaType subType = getTypeFactory().constructFromCanonical(subClass);
+        if (!subType.isTypeOrSubTypeOf(baseType.getRawClass())) {
+            return _throwNotASubtype(baseType, subClass);
+        }
+        // Unless we were approved already by name, check that actual sub-class acceptable:
+        if (vld != Validity.ALLOWED) {
+            if (ptv.validateSubType(config, baseType, subType) != Validity.ALLOWED) {
+                return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);
+            }
+        }
+        return subType;
+    }
+    
+    protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {
+        throw invalidTypeIdException(baseType, subType, "Not a subtype");
+    }
+
+    protected <T> T _throwSubtypeNameNotAllowed(JavaType baseType, String subType,
+            PolymorphicTypeValidator ptv) throws JsonMappingException {
+        throw invalidTypeIdException(baseType, subType,
+                "Configured `PolymorphicTypeValidator` (of type "+ClassUtil.classNameOf(ptv)+") denied resolution");
+    }
+
+    protected <T> T _throwSubtypeClassNotAllowed(JavaType baseType, String subType,
+            PolymorphicTypeValidator ptv) throws JsonMappingException {
+        throw invalidTypeIdException(baseType, subType,
+                "Configured `PolymorphicTypeValidator` (of type "+ClassUtil.classNameOf(ptv)+") denied resolution");
+    }
+    
     /**
      * Helper method for constructing exception to indicate that given type id
      * could not be resolved to a valid subtype of specified base type.

@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -264,6 +265,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
     
     public abstract SubtypeResolver getSubtypeResolver();
+
+    /**
+     * @since 2.10
+     */
+    public PolymorphicTypeValidator getPolymorphicTypeValidator() {
+        return _base.getPolymorphicTypeValidator();
+    }
 
     public final TypeFactory getTypeFactory() {
         return _base.getTypeFactory();

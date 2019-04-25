@@ -386,7 +386,12 @@ public abstract class SerializerProvider
     public TimeZone getTimeZone() {
         return _config.getTimeZone();
     }
-    
+
+    @Override // since 2.10
+    public JavaType resolveAndValidateSubType(JavaType baseType, String subClass) throws JsonMappingException {
+        return resolveAndValidateSubType(baseType, subClass, _config.getPolymorphicTypeValidator());
+    }
+
     /*
     /**********************************************************
     /* Generic attributes (2.3+)

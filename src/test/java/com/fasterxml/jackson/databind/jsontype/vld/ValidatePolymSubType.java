@@ -3,10 +3,12 @@ package com.fasterxml.jackson.databind.jsontype.vld;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
- * Tests to verify working of customizable {@PolymorphicTypeValidator}
+ * Tests to verify working of customizable {@PolymorphicTypeValidator},
+ * see [databind#2195]
  *
  * @since 2.10
  */
@@ -28,6 +30,7 @@ public class ValidatePolymSubType extends BaseMapTest
 
     static class BadValue extends BaseValue { }
     static class GoodValue extends BaseValue { }
+    static class MehValue extends BaseValue { }
     
     // // // Wrapper types
     
@@ -54,13 +57,6 @@ public class ValidatePolymSubType extends BaseMapTest
         public DefTypeWrapper(BaseValue v) { value = v; }
     }
 
-    static class DefTypeMinimalWrapper {
-        public BaseValue value;
-
-        protected DefTypeMinimalWrapper() { }
-        public DefTypeMinimalWrapper(BaseValue v) { value = v; }
-    }
-    
     // // // Validator implementations
     
     static class SimpleNameBasedValidator extends PolymorphicTypeValidator {
@@ -143,12 +139,12 @@ public class ValidatePolymSubType extends BaseMapTest
 
     public void testWithDefaultTypingNameDenyExplicit() throws Exception
     {
-        
+        _verifyBadDefaultValue(MAPPER_DEF_TYPING_NAME_CHECK);
     }
 
     public void testWithDefaultTypingNameDenyDefault() throws Exception
     {
-        
+        _verifyMehDefaultValue(MAPPER_DEF_TYPING_NAME_CHECK);
     }
 
     // // With Class check
@@ -162,12 +158,12 @@ public class ValidatePolymSubType extends BaseMapTest
 
     public void testWithDefaultTypingClassDenyExplicit() throws Exception
     {
-        
+        _verifyBadDefaultValue(MAPPER_DEF_TYPING_CLASS_CHECK);
     }
 
     public void testWithDefaultTypingClassDenyDefault() throws Exception
     {
-        
+        _verifyMehDefaultValue(MAPPER_DEF_TYPING_CLASS_CHECK);
     }
     
     /*
@@ -187,10 +183,12 @@ public class ValidatePolymSubType extends BaseMapTest
 
     public void testWithAnnotationNameDenyExplicit() throws Exception
     {
+        _verifyBadAnnotatedValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
 
     public void testWithAnnotationNameDenyDefault() throws Exception
     {
+        _verifyMehAnnotatedValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
 
     // // With Class
@@ -204,10 +202,12 @@ public class ValidatePolymSubType extends BaseMapTest
 
     public void testWithAnnotationClassDenyExplicit() throws Exception
     {
+        _verifyBadAnnotatedValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
 
     public void testWithAnnotationClassDenyDefault() throws Exception
     {
+        _verifyMehAnnotatedValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
     
     /*
@@ -227,12 +227,12 @@ public class ValidatePolymSubType extends BaseMapTest
 
     public void testWithAnnotationMinClassNameDenyExplicit() throws Exception
     {
-        
+        _verifyBadAnnotatedMinValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
 
     public void testWithAnnotationMinClassNameDenyDefault() throws Exception
     {
-        
+        _verifyMehAnnotatedMinValue(MAPPER_EXPLICIT_NAME_CHECK);
     }
 
     // // With Class
@@ -246,17 +246,17 @@ public class ValidatePolymSubType extends BaseMapTest
 
     public void testWithAnnotationMinClassClassDenyExplicit() throws Exception
     {
-        
+        _verifyBadAnnotatedMinValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
 
     public void testWithAnnotationMinClassClassDenyDefault() throws Exception
     {
-        
+        _verifyMehAnnotatedMinValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
     
     /*
     /**********************************************************************
-    /* Helper methods
+    /* Helper methods, round-trip (ok case)
     /**********************************************************************
      */
 
@@ -273,5 +273,63 @@ public class ValidatePolymSubType extends BaseMapTest
     private AnnotatedMinimalWrapper _roundTripAnnotatedMinimal(ObjectMapper mapper, BaseValue input) throws Exception {
         final String json = mapper.writeValueAsString(new AnnotatedMinimalWrapper(input));
         return mapper.readValue(json, AnnotatedMinimalWrapper.class);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods, failing deser verification
+    /**********************************************************************
+     */
+    
+    private void _verifyBadDefaultValue(ObjectMapper mapper) throws Exception {
+        final String json = mapper.writeValueAsString(new DefTypeWrapper(new BadValue()));
+        _verifyBadValue(mapper, json, DefTypeWrapper.class);
+    }
+
+    private void _verifyMehDefaultValue(ObjectMapper mapper) throws Exception {
+        final String json = mapper.writeValueAsString(new DefTypeWrapper(new MehValue()));
+        _verifyMehValue(mapper, json, DefTypeWrapper.class);
+    }
+
+    private void _verifyBadAnnotatedValue(ObjectMapper mapper) throws Exception {
+        final String json = mapper.writeValueAsString(new AnnotatedWrapper(new BadValue()));
+        _verifyBadValue(mapper, json, AnnotatedWrapper.class);
+    }
+
+    private void _verifyMehAnnotatedValue(ObjectMapper mapper) throws Exception {
+        final String json = mapper.writeValueAsString(new AnnotatedWrapper(new MehValue()));
+        _verifyMehValue(mapper, json, AnnotatedWrapper.class);
+    }
+
+    private void _verifyBadAnnotatedMinValue(ObjectMapper mapper) throws Exception {
+        final String json = mapper.writeValueAsString(new AnnotatedMinimalWrapper(new BadValue()));
+        _verifyBadValue(mapper, json, AnnotatedMinimalWrapper.class);
+    }
+
+    private void _verifyMehAnnotatedMinValue(ObjectMapper mapper) throws Exception {
+        final String json = mapper.writeValueAsString(new AnnotatedMinimalWrapper(new MehValue()));
+        _verifyMehValue(mapper, json, AnnotatedMinimalWrapper.class);
+    }
+
+    private void _verifyBadValue(ObjectMapper mapper, String json, Class<?> type) throws Exception {
+        try {
+            mapper.readValue(json, type);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id");
+            verifyException(e, "`PolymorphicTypeValidator`");
+            verifyException(e, "denied resolution");
+        }
+    }
+
+    private void _verifyMehValue(ObjectMapper mapper, String json, Class<?> type) throws Exception {
+        try {
+            mapper.readValue(json, type);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id");
+            verifyException(e, "`PolymorphicTypeValidator`");
+            verifyException(e, "denied resolution");
+        }
     }
 }

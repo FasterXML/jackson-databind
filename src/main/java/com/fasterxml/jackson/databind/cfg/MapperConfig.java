@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -226,10 +227,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract TypeResolverProvider getTypeResolverProvider();
 
     public abstract SubtypeResolver getSubtypeResolver();
-
     public abstract TypeFactory getTypeFactory();
 
-    /**
+    public final PolymorphicTypeValidator getPolymorphicTypeValidator() {
+        return _base.getPolymorphicTypeValidator();
+    }
+
+        /**
      * Helper method that will construct {@link JavaType} for given
      * raw class.
      * This is a simple short-cut for:
@@ -273,7 +277,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return getClassIntrospector().forClassAnnotations(this, type, this);
     }
 
-    // 23-May-2018, tatu: Used by Avro for schema generation
     /**
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but

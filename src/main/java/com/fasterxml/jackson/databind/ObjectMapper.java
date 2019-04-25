@@ -1419,6 +1419,13 @@ public class ObjectMapper
         return this;
     }
 
+    /**
+     * @since 2.10
+     */
+    public PolymorphicTypeValidator getPolymorphicTypeValidator() {
+        return _deserializationConfig.getBaseSettings().getPolymorphicTypeValidator();
+    }
+
     /*
     /**********************************************************
     /* Configuration: global-default/per-type override settings

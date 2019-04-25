@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
@@ -528,7 +529,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Subtype registration
+    /* Subtype registration, related
     /**********************************************************************
      */
 
@@ -544,6 +545,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B registerSubtypes(Collection<Class<?>> subtypes) {
         _mapper.registerSubtypes(subtypes);
+        return _this();
+    }
+
+    /**
+     * @since 2.10
+     */
+    public B polymorphicTypeValidator(PolymorphicTypeValidator ptv) {
+        _mapper.setPolymorphicTypeValidator(ptv);
         return _this();
     }
 

@@ -14,7 +14,7 @@ public class ValidatePolymSubType extends BaseMapTest
 {
     // // // Value types
 
-    static class BaseValue {
+    static abstract class BaseValue {
         public int x = 3;
 
         @Override
@@ -47,6 +47,20 @@ public class ValidatePolymSubType extends BaseMapTest
         public AnnotatedMinimalWrapper(BaseValue v) { value = v; }
     }
 
+    static class DefTypeWrapper {
+        public BaseValue value;
+
+        protected DefTypeWrapper() { }
+        public DefTypeWrapper(BaseValue v) { value = v; }
+    }
+
+    static class DefTypeMinimalWrapper {
+        public BaseValue value;
+
+        protected DefTypeMinimalWrapper() { }
+        public DefTypeMinimalWrapper(BaseValue v) { value = v; }
+    }
+    
     // // // Validator implementations
     
     static class SimpleNameBasedValidator extends PolymorphicTypeValidator {
@@ -90,90 +104,166 @@ public class ValidatePolymSubType extends BaseMapTest
         }
     }
 
-    private final ObjectMapper MAPPER_WITH_NAME_CHECK = jsonMapperBuilder()
+    // // // Mappers with Default Typing
+    
+    private final ObjectMapper MAPPER_DEF_TYPING_NAME_CHECK = jsonMapperBuilder()
+            .polymorphicTypeValidator(new SimpleNameBasedValidator())
+            .build()
+            .enableDefaultTyping();
+
+    private final ObjectMapper MAPPER_DEF_TYPING_CLASS_CHECK = jsonMapperBuilder()
+            .polymorphicTypeValidator(new SimpleClassBasedValidator())
+            .build()
+            .enableDefaultTyping();
+
+    // // // Mappers without Default Typing (explicit annotation needed)
+
+    private final ObjectMapper MAPPER_EXPLICIT_NAME_CHECK = jsonMapperBuilder()
             .polymorphicTypeValidator(new SimpleNameBasedValidator())
             .build();
 
-    private final ObjectMapper MAPPER_WITH_CLASS_CHECK = jsonMapperBuilder()
+    private final ObjectMapper MAPPER_EXPLICIT_CLASS_CHECK = jsonMapperBuilder()
             .polymorphicTypeValidator(new SimpleClassBasedValidator())
             .build();
     
     /*
     /**********************************************************************
-    /* Test methods, default typing
+    /* Test methods: default typing
     /**********************************************************************
      */
 
-    public void testWithDefaultTypingAccept() throws Exception
+    // // With Name check
+
+    public void testWithDefaultTypingNameAccept() throws Exception
     {
-        /*
         final BaseValue inputValue = new GoodValue();
-        AnnotatedWrapper result = _roundTripAnnotated(MAPPER_WITH_NAME_CHECK, inputValue);
+        DefTypeWrapper result = _roundTripDefault(MAPPER_DEF_TYPING_NAME_CHECK, inputValue);
         assertEquals(inputValue, result.value);
-        */
     }
 
-    public void testWithDefaultTypingDenyExplicit() throws Exception
+    public void testWithDefaultTypingNameDenyExplicit() throws Exception
     {
         
     }
 
-    public void testWithDefaultTypingDenyDefault() throws Exception
+    public void testWithDefaultTypingNameDenyDefault() throws Exception
     {
         
     }
 
+    // // With Class check
+
+    public void testWithDefaultTypingClassAccept() throws Exception
+    {
+        final BaseValue inputValue = new GoodValue();
+        DefTypeWrapper result = _roundTripDefault(MAPPER_DEF_TYPING_CLASS_CHECK, inputValue);
+        assertEquals(inputValue, result.value);
+    }
+
+    public void testWithDefaultTypingClassDenyExplicit() throws Exception
+    {
+        
+    }
+
+    public void testWithDefaultTypingClassDenyDefault() throws Exception
+    {
+        
+    }
+    
     /*
     /**********************************************************************
     /* Test methods, annotated typing, full class
     /**********************************************************************
      */
 
-    public void testWithAnnotationAccept() throws Exception
+    // // With Name
+
+    public void testWithAnnotationNameAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
-        AnnotatedWrapper result = _roundTripAnnotated(MAPPER_WITH_CLASS_CHECK, inputValue);
+        AnnotatedWrapper result = _roundTripAnnotated(MAPPER_EXPLICIT_NAME_CHECK, inputValue);
         assertEquals(inputValue, result.value);
     }
 
-    public void testWithAnnotationDenyExplicit() throws Exception
+    public void testWithAnnotationNameDenyExplicit() throws Exception
     {
-        
     }
 
-    public void testWithAnnotationDenyDefault() throws Exception
+    public void testWithAnnotationNameDenyDefault() throws Exception
     {
-        
     }
 
+    // // With Class
+
+    public void testWithAnnotationClassAccept() throws Exception
+    {
+        final BaseValue inputValue = new GoodValue();
+        AnnotatedWrapper result = _roundTripAnnotated(MAPPER_EXPLICIT_CLASS_CHECK, inputValue);
+        assertEquals(inputValue, result.value);
+    }
+
+    public void testWithAnnotationClassDenyExplicit() throws Exception
+    {
+    }
+
+    public void testWithAnnotationClassDenyDefault() throws Exception
+    {
+    }
+    
     /*
     /**********************************************************************
     /* Test methods, annotated typing, minimal class name
     /**********************************************************************
      */
 
-    public void testWithAnnotationMinClassAccept() throws Exception
+    // // With Name
+
+    public void testWithAnnotationMinClassNameAccept() throws Exception
     {
         final BaseValue inputValue = new GoodValue();
-        AnnotatedMinimalWrapper result = _roundTripAnnotatedMinimal(MAPPER_WITH_CLASS_CHECK, inputValue);
+        AnnotatedMinimalWrapper result = _roundTripAnnotatedMinimal(MAPPER_EXPLICIT_NAME_CHECK, inputValue);
         assertEquals(inputValue, result.value);
     }
 
-    public void testWithAnnotationMinClassDenyExplicit() throws Exception
+    public void testWithAnnotationMinClassNameDenyExplicit() throws Exception
     {
         
     }
 
-    public void testWithAnnotationMinClassDenyDefault() throws Exception
+    public void testWithAnnotationMinClassNameDenyDefault() throws Exception
     {
         
     }
 
+    // // With Class
+
+    public void testWithAnnotationMinClassClassAccept() throws Exception
+    {
+        final BaseValue inputValue = new GoodValue();
+        AnnotatedMinimalWrapper result = _roundTripAnnotatedMinimal(MAPPER_EXPLICIT_CLASS_CHECK, inputValue);
+        assertEquals(inputValue, result.value);
+    }
+
+    public void testWithAnnotationMinClassClassDenyExplicit() throws Exception
+    {
+        
+    }
+
+    public void testWithAnnotationMinClassClassDenyDefault() throws Exception
+    {
+        
+    }
+    
     /*
     /**********************************************************************
     /* Helper methods
     /**********************************************************************
      */
+
+    private DefTypeWrapper _roundTripDefault(ObjectMapper mapper, BaseValue input) throws Exception {
+        final String json = mapper.writeValueAsString(new DefTypeWrapper(input));
+        return mapper.readValue(json, DefTypeWrapper.class);
+    }
 
     private AnnotatedWrapper _roundTripAnnotated(ObjectMapper mapper, BaseValue input) throws Exception {
         final String json = mapper.writeValueAsString(new AnnotatedWrapper(input));

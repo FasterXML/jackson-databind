@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
  *
  * @since 2.10
  */
-public class ValidatePolymSubType extends BaseMapTest
+public class ValidatePolymSubTypeTest extends BaseMapTest
 {
     // // // Value types
 

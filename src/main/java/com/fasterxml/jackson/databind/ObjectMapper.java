@@ -207,8 +207,34 @@ public class ObjectMapper
          */
         protected final DefaultTyping _appliesFor;
 
+        /**
+         * {@link PolymorphicTypeValidator} top use for validating that the subtypes
+         * resolved are valid for use (usually to protect against possible
+         * security issues)
+         *
+         * @since 2.10
+         */
+        protected final PolymorphicTypeValidator _subtypeValidator;
+
+        /**
+         * @deprecated Since 2.10
+         */
+        @Deprecated // since 2.10
         public DefaultTypeResolverBuilder(DefaultTyping t) {
+            this(t, null);
+        }
+
+        public DefaultTypeResolverBuilder(DefaultTyping t, PolymorphicTypeValidator ptv) {
             _appliesFor = t;
+            _subtypeValidator = ptv;
+        }
+
+        /**
+         * @since 2.10
+         */
+        public static DefaultTypeResolverBuilder construct(DefaultTyping t,
+                PolymorphicTypeValidator ptv) {
+            return new DefaultTypeResolverBuilder(t, ptv);
         }
 
         @Override
@@ -1582,7 +1608,8 @@ public class ObjectMapper
             throw new IllegalArgumentException("Cannot use includeAs of "+includeAs);
         }
         
-        TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability);
+        TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability,
+                getPolymorphicTypeValidator());
         // we'll always use full class name, when using defaulting
         typer = typer.init(JsonTypeInfo.Id.CLASS, null);
         typer = typer.inclusion(includeAs);
@@ -1605,7 +1632,9 @@ public class ObjectMapper
      */
     public ObjectMapper enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName)
     {
-        TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability);
+        TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability,
+                getPolymorphicTypeValidator());
+
         // we'll always use full class name, when using defaulting
         typer = typer.init(JsonTypeInfo.Id.CLASS, null);
         typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
@@ -3874,8 +3903,9 @@ public class ObjectMapper
      *
      * @since 2.10
      */
-    protected TypeResolverBuilder<?> _constructDefaultTypeResolverBuilder(DefaultTyping applicability) {
-        return new DefaultTypeResolverBuilder(applicability);
+    protected TypeResolverBuilder<?> _constructDefaultTypeResolverBuilder(DefaultTyping applicability,
+            PolymorphicTypeValidator ptv) {
+        return DefaultTypeResolverBuilder.construct(applicability, ptv);
     }
 
     /*

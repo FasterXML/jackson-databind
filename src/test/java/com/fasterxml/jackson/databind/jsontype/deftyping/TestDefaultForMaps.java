@@ -72,7 +72,8 @@ public class TestDefaultForMaps
     {
         ObjectMapper serMapper = new ObjectMapper();
 
-        TypeResolverBuilder<?> serializerTyper = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+        TypeResolverBuilder<?> serializerTyper = ObjectMapper.DefaultTypeResolverBuilder.construct(
+                ObjectMapper.DefaultTyping.NON_FINAL, serMapper.getPolymorphicTypeValidator());
         serializerTyper = serializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(true));
         serializerTyper = serializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
         serMapper.setDefaultTyping(serializerTyper);
@@ -87,7 +88,9 @@ public class TestDefaultForMaps
 
         // Then deserialize: need separate mapper to initialize type id resolver appropriately
         ObjectMapper deserMapper = new ObjectMapper();
-        TypeResolverBuilder<?> deserializerTyper = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+        TypeResolverBuilder<?> deserializerTyper = ObjectMapper.DefaultTypeResolverBuilder.construct(
+                ObjectMapper.DefaultTyping.NON_FINAL, serMapper.getPolymorphicTypeValidator());
+
         deserializerTyper = deserializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(false));
         deserializerTyper = deserializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
         deserMapper.setDefaultTyping(deserializerTyper);

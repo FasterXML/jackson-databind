@@ -1413,10 +1413,8 @@ public class JacksonAnnotationIntrospector
             if (info == null) {
                 return null;
             }
-            /* let's not try to force access override (would need to pass
-             * settings through if we did, since that's not doable on some
-             * platforms)
-             */
+            // let's not try to force access override (would need to pass
+            // settings through if we did, since that's not doable on some platforms)
             b = config.typeResolverBuilderInstance(ann, resAnn.value());
         } else { // if not, use standard one, if indicated by annotations
             if (info == null) {
@@ -1436,10 +1434,9 @@ public class JacksonAnnotationIntrospector
             idRes.init(baseType);
         }
         b = b.init(info.use(), idRes);
-        /* 13-Aug-2011, tatu: One complication; external id
-         *   only works for properties; so if declared for a Class, we will need
-         *   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
-         */
+        // 13-Aug-2011, tatu: One complication; external id only works for properties;
+        //    so if declared for a Class, we will need to map it to "PROPERTY"
+        //    instead of "EXTERNAL_PROPERTY"
         JsonTypeInfo.As inclusion = info.include();
         if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
             inclusion = JsonTypeInfo.As.PROPERTY;

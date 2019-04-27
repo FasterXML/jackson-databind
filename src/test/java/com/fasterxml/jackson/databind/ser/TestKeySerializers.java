@@ -208,7 +208,8 @@ public class TestKeySerializers extends BaseMapTest
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
         mapper.registerModule(mod);
 
-        TypeResolverBuilder<?> typer = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+        TypeResolverBuilder<?> typer = ObjectMapper.DefaultTypeResolverBuilder.construct(
+                ObjectMapper.DefaultTyping.NON_FINAL, mapper.getPolymorphicTypeValidator());
         typer = typer.init(JsonTypeInfo.Id.NAME, null);
         typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
         //typer = typer.typeProperty(TYPE_FIELD);

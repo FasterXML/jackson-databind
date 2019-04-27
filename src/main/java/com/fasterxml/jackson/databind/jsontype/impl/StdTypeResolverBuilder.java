@@ -235,7 +235,7 @@ public class StdTypeResolverBuilder
     /* Internal methods
     /**********************************************************
      */
-    
+
     /**
      * Helper method that will either return configured custom
      * type id resolver, or construct a standard resolver

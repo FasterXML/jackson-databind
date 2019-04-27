@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class MinimalClassNameIdResolver
@@ -34,6 +35,13 @@ public class MinimalClassNameIdResolver
             _basePackagePrefix = base.substring(0, ix+1);
             _basePackageName = base.substring(0, ix);
         }
+    }
+
+    /**
+     * @since 2.10
+     */
+    public static MinimalClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config) {
+        return new MinimalClassNameIdResolver(baseType, config.getTypeFactory());
     }
 
     @Override

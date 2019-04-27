@@ -166,32 +166,35 @@ public abstract class DatabindContext
     /**
      * Lookup method called when code needs to resolve class name from input;
      * usually simple lookup.
+     * Note that unlike {@link #resolveAndValidateSubType} this method DOES NOT
+     * validate subtype against configured {@link PolymorphicTypeValidator}: usually
+     * because such check has already been made.
      *
      * @since 2.9
      */
-    public JavaType resolveSubType(JavaType baseType, String subClass)
+    public JavaType resolveSubType(JavaType baseType, String subClassName)
         throws JsonMappingException
     {
         // 30-Jan-2010, tatu: Most ids are basic class names; so let's first
         //    check if any generics info is added; and only then ask factory
         //    to do translation when necessary
-        if (subClass.indexOf('<') > 0) {
+        if (subClassName.indexOf('<') > 0) {
             // note: may want to try combining with specialization (esp for EnumMap)?
             // 17-Aug-2017, tatu: As per [databind#1735] need to ensure assignment
             //    compatibility -- needed later anyway, and not doing so may open
             //    security issues.
-            JavaType t = getTypeFactory().constructFromCanonical(subClass);
+            JavaType t = getTypeFactory().constructFromCanonical(subClassName);
             if (t.isTypeOrSubTypeOf(baseType.getRawClass())) {
                 return t;
             }
         } else {
             Class<?> cls;
             try {
-                cls =  getTypeFactory().findClass(subClass);
+                cls =  getTypeFactory().findClass(subClassName);
             } catch (ClassNotFoundException e) { // let caller handle this problem
                 return null;
             } catch (Exception e) {
-                throw invalidTypeIdException(baseType, subClass, String.format(
+                throw invalidTypeIdException(baseType, subClassName, String.format(
                         "problem: (%s) %s",
                         e.getClass().getName(),
                         ClassUtil.exceptionMessage(e)));
@@ -200,7 +203,7 @@ public abstract class DatabindContext
                 return getTypeFactory().constructSpecializedType(baseType, cls);
             }
         }
-        throw invalidTypeIdException(baseType, subClass, "Not a subtype");
+        throw invalidTypeIdException(baseType, subClassName, "Not a subtype");
     }
 
     /**

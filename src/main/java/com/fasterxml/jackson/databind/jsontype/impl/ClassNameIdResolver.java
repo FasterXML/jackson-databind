@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -20,6 +21,13 @@ public class ClassNameIdResolver
 
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
         super(baseType, typeFactory);
+    }
+
+    /**
+     * @since 2.10
+     */
+    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config) {
+        return new ClassNameIdResolver(baseType, config.getTypeFactory());
     }
 
     @Override

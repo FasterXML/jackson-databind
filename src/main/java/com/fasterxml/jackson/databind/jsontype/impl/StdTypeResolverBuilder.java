@@ -239,7 +239,7 @@ public class StdTypeResolverBuilder
     
     /*
     /**********************************************************
-    /* Internal methods
+    /* Internal/subtype methods
     /**********************************************************
      */
 
@@ -256,9 +256,9 @@ public class StdTypeResolverBuilder
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
         switch (_idType) {
         case CLASS:
-            return ClassNameIdResolver.construct(baseType, config);
+            return ClassNameIdResolver.construct(baseType, config, subTypeValidator(config));
         case MINIMAL_CLASS:
-            return MinimalClassNameIdResolver.construct(baseType, config);
+            return MinimalClassNameIdResolver.construct(baseType, config, subTypeValidator(config));
         case NAME:
             return TypeNameIdResolver.construct(config, baseType, subtypes, forSer, forDeser);
         case NONE: // hmmh. should never get this far with 'none'
@@ -266,5 +266,18 @@ public class StdTypeResolverBuilder
         case CUSTOM: // need custom resolver...
         }
         throw new IllegalStateException("Do not know how to construct standard type id resolver for idType: "+_idType);
+    }
+
+    /**
+     * Overridable helper method for determining actual validator to use when constructing
+     * type serializers and type deserializers.
+     *<p>
+     * Default implementation simply uses one configured and accessible using
+     * {@link MapperConfig#getPolymorphicTypeValidator()}.
+     *
+     * @since 2.10
+     */
+    public PolymorphicTypeValidator subTypeValidator(MapperConfig<?> config) {
+        return config.getPolymorphicTypeValidator();
     }
 }

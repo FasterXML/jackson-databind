@@ -20,18 +20,7 @@ public class ClassNameIdResolver
 {
     private final static String JAVA_UTIL_PKG = "java.util.";
 
-    /**
-     * @since 2.10
-     */
     protected final PolymorphicTypeValidator _subTypeValidator;
-
-    /**
-     * @deprecated since 2.10
-     */
-    @Deprecated
-    public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
-        this(baseType, typeFactory, null);
-    }
 
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv) {
@@ -39,9 +28,6 @@ public class ClassNameIdResolver
         _subTypeValidator = ptv;
     }
 
-    /**
-     * @since 2.10
-     */
     public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
             PolymorphicTypeValidator ptv) {
         return new ClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
@@ -72,7 +58,7 @@ public class ClassNameIdResolver
     protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
     {
         // 24-Apr-2019, tatu: [databind#2195] validate as well as resolve:
-        JavaType t = ctxt.resolveAndValidateSubType(_baseType, id);
+        JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);
         if (t == null) {
             if (ctxt instanceof DeserializationContext) {
                 // First: we may have problem handlers that can deal with it?

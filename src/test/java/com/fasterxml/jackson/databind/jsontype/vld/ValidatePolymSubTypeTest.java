@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
  * Tests to verify working of customizable {@PolymorphicTypeValidator},
- * see [databind#2195]
+ * see [databind#2195], regarding verification of subtype instances.
  *
  * @since 2.10
  */
@@ -33,7 +33,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     static class MehValue extends BaseValue { }
     
     // // // Wrapper types
-    
+
     static class AnnotatedWrapper {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
         public BaseValue value;
@@ -62,6 +62,12 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     static class SimpleNameBasedValidator extends PolymorphicTypeValidator {
         private static final long serialVersionUID = 1L;
 
+        // No categoric determination, depends on subtype
+        @Override
+        public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
+            return Validity.INDETERMINATE;
+        }
+
         @Override
         public Validity validateSubClassName(MapperConfig<?> ctxt, JavaType baseType, String subClassName) {
             if (subClassName.equals(BadValue.class.getName())) {
@@ -83,6 +89,11 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
+        public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
+            return Validity.INDETERMINATE;
+        }
+
+        @Override
         public Validity validateSubClassName(MapperConfig<?> ctxt, JavaType baseType, String subClassName) {
             return Validity.INDETERMINATE;
         }
@@ -96,8 +107,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
                 return Validity.ALLOWED;
             }
             // defaults to denied, then:
-            return Validity.INDETERMINATE;
-        }
+            return Validity.INDETERMINATE;        }
     }
 
     // // // Mappers with Default Typing
@@ -121,7 +131,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     private final ObjectMapper MAPPER_EXPLICIT_CLASS_CHECK = jsonMapperBuilder()
             .polymorphicTypeValidator(new SimpleClassBasedValidator())
             .build();
-    
+
     /*
     /**********************************************************************
     /* Test methods: default typing

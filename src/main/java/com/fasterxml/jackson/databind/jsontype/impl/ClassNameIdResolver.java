@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -19,14 +20,30 @@ public class ClassNameIdResolver
 {
     private final static String JAVA_UTIL_PKG = "java.util.";
 
+    /**
+     * @since 2.10
+     */
+    protected final PolymorphicTypeValidator _subTypeValidator;
+
+    /**
+     * @deprecated since 2.10
+     */
+    @Deprecated
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
+        this(baseType, typeFactory, null);
+    }
+
+    public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
+            PolymorphicTypeValidator ptv) {
         super(baseType, typeFactory);
+        _subTypeValidator = ptv;
     }
 
     /**
      * @since 2.10
      */
-    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config) {
+    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
+            PolymorphicTypeValidator ptv) {
         return new ClassNameIdResolver(baseType, config.getTypeFactory());
     }
 

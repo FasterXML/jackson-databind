@@ -237,6 +237,11 @@ public class ObjectMapper
             return new DefaultTypeResolverBuilder(t, ptv);
         }
 
+        @Override // since 2.10
+        public PolymorphicTypeValidator subTypeValidator(MapperConfig<?> config) {
+            return _subtypeValidator;
+        }
+
         @Override
         public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
                 JavaType baseType, Collection<NamedType> subtypes)

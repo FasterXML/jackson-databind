@@ -39,9 +39,6 @@ public class MinimalClassNameIdResolver
         }
     }
 
-    /**
-     * @since 2.10
-     */
     public static MinimalClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
             PolymorphicTypeValidator ptv) {
         return new MinimalClassNameIdResolver(baseType, config.getTypeFactory(), ptv);

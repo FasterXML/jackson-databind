@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 /**
  * Interface for classes that handle validation of class name-based subtypes used
  * with Polymorphic Deserialization: both via "default typing" and explicit
- * {@code @JsonTypeInfo} when using class name as Type Identifier.
+ * {@code @JsonTypeInfo} when using Java Class name as Type Identifier.
  * The main purpose, initially, is to allow pluggable allow/deny lists to avoid
  * security problems that occur with unlimited class names
  * (See <a href="https://medium.com/@cowtowncoder/on-jackson-cves-dont-panic-here-is-what-you-need-to-know-54cd0d6e8062">
  * this article</a> for full explanation).
+ *<p>
+ * Call fal
  *<p>
  * Notes on implementations: implementations must be thread-safe and shareable (usually meaning they
  * are stateless). Determinations for validity are usually effectively cached on per-property
@@ -50,6 +52,27 @@ public abstract class PolymorphicTypeValidator
         INDETERMINATE
         ;
     }
+
+    /**
+     * Method called when a property with polymorphic value is encountered, and a
+     * {@code TypeResolverBuilder} is needed. Intent is to allow early determination
+     * of cases where subtyping is completely denied (for example for security reasons),
+     * or, conversely, allowed for allow subtypes (when base type guarantees that all subtypes
+     * are known to be safe). Check can be thought of as both optimization (for latter case)
+     * and eager-fail (for former case) to give better feedback.
+     * 
+     * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
+     * @param baseType Nominal base type used for polymorphic handling: subtypes MUST be instances
+     *   of this type and assignment compatibility is verified by Jackson core
+     *
+     * @return Determination of general validity of all subtypes of given base type; if
+     *    {@link Validity#ALLOWED} returned, all subtypes will automatically be accepted without
+     *    further checks; is {@link Validity#DENIED} returned no subtyping allowed at all
+     *    (caller will usually throw an exception); otherwise (return {@link Validity#INDETERMINATE})
+     *    per sub-type validation calls are made for each new subclass encountered.
+     */
+    public abstract Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType)
+            throws JsonMappingException;
 
     /**
      * Method called after intended class name for subtype has been read (and in case of minimal

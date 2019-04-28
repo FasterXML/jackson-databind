@@ -115,7 +115,8 @@ public class StdTypeResolverBuilder
         if (baseType.isPrimitive()) {
             return null;
         }
-        TypeIdResolver idRes = idResolver(config, baseType, subtypes, true, false);
+        TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator(config),
+                subtypes, true, false);
         switch (_includeAs) {
         case WRAPPER_ARRAY:
             return new AsArrayTypeSerializer(idRes, null);
@@ -143,7 +144,11 @@ public class StdTypeResolverBuilder
             return null;
         }
 
-        TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
+        // 27-Apr-2019, tatu: Part of [databind#2195]; must first check whether any subtypes
+        //    of basetypes might be denied or allowed
+        final PolymorphicTypeValidator subTypeValidator = verifyBaseTypeValidity(config, baseType);
+        
+        TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator, subtypes, false, true);
         JavaType defaultImpl = defineDefaultImpl(config, baseType);
 
         // First, method for converting type info to type id:
@@ -229,10 +234,10 @@ public class StdTypeResolverBuilder
 
     public String getTypeProperty() { return _typeProperty; }
     public boolean isTypeIdVisible() { return _typeIdVisible; }
-    
+
     /*
     /**********************************************************
-    /* Internal/subtype methods
+    /* Internal/subtype factory methods
     /**********************************************************
      */
 
@@ -242,16 +247,17 @@ public class StdTypeResolverBuilder
      * given configuration.
      */
     protected TypeIdResolver idResolver(MapperConfig<?> config,
-            JavaType baseType, Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
+            JavaType baseType, PolymorphicTypeValidator subtypeValidator,
+            Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
         // Custom id resolver?
         if (_customIdResolver != null) { return _customIdResolver; }
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
         switch (_idType) {
         case CLASS:
-            return ClassNameIdResolver.construct(baseType, config, subTypeValidator(config));
+            return ClassNameIdResolver.construct(baseType, config, subtypeValidator);
         case MINIMAL_CLASS:
-            return MinimalClassNameIdResolver.construct(baseType, config, subTypeValidator(config));
+            return MinimalClassNameIdResolver.construct(baseType, config, subtypeValidator);
         case NAME:
             return TypeNameIdResolver.construct(config, baseType, subtypes, forSer, forDeser);
         case NONE: // hmmh. should never get this far with 'none'
@@ -261,6 +267,19 @@ public class StdTypeResolverBuilder
         throw new IllegalStateException("Do not know how to construct standard type id resolver for idType: "+_idType);
     }
 
+    /*
+    /**********************************************************
+    /* Internal/subtype factory methods
+    /**********************************************************
+     */
+
+    
+    protected PolymorphicTypeValidator verifyBaseTypeValidity(MapperConfig<?> config,
+            JavaType baseType)
+    {
+        return subTypeValidator(config);
+    }
+    
     /**
      * Overridable helper method for determining actual validator to use when constructing
      * type serializers and type deserializers.

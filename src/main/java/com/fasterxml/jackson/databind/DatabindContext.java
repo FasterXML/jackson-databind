@@ -251,6 +251,7 @@ public abstract class DatabindContext
             return _throwNotASubtype(baseType, subClass);
         }
         final JavaType subType = config.getTypeFactory().constructSpecializedType(baseType, cls);
+        // May skip check if type was allowed by subclass name already
         if (vld != Validity.ALLOWED) {
             if (ptv.validateSubType(config, baseType, subType) != Validity.ALLOWED) {
                 return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);

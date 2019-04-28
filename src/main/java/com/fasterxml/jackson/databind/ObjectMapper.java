@@ -319,7 +319,13 @@ public class ObjectMapper
         private static final long serialVersionUID = 1L;
 
         public final static LaissezFaireValidator instance = new LaissezFaireValidator(); 
-        
+
+        @Override
+        public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType)
+                throws JsonMappingException {
+            return Validity.INDETERMINATE;
+        }
+
         @Override
         public Validity validateSubClassName(MapperConfig<?> ctxt,
                 JavaType baseType, String subClassName) {

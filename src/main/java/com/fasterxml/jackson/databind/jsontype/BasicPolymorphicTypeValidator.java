@@ -228,6 +228,12 @@ public class BasicPolymorphicTypeValidator
         return new Builder();
     }
 
+    // !!! TODO
+    @Override
+    public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
+        return Validity.INDETERMINATE;
+    }
+    
     @Override
     public Validity validateSubClassName(MapperConfig<?> ctxt, JavaType baseType, String subClassName)
             throws JsonMappingException

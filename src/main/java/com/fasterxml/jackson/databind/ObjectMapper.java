@@ -114,11 +114,6 @@ public class ObjectMapper
             return new ObjectMapper(this);
         }
 
-        @Override // since 2.10
-        public PolymorphicTypeValidator subTypeValidator(MapperConfig<?> config) {
-            return _subtypeValidator;
-        }
-
         @Override
         protected MapperBuilderState _saveState() {
             return new StateImpl(this);

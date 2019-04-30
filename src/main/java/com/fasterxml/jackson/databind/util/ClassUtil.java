@@ -681,7 +681,8 @@ public final class ClassUtil
         if (inst == null) {
             return "[null]";
         }
-        return nameOf(inst.getClass());
+        Class<?> raw = (inst instanceof Class<?>) ? (Class<?>) inst : inst.getClass();
+        return nameOf(raw);
     }
 
     /**

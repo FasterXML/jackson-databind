@@ -1700,7 +1700,14 @@ nonAnnotatedParamIndex, ctor);
         // but if annotations found, may need to resolve subtypes:
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 config, annotated, baseType);
-        return b.buildTypeDeserializer(config, baseType, subtypes);
+        try {
+            return b.buildTypeDeserializer(config, baseType, subtypes);
+        } catch (IllegalArgumentException e0) {
+            InvalidDefinitionException e = InvalidDefinitionException.from((JsonParser) null,
+                    ClassUtil.exceptionMessage(e0), baseType);
+            e.initCause(e0);
+            throw e;
+        }
     }
     
     /**

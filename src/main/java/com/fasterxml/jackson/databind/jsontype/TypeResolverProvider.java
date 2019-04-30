@@ -67,7 +67,7 @@ public class TypeResolverProvider
         }
         // 10-Jun-2015, tatu: Since not created for Bean Property, no need for post-processing
         //    wrt EXTERNAL_PROPERTY
-        return b.buildTypeSerializer(config, baseType, subtypes);
+        return b.buildTypeSerializer(ctxt, baseType, subtypes);
     }
 
     public TypeDeserializer findTypeDeserializer(DeserializationContext ctxt,
@@ -96,7 +96,7 @@ public class TypeResolverProvider
                 b = b.defaultImpl(defaultType.getRawClass());
             }
         }
-        return b.buildTypeDeserializer(config, baseType, subtypes);
+        return b.buildTypeDeserializer(ctxt, baseType, subtypes);
     }
 
     /*
@@ -124,7 +124,7 @@ public class TypeResolverProvider
                 config, accessor, baseType);
         // 10-Jun-2015, tatu: Since not created for Bean Property, no need for post-processing
         //    wrt EXTERNAL_PROPERTY
-        return b.buildTypeSerializer(config, baseType, subtypes);
+        return b.buildTypeSerializer(ctxt, baseType, subtypes);
     }
 
     public TypeDeserializer findPropertyTypeDeserializer(DeserializationContext ctxt,
@@ -152,7 +152,7 @@ public class TypeResolverProvider
                 b = b.defaultImpl(defaultType.getRawClass());
             }
         }
-        return b.buildTypeDeserializer(config, baseType, subtypes);
+        return b.buildTypeDeserializer(ctxt, baseType, subtypes);
     }
 
     public TypeSerializer findPropertyContentTypeSerializer(SerializerProvider ctxt,
@@ -174,7 +174,7 @@ public class TypeResolverProvider
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, contentType);
-        return b.buildTypeSerializer(config, contentType, subtypes);
+        return b.buildTypeSerializer(ctxt, contentType, subtypes);
     }
 
     public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationContext ctxt,
@@ -203,7 +203,7 @@ public class TypeResolverProvider
                 b = b.defaultImpl(defaultType.getRawClass());
             }
         }
-        return b.buildTypeDeserializer(config, contentType, subtypes);
+        return b.buildTypeDeserializer(ctxt, contentType, subtypes);
     }
 
     /*

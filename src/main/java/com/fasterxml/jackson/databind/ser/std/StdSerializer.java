@@ -371,7 +371,7 @@ public abstract class StdSerializer<T>
                     "Cannot resolve PropertyFilter with id '"+filterId+"'; no FilterProvider configured");
         }
         // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
-        return filters.findPropertyFilter(filterId, valueToFilter);
+        return filters.findPropertyFilter(provider, filterId, valueToFilter);
     }
 
     /**

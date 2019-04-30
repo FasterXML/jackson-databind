@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Standard {@link BasicPolymorphicTypeValidator} implementation that users may want
@@ -230,12 +230,12 @@ public class BasicPolymorphicTypeValidator
 
     // !!! TODO
     @Override
-    public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
+    public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
         return Validity.INDETERMINATE;
     }
     
     @Override
-    public Validity validateSubClassName(MapperConfig<?> ctxt, JavaType baseType, String subClassName)
+    public Validity validateSubClassName(DatabindContext ctxt, JavaType baseType, String subClassName)
             throws JsonMappingException
     {
         if (_byNameMatchers != null)  {
@@ -252,7 +252,7 @@ public class BasicPolymorphicTypeValidator
     }
 
     @Override
-    public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType, JavaType subType)
+    public Validity validateSubType(DatabindContext ctxt, JavaType baseType, JavaType subType)
             throws JsonMappingException {
         if (_subTypeMatchers != null)  {
             final Class<?> subClass = subType.getRawClass();

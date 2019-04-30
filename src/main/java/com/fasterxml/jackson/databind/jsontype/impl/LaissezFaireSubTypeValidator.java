@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
@@ -20,18 +20,18 @@ public final class LaissezFaireSubTypeValidator
     public final static LaissezFaireSubTypeValidator instance = new LaissezFaireSubTypeValidator(); 
 
     @Override
-    public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
+    public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
         return Validity.INDETERMINATE;
     }
 
     @Override
-    public Validity validateSubClassName(MapperConfig<?> ctxt,
+    public Validity validateSubClassName(DatabindContext ctxt,
             JavaType baseType, String subClassName) {
         return Validity.ALLOWED;
     }
 
     @Override
-    public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType,
+    public Validity validateSubType(DatabindContext ctxt, JavaType baseType,
             JavaType subType) {
         return Validity.ALLOWED;
     }

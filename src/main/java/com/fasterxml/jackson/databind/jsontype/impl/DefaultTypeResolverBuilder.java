@@ -6,11 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.core.TreeNode;
 
-import com.fasterxml.jackson.databind.DefaultTyping;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -63,17 +59,17 @@ public class DefaultTypeResolverBuilder
     }
 
     @Override
-    public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
+    public TypeDeserializer buildTypeDeserializer(DeserializationContext ctxt,
             JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
     {
-        return useForType(baseType) ? super.buildTypeDeserializer(config, baseType, subtypes) : null;
+        return useForType(baseType) ? super.buildTypeDeserializer(ctxt, baseType, subtypes) : null;
     }
 
     @Override
-    public TypeSerializer buildTypeSerializer(SerializationConfig config,
+    public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
             JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
     {
-        return useForType(baseType) ? super.buildTypeSerializer(config, baseType, subtypes) : null;            
+        return useForType(baseType) ? super.buildTypeSerializer(ctxt, baseType, subtypes) : null;            
     }
 
     public DefaultTypeResolverBuilder typeIdVisibility(boolean isVisible) {

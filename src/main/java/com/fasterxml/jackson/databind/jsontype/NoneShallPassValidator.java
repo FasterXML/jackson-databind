@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed.
@@ -15,7 +15,7 @@ public class NoneShallPassValidator
     private static final long serialVersionUID = 1L;
 
     @Override
-    public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType)
+    public Validity validateBaseType(DatabindContext ctxt, JavaType baseType)
             throws JsonMappingException {
         /* 24-Apr-2019, tatu: We do need to make it restrictive, BUT... as of now
          *    tests would fail; need to get back to that right after 2.10
@@ -30,13 +30,13 @@ public class NoneShallPassValidator
     }
     
     @Override
-    public Validity validateSubClassName(MapperConfig<?> ctxt,
+    public Validity validateSubClassName(DatabindContext ctxt,
             JavaType baseType, String subClassName) {
         return Validity.INDETERMINATE;
     }
 
     @Override
-    public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType,
+    public Validity validateSubType(DatabindContext ctxt, JavaType baseType,
             JavaType subType) {
         /* 24-Apr-2019, tatu: We do need to make it restrictive, BUT... as of now
          *    tests would fail; need to get back to that right after 2.10

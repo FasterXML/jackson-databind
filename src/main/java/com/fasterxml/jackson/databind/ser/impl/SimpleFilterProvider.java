@@ -3,8 +3,10 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.util.*;
 
 import com.fasterxml.jackson.core.util.Snapshottable;
-
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Simple {@link FilterProvider} implementation that just stores
@@ -123,14 +125,15 @@ public class SimpleFilterProvider
      */
 
     @Override
-    public PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter)
+    public PropertyFilter findPropertyFilter(SerializerProvider ctxt,
+            Object filterId, Object valueToFilter) throws JsonMappingException
     {
         PropertyFilter f = _filtersById.get(filterId);
         if (f == null) {
             f = _defaultFilter;
             if (f == null && _cfgFailOnUnknownId) {
-                throw new IllegalArgumentException("No filter configured with id '"+filterId+"' (type "
-                        +filterId.getClass().getName()+")");
+                ctxt.reportMappingProblem("No filter configured with id '%s' (type %s)",
+                        filterId, ClassUtil.classNameOf(filterId));
             }
         }
         return f;

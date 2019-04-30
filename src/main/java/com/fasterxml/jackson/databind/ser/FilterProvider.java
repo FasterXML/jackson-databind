@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.core.util.Snapshottable;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
  * Interface for objects that providers instances of {@link PropertyFilter}
@@ -24,5 +26,6 @@ public abstract class FilterProvider
      * 
      * @return Filter to use, if any.
      */
-    public abstract PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter);
+    public abstract PropertyFilter findPropertyFilter(SerializerProvider ctxt,
+            Object filterId, Object valueToFilter)  throws JsonMappingException;
 }

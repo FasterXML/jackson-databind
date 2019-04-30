@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.*;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link TypeResolverBuilder} implementation.
@@ -107,7 +109,7 @@ public class StdTypeResolverBuilder
 
     @Override
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes)
+            JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
     {
         if (_idType == JsonTypeInfo.Id.NONE) { return null; }
         // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
@@ -135,7 +137,7 @@ public class StdTypeResolverBuilder
 
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes)
+            JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
     {
         if (_idType == JsonTypeInfo.Id.NONE) { return null; }
         // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
@@ -147,7 +149,7 @@ public class StdTypeResolverBuilder
         // 27-Apr-2019, tatu: Part of [databind#2195]; must first check whether any subtypes
         //    of basetypes might be denied or allowed
         final PolymorphicTypeValidator subTypeValidator = verifyBaseTypeValidity(config, baseType);
-        
+
         TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator, subtypes, false, true);
         JavaType defaultImpl = defineDefaultImpl(config, baseType);
 
@@ -273,13 +275,6 @@ public class StdTypeResolverBuilder
     /**********************************************************
      */
 
-    
-    protected PolymorphicTypeValidator verifyBaseTypeValidity(MapperConfig<?> config,
-            JavaType baseType)
-    {
-        return subTypeValidator(config);
-    }
-    
     /**
      * Overridable helper method for determining actual validator to use when constructing
      * type serializers and type deserializers.
@@ -291,5 +286,43 @@ public class StdTypeResolverBuilder
      */
     public PolymorphicTypeValidator subTypeValidator(MapperConfig<?> config) {
         return config.getPolymorphicTypeValidator();
+    }
+    
+    /**
+     * Helper method called to check that base type is valid regarding possible constraints
+     * on basetype/subtype combinations allowed for polymorphic type handling.
+     * Currently limits are verified for class name - based methods only.
+     *
+     * @since 2.10
+     */
+    protected PolymorphicTypeValidator verifyBaseTypeValidity(MapperConfig<?> config,
+            JavaType baseType) throws JsonMappingException
+    {
+        final PolymorphicTypeValidator ptv = subTypeValidator(config);
+        if (_idType == JsonTypeInfo.Id.CLASS || _idType == JsonTypeInfo.Id.MINIMAL_CLASS) {
+            final Validity validity = ptv.validateBaseType(config, baseType);
+            // If no subtypes are legal (that is, base type itself is invalid), indicate problem
+            if (validity == Validity.DENIED) {
+                return reportInvalidBaseType(config, baseType, ptv);
+            }
+            // If there's indication that any and all subtypes are fine, replace validator itself:
+            if (validity == Validity.ALLOWED) {
+                return LaissezFaireSubTypeValidator.instance;
+            }
+            // otherwise just return validator, is to be called for each distinct type
+        }
+        return ptv;
+    }
+
+    /**
+     * @since 2.10
+     */
+    protected PolymorphicTypeValidator reportInvalidBaseType(MapperConfig<?> config,
+            JavaType baseType, PolymorphicTypeValidator ptv)
+    {
+        throw new IllegalArgumentException(String.format(
+"Configured `PolymorphicTypeValidator` (of type %s) denied resolution of all subtypes of base type %s",
+                        ClassUtil.classNameOf(ptv), ClassUtil.classNameOf(baseType.getRawClass()))
+        );
     }
 }

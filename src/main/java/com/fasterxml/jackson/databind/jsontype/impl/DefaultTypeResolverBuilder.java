@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -63,14 +64,14 @@ public class DefaultTypeResolverBuilder
 
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes)
+            JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
     {
         return useForType(baseType) ? super.buildTypeDeserializer(config, baseType, subtypes) : null;
     }
 
     @Override
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes)
+            JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
     {
         return useForType(baseType) ? super.buildTypeSerializer(config, baseType, subtypes) : null;            
     }

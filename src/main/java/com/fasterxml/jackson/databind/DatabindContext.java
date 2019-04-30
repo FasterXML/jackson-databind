@@ -189,16 +189,6 @@ public abstract class DatabindContext
 
     /**
      * Lookup method similar to {@link #resolveSubType} but one that also validates
-     * that resulting subtype is valid according to the default {@link PolymorphicTypeValidator}
-     * for the originating {@link ObjectMapper}.
-     *
-     * @since 2.10
-     */
-    public abstract JavaType resolveAndValidateSubType(JavaType baseType, String subClass)
-        throws JsonMappingException;
-
-    /**
-     * Lookup method similar to {@link #resolveSubType} but one that also validates
      * that resulting subtype is valid according to given {@link PolymorphicTypeValidator}.
      *
      * @since 2.10

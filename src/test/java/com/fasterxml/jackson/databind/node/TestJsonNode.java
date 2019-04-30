@@ -5,6 +5,7 @@ import java.util.Comparator;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
@@ -177,7 +178,7 @@ public class TestJsonNode extends NodeTestBase
     public void testArrayWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-            .enableDefaultTyping()
+            .enableDefaultTyping(NoCheckSubTypeValidator.instance)
             .build();
         JsonNode array = mapper.readTree("[ 1, 2 ]");
         assertTrue(array.isArray());

@@ -8,6 +8,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestDefaultForArrays extends BaseMapTest
 {
@@ -39,7 +40,8 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArrayTypingSimple() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_CONCRETE_AND_ARRAYS)
                 .build();
         ArrayBean bean = new ArrayBean(new String[0]);
         String json = mapper.writeValueAsString(bean);
@@ -52,7 +54,8 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArrayTypingNested() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_CONCRETE_AND_ARRAYS)
                 .build();
         ArrayBean bean = new ArrayBean(new String[0][0]);
         String json = mapper.writeValueAsString(bean);
@@ -65,7 +68,8 @@ public class TestDefaultForArrays extends BaseMapTest
     {
         JsonNode node = objectMapper().readTree("{\"a\":3}");
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
         Object[] obs = new Object[] { node };
         String json = mapper.writeValueAsString(obs);
@@ -91,7 +95,8 @@ public class TestDefaultForArrays extends BaseMapTest
         JsonNode node = vanillaMapper.readTree("{\"a\":[]}");
 
         ObjectMapper mapper = vanillaMapper.rebuild()
-                .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
         Object[] obs = new Object[] { node };
         json = mapper.writeValueAsString(obs);
@@ -106,7 +111,8 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArraysOfArrays() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 
         Object value = new Object[][] { new Object[] {} };
@@ -121,7 +127,8 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArrayTypingForPrimitiveArrays() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_CONCRETE_AND_ARRAYS)
                 .build();
         _testArrayTypingForPrimitiveArrays(mapper, new int[] { 1, 2, 3 });
         _testArrayTypingForPrimitiveArrays(mapper, new long[] { 1, 2, 3 });

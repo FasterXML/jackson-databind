@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class NoTypeInfoTest extends BaseMapTest
 {
@@ -25,7 +26,7 @@ public class NoTypeInfoTest extends BaseMapTest
     public void testWithIdNone() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         // serialize without type info
         String json = mapper.writeValueAsString(new NoType());

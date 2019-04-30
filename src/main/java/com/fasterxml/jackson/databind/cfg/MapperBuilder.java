@@ -1310,14 +1310,15 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *  enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
      *</pre>
      *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * NOTE: choice of {@link PolymorphicTypeValidator} to configure is of
+     * crucial importance to security when deserializing untrusted content:
+     * this because allowing deserializing of any type can lead to malicious
+     * attacks using "deserialization gadgets". Implementations should use
+     * allow-listing to specify acceptable types unless source of content
+     * is fully trusted to only send safe types.
      */
-    public B enableDefaultTyping() {
-        return enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
+    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator) {
+        return enableDefaultTyping(subtypeValidator, DefaultTyping.OBJECT_AND_NON_CONCRETE);
     }
 
     /**
@@ -1326,14 +1327,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *  enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
      *</pre>
      *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * NOTE: choice of {@link PolymorphicTypeValidator} to configure is of
+     * crucial importance to security when deserializing untrusted content:
+     * this because allowing deserializing of any type can lead to malicious
+     * attacks using "deserialization gadgets". Implementations should use
+     * allow-listing to specify acceptable types unless source of content
+     * is fully trusted to only send safe types.
      */
-    public B enableDefaultTyping(DefaultTyping dti) {
-        return enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator,
+            DefaultTyping dti) {
+        return enableDefaultTyping(subtypeValidator,
+                dti, JsonTypeInfo.As.WRAPPER_ARRAY);
     }
 
     /**
@@ -1345,23 +1349,25 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * and attempts of do so will throw an {@link IllegalArgumentException} to make
      * this limitation explicit.
      *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * NOTE: choice of {@link PolymorphicTypeValidator} to configure is of
+     * crucial importance to security when deserializing untrusted content:
+     * this because allowing deserializing of any type can lead to malicious
+     * attacks using "deserialization gadgets". Implementations should use
+     * allow-listing to specify acceptable types unless source of content
+     * is fully trusted to only send safe types.
      * 
      * @param applicability Defines kinds of types for which additional type information
      *    is added; see {@link DefaultTyping} for more information.
      */
-    public B enableDefaultTyping(DefaultTyping applicability, JsonTypeInfo.As includeAs)
+    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator,
+            DefaultTyping applicability, JsonTypeInfo.As includeAs)
     {
-        // 18-Sep-2014, tatu: Let's add explicit check to ensure no one tries to
-        //   use "As.EXTERNAL_PROPERTY", since that will not work (with 2.5+)
+        // Use if "As.EXTERNAL_PROPERTY" will not work, check to ensure no attempts made
         if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
             throw new IllegalArgumentException("Cannot use includeAs of "+includeAs+" for Default Typing");
         }
-        return setDefaultTyping(_defaultDefaultTypingResolver(applicability, includeAs));
+        return setDefaultTyping(_defaultDefaultTypingResolver(subtypeValidator,
+                applicability, includeAs));
     }
 
     /**
@@ -1372,15 +1378,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * to use for inclusion (default being "@class" since default type information
      * always uses class name as type identifier)
      *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * NOTE: choice of {@link PolymorphicTypeValidator} to configure is of
+     * crucial importance to security when deserializing untrusted content:
+     * this because allowing deserializing of any type can lead to malicious
+     * attacks using "deserialization gadgets". Implementations should use
+     * allow-listing to specify acceptable types unless source of content
+     * is fully trusted to only send safe types.
      */
-    public B enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName)
+    public B enableDefaultTypingAsProperty(PolymorphicTypeValidator subtypeValidator,
+            DefaultTyping applicability, String propertyName)
     {
-        return setDefaultTyping(_defaultDefaultTypingResolver(applicability, propertyName));
+        return setDefaultTyping(_defaultDefaultTypingResolver(subtypeValidator,
+                applicability, propertyName));
     }
 
     /**
@@ -1414,18 +1423,18 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Overridable method for changing default {@link TypeResolverBuilder} to construct
      * for "default typing".
      */
-    protected TypeResolverBuilder<?> _defaultDefaultTypingResolver(DefaultTyping applicability,
-            JsonTypeInfo.As includeAs) {
-        return new DefaultTypeResolverBuilder(applicability, includeAs);
+    protected TypeResolverBuilder<?> _defaultDefaultTypingResolver(PolymorphicTypeValidator subtypeValidator,
+            DefaultTyping applicability, JsonTypeInfo.As includeAs) {
+        return new DefaultTypeResolverBuilder(subtypeValidator, applicability, includeAs);
     }
 
     /**
      * Overridable method for changing default {@link TypeResolverBuilder} to construct
      * for "default typing".
      */
-    protected TypeResolverBuilder<?> _defaultDefaultTypingResolver(DefaultTyping applicability,
-            String propertyName) {
-        return new DefaultTypeResolverBuilder(applicability, propertyName);
+    protected TypeResolverBuilder<?> _defaultDefaultTypingResolver(PolymorphicTypeValidator subtypeValidator,
+            DefaultTyping applicability, String propertyName) {
+        return new DefaultTypeResolverBuilder(subtypeValidator, applicability, propertyName);
     }
 
     /*

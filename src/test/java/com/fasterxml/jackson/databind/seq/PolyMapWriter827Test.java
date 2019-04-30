@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // for [databind#827]
 @SuppressWarnings("serial")
@@ -36,7 +37,8 @@ public class PolyMapWriter827Test extends BaseMapTest
     public void testPolyCustomKeySerializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL)
                 .addModule(new SimpleModule("keySerializerModule")
                         .addKeySerializer(CustomKey.class, new CustomKeySerializer()))
                 .build();

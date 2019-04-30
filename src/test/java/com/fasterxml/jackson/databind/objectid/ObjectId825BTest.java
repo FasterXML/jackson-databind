@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 @SuppressWarnings("serial")
 public class ObjectId825BTest extends BaseMapTest
@@ -139,7 +140,8 @@ public class ObjectId825BTest extends BaseMapTest
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-                .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
 
         String INPUT = aposToQuotes(

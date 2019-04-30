@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * Unit tests for checking how combination of interfaces, implementation
@@ -128,7 +129,8 @@ public class TestAbstractTypeNames  extends BaseMapTest
     public void testInnerClassWithType() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL)
                 .build();
         String json = mapper.writeValueAsString(new BeanWithAnon());
         BeanWithAnon result = mapper.readValue(json, BeanWithAnon.class);

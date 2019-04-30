@@ -273,11 +273,6 @@ public abstract class DeserializationContext
         return _config.getTimeZone();
     }
 
-    @Override // since 2.10
-    public JavaType resolveAndValidateSubType(JavaType baseType, String subClass) throws JsonMappingException {
-        return resolveAndValidateSubType(baseType, subClass, _config.getPolymorphicTypeValidator());
-    }
-
     /*
     /**********************************************************
     /* Access to per-call state, like generic attributes (2.3+)

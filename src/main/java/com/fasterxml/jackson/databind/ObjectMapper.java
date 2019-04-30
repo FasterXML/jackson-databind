@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.*;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.*;
@@ -305,39 +306,7 @@ public class ObjectMapper
         }
     }
 
-    /**
-     * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed.
-     * Does not do any validation, allows all subtypes. Only used for backwards-compatibility
-     * reasons: users should not usually use such a permissive implementation but use
-     * allow-list/criteria - based implementation.
-     *
-     * @since 2.10
-     */
-    protected final static class LaissezFaireValidator
-        extends PolymorphicTypeValidator
-    {
-        private static final long serialVersionUID = 1L;
-
-        public final static LaissezFaireValidator instance = new LaissezFaireValidator(); 
-
-        @Override
-        public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType)
-                throws JsonMappingException {
-            return Validity.INDETERMINATE;
-        }
-
-        @Override
-        public Validity validateSubClassName(MapperConfig<?> ctxt,
-                JavaType baseType, String subClassName) {
-            return Validity.INDETERMINATE;
-        }
-
-        @Override
-        public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType,
-                JavaType subType) {
-            return Validity.ALLOWED;
-        }
-    }
+    
     
     /*
     /**********************************************************
@@ -367,7 +336,7 @@ public class ObjectMapper
             Locale.getDefault(),
             null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
             Base64Variants.getDefaultVariant(), // 2.1
-            LaissezFaireValidator.instance
+            LaissezFaireSubTypeValidator.instance
     );
 
     /*

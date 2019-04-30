@@ -7,9 +7,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -556,6 +558,92 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /*
+    /**********************************************************************
+    /* Default typing
+    /**********************************************************************
+     */
+
+    /**
+     * Convenience method that is equivalent to calling
+     *<pre>
+     *  enableDefaultTyping(subtypeValidator, DefaultTyping.OBJECT_AND_NON_CONCRETE);
+     *</pre>
+     *<p>
+     * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
+     * as allowing all subtypes can be risky for untrusted content.
+     */
+    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator) {
+        _mapper.enableDefaultTyping(subtypeValidator);
+        return _this();
+    }
+
+    /**
+     * Convenience method that is equivalent to calling
+     *<pre>
+     *  enableDefaultTyping(subtypeValidator, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+     *</pre>
+     *<p>
+     * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
+     * as allowing all subtypes can be risky for untrusted content.
+     */
+    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator,
+            DefaultTyping dti) {
+        _mapper.enableDefaultTyping(subtypeValidator, dti);
+        return _this();
+    }
+
+    /**
+     * Method for enabling automatic inclusion of type information, needed
+     * for proper deserialization of polymorphic types (unless types
+     * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}).
+     *<P>
+     * NOTE: use of <code>JsonTypeInfo.As#EXTERNAL_PROPERTY</code> <b>NOT SUPPORTED</b>;
+     * and attempts of do so will throw an {@link IllegalArgumentException} to make
+     * this limitation explicit.
+     *<p>
+     * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
+     * as allowing all subtypes can be risky for untrusted content.
+     * 
+     * @param applicability Defines kinds of types for which additional type information
+     *    is added; see {@link DefaultTyping} for more information.
+     */
+    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator,
+            DefaultTyping applicability, JsonTypeInfo.As includeAs)
+    {
+        _mapper.enableDefaultTyping(subtypeValidator, applicability, includeAs);
+        return _this();
+    }
+
+    /**
+     * Method for enabling automatic inclusion of type information -- needed
+     * for proper deserialization of polymorphic types (unless types
+     * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) --
+     * using "As.PROPERTY" inclusion mechanism and specified property name
+     * to use for inclusion (default being "@class" since default type information
+     * always uses class name as type identifier)
+     *<p>
+     * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
+     * as allowing all subtypes can be risky for untrusted content.
+     */
+    public B enableDefaultTypingAsProperty(PolymorphicTypeValidator subtypeValidator,
+            DefaultTyping applicability, String propertyName)
+    {
+        _mapper.enableDefaultTypingAsProperty(subtypeValidator, applicability, propertyName);
+        return _this();
+    }
+
+    /**
+     * Method for disabling automatic inclusion of type information; if so, only
+     * explicitly annotated types (ones with
+     * {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) will have
+     * additional embedded type information.
+     */
+    public B disableDefaultTyping() {
+        _mapper.disableDefaultTyping();
+        return _this();
+    }
+    
     /*
     /**********************************************************************
     /* Other helper methods

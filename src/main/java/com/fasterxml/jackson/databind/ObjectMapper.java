@@ -1525,7 +1525,43 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Type information configuration
+    /* Subtype registration
+    /**********************************************************
+     */
+
+    /**
+     * Method for registering specified class as a subtype, so that
+     * typename-based resolution can link supertypes to subtypes
+     * (as an alternative to using annotations).
+     * Type for given class is determined from appropriate annotation;
+     * or if missing, default name (unqualified class name)
+     */
+    public void registerSubtypes(Class<?>... classes) {
+        getSubtypeResolver().registerSubtypes(classes);
+    }
+
+    /**
+     * Method for registering specified class as a subtype, so that
+     * typename-based resolution can link supertypes to subtypes
+     * (as an alternative to using annotations).
+     * Name may be provided as part of argument, but if not will
+     * be based on annotations or use default name (unqualified
+     * class name).
+     */
+    public void registerSubtypes(NamedType... types) {
+        getSubtypeResolver().registerSubtypes(types);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public void registerSubtypes(Collection<Class<?>> subtypes) {
+        getSubtypeResolver().registerSubtypes(subtypes);
+    }
+
+    /*
+    /**********************************************************
+    /* Default typing (automatic polymorphic types): current (2.10)
     /**********************************************************
      */
 
@@ -1535,14 +1571,13 @@ public class ObjectMapper
      *  enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
      *</pre>
      *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
+     * as allowing all subtypes can be risky for untrusted content.
+     *
+     * @since 2.10
      */
-    public ObjectMapper enableDefaultTyping() {
-        return enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
+    public ObjectMapper enableDefaultTyping(PolymorphicTypeValidator ptv) {
+        return enableDefaultTyping(ptv, DefaultTyping.OBJECT_AND_NON_CONCRETE);
     }
 
     /**
@@ -1551,14 +1586,14 @@ public class ObjectMapper
      *  enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
      *</pre>
      *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
+     * as allowing all subtypes can be risky for untrusted content.
+     *
+     * @since 2.10
      */
-    public ObjectMapper enableDefaultTyping(DefaultTyping dti) {
-        return enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+    public ObjectMapper enableDefaultTyping(PolymorphicTypeValidator ptv,
+            DefaultTyping dti) {
+        return enableDefaultTyping(ptv, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
     }
 
     /**
@@ -1570,26 +1605,24 @@ public class ObjectMapper
      * and attempts of do so will throw an {@link IllegalArgumentException} to make
      * this limitation explicit.
      *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
+     * as allowing all subtypes can be risky for untrusted content.
      * 
      * @param applicability Defines kinds of types for which additional type information
      *    is added; see {@link DefaultTyping} for more information.
+     *
+     * @since 2.10
      */
-    public ObjectMapper enableDefaultTyping(DefaultTyping applicability, JsonTypeInfo.As includeAs)
+    public ObjectMapper enableDefaultTyping(PolymorphicTypeValidator ptv,
+            DefaultTyping applicability, JsonTypeInfo.As includeAs)
     {
-        /* 18-Sep-2014, tatu: Let's add explicit check to ensure no one tries to
-         *   use "As.EXTERNAL_PROPERTY", since that will not work (with 2.5+)
-         */
+        // 18-Sep-2014, tatu: Let's add explicit check to ensure no one tries to
+        //   use "As.EXTERNAL_PROPERTY", since that will not work (with 2.5+)
         if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
             throw new IllegalArgumentException("Cannot use includeAs of "+includeAs);
         }
         
-        TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability,
-                getPolymorphicTypeValidator());
+        TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability, ptv);
         // we'll always use full class name, when using defaulting
         typer = typer.init(JsonTypeInfo.Id.CLASS, null);
         typer = typer.inclusion(includeAs);
@@ -1604,13 +1637,13 @@ public class ObjectMapper
      * to use for inclusion (default being "@class" since default type information
      * always uses class name as type identifier)
      *<p>
-     * NOTE: use of Default Typing can be a potential security risk if incoming
-     * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
+     * as allowing all subtypes can be risky for untrusted content.
+     *
+     * @since 2.10
      */
-    public ObjectMapper enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName)
+    public ObjectMapper enableDefaultTypingAsProperty(PolymorphicTypeValidator ptv,
+            DefaultTyping applicability, String propertyName)
     {
         TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability,
                 getPolymorphicTypeValidator());
@@ -1641,7 +1674,7 @@ public class ObjectMapper
      * content comes from untrusted sources, so care should be taken to use
      * a {@link TypeResolverBuilder} that can limit allowed classes to
      * deserialize.
-     * 
+     *
      * @param typer Type information inclusion handler
      */
     public ObjectMapper setDefaultTyping(TypeResolverBuilder<?> typer) {
@@ -1650,34 +1683,42 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * Method for registering specified class as a subtype, so that
-     * typename-based resolution can link supertypes to subtypes
-     * (as an alternative to using annotations).
-     * Type for given class is determined from appropriate annotation;
-     * or if missing, default name (unqualified class name)
+    /*
+    /**********************************************************
+    /* Default typing (automatic polymorphic types): deprecated (pre-2.10)
+    /**********************************************************
      */
-    public void registerSubtypes(Class<?>... classes) {
-        getSubtypeResolver().registerSubtypes(classes);
+    
+    /**
+     * @deprecated Since 2.10 use {@link #enableDefaultTyping(PolymorphicTypeValidator)} instead
+     */
+    @Deprecated
+    public ObjectMapper enableDefaultTyping() {
+        return enableDefaultTyping(getPolymorphicTypeValidator());
     }
 
     /**
-     * Method for registering specified class as a subtype, so that
-     * typename-based resolution can link supertypes to subtypes
-     * (as an alternative to using annotations).
-     * Name may be provided as part of argument, but if not will
-     * be based on annotations or use default name (unqualified
-     * class name).
+     * @deprecated Since 2.10 use {@link #enableDefaultTyping(PolymorphicTypeValidator,DefaultTyping)} instead
      */
-    public void registerSubtypes(NamedType... types) {
-        getSubtypeResolver().registerSubtypes(types);
+    @Deprecated
+    public ObjectMapper enableDefaultTyping(DefaultTyping dti) {
+        return enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
     }
 
     /**
-     * @since 2.9
+     * @deprecated Since 2.10 use {@link #enableDefaultTyping(PolymorphicTypeValidator,DefaultTyping,JsonTypeInfo.As)} instead
      */
-    public void registerSubtypes(Collection<Class<?>> subtypes) {
-        getSubtypeResolver().registerSubtypes(subtypes);
+    @Deprecated
+    public ObjectMapper enableDefaultTyping(DefaultTyping applicability, JsonTypeInfo.As includeAs) {
+        return enableDefaultTyping(getPolymorphicTypeValidator(), applicability, includeAs);
+    }
+
+    /**
+     * @deprecated Since 2.10 use {@link #enableDefaultTypingAsProperty(PolymorphicTypeValidator,DefaultTyping,String)} instead
+     */
+    @Deprecated
+    public ObjectMapper enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName) {
+        return enableDefaultTypingAsProperty(getPolymorphicTypeValidator(), applicability, propertyName);
     }
 
     /*

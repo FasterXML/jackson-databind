@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 @SuppressWarnings("serial")
 public class EnumMapDeserializationTest extends BaseMapTest
@@ -158,12 +159,14 @@ public class EnumMapDeserializationTest extends BaseMapTest
         Pojo1859 input = new Pojo1859(enumMap);
 
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@type")
+                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, "@type")
                 .build();
 
         // 05-Mar-2018, tatu: Original issue had this; should not make difference:
          /*
-        TypeResolverBuilder<?> mapTyperAsPropertyType = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+        TypeResolverBuilder<?> mapTyperAsPropertyType = new ObjectMapper.DefaultTypeResolverBuilder(NoCheckSubTypeValidator.instance,
+            ObjectMapper.DefaultTyping.NON_FINAL);
         mapTyperAsPropertyType.init(JsonTypeInfo.Id.CLASS, null);
         mapTyperAsPropertyType.inclusion(JsonTypeInfo.As.PROPERTY);
         mapper.setDefaultTyping(mapTyperAsPropertyType);

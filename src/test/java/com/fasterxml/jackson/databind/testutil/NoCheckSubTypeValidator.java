@@ -1,23 +1,19 @@
-package com.fasterxml.jackson.databind.jsontype.impl;
+package com.fasterxml.jackson.databind.testutil;
 
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
- * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed.
- * Does not do any validation, allows all subtypes. Only used for backwards-compatibility
- * reasons: users should not usually use such a permissive implementation but use
- * allow-list/criteria - based implementation.
- *
- * @since 2.10
+ * Test-only {@link PolymorphicTypeValidator} used by tests that should not block
+ * use of any subtypes.
  */
-final class LaissezFaireSubTypeValidator
+public final class NoCheckSubTypeValidator
     extends PolymorphicTypeValidator
 {
     private static final long serialVersionUID = 1L;
 
-    public final static LaissezFaireSubTypeValidator instance = new LaissezFaireSubTypeValidator(); 
+    public final static NoCheckSubTypeValidator instance = new NoCheckSubTypeValidator(); 
 
     @Override
     public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {

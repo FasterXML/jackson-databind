@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // see [https://github.com/FasterXML/jackson-core/issues/384]: most likely
 // can not be fixed, but could we improve error message to indicate issue
@@ -171,7 +172,7 @@ public class InnerClassNonStaticCore384Test extends BaseMapTest
 
     public void testHierarchy() throws IOException {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
 
         Fleet fleet = initVehicle();

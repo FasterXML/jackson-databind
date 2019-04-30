@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestDefaultForMaps 
@@ -71,7 +72,8 @@ public class TestDefaultForMaps
     
     public void testJackson428() throws Exception
     {
-        TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
+        TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(NoCheckSubTypeValidator.instance,
+                DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
 //        serializerTyper = serializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(true));
 //        serializerTyper = serializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
@@ -88,7 +90,8 @@ public class TestDefaultForMaps
         String json = serMapper.writeValueAsString(holder);
 
         // Then deserialize: need separate mapper to initialize type id resolver appropriately
-        TypeResolverBuilder<?> deserializerTyper = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
+        TypeResolverBuilder<?> deserializerTyper = new DefaultTypeResolverBuilder(NoCheckSubTypeValidator.instance,
+                DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
 //        deserializerTyper = deserializerTyper.init(JsonTypeInfo.Id.NAME, createTypeNameIdResolver(false));
 //        deserializerTyper = deserializerTyper.inclusion(JsonTypeInfo.As.PROPERTY);
@@ -124,7 +127,8 @@ public class TestDefaultForMaps
     public void testList() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
                 .build();
         ItemList child = new ItemList();
         child.value = "I am child";
@@ -141,7 +145,8 @@ public class TestDefaultForMaps
     public void testMap() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
                 .build();
         ItemMap child = new ItemMap();
         child.value = "I am child";

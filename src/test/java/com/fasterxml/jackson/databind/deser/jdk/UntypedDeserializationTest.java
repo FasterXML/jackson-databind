@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * Unit tests for verifying "raw" (or "untyped") data binding from JSON to JDK objects;
@@ -221,7 +222,8 @@ public class UntypedDeserializationTest
     public void testObjectSerializeWithLong() throws IOException
     {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY)
                 .build();
         final long VALUE = 1337800584532L;
 

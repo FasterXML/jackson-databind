@@ -9,7 +9,7 @@ import org.springframework.jacksontest.GrantedAuthority;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
-
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.mchange.v2.c3p0.jacksontest.ComboPooledDataSource;
 
 /**
@@ -58,7 +58,7 @@ public class IllegalTypesCheckTest extends BaseMapTest
 +"}"
         );
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         try {
             mapper.readValue(JSON, Bean1599.class);
@@ -107,7 +107,8 @@ public class IllegalTypesCheckTest extends BaseMapTest
     public void testJDKTypes1872() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 
         String json = aposToQuotes(String.format("{'@class':'%s','authorities':['java.util.ArrayList',[]]}",

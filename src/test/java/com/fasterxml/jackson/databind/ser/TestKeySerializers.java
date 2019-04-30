@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 @SuppressWarnings("serial")
 public class TestKeySerializers extends BaseMapTest
@@ -218,7 +219,8 @@ public class TestKeySerializers extends BaseMapTest
     public void testUnWrappedMapWithDefaultType() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(DefaultTyping.NON_FINAL,
+        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(NoCheckSubTypeValidator.instance,
+                DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY, JsonTypeInfo.Id.NAME, null)
             .typeIdVisibility(true);
         ObjectMapper mapper = jsonMapperBuilder()

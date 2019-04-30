@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestWithGenerics extends BaseMapTest
 {
@@ -161,7 +162,8 @@ public class TestWithGenerics extends BaseMapTest
     {
         ObjectMapper om = jsonMapperBuilder()
                 .enable( SerializationFeature.INDENT_OUTPUT)
-                .enableDefaultTyping( DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY)
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .build();
 

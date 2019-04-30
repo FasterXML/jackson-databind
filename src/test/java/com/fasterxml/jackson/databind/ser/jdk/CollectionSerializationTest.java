@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class CollectionSerializationTest
     extends BaseMapTest
@@ -277,7 +278,8 @@ public class CollectionSerializationTest
 
         // but then with default typing
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(w);
         assertEquals(aposToQuotes(String.format("['%s',{'list':['%s',['a','b','c']]}]",

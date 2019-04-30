@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class OptionalBasicTest extends BaseMapTest
 {
@@ -171,7 +172,8 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testWithTypingEnabled() throws Exception {
 	    final ObjectMapper mapper = jsonMapperBuilder()
 	            // ENABLE TYPING
-	            .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
+	            .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+	                    DefaultTyping.OBJECT_AND_NON_CONCRETE)
 	            .build();
 
 		final OptionalData myData = new OptionalData();

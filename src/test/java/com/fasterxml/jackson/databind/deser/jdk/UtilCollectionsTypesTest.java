@@ -6,12 +6,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // Unit tests for [databind#1868], [databind#1880], [databind#2265]
 public class UtilCollectionsTypesTest extends BaseMapTest
 {
    private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
-           .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+           .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                   DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
            .build();
 
    /*

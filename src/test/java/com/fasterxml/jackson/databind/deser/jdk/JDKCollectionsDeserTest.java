@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * Tests for special collection/map types via `java.util.Collections`
@@ -49,7 +50,8 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     public void testUnmodifiableSet() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
         Set<String> theSet = Collections.unmodifiableSet(Collections.singleton("a"));
         String json = mapper.writeValueAsString(theSet);

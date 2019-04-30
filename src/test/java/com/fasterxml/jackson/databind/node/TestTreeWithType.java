@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestTreeWithType extends BaseMapTest
 {
@@ -69,7 +70,8 @@ public class TestTreeWithType extends BaseMapTest
 
     public void testValueAsStringWithDefaultTyping() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
         Foo foo = new Foo("baz");
         String json = mapper.writeValueAsString(foo);
@@ -83,8 +85,8 @@ public class TestTreeWithType extends BaseMapTest
         final String CLASS = Foo.class.getName();
 
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL,
-                        JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
         String json = "{\"@class\":\""+CLASS+"\",\"bar\":\"baz\"}";
         JsonNode jsonNode = mapper.readTree(json);
@@ -101,7 +103,8 @@ public class TestTreeWithType extends BaseMapTest
     public void testValueToTreeWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
         Foo foo = new Foo("baz");
         JsonNode jsonNode = mapper.valueToTree(foo);
@@ -113,7 +116,8 @@ public class TestTreeWithType extends BaseMapTest
         SimpleModule testModule = new SimpleModule("MyModule", new Version(1, 0, 0, null, "TEST", "TEST"));
         testModule.addDeserializer(SavedCookie.class, new SavedCookieDeserializer());
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class")
+                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, "@class")
                 .addModule(testModule)
                 .build();
         SavedCookie savedCookie = new SavedCookie("key", "v");

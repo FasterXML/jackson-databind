@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestDefaultForEnums
     extends BaseMapTest
@@ -31,7 +32,7 @@ public class TestDefaultForEnums
      */
 
     private final ObjectMapper DEFTYPING_MAPPER = jsonMapperBuilder()
-            .enableDefaultTyping()
+            .enableDefaultTyping(NoCheckSubTypeValidator.instance)
             .build();
     
     public void testSimpleEnumBean() throws Exception

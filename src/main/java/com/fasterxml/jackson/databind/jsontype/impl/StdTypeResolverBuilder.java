@@ -281,8 +281,6 @@ public class StdTypeResolverBuilder
      *<p>
      * Default implementation simply uses one configured and accessible using
      * {@link MapperConfig#getPolymorphicTypeValidator()}.
-     *
-     * @since 2.10
      */
     public PolymorphicTypeValidator subTypeValidator(DatabindContext ctxt) {
         return ctxt.getConfig().getPolymorphicTypeValidator();
@@ -292,8 +290,6 @@ public class StdTypeResolverBuilder
      * Helper method called to check that base type is valid regarding possible constraints
      * on basetype/subtype combinations allowed for polymorphic type handling.
      * Currently limits are verified for class name - based methods only.
-     *
-     * @since 2.10
      */
     protected PolymorphicTypeValidator verifyBaseTypeValidity(DatabindContext ctxt,
             JavaType baseType) throws JsonMappingException
@@ -314,9 +310,6 @@ public class StdTypeResolverBuilder
         return ptv;
     }
 
-    /**
-     * @since 2.10
-     */
     protected PolymorphicTypeValidator reportInvalidBaseType(DatabindContext ctxt,
             JavaType baseType, PolymorphicTypeValidator ptv) throws JsonMappingException
     {

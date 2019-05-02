@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
  * use of any subtypes.
  */
 public final class NoCheckSubTypeValidator
-    extends PolymorphicTypeValidator
+    extends PolymorphicTypeValidator.Base
 {
     private static final long serialVersionUID = 1L;
 

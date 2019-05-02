@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
  * @since 2.10
  */
 public final class LaissezFaireSubTypeValidator
-    extends PolymorphicTypeValidator
+    extends PolymorphicTypeValidator.Base
 {
     private static final long serialVersionUID = 1L;
 

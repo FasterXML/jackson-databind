@@ -5,14 +5,16 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // Unit tests for [databind#1868], [databind#1880], [databind#2265]
 public class UtilCollectionsTypesTest extends BaseMapTest
 {
-   private final ObjectMapper DEFAULT_MAPPER = new ObjectMapper();
-   {
-       DEFAULT_MAPPER.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-   }
+   private final ObjectMapper DEFAULT_MAPPER = JsonMapper.builder()
+           .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                   ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+           .build();
 
    /*
    /**********************************************************

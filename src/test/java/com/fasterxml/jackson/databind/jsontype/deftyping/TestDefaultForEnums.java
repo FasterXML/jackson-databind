@@ -4,6 +4,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestDefaultForEnums
     extends BaseMapTest
@@ -42,8 +44,9 @@ public class TestDefaultForEnums
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
         
         // then with type info
-        m = new ObjectMapper();
-        m.enableDefaultTyping();
+        m = JsonMapper.builder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .build();
         json = m.writeValueAsString(bean);
         result = m.readValue(json, TimeUnitBean.class);
 
@@ -52,9 +55,9 @@ public class TestDefaultForEnums
     
     public void testSimpleEnumsInObjectArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
-        
+        ObjectMapper m = JsonMapper.builder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .build();
         // Typing is needed for enums
         String json = m.writeValueAsString(new Object[] { TestEnum.A });
         assertEquals("[[\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForEnums$TestEnum\",\"A\"]]", json);
@@ -67,8 +70,9 @@ public class TestDefaultForEnums
 
     public void testSimpleEnumsAsField() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
+        ObjectMapper m = JsonMapper.builder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .build();
         String json = m.writeValueAsString(new EnumHolder(TestEnum.B));
         assertEquals("{\"value\":[\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForEnums$TestEnum\",\"B\"]}", json);
         EnumHolder holder = m.readValue(json, EnumHolder.class);

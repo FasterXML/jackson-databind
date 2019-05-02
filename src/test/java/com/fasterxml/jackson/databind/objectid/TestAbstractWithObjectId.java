@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import java.util.*;
 
@@ -52,8 +54,10 @@ public class TestAbstractWithObjectId extends BaseMapTest
         myList.add(two);
 
         // make an object mapper that will add class info in so deserialisation works
-        ObjectMapper om = new ObjectMapper();
-        om.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        ObjectMapper om = JsonMapper.builder()
+                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.NON_FINAL, "@class")
+                .build();
 
         // write and print the JSON
         String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(myList);

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 @SuppressWarnings("serial")
 public class EnumMapDeserializationTest extends BaseMapTest
@@ -157,8 +159,10 @@ public class EnumMapDeserializationTest extends BaseMapTest
         enumMap.put(Enum1859.B, "stuff");
         Pojo1859 input = new Pojo1859(enumMap);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@type");
+        ObjectMapper mapper = JsonMapper.builder()
+                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.NON_FINAL, "@type")
+                .build();
 
         // 05-Mar-2018, tatu: Original issue had this; should not make difference:
          /*

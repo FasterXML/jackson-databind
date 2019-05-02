@@ -190,7 +190,7 @@ public class ObjectMapper
     /**
      * Customized {@link TypeResolverBuilder} that provides type resolver builders
      * used with so-called "default typing"
-     * (see {@link ObjectMapper#enableDefaultTyping()} for details).
+     * (see {@link ObjectMapper#enableDefaultTyping(PolymorphicTypeValidator)} for details).
      *<p>
      * Type resolver construction is based on configuration: implementation takes care
      * of only providing builders in cases where type information should be applied.
@@ -1415,7 +1415,9 @@ public class ObjectMapper
 
     /**
      * Method for specifying {@link PolymorphicTypeValidator} to use for validating
-     * polymorphic subtypes on deserialization.
+     * polymorphic subtypes used with explicit polymorphic types (annotation-based),
+     * but NOT one with "default typing" (see {@link #enableDefaultTyping(PolymorphicTypeValidator)}
+     * for details).
      *
      * @since 2.10
      */
@@ -1426,6 +1428,11 @@ public class ObjectMapper
     }
 
     /**
+     * Accessor for configured {@link PolymorphicTypeValidator} used for validating
+     * polymorphic subtypes used with explicit polymorphic types (annotation-based),
+     * but NOT one with "default typing" (see {@link #enableDefaultTyping(PolymorphicTypeValidator)}
+     * for details).
+     *
      * @since 2.10
      */
     public PolymorphicTypeValidator getPolymorphicTypeValidator() {
@@ -1568,11 +1575,14 @@ public class ObjectMapper
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
+     *  enableDefaultTyping(ptv, DefaultTyping.OBJECT_AND_NON_CONCRETE);
      *</pre>
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
      * as allowing all subtypes can be risky for untrusted content.
+     *
+     * @param ptv Validator used to verify that actual subtypes to deserialize are valid against
+     *    whatever criteria validator uses: important in case where untrusted content is deserialized.
      *
      * @since 2.10
      */
@@ -1583,17 +1593,22 @@ public class ObjectMapper
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+     *  enableDefaultTyping(ptv, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
      *</pre>
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
      * as allowing all subtypes can be risky for untrusted content.
      *
+     * @param ptv Validator used to verify that actual subtypes to deserialize are valid against
+     *    whatever criteria validator uses: important in case where untrusted content is deserialized.
+     * @param applicability Defines kinds of types for which additional type information
+     *    is added; see {@link DefaultTyping} for more information.
+     *
      * @since 2.10
      */
     public ObjectMapper enableDefaultTyping(PolymorphicTypeValidator ptv,
-            DefaultTyping dti) {
-        return enableDefaultTyping(ptv, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+            DefaultTyping applicability) {
+        return enableDefaultTyping(ptv, applicability, JsonTypeInfo.As.WRAPPER_ARRAY);
     }
 
     /**
@@ -1607,9 +1622,12 @@ public class ObjectMapper
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
      * as allowing all subtypes can be risky for untrusted content.
-     * 
+     *
+     * @param ptv Validator used to verify that actual subtypes to deserialize are valid against
+     *    whatever criteria validator uses: important in case where untrusted content is deserialized.
      * @param applicability Defines kinds of types for which additional type information
      *    is added; see {@link DefaultTyping} for more information.
+     * @param includeAs
      *
      * @since 2.10
      */
@@ -1639,6 +1657,12 @@ public class ObjectMapper
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
      * as allowing all subtypes can be risky for untrusted content.
+     *
+     * @param ptv Validator used to verify that actual subtypes to deserialize are valid against
+     *    whatever criteria validator uses: important in case where untrusted content is deserialized.
+     * @param applicability Defines kinds of types for which additional type information
+     *    is added; see {@link DefaultTyping} for more information.
+     * @param propertyName Name of property used for including type id for polymorphic values.
      *
      * @since 2.10
      */

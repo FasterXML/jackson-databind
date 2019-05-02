@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * @since 2.7
@@ -30,8 +31,10 @@ public class TestJava7Types extends BaseMapTest
     // [databind#1688]:
     public void testPolymorphicPath() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL)
+                .build();
         Path input = Paths.get("/tmp", "foo.txt");
 
         String json = mapper.writeValueAsString(new Object[] { input });

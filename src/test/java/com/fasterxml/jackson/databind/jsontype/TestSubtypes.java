@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-
 import com.fasterxml.jackson.core.Version;
 
 import java.util.*;
@@ -15,6 +14,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 {
@@ -263,7 +263,8 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
         // and then with defaults
         mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         json = mapper.writeValueAsString(new EmptyNonFinal());
         assertEquals("[\"com.fasterxml.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);

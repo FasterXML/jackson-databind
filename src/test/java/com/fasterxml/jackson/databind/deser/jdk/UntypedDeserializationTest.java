@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * Unit tests for verifying "raw" (or "untyped") data binding from JSON to JDK objects;
@@ -225,7 +226,8 @@ public class UntypedDeserializationTest
     public void testObjectSerializeWithLong() throws IOException
     {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY);
+        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY);
         final long VALUE = 1337800584532L;
 
         String serialized = "{\"timestamp\":"+VALUE+"}";

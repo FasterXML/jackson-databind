@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 @SuppressWarnings("serial")
 public class ObjectId825BTest extends BaseMapTest
@@ -133,13 +134,15 @@ public class ObjectId825BTest extends BaseMapTest
 
     static class V extends AbstractData {
         private static final long serialVersionUID = 1L;
-    }    
+    }
 
     public void testFull825() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
-        mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE)
+                .build();
 
         String INPUT = aposToQuotes(
 "{\n"+

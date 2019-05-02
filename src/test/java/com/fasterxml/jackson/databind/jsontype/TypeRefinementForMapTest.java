@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TypeRefinementForMapTest extends BaseMapTest
 {
@@ -120,7 +121,10 @@ public class TypeRefinementForMapTest extends BaseMapTest
     {
         final String TEST_INSTANCE_SERIALIZED =
                 "{\"mapProperty\":[\"java.util.HashMap\",{\"Compound|Key\":\"Value\"}]}";
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.NON_FINAL)
+                .build();
 
         TestClass testInstance = mapper.readValue(TEST_INSTANCE_SERIALIZED, TestClass.class);
         assertEquals(1, testInstance.mapProperty.size());

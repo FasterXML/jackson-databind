@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.jsontype.deftyping;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestDefaultForTreeNodes extends BaseMapTest
 {
@@ -18,11 +19,11 @@ public class TestDefaultForTreeNodes extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper DEFAULT_MAPPER = new ObjectMapper();
-    {
-        DEFAULT_MAPPER.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-    }
-    
+    private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
+            .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+            .build();
+
     public void testValueAsStringWithDefaultTyping() throws Exception
     {
         Foo foo = new Foo("baz");

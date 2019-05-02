@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestWithGenerics extends BaseMapTest
 {
@@ -166,7 +167,8 @@ public class TestWithGenerics extends BaseMapTest
     public void testJackson387() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
-        om.enableDefaultTyping( ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY );
+        om.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY );
         om.setSerializationInclusion(JsonInclude.Include.NON_NULL );
         om.enable( SerializationFeature.INDENT_OUTPUT);
 

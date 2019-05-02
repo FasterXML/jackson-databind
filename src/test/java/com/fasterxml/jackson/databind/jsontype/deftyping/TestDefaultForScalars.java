@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * Unit tests to verify that Java/JSON scalar values (non-structured values)
@@ -43,10 +44,9 @@ public class TestDefaultForScalars
     /**********************************************************
      */
 
-    private final ObjectMapper DEFAULT_TYPING_MAPPER = newObjectMapper();
-    {
-        DEFAULT_TYPING_MAPPER.enableDefaultTyping();
-    }
+    private final ObjectMapper DEFAULT_TYPING_MAPPER = jsonMapperBuilder()
+        .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+        .build();
 
     /**
      * Unit test to verify that limited number of core types do NOT include
@@ -94,8 +94,10 @@ public class TestDefaultForScalars
      */
     public void testScalarArrays() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT);
+        ObjectMapper m = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT)
+                .build();
         Object[] input = new Object[] {
                 "abc", new Date(1234567), null, Integer.valueOf(456)
         };

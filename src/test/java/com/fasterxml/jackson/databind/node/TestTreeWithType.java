@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestTreeWithType extends BaseMapTest
 {
@@ -68,8 +69,10 @@ public class TestTreeWithType extends BaseMapTest
     }
 
     public void testValueAsStringWithDefaultTyping() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
 
         Foo foo = new Foo("baz");
         String json = mapper.writeValueAsString(foo);
@@ -82,9 +85,11 @@ public class TestTreeWithType extends BaseMapTest
     {
         final String CLASS = Foo.class.getName();
 
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.NON_FINAL,
+                        JsonTypeInfo.As.PROPERTY)
+                .build();
         String json = "{\"@class\":\""+CLASS+"\",\"bar\":\"baz\"}";
         JsonNode jsonNode = mapper.readTree(json);
         assertEquals(jsonNode.get("bar").textValue(), "baz");
@@ -98,8 +103,10 @@ public class TestTreeWithType extends BaseMapTest
     }
 
     public void testValueToTreeWithDefaultTyping() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
 
         Foo foo = new Foo("baz");
         JsonNode jsonNode = mapper.valueToTree(foo);
@@ -108,9 +115,10 @@ public class TestTreeWithType extends BaseMapTest
 
     public void testIssue353() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL, "@class")
+                .build();
 
          SimpleModule testModule = new SimpleModule("MyModule", new Version(1, 0, 0, null, "TEST", "TEST"));
          testModule.addDeserializer(SavedCookie.class, new SavedCookieDeserializer());

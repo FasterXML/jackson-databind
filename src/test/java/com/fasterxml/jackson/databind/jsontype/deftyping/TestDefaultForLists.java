@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestDefaultForLists
     extends BaseMapTest
@@ -69,8 +70,9 @@ public class TestDefaultForLists
     
     public void testListOfLongs() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
+        ObjectMapper m = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .build();
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
         String json = m.writeValueAsString(input);
         assertEquals("{\"longs\":[\"java.util.ArrayList\",[1,2,3]]}", json);
@@ -91,8 +93,9 @@ public class TestDefaultForLists
      */
     public void testListOfNumbers() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
+        ObjectMapper m = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .build();
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
         String json = m.writeValueAsString(input);
         assertEquals("{\"nums\":[\"java.util.ArrayList\",[[\"java.lang.Long\",1],2,3.0]]}", json);
@@ -107,8 +110,9 @@ public class TestDefaultForLists
 
     public void testDateTypes() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping();
+        ObjectMapper m = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .build();
         ObjectListBean input = new ObjectListBean();
         List<Object> inputList = new ArrayList<Object>();
         inputList.add(TimeZone.getTimeZone("EST"));
@@ -126,7 +130,7 @@ public class TestDefaultForLists
     public void testJackson628() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL);
         ArrayList<Foo> data = new ArrayList<Foo>();
         String json = mapper.writeValueAsString(data);
         List<?> output = mapper.readValue(json, List.class);
@@ -136,7 +140,8 @@ public class TestDefaultForLists
     public void testJackson667() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,
+        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
         String json = mapper.writeValueAsString(new SetBean("abc"));
         SetBean bean = mapper.readValue(json, SetBean.class);

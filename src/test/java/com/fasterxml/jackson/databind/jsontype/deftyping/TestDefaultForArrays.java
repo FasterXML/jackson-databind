@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestDefaultForArrays extends BaseMapTest
 {
@@ -45,8 +46,10 @@ public class TestDefaultForArrays extends BaseMapTest
      */
     public void testArrayTypingSimple() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS);
+        ObjectMapper m = jsonMapperBuilder().
+                enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+                .build();
         ArrayBean bean = new ArrayBean(new String[0]);
         String json = m.writeValueAsString(bean);
         ArrayBean result = m.readValue(json, ArrayBean.class);
@@ -57,8 +60,10 @@ public class TestDefaultForArrays extends BaseMapTest
     // And let's try it with deeper array as well
     public void testArrayTypingNested() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS);
+        ObjectMapper m = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+                .build();
         ArrayBean bean = new ArrayBean(new String[0][0]);
         String json = m.writeValueAsString(bean);
         ArrayBean result = m.readValue(json, ArrayBean.class);
@@ -69,9 +74,10 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testNodeInArray() throws Exception
     {
         JsonNode node = new ObjectMapper().readTree("{\"a\":3}");
-
-        ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT);
+        ObjectMapper m = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT)
+                .build();
         Object[] obs = new Object[] { node };
         String json = m.writeValueAsString(obs);
         Object[] result = m.readValue(json, Object[].class);
@@ -91,8 +97,15 @@ public class TestDefaultForArrays extends BaseMapTest
         assertEquals("{}", json);
         
         JsonNode node = new ObjectMapper().readTree("{\"a\":[]}");
-        
-        m.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT);
+
+        m = jsonMapperBuilder()
+                .disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT)
+                .build();
+        m.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                DefaultTyping.JAVA_LANG_OBJECT);
+
         Object[] obs = new Object[] { node };
         json = m.writeValueAsString(obs);
         Object[] result = m.readValue(json, Object[].class);
@@ -105,8 +118,10 @@ public class TestDefaultForArrays extends BaseMapTest
 
     public void testArraysOfArrays() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
 
         Object value = new Object[][] { new Object[] {} };
         String json = mapper.writeValueAsString(value);
@@ -120,7 +135,8 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArrayTypingForPrimitiveArrays() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS);
+        m.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                DefaultTyping.NON_CONCRETE_AND_ARRAYS);
         _testArrayTypingForPrimitiveArrays(m, new int[] { 1, 2, 3 });
         _testArrayTypingForPrimitiveArrays(m, new long[] { 1, 2, 3 });
         _testArrayTypingForPrimitiveArrays(m, new short[] { 1, 2, 3 });

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // for [databind#2221]
 public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
@@ -84,7 +85,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
 
     public void testWithDeserializationProblemHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
-                .enableDefaultTyping();
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance);
         mapper.addHandler(new DeserializationProblemHandler() {
             @Override
             public JavaType handleUnknownTypeId(DeserializationContext ctxt, JavaType baseType, String subTypeId, TypeIdResolver idResolver, String failureMsg) throws IOException {
@@ -100,7 +101,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
     public void testWithDisabledFAIL_ON_INVALID_SUBTYPE() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
                 .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
-                .enableDefaultTyping()
+                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
         ;
         GenericContent processableContent = mapper.readValue(JSON, GenericContent.class);
         assertNotNull(processableContent.getInnerObjects());

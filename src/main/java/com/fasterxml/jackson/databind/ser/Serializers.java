@@ -142,7 +142,7 @@ public interface Serializers
 
     /**
      * Method called in case that a given type or property is declared to use shape
-     * {@link JsonFormat.Shape#POJO} and is expected to be serialized "as POJO", that is,
+     * {@code JsonFormat.Shape.POJO} and is expected to be serialized "as POJO", that is,
      * as an (JSON) Object. This is usually NOT handled by extension modules as core
      * databind knows how to do this, but sometimes it may be necessary to override
      * this behavior.

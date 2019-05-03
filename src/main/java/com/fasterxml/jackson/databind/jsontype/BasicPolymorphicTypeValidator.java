@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * @since 2.10
  */
 public class BasicPolymorphicTypeValidator
-    extends PolymorphicTypeValidator
+    extends PolymorphicTypeValidator.Base
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;

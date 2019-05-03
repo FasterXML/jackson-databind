@@ -5,15 +5,12 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
- * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed.
- * Does not do any validation, allows all subtypes. Only used for backwards-compatibility
- * reasons: users should not usually use such a permissive implementation but use
- * allow-list/criteria - based implementation.
- *
- * @since 2.10
+ * Simple {@link PolymorphicTypeValidator} implementation used by {@link StdTypeResolverBuilder}
+ * in cases where all subtypes for given base type are deemeded acceptable; usually because
+ * user controls base type in question (and no serialization gadgets should exist).
  */
 final class LaissezFaireSubTypeValidator
-    extends PolymorphicTypeValidator
+    extends PolymorphicTypeValidator.Base
 {
     private static final long serialVersionUID = 1L;
 

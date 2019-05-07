@@ -564,7 +564,9 @@ public class BeanSerializerFactory
         for (int i = 0; i < propCount; ++i) {
             BeanPropertyWriter bpw = props.get(i);
             Class<?>[] views = bpw.getViews();
-            if (views == null) { // no view info? include or exclude by default?
+            if (views == null
+                    // [databind#2311]: sometimes we add empty array
+                    || views.length == 0) { // no view info? include or exclude by default?
                 if (includeByDefault) {
                     filtered[i] = bpw;
                 }

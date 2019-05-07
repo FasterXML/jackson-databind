@@ -40,6 +40,8 @@ Project: jackson-databind
 #2251: Getter that returns an abstract collection breaks a delegating `@JsonCreator`
 #2265: Inconsistent handling of Collections$UnmodifiableList vs Collections$UnmodifiableRandomAccessListq
 #2273: Add basic Java 9+ module info
+#2311: Unnecessary MultiView creation for property writers
+ (suggested by Manuel H)
 
 2.9.9 (not yet released)
 

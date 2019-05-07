@@ -22,6 +22,17 @@ public class ClassNameIdResolver
 
     protected final PolymorphicTypeValidator _subTypeValidator;
 
+    /**
+     * @deprecated Since 2.10 use variant that takes {@link PolymorphicTypeValidator}
+     */
+    @Deprecated
+    protected ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
+        this(baseType, typeFactory, LaissezFaireSubTypeValidator.instance);
+    }
+
+    /**
+     * @since 2.10
+     */
     public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
             PolymorphicTypeValidator ptv) {
         super(baseType, typeFactory);

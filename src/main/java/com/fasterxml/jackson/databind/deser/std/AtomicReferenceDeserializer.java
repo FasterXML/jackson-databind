@@ -44,10 +44,13 @@ public class AtomicReferenceDeserializer
     }
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) {
-        return new AtomicReference<Object>();
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        // 07-May-2019, tatu: I _think_ this needs to align with "null value" and
+        //    not necessarily with empty value of contents? (used to just do "absent"
+        //    so either way this seems to me like an improvement)
+        return getNullValue(ctxt);
     }
-    
+
     @Override
     public AtomicReference<Object> referenceValue(Object contents) {
         return new AtomicReference<Object>(contents);

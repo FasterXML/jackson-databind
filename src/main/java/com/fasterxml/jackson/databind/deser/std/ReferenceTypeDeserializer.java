@@ -118,10 +118,10 @@ public abstract class ReferenceTypeDeserializer<T>
             JsonDeserializer<?> valueDeser);
 
     @Override
-    public abstract T getNullValue(DeserializationContext ctxt);
+    public abstract T getNullValue(DeserializationContext ctxt) throws JsonMappingException;
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) {
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         return getNullValue(ctxt);
     }
 

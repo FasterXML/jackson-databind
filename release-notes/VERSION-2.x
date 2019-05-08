@@ -16,6 +16,8 @@ Project: jackson-databind
  (reported by Joffrey B)
 #2299: Fix for using jackson-databind in an OSGi environment under Android
  (contributed by Christoph F)
+#2303: Deserialize null, when java type is "TypeRef of TypeRef of T", does not provide "Type(Type(null))"
+ (reported by Cyril M)
 - Prevent String coercion of `null` in `WritableObjectId` when calling `JsonGenerator.writeObjectId()`,
   mostly relevant for formats like YAML that have native Object Ids
 

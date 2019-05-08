@@ -837,3 +837,8 @@ Joffrey Bion (joffrey-bion@github)
 Christoph (cfiehe@github.com)
   * Contributed #2299: Fix for using jackson-databind in an OSGi environment under Android
    (2.9.9)
+
+Cyril Martin (mcoolive@github.com)
+  * Reported #2303: Deserialize null, when java type is "TypeRef of TypeRef of T",
+    does not provide "Type(Type(null))"
+   (2.9.9)

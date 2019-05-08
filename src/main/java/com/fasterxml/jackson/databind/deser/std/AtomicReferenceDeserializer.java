@@ -37,9 +37,10 @@ public class AtomicReferenceDeserializer
         return new AtomicReferenceDeserializer(_fullType, _valueInstantiator,
                 typeDeser, valueDeser);
     }
+
     @Override
-    public AtomicReference<Object> getNullValue(DeserializationContext ctxt) {
-        return new AtomicReference<Object>();
+    public AtomicReference<Object> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        return new AtomicReference<Object>(_valueDeserializer.getNullValue(ctxt));
     }
 
     @Override

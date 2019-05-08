@@ -6,10 +6,11 @@ import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class JDKAtomicTypesTest
+public class JDKAtomicTypesDeserTest
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
@@ -92,6 +93,11 @@ public class JDKAtomicTypesTest
         public Object a = new AtomicReference<Object>();
         public AtomicReference<Object> b = new AtomicReference<Object>();
     }
+
+    // [databind#2303]
+    static class MyBean2303 {
+        public AtomicReference<AtomicReference<Integer>> refRef;
+    }    
 
     /*
     /**********************************************************
@@ -273,11 +279,25 @@ public class JDKAtomicTypesTest
     @SuppressWarnings("unchecked")
     public void testNullValueHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         AtomicReference<Double> inputData = new AtomicReference<Double>();
-        String json = mapper.writeValueAsString(inputData);
-        AtomicReference<Double> readData = (AtomicReference<Double>) mapper.readValue(json, AtomicReference.class);
+        String json = MAPPER.writeValueAsString(inputData);
+        AtomicReference<Double> readData = (AtomicReference<Double>) MAPPER.readValue(json, AtomicReference.class);
         assertNotNull(readData);
         assertNull(readData.get());
+    }
+
+    // [databind#2303]
+    public void testNullWithinNested() throws Exception
+    {
+        final ObjectReader r = MAPPER.readerFor(MyBean2303.class);
+        MyBean2303 intRef = r.readValue(" {\"refRef\": 2 } ");
+        assertNotNull(intRef.refRef);
+        assertNotNull(intRef.refRef.get());
+        assertEquals(intRef.refRef.get().get(), new Integer(2));
+
+        MyBean2303 nullRef = r.readValue(" {\"refRef\": null } ");
+        assertNotNull(nullRef.refRef);
+        assertNotNull(nullRef.refRef.get());
+        assertNull(nullRef.refRef.get().get());
     }
 }

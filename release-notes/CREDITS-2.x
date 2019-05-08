@@ -851,6 +851,11 @@ Christoph Fiehe (cfiehe@github.com)
   * Contributed #2299: Fix for using jackson-databind in an OSGi environment under Android
    (2.9.9)
 
+Cyril Martin (mcoolive@github.com)
+  * Reported #2303: Deserialize null, when java type is "TypeRef of TypeRef of T",
+    does not provide "Type(Type(null))"
+   (2.9.9)
+
 Christoph Breitkopf (bokesan@github)
   * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
    (2.10.0)
@@ -866,3 +871,4 @@ Pavel Chervakov (pacher@github)
 Manuel Hegner (manuel-hegner@github)
   * Suggested #2311: Unnecessary MultiView creation for property writers
    (2.10.0)
+

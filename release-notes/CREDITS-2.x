@@ -842,3 +842,7 @@ Cyril Martin (mcoolive@github.com)
   * Reported #2303: Deserialize null, when java type is "TypeRef of TypeRef of T",
     does not provide "Type(Type(null))"
    (2.9.9)
+
+Daniil Barvitsky (dbarvitsky@github(
+  * Reported #2324: `StringCollectionDeserializer` fails with custom collection
+   (2.9.9)

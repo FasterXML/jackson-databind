@@ -103,8 +103,12 @@ public final class StringCollectionDeserializer
         // May need to resolve types for delegate-based creators:
         JsonDeserializer<Object> delegate = null;
         if (_valueInstantiator != null) {
-            AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
+            // [databind#2324]: check both array-delegating and delegating
+            AnnotatedWithParams delegateCreator = _valueInstantiator.getArrayDelegateCreator();
             if (delegateCreator != null) {
+                JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
+                delegate = findDeserializer(ctxt, delegateType, property);
+            } else if ((delegateCreator = _valueInstantiator.getDelegateCreator()) != null) {
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 delegate = findDeserializer(ctxt, delegateType, property);
             }

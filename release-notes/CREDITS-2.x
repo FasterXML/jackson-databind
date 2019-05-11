@@ -856,6 +856,10 @@ Cyril Martin (mcoolive@github.com)
     does not provide "Type(Type(null))"
    (2.9.9)
 
+Daniil Barvitsky (dbarvitsky@github(
+  * Reported #2324: `StringCollectionDeserializer` fails with custom collection
+   (2.9.9)
+
 Christoph Breitkopf (bokesan@github)
   * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
    (2.10.0)
@@ -871,4 +875,3 @@ Pavel Chervakov (pacher@github)
 Manuel Hegner (manuel-hegner@github)
   * Suggested #2311: Unnecessary MultiView creation for property writers
    (2.10.0)
-

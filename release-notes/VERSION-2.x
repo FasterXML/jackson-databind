@@ -20,6 +20,7 @@ Project: jackson-databind
  (reported by Cyril M)
 #2324: `StringCollectionDeserializer` fails with custom collection
  (reported byb Daniil B)
+#2326: Block one more gadget type (CVE-2019-12086)
 - Prevent String coercion of `null` in `WritableObjectId` when calling `JsonGenerator.writeObjectId()`,
   mostly relevant for formats like YAML that have native Object Ids
 

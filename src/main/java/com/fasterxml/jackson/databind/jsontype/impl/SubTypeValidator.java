@@ -80,6 +80,9 @@ public class SubTypeValidator
         s.add("org.apache.openjpa.ee.JNDIManagedRuntime");
         s.add("org.apache.axis2.transport.jms.JMSOutTransportInfo");
 
+        // [databind#2326] (2.9.9): one more 3rd party gadget
+        s.add("com.mysql.cj.jdbc.admin.MiniAdmin");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

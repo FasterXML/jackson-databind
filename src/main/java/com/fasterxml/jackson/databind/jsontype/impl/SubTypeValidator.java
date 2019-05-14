@@ -82,6 +82,9 @@ public class SubTypeValidator
         s.add("org.apache.openjpa.ee.JNDIManagedRuntime");
         s.add("org.apache.axis2.transport.jms.JMSOutTransportInfo");
 
+        // [databind#2326] (2.9.9): one more 3rd party gadget
+        s.add("com.mysql.cj.jdbc.admin.MiniAdmin");        
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 
@@ -96,7 +99,8 @@ public class SubTypeValidator
 
     public static SubTypeValidator instance() { return instance; }
 
-    public void validateSubType(DeserializationContext ctxt, JavaType type) throws JsonMappingException
+    public void validateSubType(DeserializationContext ctxt, JavaType type)
+            throws JsonMappingException
     {
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.

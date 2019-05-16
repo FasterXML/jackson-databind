@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.9 (not yet released)
+2.9.9 (16-May-2019)
 
 #1408: Call to `TypeVariable.getBounds()` without synchronization unsafe on some platforms
  (reported by Thomas K)

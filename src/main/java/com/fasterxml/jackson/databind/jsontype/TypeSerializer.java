@@ -138,7 +138,7 @@ public abstract class TypeSerializer
 
     /**
      * Method that should be called after {@link #writeTypePrefix(JsonGenerator, WritableTypeId)}
-     * and matching value write have called, passing {@link WritableTypeId} returned.
+     * and matching value write have been called, passing {@link WritableTypeId} returned.
      * Usual idiom is:
      *<pre>
      * // Indicator generator that type identifier may be needed; generator may write

@@ -130,6 +130,15 @@ public abstract class TypeSerializer
     public abstract WritableTypeId writeTypePrefix(JsonGenerator g,
             WritableTypeId typeId) throws IOException;
 
+    /**
+     * Method called to write the "closing" part of type information for given
+     * value, along with possible closing wrapping to use: details are specified
+     * by `typeId` argument, which should be one returned from an earlier matching
+     * call to {@code writeTypePrefix(...)}.
+     *
+     * @param g Generator to use for outputting type id and possible wrapping
+     * @param typeId Details of what type id is to be written, how.
+     */
     public abstract WritableTypeId writeTypeSuffix(JsonGenerator g,
             WritableTypeId typeId) throws IOException;
 }

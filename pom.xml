@@ -46,9 +46,6 @@
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
-    <!-- NOTE! can not use packageVersion.package as is -->
-    <jdk.module.name>com.fasterxml.jackson.databind</jdk.module.name>
-
     <version.powermock>2.0.0</version.powermock>
   </properties>
 

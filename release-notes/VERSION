@@ -9,14 +9,8 @@ Project: jackson-databind
 
 2.8.11.3 (23-Nov-2018)
 
-#2097: Block more classes from polymorphic deserialization (CVE-2018-14718
-  - CVE-2018-14721)
- (reported by Guixiong Wu)
-#2109: Canonical string for reference type is built incorrectly
- (reported by svarzee@github)
-#2186: Block more classes from polymorphic deserialization (CVE-2018-19360,
-  CVE-2018-19361, CVE-2018-19362)
- (reported by Guixiong Wu)
+#2326: Block class for CVE-2019-12086
+ (contributed by MaximilianTews@github)
 
 2.8.11.2 (08-Jun-2018)
 
@@ -251,6 +245,17 @@ Project: jackson-databind
  (reported by Benson M)
 #1277: Add caching of resolved generic types for `TypeFactory`
  (requested by Andriy P)
+
+2.7.9.5 (23-Nov-2018)
+
+#2097: Block more classes from polymorphic deserialization (CVE-2018-14718
+  - CVE-2018-14721)
+ (reported by Guixiong Wu)
+#2109: Canonical string for reference type is built incorrectly
+ (reported by svarzee@github)
+#2186: Block more classes from polymorphic deserialization (CVE-2018-19360,
+  CVE-2018-19361, CVE-2018-19362)
+ (reported by Guixiong Wu)
 
 2.7.9 (04-Feb-2017)
 

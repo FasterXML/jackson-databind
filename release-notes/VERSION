@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+Not yet released
+
+#2326: Block class for CVE-2019-12086
+ (contributed by MaximilianTews@github)
+
 2.7.9.5 (23-Nov-2018)
 
 #1899: Another two gadgets to exploit default typing issue in jackson-databind

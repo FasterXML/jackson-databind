@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.DatabindContext;
@@ -37,19 +34,21 @@ public class BasicPolymorphicTypeValidator
      */
 
     /**
-     * Matcher used before resolving subtype into class
+     * General matcher interface (predicate) for validating class values
+     * (base type or resolved subtype)
      */
-    protected abstract static class ByNameMatcher {
-        public abstract Validity match(Class<?> baseType, String subClassName);
+    protected abstract static class TypeMatcher {
+        public abstract boolean match(Class<?> clazz);
     }
 
     /**
-     * Matcher used after resolving subtype into class
+     * General matcher interface (predicate) for validating unresolved
+     * subclass class name.
      */
-    protected abstract static class SubTypeMatcher {
-        public abstract Validity match(Class<?> subClass);
+    protected abstract static class NameMatcher {
+        public abstract boolean match(String clazzName);
     }
-
+    
     /*
     /**********************************************************
     /* Builder class for configuring instances
@@ -67,9 +66,22 @@ public class BasicPolymorphicTypeValidator
     public static class Builder {
         protected Set<Class<?>> _invalidBaseTypes;
 
-        protected List<ByNameMatcher> _byName;
-        protected List<SubTypeMatcher> _byType;
+        /**
+         * Collected matchers for base types to allow.
+         */
+        protected List<TypeMatcher> _baseTypeMatchers;
 
+        /**
+         * Collected name-based matchers for sub types to allow.
+         */
+        protected List<NameMatcher> _subTypeNameMatchers;
+
+        /**
+         * Collected Class-based matchers for sub types to allow.
+         */
+        protected List<TypeMatcher> _subTypeClassMatchers;
+
+        
         protected Builder() { }
 
         // // Methods for checking solely by base type (before subtype even considered)
@@ -86,10 +98,10 @@ public class BasicPolymorphicTypeValidator
          * subtypes.
          */
         public Builder allowIfBaseType(final Class<?> baseOfBase) {
-            return _appendByName(new ByNameMatcher() {
+            return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public Validity match(Class<?> baseType, String subClassName) {
-                    return baseOfBase.isAssignableFrom(baseType) ? Validity.ALLOWED : null;
+                public boolean match(Class<?> clazz) {
+                    return baseOfBase.isAssignableFrom(clazz);
                 }
             });
         }
@@ -97,6 +109,7 @@ public class BasicPolymorphicTypeValidator
         /**
          * Method for appending matcher that will allow all subtypes in cases where
          * nominal base type's class name matches given {@link Pattern}
+         * For example, call to
          *<pre>
          *    builder.allowIfBaseType(Pattern.compile("com\\.mycompany\\.")
          *</pre>
@@ -105,10 +118,10 @@ public class BasicPolymorphicTypeValidator
          * subtypes.
          */
         public Builder allowIfBaseType(final Pattern patternForBase) {
-            return _appendByName(new ByNameMatcher() {
+            return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public Validity match(Class<?> baseType, String subClassName) {
-                    return patternForBase.matcher(baseType.getName()).matches() ? Validity.ALLOWED : null;
+                public boolean match(Class<?> clazz) {
+                    return patternForBase.matcher(clazz.getName()).matches();
                 }
             });
         }
@@ -116,6 +129,7 @@ public class BasicPolymorphicTypeValidator
         /**
          * Method for appending matcher that will allow all subtypes in cases where
          * nominal base type's class name starts with specific prefix.
+         * For example, call to
          *<pre>
          *    builder.allowIfBaseType("com.mycompany.")
          *</pre>
@@ -124,10 +138,10 @@ public class BasicPolymorphicTypeValidator
          * subtypes.
          */
         public Builder allowIfBaseType(final String prefixForBase) {
-            return _appendByName(new ByNameMatcher() {
+            return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public Validity match(Class<?> baseType, String subClassName) {
-                    return baseType.getName().startsWith(prefixForBase) ? Validity.ALLOWED : null;
+                public boolean match(Class<?> clazz) {
+                    return clazz.getName().startsWith(prefixForBase);
                 }
             });
         }
@@ -154,96 +168,169 @@ public class BasicPolymorphicTypeValidator
 
         // // Methods for considering subtype (base type was not enough)
 
+        /**
+         * Method for appending matcher that will allow specific subtype (regardless
+         * of declared base type) if it is {@code subTypeBase} or its subtype.
+         * For example, call to
+         *<pre>
+         *    builder.allowIfSubType(MyImplType.class)
+         *</pre>
+         * would indicate that any polymorphic values with type of
+         * is {@code MyImplType} (or subclass thereof)
+         * would be allowed.
+         */
         public Builder allowIfSubType(final Class<?> subTypeBase) {
-            return _appendBySubType(new SubTypeMatcher() {
+            return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
-                public Validity match(Class<?> subClass) {
-                    return subTypeBase.isAssignableFrom(subClass) ? Validity.ALLOWED : null;
+                public boolean match(Class<?> clazz) {
+                    return subTypeBase.isAssignableFrom(clazz);
                 }
             });
         }
 
+        /**
+         * Method for appending matcher that will allow specific subtype (regardless
+         * of declared base type) in cases where subclass name matches given {@link Pattern}.
+         * For example, call to
+         *<pre>
+         *    builder.allowIfSubType(Pattern.compile("com\\.mycompany\\.")
+         *</pre>
+         * would indicate that any polymorphic values in package {@code com.mycompany}
+         * would be allowed.
+         */
         public Builder allowIfSubType(final Pattern patternForSubType) {
-            return _appendByName(new ByNameMatcher() {
+            return _appendSubNameMatcher(new NameMatcher() {
                 @Override
-                public Validity match(Class<?> baseType, String subClassName) {
-                    return patternForSubType.matcher(subClassName).matches() ? Validity.ALLOWED : null;
+                public boolean match(String clazzName) {
+                    return patternForSubType.matcher(clazzName).matches();
                 }
             });
         }
 
+        /**
+         * Method for appending matcher that will allow specific subtype (regardless
+         * of declared base type)
+         * in cases where subclass name starts with specified prefix
+         * For example, call to
+         *<pre>
+         *    builder.allowIfSubType("com.mycompany.")
+         *</pre>
+         * would indicate that any polymorphic values in package {@code com.mycompany}
+         * would be allowed.
+         */
         public Builder allowIfSubType(final String prefixForSubType) {
-            return _appendByName(new ByNameMatcher() {
+            return _appendSubNameMatcher(new NameMatcher() {
                 @Override
-                public Validity match(Class<?> baseType, String subClassName) {
-                    return subClassName.startsWith(prefixForSubType) ? Validity.ALLOWED : null;
+                public boolean match(String clazzName) {
+                    return clazzName.startsWith(prefixForSubType);
                 }
             });
         }
 
         public BasicPolymorphicTypeValidator build() {
             return new BasicPolymorphicTypeValidator(_invalidBaseTypes,
-                    (_byName == null) ? null : _byName.toArray(new ByNameMatcher[0]),
-                    (_byType == null) ? null : _byType.toArray(new SubTypeMatcher[0])
+                    (_baseTypeMatchers == null) ? null : _baseTypeMatchers.toArray(new TypeMatcher[0]),
+                    (_subTypeNameMatchers == null) ? null : _subTypeNameMatchers.toArray(new NameMatcher[0]),
+                    (_subTypeClassMatchers == null) ? null : _subTypeClassMatchers.toArray(new TypeMatcher[0])
             );
         }
 
-        protected Builder _appendByName(ByNameMatcher matcher) {
-            if (_byName == null) {
-                _byName = new ArrayList<>();
+        protected Builder _appendBaseMatcher(TypeMatcher matcher) {
+            if (_baseTypeMatchers == null) {
+                _baseTypeMatchers = new ArrayList<>();
             }
-            _byName.add(matcher);
+            _baseTypeMatchers.add(matcher);
             return this;
         }
 
-        protected Builder _appendBySubType(SubTypeMatcher matcher) {
-            if (_byType == null) {
-                _byType = new ArrayList<>();
+        protected Builder _appendSubNameMatcher(NameMatcher matcher) {
+            if (_subTypeNameMatchers == null) {
+                _subTypeNameMatchers = new ArrayList<>();
             }
-            _byType.add(matcher);
+            _subTypeNameMatchers.add(matcher);
+            return this;
+        }
+
+        protected Builder _appendSubClassMatcher(TypeMatcher matcher) {
+            if (_subTypeClassMatchers == null) {
+                _subTypeClassMatchers = new ArrayList<>();
+            }
+            _subTypeClassMatchers.add(matcher);
             return this;
         }
     }
-    
-    
+
     /*
     /**********************************************************
     /* Actual implementation
     /**********************************************************
      */
 
+    /**
+     * Set of specifically denied base types to indicate that use of specific
+     * base types is not allowed: most commonly used to fully block use of
+     * {@link java.lang.Object} as the base type.
+     */
     protected final Set<Class<?>> _invalidBaseTypes;
-    protected final ByNameMatcher[] _byNameMatchers;
-    protected final SubTypeMatcher[] _subTypeMatchers;
 
+    /**
+     * Set of matchers that can validate all values of polymorphic properties
+     * that match specified allowed base types.
+     */
+    protected final TypeMatcher[] _baseTypeMatchers;
+
+    /**
+     * Set of matchers that can validate specific values of polymorphic properties
+     * that match subtype class name criteria.
+     */
+    protected final NameMatcher[] _subTypeNameMatchers;
+
+    /**
+     * Set of matchers that can validate specific values of polymorphic properties
+     * that match subtype class criteria.
+     */
+    protected final TypeMatcher[] _subClassMatchers;
+    
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
-            ByNameMatcher[] byNameMatchers,
-            SubTypeMatcher[] subTypeMatchers) {
+            TypeMatcher[] baseTypeMatchers,
+            NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers) {
         _invalidBaseTypes = invalidBaseTypes;
-        _byNameMatchers = byNameMatchers;
-        _subTypeMatchers = subTypeMatchers;
+        _baseTypeMatchers = baseTypeMatchers;
+        _subTypeNameMatchers = subTypeNameMatchers;
+        _subClassMatchers = subClassMatchers;
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    // !!! TODO
     @Override
     public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
+        final Class<?> rawBase = baseType.getRawClass();
+        if (_invalidBaseTypes != null) {
+            if (_invalidBaseTypes.contains(rawBase)) {
+                return Validity.DENIED;
+            }
+        }
+        if (_baseTypeMatchers != null) {
+            for (TypeMatcher m : _baseTypeMatchers) {
+                if (m.match(rawBase)) {
+                    return Validity.ALLOWED;
+                }
+            }
+        }
         return Validity.INDETERMINATE;
     }
-    
+
     @Override
-    public Validity validateSubClassName(DatabindContext ctxt, JavaType baseType, String subClassName)
-            throws JsonMappingException
+    public Validity validateSubClassName(DatabindContext ctxt, JavaType baseType,
+            String subClassName)
+        throws JsonMappingException
     {
-        if (_byNameMatchers != null)  {
-            final Class<?> baseClass = baseType.getRawClass();
-            for (ByNameMatcher m : _byNameMatchers) {
-                Validity vld = m.match(baseClass, subClassName);
-                if (vld != null) {
-                    return vld;
+        if (_subTypeNameMatchers != null)  {
+            for (NameMatcher m : _subTypeNameMatchers) {
+                if (m.match(subClassName)) {
+                    return Validity.ALLOWED;
                 }
             }
         }
@@ -254,16 +341,15 @@ public class BasicPolymorphicTypeValidator
     @Override
     public Validity validateSubType(DatabindContext ctxt, JavaType baseType, JavaType subType)
             throws JsonMappingException {
-        if (_subTypeMatchers != null)  {
+        if (_subClassMatchers != null)  {
             final Class<?> subClass = subType.getRawClass();
-            for (SubTypeMatcher m : _subTypeMatchers) {
-                Validity vld = m.match(subClass);
-                if (vld != null) {
-                    return vld;
+            for (TypeMatcher m : _subClassMatchers) {
+                if (m.match(subClass)) {
+                    return Validity.ALLOWED;
                 }
             }
         }
-        // could not decide, callers gets to decide...
+        // could not decide, callers gets to decide; usually will deny
         return Validity.INDETERMINATE;
     }
 }

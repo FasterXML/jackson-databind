@@ -253,7 +253,7 @@ public abstract class DatabindContext
         }
         return subType;
     }
-    
+
     protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {
         throw invalidTypeIdException(baseType, subType, "Not a subtype");
     }
@@ -269,7 +269,7 @@ public abstract class DatabindContext
         throw invalidTypeIdException(baseType, subType,
                 "Configured `PolymorphicTypeValidator` (of type "+ClassUtil.classNameOf(ptv)+") denied resolution");
     }
-    
+
     /**
      * Helper method for constructing exception to indicate that given type id
      * could not be resolved to a valid subtype of specified base type.

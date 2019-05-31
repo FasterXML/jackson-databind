@@ -111,11 +111,17 @@ public class BasicPolymorphicTypeValidator
          * nominal base type's class name matches given {@link Pattern}
          * For example, call to
          *<pre>
-         *    builder.allowIfBaseType(Pattern.compile("com\\.mycompany\\.")
+         *    builder.allowIfBaseType(Pattern.compile("com\\.mycompany\\..*")
          *</pre>
          * would indicate that any polymorphic properties where declared base type
          * is in package {@code com.mycompany} would allow all legal (assignment-compatible)
          * subtypes.
+         *<p>
+         * NOTE! {@link Pattern} match is applied using
+         *<code>
+         *   if (patternForBase.matcher(typeId).matches()) { }
+         *</code>
+         * that is, it must match the whole class name, not just part.
          */
         public Builder allowIfBaseType(final Pattern patternForBase) {
             return _appendBaseMatcher(new TypeMatcher() {
@@ -197,6 +203,12 @@ public class BasicPolymorphicTypeValidator
          *</pre>
          * would indicate that any polymorphic values in package {@code com.mycompany}
          * would be allowed.
+         *<p>
+         * NOTE! {@link Pattern} match is applied using
+         *<code>
+         *   if (patternForSubType.matcher(typeId).matches()) { }
+         *</code>
+         * that is, it must match the whole class name, not just part.
          */
         public Builder allowIfSubType(final Pattern patternForSubType) {
             return _appendSubNameMatcher(new NameMatcher() {

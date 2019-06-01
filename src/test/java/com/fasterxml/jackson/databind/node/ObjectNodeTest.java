@@ -283,9 +283,9 @@ public class ObjectNodeTest
 
     public void testValidWithArray() throws Exception
     {
-        ObjectNode root = MAPPER.createObjectNode();
+        JsonNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
-        JsonNode child = root.withArray("arr");
+        ArrayNode child = root.withArray("arr");
         assertTrue(child instanceof ArrayNode);
         assertEquals("{\"arr\":[]}", MAPPER.writeValueAsString(root));
     }

@@ -44,6 +44,8 @@ Project: jackson-databind
 #2273: Add basic Java 9+ module info
 #2311: Unnecessary MultiView creation for property writers
  (suggested by Manuel H)
+#2338: Suboptimal return type for `JsonNode.withArray()`
+ (reported by Victor N)
 
 2.9.9 (16-May-2019)
 

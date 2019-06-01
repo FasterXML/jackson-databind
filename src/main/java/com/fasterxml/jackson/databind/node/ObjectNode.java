@@ -135,6 +135,7 @@ public class ObjectNode
         return _children.entrySet().iterator();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public ObjectNode with(String propertyName) {
         JsonNode n = _children.get(propertyName);
@@ -151,6 +152,7 @@ public class ObjectNode
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public ArrayNode withArray(String propertyName)
     {

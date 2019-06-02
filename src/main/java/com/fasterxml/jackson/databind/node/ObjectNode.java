@@ -358,6 +358,8 @@ public class ObjectNode
      *<p>
      * NOTE: added to replace those uses of {@link #put(String, JsonNode)}
      * where chaining with 'this' is desired.
+     *<p>
+     * NOTE: co-variant return type since 2.10
      *
      * @param value to set field to; if null, will be converted
      *   to a {@link NullNode} first  (to remove field entry, call
@@ -367,18 +369,21 @@ public class ObjectNode
      *
      * @since 2.1
      */
-    public JsonNode set(String fieldName, JsonNode value)
+    @SuppressWarnings("unchecked")
+    public <T extends JsonNode> T set(String fieldName, JsonNode value)
     {
         if (value == null) {
             value = nullNode();
         }
         _children.put(fieldName, value);
-        return this;
+        return (T) this;
     }
 
     /**
      * Method for adding given properties to this object node, overriding
      * any existing values for those properties.
+     *<p>
+     * NOTE: co-variant return type since 2.10
      * 
      * @param properties Properties to add
      * 
@@ -386,7 +391,8 @@ public class ObjectNode
      *
      * @since 2.1
      */
-    public JsonNode setAll(Map<String,? extends JsonNode> properties)
+    @SuppressWarnings("unchecked")
+    public <T extends JsonNode> T setAll(Map<String,? extends JsonNode> properties)
     {
         for (Map.Entry<String,? extends JsonNode> en : properties.entrySet()) {
             JsonNode n = en.getValue();
@@ -395,12 +401,14 @@ public class ObjectNode
             }
             _children.put(en.getKey(), n);
         }
-        return this;
+        return (T) this;
     }
 
     /**
      * Method for adding all properties of the given Object, overriding
      * any existing values for those properties.
+     *<p>
+     * NOTE: co-variant return type since 2.10
      * 
      * @param other Object of which properties to add to this object
      *
@@ -408,12 +416,13 @@ public class ObjectNode
      *
      * @since 2.1
      */
-    public JsonNode setAll(ObjectNode other)
+    @SuppressWarnings("unchecked")
+    public <T extends JsonNode> T setAll(ObjectNode other)
     {
         _children.putAll(other._children);
-        return this;
+        return (T) this;
     }
-    
+
     /**
      * Method for replacing value of specific property with passed
      * value, and returning value (or null if none).
@@ -437,20 +446,25 @@ public class ObjectNode
     /**
      * Method for removing field entry from this ObjectNode, and
      * returning instance after removal.
+     *<p>
+     * NOTE: co-variant return type since 2.10
      * 
      * @return This node after removing entry (if any)
      * 
      * @since 2.1
      */
-    public JsonNode without(String fieldName)
+    @SuppressWarnings("unchecked")
+    public <T extends JsonNode> T without(String fieldName)
     {
         _children.remove(fieldName);
-        return this;
+        return (T) this;
     }
 
     /**
      * Method for removing specified field properties out of
      * this ObjectNode.
+     *<p>
+     * NOTE: co-variant return type since 2.10
      * 
      * @param fieldNames Names of fields to remove
      * 
@@ -458,10 +472,11 @@ public class ObjectNode
      * 
      * @since 2.1
      */
-    public ObjectNode without(Collection<String> fieldNames)
+    @SuppressWarnings("unchecked")
+    public <T extends JsonNode> T without(Collection<String> fieldNames)
     {
         _children.keySet().removeAll(fieldNames);
-        return this;
+        return (T) this;
     }
     
     /*
@@ -490,7 +505,7 @@ public class ObjectNode
         }
         return _children.put(fieldName, value);
     }
-    
+
     /**
      * Method for removing field entry from this ObjectNode.
      * Will return value of the field, if such field existed;

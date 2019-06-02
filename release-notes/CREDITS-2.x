@@ -879,3 +879,5 @@ Manuel Hegner (manuel-hegner@github)
 Victor Noël (victornoel@github)
   * Reported #2338: Suboptimal return type for `JsonNode.withArray()`
    (2.10.0)
+  * Reported #2339: Suboptimal return type for `ObjectNode.set()`
+   (2.10.0)

@@ -399,7 +399,7 @@ public class ObjectNode
         _children.putAll(other._children);
         return this;
     }
-    
+
     /**
      * Method for replacing value of specific property with passed
      * value, and returning value (or null if none).

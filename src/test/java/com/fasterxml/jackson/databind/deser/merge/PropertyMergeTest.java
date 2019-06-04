@@ -186,7 +186,9 @@ public class PropertyMergeTest extends BaseMapTest
     public void testBeanMergeUsingConstructors() throws Exception {
         ConstructorArgsPojo input = new ConstructorArgsPojo(new ConstructorArgsPojo.MergeablePojo("foo", "bar"));
 
-        ConstructorArgsPojo result = MAPPER.setDefaultMergeable(true)
+        ConstructorArgsPojo result = jsonMapperBuilder()
+                .defaultMergeable(true)
+                .build()
                 .readerForUpdating(input)
                 .readValue(aposToQuotes("{'mergeableBean': {'foo': 'newFoo'}}"));
 

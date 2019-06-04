@@ -87,6 +87,26 @@ public class PropertyMergeTest extends BaseMapTest
         public int value;
     }
 
+    // [databind#2280]
+    static class ConstructorArgsPojo {
+        static class MergeablePojo {
+            public String foo;
+            public String bar;
+
+            public MergeablePojo(String foo, String bar) {
+                this.foo = foo;
+                this.bar = bar;
+            }
+        }
+
+        public MergeablePojo mergeableBean;
+
+        @JsonCreator
+        public ConstructorArgsPojo(@JsonMerge @JsonProperty("mergeableBean") MergeablePojo mergeableBean) {
+            this.mergeableBean = mergeableBean;
+        }
+    }
+
     /*
     /********************************************************
     /* Test methods, POJO merging
@@ -154,6 +174,24 @@ public class PropertyMergeTest extends BaseMapTest
                 NoSetterConfig.class);
         assertEquals(99, config._value.b);
         assertEquals(1, config._value.a);
+    }
+
+    /*
+    /********************************************************
+    /* Test methods, Creators
+    /********************************************************
+     */
+
+    // [databind#2280]
+    public void testBeanMergeUsingConstructors() throws Exception {
+        ConstructorArgsPojo input = new ConstructorArgsPojo(new ConstructorArgsPojo.MergeablePojo("foo", "bar"));
+
+        ConstructorArgsPojo result = MAPPER.setDefaultMergeable(true)
+                .readerForUpdating(input)
+                .readValue(aposToQuotes("{'mergeableBean': {'foo': 'newFoo'}}"));
+
+        assertEquals("newFoo", result.mergeableBean.foo);
+        assertEquals("bar", result.mergeableBean.bar);
     }
 
     /*

@@ -253,7 +253,20 @@ public class CreatorProperty
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, value);
     }
-    
+
+    @Override
+    public PropertyMetadata getMetadata() {
+        // 03-Jun-2019, tatu: Added as per [databind#2280] to support merge.
+        //   Not 100% sure why it would be needed (or fixes things) but... appears to.
+        //   Need to understand better in future as it seems like it should probably be
+        //   linked earlier during construction or something.
+        PropertyMetadata md = super.getMetadata();
+        if (_fallbackSetter != null) {
+            return md.withMergeInfo(_fallbackSetter.getMetadata().getMergeInfo());
+        }
+        return md;
+    }
+
     @Override
     public Object getInjectableValueId() {
         return _injectableValueId;

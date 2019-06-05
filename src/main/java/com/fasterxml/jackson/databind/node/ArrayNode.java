@@ -22,8 +22,11 @@ import java.util.List;
  */
 public class ArrayNode
     extends ContainerNode<ArrayNode>
-    implements ArrayTreeNode // since 3.0
+    implements ArrayTreeNode, // since 3.0
+        java.io.Serializable // since 2.10
 {
+    private static final long serialVersionUID = 1L;
+
     private final List<JsonNode> _children;
 
     public ArrayNode(JsonNodeFactory nf) {

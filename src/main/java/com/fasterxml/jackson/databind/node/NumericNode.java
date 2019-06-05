@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 /**
  * Intermediate value node used for numeric nodes.
  */
+@SuppressWarnings("serial")
 public abstract class NumericNode
     extends ValueNode
 {

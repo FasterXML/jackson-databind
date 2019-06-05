@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * all non-container (array or object) nodes, except for the
  * "missing node".
  */
+@SuppressWarnings("serial")
 public abstract class ValueNode
     extends BaseJsonNode
 {

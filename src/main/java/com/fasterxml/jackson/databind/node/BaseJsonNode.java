@@ -15,11 +15,22 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * The main addition here is that we declare that sub-classes must
  * implement {@link JsonSerializable}.
  * This simplifies object mapping aspects a bit, as no external serializers are needed.
+ *<p>
+ * Note that support for {@link java.io.Serializable} is added here and so all subtypes
+ * are fully JDK serializable: but also note that serialization is as JSON and should
+ * only be used for interoperability purposes where other approaches are not available.
  */
 public abstract class BaseJsonNode
     extends JsonNode
-    implements JsonSerializable
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
+    // Simplest way is by using a helper
+    Object writeReplace() {
+        return NodeSerialization.from(this);
+    }
+
     protected BaseJsonNode() { }
 
     /*

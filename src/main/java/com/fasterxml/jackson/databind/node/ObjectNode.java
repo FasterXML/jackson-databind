@@ -877,17 +877,6 @@ public class ObjectNode
 
     /*
     /**********************************************************
-    /* JDK Serialization support
-    /**********************************************************
-     */
-
-    // Simplest way is by using a helper
-    Object writeReplace() {
-        return NodeSerialization.from(this);
-    }
-
-    /*
-    /**********************************************************
     /* Internal methods (overridable)
     /**********************************************************
      */

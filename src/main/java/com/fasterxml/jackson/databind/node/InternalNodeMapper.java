@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
@@ -15,10 +16,15 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
  */
 final class InternalNodeMapper {
     private final static JsonMapper JSON_MAPPER = new JsonMapper();
+
     private final static ObjectWriter STD_WRITER = JSON_MAPPER.writer();
     private final static ObjectWriter PRETTY_WRITER = JSON_MAPPER.writer()
             .withDefaultPrettyPrinter();
 
+    private final static ObjectReader NODE_READER = JSON_MAPPER.readerFor(JsonNode.class);
+
+    // // // Methods for `JsonNode.toString()` and `JsonNode.toPrettyString()`
+    
     public static String nodeToString(JsonNode n) {
         try {
             return STD_WRITER.writeValueAsString(n);
@@ -33,5 +39,15 @@ final class InternalNodeMapper {
         } catch (IOException e) { // should never occur
             throw new RuntimeException(e);
         }
+    }
+
+    // // // Methods for JDK serialization support of JsonNodes
+    
+    public static byte[] valueToBytes(Object value) throws IOException {
+        return JSON_MAPPER.writeValueAsBytes(value);
+    }
+
+    public static JsonNode bytesToNode(byte[] json) throws IOException {
+        return NODE_READER.readValue(json);
     }
 }

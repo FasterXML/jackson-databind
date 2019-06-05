@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  */
 public abstract class BaseJsonNode
     extends JsonNode
-    implements JsonSerializable
 {
     protected BaseJsonNode() { }
 

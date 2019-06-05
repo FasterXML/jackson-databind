@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.10.0 (not yet released)
 
-#18: Make `ObjectNode` and `ArrayNode` serializable
+#18: Make `JsonNode` serializable
 #1675: Remove "impossible" `IOException` in `readTree()` and `readValue()` `ObjectMapper`
   methods which accept Strings
  (requested by matthew-pwnieexpress@github)

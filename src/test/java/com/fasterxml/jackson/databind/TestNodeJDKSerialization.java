@@ -25,9 +25,7 @@ public class TestNodeJDKSerialization extends BaseMapTest
         ObjectNode misc = root.with("misc");
         misc.put("value", 0.25);
 
-        byte[] ser = jdkSerialize(root);
-        JsonNode result = jdkDeserialize(ser);
-        assertEquals(root, result);
+        testNodeRoundtrip(root);
     }
 
     // [databind#18]: Allow JDK serialization of `ArrayNode`
@@ -39,9 +37,21 @@ public class TestNodeJDKSerialization extends BaseMapTest
         props.put("answer", 42);
         root.add(137);
 
-        byte[] ser = jdkSerialize(root);
-        JsonNode result = jdkDeserialize(ser);
-        assertEquals(root, result);
+        testNodeRoundtrip(root);
+    }
+
+    // and then also some scalar types
+    public void testScalarSerialization() throws Exception
+    {
+        testNodeRoundtrip(MAPPER.getNodeFactory().nullNode());
+
+        testNodeRoundtrip(MAPPER.getNodeFactory().textNode("Foobar"));
+
+        testNodeRoundtrip(MAPPER.getNodeFactory().booleanNode(true));
+        testNodeRoundtrip(MAPPER.getNodeFactory().booleanNode(false));
+
+        testNodeRoundtrip(MAPPER.getNodeFactory().numberNode(123));
+        testNodeRoundtrip(MAPPER.getNodeFactory().numberNode(-12345678901234L));
     }
 
     /*
@@ -49,7 +59,14 @@ public class TestNodeJDKSerialization extends BaseMapTest
     /* Helper methods
     /**********************************************************
      */
-    
+
+    protected void testNodeRoundtrip(JsonNode input) throws Exception
+    {
+        byte[] ser = jdkSerialize(input);
+        JsonNode result = jdkDeserialize(ser);
+        assertEquals(input, result);
+    }
+
     protected byte[] jdkSerialize(Object o) throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(1000);

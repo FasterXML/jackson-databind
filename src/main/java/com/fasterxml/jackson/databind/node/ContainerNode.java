@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.util.RawValue;
  * This intermediate base class is used for all container nodes,
  * specifically, array and object nodes.
  */
+@SuppressWarnings("serial")
 public abstract class ContainerNode<T extends ContainerNode<T>>
     extends BaseJsonNode
     implements JsonNodeCreator
@@ -25,6 +26,8 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     protected ContainerNode(JsonNodeFactory nc) {
         _nodeFactory = nc;
     }
+
+    protected ContainerNode() { _nodeFactory = null; } // only for JDK ser
 
     // all containers are mutable: can't define:
 //    @Override public abstract <T extends JsonNode> T deepCopy();

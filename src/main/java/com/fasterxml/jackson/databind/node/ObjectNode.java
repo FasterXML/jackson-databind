@@ -1,15 +1,15 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.RawValue;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
 
 /**
  * Node that maps to JSON Object structures in JSON content.
@@ -18,7 +18,10 @@ import java.util.*;
  */
 public class ObjectNode
     extends ContainerNode<ObjectNode>
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L; // since 2.10
+
     // Note: LinkedHashMap for backwards compatibility
     protected final Map<String, JsonNode> _children;
 
@@ -870,6 +873,17 @@ public class ObjectNode
     public int hashCode()
     {
         return _children.hashCode();
+    }
+
+    /*
+    /**********************************************************
+    /* JDK Serialization support
+    /**********************************************************
+     */
+
+    // Simplest way is by using a helper
+    Object writeReplace() {
+        return NodeSerialization.from(this);
     }
 
     /*

@@ -23,7 +23,10 @@ import java.util.List;
  */
 public class ArrayNode
     extends ContainerNode<ArrayNode>
+    implements java.io.Serializable // since 2.10
 {
+    private static final long serialVersionUID = 1L;
+
     private final List<JsonNode> _children;
 
     public ArrayNode(JsonNodeFactory nf) {
@@ -840,6 +843,17 @@ public class ArrayNode
     @Override
     public int hashCode() {
         return _children.hashCode();
+    }
+
+    /*
+    /**********************************************************
+    /* JDK Serialization support
+    /**********************************************************
+     */
+
+    // Simplest way is by using a helper
+    Object writeReplace() {
+        return NodeSerialization.from(this);
     }
 
     /*

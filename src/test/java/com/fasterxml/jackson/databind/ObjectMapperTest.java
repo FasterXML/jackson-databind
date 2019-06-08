@@ -242,4 +242,16 @@ public class ObjectMapperTest extends BaseMapTest
                 .readTree(input);
         assertNotNull(n);
     }
+
+    public void testReadValueWithNullInputStream() throws Exception {
+        ObjectMapper m = new ObjectMapper();
+        InputStream is = null;
+        try {
+            m.readValue(is, Object.class);
+        } catch (IllegalArgumentException e) {
+            assertEquals("InputStream is null", e.getMessage());
+            return;
+        }
+        fail("Specific exception expected");
+    }
 }

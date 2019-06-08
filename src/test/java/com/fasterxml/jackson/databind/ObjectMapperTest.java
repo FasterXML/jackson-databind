@@ -249,7 +249,7 @@ public class ObjectMapperTest extends BaseMapTest
         try {
             m.readValue(is, Object.class);
         } catch (IllegalArgumentException e) {
-            assertEquals("InputStream is null", e.getMessage());
+            assertEquals("src is null", e.getMessage());
             return;
         }
         fail("Specific exception expected");

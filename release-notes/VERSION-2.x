@@ -10,6 +10,7 @@ Project: jackson-databind
 #1675: Remove "impossible" `IOException` in `readTree()` and `readValue()` `ObjectMapper`
   methods which accept Strings
  (requested by matthew-pwnieexpress@github)
+#1995: Limit size of `DeserializerCache`, auto-flush on exceeding
 #2059: Remove `final` modifier for `TypeFactory`
  (requested by Thibaut R)
 #2115: Support naive deserialization of `Serializable` values as "untyped", same

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.LRUMap;
 
 /**
  * Class that defines caching layer between callers (like
@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  * ({@link com.fasterxml.jackson.databind.deser.DeserializerFactory}).
  */
 public final class DeserializerCache
-    implements java.io.Serializable // since 2.1 -- needs to be careful tho
+    implements java.io.Serializable // since 2.1
 {
     private static final long serialVersionUID = 1L;
 
@@ -32,15 +32,9 @@ public final class DeserializerCache
     /**
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
-     * This currently means bean and Enum deserializers; starting with
-     * 2.5, container deserializers will also be cached.
-     *<p>
-     * Given that we don't expect much concurrency for additions
-     * (should very quickly converge to zero after startup), let's
-     * define a relatively low concurrency setting.
+     * This currently means bean, Enum and container deserializers.
      */
-    final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers
-        = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.75f, 4);
+    final protected LRUMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
 
     /**
      * During deserializer construction process we may need to keep track of partially
@@ -56,7 +50,14 @@ public final class DeserializerCache
     /**********************************************************
      */
 
-    public DeserializerCache() { }
+    public DeserializerCache() {
+        this(2000); // see [databind#1995]
+    }
+
+    public DeserializerCache(int maxSize) {
+        int initial = Math.min(64, maxSize>>2);
+        _cachedDeserializers = new LRUMap<>(initial, maxSize);
+    }
 
     /*
     /**********************************************************
@@ -67,7 +68,6 @@ public final class DeserializerCache
     Object writeReplace() {
         // instead of making this transient, just clear it:
         _incompleteDeserializers.clear();
-        // TODO: clear out "cheap" cached deserializers?
         return this;
     }
     

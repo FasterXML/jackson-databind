@@ -25,9 +25,9 @@ public final class DeserializerCache
     private static final long serialVersionUID = 3L;
 
     /**
-     * By default allow caching of up to 4000 deserializers.
+     * By default allow caching of up to 1000 deserializers.
      */
-    public final static int DEFAULT_MAX_CACHED = 4000;
+    public final static int DEFAULT_MAX_CACHED = 1000;
 
     /*
     /**********************************************************************

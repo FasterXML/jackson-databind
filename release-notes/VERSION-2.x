@@ -53,6 +53,10 @@ Project: jackson-databind
 2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
 
+2.9.9.1 (not yet released)
+
+#2326: Block one more gadget type (CVE-2019-12384)
+
 2.9.9 (16-May-2019)
 
 #1408: Call to `TypeVariable.getBounds()` without synchronization unsafe on some platforms
@@ -383,6 +387,11 @@ Project: jackson-databind
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
 
+2.8.11.3 (23-Nov-2018)
+
+#2326: Block class for CVE-2019-12086
+ (contributed by MaximilianTews@github)
+
 2.8.11.2 (08-Jun-2018)
 
 #1941: `TypeFactory.constructFromCanonical()` throws NPE for Unparameterized
@@ -618,10 +627,16 @@ Project: jackson-databind
 #1277: Add caching of resolved generic types for `TypeFactory`
  (requested by Andriy P)
 
-2.7.10 (not yet released)
+2.7.9.5 (23-Nov-2018)
 
-#1628: Don't print to error stream about failure to load JDK 7 types
- (reported by Villane@github)
+#2097: Block more classes from polymorphic deserialization (CVE-2018-14718
+  - CVE-2018-14721)
+ (reported by Guixiong Wu)
+#2109: Canonical string for reference type is built incorrectly
+ (reported by svarzee@github)
+#2186: Block more classes from polymorphic deserialization (CVE-2018-19360,
+  CVE-2018-19361, CVE-2018-19362)
+ (reported by Guixiong Wu)
 
 2.7.9 (04-Feb-2017)
 

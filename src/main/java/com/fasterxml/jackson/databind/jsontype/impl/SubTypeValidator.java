@@ -81,6 +81,9 @@ public class SubTypeValidator
         
         // [databind#2326] (2.7.9.6): one more 3rd party gadget
         s.add("com.mysql.cj.jdbc.admin.MiniAdmin");
+
+        // [databind#2334] (2.9.9.1): logback-core
+        s.add("ch.qos.logback.core.db.DriverManagerConnectionSource");
         
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }

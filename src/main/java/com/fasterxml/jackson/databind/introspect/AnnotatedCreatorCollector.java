@@ -242,8 +242,8 @@ final class AnnotatedCreatorCollector
         }
         return new AnnotatedConstructor(_typeContext, ctor.getConstructor(),
                 collectAnnotations(ctor, mixin),
-                collectAnnotations(ctor.getConstructor().getParameterAnnotations(),
-                        (mixin == null) ? null : mixin.getConstructor().getParameterAnnotations()));
+                // 16-Jun-2019, tatu: default is zero-args, so can't have parameter annotations
+                NO_ANNOTATION_MAPS);
     }
 
     protected AnnotatedConstructor constructNonDefaultConstructor(ClassUtil.Ctor ctor,

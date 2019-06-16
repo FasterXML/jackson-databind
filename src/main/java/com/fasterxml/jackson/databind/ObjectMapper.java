@@ -313,13 +313,6 @@ public class ObjectMapper
     /* Internal constants, singletons
     /**********************************************************
      */
-    
-    // Quick little shortcut, to avoid having to use global TypeFactory instance...
-    // 19-Oct-2015, tatu: Not sure if this is really safe to do; let's at least allow
-    //   some amount of introspection
-    private final static JavaType JSON_NODE_TYPE =
-            SimpleType.constructUnsafe(JsonNode.class);
-//            TypeFactory.defaultInstance().constructType(JsonNode.class);
 
     // 16-May-2009, tatu: Ditto ^^^
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
@@ -2525,7 +2518,7 @@ public class ObjectMapper
             }
         }
         // NOTE! _readValue() will check for trailing tokens
-        JsonNode n = (JsonNode) _readValue(cfg, p, JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readValue(cfg, p, constructType(JsonNode.class));
         if (n == null) {
             n = getNodeFactory().nullNode();
         }
@@ -4109,7 +4102,7 @@ public class ObjectMapper
     protected JsonNode _readTreeAndClose(JsonParser p0) throws IOException
     {
         try (JsonParser p = p0) {
-            final JavaType valueType = JSON_NODE_TYPE;
+            final JavaType valueType = constructType(JsonNode.class);
 
             DeserializationConfig cfg = getDeserializationConfig();
             // 27-Oct-2016, tatu: Need to inline `_initForReading()` due to

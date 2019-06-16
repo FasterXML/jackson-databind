@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
-import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -45,8 +44,6 @@ public class ObjectReader
     implements Versioned, java.io.Serializable // since 2.1
 {
     private static final long serialVersionUID = 2L; // since 2.9
-
-    private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
     /*
     /**********************************************************
@@ -155,6 +152,11 @@ public class ObjectReader
      */
     final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
 
+    /**
+     * Lazily resolved {@link JavaType} for {@link JsonNode}
+     */
+    protected transient JavaType _jsonNodeType;
+    
     /*
     /**********************************************************
     /* Life-cycle, construction
@@ -1727,13 +1729,13 @@ public class ObjectReader
             ctxt = createDeserializationContext(p);
             final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
-                resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
+                resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, _jsonNodeType(), deser);
             } else {
                 resultNode = (JsonNode) deser.deserialize(p, ctxt);
             }
         }
         if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
+            _verifyNoTrailingTokens(p, ctxt, _jsonNodeType());
         }
         return resultNode;
     }
@@ -1768,13 +1770,13 @@ public class ObjectReader
             ctxt = createDeserializationContext(p);
             final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
-                resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
+                resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, _jsonNodeType(), deser);
             } else {
                 resultNode = (JsonNode) deser.deserialize(p, ctxt);
             }
         }
         if (checkTrailing) {
-            _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
+            _verifyNoTrailingTokens(p, ctxt, _jsonNodeType());
         }
         return resultNode;
     }
@@ -2023,15 +2025,16 @@ public class ObjectReader
     protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
         throws JsonMappingException
     {
-        JsonDeserializer<Object> deser = _rootDeserializers.get(JSON_NODE_TYPE);
+        final JavaType nodeType = _jsonNodeType();
+        JsonDeserializer<Object> deser = _rootDeserializers.get(nodeType);
         if (deser == null) {
             // Nope: need to ask provider to resolve it
-            deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
+            deser = ctxt.findRootValueDeserializer(nodeType);
             if (deser == null) { // can this happen?
-                ctxt.reportBadDefinition(JSON_NODE_TYPE,
-                        "Cannot find a deserializer for type "+JSON_NODE_TYPE);
+                ctxt.reportBadDefinition(nodeType,
+                        "Cannot find a deserializer for type "+nodeType);
             }
-            _rootDeserializers.put(JSON_NODE_TYPE, deser);
+            _rootDeserializers.put(nodeType, deser);
         }
         return deser;
     }
@@ -2062,5 +2065,17 @@ public class ObjectReader
             }
         }
         return deser;
+    }
+
+    /**
+     * @since 2.10
+     */
+    protected final JavaType _jsonNodeType() {
+        JavaType t = _jsonNodeType;
+        if (t == null) {
+            t = getTypeFactory().constructType(JsonNode.class);
+            _jsonNodeType = t;
+        }
+        return t;
     }
 }

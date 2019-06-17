@@ -410,6 +410,20 @@ One additional limitation exists for so-called core components (streaming api, j
 This means that anything that has to rely on additional APIs or libraries needs to be built as an extension,
 usually a Jackson module.
 
+
+## Branches
+
+`master` branch is for developing the next major Jackson version -- 3.0 -- but there
+are active maintenance branches in which much of development happens:
+
+* `2.10` is for developing the next (and possibly last) minor 2.x version
+* `2.8` and `2.9` are for backported fixes for 2.8/2.9 patch versions
+
+Older branches are usually not maintained after being declared as closed
+on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,
+but exist just in case a rare emergency patch is needed.
+All released versions have matching git tags (`jackson-dataformats-binary-2.9.4`).
+
 -----
 
 # Differences from Jackson 1.x

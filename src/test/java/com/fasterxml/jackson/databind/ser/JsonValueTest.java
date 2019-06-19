@@ -93,7 +93,7 @@ public class JsonValueTest
     static class MapFieldBean
     {
         @JsonValue
-        Map<String,String> stuff = new HashMap<>();
+        Map<String,String> stuff = new HashMap<String, String>();
         {
             stuff.put("b", "2");
         }

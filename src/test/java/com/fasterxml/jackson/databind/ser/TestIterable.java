@@ -145,7 +145,7 @@ public class TestIterable extends BaseMapTest
                 STATIC_MAPPER.writeValueAsString(new BeanWithIterator()));
 
         // [databind#1977]
-        ArrayList<Number> numbersList = new ArrayList<>();
+        ArrayList<Number> numbersList = new ArrayList<Number>();
         numbersList.add(1);
         numbersList.add(0.25);
         String json = MAPPER.writeValueAsString(numbersList.iterator());

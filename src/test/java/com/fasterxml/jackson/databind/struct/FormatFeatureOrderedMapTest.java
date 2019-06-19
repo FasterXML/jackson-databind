@@ -12,7 +12,7 @@ public class FormatFeatureOrderedMapTest extends BaseMapTest
 {
     static class SortedKeysMap {
         @JsonFormat(with = JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES)
-        public Map<String,Integer> values = new LinkedHashMap<>();
+        public Map<String,Integer> values = new LinkedHashMap<String, Integer>();
 
         protected SortedKeysMap() { }
 

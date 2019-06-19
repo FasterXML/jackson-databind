@@ -64,7 +64,7 @@ public class MapFormatShapeTest extends BaseMapTest
     @JsonPropertyOrder({ "property", "map" })
     static class Map1540Implementation implements Map<Integer, Integer> {
         public int property;
-        public Map<Integer, Integer> map = new HashMap<>();
+        public Map<Integer, Integer> map = new HashMap<Integer, Integer>();
  
         public Map<Integer, Integer> getMap() {
             return map;

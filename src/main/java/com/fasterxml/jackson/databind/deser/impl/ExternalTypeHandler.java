@@ -377,8 +377,8 @@ public class ExternalTypeHandler
     {
         private final JavaType _beanType;
 
-        private final List<ExtTypedProperty> _properties = new ArrayList<>();
-        private final Map<String, Object> _nameToPropertyIndex = new HashMap<>();
+        private final List<ExtTypedProperty> _properties = new ArrayList<ExtTypedProperty>();
+        private final Map<String, Object> _nameToPropertyIndex = new HashMap<String, Object>();
 
         protected Builder(JavaType t) {
             _beanType = t;
@@ -401,7 +401,7 @@ public class ExternalTypeHandler
                 List<Object> list = (List<Object>) ob;
                 list.add(index);
             } else {
-                List<Object> list = new LinkedList<>();
+                List<Object> list = new LinkedList<Object>();
                 list.add(ob);
                 list.add(index);
                 _nameToPropertyIndex.put(name, list);

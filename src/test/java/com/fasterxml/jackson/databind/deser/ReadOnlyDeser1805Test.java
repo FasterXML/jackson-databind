@@ -10,7 +10,7 @@ public class ReadOnlyDeser1805Test extends BaseMapTest
 {
     static class Foo {
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        private List<Long> list = new ArrayList<>();
+        private List<Long> list = new ArrayList<Long>();
 
         List<Long> getList() {
             return list;

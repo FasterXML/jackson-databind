@@ -35,7 +35,7 @@ public class ThreadSafety1759Test extends BaseMapTest
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-        List<Future<Throwable>> results = new ArrayList<>();
+        List<Future<Throwable>> results = new ArrayList<Future<Throwable>>();
         for (Callable<Throwable> c : calls) {
             results.add(executor.submit(c));
         }

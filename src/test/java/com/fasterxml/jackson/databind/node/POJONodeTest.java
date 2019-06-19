@@ -38,7 +38,7 @@ public class POJONodeTest extends NodeTestBase
       Data data = new Data();
       data.aStr = "Hello";
 
-      Map<String, Object> mapTest = new HashMap<>();
+      Map<String, Object> mapTest = new HashMap<String, Object>();
       mapTest.put("data", data);
 
       ObjectNode treeTest = MAPPER.createObjectNode();

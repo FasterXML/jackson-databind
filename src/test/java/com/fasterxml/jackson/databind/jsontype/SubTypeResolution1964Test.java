@@ -21,7 +21,7 @@ public class SubTypeResolution1964Test extends BaseMapTest
         private Map<String, Collection<String>> repositoryPrivileges;
 
         public AccessModel() {
-            repositoryPrivileges = new HashMap<>();
+            repositoryPrivileges = new HashMap<String, Collection<String>>();
         }
 
         // 19-Apr-2018, tatu; this would prevent issues
@@ -45,10 +45,10 @@ public class SubTypeResolution1964Test extends BaseMapTest
     static class MetaModel<M, B> extends AbstractMetaValue<M, M, B> {
 
         @JsonProperty
-        protected final Map<String, AbstractMetaValue<M, ?, B>> attributes = new HashMap<>();
+        protected final Map<String, AbstractMetaValue<M, ?, B>> attributes = new HashMap<String, AbstractMetaValue<M, ?, B>>();
 
         public <V> ListMetaAttribute<M, V, B> describeList(final String attributeName) {
-          final ListMetaAttribute<M, V, B> metaAttribute = new ListMetaAttribute<>();
+          final ListMetaAttribute<M, V, B> metaAttribute = new ListMetaAttribute<M, V, B>();
           attributes.put(attributeName, metaAttribute);
           return metaAttribute;
         }
@@ -82,7 +82,7 @@ public class SubTypeResolution1964Test extends BaseMapTest
         @SuppressWarnings({ "unchecked", "rawtypes" })
         Map<String, Collection<String>> repoPrivilegesMap = new CustomMap();
         String key = "/storages/storage0/releases";
-        Collection<String> values = new HashSet<>();
+        Collection<String> values = new HashSet<String>();
         values.add("ARTIFACTS_RESOLVE");
         repoPrivilegesMap.put(key, values);
         
@@ -97,7 +97,7 @@ public class SubTypeResolution1964Test extends BaseMapTest
     // [databind#2034]
     public void testTypeSpecialization2034() throws Exception
     {
-        MetaModel<Dummy, Dummy> metaModel = new MetaModel<>();
+        MetaModel<Dummy, Dummy> metaModel = new MetaModel<Dummy, Dummy>();
         metaModel.describeList("a1");
         String jsonStr = MAPPER.writeValueAsString(metaModel);
         // ... could/should verify more, perhaps, but for now let it be.

@@ -38,7 +38,7 @@ public class EnumAsIndexMapKey1877Test extends BaseMapTest
     {
         ObjectMapper mapper = newObjectMapper();
 
-        Map<Type, String> map = new HashMap<>();
+        Map<Type, String> map = new HashMap<Type, String>();
         map.put(Type.OTHER, "hello world");
         Container container = new Container();
         container.setSimpleType(Type.ANY);

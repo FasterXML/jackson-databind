@@ -494,7 +494,7 @@ anyField.getName()));
             final String refName = refDef.getName();
             if (result == null) {
                 result = new ArrayList<BeanPropertyDefinition>();
-                names = new HashSet<>();
+                names = new HashSet<String>();
                 names.add(refName);
             } else {
                 if (!names.add(refName)) {
@@ -514,7 +514,7 @@ anyField.getName()));
         if (props == null) {
             return null;
         }
-        Map<String,AnnotatedMember> result = new HashMap<>();
+        Map<String,AnnotatedMember> result = new HashMap<String, AnnotatedMember>();
         for (BeanPropertyDefinition prop : props) {
             result.put(prop.getName(), prop.getMutator());
         }

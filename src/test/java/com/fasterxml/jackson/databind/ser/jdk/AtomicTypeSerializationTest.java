@@ -39,15 +39,15 @@ public class AtomicTypeSerializationTest
     // [databind#1673]
     static class ContainerA {
         public AtomicReference<Strategy> strategy =
-                new AtomicReference<>((Strategy) new Foo(42));
+                new AtomicReference<Strategy>((Strategy) new Foo(42));
     }
 
     static class ContainerB {
         public AtomicReference<List<Strategy>> strategy;
         {
-            List<Strategy> list = new ArrayList<>();
+            List<Strategy> list = new ArrayList<Strategy>();
             list.add(new Foo(42));
-            strategy = new AtomicReference<>(list);
+            strategy = new AtomicReference<List<Strategy>>(list);
         }
     }
 
@@ -109,9 +109,9 @@ public class AtomicTypeSerializationTest
         final ObjectMapper mapper = objectMapper();
         mapper.setDateFormat(df);
         ContextualOptionals input = new ContextualOptionals();
-        input.date = new AtomicReference<>(new Date(0L));
-        input.date1 = new AtomicReference<>(new Date(0L));
-        input.date2 = new AtomicReference<>(new Date(0L));
+        input.date = new AtomicReference<Date>(new Date(0L));
+        input.date1 = new AtomicReference<Date>(new Date(0L));
+        input.date2 = new AtomicReference<Date>(new Date(0L));
         final String json = mapper.writeValueAsString(input);
         assertEquals(aposToQuotes(
                 "{'date1':'1970+01+01','date2':'1970*01*01','date':'1970/01/01'}"),

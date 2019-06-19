@@ -194,7 +194,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         // and as per [databind#1653]:
         mapper = new ObjectMapper();
         module = new SimpleModule();
-        List<Class<?>> l = new ArrayList<>();
+        List<Class<?>> l = new ArrayList<Class<?>>();
         l.add(SubB.class);
         l.add(SubC.class);
         l.add(SubD.class);

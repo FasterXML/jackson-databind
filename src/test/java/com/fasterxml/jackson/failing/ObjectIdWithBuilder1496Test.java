@@ -37,7 +37,7 @@ public class ObjectIdWithBuilder1496Test extends BaseMapTest
         public POJO build() { return new POJO(id, var); }
         
         // Special build method for jackson deserializer that caches objects already deserialized
-        private final static ConcurrentHashMap<Long, POJO> cache = new ConcurrentHashMap<>();
+        private final static ConcurrentHashMap<Long, POJO> cache = new ConcurrentHashMap<Long, POJO>();
         public POJO readFromCacheOrBuild() {
             POJO pojo = cache.get(id);
             if (pojo == null) {

@@ -16,7 +16,7 @@ public class MapEntryFormatTest extends BaseMapTest
 
         protected BeanWithMapEntry() { }
         public BeanWithMapEntry(String key, String value) {
-            Map<String,String> map = new HashMap<>();
+            Map<String,String> map = new HashMap<String, String>();
             map.put(key, value);
             entry = map.entrySet().iterator().next();
         }
@@ -55,7 +55,7 @@ public class MapEntryFormatTest extends BaseMapTest
         public Map.Entry<String,String> entry;
 
         public EntryWithNullWrapper(String key, String value) {
-            HashMap<String,String> map = new HashMap<>();
+            HashMap<String,String> map = new HashMap<String, String>();
             map.put(key, value);
             entry = map.entrySet().iterator().next();
         }
@@ -67,7 +67,7 @@ public class MapEntryFormatTest extends BaseMapTest
         public Map.Entry<String,String> entry;
 
         public EntryWithDefaultWrapper(String key, String value) {
-            HashMap<String,String> map = new HashMap<>();
+            HashMap<String,String> map = new HashMap<String, String>();
             map.put(key, value);
             entry = map.entrySet().iterator().next();
         }
@@ -79,7 +79,7 @@ public class MapEntryFormatTest extends BaseMapTest
         public Map.Entry<String,AtomicReference<String>> entry;
 
         public EntryWithNonAbsentWrapper(String key, String value) {
-            HashMap<String,AtomicReference<String>> map = new HashMap<>();
+            HashMap<String,AtomicReference<String>> map = new HashMap<String, AtomicReference<String>>();
             map.put(key, new AtomicReference<String>(value));
             entry = map.entrySet().iterator().next();
         }
@@ -91,7 +91,7 @@ public class MapEntryFormatTest extends BaseMapTest
         public Map.Entry<String,String> entry;
 
         public EmptyEntryWrapper(String key, String value) {
-            HashMap<String,String> map = new HashMap<>();
+            HashMap<String,String> map = new HashMap<String, String>();
             map.put(key, value);
             entry = map.entrySet().iterator().next();
         }

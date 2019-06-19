@@ -76,7 +76,7 @@ public class IntrospectorPairTest extends BaseMapTest
 
     static class IntrospectorWithMap extends AnnotationIntrospector
     {
-        private final Map<String, Object> values = new HashMap<>();
+        private final Map<String, Object> values = new HashMap<String, Object>();
 
         private Version version = Version.unknownVersion();
 

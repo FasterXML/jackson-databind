@@ -20,11 +20,11 @@ public class NestedTypes1604Test extends BaseMapTest
         }
 
         public static <T> Data<List<T>> of(List<T> data) {
-             return new DataList<>(data);
+             return new DataList<T>(data);
         }
 
         public static <T> Data<List<T>> ofRefined(List<T> data) {
-            return new RefinedDataList<>(data);
+            return new RefinedDataList<T>(data);
         }
 
         public static <T> Data<List<T>> ofSneaky(List<T> data) {
@@ -93,7 +93,7 @@ public class NestedTypes1604Test extends BaseMapTest
     
     public void testIssue1604Simple() throws Exception
     {
-        List<Inner> inners = new ArrayList<>();
+        List<Inner> inners = new ArrayList<Inner>();
         for (int i = 0; i < 2; i++) {
             inners.add(new Inner(i));
         }
@@ -108,7 +108,7 @@ public class NestedTypes1604Test extends BaseMapTest
 
     public void testIssue1604Subtype() throws Exception
     {
-        List<Inner> inners = new ArrayList<>();
+        List<Inner> inners = new ArrayList<Inner>();
         for (int i = 0; i < 2; i++) {
             inners.add(new Inner(i));
         }
@@ -119,7 +119,7 @@ public class NestedTypes1604Test extends BaseMapTest
 
     public void testIssue1604Sneaky() throws Exception
     {
-        List<Inner> inners = new ArrayList<>();
+        List<Inner> inners = new ArrayList<Inner>();
         for (int i = 0; i < 2; i++) {
             inners.add(new Inner(i));
         }

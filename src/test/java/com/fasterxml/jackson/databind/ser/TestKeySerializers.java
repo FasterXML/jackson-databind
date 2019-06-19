@@ -173,7 +173,7 @@ public class TestKeySerializers extends BaseMapTest
         final ObjectMapper mapper = new ObjectMapper();
         mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer("NULL-KEY"));
         mapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer("NULL"));
-        Map<String,Integer> input = new HashMap<>();
+        Map<String,Integer> input = new HashMap<String, Integer>();
         input.put(null, 3);
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"NULL-KEY\":3}", json);

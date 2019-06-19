@@ -14,7 +14,7 @@ public class MapEntryFormat1419Test extends BaseMapTest
 
         protected BeanWithMapEntryAsObject() { }
         public BeanWithMapEntryAsObject(String key, String value) {
-            Map<String,String> map = new HashMap<>();
+            Map<String,String> map = new HashMap<String, String>();
             map.put(key, value);
             entry = map.entrySet().iterator().next();
         }

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 public class ProblemHandlerLocation1440Test extends BaseMapTest
 {
     static class DeserializationProblem {
-        public List<String> unknownProperties = new ArrayList<>();
+        public List<String> unknownProperties = new ArrayList<String>();
 
         public DeserializationProblem() { }
 
@@ -45,7 +45,7 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
                         throws IOException
         {
             final JsonStreamContext parsingContext = p.getParsingContext();
-            final List<String> pathList = new ArrayList<>();
+            final List<String> pathList = new ArrayList<String>();
             addParent(parsingContext, pathList);
             Collections.reverse(pathList);
             final String path = _join(".", pathList) + "#" + propertyName;

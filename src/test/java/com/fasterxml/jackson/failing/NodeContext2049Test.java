@@ -43,7 +43,7 @@ public class NodeContext2049Test extends BaseMapTest
 
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
-             return new ArrayList<>();
+             return new ArrayList<Object>();
         }
     }
 

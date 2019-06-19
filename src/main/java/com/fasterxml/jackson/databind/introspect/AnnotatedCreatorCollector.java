@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass.Creators;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.ClassUtil.Ctor;
 
 /**
  * Helper class used to contain details of how Creators (annotated constructors
@@ -107,7 +108,7 @@ final class AnnotatedCreatorCollector
                     defaultCtor = ctor;
                 } else {
                     if (ctors == null) {
-                        ctors = new ArrayList<>();
+                        ctors = new ArrayList<Ctor>();
                     }
                     ctors.add(ctor);
                 }
@@ -124,7 +125,7 @@ final class AnnotatedCreatorCollector
             ctorCount = 0;
         } else {
             ctorCount = ctors.size();
-            result = new ArrayList<>(ctorCount);
+            result = new ArrayList<AnnotatedConstructor>(ctorCount);
             for (int i = 0; i < ctorCount; ++i) {
                 result.add(null);
             }
@@ -186,7 +187,7 @@ final class AnnotatedCreatorCollector
             // all factory methods are fine:
             //int argCount = m.getParameterTypes().length;
             if (candidates == null) {
-                candidates = new ArrayList<>();
+                candidates = new ArrayList<Method>();
             }
             candidates.add(m);
         }
@@ -195,7 +196,7 @@ final class AnnotatedCreatorCollector
             return Collections.emptyList();
         }
         int factoryCount = candidates.size();
-        List<AnnotatedMethod> result = new ArrayList<>(factoryCount);
+        List<AnnotatedMethod> result = new ArrayList<AnnotatedMethod>(factoryCount);
         for (int i = 0; i < factoryCount; ++i) {
             result.add(null);
         }

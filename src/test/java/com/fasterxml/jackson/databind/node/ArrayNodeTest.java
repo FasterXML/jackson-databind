@@ -95,7 +95,7 @@ public class ArrayNodeTest
     public void testDirectCreation2() throws IOException
     {
         JsonNodeFactory f = objectMapper().getNodeFactory();
-        ArrayList<JsonNode> list = new ArrayList<>();
+        ArrayList<JsonNode> list = new ArrayList<JsonNode>();
         list.add(f.booleanNode(true));
         list.add(f.textNode("foo"));
         ArrayNode n = new ArrayNode(f, list);

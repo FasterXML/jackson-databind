@@ -13,7 +13,7 @@ public class MapInclusion1649Test extends BaseMapTest
         public Map<String, String> map;
 
         public Bean1649(String key, String value) {
-            map = new LinkedHashMap<>();
+            map = new LinkedHashMap<String, String>();
             map.put(key, value);
         }
     }

@@ -14,7 +14,7 @@ public class AnySetter349Test extends BaseMapTest
         public String type;
         public int x, y;
     
-        private Map<String, Object> props = new HashMap<>();
+        private Map<String, Object> props = new HashMap<String, Object>();
     
         @JsonAnySetter
         public void addProperty(String key, Object value) {

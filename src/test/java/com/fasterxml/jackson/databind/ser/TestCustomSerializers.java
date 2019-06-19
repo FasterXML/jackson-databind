@@ -139,7 +139,7 @@ public class TestCustomSerializers extends BaseMapTest
         public List<String> list;
 
         public StringListWrapper(String... values) {
-            list = new ArrayList<>();
+            list = new ArrayList<String>();
             for (String value : values) {
                 list.add(value);
             }

@@ -21,9 +21,9 @@ public class UpdateValueTest extends BaseMapTest
 
     public void testMapUpdate() throws Exception
     {
-        Map<String,Object> base = new LinkedHashMap<>();
+        Map<String,Object> base = new LinkedHashMap<String, Object>();
         base.put("a", 345);
-        Map<String,Object> overrides = new LinkedHashMap<>();
+        Map<String,Object> overrides = new LinkedHashMap<String, Object>();
         overrides.put("xyz", Boolean.TRUE);
         overrides.put("foo", "bar");
         
@@ -38,7 +38,7 @@ public class UpdateValueTest extends BaseMapTest
 
     public void testListUpdate() throws Exception
     {
-        List<Object> base = new ArrayList<>();
+        List<Object> base = new ArrayList<Object>();
         base.add(123456);
         base.add(Boolean.FALSE);
         Object[] overrides = new Object[] { Boolean.TRUE, "zoink!" };
@@ -76,7 +76,7 @@ public class UpdateValueTest extends BaseMapTest
     public void testPOJO() throws Exception
     {
         Point base = new Point(42, 28);
-        Map<String,Object> overrides = new LinkedHashMap<>();
+        Map<String,Object> overrides = new LinkedHashMap<String, Object>();
         overrides.put("y", 1234);
         Point result = MAPPER.updateValue(base, overrides);
         assertSame(base, result);
@@ -94,7 +94,7 @@ public class UpdateValueTest extends BaseMapTest
     {
         // if either is `null`, should return first arg
         assertNull(MAPPER.updateValue(null, "foo"));
-        List<String> input = new ArrayList<>();
+        List<String> input = new ArrayList<String>();
         assertSame(input, MAPPER.updateValue(input, null));
     }
 

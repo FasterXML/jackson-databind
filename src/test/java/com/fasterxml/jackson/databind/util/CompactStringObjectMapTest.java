@@ -8,7 +8,7 @@ public class CompactStringObjectMapTest extends BaseMapTest
 {
     public void testBig()
     {
-        Map<String,String> all = new LinkedHashMap<>();
+        Map<String,String> all = new LinkedHashMap<String, String>();
         for (int i = 0; i < 1000; ++i) {
             String key = "key"+i;
             all.put(key, key);

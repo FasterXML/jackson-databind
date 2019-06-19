@@ -62,7 +62,7 @@ public class UtilCollectionsTypesTest extends BaseMapTest
 
    // [databind#2265]
    public void testUnmodifiableListFromLinkedList() throws Exception {
-       final List<String> input = new LinkedList<>();
+       final List<String> input = new LinkedList<String>();
        input.add("first");
        input.add("second");
 
@@ -72,18 +72,18 @@ public class UtilCollectionsTypesTest extends BaseMapTest
        assertEquals(input, act);
 
        // and this check may be bit fragile (may need to revisit), but is good enough for now:
-       assertEquals(Collections.unmodifiableList(new ArrayList<>(input)).getClass(), act.getClass());
+       assertEquals(Collections.unmodifiableList(new ArrayList<String>(input)).getClass(), act.getClass());
    }
 
    public void testUnmodifiableSet() throws Exception
    {
-       Set<String> input = new LinkedHashSet<>(Arrays.asList("first", "second"));
+       Set<String> input = new LinkedHashSet<String>(Arrays.asList("first", "second"));
        _verifyCollection(Collections.unmodifiableSet(input));
    }
 
    public void testUnmodifiableMap() throws Exception
    {
-       Map<String,String> input = new LinkedHashMap<>();
+       Map<String,String> input = new LinkedHashMap<String, String>();
        input.put("a", "b");
        input.put("c", "d");
        _verifyMap(Collections.unmodifiableMap(input));

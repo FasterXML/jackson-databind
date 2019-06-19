@@ -1,16 +1,21 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestTokenBuffer extends BaseMapTest
 {
@@ -129,10 +134,12 @@ public class TestTokenBuffer extends BaseMapTest
     // [databind#1729]
     public void testNumberOverflowInt() throws IOException
     {
-        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+    	TokenBuffer buf = new TokenBuffer(null, false);
+        try {
             long big = 1L + Integer.MAX_VALUE;
             buf.writeNumber(big);
-            try (JsonParser p = buf.asParser()) {
+            JsonParser p = buf.asParser();
+            try {
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(NumberType.LONG, p.getNumberType());
                 try {
@@ -141,13 +148,23 @@ public class TestTokenBuffer extends BaseMapTest
                 } catch (JsonParseException e) {
                     verifyException(e, "Numeric value ("+big+") out of range of int");
                 }
+            } finally {
+                try {
+                    p.close();
+                } catch (IOException ioe) { }
             }
+        } finally {
+            try {
+                buf.close();
+            } catch (IOException ioe) { }
         }
         // and ditto for coercion.
-        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+		TokenBuffer buffer = new TokenBuffer(null, false);
+        try {
             long big = 1L + Integer.MAX_VALUE;
-            buf.writeNumber(String.valueOf(big));
-            try (JsonParser p = buf.asParser()) {
+			buffer.writeNumber(String.valueOf(big));
+			JsonParser p = buffer.asParser();
+            try {
                 // NOTE: oddity of buffering, no inspection of "real" type if given String...
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
                 try {
@@ -156,16 +173,26 @@ public class TestTokenBuffer extends BaseMapTest
                 } catch (JsonParseException e) {
                     verifyException(e, "Numeric value ("+big+") out of range of int");
                 }
-            }
+			} finally {
+                try {
+                    p.close();
+                } catch (IOException ioe) { }
+			}
+        } finally {
+            try {
+				buffer.close();
+            } catch (IOException ioe) { }
         }
     }
 
     public void testNumberOverflowLong() throws IOException
     {
-        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+		TokenBuffer buf = new TokenBuffer(null, false);
+		try {
             BigInteger big = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
             buf.writeNumber(big);
-            try (JsonParser p = buf.asParser()) {
+			JsonParser p = buf.asParser();
+			try {
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
                 try {
@@ -174,7 +201,17 @@ public class TestTokenBuffer extends BaseMapTest
                 } catch (JsonParseException e) {
                     verifyException(e, "Numeric value ("+big+") out of range of long");
                 }
+			} finally {
+				try {
+					p.close();
+				} catch (IOException ioe) {
+				}
             }
+		} finally {
+			try {
+				buf.close();
+			} catch (IOException ioe) {
+			}
         }
     }
 

@@ -152,7 +152,7 @@ public class EnumMapDeserializationTest extends BaseMapTest
     // [databind#1859]
     public void testEnumMapAsPolymorphic() throws Exception
     {
-        EnumMap<Enum1859, String> enumMap = new EnumMap<>(Enum1859.class);
+        EnumMap<Enum1859, String> enumMap = new EnumMap<Enum1859, String>(Enum1859.class);
         enumMap.put(Enum1859.A, "Test");
         enumMap.put(Enum1859.B, "stuff");
         Pojo1859 input = new Pojo1859(enumMap);

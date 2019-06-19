@@ -15,12 +15,12 @@ public class MapMergeTest extends BaseMapTest
         public Map<String,Object> values;
 
         protected MergedMap() {
-            values = new LinkedHashMap<>();
+            values = new LinkedHashMap<String, Object>();
             values.put("a", "x");
         }
 
         public MergedMap(String a, String b) {
-            values = new LinkedHashMap<>();
+            values = new LinkedHashMap<String, Object>();
             values.put(a, b);
         }
 
@@ -35,7 +35,7 @@ public class MapMergeTest extends BaseMapTest
         public Map<Integer,Object> values;
 
         protected MergedIntMap() {
-            values = new LinkedHashMap<>();
+            values = new LinkedHashMap<Integer, Object>();
             values.put(Integer.valueOf(13), "a");
         }
     }
@@ -91,10 +91,10 @@ public class MapMergeTest extends BaseMapTest
     {
         // first, create base Map
         MergedMap base = new MergedMap("name", "foobar");
-        Map<String,Object> props = new LinkedHashMap<>();
+        Map<String,Object> props = new LinkedHashMap<String, Object>();
         props.put("default", "yes");
         props.put("x", "abc");
-        Map<String,Object> innerProps = new LinkedHashMap<>();
+        Map<String,Object> innerProps = new LinkedHashMap<String, Object>();
         innerProps.put("z", Integer.valueOf(13));
         props.put("extra", innerProps);
         base.values.put("props", props);
@@ -122,8 +122,8 @@ public class MapMergeTest extends BaseMapTest
     {
         // first, create base Map
         MergedMap base = new MergedMap("name", "foobar");
-        Map<String,Object> props = new LinkedHashMap<>();
-        List<String> names = new ArrayList<>();
+        Map<String,Object> props = new LinkedHashMap<String, Object>();
+        List<String> names = new ArrayList<String>();
         names.add("foo");
         props.put("names", names);
         base.values.put("props", props);
@@ -154,8 +154,8 @@ public class MapMergeTest extends BaseMapTest
     public void testDefaultDeepMapMerge() throws Exception
     {
         // First: deep merge should be enabled by default
-        HashMap<String,Object> input = new HashMap<>();
-        input.put("list", new ArrayList<>(Arrays.asList("a")));
+        HashMap<String,Object> input = new HashMap<String, Object>();
+        input.put("list", new ArrayList<String>(Arrays.asList("a")));
 
         Map<?,?> resultMap = MAPPER.readerForUpdating(input)
                 .readValue(aposToQuotes("{'list':['b']}"));
@@ -170,8 +170,8 @@ public class MapMergeTest extends BaseMapTest
         // disable merging, globally; does not affect main level
         mapper.setDefaultMergeable(false);
 
-        HashMap<String,Object> input = new HashMap<>();
-        input.put("list", new ArrayList<>(Arrays.asList("a")));
+        HashMap<String,Object> input = new HashMap<String, Object>();
+        input.put("list", new ArrayList<String>(Arrays.asList("a")));
 
         Map<?,?> resultMap = mapper.readerForUpdating(input)
                 .readValue(aposToQuotes("{'list':['b']}"));
@@ -188,8 +188,8 @@ public class MapMergeTest extends BaseMapTest
         mapper.configOverride(Object.class)
             .setMergeable(false);
 
-        HashMap<String,Object> input = new HashMap<>();
-        input.put("list", new ArrayList<>(Arrays.asList("a")));
+        HashMap<String,Object> input = new HashMap<String, Object>();
+        input.put("list", new ArrayList<String>(Arrays.asList("a")));
 
         Map<?,?> resultMap = mapper.readerForUpdating(input)
                 .readValue(aposToQuotes("{'list':['b']}"));
@@ -204,8 +204,8 @@ public class MapMergeTest extends BaseMapTest
         mapper.configOverride(Object.class)
             .setMergeable(true);
 
-        input = new HashMap<>();
-        input.put("list", new ArrayList<>(Arrays.asList("x")));
+        input = new HashMap<String, Object>();
+        input.put("list", new ArrayList<String>(Arrays.asList("x")));
 
         resultMap = mapper.readerForUpdating(input)
                 .readValue(aposToQuotes("{'list':['y']}"));

@@ -15,7 +15,7 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
     private static Long nextId = 1L;
 
     public static final class ListOfParents{
-        public List<Parent> parents = new ArrayList<>();
+        public List<Parent> parents = new ArrayList<Parent>();
 
         public void addParent( Parent parent) { parents.add(parent);}
     }

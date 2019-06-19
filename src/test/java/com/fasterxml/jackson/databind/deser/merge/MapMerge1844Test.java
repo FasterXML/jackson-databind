@@ -28,9 +28,9 @@ public class MapMerge1844Test extends BaseMapTest
             this.mapIntegerInteger = mapIntegerInteger;
         }
 
-        private Map<String, Integer> mapStringInteger = new LinkedHashMap<>();
+        private Map<String, Integer> mapStringInteger = new LinkedHashMap<String, Integer>();
 
-        private Map<Integer, Integer> mapIntegerInteger = new LinkedHashMap<>();
+        private Map<Integer, Integer> mapIntegerInteger = new LinkedHashMap<Integer, Integer>();
     }
 
     // for [databind#1844]

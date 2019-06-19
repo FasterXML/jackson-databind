@@ -380,7 +380,7 @@ public class SimpleModule
     public SimpleModule registerSubtypes(Class<?> ... subtypes)
     {
         if (_subtypes == null) {
-            _subtypes = new LinkedHashSet<>();
+            _subtypes = new LinkedHashSet<NamedType>();
         }
         for (Class<?> subtype : subtypes) {
             _checkNotNull(subtype, "subtype to register");
@@ -397,7 +397,7 @@ public class SimpleModule
     public SimpleModule registerSubtypes(NamedType ... subtypes)
     {
         if (_subtypes == null) {
-            _subtypes = new LinkedHashSet<>();
+            _subtypes = new LinkedHashSet<NamedType>();
         }
         for (NamedType subtype : subtypes) {
             _checkNotNull(subtype, "subtype to register");
@@ -416,7 +416,7 @@ public class SimpleModule
     public SimpleModule registerSubtypes(Collection<Class<?>> subtypes)
     {
         if (_subtypes == null) {
-            _subtypes = new LinkedHashSet<>();
+            _subtypes = new LinkedHashSet<NamedType>();
         }
         for (Class<?> subtype : subtypes) {
             _checkNotNull(subtype, "subtype to register");

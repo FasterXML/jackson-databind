@@ -62,7 +62,7 @@ public class TestAnyGetterFiltering extends BaseMapTest
 
          @JsonAnyGetter
          public Map<String, Object> getAny() {
-              Map<String, Object> extra = new HashMap<>();
+              Map<String, Object> extra = new HashMap<String, Object>();
               extra.put("dynamicProperty", "I will not serialize");
               return extra;
          }

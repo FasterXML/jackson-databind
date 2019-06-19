@@ -110,7 +110,7 @@ public abstract class BaseMapTest
             map = m;
         }
         public MapWrapper(K key, V value) {
-            map = new LinkedHashMap<>();
+            map = new LinkedHashMap<K, V>();
             map.put(key, value);
         }
     }

@@ -198,7 +198,7 @@ for (Vehicle v : fleet.vehicles) {
         Car car = new Car("Mercedes-Benz", "S500", 5, 250.0);
         Truck truck = new Truck("Isuzu", "NQR", 7500.0);
 
-        List<Vehicle> vehicles = new ArrayList<>();
+        List<Vehicle> vehicles = new ArrayList<Vehicle>();
         vehicles.add(car);
         vehicles.add(truck);
 

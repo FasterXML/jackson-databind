@@ -23,7 +23,7 @@ public class CollectionMergeTest extends BaseMapTest
     static class MergedList
     {
         @JsonMerge
-        public List<String> values = new ArrayList<>();
+        public List<String> values = new ArrayList<String>();
         {
             values.add("a");
         }
@@ -76,7 +76,7 @@ public class CollectionMergeTest extends BaseMapTest
     // Test that uses generic type
     public void testGenericListMerging() throws Exception
     {
-        Collection<String> l = new ArrayList<>();
+        Collection<String> l = new ArrayList<String>();
         l.add("foo");
         MergedX<Collection<String>> input = new MergedX<Collection<String>>(l);
 

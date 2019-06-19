@@ -50,7 +50,7 @@ public class TestTypeNames extends BaseMapTest
                 null,
                 mapper.constructType(Base1616.class));
         assertEquals(2, subtypes.size());
-        Set<String> ok = new HashSet<>(Arrays.asList("A", "B"));
+        Set<String> ok = new HashSet<String>(Arrays.asList("A", "B"));
         for (NamedType type : subtypes) {
             String id = type.getName();
             if (!ok.contains(id)) {

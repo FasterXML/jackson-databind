@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Simple helper class used to keep track of collection of
@@ -52,8 +54,25 @@ public final class AnnotatedMethodMap
     public Iterator<AnnotatedMethod> iterator()
     {
         if (_methods == null) {
-            return Collections.emptyIterator();
+			return new EmptyIterator<AnnotatedMethod>();
         }
         return _methods.values().iterator();
     }
+
+	private final static class EmptyIterator<T> implements Iterator<T> {
+		@Override
+		public boolean hasNext() {
+			return false;
+		}
+
+		@Override
+		public T next() {
+			throw new NoSuchElementException();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
 }

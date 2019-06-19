@@ -36,7 +36,7 @@ public class AnnotatedMethodCollector
     AnnotatedMethodMap collect(TypeFactory typeFactory, TypeResolutionContext tc,
             JavaType mainType, List<JavaType> superTypes, Class<?> primaryMixIn)
     {
-        Map<MemberKey,MethodBuilder> methods = new LinkedHashMap<>();
+        Map<MemberKey,MethodBuilder> methods = new LinkedHashMap<MemberKey, MethodBuilder>();
         
         // first: methods from the class itself
         _addMemberMethods(tc, mainType.getRawClass(), methods, primaryMixIn);
@@ -86,7 +86,7 @@ public class AnnotatedMethodCollector
         if (methods.isEmpty()) {
             return new AnnotatedMethodMap();
         }
-        Map<MemberKey,AnnotatedMethod> actual = new LinkedHashMap<>(methods.size());
+        Map<MemberKey,AnnotatedMethod> actual = new LinkedHashMap<MemberKey, AnnotatedMethod>(methods.size());
         for (Map.Entry<MemberKey,MethodBuilder> entry : methods.entrySet()) {
             AnnotatedMethod am = entry.getValue().build();
             if (am != null) {

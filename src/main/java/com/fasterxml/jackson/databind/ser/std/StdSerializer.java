@@ -368,7 +368,7 @@ public abstract class StdSerializer<T>
                 return existingSerializer;
             }
         } else {
-            conversions = new IdentityHashMap<>();
+            conversions = new IdentityHashMap<Object, Object>();
             provider.setAttribute(KEY_CONTENT_CONVERTER_LOCK, conversions);
         }
         conversions.put(property, Boolean.TRUE);

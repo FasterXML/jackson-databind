@@ -453,7 +453,7 @@ index, owner, defs[index], propDef);
             }
         }
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
-        List<CreatorCandidate> nonAnnotated = new LinkedList<>();
+        List<CreatorCandidate> nonAnnotated = new LinkedList<CreatorCandidate>();
         int explCount = 0;
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
@@ -599,7 +599,7 @@ nonAnnotatedParamIndex, ctor);
             // [#725]: as a fallback, all-implicit names may work as well
             if (!creators.hasDefaultCreator()) {
                 if (implicitCtors == null) {
-                    implicitCtors = new LinkedList<>();
+                    implicitCtors = new LinkedList<AnnotatedWithParams>();
                 }
                 implicitCtors.add(ctor);
             }
@@ -845,7 +845,7 @@ nonAnnotatedParamIndex, ctor);
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
     {
-        List<CreatorCandidate> nonAnnotated = new LinkedList<>();
+        List<CreatorCandidate> nonAnnotated = new LinkedList<CreatorCandidate>();
         int explCount = 0;
 
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones

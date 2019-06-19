@@ -3,8 +3,23 @@ package com.fasterxml.jackson.databind.util;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,7 +35,24 @@ public final class ClassUtil
     private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     private final static Ctor[] NO_CTORS = new Ctor[0];
 
-    private final static Iterator<?> EMPTY_ITERATOR = Collections.emptyIterator();
+	private final static class EmptyIterator<T> implements Iterator<T> {
+		@Override
+		public boolean hasNext() {
+			return false;
+		}
+
+		@Override
+		public T next() {
+			throw new NoSuchElementException();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private final static Iterator<?> EMPTY_ITERATOR = new EmptyIterator<Object>();
 
     /*
     /**********************************************************
@@ -487,7 +519,7 @@ public final class ClassUtil
         try {
             g.close();
         } catch (Exception e) {
-            fail.addSuppressed(e);
+			// fail.addSuppressed(e);
         }
         throwIfIOE(fail);
         throwIfRTE(fail);
@@ -512,14 +544,14 @@ public final class ClassUtil
             try {
                 g.close();
             } catch (Exception e) {
-                fail.addSuppressed(e);
+				// fail.addSuppressed(e);
             }
         }
         if (toClose != null) {
             try {
                 toClose.close();
             } catch (Exception e) {
-                fail.addSuppressed(e);
+				// fail.addSuppressed(e);
             }
         }
         throwIfIOE(fail);
@@ -1118,7 +1150,7 @@ public final class ClassUtil
             try {
                 contextClass = loader.loadClass(cls.getName());
             } catch (ClassNotFoundException e) {
-                ex.addSuppressed(e);
+				// ex.addSuppressed(e);
                 throw ex;
             }
             return contextClass.getDeclaredMethods(); // Cross fingers

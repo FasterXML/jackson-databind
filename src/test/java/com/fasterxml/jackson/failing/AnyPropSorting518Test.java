@@ -15,7 +15,7 @@ public class AnyPropSorting518Test extends BaseMapTest
     {
         public int b;
 
-        protected Map<String,Object> extra = new HashMap<>();
+        protected Map<String,Object> extra = new HashMap<String, Object>();
 
         public int a;
 
@@ -39,7 +39,7 @@ public class AnyPropSorting518Test extends BaseMapTest
 
     public void testAnyBeanWithSort() throws Exception
     {
-        Map<String,Object> extra = new LinkedHashMap<>();
+        Map<String,Object> extra = new LinkedHashMap<String, Object>();
         extra.put("y", 4);
         extra.put("x", 3);
         String json = MAPPER.writeValueAsString(new Bean(1, 2, extra));

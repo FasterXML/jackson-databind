@@ -38,16 +38,16 @@ public class StaticTyping1515Test extends BaseMapTest
 
     @JsonPropertyOrder({ "list", "aList", "dList" })
     static class Issue515Lists {
-        public List<Base> list = new ArrayList<>(); {
+        public List<Base> list = new ArrayList<Base>(); {
             list.add(new Derived());
         }
 
         @JsonSerialize(typing = JsonSerialize.Typing.DYNAMIC)
-        public List<Base> aList = new ArrayList<>(); {
+        public List<Base> aList = new ArrayList<Base>(); {
             aList.add(new Derived());
         }
 
-        public List<BaseDynamic> dList = new ArrayList<>(); {
+        public List<BaseDynamic> dList = new ArrayList<BaseDynamic>(); {
             dList.add(new DerivedDynamic());
         }
     }

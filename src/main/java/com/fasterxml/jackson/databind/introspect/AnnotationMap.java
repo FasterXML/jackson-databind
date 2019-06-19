@@ -18,7 +18,7 @@ public final class AnnotationMap implements Annotations
     public AnnotationMap() { }
 
     public static AnnotationMap of(Class<?> type, Annotation value) {
-        HashMap<Class<?>,Annotation> ann = new HashMap<>(4);
+        HashMap<Class<?>,Annotation> ann = new HashMap<Class<?>, Annotation>(4);
         ann.put(type, value);
         return new AnnotationMap(ann);
     }

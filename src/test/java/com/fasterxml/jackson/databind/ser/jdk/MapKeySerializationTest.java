@@ -88,14 +88,14 @@ public class MapKeySerializationTest extends BaseMapTest
         byte[] binary = new byte[] { 1, 2, 3, 4, 5 };
 
         // First, using wrapper
-        MapWrapper<byte[], String> input = new MapWrapper<>(binary, "stuff");
+        MapWrapper<byte[], String> input = new MapWrapper<byte[], String>(binary, "stuff");
         String expBase64 = Base64Variants.MIME.encode(binary);
         
         assertEquals(aposToQuotes("{'map':{'"+expBase64+"':'stuff'}}"),
                 MAPPER.writeValueAsString(input));
 
         // and then dynamically..
-        Map<byte[],String> map = new LinkedHashMap<>();
+        Map<byte[],String> map = new LinkedHashMap<byte[], String>();
         map.put(binary, "xyz");
         assertEquals(aposToQuotes("{'"+expBase64+"':'xyz'}"),
                 MAPPER.writeValueAsString(map));

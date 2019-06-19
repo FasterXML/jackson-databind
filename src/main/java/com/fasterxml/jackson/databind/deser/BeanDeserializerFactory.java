@@ -562,7 +562,7 @@ public class BeanDeserializerFactory
                     }
                 }
                 if (cprop == null) {
-                    List<String> n = new ArrayList<>();
+                    List<String> n = new ArrayList<String>();
                     for (SettableBeanProperty cp : creatorProps) {
                         n.add(cp.getName());
                     }

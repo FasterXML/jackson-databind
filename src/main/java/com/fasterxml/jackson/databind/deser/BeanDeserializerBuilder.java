@@ -511,7 +511,7 @@ public class BeanDeserializerBuilder
                     continue;
                 }
                 if (mapping == null) {
-                    mapping = new HashMap<>();
+                    mapping = new HashMap<String, List<PropertyName>>();
                 }
                 mapping.put(prop.getName(), aliases);
             }

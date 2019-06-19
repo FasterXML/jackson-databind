@@ -131,7 +131,7 @@ public abstract class AnnotationCollector
                 Class<?> type1, Annotation value1,
                 Class<?> type2, Annotation value2) {
             super(data);
-            _annotations = new HashMap<>();
+            _annotations = new HashMap<Class<?>, Annotation>();
             _annotations.put(type1, value1);
             _annotations.put(type2, value2);
         }

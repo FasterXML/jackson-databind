@@ -775,7 +775,7 @@ public class BeanPropertyMap
         if ((defs == null) || defs.isEmpty()) {
             return Collections.emptyMap();
         }
-        Map<String,String> aliases = new HashMap<>();
+        Map<String,String> aliases = new HashMap<String, String>();
         for (Map.Entry<String,List<PropertyName>> entry : defs.entrySet()) {
             String key = entry.getKey();
             if (_caseInsensitive) {

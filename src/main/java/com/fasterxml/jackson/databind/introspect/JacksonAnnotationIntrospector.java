@@ -347,7 +347,7 @@ public class JacksonAnnotationIntrospector
         if (len == 0) {
             return Collections.emptyList();
         }
-        List<PropertyName> result = new ArrayList<>(len);
+        List<PropertyName> result = new ArrayList<PropertyName>(len);
         for (int i = 0; i < len; ++i) {
             result.add(PropertyName.construct(strs[i]));
         }

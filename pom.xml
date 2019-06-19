@@ -162,6 +162,60 @@
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
       </plugin>
+
+	<plugin>
+	    <artifactId>maven-compiler-plugin</artifactId>
+	    <version>2.5</version>
+	    <executions>
+	      <execution>
+          	<id>jdk7</id>
+	        <configuration>
+	          <source>1.7</source>
+	          <target>1.7</target>
+	          <fork>true</fork>
+	          <outputDirectory>${project.build.outputDirectory}_jdk7</outputDirectory>
+	        </configuration>
+	      </execution>
+	      <execution>
+          	<id>jdk6</id>
+	        <configuration>
+	          <source>1.6</source>
+	          <target>1.6</target>
+	          <fork>true</fork>
+	          <outputDirectory>${project.build.outputDirectory}_jdk6</outputDirectory>
+	        </configuration>
+	      </execution>
+	    </executions>
+	 </plugin>
+	 
+	 <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <executions>
+          <execution>
+          	<id>jdk7</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classesDirectory>${project.build.outputDirectory}_jdk7</classesDirectory>
+              <classifier></classifier>
+            </configuration>
+          </execution>
+          <execution>
+          	<id>jdk6</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classesDirectory>${project.build.outputDirectory}_jdk6</classesDirectory>
+              <classifier>jdk6</classifier>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+       
     </plugins>
   </build>
 

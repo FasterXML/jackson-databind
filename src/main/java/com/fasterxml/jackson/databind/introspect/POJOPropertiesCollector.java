@@ -381,7 +381,7 @@ public class POJOPropertiesCollector
             // @JsonValue?
             if (Boolean.TRUE.equals(ai.hasAsValue(f))) {
                 if (_jsonValueAccessors == null) {
-                    _jsonValueAccessors = new LinkedList<>();
+                    _jsonValueAccessors = new LinkedList<AnnotatedMember>();
                 }
                 _jsonValueAccessors.add(f);
                 continue;
@@ -566,7 +566,7 @@ public class POJOPropertiesCollector
         // @JsonValue?
         if (Boolean.TRUE.equals(ai.hasAsValue(m))) {
             if (_jsonValueAccessors == null) {
-                _jsonValueAccessors = new LinkedList<>();
+                _jsonValueAccessors = new LinkedList<AnnotatedMember>();
             }
             _jsonValueAccessors.add(m);
             return;

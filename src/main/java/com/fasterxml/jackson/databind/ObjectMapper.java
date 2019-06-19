@@ -4101,7 +4101,8 @@ public class ObjectMapper
      */
     protected JsonNode _readTreeAndClose(JsonParser p0) throws IOException
     {
-        try (JsonParser p = p0) {
+    	JsonParser p = p0;
+        try {
             final JavaType valueType = constructType(JsonNode.class);
 
             DeserializationConfig cfg = getDeserializationConfig();
@@ -4143,6 +4144,10 @@ public class ObjectMapper
             // No ObjectIds so can ignore
 //            ctxt.checkUnresolvedObjectId();
             return resultNode;
+        } finally {
+            try {
+                p.close();
+            } catch (IOException ioe) { }
         }
     }
 

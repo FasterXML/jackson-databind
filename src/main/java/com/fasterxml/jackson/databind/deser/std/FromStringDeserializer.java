@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -12,9 +13,14 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.VersionUtil;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -143,10 +149,11 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 //    indicated error; but that seems wrong. Should be able to return
                 //    `null` as value.
                 return _deserialize(text, ctxt);
-            } catch (IllegalArgumentException | MalformedURLException e) {
+			} catch (IllegalArgumentException e) {
+				cause = e;
+			} catch (MalformedURLException e) {
                 cause = e;
-            }
-            // note: `cause` can't be null
+			} // note: `cause` can't be null
             String msg = "not a valid textual representation";
             String m2 = cause.getMessage();
             if (m2 != null) {

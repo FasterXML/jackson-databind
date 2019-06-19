@@ -42,7 +42,7 @@ public class AnnotatedFieldCollector
         if (foundFields == null) {
             return Collections.emptyList();
         }
-        List<AnnotatedField> result = new ArrayList<>(foundFields.size());
+        List<AnnotatedField> result = new ArrayList<AnnotatedField>(foundFields.size());
         for (FieldBuilder b : foundFields.values()) {
             result.add(b.build());
         }
@@ -72,7 +72,7 @@ public class AnnotatedFieldCollector
             // because mix-ins haven't been added, and partly because logic can be done
             // when determining get/settability of the field.
             if (fields == null) {
-                fields = new LinkedHashMap<>();
+                fields = new LinkedHashMap<String, FieldBuilder>();
             }
             FieldBuilder b = new FieldBuilder(tc, f);
             if (_intr != null) {

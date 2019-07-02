@@ -310,6 +310,10 @@ public class SimpleModuleTest extends BaseMapTest
         // Should retain ordering even if not mandated
         assertEquals("test1", mods.get(0).getModuleName());
         assertEquals("test2", mods.get(1).getModuleName());
+
+        // 01-Jul-2019, [databind#2374]: verify empty list is fine
+        mapper = newJsonMapper();
+        assertEquals(0, mapper.getRegisteredModules().size());
     }
 
     /*

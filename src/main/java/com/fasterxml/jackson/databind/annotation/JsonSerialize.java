@@ -36,7 +36,7 @@ public @interface JsonSerialize
     /**
      * Serializer class to use for
      * serializing associated value. Depending on what is annotated,
-     * value is either an instance of annotated class (used globablly
+     * value is either an instance of annotated class (used globally
      * anywhere where class serializer is needed); or only used for
      * serializing property access via a getter method.
      */

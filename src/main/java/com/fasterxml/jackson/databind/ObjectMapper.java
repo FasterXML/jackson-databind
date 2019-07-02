@@ -540,7 +540,7 @@ public class ObjectMapper
     public Collection<com.fasterxml.jackson.databind.Module> getRegisteredModules() {
         return _savedBuilderState.modules();
     }
-    
+
     /*
     /**********************************************************************
     /* Public API: constructing Parsers that are properly linked

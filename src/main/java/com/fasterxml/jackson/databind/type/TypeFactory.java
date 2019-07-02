@@ -7,6 +7,7 @@ import java.lang.reflect.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.SimpleLookupCache;
@@ -65,6 +66,7 @@ public final class TypeFactory
     private final static Class<?> CLS_COMPARABLE = Comparable.class;
     private final static Class<?> CLS_CLASS = Class.class;
     private final static Class<?> CLS_ENUM = Enum.class;
+    private final static Class<?> CLS_JSON_NODE = JsonNode.class; // since 2.10
 
     private final static Class<?> CLS_BOOL = Boolean.TYPE;
     private final static Class<?> CLS_INT = Integer.TYPE;
@@ -105,6 +107,14 @@ public final class TypeFactory
      * useful information.
      */
     protected final static SimpleType CORE_TYPE_CLASS = new SimpleType(CLS_CLASS);
+
+    /**
+     * Cache {@link JsonNode} because it is no critical path of simple tree model
+     * reading and does not have things to override
+     *
+     * @since 2.10
+     */
+    protected final static SimpleType CORE_TYPE_JSON_NODE = new SimpleType(CLS_JSON_NODE);
 
     /**
      * Since type resolution can be expensive (specifically when resolving
@@ -1120,6 +1130,7 @@ s     */
         } else {
             if (clz == CLS_STRING) return CORE_TYPE_STRING;
             if (clz == CLS_OBJECT) return CORE_TYPE_OBJECT; // since 2.7
+            if (clz == CLS_JSON_NODE) return CORE_TYPE_JSON_NODE; // since 2.10
         }
         return null;
     }

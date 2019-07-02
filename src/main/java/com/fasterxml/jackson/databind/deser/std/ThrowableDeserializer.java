@@ -88,7 +88,7 @@ public class ThrowableDeserializer
         // and finally, verify we do have single-String arg constructor (if no @JsonCreator)
         if (!hasStringCreator && !hasDefaultCtor) {
             return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
-                    "Throwable needs a default contructor, a single-String-arg constructor; or explicit @JsonCreator");
+                    "Throwable needs a default constructor, a single-String-arg constructor; or explicit @JsonCreator");
         }
         
         Object throwable = null;

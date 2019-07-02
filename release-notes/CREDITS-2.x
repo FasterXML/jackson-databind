@@ -858,9 +858,13 @@ Cyril Martin (mcoolive@github.com)
     does not provide "Type(Type(null))"
    (2.9.9)
 
-Daniil Barvitsky (dbarvitsky@github(
+Daniil Barvitsky (dbarvitsky@github)
   * Reported #2324: `StringCollectionDeserializer` fails with custom collection
    (2.9.9)
+
+Edgar Asatryan (nstdio@github)
+  * Reported #2374: `ObjectMapper. getRegisteredModuleIds()` throws NPE if no modules registered
+   (2.9.10)
 
 Christoph Breitkopf (bokesan@github)
   * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`

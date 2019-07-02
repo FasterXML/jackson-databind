@@ -319,6 +319,7 @@ public class SimpleModuleTest extends BaseMapTest
         AnotherSimpleModule mod2 = new AnotherSimpleModule("test2", Version.unknownVersion());
 
         ObjectMapper mapper = new ObjectMapper();
+
         mapper.registerModule(mod1);
         mapper.registerModule(mod2);
 
@@ -326,6 +327,10 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals(2, registeredModuleIds.size());
         assertTrue(registeredModuleIds.contains(mod1.getTypeId()));
         assertTrue(registeredModuleIds.contains(mod2.getTypeId()));
+
+        // 01-Jul-2019, [databind#2374]: verify empty list is fine
+        mapper = new ObjectMapper();
+        assertEquals(0, mapper.getRegisteredModuleIds().size());
     }
 
     /*

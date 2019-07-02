@@ -988,10 +988,10 @@ public class ObjectMapper
      *
      * @since 2.9.6
      */
-    public Set<Object> getRegisteredModuleIds() {
-        return _registeredModuleTypes == null ?
-                Collections.emptySet() :
-                Collections.unmodifiableSet(_registeredModuleTypes);
+    public Set<Object> getRegisteredModuleIds()
+    {
+        return (_registeredModuleTypes == null) ?
+                Collections.emptySet() : Collections.unmodifiableSet(_registeredModuleTypes);
     }
 
     /**

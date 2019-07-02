@@ -962,7 +962,8 @@ public class ObjectMapper
      */
     public Set<Object> getRegisteredModuleIds()
     {
-        return Collections.unmodifiableSet(_registeredModuleTypes);
+        return (_registeredModuleTypes == null) ?
+                Collections.emptySet() : Collections.unmodifiableSet(_registeredModuleTypes);
     }
 
     /**

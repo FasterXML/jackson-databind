@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2326: Block one more gadget type (CVE-2019-12384)
 #2341: Block one more gadget type (CVE-2019-12814)
+#2374: `ObjectMapper. getRegisteredModuleIds()` throws NPE if no modules registered
+ (reported by Edgar A)
 
 2.9.9 (16-May-2019)
 

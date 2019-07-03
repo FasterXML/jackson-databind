@@ -53,9 +53,9 @@ Project: jackson-databind
 2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
 
-2.9.9.1 (not yet released)
+2.9.9.1 (03-Jul-2019)
 
-#2326: Block one more gadget type (CVE-2019-12384)
+#2334: Block one more gadget type (CVE-2019-12384)
 #2341: Block one more gadget type (CVE-2019-12814)
 #2374: `ObjectMapper. getRegisteredModuleIds()` throws NPE if no modules registered
  (reported by Edgar A)

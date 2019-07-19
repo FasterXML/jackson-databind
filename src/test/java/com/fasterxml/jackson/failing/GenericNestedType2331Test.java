@@ -12,6 +12,7 @@ public class GenericNestedType2331Test extends BaseMapTest
     static class SuperNode<T> { }
     static class SuperTestClass { }
     
+    @SuppressWarnings("serial")
     static class Node<T extends SuperTestClass & Cloneable> extends SuperNode<Node<T>> implements Serializable {
 
         public List<Node<T>> children;
@@ -23,7 +24,6 @@ public class GenericNestedType2331Test extends BaseMapTest
         /**
          * The Wildcard here seems to be the Issue.
          * If we remove this full getter, everything is working as expected.
-         * @return
          */
         public List<? extends SuperNode<Node<T>>> getChildren() {
             return children;

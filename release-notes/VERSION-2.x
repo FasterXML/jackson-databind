@@ -51,7 +51,7 @@ Project: jackson-databind
  (suggested by Manuel H)
 #2338: Suboptimal return type for `JsonNode.withArray()`
  (reported by Victor N)
-2339: Suboptimal return type for `ObjectNode.set()`
+#2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
 
 2.9.9.1 (03-Jul-2019)

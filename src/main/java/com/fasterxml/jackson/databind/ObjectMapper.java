@@ -946,6 +946,13 @@ public class ObjectMapper
         return readValues(p, _typeFactory.constructType(valueType));
     }
 
+    // Used by Kotlin module
+    public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<T> valueType)
+        throws IOException, JsonProcessingException
+    {
+        return readValues(p, _typeFactory.constructType(valueType));
+    }
+
     /*
     /**********************************************************************
     /* Public API: deserialization

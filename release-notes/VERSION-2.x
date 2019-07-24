@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.0.pr2 (not yet released)
+
+#2331: `JsonMappingException` through nested getter with generic wildcard return type
+ (reported by sunchezz89@github)
+
 2.10.0.pr1 (19-Jul-2019)
 
 #18: Make `JsonNode` serializable
@@ -40,7 +45,7 @@ Project: jackson-databind
  (reported by Pavel C)
 #2236: Type id not provided on `Double.NaN`, `Infinity` with `@JsonTypeInfo`
  (reported by C-B-B@github)
-#2241: Add `JsonPropertyNamingStrategy.LOWER_DOT_CASE` for dot-delimited names
+#2241: Add `PropertyNamingStrategy.LOWER_DOT_CASE` for dot-delimited names
  (contributed by zenglian@github.com)
 #2251: Getter that returns an abstract collection breaks a delegating `@JsonCreator`
 #2265: Inconsistent handling of Collections$UnmodifiableList vs Collections$UnmodifiableRandomAccessListq
@@ -51,7 +56,7 @@ Project: jackson-databind
  (suggested by Manuel H)
 #2338: Suboptimal return type for `JsonNode.withArray()`
  (reported by Victor N)
-2339: Suboptimal return type for `ObjectNode.set()`
+#2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
 
 2.9.9.1 (03-Jul-2019)

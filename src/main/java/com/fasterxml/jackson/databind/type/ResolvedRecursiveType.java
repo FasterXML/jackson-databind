@@ -28,13 +28,19 @@ public class ResolvedRecursiveType extends TypeBase
    
     @Override
     public JavaType getSuperClass() {
-    	if (_referencedType != null) {
-    		return _referencedType.getSuperClass();
-    	}
-    	return super.getSuperClass();
+        if (_referencedType != null) {
+            return _referencedType.getSuperClass();
+        }
+        return super.getSuperClass();
     }
 
     public JavaType getSelfReferencedType() { return _referencedType; }
+
+    // 23-Jul-2019, tatu: [databind#2331] Need to also delegate this...
+    @Override
+    public TypeBindings getBindings() {
+        return _referencedType.getBindings();
+    }
 
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb) {

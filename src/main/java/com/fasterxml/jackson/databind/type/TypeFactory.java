@@ -363,7 +363,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         if (rawBase == subclass) {
             return baseType;
         }
-
         JavaType newType;
 
         // also: if we start from untyped, not much to save

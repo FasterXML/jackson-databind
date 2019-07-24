@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.0.pr2 (not yet released)
+
+#2331: `JsonMappingException` through nested getter with generic wildcard return type
+ (reported by sunchezz89@github)
+
 2.10.0.pr1 (19-Jul-2019)
 
 #18: Make `JsonNode` serializable

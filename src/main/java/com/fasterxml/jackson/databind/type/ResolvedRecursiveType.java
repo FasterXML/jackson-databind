@@ -36,6 +36,12 @@ public class ResolvedRecursiveType extends TypeBase
 
     public JavaType getSelfReferencedType() { return _referencedType; }
 
+    // 23-Jul-2019, tatu: [databind#2331] Need to also delegate this...
+    @Override
+    public TypeBindings getBindings() {
+        return _referencedType.getBindings();
+    }
+
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb) {
         return _referencedType.getGenericSignature(sb);

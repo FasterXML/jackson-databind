@@ -359,7 +359,6 @@ public final class TypeFactory
         if (rawBase == subclass) {
             return baseType;
         }
-
         JavaType newType;
 
         // also: if we start from untyped, not much to save

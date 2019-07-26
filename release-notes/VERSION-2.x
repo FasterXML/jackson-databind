@@ -59,6 +59,11 @@ Project: jackson-databind
 #2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
 
+2.9.9.2 (not yet released)
+
+#2387: Block yet another deserialization gadget (EHCache, CVE-2019-xxxxx?)
+#2389: Block yet another deserialization gadget (Logback, CVE-2019-xxxxx?)
+
 2.9.9.1 (03-Jul-2019)
 
 #2331: `JsonMappingException` through nested getter with generic wildcard return type

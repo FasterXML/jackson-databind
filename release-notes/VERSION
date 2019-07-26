@@ -3,11 +3,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-<<<<<<< HEAD
 2.8.11.4 (not released)
-=======
-2.7.9.6 (26-Jul-2019)
->>>>>>> 2.7
 
 #2326: Block one more gadget type (CVE-2019-12086)
 #2334: Block class for CVE-2019-12384

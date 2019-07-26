@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2331: `JsonMappingException` through nested getter with generic wildcard return type
  (reported by sunchezz89@github)
+#2393: `TreeTraversingParser.getLongValue()` incorrectly checks `canConvertToInt()`
+ (reported by RabbidDog@github)
 
 2.10.0.pr1 (19-Jul-2019)
 

@@ -4,12 +4,14 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-Not yet released
+2.7.9.6 (26-Jul-2019)
 
 #2326: Block class for CVE-2019-12086
  (contributed by MaximilianTews@github)
 #2334: Block class for CVE-2019-12384
 #2341: Block class for CVE-2019-12814
+#2387: Block yet another deserialization gadget (EHCache, CVE-2019-xxxxx?)
+#2389: Block yet another deserialization gadget (Logback, CVE-2019-xxxxx?)
 
 2.7.9.5 (23-Nov-2018)
 

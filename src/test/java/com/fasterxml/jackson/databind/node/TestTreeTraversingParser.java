@@ -348,5 +348,19 @@ public class TestTreeTraversingParser
                 verifyException(e, "Numeric value ("+tooBig2+") out of range of `long`");
             }
         }
+
+        // Plus, wrt [databind#2393], NON-failing cases
+        final long[] okValues = new long[] { 1L+Integer.MAX_VALUE, -1L + Integer.MIN_VALUE,
+                Long.MAX_VALUE, Long.MIN_VALUE };
+        for (long okValue : okValues) {
+            try (final JsonParser p = MAPPER.readTree("{ \"value\" : "+okValue+" }").traverse()) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(NumberType.LONG, p.getNumberType());
+                assertEquals(okValue, p.getLongValue());
+                assertToken(JsonToken.END_OBJECT, p.nextToken());
+            }
+        }
     }
 }

@@ -90,6 +90,12 @@ public class SubTypeValidator
         s.add("org.jdom.transform.XSLTransformer");
         s.add("org.jdom2.transform.XSLTransformer");
 
+        // [databind#2387]: EHCache
+        s.add("net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup");
+
+        // [databind#2389]: logback/jndi
+        s.add("ch.qos.logback.core.db.JNDIConnectionSource");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

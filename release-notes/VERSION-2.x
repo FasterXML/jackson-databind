@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.9.2 (not yet released)
+
+#2387: Block yet another deserialization gadget (EHCache, CVE-2019-xxxxx?)
+#2389: Block yet another deserialization gadget (Logback, CVE-2019-xxxxx?)
+
 2.9.9.1 (03-Jul-2019)
 
 #2331: `JsonMappingException` through nested getter with generic wildcard return type
@@ -29,6 +34,7 @@ Project: jackson-databind
 #2324: `StringCollectionDeserializer` fails with custom collection
  (reported byb Daniil B)
 #2326: Block one more gadget type (CVE-2019-12086)
+<<<<<<< HEAD:release-notes/VERSION-2.x
 - Prevent String coercion of `null` in `WritableObjectId` when calling `JsonGenerator.writeObjectId()`,
   mostly relevant for formats like YAML that have native Object Ids
 

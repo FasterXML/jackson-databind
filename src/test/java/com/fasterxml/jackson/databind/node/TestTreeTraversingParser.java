@@ -353,7 +353,7 @@ public class TestTreeTraversingParser
         final long[] okValues = new long[] { 1L+Integer.MAX_VALUE, -1L + Integer.MIN_VALUE,
                 Long.MAX_VALUE, Long.MIN_VALUE };
         for (long okValue : okValues) {
-            try (final JsonParser p = MAPPER.readTree("{ \"value\" : "+okValue+" }").traverse()) {
+            try (final JsonParser p = MAPPER.readTree("{ \"value\" : "+okValue+" }").traverse(ObjectReadContext.empty())) {
                 assertToken(JsonToken.START_OBJECT, p.nextToken());
                 assertToken(JsonToken.FIELD_NAME, p.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());

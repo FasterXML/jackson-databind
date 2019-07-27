@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.9.2 (not yet released)
+2.9.9.2 (27-Jul-2019)
 
 #2387: Block yet another deserialization gadget (EHCache, CVE-2019-xxxxx?)
 #2389: Block yet another deserialization gadget (Logback, CVE-2019-xxxxx?)

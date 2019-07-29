@@ -63,12 +63,12 @@ Project: jackson-databind
 
 2.9.9.2 (27-Jul-2019)
 
+#2331: `JsonMappingException` through nested getter with generic wildcard return type
 #2387: Block yet another deserialization gadget (EHCache, CVE-2019-xxxxx?)
 #2389: Block yet another deserialization gadget (Logback, CVE-2019-xxxxx?)
 
 2.9.9.1 (03-Jul-2019)
 
-#2331: `JsonMappingException` through nested getter with generic wildcard return type
 #2334: Block one more gadget type (CVE-2019-12384)
 #2341: Block one more gadget type (CVE-2019-12814)
 #2374: `ObjectMapper. getRegisteredModuleIds()` throws NPE if no modules registered

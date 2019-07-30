@@ -850,3 +850,8 @@ Daniil Barvitsky (dbarvitsky@github)
 Edgar Asatryan (nstdio@github)
   * Reported #2374: `ObjectMapper. getRegisteredModuleIds()` throws NPE if no modules registered
    (2.9.9.1)
+
+Michael Simons (michael-simons@github)
+  * Reported #2395: `NullPointerException` from `ResolvedRecursiveType` (regression due to
+    fix for #2331)
+   (2.9.9.3)

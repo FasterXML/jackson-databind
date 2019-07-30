@@ -61,14 +61,19 @@ Project: jackson-databind
 #2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
 
-2.9.9.2 (not yet released)
+2.9.9.3 (not yet released)
 
-#2387: Block yet another deserialization gadget (EHCache, CVE-2019-xxxxx?)
-#2389: Block yet another deserialization gadget (Logback, CVE-2019-xxxxx?)
+#2395: `NullPointerException` from `ResolvedRecursiveType` (regression due to fix for #2331)
+ (reported by Michael S)
+
+2.9.9.2 (27-Jul-2019)
+
+#2331: `JsonMappingException` through nested getter with generic wildcard return type
+#2387: Block yet another deserialization gadget (CVE-2019-14379)
+#2389: Block yet another deserialization gadget (CVE-2019-14361)
 
 2.9.9.1 (03-Jul-2019)
 
-#2331: `JsonMappingException` through nested getter with generic wildcard return type
 #2334: Block one more gadget type (CVE-2019-12384)
 #2341: Block one more gadget type (CVE-2019-12814)
 #2374: `ObjectMapper. getRegisteredModuleIds()` throws NPE if no modules registered

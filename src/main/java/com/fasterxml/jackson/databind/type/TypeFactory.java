@@ -199,7 +199,11 @@ public final class TypeFactory
             typeCache = null;
         } else if (_modifiers == null) {
             mods = new TypeModifier[] { mod };
+            // 29-Jul-2019, tatu: Actually I think we better clear cache in this case
+            //    as well to ensure no leakage occurs (see [databind#2395])
+            typeCache = null;
         } else {
+            // but may keep existing cache otherwise
             mods = ArrayBuilders.insertInListNoDup(_modifiers, mod);
         }
         return new TypeFactory(typeCache, mods, _classLoader);
@@ -1174,9 +1178,8 @@ s     */
             // sanity check
             throw new IllegalArgumentException("Unrecognized Type: "+((type == null) ? "[null]" : type.toString()));
         }
-        /* 21-Feb-2016, nateB/tatu: as per [databind#1129] (applied for 2.7.2),
-         *   we do need to let all kinds of types to be refined, esp. for Scala module.
-         */
+        // 21-Feb-2016, nateB/tatu: as per [databind#1129] (applied for 2.7.2),
+        //   we do need to let all kinds of types to be refined, esp. for Scala module.
         if (_modifiers != null) {
             TypeBindings b = resultType.getBindings();
             if (b == null) {

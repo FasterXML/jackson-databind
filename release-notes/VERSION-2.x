@@ -61,6 +61,11 @@ Project: jackson-databind
 #2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
 
+2.9.9.3 (not yet released)
+
+#2395: `NullPointerException` from `ResolvedRecursiveType` (regression due to fix for #2331)
+ (reported by Michael S)
+
 2.9.9.2 (27-Jul-2019)
 
 #2331: `JsonMappingException` through nested getter with generic wildcard return type

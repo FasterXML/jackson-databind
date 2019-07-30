@@ -14,6 +14,7 @@ Project: jackson-databind
 #2331: `JsonMappingException` through nested getter with generic wildcard return type
 #2387: Block yet another deserialization gadget (CVE-2019-14379)
 #2389: Block yet another deserialization gadget (CVE-2019-14361)
+ (reported by xiexq)
 
 2.9.9.1 (03-Jul-2019)
 
@@ -353,9 +354,17 @@ Project: jackson-databind
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
 
+2.8.11.4 (25-Jul-2019)
+
+#2334: Block one more gadget type (CVE-2019-12384)
+#2341: Block one more gadget type (CVE-2019-12814)
+#2387: Block one more gadget type (CVE-2019-14379)
+#2389: Block one more gadget type (CVE-2019-14361)
+ (reported by xiexq)
+
 2.8.11.3 (23-Nov-2018)
 
-#2326: Block class for CVE-2019-12086
+#2326: Block one more gadget type (CVE-2019-12086)
  (contributed by MaximilianTews@github)
 
 2.8.11.2 (08-Jun-2018)

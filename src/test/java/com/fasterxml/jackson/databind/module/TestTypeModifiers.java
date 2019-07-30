@@ -235,7 +235,21 @@ public class TestTypeModifiers extends BaseMapTest
         assertNotNull(param);
         assertSame(Integer.class, param.getRawClass());
     }
-    
+
+    // [databind#2395] Can trigger problem this way too
+    // NOTE: oddly enough, seems to ONLY fail 
+    public void testTypeResolutionForRecursive() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule() {
+            @Override
+            public void setupModule(SetupContext context) {
+                context.addTypeModifier(new MyTypeModifier());
+            }
+        });
+        assertNotNull(mapper.readTree("{}"));
+    }
+
     public void testCollectionLikeTypeConstruction() throws Exception
     {
         JavaType type = MY_TYPE_MAPPER.constructType(MyCollectionLikeType.class);

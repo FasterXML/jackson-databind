@@ -240,13 +240,9 @@ public class TestTypeModifiers extends BaseMapTest
     // NOTE: oddly enough, seems to ONLY fail 
     public void testTypeResolutionForRecursive() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new SimpleModule() {
-            @Override
-            public void setupModule(SetupContext context) {
-                context.addTypeModifier(new MyTypeModifier());
-            }
-        });
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .typeFactory(TypeFactory.defaultInstance().withModifier(new MyTypeModifier()))
+                .build();
         assertNotNull(mapper.readTree("{}"));
     }
 

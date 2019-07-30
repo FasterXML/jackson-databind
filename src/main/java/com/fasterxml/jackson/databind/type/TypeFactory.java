@@ -197,7 +197,11 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             typeCache = null;
         } else if (_modifiers == null) {
             mods = new TypeModifier[] { mod };
+            // 29-Jul-2019, tatu: Actually I think we better clear cache in this case
+            //    as well to ensure no leakage occurs (see [databind#2395])
+            typeCache = null;
         } else {
+            // but may keep existing cache otherwise
             mods = ArrayBuilders.insertInListNoDup(_modifiers, mod);
         }
         return new TypeFactory(typeCache, _parser, mods, _classLoader);

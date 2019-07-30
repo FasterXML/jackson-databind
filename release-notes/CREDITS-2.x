@@ -504,6 +504,10 @@ Kevin Hogeland (khogeland@github)
   * Reported #1501: `ArrayIndexOutOfBoundsException` on non-static inner class constructor
    (2.7.9)
 
+xiexq (xiexq@knownsec.com)
+  * Reported #2389: Block one more gadget type (CVE-2019-14361)
+   (2.7.9.6)
+
 Artur Jonkisz (ajonkisz@github)
   * Reported #960: `@JsonCreator` not working on a factory with no arguments for ae enum type
    (2.8.0)

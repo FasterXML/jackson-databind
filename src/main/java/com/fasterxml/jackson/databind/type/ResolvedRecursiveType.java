@@ -50,7 +50,7 @@ public class ResolvedRecursiveType extends TypeBase
         if (_referencedType != null) {
             return _referencedType.getGenericSignature(sb);
         }
-        return _referencedType.getGenericSignature(sb);
+        return sb.append("?");
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ResolvedRecursiveType extends TypeBase
         if (_referencedType != null) {
             return _referencedType.getErasedSignature(sb);
         }
-        return _referencedType.getErasedSignature(sb);
+        return sb;
     }
 
     @Override

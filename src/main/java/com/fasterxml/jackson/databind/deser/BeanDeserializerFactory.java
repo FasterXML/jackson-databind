@@ -85,6 +85,7 @@ public class BeanDeserializerFactory
      * Method that called to create a new deserializer for types other than Collections,
      * Maps, arrays, referential types or enums, or "well-known" JDK scalar types.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public JsonDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
@@ -92,9 +93,15 @@ public class BeanDeserializerFactory
     {
         final DeserializationConfig config = ctxt.getConfig();
         // We may also have custom overrides:
-        JsonDeserializer<Object> custom = _findCustomBeanDeserializer(type, config, beanDesc);
-        if (custom != null) {
-            return custom;
+        JsonDeserializer<?> deser = _findCustomBeanDeserializer(type, config, beanDesc);
+        if (deser != null) {
+            // [databind#2392]
+            if (_factoryConfig.hasDeserializerModifiers()) {
+                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                    deser = mod.modifyDeserializer(ctxt.getConfig(), beanDesc, deser);
+                }
+            }
+            return (JsonDeserializer<Object>) deser;
         }
         /* One more thing to check: do we have an exception type
          * (Throwable or its sub-classes)? If so, need slightly
@@ -119,10 +126,9 @@ public class BeanDeserializerFactory
             }
         }
         // Otherwise, may want to check handlers for standard types, from superclass:
-        @SuppressWarnings("unchecked")
-        JsonDeserializer<Object> deser = (JsonDeserializer<Object>) findStdDeserializer(ctxt, type, beanDesc);
+        deser = findStdDeserializer(ctxt, type, beanDesc);
         if (deser != null) {
-            return deser;
+            return (JsonDeserializer<Object>)deser;
         }
 
         // Otherwise: could the class be a Bean class? If not, bail out

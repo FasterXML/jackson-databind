@@ -1102,7 +1102,7 @@ nonAnnotatedParamIndex, ctor);
             }
             deser = new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
         }
-        // and then new with 2.2: ability to post-process it too (Issue#120)
+        // and then new with 2.2: ability to post-process it too (databind#120)
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyArrayDeserializer(config, type, beanDesc, deser);
@@ -1112,9 +1112,9 @@ nonAnnotatedParamIndex, ctor);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonDeserializerFactory impl: Collection(-like) deserializers
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

@@ -456,4 +456,25 @@ public class TestCustomDeserializers
         String str = mapper.readValue(quote("foo"), String.class);
         assertEquals("MY:foo", str);
     }
+
+    // [databind#2392]
+    public void testModifyingCustomDeserializer() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .setDeserializerModifier(new BeanDeserializerModifier() {
+                            @Override
+                            public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                                    BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+                                if (deserializer instanceof DummyDeserializer<?>) {
+                                    return new DummyDeserializer<String>("FOOBAR", String.class);
+                                }
+                                return deserializer;
+                            }
+                        })
+                        .addDeserializer(String.class, new DummyDeserializer<String>("dummy", String.class))
+                        ).build();
+        String str = mapper.readValue(quote("foo"), String.class);
+        assertEquals("FOOBAR", str);
+    }
 }

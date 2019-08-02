@@ -8,7 +8,7 @@ Project: jackson-databind
 #2334: Block one more gadget type (CVE-2019-12384)
 #2341: Block one more gadget type (CVE-2019-12814)
 #2387: Block one more gadget type (CVE-2019-14379)
-#2389: Block one more gadget type (CVE-2019-14361)
+#2389: Block one more gadget type (CVE-2019-14439)
  (reported by xiexq)
 
 2.8.11.3 (23-Nov-2018)

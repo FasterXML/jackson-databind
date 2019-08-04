@@ -99,6 +99,7 @@ public class SqlDateSerializationTest extends BaseMapTest
     public void testSqlDateConfigOverride() throws Exception
     {
         ObjectMapper mapper = newObjectMapper();
+        mapper.setTimeZone(TimeZone.getDefault());
         mapper.configOverride(java.sql.Date.class)
             .setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd"));        
         assertEquals("\"1980+04+14\"",

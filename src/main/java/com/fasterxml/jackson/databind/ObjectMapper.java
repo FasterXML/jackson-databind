@@ -2062,7 +2062,7 @@ public class ObjectMapper
     }
     
     /**
-     * @deprecated Since 2.10 use {@code ObjectMapper.builder().disable(...)}
+     * @deprecated Since 2.10 use {@code JsonMapper.builder().configure(...)} (or similarly for other datatypes)
      */
     @Deprecated
     public ObjectMapper configure(MapperFeature f, boolean state) {
@@ -2074,7 +2074,7 @@ public class ObjectMapper
     }
 
     /**
-     * @deprecated Since 2.10 use {@code ObjectMapper.builder().disable(...)}
+     * @deprecated Since 2.10 use {@code JsonMapper.builder().Enable(...)} (or similarly for other datatypes)
      */
     @Deprecated
     public ObjectMapper enable(MapperFeature... f) {
@@ -2084,7 +2084,7 @@ public class ObjectMapper
     }
 
     /**
-     * @deprecated Since 2.10 use {@code ObjectMapper.builder().disable(...)}
+     * @deprecated Since 2.10 use {@code JsonMapper.builder().disable(...)} (or similarly for other datatypes)
      */
     @Deprecated
     public ObjectMapper disable(MapperFeature... f) {

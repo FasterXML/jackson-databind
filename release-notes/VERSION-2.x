@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.9.3 (not yet released)
+2.9.9.3 (06-Aug-2019)
 
 #2395: `NullPointerException` from `ResolvedRecursiveType` (regression due to fix for #2331)
  (reported by Michael S)

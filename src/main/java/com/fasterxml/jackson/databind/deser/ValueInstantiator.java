@@ -388,7 +388,10 @@ public abstract class ValueInstantiator
      * to be used instead of directly extending {@link ValueInstantiator} itself.
      */
     public static class Base extends ValueInstantiator
+        implements java.io.Serializable // just because used as base for "standard" variants
     {
+        private static final long serialVersionUID = 1L;
+
         protected final Class<?> _valueType;
 
         public Base(Class<?> type) {

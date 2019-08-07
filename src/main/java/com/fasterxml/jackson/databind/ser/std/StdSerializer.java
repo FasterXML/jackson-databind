@@ -28,10 +28,8 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements JsonFormatVisitable, java.io.Serializable
+    implements JsonFormatVisitable
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Key used for storing a lock object to prevent infinite recursion when
      * constructing converting serializers.

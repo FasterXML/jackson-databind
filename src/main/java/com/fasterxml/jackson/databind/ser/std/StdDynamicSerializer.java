@@ -17,10 +17,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
  */
 public abstract class StdDynamicSerializer<T>
     extends StdSerializer<T>
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 3L;
-
     /**
      * Property for which this serializer is being used, if known at this point
      * (`null` for root value serializers as well as those cached as blueprints).

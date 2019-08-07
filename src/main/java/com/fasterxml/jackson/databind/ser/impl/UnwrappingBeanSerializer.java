@@ -12,10 +12,7 @@ import java.util.Set;
 
 public class UnwrappingBeanSerializer
     extends BeanSerializerBase
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Transformer used to add prefix and/or suffix for properties
      * of unwrapped POJO.

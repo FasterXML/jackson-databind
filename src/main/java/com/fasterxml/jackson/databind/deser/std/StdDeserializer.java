@@ -29,10 +29,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class StdDeserializer<T>
     extends JsonDeserializer<T>
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Bitmask that covers {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}
      * and {@link DeserializationFeature#USE_LONG_FOR_INTS}, used for more efficient

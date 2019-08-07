@@ -17,10 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public final class TypeWrappedDeserializer
     extends JsonDeserializer<Object>
-    implements java.io.Serializable // since 2.5
 {
-    private static final long serialVersionUID = 1L;
-
     final protected TypeDeserializer _typeDeserializer;
     final protected JsonDeserializer<Object> _deserializer;
 

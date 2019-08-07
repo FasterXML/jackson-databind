@@ -25,10 +25,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public class AbstractDeserializer
     extends JsonDeserializer<Object>
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     protected final JavaType _baseType;
 
     protected final ObjectIdReader _objectIdReader;
@@ -51,8 +48,6 @@ public class AbstractDeserializer
      */
 
     /**
-     * @since 2.9
-     *
      * @param props Regular properties: currently only needed to support property-annotated
      *    Object Id handling with property inclusion (needed for determining type of Object Id
      *    to bind)
@@ -84,9 +79,6 @@ public class AbstractDeserializer
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
     }
 
-    /**
-     * @since 2.9
-     */
     protected AbstractDeserializer(AbstractDeserializer base,
             ObjectIdReader objectIdReader, Map<String, SettableBeanProperty> props)
     {
@@ -104,8 +96,6 @@ public class AbstractDeserializer
     /**
      * Factory method used when constructing instances for non-POJO types, like
      * {@link java.util.Map}s.
-     * 
-     * @since 2.3
      */
     public static AbstractDeserializer constructForNonPOJO(BeanDescription beanDesc) {
         return new AbstractDeserializer(beanDesc);

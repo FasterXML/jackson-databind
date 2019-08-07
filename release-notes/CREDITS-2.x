@@ -900,3 +900,9 @@ Victor Noël (victornoel@github)
 Chris Mercer (cmercer@github)
   * Reported #2331: `JsonMappingException` through nested getter with generic wildcard return type
    (2.10.0)
+
+Vladimir Tsanev (tsachev@github)
+  * Contributed #2415: Builder-based POJO deserializer should pass builder instance, not type,
+    to `handleUnknownVanilla()` to fix earlier #822
+   (2.10.0)
+ 

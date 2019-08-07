@@ -468,7 +468,7 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            handleUnknownVanilla(p, ctxt, handledType(), propName);
+            handleUnknownVanilla(p, ctxt, builder, propName);
         }
         return builder;
     }

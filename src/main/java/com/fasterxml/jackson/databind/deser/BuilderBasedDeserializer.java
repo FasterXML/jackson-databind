@@ -47,9 +47,9 @@ public class BuilderBasedDeserializer
     private volatile transient NameTransformer _currentlyTransforming;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, construction, initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -176,21 +176,21 @@ public class BuilderBasedDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonDeserializer implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override // since 2.9
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         // 26-Oct-2016, tatu: No, we can't merge Builder-based POJOs as of now
         return Boolean.FALSE;
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonDeserializer implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Object finishBuild(DeserializationContext ctxt, Object builder)
@@ -273,9 +273,9 @@ public class BuilderBasedDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Concrete deserialization methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -506,14 +506,14 @@ public class BuilderBasedDeserializer
                 return _handleUnexpectedWithin(p, ctxt, builder);
             }
             p.nextToken();
-            handleUnknownVanilla(p, ctxt, handledType(), p.currentName());
+            handleUnknownVanilla(p, ctxt, builder, p.currentName());
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializing when we have to consider an active View
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final Object deserializeWithView(JsonParser p, DeserializationContext ctxt,
@@ -548,9 +548,9 @@ public class BuilderBasedDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Handling for cases where we have "unwrapped" values
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -734,10 +734,9 @@ public class BuilderBasedDeserializer
     }
 
     /*
-    /**********************************************************
-    /* Handling for cases where we have property/-ies with
-    /* external type id
-    /**********************************************************
+    /**********************************************************************
+    /* Handling for cases where we have property/-ies with external type id
+    /**********************************************************************
      */
 
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
@@ -820,9 +819,9 @@ public class BuilderBasedDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Error handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

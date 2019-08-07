@@ -76,10 +76,13 @@ public final class ClassUtil
      * Method for finding all super classes (but not super interfaces) of given class,
      * starting with the immediate super class and ending in the most distant one.
      * Class itself is included if <code>addClassItself</code> is true.
+     *<p>
+     * NOTE: mostly/only called to resolve mix-ins as that's where we do not care
+     * about fully-resolved types, just associated annotations.
      */
     public static List<Class<?>> findSuperClasses(Class<?> cls, Class<?> endBefore,
             boolean addClassItself) {
-        List<Class<?>> result = new LinkedList<Class<?>>();
+        List<Class<?>> result = new ArrayList<Class<?>>(8);
         if ((cls != null) && (cls != endBefore))  {
             if (addClassItself) {
                 result.add(cls);

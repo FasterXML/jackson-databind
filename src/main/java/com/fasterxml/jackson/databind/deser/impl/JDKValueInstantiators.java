@@ -53,10 +53,7 @@ public abstract class JDKValueInstantiators
 
     private static class ArrayListInstantiator
         extends ValueInstantiator.Base
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 2L;
-
         public final static ArrayListInstantiator INSTANCE = new ArrayListInstantiator();
         public ArrayListInstantiator() {
             super(ArrayList.class);
@@ -76,10 +73,7 @@ public abstract class JDKValueInstantiators
 
     private static class LinkedHashMapInstantiator
         extends ValueInstantiator.Base
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 2L;
-
         public final static LinkedHashMapInstantiator INSTANCE = new LinkedHashMapInstantiator();
 
         public LinkedHashMapInstantiator() {
@@ -100,10 +94,7 @@ public abstract class JDKValueInstantiators
 
     private static class ConstantValueInstantiator
         extends ValueInstantiator.Base
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 2L;
-
         protected final Object _value;
 
         public ConstantValueInstantiator(Object value) {

@@ -14,10 +14,8 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * Note that with 3.0 need for separate class has been reduced somewhat
  * and this class may be eliminated.
  */
-public class OptionalHandlerFactory implements java.io.Serializable
+public class OptionalHandlerFactory
 {
-    private static final long serialVersionUID = 1;
-
     /* To make 2 main "optional" handler groups (javax.xml.stream)
      * more dynamic, we better only figure out handlers completely dynamically, if and
      * when they are needed. To do this we need to assume package prefixes.

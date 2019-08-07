@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
-import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -18,6 +17,7 @@ import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
+import com.fasterxml.jackson.databind.deser.impl.JDKValueInstantiators;
 import com.fasterxml.jackson.databind.deser.impl.JavaUtilCollectionsDeserializers;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
@@ -216,7 +216,7 @@ public abstract class BasicDeserializerFactory
         if (instantiator == null) {
             // Second: see if some of standard Jackson/JDK types might provide value
             // instantiators.
-            instantiator = _findStdValueInstantiator(config, beanDesc);
+            instantiator = JDKValueInstantiators.findStdValueInstantiator(config, beanDesc.getBeanClass());
             if (instantiator == null) {
                 instantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
             }
@@ -244,30 +244,6 @@ public abstract class BasicDeserializerFactory
         }
 
         return instantiator;
-    }
-
-    private ValueInstantiator _findStdValueInstantiator(DeserializationConfig config,
-            BeanDescription beanDesc)
-        throws JsonMappingException
-    {
-        Class<?> raw = beanDesc.getBeanClass();
-        if (raw == JsonLocation.class) {
-            return new JsonLocationInstantiator();
-        }
-        // [databind#1868]: empty List/Set/Map
-        if (Collection.class.isAssignableFrom(raw)) {
-            if (Collections.EMPTY_SET.getClass() == raw) {
-                return new ConstantValueInstantiator(Collections.EMPTY_SET);
-            }
-            if (Collections.EMPTY_LIST.getClass() == raw) {
-                return new ConstantValueInstantiator(Collections.EMPTY_LIST);
-            }
-        } else if (Map.class.isAssignableFrom(raw)) {
-            if (Collections.EMPTY_MAP.getClass() == raw) {
-                return new ConstantValueInstantiator(Collections.EMPTY_MAP);
-            }
-        }
-        return null;
     }
 
     /**

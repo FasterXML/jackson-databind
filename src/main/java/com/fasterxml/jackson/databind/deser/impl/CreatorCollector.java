@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
-import java.lang.reflect.Parameter;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -84,14 +82,8 @@ public class CreatorCollector
                 _creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
         final JavaType type = _beanDesc.getType();
 
-        // 11-Jul-2016, tatu: Earlier optimization by replacing the whole
-        // instantiator did not
-        // work well, so let's replace by lower-level check:
-        AnnotatedWithParams defaultCtor = StdTypeConstructor
-                .tryToOptimize(_creators[C_DEFAULT]);
-
         StdValueInstantiator inst = new StdValueInstantiator(config, type);
-        inst.configureFromObjectSettings(defaultCtor, _creators[C_DELEGATE],
+        inst.configureFromObjectSettings(_creators[C_DEFAULT], _creators[C_DELEGATE],
                 delegateType, _delegateArgs, _creators[C_PROPS],
                 _propertyBasedArgs);
         inst.configureFromArraySettings(_creators[C_ARRAY_DELEGATE],
@@ -337,170 +329,5 @@ public class CreatorCollector
     protected boolean _isEnumValueOf(AnnotatedWithParams creator) {
         return creator.getDeclaringClass().isEnum()
                 && "valueOf".equals(creator.getName());
-    }
-
-    /*
-    /**********************************************************
-    /* Helper class(es)
-    /**********************************************************
-     */
-
-    /**
-     * Replacement for default constructor to use for a small set of
-     * "well-known" types.
-     * <p>
-     * Note: replaces earlier <code>Vanilla</code>
-     * <code>ValueInstantiator</code> implementation
-     *
-     * @since 2.8.1 (replacing earlier <code>Vanilla</code> instantiator
-     */
-    protected final static class StdTypeConstructor extends AnnotatedWithParams
-            implements java.io.Serializable {
-        private static final long serialVersionUID = 1L;
-
-        public final static int TYPE_ARRAY_LIST = 1;
-        public final static int TYPE_HASH_MAP = 2;
-        public final static int TYPE_LINKED_HASH_MAP = 3;
-
-        private final AnnotatedWithParams _base;
-
-        private final int _type;
-
-        public StdTypeConstructor(AnnotatedWithParams base, int t) {
-            super(base, null);
-            _base = base;
-            _type = t;
-        }
-
-        public static AnnotatedWithParams tryToOptimize(
-                AnnotatedWithParams src) {
-            if (src != null) {
-                final Class<?> rawType = src.getDeclaringClass();
-                if (rawType == List.class || rawType == ArrayList.class) {
-                    return new StdTypeConstructor(src, TYPE_ARRAY_LIST);
-                }
-                if (rawType == LinkedHashMap.class) {
-                    return new StdTypeConstructor(src, TYPE_LINKED_HASH_MAP);
-                }
-                if (rawType == HashMap.class) {
-                    return new StdTypeConstructor(src, TYPE_HASH_MAP);
-                }
-            }
-            return src;
-        }
-
-        protected final Object _construct() {
-            switch (_type) {
-            case TYPE_ARRAY_LIST:
-                return new ArrayList<Object>();
-            case TYPE_LINKED_HASH_MAP:
-                return new LinkedHashMap<String, Object>();
-            case TYPE_HASH_MAP:
-                return new HashMap<String, Object>();
-            }
-            throw new IllegalStateException("Unknown type " + _type);
-        }
-
-        @Override
-        public int getParameterCount() {
-            return _base.getParameterCount();
-        }
-
-        @Override
-        public Class<?> getRawParameterType(int index) {
-            return _base.getRawParameterType(index);
-        }
-
-        @Override
-        public JavaType getParameterType(int index) {
-            return _base.getParameterType(index);
-        }
-
-        @Override
-        public Parameter[] getNativeParameters() {
-            return _base.getNativeParameters();
-        }
-
-        @Override
-        public Object call() throws Exception {
-            return _construct();
-        }
-
-        @Override
-        public Object call(Object[] args) throws Exception {
-            return _construct();
-        }
-
-        @Override
-        public Object call1(Object arg) throws Exception {
-            return _construct();
-        }
-
-        @Override
-        public Class<?> getDeclaringClass() {
-            return _base.getDeclaringClass();
-        }
-
-        @Override
-        public Member getMember() {
-            return _base.getMember();
-        }
-
-        @Override
-        public void setValue(Object pojo, Object value)
-                throws UnsupportedOperationException, IllegalArgumentException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Object getValue(Object pojo)
-                throws UnsupportedOperationException, IllegalArgumentException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Annotated withAnnotations(AnnotationMap fallback) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public AnnotatedElement getAnnotated() {
-            return _base.getAnnotated();
-        }
-
-        @Override
-        protected int getModifiers() {
-            return _base.getMember().getModifiers();
-        }
-
-        @Override
-        public String getName() {
-            return _base.getName();
-        }
-
-        @Override
-        public JavaType getType() {
-            return _base.getType();
-        }
-
-        @Override
-        public Class<?> getRawType() {
-            return _base.getRawType();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return (o == this);
-        }
-
-        @Override
-        public int hashCode() {
-            return _base.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return _base.toString();
-        }
     }
 }

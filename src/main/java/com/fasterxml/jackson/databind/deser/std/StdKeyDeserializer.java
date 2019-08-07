@@ -28,10 +28,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 @JacksonStdImpl
 public class StdKeyDeserializer extends KeyDeserializer
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     public final static int TYPE_BOOLEAN = 1;
     public final static int TYPE_BYTE = 2;
     public final static int TYPE_SHORT = 3;
@@ -312,10 +309,7 @@ public class StdKeyDeserializer extends KeyDeserializer
      */
     final static class DelegatingKD
         extends KeyDeserializer // note: NOT the std one
-        implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         final protected Class<?> _keyClass;
 
         protected final JsonDeserializer<?> _delegate;
@@ -355,8 +349,6 @@ public class StdKeyDeserializer extends KeyDeserializer
     @JacksonStdImpl
     final static class EnumKD extends StdKeyDeserializer
     {
-        private static final long serialVersionUID = 1L;
-
         protected final EnumResolver _byNameResolver;
 
         protected final AnnotatedMethod _factory;
@@ -424,8 +416,6 @@ public class StdKeyDeserializer extends KeyDeserializer
      */
     final static class StringCtorKeyDeserializer extends StdKeyDeserializer
     {
-        private static final long serialVersionUID = 1L;
-
         protected final Constructor<?> _ctor;
 
         public StringCtorKeyDeserializer(Constructor<?> ctor) {
@@ -446,8 +436,6 @@ public class StdKeyDeserializer extends KeyDeserializer
      */
     final static class StringFactoryKeyDeserializer extends StdKeyDeserializer
     {
-        private static final long serialVersionUID = 1L;
-
         final Method _factoryMethod;
 
         public StringFactoryKeyDeserializer(Method fm) {

@@ -21,10 +21,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class TypeDeserializerBase
     extends TypeDeserializer
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1;
-    
     protected final TypeIdResolver _idResolver;
     
     protected final JavaType _baseType;

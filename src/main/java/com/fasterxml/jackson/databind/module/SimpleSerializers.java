@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.type.MapType;
  */
 public class SimpleSerializers
     extends Serializers.Base
-    implements java.io.Serializable
+    implements java.io.Serializable // since included by SimpleModule
 {
     private static final long serialVersionUID = 3;
 

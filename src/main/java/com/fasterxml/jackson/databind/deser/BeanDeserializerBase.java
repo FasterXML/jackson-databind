@@ -25,11 +25,8 @@ import com.fasterxml.jackson.databind.util.*;
  */
 public abstract class BeanDeserializerBase
     extends StdDeserializer<Object>
-    implements ValueInstantiator.Gettable,
-        java.io.Serializable
+    implements ValueInstantiator.Gettable
 {
-    private static final long serialVersionUID = 1;
-
     protected final static PropertyName TEMP_PROPERTY_NAME = new PropertyName("#temporary-name");
 
     /*

@@ -17,21 +17,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class BeanDeserializer
     extends BeanDeserializerBase
-    implements java.io.Serializable
 {
-    /* TODOs for future versions:
-     * 
-     * For 2.9?
-     *
-     * - New method in JsonDeserializer (deserializeNext()) to allow use of more
-     *   efficient 'nextXxx()' method `JsonParser` provides.
-     *
-     * Also: need to ensure efficient impl of those methods for Smile, CBOR
-     * at least (in addition to JSON)
-     */
-
-    private static final long serialVersionUID = 1L;
-
     /**
      * Lazily constructed exception used as root cause if reporting problem
      * with creator method that returns <code>null</code> (which is not allowed)

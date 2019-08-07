@@ -140,8 +140,7 @@ public class BasicClassIntrospector
     {
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
-
-            // As per [Databind#550], skip full introspection for some of standard
+            // As per [databind#550], skip full introspection for some of standard
             // structured types as well
             desc = _findStdJdkCollectionDesc(cfg, type);
             if (desc == null) {

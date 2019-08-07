@@ -14,6 +14,7 @@ Project: jackson-databind
  (reported by andreasbaus@github)
 #2393: `TreeTraversingParser.getLongValue()` incorrectly checks `canConvertToInt()`
  (reported by RabbidDog@github)
+ #2416: Optimize `ValueInstantiator` construction for default `Collection`, `Map` types
 
 2.10.0.pr1 (19-Jul-2019)
 

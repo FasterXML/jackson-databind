@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,11 +30,11 @@ public abstract class JDKValueInstantiators
             return new JsonLocationInstantiator();
         }
         // [databind#1868]: empty List/Set/Map
+        // [databind#2416]: optimize commonly needed default creators
         if (Collection.class.isAssignableFrom(raw)) {
             if (raw == ArrayList.class) {
                 return ArrayListInstantiator.INSTANCE;
             }
-            // [databind#XXX]: optimize commonly needed default creators
             if (Collections.EMPTY_SET.getClass() == raw) {
                 return new ConstantValueInstantiator(Collections.EMPTY_SET);
             }
@@ -43,6 +44,9 @@ public abstract class JDKValueInstantiators
         } else if (Map.class.isAssignableFrom(raw)) {
             if (raw == LinkedHashMap.class) {
                 return LinkedHashMapInstantiator.INSTANCE;
+            }
+            if (raw == HashMap.class) {
+                return HashMapInstantiator.INSTANCE;
             }
             if (Collections.EMPTY_MAP.getClass() == raw) {
                 return new ConstantValueInstantiator(Collections.EMPTY_MAP);
@@ -68,6 +72,27 @@ public abstract class JDKValueInstantiators
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
             return new ArrayList<>();
+        }
+    }
+
+    private static class HashMapInstantiator
+        extends ValueInstantiator.Base
+    {
+        public final static HashMapInstantiator INSTANCE = new HashMapInstantiator();
+
+        public HashMapInstantiator() {
+            super(HashMap.class);
+        }
+
+        @Override
+        public boolean canInstantiate() { return true; }
+
+        @Override
+        public boolean canCreateUsingDefault() {  return true; }
+
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new HashMap<>();
         }
     }
 

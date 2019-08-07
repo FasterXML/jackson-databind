@@ -219,16 +219,10 @@ public class BeanSerializerFactory
                     // And this is where this class comes in: if type is not a
                     // known "primary JDK type", perhaps it's a bean? We can still
                     // get a null, if we can't find a single suitable bean property.
-                    ser = findBeanSerializer(ctxt, beanDesc, type, formatOverrides);
+                    ser = constructBeanOrAddOnSerializer(ctxt, type, beanDesc, formatOverrides, staticTyping);
                     // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
                     if (ser == null) {
-                        ser = findSerializerByAddonType(ctxt, type, beanDesc, formatOverrides, staticTyping);
-                        // 18-Sep-2014, tatu: Actually, as per [jackson-databind#539], need to get
-                        //   'unknown' serializer assigned earlier, here, so that it gets properly
-                        //   post-processed
-                        if (ser == null) {
-                            ser = ctxt.getUnknownTypeSerializer(beanDesc.getBeanClass());
-                        }
+                        ser = ctxt.getUnknownTypeSerializer(beanDesc.getBeanClass());
                     }
                 }
             }
@@ -244,41 +238,29 @@ public class BeanSerializerFactory
 
     /*
     /**********************************************************************
-    /* Other public methods that are not part of `SerializerFactory` API
-    /**********************************************************************
-     */
-
-    /**
-     * Method that will try to construct a {@link BeanSerializer} for
-     * given class. Returns null if no properties are found.
-     */
-    public JsonSerializer<Object> findBeanSerializer(SerializerProvider ctxt, BeanDescription beanDesc,
-            JavaType type, JsonFormat.Value format)
-        throws JsonMappingException
-    {
-        // First things first: we know some types are not beans...
-        if (!isPotentialBeanType(type.getRawClass())) {
-            // Except we do need to allow serializers for Enums, if shape dictates (which it does
-            // if we end up here)
-            if (!type.isEnumType()) {
-                return null;
-            }
-        }
-        return constructBeanSerializer(ctxt, beanDesc);
-    }
-
-    /*
-    /**********************************************************************
     /* Overridable non-public factory methods
     /**********************************************************************
      */
 
     /**
-     * Method called to construct serializer for serializing specified bean type.
+     * Method called to construct serializer based on checking which condition is matched:
+     * <ol>
+     *  <li>Nominal type is {@code java.lang.Object}: if so, return special "no type known" serializer
+     *   </li>
+     *  <li>If a known "not-POJO" type (like JDK {@code Proxy}), return {@code null}
+     *   </li>
+     *  <li>If at least one logical property found, build actual {@code BeanSerializer}
+     *   </li>
+     *  <li>If add-on type (like {@link java.lang.Iterable}) found, create appropriate serializer
+     *   </li>
+     *  <li>If one of Jackson's "well-known" annotations found, create bogus "empty Object" Serializer
+     *   </li>
+     *  </ol>
+     *  or, if none matched, return {@code null}.
      */
     @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> constructBeanSerializer(SerializerProvider ctxt,
-            BeanDescription beanDesc)
+    protected JsonSerializer<Object> constructBeanOrAddOnSerializer(SerializerProvider ctxt,
+            JavaType type, BeanDescription beanDesc, JsonFormat.Value format, boolean staticTyping)
         throws JsonMappingException
     {
         // 13-Oct-2010, tatu: quick sanity check: never try to create bean serializer for plain Object
@@ -287,6 +269,16 @@ public class BeanSerializerFactory
             return ctxt.getUnknownTypeSerializer(Object.class);
 //            throw new IllegalArgumentException("Cannot create bean serializer for Object.class");
         }
+
+        // We also know some types are not beans...
+        if (!isPotentialBeanType(type.getRawClass())) {
+            // Except we do need to allow serializers for Enums, if shape dictates (which it does
+            // if we end up here)
+            if (!type.isEnumType()) {
+                return null;
+            }
+        }
+        
         final SerializationConfig config = ctxt.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
         builder.setConfig(config);
@@ -329,10 +321,9 @@ public class BeanSerializerFactory
 
         AnnotatedMember anyGetter = beanDesc.findAnyGetter();
         if (anyGetter != null) {
-            JavaType type = anyGetter.getType();
+            JavaType anyType = anyGetter.getType();
             // copied from BasicSerializerFactory.buildMapSerializer():
-            boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
-            JavaType valueType = type.getContentType();
+            JavaType valueType = anyType.getContentType();
             TypeSerializer typeSer = ctxt.findTypeSerializer(valueType);
             // last 2 nulls; don't know key, value serializers (yet)
             // 23-Feb-2015, tatu: As per [databind#705], need to support custom serializers
@@ -340,7 +331,8 @@ public class BeanSerializerFactory
             if (anySer == null) {
                 // TODO: support '@JsonIgnoreProperties' with any setter?
                 anySer = MapSerializer.construct(/* ignored props*/ (Set<String>) null,
-                        type, staticTyping, typeSer, null, null, /*filterId*/ null);
+                        anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
+                        typeSer, null, null, /*filterId*/ null);
             }
             // TODO: can we find full PropertyName?
             PropertyName name = PropertyName.construct(anyGetter.getName());
@@ -366,11 +358,15 @@ public class BeanSerializerFactory
                     beanDesc.getType(), e.getClass().getName(), e.getMessage());
         }
         if (ser == null) {
-            // If we get this far, there were no properties found, so no regular BeanSerializer
-            // would be constructed. But, couple of exceptions.
-            // First: if there are known annotations, just create 'empty bean' serializer
-            if (beanDesc.hasKnownClassAnnotations()) {
-                return builder.createDummy();
+            // [databind#2390]: Need to consider add-ons before fallback "empty" serializer
+            ser = (JsonSerializer<Object>) findSerializerByAddonType(ctxt, type, beanDesc, format, staticTyping);
+            if (ser == null) {
+                // If we get this far, there were no properties found, so no regular BeanSerializer
+                // would be constructed. But, couple of exceptions.
+                // First: if there are known annotations, just create 'empty bean' serializer
+                if (beanDesc.hasKnownClassAnnotations()) {
+                    return builder.createDummy();
+                }
             }
         }
         return ser;

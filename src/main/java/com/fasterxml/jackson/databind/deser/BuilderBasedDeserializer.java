@@ -506,7 +506,7 @@ public class BuilderBasedDeserializer
                 return _handleUnexpectedWithin(p, ctxt, builder);
             }
             p.nextToken();
-            handleUnknownVanilla(p, ctxt, handledType(), p.currentName());
+            handleUnknownVanilla(p, ctxt, builder, p.currentName());
         }
     }
 

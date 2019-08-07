@@ -217,9 +217,9 @@ public class BuilderSimpleTest extends BaseMapTest
         public int x;
         private Map<String,Object> stuff = new HashMap<String,Object>();
         
-        public ValueBuilder822 withX(int x0) {
+        @JsonCreator
+        public ValueBuilder822(@JsonProperty("x") int x0) {
             this.x = x0;
-            return this;
         }
 
         @JsonAnySetter

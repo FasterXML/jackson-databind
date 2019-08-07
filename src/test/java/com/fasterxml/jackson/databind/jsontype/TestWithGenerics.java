@@ -109,15 +109,15 @@ public class TestWithGenerics extends BaseMapTest
         public CustomJsonSerializerFactory() { super(null); }
 
         @Override
-        protected JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov,
-                BeanDescription beanDesc)
+        protected JsonSerializer<Object> constructBeanOrAddOnSerializer(SerializerProvider prov,
+                JavaType type, BeanDescription beanDesc, boolean staticTyping)
             throws JsonMappingException
         {                
-            return new CustomJsonSerializer(super.constructBeanSerializer(prov, beanDesc) );
+            return new CustomJsonSerializer(super.constructBeanOrAddOnSerializer(prov, type, beanDesc, staticTyping) );
         }
     }
 
-    // [Issue#543]
+    // [databind#543]
     static class ContainerWithTwoAnimals<U extends Animal,V extends Animal> extends ContainerWithField<U> {
          public V otherAnimal;
         

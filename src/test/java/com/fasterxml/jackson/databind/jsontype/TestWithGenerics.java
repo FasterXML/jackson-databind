@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestWithGenerics extends BaseMapTest
@@ -96,22 +95,8 @@ public class TestWithGenerics extends BaseMapTest
             beanSerializer.resolve(provider);
         }
     }
-    
-    @SuppressWarnings("serial")
-    protected static class CustomJsonSerializerFactory extends BeanSerializerFactory
-    {
-        public CustomJsonSerializerFactory() { super(null); }
 
-        @Override
-        protected JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov,
-                BeanDescription beanDesc)
-            throws JsonMappingException
-        {                
-            return new CustomJsonSerializer(super.constructBeanSerializer(prov, beanDesc) );
-        }
-    }
-
-    // [Issue#543]
+    // [databind#543]
     static class ContainerWithTwoAnimals<U extends Animal,V extends Animal> extends ContainerWithField<U> {
          public V otherAnimal;
         
@@ -195,25 +180,7 @@ public class TestWithGenerics extends BaseMapTest
         assertEquals(4, mc2.params.size());
     }
 
-    public void testJackson430() throws Exception
-    {
-//        om.getSerializationConfig().setSerializationInclusion( Inclusion.NON_NULL );
-        ObjectMapper om = jsonMapperBuilder()
-                .serializerFactory(new CustomJsonSerializerFactory())
-                .build();
-        MyClass mc = new MyClass();
-        mc.params.add(new MyParam<Integer>(1));
-
-        String str = om.writeValueAsString( mc );
-//        System.out.println( str );
-        
-        MyClass mc2 = om.readValue( str, MyClass.class );
-        assertNotNull(mc2);
-        assertNotNull(mc2.params);
-        assertEquals(1, mc2.params.size());
-    }
-
-    // [Issue#543]
+    // [databind#543]
     public void testValueWithMoreGenericParameters() throws Exception
     {
         WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();

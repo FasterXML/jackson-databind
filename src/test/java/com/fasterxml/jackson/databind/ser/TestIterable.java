@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -45,7 +46,7 @@ public class TestIterable extends BaseMapTest
 
         public Iterator<String> getValues() { return values.iterator(); }
     }
-    
+
     static class IntIterable implements Iterable<Integer>
     {
         @Override
@@ -98,6 +99,10 @@ public class TestIterable extends BaseMapTest
             jsonGenerator.writeEndArray();
         }
     }
+
+    // [databind#2390]
+    @JsonFilter("default")
+    static class IntIterable2390 extends IntIterable { }
 
     /*
     /**********************************************************************
@@ -167,5 +172,12 @@ public class TestIterable extends BaseMapTest
     public void testIterable358() throws Exception {
         String json = MAPPER.writeValueAsString(new B());
         assertEquals("{\"list\":[[\"Hello world.\"]]}", json);
+    }
+
+    // [databind#2390]
+    public void testIterableWithAnnotation() throws Exception
+    {
+        assertEquals("[1,2,3]",
+                STATIC_MAPPER.writeValueAsString(new IntIterable2390()));
     }
 }

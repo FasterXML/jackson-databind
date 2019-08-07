@@ -896,3 +896,7 @@ Victor Noël (victornoel@github)
    (2.10.0)
   * Reported #2339: Suboptimal return type for `ObjectNode.set()`
    (2.10.0)
+
+Chris Mercer (cmercer@github)
+  * Reported #2331: `JsonMappingException` through nested getter with generic wildcard return type
+   (2.10.0)

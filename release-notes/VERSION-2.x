@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2331: `JsonMappingException` through nested getter with generic wildcard return type
  (reported by sunchezz89@github)
+#2390: `Iterable` serialization breaks when adding `@JsonFilter` annotation
+ (reported by Chris M)
 #2392: `BeanDeserializerModifier.modifyDeserializer()` not applied to custom bean deserializers
  (reported by andreasbaus@github)
 #2393: `TreeTraversingParser.getLongValue()` incorrectly checks `canConvertToInt()`

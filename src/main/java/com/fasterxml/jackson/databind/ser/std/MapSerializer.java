@@ -33,8 +33,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class MapSerializer
     extends ContainerSerializer<Map<?,?>>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final static JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
 
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;

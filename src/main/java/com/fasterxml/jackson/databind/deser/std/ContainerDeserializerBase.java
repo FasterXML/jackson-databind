@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Intermediate base deserializer class that adds more shared accessor
  * so that other classes can access information about contained (value) types
  */
-@SuppressWarnings("serial")
 public abstract class ContainerDeserializerBase<T>
     extends StdDeserializer<T>
     implements ValueInstantiator.Gettable // since 2.9

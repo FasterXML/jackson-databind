@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 class FactoryBasedEnumDeserializer
     extends StdDeserializer<Object>
 {
-    private static final long serialVersionUID = 1;
-
     // Marker type; null if String expected; otherwise numeric wrapper
     protected final JavaType _inputType;
     protected final boolean _hasArgs;

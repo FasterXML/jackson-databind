@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * interface, cannot be checked for direct class equivalence.
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class SerializableSerializer
     extends StdSerializer<JsonSerializable>
 {

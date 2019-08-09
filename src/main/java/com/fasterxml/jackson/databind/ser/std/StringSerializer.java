@@ -21,8 +21,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public final class StringSerializer
     extends StdScalarSerializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     public final static StringSerializer instance = new StringSerializer();
     
     public StringSerializer() { super(String.class, false); }

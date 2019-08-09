@@ -20,22 +20,14 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
-    private static final long serialVersionUID = 1L;
-
     protected final As _inclusion;
 
-    /**
-     * @since 2.8
-     */
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
         this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY);
     }
-    
-    /**
-     * @since 2.8
-     */
+
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
             As inclusion)

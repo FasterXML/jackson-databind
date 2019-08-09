@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * allow serialization using raw binary output (as 16-byte block)
  * if underlying data format has efficient means to access that.
  */
-@SuppressWarnings("serial")
 public class UUIDSerializer
     extends StdScalarSerializer<UUID>
 {

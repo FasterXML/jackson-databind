@@ -48,7 +48,6 @@ class UUIDSlow
     public UUIDSlow(UUID[] v) { values = v; }
 }
 
-@SuppressWarnings("serial")
 class SlowSer extends StdScalarSerializer<UUID>
 {
     public SlowSer() { super(UUID.class); }

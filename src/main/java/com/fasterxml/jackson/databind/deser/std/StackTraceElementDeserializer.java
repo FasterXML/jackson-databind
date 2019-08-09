@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 public class StackTraceElementDeserializer
     extends StdScalarDeserializer<StackTraceElement>
 {
-    private static final long serialVersionUID = 1L;
-
     public StackTraceElementDeserializer() { super(StackTraceElement.class); }
 
     @Override

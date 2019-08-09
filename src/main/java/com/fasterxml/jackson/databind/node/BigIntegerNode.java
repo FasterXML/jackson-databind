@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class BigIntegerNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     private final static BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
     private final static BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
     private final static BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);

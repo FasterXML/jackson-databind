@@ -28,8 +28,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class CollectionDeserializer
     extends ContainerDeserializerBase<Collection<Object>>
 {
-    private static final long serialVersionUID = -1L; // since 2.5
-
     // // Configuration
 
     /**

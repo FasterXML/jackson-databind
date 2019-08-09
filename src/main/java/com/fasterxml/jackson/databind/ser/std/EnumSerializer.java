@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.util.EnumValues;
 public class EnumSerializer
     extends StdScalarSerializer<Enum<?>>
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * This map contains pre-resolved values (since there are ways to customize
      * actual String constants to use) to use as serializations.

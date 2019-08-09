@@ -11,13 +11,10 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  * functionality.
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public final class ToStringSerializer
     extends ToStringSerializerBase
 {
-    /**
-     * Singleton instance to use.
-     */
+    // Singleton instance to use.
     public final static ToStringSerializer instance = new ToStringSerializer(Object.class);
 
     // Only needed to support legacy use via annotations

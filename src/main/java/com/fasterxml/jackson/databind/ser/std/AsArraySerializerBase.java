@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
  * arrays; typically serializers used for {@link java.util.Collection}
  * and array types.
  */
-@SuppressWarnings("serial")
 public abstract class AsArraySerializerBase<T>
     extends ContainerSerializer<T>
 {

@@ -11,7 +11,6 @@ public class TestContextAttributeWithSer extends BaseMapTest
 {
     final static String KEY = "foobar";
 
-    @SuppressWarnings("serial")
     static class PrefixStringSerializer extends StdScalarSerializer<String>
     {
         protected PrefixStringSerializer() {

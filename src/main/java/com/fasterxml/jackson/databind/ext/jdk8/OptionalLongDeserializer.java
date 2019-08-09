@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 
 public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<OptionalLong>
 {
-    private static final long serialVersionUID = 1L;
-
     static final OptionalLongDeserializer INSTANCE = new OptionalLongDeserializer();
 
     public OptionalLongDeserializer() {

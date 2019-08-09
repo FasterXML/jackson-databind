@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class BooleanNode
     extends ValueNode
 {
+    private static final long serialVersionUID = 3L;
+
     // // Just need two instances...
 
     public final static BooleanNode TRUE = new BooleanNode(true);

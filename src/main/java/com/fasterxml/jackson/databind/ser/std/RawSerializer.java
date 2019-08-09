@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * This is a simple dummy serializer that will just output raw values by calling
  * toString() on value to serialize.
  */
-@SuppressWarnings("serial")
 public class RawSerializer<T>
     extends StdSerializer<T>
 {
@@ -26,8 +25,8 @@ public class RawSerializer<T>
     }
 
     @Override
-    public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeRawValue(value.toString());
+    public void serialize(T value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        g.writeRawValue(value.toString());
     }
 
     @Override

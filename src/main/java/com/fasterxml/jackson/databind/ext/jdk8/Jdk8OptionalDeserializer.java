@@ -10,14 +10,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public class Jdk8OptionalDeserializer
     extends ReferenceTypeDeserializer<Optional<?>>
 {
-    private static final long serialVersionUID = 1L;
-
-    /*
-    /**********************************************************************
-    /* Life-cycle
-    /**********************************************************************
-     */
-
     public Jdk8OptionalDeserializer(JavaType fullType, ValueInstantiator inst,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {

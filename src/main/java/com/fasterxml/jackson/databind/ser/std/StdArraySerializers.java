@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Dummy container class to group standard homogenous array serializer implementations
  * (primitive arrays and String array).
  */
-@SuppressWarnings("serial")
 public class StdArraySerializers
 {
     protected final static HashMap<String, JsonSerializer<?>> _arraySerializers =

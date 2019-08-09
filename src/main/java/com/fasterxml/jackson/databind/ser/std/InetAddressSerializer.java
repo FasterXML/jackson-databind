@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * (or <code>ARRAY</code>) is used, will serialize as "host address"
  * (dotted numbers) instead of simple conversion.
  */
-@SuppressWarnings("serial")
 public class InetAddressSerializer
     extends StdScalarSerializer<InetAddress>
 {

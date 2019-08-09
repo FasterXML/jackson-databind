@@ -13,22 +13,21 @@ public class POJONodeTest extends NodeTestBase
 {
     @JsonSerialize(using = CustomSer.class)
     public static class Data {
-      public String aStr;
+        public String aStr;
     }
 
-    @SuppressWarnings("serial")
     public static class CustomSer extends StdSerializer<Data> {
-      public CustomSer() {
-          super(Data.class);
-      }
+        public CustomSer() {
+            super(Data.class);
+        }
 
-      @Override
-      public void serialize(Data value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        String attrStr = (String) provider.getAttribute("myAttr");
-        gen.writeStartObject();
-        gen.writeStringField("aStr", "The value is: " + (attrStr == null ? "NULL" : attrStr));
-        gen.writeEndObject();
-      }
+        @Override
+        public void serialize(Data value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            String attrStr = (String) provider.getAttribute("myAttr");
+            gen.writeStartObject();
+            gen.writeStringField("aStr", "The value is: " + (attrStr == null ? "NULL" : attrStr));
+            gen.writeEndObject();
+        }
     }
 
     final ObjectMapper MAPPER = newJsonMapper();

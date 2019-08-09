@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class UnrolledBeanSerializer
     extends BeanSerializerBase
 {
-    private static final long serialVersionUID = 30; // as per jackson 3.0
-
     /* 28-Oct-2017, tatu: Exact choice for max number of properties to unroll
      *    is difficult to pin down, but probably has to be at least 4, and
      *    at most 8. Partly this is due to "blocks of 4" that default bean

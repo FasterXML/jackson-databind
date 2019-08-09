@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * Unit tests for verifying that "updating reader" works as
  * expected.
  */
-@SuppressWarnings("serial")
 public class TestUpdateViaObjectReader extends BaseMapTest
 {
     static class Bean {
@@ -55,8 +54,6 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     static class DataADeserializer extends StdDeserializer<DataA> {
-        private static final long serialVersionUID = 1L;
-
         DataADeserializer() {
             super(DataA.class);
         }

@@ -9,14 +9,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 /**
  * Bogus deserializer that will simply skip all content there is to map
  * and returns Java null reference.
- *
- * @since 2.2
  */
 public class NullifyingDeserializer
     extends StdDeserializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     public final static NullifyingDeserializer instance = new NullifyingDeserializer();
     
     public NullifyingDeserializer() { super(Object.class); }

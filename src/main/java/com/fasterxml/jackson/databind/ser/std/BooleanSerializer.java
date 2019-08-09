@@ -25,8 +25,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public final class BooleanSerializer
     extends StdScalarSerializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Whether type serialized is primitive (boolean) or wrapper
      * (java.lang.Boolean); if true, former, if false, latter.
@@ -77,8 +75,6 @@ public final class BooleanSerializer
     final static class AsNumber
         extends StdScalarSerializer<Object>
     {
-        private static final long serialVersionUID = 1L;
-
         /**
          * Whether type serialized is primitive (boolean) or wrapper
          * (java.lang.Boolean); if true, former, if false, latter.

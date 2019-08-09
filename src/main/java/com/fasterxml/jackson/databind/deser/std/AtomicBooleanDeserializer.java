@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 
 public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoolean>
 {
-    private static final long serialVersionUID = 1L;
-
     public AtomicBooleanDeserializer() { super(AtomicBoolean.class); }
 
     @Override

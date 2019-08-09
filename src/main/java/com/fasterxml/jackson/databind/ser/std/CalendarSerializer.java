@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  * (standard Java 64-bit timestamp) or textual formats (usually ISO-8601).
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class CalendarSerializer
     extends DateTimeSerializerBase<Calendar>
 {

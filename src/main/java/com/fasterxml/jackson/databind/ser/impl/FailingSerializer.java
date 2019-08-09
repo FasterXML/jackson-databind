@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * as well as for catching unintended usage (like trying to use null
  * as Map/Object key).
  */
-@SuppressWarnings("serial")
 public class FailingSerializer
     extends StdSerializer<Object>
 {

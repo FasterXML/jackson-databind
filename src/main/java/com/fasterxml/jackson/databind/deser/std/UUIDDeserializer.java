@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 public class UUIDDeserializer extends FromStringDeserializer<UUID>
 {
-    private static final long serialVersionUID = 1L;
-
     final static int[] HEX_DIGITS = new int[127];
     static {
         Arrays.fill(HEX_DIGITS, -1);

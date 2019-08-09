@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.util.RawValue;
  * Deserializer that can build instances of {@link JsonNode} from any
  * JSON content, using appropriate {@link JsonNode} type.
  */
-@SuppressWarnings("serial")
 public class JsonNodeDeserializer
     extends BaseNodeDeserializer<JsonNode>
 {
@@ -82,8 +81,6 @@ public class JsonNodeDeserializer
     final static class ObjectDeserializer
         extends BaseNodeDeserializer<ObjectNode>
     {
-        private static final long serialVersionUID = 1L;
-
         protected final static ObjectDeserializer _instance = new ObjectDeserializer();
 
         protected ObjectDeserializer() { super(ObjectNode.class, true); }
@@ -124,8 +121,6 @@ public class JsonNodeDeserializer
     final static class ArrayDeserializer
         extends BaseNodeDeserializer<ArrayNode>
     {
-        private static final long serialVersionUID = 1L;
-
         protected final static ArrayDeserializer _instance = new ArrayDeserializer();
 
         protected ArrayDeserializer() { super(ArrayNode.class, true); }
@@ -160,7 +155,6 @@ public class JsonNodeDeserializer
  * Base class for all actual {@link JsonNode} deserializer
  * implementations
  */
-@SuppressWarnings("serial")
 abstract class BaseNodeDeserializer<T extends JsonNode>
     extends StdDeserializer<T>
 {

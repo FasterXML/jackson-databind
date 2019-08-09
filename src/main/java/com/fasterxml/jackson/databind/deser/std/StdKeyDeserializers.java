@@ -26,10 +26,8 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  *</ul>
  */
 public class StdKeyDeserializers
-    implements KeyDeserializers, java.io.Serializable
+    implements KeyDeserializers
 {
-    private static final long serialVersionUID = 1L;
-    
     public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver) {
         return new StdKeyDeserializer.EnumKD(enumResolver, null);
     }

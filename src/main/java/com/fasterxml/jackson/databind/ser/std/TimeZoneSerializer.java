@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
-@SuppressWarnings("serial")
 public class TimeZoneSerializer extends StdScalarSerializer<TimeZone>
 {
     public TimeZoneSerializer() { super(TimeZone.class); }

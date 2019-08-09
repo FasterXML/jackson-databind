@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  * potentially more readable Strings.
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class DateSerializer
     extends DateTimeSerializerBase<Date>
 {

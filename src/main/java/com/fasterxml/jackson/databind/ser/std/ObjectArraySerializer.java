@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
  * Generic serializer for Object arrays (<code>Object[]</code>).
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class ObjectArraySerializer
     extends ArraySerializerBase<Object[]>
 {

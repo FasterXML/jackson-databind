@@ -58,7 +58,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  *  </li>
  * </ul>
  */
-@SuppressWarnings("serial")
 public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 {
     public static Class<?>[] types() {
@@ -215,8 +214,6 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
      */
     public static class Std extends FromStringDeserializer<Object>
     {
-        private static final long serialVersionUID = 1;
-
         public final static int STD_FILE = 1;
         public final static int STD_URL = 2;
         public final static int STD_URI = 3;

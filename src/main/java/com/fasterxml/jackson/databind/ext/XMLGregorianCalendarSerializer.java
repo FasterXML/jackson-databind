@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-@SuppressWarnings("serial")
 public class XMLGregorianCalendarSerializer
     extends StdSerializer<XMLGregorianCalendar>
 {

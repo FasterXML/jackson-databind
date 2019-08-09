@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 /**
  * Simple serializer for {@link InetSocketAddress}.
  */
-@SuppressWarnings("serial")
 public class InetSocketAddressSerializer
     extends StdScalarSerializer<InetSocketAddress>
 {

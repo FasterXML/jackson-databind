@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
  * Unit tests for verifying "raw" (or "untyped") data binding from JSON to JDK objects;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
-@SuppressWarnings("serial")
 public class UntypedDeserializationTest
     extends BaseMapTest
 {

@@ -14,10 +14,11 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * all non-container (array or object) nodes, except for the
  * "missing node".
  */
-@SuppressWarnings("serial")
 public abstract class ValueNode
     extends BaseJsonNode
 {
+    private static final long serialVersionUID = 3L;
+
     protected final static JsonNode MISSING = MissingNode.getInstance();
 
     protected ValueNode() { }

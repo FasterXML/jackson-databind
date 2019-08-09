@@ -119,8 +119,6 @@ public class NumberDeserializers
     protected abstract static class PrimitiveOrWrapperDeserializer<T>
         extends StdScalarDeserializer<T>
     {
-        private static final long serialVersionUID = 1L;
-
         protected final T _nullValue;
 
         // @since 2.9
@@ -176,8 +174,6 @@ public class NumberDeserializers
     public final static class BooleanDeserializer
         extends PrimitiveOrWrapperDeserializer<Boolean>
     {
-        private static final long serialVersionUID = 1L;
-
         final static BooleanDeserializer primitiveInstance = new BooleanDeserializer(Boolean.TYPE, Boolean.FALSE);
         final static BooleanDeserializer wrapperInstance = new BooleanDeserializer(Boolean.class, null);
 
@@ -267,8 +263,6 @@ public class NumberDeserializers
     public static class ByteDeserializer
         extends PrimitiveOrWrapperDeserializer<Byte>
     {
-        private static final long serialVersionUID = 1L;
-
         final static ByteDeserializer primitiveInstance = new ByteDeserializer(Byte.TYPE, (byte) 0);
         final static ByteDeserializer wrapperInstance = new ByteDeserializer(Byte.class, null);
         
@@ -339,8 +333,6 @@ public class NumberDeserializers
     public static class ShortDeserializer
         extends PrimitiveOrWrapperDeserializer<Short>
     {
-        private static final long serialVersionUID = 1L;
-
         final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.TYPE, Short.valueOf((short)0));
         final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.class, null);
         
@@ -406,8 +398,6 @@ public class NumberDeserializers
     public static class CharacterDeserializer
         extends PrimitiveOrWrapperDeserializer<Character>
     {
-        private static final long serialVersionUID = 1L;
-
         final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.TYPE, '\0');
         final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.class, null);
         
@@ -453,8 +443,6 @@ public class NumberDeserializers
     public final static class IntegerDeserializer
         extends PrimitiveOrWrapperDeserializer<Integer>
     {
-        private static final long serialVersionUID = 1L;
-
         final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, 0);
         final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.class, null);
         
@@ -536,8 +524,6 @@ public class NumberDeserializers
     public final static class LongDeserializer
         extends PrimitiveOrWrapperDeserializer<Long>
     {
-        private static final long serialVersionUID = 1L;
-
         final static LongDeserializer primitiveInstance = new LongDeserializer(Long.TYPE, 0L);
         final static LongDeserializer wrapperInstance = new LongDeserializer(Long.class, null);
         
@@ -597,8 +583,6 @@ public class NumberDeserializers
     public static class FloatDeserializer
         extends PrimitiveOrWrapperDeserializer<Float>
     {
-        private static final long serialVersionUID = 1L;
-
         final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.TYPE, 0.f);
         final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.class, null);
         
@@ -669,8 +653,6 @@ public class NumberDeserializers
     public static class DoubleDeserializer
         extends PrimitiveOrWrapperDeserializer<Double>
     {
-        private static final long serialVersionUID = 1L;
-
         final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.TYPE, 0.d);
         final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
         
@@ -751,7 +733,6 @@ public class NumberDeserializers
      * But other numeric types may need such type information.
      * This is why {@link #deserializeWithType} must be overridden.
      */
-    @SuppressWarnings("serial")
     @JacksonStdImpl
     public static class NumberDeserializer
         extends StdScalarDeserializer<Object>
@@ -865,7 +846,6 @@ public class NumberDeserializers
      * This is bit trickier to implement efficiently, while avoiding
      * overflow problems.
      */
-    @SuppressWarnings("serial")
     @JacksonStdImpl
     public static class BigIntegerDeserializer
         extends StdScalarDeserializer<BigInteger>
@@ -917,8 +897,7 @@ public class NumberDeserializers
             return (BigInteger) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
-    
-    @SuppressWarnings("serial")
+
     @JacksonStdImpl
     public static class BigDecimalDeserializer
         extends StdScalarDeserializer<BigDecimal>

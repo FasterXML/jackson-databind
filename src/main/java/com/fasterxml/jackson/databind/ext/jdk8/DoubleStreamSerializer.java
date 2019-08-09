@@ -17,8 +17,6 @@ import java.util.stream.DoubleStream;
  */
 public class DoubleStreamSerializer extends StdSerializer<DoubleStream>
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Singleton instance
      */

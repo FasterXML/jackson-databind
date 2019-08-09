@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 // Tests for problems uncovered with [databind#2016]; related to
 // `@JsonDeserialize` modifications to type, deserializer(s)
-@SuppressWarnings("serial")
 public class DelegatingCreatorAnnotations2021Test extends BaseMapTest
 {
     // [databind#2021]

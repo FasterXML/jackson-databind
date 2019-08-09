@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class LongNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     protected final long _value;
 
     /* 

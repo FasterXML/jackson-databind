@@ -93,7 +93,6 @@ public class OptionalTest extends BaseMapTest
         public CaseChangingStringWrapper(String s) { value = Optional.ofNullable(s); }
     }
 
-    @SuppressWarnings("serial")
     public static class UpperCasingSerializer extends StdScalarSerializer<String>
     {
         public UpperCasingSerializer() { super(String.class); }
@@ -105,7 +104,6 @@ public class OptionalTest extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     public static class LowerCasingDeserializer extends StdScalarDeserializer<String>
     {
         public LowerCasingDeserializer() { super(String.class); }

@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Container class for serializers used for handling standard JDK-provided
  * types.
  */
-@SuppressWarnings("serial")
 public class NumberSerializers {
     protected NumberSerializers() { }
 

@@ -10,11 +10,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @JacksonStdImpl
 public class StringDeserializer extends StdScalarDeserializer<String> // non-final since 2.9
 {
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * @since 2.2
-     */
     public final static StringDeserializer instance = new StringDeserializer();
 
     public StringDeserializer() { super(String.class); }

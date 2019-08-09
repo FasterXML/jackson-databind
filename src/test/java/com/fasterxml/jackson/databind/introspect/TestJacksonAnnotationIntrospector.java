@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-@SuppressWarnings("serial")
 public class TestJacksonAnnotationIntrospector
     extends BaseMapTest
 {

@@ -13,17 +13,20 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public final class NullNode
     extends ValueNode
 {
+    private static final long serialVersionUID = 3L;
+
     // // Just need a fly-weight singleton
 
     public final static NullNode instance = new NullNode();
 
-    /**
-     *<p>
-     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
-     */
     protected NullNode() { }
 
     public static NullNode getInstance() { return instance; }
+
+    // To support JDK serialization, recovery of Singleton instance
+    protected Object readResolve() {
+        return instance;
+    }
 
     @Override
     public JsonNodeType getNodeType() {

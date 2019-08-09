@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  *  This must be done from {@link #createContextual} method, and NOT from constructor;
  * otherwise we could end up with an infinite loop.
  */
-@SuppressWarnings("serial")
 @JacksonStdImpl
 public class JsonValueSerializer
     extends StdDynamicSerializer<Object>

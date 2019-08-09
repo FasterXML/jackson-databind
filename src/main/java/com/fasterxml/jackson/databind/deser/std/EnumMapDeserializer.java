@@ -21,8 +21,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class EnumMapDeserializer
     extends ContainerDeserializerBase<EnumMap<?,?>>
 {
-    private static final long serialVersionUID = 1;
-
     protected final Class<?> _enumClass;
 
     protected KeyDeserializer _keyDeserializer;

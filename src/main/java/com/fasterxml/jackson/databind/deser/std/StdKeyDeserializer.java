@@ -273,7 +273,6 @@ public class StdKeyDeserializer extends KeyDeserializer
     @JacksonStdImpl
     final static class StringKD extends StdKeyDeserializer
     {
-        private static final long serialVersionUID = 1L;
         private final static StringKD sString = new StringKD(String.class);
         private final static StringKD sObject = new StringKD(Object.class);
         

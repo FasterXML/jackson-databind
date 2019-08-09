@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * are serializer as scalars; some using basic {@link ToStringSerializer},
  * others explicit serializers.
  */
-@SuppressWarnings("serial")
 public class StdJdkSerializers
 {
     /**

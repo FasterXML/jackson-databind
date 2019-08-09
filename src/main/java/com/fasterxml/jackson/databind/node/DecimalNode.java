@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.*;
 public class DecimalNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);
 
     private final static BigDecimal MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);

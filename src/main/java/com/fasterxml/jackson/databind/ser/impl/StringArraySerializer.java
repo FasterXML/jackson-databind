@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Standard serializer used for <code>String[]</code> values.
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class StringArraySerializer
     extends ArraySerializerBase<String[]>
 {

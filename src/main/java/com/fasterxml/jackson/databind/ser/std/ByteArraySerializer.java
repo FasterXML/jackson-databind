@@ -27,8 +27,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 @JacksonStdImpl
 public class ByteArraySerializer extends StdSerializer<byte[]>
 {
-    private static final long serialVersionUID = 1L;
-
     public ByteArraySerializer() {
         super(byte[].class);
     }

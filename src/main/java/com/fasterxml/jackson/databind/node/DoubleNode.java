@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class DoubleNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     protected final double _value;
 
     /* 

@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class ThrowableDeserializer
     extends BeanDeserializer
 {
-    private static final long serialVersionUID = 1L;
-
     protected final static String PROP_NAME_MESSAGE = "message";
 
     /*

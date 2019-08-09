@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * (which is only included in the mapper package)
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class TokenBufferSerializer
     extends StdSerializer<TokenBuffer>
 {

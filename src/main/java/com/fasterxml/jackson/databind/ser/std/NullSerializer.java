@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * more exotic types (java.lang.Void).
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class NullSerializer
     extends StdSerializer<Object>
 {

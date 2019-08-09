@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public class MapEntryDeserializer
     extends ContainerDeserializerBase<Map.Entry<Object,Object>>
 {
-    private static final long serialVersionUID = 1;
-
     // // Configuration: typing, deserializers
 
     /**

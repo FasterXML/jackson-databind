@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class ReferenceTypeSerializer<T>
     extends StdDynamicSerializer<T>
 {
-    private static final long serialVersionUID = 3L;
-
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /**

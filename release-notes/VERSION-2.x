@@ -69,6 +69,13 @@ Project: jackson-databind
 #2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
 
+2.9.10 (not yet released)
+
+#2410: Block one more gadget type (CVE-2019-14540)
+  (reported by iSafeBlue@github / blue@ixsec.org)
+#2420: Block one more gadget type (no CVE allocated yet)
+  (reported by crazylirui@gmail.com)
+
 2.9.9.3 (06-Aug-2019)
 
 #2395: `NullPointerException` from `ResolvedRecursiveType` (regression due to fix for #2331)

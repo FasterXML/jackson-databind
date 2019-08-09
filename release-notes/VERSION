@@ -3,6 +3,13 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+Unreleased but backported
+
+#2410: Block one more gadget type (CVE-2019-14540)
+  (reported by iSafeBlue@github / blue@ixsec.org)
+#2420: Block one more gadget type (no CVE allocated yet)
+  (reported by crazylirui@gmail.com)
+
 2.8.11.4 (25-Jul-2019)
 
 #2334: Block one more gadget type (CVE-2019-12384)

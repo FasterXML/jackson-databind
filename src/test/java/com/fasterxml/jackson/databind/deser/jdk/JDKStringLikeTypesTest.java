@@ -45,7 +45,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         protected StackTraceElement location;    
     }
 
-    @SuppressWarnings("serial")
     static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
     {
         public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }

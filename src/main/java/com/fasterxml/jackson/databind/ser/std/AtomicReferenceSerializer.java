@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class AtomicReferenceSerializer
     extends ReferenceTypeSerializer<AtomicReference<?>>
 {
-    private static final long serialVersionUID = 1L;
-
     /*
     /**********************************************************************
     /* Constructors, factory methods

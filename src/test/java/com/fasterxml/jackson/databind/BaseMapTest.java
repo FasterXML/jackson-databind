@@ -168,7 +168,6 @@ public abstract class BaseMapTest
     /**********************************************************************
      */
 
-    @SuppressWarnings("serial")
     public static class UpperCasingSerializer extends StdScalarSerializer<String>
     {
         public UpperCasingSerializer() { super(String.class); }
@@ -180,7 +179,6 @@ public abstract class BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     public static class LowerCasingDeserializer extends StdScalarDeserializer<String>
     {
         public LowerCasingDeserializer() { super(String.class); }

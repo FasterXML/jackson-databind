@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
-@SuppressWarnings("serial")
 public abstract class StdScalarSerializer<T>
     extends StdSerializer<T>
 {

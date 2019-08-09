@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * etc) and {@link java.util.Map}s and iterable things
  * ({@link java.util.Iterator}s).
  */
-@SuppressWarnings("serial")
 public abstract class ContainerSerializer<T>
     extends StdSerializer<T>
 {

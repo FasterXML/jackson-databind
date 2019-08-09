@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 public class EnumDeserializer
     extends StdScalarDeserializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     protected Object[] _enumsByIndex;
 
     private final Enum<?> _enumDefaultValue;

@@ -14,8 +14,6 @@ import java.util.stream.Stream;
  */
 public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Stream elements type (matching T)
      */

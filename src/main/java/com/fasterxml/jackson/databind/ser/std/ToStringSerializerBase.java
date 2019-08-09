@@ -16,10 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * as well as for custom subtypes that want to add processing for converting from
  * value to output into its {@code String} representation (whereas standard version
  * simply calls value object's {@code toString()} method).
- *
- * @since 2.10
  */
-@SuppressWarnings("serial")
 public abstract class ToStringSerializerBase
     extends StdSerializer<Object>
 {

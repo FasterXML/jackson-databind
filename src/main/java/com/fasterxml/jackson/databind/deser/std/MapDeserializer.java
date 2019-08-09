@@ -30,8 +30,6 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
 public class MapDeserializer
     extends ContainerDeserializerBase<Map<Object,Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     // // Configuration: typing, deserializers
 
     /**

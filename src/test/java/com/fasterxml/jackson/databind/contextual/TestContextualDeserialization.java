@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * that can use contextual information (like field/method
  * annotations) for configuration.
  */
-@SuppressWarnings("serial")
 public class TestContextualDeserialization extends BaseMapTest
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})

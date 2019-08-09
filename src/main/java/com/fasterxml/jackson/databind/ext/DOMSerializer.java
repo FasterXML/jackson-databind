@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-@SuppressWarnings("serial")
 public class DOMSerializer extends StdSerializer<Node>
 {
     protected final DOMImplementationLS _domImpl;

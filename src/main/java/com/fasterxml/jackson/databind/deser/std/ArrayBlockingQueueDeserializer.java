@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public class ArrayBlockingQueueDeserializer
     extends CollectionDeserializer
 {
-    private static final long serialVersionUID = 1;
-
     /*
     /**********************************************************
     /* Life-cycle

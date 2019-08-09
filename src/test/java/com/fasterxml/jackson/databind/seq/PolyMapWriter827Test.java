@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // for [databind#827]
-@SuppressWarnings("serial")
 public class PolyMapWriter827Test extends BaseMapTest
 {
     static class CustomKey {

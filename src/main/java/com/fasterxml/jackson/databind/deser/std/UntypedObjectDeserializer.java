@@ -25,8 +25,6 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 public class UntypedObjectDeserializer
     extends StdDeserializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final static Object[] NO_OBJECTS = new Object[0];
 
     /*
@@ -584,8 +582,6 @@ public class UntypedObjectDeserializer
     public static class Vanilla
         extends StdDeserializer<Object>
     {
-        private static final long serialVersionUID = 1L;
-
         public final static Vanilla std = new Vanilla();
 
         /**

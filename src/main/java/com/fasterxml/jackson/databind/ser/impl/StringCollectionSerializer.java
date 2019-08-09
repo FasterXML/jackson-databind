@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
  * String serializer.
  */
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class StringCollectionSerializer
     extends StaticListSerializerBase<Collection<String>>
 {

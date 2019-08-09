@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  * Note that although types may be related, they must not be same; trying
  * to do this will result in an exception.
  */
-@SuppressWarnings("serial")
 public class StdDelegatingSerializer
     extends StdSerializer<Object>
 {

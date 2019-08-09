@@ -63,13 +63,9 @@ public class CoreXMLDeserializers
      * javax.xml types {@link QName}, {@link Duration} and {@link XMLGregorianCalendar}.
      * Combined into a single class to eliminate bunch of one-off implementation
      * classes, to reduce resulting jar size (mostly).
-     *
-     * @since 2.4
      */
     public static class Std extends FromStringDeserializer<Object>
     {
-        private static final long serialVersionUID = 1L;
-
         protected final int _kind;
 
         public Std(Class<?> raw, int kind) {

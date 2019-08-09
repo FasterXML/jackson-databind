@@ -21,9 +21,8 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * source {@link JsonParser} supports them.
  */
 @JacksonStdImpl
-public class TokenBufferDeserializer extends StdScalarDeserializer<TokenBuffer> {
-    private static final long serialVersionUID = 1L;
-    
+public class TokenBufferDeserializer extends StdScalarDeserializer<TokenBuffer>
+{
     public TokenBufferDeserializer() { super(TokenBuffer.class); }
 
     @Override

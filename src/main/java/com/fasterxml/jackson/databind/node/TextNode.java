@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 public class TextNode
     extends ValueNode
 {
+    private static final long serialVersionUID = 3L;
+
     final static TextNode EMPTY_STRING_NODE = new TextNode("");
 
     protected final String _value;

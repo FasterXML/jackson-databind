@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 
 public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<OptionalDouble>
 {
-    private static final long serialVersionUID = 1L;
-
     static final OptionalDoubleDeserializer INSTANCE = new OptionalDoubleDeserializer();
 
     public OptionalDoubleDeserializer() {

@@ -30,8 +30,6 @@ import com.fasterxml.jackson.databind.util.Converter;
 public class StdConvertingDeserializer<T>
     extends StdDeserializer<T>
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Converter that was used for creating {@link #_delegateDeserializer}.
      */

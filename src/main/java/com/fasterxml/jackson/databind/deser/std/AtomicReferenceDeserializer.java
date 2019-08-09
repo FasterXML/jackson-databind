@@ -9,17 +9,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public class AtomicReferenceDeserializer
     extends ReferenceTypeDeserializer<AtomicReference<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
-    /*
-    /**********************************************************
-    /* Life-cycle
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.9
-     */
     public AtomicReferenceDeserializer(JavaType fullType, ValueInstantiator inst,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {

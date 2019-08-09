@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-@SuppressWarnings("serial")
 public abstract class DateTimeSerializerBase<T>
     extends StdScalarSerializer<T>
 {

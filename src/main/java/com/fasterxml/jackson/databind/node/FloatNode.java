@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  */
 public class FloatNode extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     protected final float _value;
 
     /* 

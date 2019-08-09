@@ -25,8 +25,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class StringLikeSerializer
     extends StdSerializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final static int TYPE_URL = 1;
     protected final static int TYPE_URI = 2;
     protected final static int TYPE_FILE = 3;

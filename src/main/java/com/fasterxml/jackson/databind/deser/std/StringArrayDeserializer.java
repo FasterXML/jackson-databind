@@ -25,8 +25,6 @@ public final class StringArrayDeserializer
 // but for now won't:
     extends StdDeserializer<String[]>
 {
-    private static final long serialVersionUID = 2L;
-
     private final static String[] NO_STRINGS = new String[0];
 
     public final static StringArrayDeserializer instance = new StringArrayDeserializer();

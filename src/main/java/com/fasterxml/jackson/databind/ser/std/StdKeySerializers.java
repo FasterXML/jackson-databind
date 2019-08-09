@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
-@SuppressWarnings("serial")
 public abstract class StdKeySerializers
 {
     protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();

@@ -44,8 +44,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class BeanAsArraySerializer
     extends BeanSerializerBase
 {
-    private static final long serialVersionUID = 3L;
-
     /**
      * Serializer that would produce JSON Object version; used in
      * cases where array output cannot be used.

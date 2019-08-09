@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 
-@SuppressWarnings("serial")
 @JacksonStdImpl
 public class MapEntrySerializer
     extends ContainerSerializer<Map.Entry<?,?>>

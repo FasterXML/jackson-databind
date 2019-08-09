@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class SqlTimeSerializer
     extends StdScalarSerializer<java.sql.Time>
 {

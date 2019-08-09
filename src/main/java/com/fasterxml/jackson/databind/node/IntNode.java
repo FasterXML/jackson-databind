@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class IntNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     // // // Let's cache small set of common value
 
     final static int MIN_CANONICAL = -1;

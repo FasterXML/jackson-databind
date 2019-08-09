@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 public class ObjectArrayDeserializer
     extends ContainerDeserializerBase<Object[]>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final static Object[] NO_OBJECTS = new Object[0];
 
     // // Configuration

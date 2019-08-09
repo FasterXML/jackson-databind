@@ -24,7 +24,7 @@ public abstract class BaseJsonNode
     extends JsonNode
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     // Simplest way is by using a helper
     Object writeReplace() {

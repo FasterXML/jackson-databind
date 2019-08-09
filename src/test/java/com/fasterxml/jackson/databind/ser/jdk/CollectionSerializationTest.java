@@ -48,7 +48,6 @@ public class CollectionSerializationTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class ListSerializer extends StdSerializer<List<String>>
     {
         public ListSerializer() { super(List.class); }

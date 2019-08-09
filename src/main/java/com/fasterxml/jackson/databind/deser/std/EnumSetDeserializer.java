@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
 {
-    private static final long serialVersionUID = 1L; // since 2.5
-
     protected final JavaType _enumType;
 
     protected final Class<Enum> _enumClass;

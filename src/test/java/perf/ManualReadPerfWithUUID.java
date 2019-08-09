@@ -19,8 +19,7 @@ public class ManualReadPerfWithUUID extends ObjectReaderTestBase
 
     @Override
     protected int targetSizeMegs() { return 8; }
-    
-    @SuppressWarnings("serial")
+
     static class SlowDeser extends FromStringDeserializer<UUID>
     {
         public SlowDeser() { super(UUID.class); }

@@ -23,12 +23,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public final class MissingNode
     extends BaseJsonNode // NOTE! Does NOT extend `ValueNode` unlike in 2.x
 {
+    private static final long serialVersionUID = 3L;
+
     private final static MissingNode instance = new MissingNode();
 
-    /**
-     *<p>
-     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
-     */
     protected MissingNode() { }
 
     // Immutable: no need to copy
@@ -37,6 +35,11 @@ public final class MissingNode
     public <T extends JsonNode> T deepCopy() { return (T) this; }
 
     public static MissingNode getInstance() { return instance; }
+
+    // To support JDK serialization, recovery of Singleton instance
+    protected Object readResolve() {
+        return instance;
+    }
     
     @Override
     public JsonNodeType getNodeType() {

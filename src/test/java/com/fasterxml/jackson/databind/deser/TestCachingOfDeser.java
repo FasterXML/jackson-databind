@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-@SuppressWarnings("serial")
 public class TestCachingOfDeser extends BaseMapTest
 {
     // For [databind#735]

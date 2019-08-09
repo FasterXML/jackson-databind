@@ -64,7 +64,6 @@ public class NodeContext2049Test extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class ParentSettingDeserializer extends DelegatingDeserializer {
         public ParentSettingDeserializer(JsonDeserializer<?> delegatee) {
              super(delegatee);

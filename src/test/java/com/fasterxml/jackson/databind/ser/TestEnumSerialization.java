@@ -108,7 +108,6 @@ public class TestEnumSerialization
         OK(String key) { this.key = key; }
     }
 
-    @SuppressWarnings({ "rawtypes", "serial" })
     static class LowerCasingEnumSerializer extends StdSerializer<Enum>
     {
         public LowerCasingEnumSerializer() { super(Enum.class); }

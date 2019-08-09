@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
 public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final JsonDeserializer<?> _delegatee;
     
     /*

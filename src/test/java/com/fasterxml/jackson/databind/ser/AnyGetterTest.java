@@ -78,7 +78,6 @@ public class AnyGetterTest extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class Issue705Serializer extends StdSerializer<Object>
     {
         public Issue705Serializer() {
@@ -119,7 +118,6 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // [databind#1124]
-    @SuppressWarnings("serial")
     static class MyUCSerializer extends StdScalarSerializer<String>
     {
         public MyUCSerializer() { super(String.class); }

@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
 public abstract class ReferenceTypeDeserializer<T>
     extends StdDeserializer<T>
 {
-    private static final long serialVersionUID = 2L;
-
     /**
      * Full type of property (or root value) for which this deserializer
      * has been constructed and contextualized.

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
  * Container for deserializers used for instantiating "primitive arrays",
  * arrays that contain non-object java primitive types.
  */
-@SuppressWarnings("serial")
 public abstract class PrimitiveArrayDeserializers<T>
     extends StdDeserializer<T>
 {
@@ -29,12 +28,9 @@ public abstract class PrimitiveArrayDeserializers<T>
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
-     *
-     * @since 2.7
      */
     protected final Boolean _unwrapSingle;
 
-    // since 2.9
     private transient Object _emptyValue;
 
     /**
@@ -55,9 +51,6 @@ public abstract class PrimitiveArrayDeserializers<T>
         _nuller = null;
     }
 
-    /**
-     * @since 2.7
-     */
     protected PrimitiveArrayDeserializers(PrimitiveArrayDeserializers<?> base,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(base._valueClass);
@@ -254,8 +247,6 @@ public abstract class PrimitiveArrayDeserializers<T>
     final static class CharDeser
         extends PrimitiveArrayDeserializers<char[]>
     {
-        private static final long serialVersionUID = 1L;
-
         public CharDeser() { super(char[].class); }
         protected CharDeser(CharDeser base, NullValueProvider nuller, Boolean unwrapSingle) {
             super(base, nuller, unwrapSingle);
@@ -361,8 +352,6 @@ public abstract class PrimitiveArrayDeserializers<T>
     final static class BooleanDeser
         extends PrimitiveArrayDeserializers<boolean[]>
     {
-        private static final long serialVersionUID = 1L;
-
         public BooleanDeser() { super(boolean[].class); }
         protected BooleanDeser(BooleanDeser base, NullValueProvider nuller, Boolean unwrapSingle) {
             super(base, nuller, unwrapSingle);
@@ -444,8 +433,6 @@ public abstract class PrimitiveArrayDeserializers<T>
     final static class ByteDeser
         extends PrimitiveArrayDeserializers<byte[]>
     {
-        private static final long serialVersionUID = 1L;
-
         public ByteDeser() { super(byte[].class); }
         protected ByteDeser(ByteDeser base, NullValueProvider nuller,Boolean unwrapSingle) {
             super(base, nuller, unwrapSingle);
@@ -569,8 +556,6 @@ public abstract class PrimitiveArrayDeserializers<T>
     final static class ShortDeser
         extends PrimitiveArrayDeserializers<short[]>
     {
-        private static final long serialVersionUID = 1L;
-
         public ShortDeser() { super(short[].class); }
         protected ShortDeser(ShortDeser base, NullValueProvider nuller, Boolean unwrapSingle) {
             super(base, nuller, unwrapSingle);
@@ -643,8 +628,6 @@ public abstract class PrimitiveArrayDeserializers<T>
     final static class IntDeser
         extends PrimitiveArrayDeserializers<int[]>
     {
-        private static final long serialVersionUID = 1L;
-
         public final static IntDeser instance = new IntDeser();
         
         public IntDeser() { super(int[].class); }
@@ -721,8 +704,6 @@ public abstract class PrimitiveArrayDeserializers<T>
     final static class LongDeser
         extends PrimitiveArrayDeserializers<long[]>
     {
-        private static final long serialVersionUID = 1L;
-
         public final static LongDeser instance = new LongDeser();
 
         public LongDeser() { super(long[].class); }
@@ -799,8 +780,6 @@ public abstract class PrimitiveArrayDeserializers<T>
     final static class FloatDeser
         extends PrimitiveArrayDeserializers<float[]>
     {
-        private static final long serialVersionUID = 1L;
-
         public FloatDeser() { super(float[].class); }
         protected FloatDeser(FloatDeser base, NullValueProvider nuller, Boolean unwrapSingle) {
             super(base, nuller, unwrapSingle);
@@ -870,8 +849,6 @@ public abstract class PrimitiveArrayDeserializers<T>
     final static class DoubleDeser
         extends PrimitiveArrayDeserializers<double[]>
     {
-        private static final long serialVersionUID = 1L;
-        
         public DoubleDeser() { super(double[].class); }
         protected DoubleDeser(DoubleDeser base, NullValueProvider nuller, Boolean unwrapSingle) {
             super(base, nuller, unwrapSingle);

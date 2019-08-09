@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 public class OptionalDoubleSerializer extends StdScalarSerializer<OptionalDouble>
 {
-    private static final long serialVersionUID = 1L;
-
     static final OptionalDoubleSerializer INSTANCE = new OptionalDoubleSerializer();
 
     public OptionalDoubleSerializer() {

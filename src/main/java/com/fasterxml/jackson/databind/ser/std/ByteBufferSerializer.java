@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 
-@SuppressWarnings("serial")
 public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
 {
     public ByteBufferSerializer() { super(ByteBuffer.class); }

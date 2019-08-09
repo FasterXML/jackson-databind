@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  * bean deserialization; ones that indicate (non-constructor)
  * method types, explicit deserializer annotations.
  */
-@SuppressWarnings("serial")
 public class TestBasicAnnotations
     extends BaseMapTest
 {

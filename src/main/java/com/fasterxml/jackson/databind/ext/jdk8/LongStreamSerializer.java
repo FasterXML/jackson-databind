@@ -16,8 +16,6 @@ import java.util.stream.LongStream;
  */
 public class LongStreamSerializer extends StdSerializer<LongStream>
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Singleton instance
      */

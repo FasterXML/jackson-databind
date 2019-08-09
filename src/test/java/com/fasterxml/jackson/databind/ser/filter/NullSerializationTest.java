@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 public class NullSerializationTest
     extends BaseMapTest
 {
-    @SuppressWarnings("serial")
     static class NullSerializer extends StdSerializer<Object>
     {
         public NullSerializer() { super(Object.class); }

@@ -25,7 +25,7 @@ public class ArrayNode
     implements ArrayTreeNode, // since 3.0
         java.io.Serializable // since 2.10
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     private final List<JsonNode> _children;
 

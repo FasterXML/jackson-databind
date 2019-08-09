@@ -17,11 +17,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  */
 public class AsExternalTypeDeserializer extends AsArrayTypeDeserializer
 {
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * @since 2.8
-     */
     public AsExternalTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {

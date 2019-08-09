@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * This unit test suite tests use of Annotations for
  * bean serialization.
  */
-@SuppressWarnings("serial")
 public class TestAnnotations
     extends BaseMapTest
 {

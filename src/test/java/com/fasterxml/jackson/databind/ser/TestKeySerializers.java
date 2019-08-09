@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-@SuppressWarnings("serial")
 public class TestKeySerializers extends BaseMapTest
 {
     public static class KarlSerializer extends StdSerializer<String>

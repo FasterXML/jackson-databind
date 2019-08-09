@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class BuilderBasedDeserializer
     extends BeanDeserializerBase
 {
-    private static final long serialVersionUID = 1L;
-
     protected final AnnotatedMethod _buildMethod;
 
     /**

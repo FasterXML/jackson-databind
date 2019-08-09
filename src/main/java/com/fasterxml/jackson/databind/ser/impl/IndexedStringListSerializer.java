@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 public final class IndexedStringListSerializer
     extends StaticListSerializerBase<List<String>>
 {
-    private static final long serialVersionUID = 1L;
-
     public final static IndexedStringListSerializer instance = new IndexedStringListSerializer();
 
     /*

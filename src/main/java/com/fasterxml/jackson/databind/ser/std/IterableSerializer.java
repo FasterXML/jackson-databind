@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 
 @JacksonStdImpl
-@SuppressWarnings("serial")
 public class IterableSerializer
     extends AsArraySerializerBase<Iterable<?>>
 {

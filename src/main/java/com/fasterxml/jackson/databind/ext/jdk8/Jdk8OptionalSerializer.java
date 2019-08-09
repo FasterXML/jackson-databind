@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class Jdk8OptionalSerializer
     extends ReferenceTypeSerializer<Optional<?>>
 {
-    private static final long serialVersionUID = 1L;
-
     /*
     /**********************************************************
     /* Constructors, factory methods

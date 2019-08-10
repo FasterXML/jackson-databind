@@ -58,9 +58,8 @@ public class StdKeyDeserializers
             }
             return new StdKeyDeserializer.StringCtorKeyDeserializer(ctor);
         }
-        /* or if not, "static T valueOf(String)" (or equivalent marked
-         * with @JsonCreator annotation?)
-         */
+        // or if not, "static T valueOf(String)" (or equivalent marked
+        // with @JsonCreator annotation?)
         Method m = beanDesc.findFactoryMethod(String.class);
         if (m != null){
             if (ctxt.canOverrideAccessModifiers()) {

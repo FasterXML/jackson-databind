@@ -514,8 +514,9 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(OutputStream out) throws IOException {
-        return _generatorFactory.createGenerator(_serializerProvider(), out);
+    public JsonGenerator createGenerator(OutputStream target) throws IOException {
+        _assertNotNull("target", target);
+        return _generatorFactory.createGenerator(_serializerProvider(), target);
     }
 
     /**
@@ -526,8 +527,9 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
-        return _generatorFactory.createGenerator(_serializerProvider(), out, enc);
+    public JsonGenerator createGenerator(OutputStream target, JsonEncoding enc) throws IOException {
+        _assertNotNull("target", target);
+        return _generatorFactory.createGenerator(_serializerProvider(), target, enc);
     }
 
     /**
@@ -538,8 +540,9 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(Writer w) throws IOException {
-        return _generatorFactory.createGenerator(_serializerProvider(), w);
+    public JsonGenerator createGenerator(Writer target) throws IOException {
+        _assertNotNull("target", target);
+        return _generatorFactory.createGenerator(_serializerProvider(), target);
     }
 
     /**
@@ -550,9 +553,9 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(File f, JsonEncoding enc)
-        throws IOException {
-        return _generatorFactory.createGenerator(_serializerProvider(), f, enc);
+    public JsonGenerator createGenerator(File target, JsonEncoding enc) throws IOException {
+        _assertNotNull("target", target);
+        return _generatorFactory.createGenerator(_serializerProvider(), target, enc);
     }
 
     /**
@@ -563,8 +566,9 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(DataOutput out) throws IOException {
-        return _generatorFactory.createGenerator(_serializerProvider(), out);
+    public JsonGenerator createGenerator(DataOutput target) throws IOException {
+        _assertNotNull("target", target);
+        return _generatorFactory.createGenerator(_serializerProvider(), target);
     }
 
     /*
@@ -596,12 +600,13 @@ public class ObjectWriter
      * values have been written to ensure closing of underlying generator and
      * output stream.
      *
-     * @param out Target file to write value sequence to.
+     * @param target Target file to write value sequence to.
      */
-    public SequenceWriter writeValues(File out) throws IOException {
+    public SequenceWriter writeValues(File target) throws IOException {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         return _newSequenceWriter(prov, false,
-                _generatorFactory.createGenerator(prov, out, JsonEncoding.UTF8), true);
+                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -614,11 +619,12 @@ public class ObjectWriter
      * the generator. However, since a {@link JsonGenerator} is explicitly passed,
      * it will NOT be closed when {@link SequenceWriter#close()} is called.
      *
-     * @param gen Low-level generator caller has already constructed that will
+     * @param g Low-level generator caller has already constructed that will
      *   be used for actual writing of token stream.
      */
-    public SequenceWriter writeValues(JsonGenerator gen) throws IOException {
-        return _newSequenceWriter(_serializerProvider(), false, gen, false);
+    public SequenceWriter writeValues(JsonGenerator g) throws IOException {
+        _assertNotNull("target", g);
+        return _newSequenceWriter(_serializerProvider(), false, g, false);
     }
 
     /**
@@ -630,12 +636,13 @@ public class ObjectWriter
      * values have been written to ensure closing of underlying generator and
      * output stream.
      *
-     * @param out Target writer to use for writing the token stream
+     * @param target Target writer to use for writing the token stream
      */
-    public SequenceWriter writeValues(Writer out) throws IOException {
+    public SequenceWriter writeValues(Writer target) throws IOException {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         return _newSequenceWriter(prov, false,
-                _generatorFactory.createGenerator(prov, out), true);
+                _generatorFactory.createGenerator(prov, target), true);
     }
 
     /**
@@ -647,18 +654,20 @@ public class ObjectWriter
      * values have been written to ensure closing of underlying generator and
      * output stream.
      *
-     * @param out Physical output stream to use for writing the token stream
+     * @param target Physical output stream to use for writing the token stream
      */
-    public SequenceWriter writeValues(OutputStream out) throws IOException {
+    public SequenceWriter writeValues(OutputStream target) throws IOException {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         return _newSequenceWriter(prov, false,
-                _generatorFactory.createGenerator(prov, out, JsonEncoding.UTF8), true);
+                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), true);
     }
 
-    public SequenceWriter writeValues(DataOutput out) throws IOException {
+    public SequenceWriter writeValues(DataOutput target) throws IOException {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         return _newSequenceWriter(prov, false,
-                _generatorFactory.createGenerator(prov, out), true);
+                _generatorFactory.createGenerator(prov, target), true);
     }
 
     /**
@@ -672,12 +681,13 @@ public class ObjectWriter
      * be type of individual values (elements) to write and NOT matching array
      * or {@link java.util.Collection} type.
      *
-     * @param out File to write token stream to
+     * @param target File to write token stream to
      */
-    public SequenceWriter writeValuesAsArray(File out) throws IOException {
+    public SequenceWriter writeValuesAsArray(File target) throws IOException {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         return _newSequenceWriter(prov, true,
-                _generatorFactory.createGenerator(prov, out, JsonEncoding.UTF8), true);
+                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -692,10 +702,11 @@ public class ObjectWriter
      * be type of individual values (elements) to write and NOT matching array
      * or {@link java.util.Collection} type.
      *
-     * @param gen Underlying generator to use for writing the token stream
+     * @param g Underlying generator to use for writing the token stream
      */
-    public SequenceWriter writeValuesAsArray(JsonGenerator gen) throws IOException {
-        return _newSequenceWriter(_serializerProvider(), true, gen, false);
+    public SequenceWriter writeValuesAsArray(JsonGenerator g) throws IOException {
+        _assertNotNull("g", g);
+        return _newSequenceWriter(_serializerProvider(), true, g, false);
     }
 
     /**
@@ -709,12 +720,13 @@ public class ObjectWriter
      * be type of individual values (elements) to write and NOT matching array
      * or {@link java.util.Collection} type.
      *
-     * @param out Writer to use for writing the token stream
+     * @param target Writer to use for writing the token stream
      */
-    public SequenceWriter writeValuesAsArray(Writer out) throws IOException {
+    public SequenceWriter writeValuesAsArray(Writer target) throws IOException {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         return _newSequenceWriter(prov, true,
-                _generatorFactory.createGenerator(prov, out), true);
+                _generatorFactory.createGenerator(prov, target), true);
     }
 
     /**
@@ -728,18 +740,20 @@ public class ObjectWriter
      * be type of individual values (elements) to write and NOT matching array
      * or {@link java.util.Collection} type.
      *
-     * @param out Physical output stream to use for writing the token stream
+     * @param target Physical output stream to use for writing the token stream
      */
-    public SequenceWriter writeValuesAsArray(OutputStream out) throws IOException {
+    public SequenceWriter writeValuesAsArray(OutputStream target) throws IOException {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         return _newSequenceWriter(prov, true,
-                _generatorFactory.createGenerator(prov, out, JsonEncoding.UTF8), true);
+                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), true);
     }
 
-    public SequenceWriter writeValuesAsArray(DataOutput out) throws IOException {
+    public SequenceWriter writeValuesAsArray(DataOutput target) throws IOException {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         return _newSequenceWriter(prov, true,
-                _generatorFactory.createGenerator(prov, out), true);
+                _generatorFactory.createGenerator(prov, target), true);
     }
 
     /*
@@ -809,16 +823,17 @@ public class ObjectWriter
      * Method that can be used to serialize any Java value as
      * JSON output, using provided {@link JsonGenerator}.
      */
-    public void writeValue(JsonGenerator gen, Object value) throws IOException
+    public void writeValue(JsonGenerator g, Object value) throws IOException
     {
+        _assertNotNull("g", g);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof Closeable)) {
 
             Closeable toClose = (Closeable) value;
             try {
-                _prefetch.serialize(gen, value, _serializerProvider());
+                _prefetch.serialize(g, value, _serializerProvider());
                 if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                    gen.flush();
+                    g.flush();
                 }
             } catch (Exception e) {
                 ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
@@ -826,9 +841,9 @@ public class ObjectWriter
             }
             toClose.close();
         } else {
-            _prefetch.serialize(gen, value, _serializerProvider());
+            _prefetch.serialize(g, value, _serializerProvider());
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                gen.flush();
+                g.flush();
             }
         }
     }
@@ -843,12 +858,13 @@ public class ObjectWriter
      * Method that can be used to serialize any Java value as
      * JSON output, written to File provided.
      */
-    public void writeValue(File resultFile, Object value)
+    public void writeValue(File target, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
-                _generatorFactory.createGenerator(prov, resultFile, JsonEncoding.UTF8), value);
+                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -862,12 +878,12 @@ public class ObjectWriter
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).
      */
-    public void writeValue(OutputStream out, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+    public void writeValue(OutputStream target, Object value) throws IOException
     {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
-                _generatorFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
+                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -880,18 +896,20 @@ public class ObjectWriter
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).
      */
-    public void writeValue(Writer w, Object value) throws IOException
+    public void writeValue(Writer target, Object value) throws IOException
     {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
-                _generatorFactory.createGenerator(prov, w), value);
+                _generatorFactory.createGenerator(prov, target), value);
     }
 
-    public void writeValue(DataOutput out, Object value) throws IOException
+    public void writeValue(DataOutput target, Object value) throws IOException
     {
+        _assertNotNull("target", target);
         DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
-                _generatorFactory.createGenerator(prov, out), value);
+                _generatorFactory.createGenerator(prov, target), value);
     }
 
     /**
@@ -1002,14 +1020,15 @@ public class ObjectWriter
      */
     public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor) throws JsonMappingException
     {
-        if (type == null) {
-            throw new IllegalArgumentException("type must be provided");
-        }
+        _assertNotNull("type", type);
+        _assertNotNull("visitor", visitor);
         _serializerProvider().acceptJsonFormatVisitor(type, visitor);
     }
 
-    public void acceptJsonFormatVisitor(Class<?> rawType, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
-        acceptJsonFormatVisitor(_config.constructType(rawType), visitor);
+    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
+        _assertNotNull("type", type);
+        _assertNotNull("visitor", visitor);
+        acceptJsonFormatVisitor(_config.constructType(type), visitor);
     }
 
     /*
@@ -1039,6 +1058,12 @@ public class ObjectWriter
                     throw new IllegalArgumentException("Cannot use FormatSchema of type "+schema.getClass().getName()
                             +" for format "+_generatorFactory.getFormatName());
             }
+        }
+    }
+
+    protected final void _assertNotNull(String paramName, Object src) {
+        if (src == null){
+            throw new IllegalArgumentException(String.format("argument \"%s\" is null", paramName));
         }
     }
 

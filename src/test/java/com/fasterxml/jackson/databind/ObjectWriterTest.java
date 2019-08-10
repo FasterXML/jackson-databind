@@ -282,7 +282,7 @@ public class ObjectWriterTest
             w.acceptJsonFormatVisitor((JavaType) null, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "type must be provided");
+            verifyException(e, "argument \"type\" is null");
         }
     }
 

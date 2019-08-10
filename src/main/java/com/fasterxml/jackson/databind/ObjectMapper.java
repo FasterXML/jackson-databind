@@ -747,6 +747,7 @@ public class ObjectMapper
      */
     public ObjectMapper registerModule(Module module)
     {
+        _assertNotNull("module", module);
         if (isEnabled(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS)) {
             Object typeId = module.getTypeId();
             if (typeId != null) {
@@ -975,6 +976,7 @@ public class ObjectMapper
      */
     public ObjectMapper registerModules(Iterable<? extends Module> modules)
     {
+        _assertNotNull("modules", modules);
         for (Module module : modules) {
             registerModule(module);
         }
@@ -1800,6 +1802,7 @@ public class ObjectMapper
      * context.
      */
     public JavaType constructType(Type t) {
+        _assertNotNull("t", t);
         return _typeFactory.constructType(t);
     }
 
@@ -1866,6 +1869,7 @@ public class ObjectMapper
      * @since 2.4
      */
     public ObjectMapper setConfig(DeserializationConfig config) {
+        _assertNotNull("config", config);
         _deserializationConfig = config;
         return this;
     }
@@ -1931,6 +1935,7 @@ public class ObjectMapper
      * @since 2.4
      */
     public ObjectMapper setConfig(SerializationConfig config) {
+        _assertNotNull("config", config);
         _serializationConfig = config;
         return this;
     }
@@ -2413,6 +2418,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueType));
     } 
 
@@ -2437,6 +2443,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueTypeRef));
     }
 
@@ -2460,6 +2467,7 @@ public class ObjectMapper
     public final <T> T readValue(JsonParser p, ResolvedType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, (JavaType) valueType);
     }
 
@@ -2479,6 +2487,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, valueType);
     }
     
@@ -2509,6 +2518,7 @@ public class ObjectMapper
     public <T extends TreeNode> T readTree(JsonParser p)
         throws IOException, JsonProcessingException
     {
+        _assertNotNull("p", p);
         // Must check for EOF here before calling readValue(), since that'll choke on it otherwise
         DeserializationConfig cfg = getDeserializationConfig();
         JsonToken t = p.getCurrentToken();
@@ -2564,6 +2574,7 @@ public class ObjectMapper
     public <T> MappingIterator<T> readValues(JsonParser p, JavaType valueType)
         throws IOException, JsonProcessingException
     {
+        _assertNotNull("p", p);
         DeserializationConfig config = getDeserializationConfig();
         DeserializationContext ctxt = createDeserializationContext(p, config);
         JsonDeserializer<?> deser = _findRootDeserializer(ctxt, valueType);
@@ -2632,6 +2643,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(InputStream in) throws IOException
     {
+        _assertNotNull("in", in);
         return _readTreeAndClose(_jsonFactory.createParser(in));
     }
 
@@ -2640,6 +2652,7 @@ public class ObjectMapper
      * passed-in {@link Reader}
      */
     public JsonNode readTree(Reader r) throws IOException {
+        _assertNotNull("r", r);
         return _readTreeAndClose(_jsonFactory.createParser(r));
     }
 
@@ -2648,6 +2661,7 @@ public class ObjectMapper
      * passed-in {@link String}
      */
     public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
+        _assertNotNull("content", content);
         try { // since 2.10 remove "impossible" IOException as per [databind#1675]
             return _readTreeAndClose(_jsonFactory.createParser(content));
         } catch (JsonProcessingException e) {
@@ -2662,6 +2676,7 @@ public class ObjectMapper
      * passed-in byte array.
      */
     public JsonNode readTree(byte[] content) throws IOException {
+        _assertNotNull("content", content);
         return _readTreeAndClose(_jsonFactory.createParser(content));
     }
 
@@ -2670,6 +2685,7 @@ public class ObjectMapper
      * passed-in byte array.
      */
     public JsonNode readTree(byte[] content, int offset, int len) throws IOException {
+        _assertNotNull("content", content);
         return _readTreeAndClose(_jsonFactory.createParser(content, offset, len));
     }
 
@@ -2680,6 +2696,7 @@ public class ObjectMapper
     public JsonNode readTree(File file)
         throws IOException, JsonProcessingException
     {
+        _assertNotNull("file", file);
         return _readTreeAndClose(_jsonFactory.createParser(file));
     }
 
@@ -2694,6 +2711,7 @@ public class ObjectMapper
      * to create {@link java.io.InputStream} separately.
      */
     public JsonNode readTree(URL source) throws IOException {
+        _assertNotNull("source", source);
         return _readTreeAndClose(_jsonFactory.createParser(source));
     }
 
@@ -2712,6 +2730,7 @@ public class ObjectMapper
     public void writeValue(JsonGenerator g, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
+        _assertNotNull("g", g);
         SerializationConfig config = getSerializationConfig();
 
         /* 12-May-2015/2.6, tatu: Looks like we do NOT want to call the usual
@@ -2742,13 +2761,14 @@ public class ObjectMapper
      */
 
     @Override
-    public void writeTree(JsonGenerator jgen, TreeNode rootNode)
+    public void writeTree(JsonGenerator g, TreeNode rootNode)
         throws IOException, JsonProcessingException
     {
+        _assertNotNull("g", g);
         SerializationConfig config = getSerializationConfig();
-        _serializerProvider(config).serializeValue(jgen, rootNode);
+        _serializerProvider(config).serializeValue(g, rootNode);
         if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-            jgen.flush();
+            g.flush();
         }
     }
     
@@ -2756,13 +2776,14 @@ public class ObjectMapper
      * Method to serialize given JSON Tree, using generator
      * provided.
      */
-    public void writeTree(JsonGenerator jgen, JsonNode rootNode)
+    public void writeTree(JsonGenerator g, JsonNode rootNode)
         throws IOException, JsonProcessingException
     {
+        _assertNotNull("g", g);
         SerializationConfig config = getSerializationConfig();
-        _serializerProvider(config).serializeValue(jgen, rootNode);
+        _serializerProvider(config).serializeValue(g, rootNode);
         if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-            jgen.flush();
+            g.flush();
         }
     }
     
@@ -2798,6 +2819,7 @@ public class ObjectMapper
      */
     @Override
     public JsonParser treeAsTokens(TreeNode n) {
+        _assertNotNull("n", n);
         return new TreeTraversingParser((JsonNode) n, this);
     }
 
@@ -2815,7 +2837,8 @@ public class ObjectMapper
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws JsonProcessingException
     {
-        try {
+        _assertNotNull("n", n);
+       try {
             // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
             // Simple cast when we just want to cast to, say, ObjectNode
             if (TreeNode.class.isAssignableFrom(valueType)
@@ -2976,6 +2999,7 @@ public class ObjectMapper
     public <T> T readValue(File src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
@@ -2995,6 +3019,7 @@ public class ObjectMapper
     public <T> T readValue(File src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
@@ -3014,6 +3039,7 @@ public class ObjectMapper
     public <T> T readValue(File src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     }
 
@@ -3039,6 +3065,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
@@ -3049,6 +3076,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
@@ -3059,6 +3087,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     }
 
@@ -3073,6 +3102,7 @@ public class ObjectMapper
     public <T> T readValue(String content, Class<T> valueType)
         throws JsonProcessingException, JsonMappingException
     {
+        _assertNotNull("content", content);
         return readValue(content, _typeFactory.constructType(valueType));
     } 
 
@@ -3087,6 +3117,7 @@ public class ObjectMapper
     public <T> T readValue(String content, TypeReference<T> valueTypeRef)
         throws JsonProcessingException, JsonMappingException
     {
+        _assertNotNull("content", content);
         return readValue(content, _typeFactory.constructType(valueTypeRef));
     } 
 
@@ -3102,6 +3133,7 @@ public class ObjectMapper
     public <T> T readValue(String content, JavaType valueType)
         throws JsonProcessingException, JsonMappingException
     {
+        _assertNotNull("content", content);
         try { // since 2.10 remove "impossible" IOException as per [databind#1675]
             return (T) _readMapAndClose(_jsonFactory.createParser(content), valueType);
         } catch (JsonProcessingException e) {
@@ -3115,6 +3147,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
@@ -3122,6 +3155,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
@@ -3129,6 +3163,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
@@ -3136,6 +3171,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
@@ -3143,6 +3179,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
@@ -3150,6 +3187,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
@@ -3157,6 +3195,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
     
@@ -3165,6 +3204,7 @@ public class ObjectMapper
                                Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueType));
     } 
 
@@ -3172,6 +3212,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
     
@@ -3180,6 +3221,7 @@ public class ObjectMapper
                            TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueTypeRef));
     } 
 
@@ -3187,6 +3229,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
@@ -3195,12 +3238,14 @@ public class ObjectMapper
                            JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), valueType);
     } 
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(DataInput src, Class<T> valueType) throws IOException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src),
                 _typeFactory.constructType(valueType));
     }
@@ -3208,6 +3253,7 @@ public class ObjectMapper
     @SuppressWarnings("unchecked")
     public <T> T readValue(DataInput src, JavaType valueType) throws IOException
     {
+        _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     }
 
@@ -3225,6 +3271,7 @@ public class ObjectMapper
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
+        _assertNotNull("resultFile", resultFile);
         _configAndWriteValue(_jsonFactory.createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
 
@@ -3242,15 +3289,16 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
+        _assertNotNull("out", out);
         _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
     }
 
     /**
      * @since 2.8
      */
-    public void writeValue(DataOutput out, Object value)
-        throws IOException
+    public void writeValue(DataOutput out, Object value) throws IOException
     {
+        _assertNotNull("out", out);
         _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
     }
 
@@ -3267,6 +3315,7 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
+        _assertNotNull("w", w);
         _configAndWriteValue(_jsonFactory.createGenerator(w), value);
     }
 
@@ -4289,6 +4338,12 @@ public class ObjectMapper
                     throw new IllegalArgumentException("Cannot use FormatSchema of type "+schema.getClass().getName()
                             +" for format "+_jsonFactory.getFormatName());
             }
+        }
+    }
+
+    protected final void _assertNotNull(String paramName, Object src) {
+        if (src == null) {
+            throw new IllegalArgumentException(String.format("argument \"%s\" is null", paramName));
         }
     }
 }

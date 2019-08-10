@@ -534,8 +534,9 @@ public class ObjectReader
      * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
      * @since 2.6
      */
-    public ObjectReader at(final String value) {
-        return new ObjectReader(this, new JsonPointerBasedFilter(value));
+    public ObjectReader at(final String pointerExpr) {
+        _assertNotNull("pointerExpr", pointerExpr);
+        return new ObjectReader(this, new JsonPointerBasedFilter(pointerExpr));
     }
 
     /**
@@ -544,6 +545,7 @@ public class ObjectReader
      * @since 2.6
      */
     public ObjectReader at(final JsonPointer pointer) {
+        _assertNotNull("pointer", pointer);
         return new ObjectReader(this, new JsonPointerBasedFilter(pointer));
     }
 
@@ -971,6 +973,7 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p) throws IOException
     {
+        _assertNotNull("p", p);
         return (T) _bind(p, _valueToUpdate);
     }
 
@@ -988,6 +991,7 @@ public class ObjectReader
     @Override
     public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException
     {
+        _assertNotNull("p", p);
         return (T) forType(valueType).readValue(p);
     }
 
@@ -1005,6 +1009,7 @@ public class ObjectReader
     @Override
     public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException
     {
+        _assertNotNull("p", p);
         return (T) forType(valueTypeRef).readValue(p);
     }
 
@@ -1021,6 +1026,7 @@ public class ObjectReader
     @Override
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException {
+        _assertNotNull("p", p);
         return (T) forType((JavaType)valueType).readValue(p);
     }
 
@@ -1032,6 +1038,7 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, JavaType valueType) throws IOException {
+        _assertNotNull("p", p);
         return (T) forType(valueType).readValue(p);
     }
 
@@ -1056,6 +1063,7 @@ public class ObjectReader
      */
     @Override
     public <T> Iterator<T> readValues(JsonParser p, Class<T> valueType) throws IOException {
+        _assertNotNull("p", p);
         return forType(valueType).readValues(p);
     }
 
@@ -1080,6 +1088,7 @@ public class ObjectReader
      */
     @Override
     public <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
+        _assertNotNull("p", p);
         return forType(valueTypeRef).readValues(p);
     }
 
@@ -1104,6 +1113,7 @@ public class ObjectReader
      */
     @Override
     public <T> Iterator<T> readValues(JsonParser p, ResolvedType valueType) throws IOException {
+        _assertNotNull("p", p);
         return readValues(p, (JavaType) valueType);
     }
 
@@ -1127,6 +1137,7 @@ public class ObjectReader
      * (data-format specific) parser is given.
      */
     public <T> Iterator<T> readValues(JsonParser p, JavaType valueType) throws IOException {
+        _assertNotNull("p", p);
         return forType(valueType).readValues(p);
     }
 
@@ -1148,6 +1159,7 @@ public class ObjectReader
 
     @Override
     public JsonParser treeAsTokens(TreeNode n) {
+        _assertNotNull("n", n);
         // 05-Dec-2017, tatu: Important! Must clear "valueToUpdate" since we do not
         //    want update to be applied here, as a side effect
         ObjectReader codec = withValueToUpdate(null);
@@ -1175,6 +1187,7 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     @Override
     public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+        _assertNotNull("p", p);
         return (T) _bindAsTreeOrNull(p);
     }
 
@@ -1198,6 +1211,7 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
         }
@@ -1213,6 +1227,7 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(Reader src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
@@ -1228,6 +1243,7 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(String src) throws JsonProcessingException, JsonMappingException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
@@ -1249,6 +1265,7 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, 0, src.length);
         }
@@ -1262,9 +1279,9 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] src, int offset, int length)
-        throws IOException
+    public <T> T readValue(byte[] src, int offset, int length) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, offset, length);
         }
@@ -1273,9 +1290,9 @@ public class ObjectReader
     }
     
     @SuppressWarnings("unchecked")
-    public <T> T readValue(File src)
-        throws IOException
+    public <T> T readValue(File src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
@@ -1297,9 +1314,9 @@ public class ObjectReader
      * to create {@link java.io.InputStream} separately.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(URL src)
-        throws IOException
+    public <T> T readValue(URL src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
@@ -1314,9 +1331,9 @@ public class ObjectReader
      *</pre>
      */
     @SuppressWarnings({ "unchecked", "resource" })
-    public <T> T readValue(JsonNode src)
-        throws IOException
+    public <T> T readValue(JsonNode src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
@@ -1329,6 +1346,7 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(DataInput src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
@@ -1358,24 +1376,26 @@ public class ObjectReader
      * it will just be ignored; result is always a newly constructed
      * {@link JsonNode} instance.
      */
-    public JsonNode readTree(InputStream in) throws IOException
+    public JsonNode readTree(InputStream src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
-            return _detectBindAndCloseAsTree(in);
+            return _detectBindAndCloseAsTree(src);
         }
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(in), false));
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(src), false));
     }
     
     /**
      * Same as {@link #readTree(InputStream)} except content accessed through
      * passed-in {@link Reader}
      */
-    public JsonNode readTree(Reader r) throws IOException
+    public JsonNode readTree(Reader src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
-            _reportUndetectableSource(r);
+            _reportUndetectableSource(src);
         }
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(r), false));
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(src), false));
     }
 
     /**
@@ -1384,6 +1404,7 @@ public class ObjectReader
      */
     public JsonNode readTree(String json) throws JsonProcessingException, JsonMappingException
     {
+        _assertNotNull("json", json);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
@@ -1402,6 +1423,7 @@ public class ObjectReader
      */
     public JsonNode readTree(byte[] json) throws IOException
     {
+        _assertNotNull("json", json);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
@@ -1414,6 +1436,7 @@ public class ObjectReader
      */
     public JsonNode readTree(byte[] json, int offset, int len) throws IOException
     {
+        _assertNotNull("json", json);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
@@ -1426,6 +1449,7 @@ public class ObjectReader
      */
     public JsonNode readTree(DataInput src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
@@ -1449,9 +1473,9 @@ public class ObjectReader
      * parser MUST NOT point to the surrounding <code>START_ARRAY</code> but rather
      * to the token following it.
      */
-    public <T> MappingIterator<T> readValues(JsonParser p)
-        throws IOException
+    public <T> MappingIterator<T> readValues(JsonParser p) throws IOException
     {
+        _assertNotNull("p", p);
         DeserializationContext ctxt = createDeserializationContext(p);
         // false -> do not close as caller gave parser instance
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), false);
@@ -1477,9 +1501,9 @@ public class ObjectReader
      * points to the first token of the first element (i.e. the second
      * <code>START_ARRAY</code> which is part of the first element).
      */
-    public <T> MappingIterator<T> readValues(InputStream src)
-        throws IOException
+    public <T> MappingIterator<T> readValues(InputStream src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
         }
@@ -1491,9 +1515,9 @@ public class ObjectReader
      * Overloaded version of {@link #readValue(InputStream)}.
      */
     @SuppressWarnings("resource")
-    public <T> MappingIterator<T> readValues(Reader src)
-        throws IOException
+    public <T> MappingIterator<T> readValues(Reader src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
@@ -1510,9 +1534,9 @@ public class ObjectReader
      * @param json String that contains JSON content to parse
      */
     @SuppressWarnings("resource")
-    public <T> MappingIterator<T> readValues(String json)
-        throws IOException
+    public <T> MappingIterator<T> readValues(String json) throws IOException
     {
+        _assertNotNull("json", json);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
@@ -1526,9 +1550,9 @@ public class ObjectReader
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
-    public <T> MappingIterator<T> readValues(byte[] src, int offset, int length)
-        throws IOException
+    public <T> MappingIterator<T> readValues(byte[] src, int offset, int length) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
         }
@@ -1539,17 +1563,17 @@ public class ObjectReader
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
-    public final <T> MappingIterator<T> readValues(byte[] src)
-            throws IOException {
+    public final <T> MappingIterator<T> readValues(byte[] src) throws IOException {
+        _assertNotNull("src", src);
         return readValues(src, 0, src.length);
     }
     
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
-    public <T> MappingIterator<T> readValues(File src)
-        throws IOException
+    public <T> MappingIterator<T> readValues(File src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), false);
@@ -1568,9 +1592,9 @@ public class ObjectReader
      * 
      * @param src URL to read to access JSON content to parse.
      */
-    public <T> MappingIterator<T> readValues(URL src)
-        throws IOException
+    public <T> MappingIterator<T> readValues(URL src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), true);
@@ -1583,6 +1607,7 @@ public class ObjectReader
      */
     public <T> MappingIterator<T> readValues(DataInput src) throws IOException
     {
+        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
@@ -1598,6 +1623,7 @@ public class ObjectReader
     @Override
     public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JsonProcessingException
     {
+        _assertNotNull("n", n);
         try {
             return readValue(treeAsTokens(n), valueType);
         } catch (JsonProcessingException e) {
@@ -2077,5 +2103,11 @@ public class ObjectReader
             _jsonNodeType = t;
         }
         return t;
+    }
+
+    protected final void _assertNotNull(String paramName, Object src) {
+        if (src == null) {
+            throw new IllegalArgumentException(String.format("argument \"%s\" is null", paramName));
+        }
     }
 }

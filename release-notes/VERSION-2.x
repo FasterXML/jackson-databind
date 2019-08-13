@@ -71,29 +71,20 @@ Project: jackson-databind
 
 2.9.10 (not yet released)
 
+#2331: `JsonMappingException` through nested getter with generic wildcard return type
+#2334: Block one more gadget type (CVE-2019-12384)
+#2341: Block one more gadget type (CVE-2019-12814)
+#2374: `ObjectMapper. getRegisteredModuleIds()` throws NPE if no modules registered
+#2387: Block yet another deserialization gadget (CVE-2019-14379)
+#2389: Block yet another deserialization gadget (CVE-2019-14439)
+ (reported by xiexq)
 #2410: Block one more gadget type (CVE-2019-14540)
   (reported by iSafeBlue@github / blue@ixsec.org)
 #2420: Block one more gadget type (no CVE allocated yet)
   (reported by crazylirui@gmail.com)
-
-2.9.9.3 (06-Aug-2019)
-
-#2395: `NullPointerException` from `ResolvedRecursiveType` (regression due to fix for #2331)
- (reported by Michael S)
-
-2.9.9.2 (27-Jul-2019)
-
-#2331: `JsonMappingException` through nested getter with generic wildcard return type
-#2387: Block yet another deserialization gadget (CVE-2019-14379)
-#2389: Block yet another deserialization gadget (CVE-2019-14439)
- (reported by xiexq)
-
-2.9.9.1 (03-Jul-2019)
-
-#2334: Block one more gadget type (CVE-2019-12384)
-#2341: Block one more gadget type (CVE-2019-12814)
-#2374: `ObjectMapper. getRegisteredModuleIds()` throws NPE if no modules registered
- (reported by Edgar A)
+#2404: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY setting ignored when
+  creator properties are buffered
+ (contributed by Joe B)
 
 2.9.9 (16-May-2019)
 

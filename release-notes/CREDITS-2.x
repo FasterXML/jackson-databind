@@ -875,6 +875,11 @@ Michael Simons (michael-simons@github)
     fix for #2331)
    (2.9.9.3)
 
+Joe Barnett (josephlbarnett@github)
+  * Reported, contributed fix for #2404: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY setting
+    ignored when creator properties are buffered
+   (2.9.10)
+
 Christoph Breitkopf (bokesan@github)
   * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
    (2.10.0)
@@ -905,4 +910,3 @@ Vladimir Tsanev (tsachev@github)
   * Contributed #2415: Builder-based POJO deserializer should pass builder instance, not type,
     to `handleUnknownVanilla()` to fix earlier #822
    (2.10.0)
- 

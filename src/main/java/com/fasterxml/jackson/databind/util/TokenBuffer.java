@@ -23,9 +23,7 @@ import com.fasterxml.jackson.databind.*;
  * linked list of tokens; only modifications are via appends.
  */
 public class TokenBuffer
-/* Won't use JsonGeneratorBase, to minimize overhead for validity
- * checking
- */
+// Won't use JsonGeneratorBase, to minimize overhead for validity checking
     extends JsonGenerator
 {
     protected final static int DEFAULT_STREAM_WRITE_FEATURES = StreamWriteFeature.collectDefaults();
@@ -651,12 +649,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         // 26-Oct-2018, tatu: Should not have anything format-specific... however,
         // not all features  default to "false" so this may not be right choice?
         return 0;
-    }
-    
-    @Override
-    public JsonGenerator useDefaultPrettyPrinter() {
-        // No-op: we don't indent
-        return this;
     }
 
     /*

@@ -609,7 +609,17 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public JsonWriteContext getOutputContext() { return _tokenWriteContext; }
+    public TokenStreamContext getOutputContext() { return _tokenWriteContext; }
+
+    @Override
+    public Object getCurrentValue() {
+        return _tokenWriteContext.getCurrentValue();
+    }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        _tokenWriteContext.setCurrentValue(v);
+    }
 
     @Override
     public ObjectWriteContext getObjectWriteContext() { return _objectWriteContext; }

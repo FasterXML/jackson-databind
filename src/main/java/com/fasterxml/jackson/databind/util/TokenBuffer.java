@@ -703,7 +703,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _tokenWriteContext.writeValue();
         _append(JsonToken.START_ARRAY);
-        _tokenWriteContext = _tokenWriteContext.createChildArrayContext();
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(null);
     }
 
     @Override
@@ -730,7 +730,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _tokenWriteContext.writeValue();
         _append(JsonToken.START_OBJECT);
-        _tokenWriteContext = _tokenWriteContext.createChildObjectContext();
+        _tokenWriteContext = _tokenWriteContext.createChildObjectContext(null);
     }
 
     @Override

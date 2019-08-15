@@ -295,7 +295,7 @@ public class ObjectNode
         @SuppressWarnings("deprecation")
         boolean trimEmptyArray = (provider != null) &&
                 !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
-        g.writeStartObject(this);
+        g.writeStartObject(this, _children.size());
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
             /* 17-Feb-2009, tatu: Can we trust that all nodes will always
              *   extend BaseJsonNode? Or if not, at least implement

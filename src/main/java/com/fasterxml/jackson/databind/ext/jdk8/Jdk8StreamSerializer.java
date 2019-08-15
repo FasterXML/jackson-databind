@@ -66,7 +66,7 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
             throws IOException
     {
         try(Stream<?> s = stream) {
-            g.writeStartArray();
+            g.writeStartArray(s);
             
             s.forEach(elem -> {
                 try {

@@ -31,7 +31,7 @@ public class LongStreamSerializer extends StdSerializer<LongStream>
     @Override
     public void serialize(LongStream stream, JsonGenerator g, SerializerProvider provider) throws IOException {
         try (LongStream ls = stream) {
-            g.writeStartArray();
+            g.writeStartArray(ls);
             ls.forEach(value -> {
                 try {
                     g.writeNumber(value);

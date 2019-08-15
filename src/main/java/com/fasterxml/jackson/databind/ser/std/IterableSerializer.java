@@ -69,9 +69,7 @@ public class IterableSerializer
                 return;
             }
         }
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        g.setCurrentValue(value);
-        g.writeStartArray();
+        g.writeStartArray(value);
         serializeContents(value, g, ctxt);
         g.writeEndArray();
     }

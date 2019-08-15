@@ -62,7 +62,7 @@ public class IteratorSerializer
             }
         }
         */
-        gen.writeStartArray();
+        gen.writeStartArray(value);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }

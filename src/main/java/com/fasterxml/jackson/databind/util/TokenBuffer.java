@@ -671,6 +671,16 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _writeContext = _writeContext.createChildArrayContext();
     }
 
+    @Override // since 2.10 (method added in 2.4)
+    public final void writeStartArray(int size) throws IOException
+    {
+        _writeContext.writeValue();
+        _append(JsonToken.START_ARRAY);
+        _writeContext = _writeContext.createChildArrayContext();
+    }
+
+    // // TODO: add 2 more `writeStartArray()` methods from 2.10 (in 2.11 or later)
+    
     @Override
     public final void writeEndArray() throws IOException
     {
@@ -695,6 +705,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _writeContext.writeValue();
         _append(JsonToken.START_OBJECT);
+        // 15-Aug-2019, tatu: Matching method only added in 2.10, don't yet call
         JsonWriteContext ctxt = _writeContext.createChildObjectContext();
         _writeContext = ctxt;
         if (forValue != null) {
@@ -702,6 +713,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
     }
 
+    // // TODO: add 1 more `writeStartObject()` methods from 2.10 (in 2.11 or later)
+    
     @Override
     public final void writeEndObject() throws IOException
     {

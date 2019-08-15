@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.SimpleTokenWriteContext;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -110,7 +111,7 @@ public class TokenBuffer
     /**********************************************************************
      */
 
-    protected JsonWriteContext _tokenWriteContext;
+    protected SimpleTokenWriteContext _tokenWriteContext;
     
     // 05-Oct-2017, tatu: need to consider if this needs to  be properly linked...
     //   especially for "convertValue()" use case
@@ -132,7 +133,7 @@ public class TokenBuffer
     public TokenBuffer(boolean hasNativeIds)
     {
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
-        _tokenWriteContext = JsonWriteContext.createRootContext(null);
+        _tokenWriteContext = SimpleTokenWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -149,7 +150,7 @@ public class TokenBuffer
     {
         _objectWriteContext = writeContext;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
-        _tokenWriteContext = JsonWriteContext.createRootContext(null);
+        _tokenWriteContext = SimpleTokenWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -163,7 +164,7 @@ public class TokenBuffer
     {
         _parentContext = p.getParsingContext();
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
-        _tokenWriteContext = JsonWriteContext.createRootContext(null);
+        _tokenWriteContext = SimpleTokenWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -707,6 +708,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
+    public final void writeStartArray(Object forValue) throws IOException
+    {
+        _tokenWriteContext.writeValue();
+        _append(JsonToken.START_ARRAY);
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
+    }
+
+    @Override
     public final void writeStartArray(Object forValue, int len) throws IOException
     {
         _tokenWriteContext.writeValue();
@@ -719,7 +728,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _append(JsonToken.END_ARRAY);
         // Let's allow unbalanced tho... i.e. not run out of root level, ever
-        JsonWriteContext c = _tokenWriteContext.getParent();
+        SimpleTokenWriteContext c = _tokenWriteContext.getParent();
         if (c != null) {
             _tokenWriteContext = c;
         }
@@ -738,8 +747,15 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _tokenWriteContext.writeValue();
         _append(JsonToken.START_OBJECT);
-        JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext(forValue);
-        _tokenWriteContext = ctxt;
+        _tokenWriteContext = _tokenWriteContext.createChildObjectContext(forValue);
+    }
+
+    @Override
+    public void writeStartObject(Object forValue, int size) throws IOException
+    {
+        _tokenWriteContext.writeValue();
+        _append(JsonToken.START_OBJECT);
+        _tokenWriteContext = _tokenWriteContext.createChildObjectContext(forValue);
     }
 
     @Override
@@ -747,7 +763,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _append(JsonToken.END_OBJECT);
         // Let's allow unbalanced tho... i.e. not run out of root level, ever
-        JsonWriteContext c = _tokenWriteContext.getParent();
+        SimpleTokenWriteContext c = _tokenWriteContext.getParent();
         if (c != null) {
             _tokenWriteContext = c;
         }
@@ -761,9 +777,17 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public void writeFieldName(SerializableString name) throws IOException
-    {
+    public void writeFieldName(SerializableString name) throws IOException {
         _tokenWriteContext.writeFieldName(name.getValue());
+        _append(JsonToken.FIELD_NAME, name);
+    }
+
+    @Override
+    public void writeFieldId(long id) throws IOException {
+        // 15-Aug-2019, tatu: could and probably should be improved to support
+        //    buffering but...
+        final String name = Long.toString(id);
+        _tokenWriteContext.writeFieldName(name);
         _append(JsonToken.FIELD_NAME, name);
     }
 

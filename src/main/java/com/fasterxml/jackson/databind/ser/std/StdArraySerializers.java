@@ -356,7 +356,6 @@ public class StdArraySerializers
                 return;
             }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
-            g.setCurrentValue(value);
             g.writeArray(value, 0, value.length);
         }
 
@@ -424,7 +423,6 @@ public class StdArraySerializers
                 return;
             }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
-            g.setCurrentValue(value);
             g.writeArray(value, 0, value.length);
         }
         
@@ -575,7 +573,6 @@ public class StdArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
-            g.setCurrentValue(value);
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.writeArray(value, 0, value.length);
         }

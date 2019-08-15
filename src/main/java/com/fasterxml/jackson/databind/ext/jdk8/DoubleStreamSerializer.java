@@ -33,7 +33,7 @@ public class DoubleStreamSerializer extends StdSerializer<DoubleStream>
     public void serialize(DoubleStream stream, JsonGenerator g, SerializerProvider provider) throws IOException {
         
         try(DoubleStream ds = stream) {
-            g.writeStartArray();
+            g.writeStartArray(ds);
             ds.forEach(value -> {
                 try {
                     g.writeNumber(value);

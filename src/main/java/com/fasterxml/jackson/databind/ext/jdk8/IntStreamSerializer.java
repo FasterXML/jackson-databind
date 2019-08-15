@@ -33,7 +33,7 @@ public class IntStreamSerializer extends StdSerializer<IntStream>
     public void serialize(IntStream stream, JsonGenerator g, SerializerProvider provider) throws IOException {
 
         try(IntStream is = stream) {
-            g.writeStartArray();
+            g.writeStartArray(is);
             is.forEach(value -> {
                 try {
                     g.writeNumber(value);

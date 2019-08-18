@@ -15,8 +15,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
- * Test custom instantiators.
+ * Test custom value instantiators.
  */
+@SuppressWarnings("serial")
 public class TestValueInstantiator extends BaseMapTest
 {
     static class MyBean
@@ -69,14 +70,12 @@ public class TestValueInstantiator extends BaseMapTest
     {
         public String name;
     }
-    
-    @SuppressWarnings("serial")
+
     static class MyList extends ArrayList<Object>
     {
         public MyList(boolean b) { super(); }
     }
 
-    @SuppressWarnings("serial")
     static class MyMap extends HashMap<String,Object>
     {
         public MyMap(boolean b) { super(); }
@@ -287,8 +286,7 @@ public class TestValueInstantiator extends BaseMapTest
             return new AnnotatedBean("foo", 3);
         }
     }
-    
-    @SuppressWarnings("serial")
+
     static class MyModule extends SimpleModule
     {
         public MyModule(Class<?> cls, ValueInstantiator inst)

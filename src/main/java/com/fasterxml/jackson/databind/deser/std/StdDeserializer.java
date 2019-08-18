@@ -669,7 +669,7 @@ public abstract class StdDeserializer<T>
         //   either supporting nested arrays, or to cause infinite looping.
         if (p.hasToken(JsonToken.START_ARRAY)) {
             String msg = String.format(
-"Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
+"Cannot deserialize value of type %s out of %s token: nested Arrays not allowed with %s",
                     ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
                     "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
             @SuppressWarnings("unchecked")

@@ -1206,7 +1206,7 @@ targetType, goodValue.getClass()));
                 msg = String.format("Unexpected end-of-input when binding data into %s",
                         ClassUtil.nameOf(instClass));
             } else {
-                msg = String.format("Cannot deserialize instance of %s out of %s token",
+                msg = String.format("Cannot deserialize value of type %s out of %s token",
                         ClassUtil.nameOf(instClass), t);
             }
         }

@@ -137,23 +137,27 @@ public abstract class BaseTest
 
     private static ObjectMapper SHARED_MAPPER;
 
-    protected ObjectMapper objectMapper() {
+    protected ObjectMapper sharedMapper() {
         if (SHARED_MAPPER == null) {
             SHARED_MAPPER = newJsonMapper();
         }
         return SHARED_MAPPER;
     }
 
+    protected ObjectMapper objectMapper() {
+        return sharedMapper();
+    }
+    
     protected ObjectWriter objectWriter() {
-        return objectMapper().writer();
+        return sharedMapper().writer();
     }
 
     protected ObjectReader objectReader() {
-        return objectMapper().reader();
+        return sharedMapper().reader();
     }
     
     protected ObjectReader objectReader(Class<?> cls) {
-        return objectMapper().readerFor(cls);
+        return sharedMapper().readerFor(cls);
     }
 
     protected static JsonMapper newJsonMapper() {
@@ -354,14 +358,13 @@ public abstract class BaseTest
     /**********************************************************
      */
 
-    protected JsonParser createParserUsingReader(String input)
-        throws IOException, JsonParseException
+    protected JsonParser createParserUsingReader(String input) throws IOException
     {
-        return objectMapper().createParser(new StringReader(input));
+        return sharedMapper().createParser(new StringReader(input));
     }
 
     protected JsonParser createParserUsingStream(String input, String encoding)
-        throws IOException
+            throws IOException
     {
         /* 23-Apr-2008, tatus: UTF-32 is not supported by JDK, have to
          *   use our own codec too (which is not optimal since there's
@@ -375,7 +378,7 @@ public abstract class BaseTest
             data = input.getBytes(encoding);
         }
         InputStream is = new ByteArrayInputStream(data);
-        return objectMapper().createParser(is);
+        return sharedMapper().createParser(is);
     }
 
     /*

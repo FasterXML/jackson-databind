@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.*;
@@ -441,6 +442,37 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B clearProblemHandlers() {
         _mapper.clearProblemHandlers();
+        return _this();
+    }
+
+    /*
+    /**********************************************************************
+    /* Changing global defaults
+    /**********************************************************************
+     */
+
+    public B defaultSetterInfo(JsonSetter.Value v) {
+        _mapper.setDefaultSetterInfo(v);
+        return _this();
+    }
+    
+    /**
+     * Method for setting default Setter configuration, regarding things like
+     * merging, null-handling; used for properties for which there are
+     * no per-type or per-property overrides (via annotations or config overrides).
+     */
+    public B defaultMergeable(Boolean b) {
+        _mapper.setDefaultMergeable(b);
+        return _this();
+    }
+
+    /**
+     * Method for setting default Setter configuration, regarding things like
+     * merging, null-handling; used for properties for which there are
+     * no per-type or per-property overrides (via annotations or config overrides).
+     */
+    public B defaultLeniency(Boolean b) {
+        _mapper.setDefaultLeniency(b);
         return _this();
     }
 

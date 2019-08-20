@@ -209,23 +209,27 @@ public abstract class BaseMapTest
 
     private static ObjectMapper SHARED_MAPPER;
 
-    protected ObjectMapper objectMapper() {
+    protected ObjectMapper sharedMapper() {
         if (SHARED_MAPPER == null) {
             SHARED_MAPPER = newObjectMapper();
         }
         return SHARED_MAPPER;
     }
+    
+    protected ObjectMapper objectMapper() {
+        return sharedMapper();
+    }
 
     protected ObjectWriter objectWriter() {
-        return objectMapper().writer();
+        return sharedMapper().writer();
     }
 
     protected ObjectReader objectReader() {
-        return objectMapper().reader();
+        return sharedMapper().reader();
     }
     
     protected ObjectReader objectReader(Class<?> cls) {
-        return objectMapper().readerFor(cls);
+        return sharedMapper().readerFor(cls);
     }
 
     // @since 2.9
@@ -302,13 +306,13 @@ public abstract class BaseMapTest
     protected String serializeAsString(Object value)
         throws IOException
     {
-        return serializeAsString(objectMapper(), value);
+        return serializeAsString(sharedMapper(), value);
     }
 
     protected String asJSONObjectValueString(Object... args)
         throws IOException
     {
-        return asJSONObjectValueString(objectMapper(), args);
+        return asJSONObjectValueString(sharedMapper(), args);
     }
 
     protected String asJSONObjectValueString(ObjectMapper m, Object... args)
@@ -330,7 +334,7 @@ public abstract class BaseMapTest
     protected <T> T readAndMapFromString(String input, Class<T> cls)
         throws IOException
     {
-        return readAndMapFromString(objectMapper(), input, cls);
+        return readAndMapFromString(sharedMapper(), input, cls);
     }
 
     protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls) throws IOException

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class DatabindContextTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
 
     public void testDeserializationContext() throws Exception
     {

@@ -483,8 +483,11 @@ public final class TypeFactory
                 // 19-Apr-2018, tatu: Hack for [databind#1964] -- allow type demotion
                 //    for `java.util.Map` key type if (and only if) target type is
                 //    `java.lang.Object`
+                // 19-Aug-2019, tatu: Further, allow for all Map-like types, with assumption
+                //    first argument would be key; initially just because Scala Maps have
+                //    some issues (see [databind#2422])
                 if (i == 0) {
-                    if (sourceType.hasRawClass(Map.class)
+                    if (sourceType.isMapLikeType()
                             && act.hasRawClass(Object.class)) {
                         continue;
                     }

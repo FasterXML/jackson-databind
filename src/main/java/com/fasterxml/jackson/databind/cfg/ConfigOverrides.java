@@ -114,14 +114,32 @@ public class ConfigOverrides
         return override;
     }
 
+    /**
+     * Specific accessor for finding {code JsonFormat.Value} for given type,
+     * considering global default for leniency as well as per-type format
+     * override (if any).
+     *
+     * @return Default format settings for type; never null.
+     *
+     * @since 2.10
+     */
     public JsonFormat.Value findFormatDefaults(Class<?> type) {
         if (_overrides != null) {
-            ConfigOverride cfg = findOverride(type);
-            if (cfg != null) {
-                return cfg.getFormat();
+            ConfigOverride override = _overrides.get(type);
+            if (override != null) {
+                JsonFormat.Value format = override.getFormat();
+                if (format != null) {
+                    if (!format.hasLenient()) {
+                        return format.withLenient(_defaultLeniency);
+                    }
+                    return format;
+                }
             }
         }
-        return JsonFormat.Value.empty();
+        if (_defaultLeniency == null) {
+            return JsonFormat.Value.empty();
+        }
+        return JsonFormat.Value.forLeniency(_defaultLeniency);
     }
 
     /*

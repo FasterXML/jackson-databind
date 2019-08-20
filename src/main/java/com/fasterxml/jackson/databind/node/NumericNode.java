@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonParser;
 public abstract class NumericNode
     extends ValueNode
 {
+    private static final long serialVersionUID = 1L;
+
     protected NumericNode() { }
 
     @Override

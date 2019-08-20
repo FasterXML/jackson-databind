@@ -1526,6 +1526,14 @@ public class ObjectMapper
         return this;
     }
 
+    /**
+     * @since 2.10
+     */
+    public ObjectMapper setDefaultLeniency(Boolean b) {
+        _configOverrides.setDefaultLeniency(b);
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Subtype registration

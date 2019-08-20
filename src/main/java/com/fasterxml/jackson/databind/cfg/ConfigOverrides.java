@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -43,10 +44,20 @@ public class ConfigOverrides
      */
     protected Boolean _defaultMergeable;
 
+    /**
+     * Global default setting (if any) for leniency: if disabled ({link Boolean#TRUE}),
+     * "strict" (not lenient): default setting if absence of value is considered "lenient"
+     * in Jackson 2.x. Default setting may be overridden by per-type and per-property
+     * settings.
+     *
+     * @since 2.10
+     */
+    protected Boolean _defaultLeniency;
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public ConfigOverrides() {
@@ -55,22 +66,35 @@ public class ConfigOverrides
                 JsonInclude.Value.empty(),
                 JsonSetter.Value.empty(),
                 VisibilityChecker.Std.defaultInstance(),
-                null
+                null, null
         );
     }
 
+    /**
+     * @since 2.10
+     */
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
-            JsonInclude.Value defIncl,
-            JsonSetter.Value defSetter,
-            VisibilityChecker<?> defVisibility,
-            Boolean defMergeable) {
+            JsonInclude.Value defIncl, JsonSetter.Value defSetter,
+            VisibilityChecker<?> defVisibility, Boolean defMergeable, Boolean defLeniency)
+    {
         _overrides = overrides;
         _defaultInclusion = defIncl;
         _defaultSetterInfo = defSetter;
         _visibilityChecker = defVisibility;
         _defaultMergeable = defMergeable;
+        _defaultLeniency = defLeniency;
     }
 
+    /**
+     * @deprecated Since 2.10
+     */
+    @Deprecated // since 2.10
+    protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
+            JsonInclude.Value defIncl, JsonSetter.Value defSetter,
+            VisibilityChecker<?> defVisibility, Boolean defMergeable) {
+        this(overrides, defIncl, defSetter, defVisibility, defMergeable, null);
+    }
+    
     public ConfigOverrides copy()
     {
         Map<Class<?>, MutableConfigOverride> newOverrides;
@@ -83,15 +107,16 @@ public class ConfigOverrides
             }
         }
         return new ConfigOverrides(newOverrides,
-                _defaultInclusion, _defaultSetterInfo, _visibilityChecker, _defaultMergeable);
+                _defaultInclusion, _defaultSetterInfo, _visibilityChecker,
+                _defaultMergeable, _defaultLeniency);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Per-type override access
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     public ConfigOverride findOverride(Class<?> type) {
         if (_overrides == null) {
             return null;
@@ -111,10 +136,38 @@ public class ConfigOverrides
         return override;
     }
 
+    /**
+     * Specific accessor for finding {code JsonFormat.Value} for given type,
+     * considering global default for leniency as well as per-type format
+     * override (if any).
+     *
+     * @return Default format settings for type; never null.
+     *
+     * @since 2.10
+     */
+    public JsonFormat.Value findFormatDefaults(Class<?> type) {
+        if (_overrides != null) {
+            ConfigOverride override = _overrides.get(type);
+            if (override != null) {
+                JsonFormat.Value format = override.getFormat();
+                if (format != null) {
+                    if (!format.hasLenient()) {
+                        return format.withLenient(_defaultLeniency);
+                    }
+                    return format;
+                }
+            }
+        }
+        if (_defaultLeniency == null) {
+            return JsonFormat.Value.empty();
+        }
+        return JsonFormat.Value.forLeniency(_defaultLeniency);
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Global defaults access
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonInclude.Value getDefaultInclusion() {
@@ -129,6 +182,13 @@ public class ConfigOverrides
         return _defaultMergeable;
     }
 
+    /**
+     * @since 2.10
+     */
+    public Boolean getDefaultLeniency() {
+        return _defaultLeniency;
+    }
+    
     /**
      * @since 2.9
      */
@@ -158,6 +218,13 @@ public class ConfigOverrides
     }
 
     /**
+     * @since 2.10
+     */
+    public void setDefaultLeniency(Boolean v) {
+        _defaultLeniency = v;
+    }
+
+    /**
      * @since 2.9
      */
     public void setDefaultVisibility(VisibilityChecker<?> v) {
@@ -165,9 +232,9 @@ public class ConfigOverrides
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected Map<Class<?>, MutableConfigOverride> _newMap() {

@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public abstract class ValueNode
     extends BaseJsonNode
 {
+    private static final long serialVersionUID = 1L;
+
     protected ValueNode() { }
 
     @Override

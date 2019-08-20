@@ -725,7 +725,7 @@ public class DateDeserializationTest
     /**********************************************************
      */
 
-    public void testLenientCalendar() throws Exception
+    public void testLenientJDKDateTypes() throws Exception
     {
         final String JSON = aposToQuotes("{'value':'2015-11-32'}");
 
@@ -743,8 +743,10 @@ public class DateDeserializationTest
             verifyException(e, "from String \"2015-11-32\"");
             verifyException(e, "expected format");
         }
+    }
 
-        // similarly with Date...
+    public void testLenientJDKDateTypesViaTypeOverride() throws Exception
+    {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(java.util.Date.class)
             .setFormat(JsonFormat.Value.forLeniency(Boolean.FALSE));
@@ -756,6 +758,38 @@ public class DateDeserializationTest
             verifyException(e, "from String \"2015-11-32\"");
             verifyException(e, "expected format");
         }
+    }
+
+    public void testLenientJDKDateTypesViaGlobal() throws Exception
+    {
+        final String JSON = quote("2015-11-32");
+
+        // with lenient, can parse fine
+        Calendar value = MAPPER.readValue(JSON, Calendar.class);
+        assertEquals(Calendar.DECEMBER, value.get(Calendar.MONTH));
+        assertEquals(2, value.get(Calendar.DAY_OF_MONTH));
+
+        // but not so if default leniency disabled
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDefaultLeniency(false);
+        try {
+            mapper.readValue(JSON, java.util.Date.class);
+            fail("Should not pass with invalid (with strict) date value");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.Date`");
+            verifyException(e, "from String \"2015-11-32\"");
+            verifyException(e, "expected format");
+        }
+    
+        // Unless we actually had per-type override too
+        mapper = new ObjectMapper();
+        mapper.configOverride(Calendar.class)
+            .setFormat(JsonFormat.Value.forLeniency(Boolean.TRUE));
+        mapper.setDefaultLeniency(false);
+
+        value = mapper.readValue(JSON, Calendar.class);
+        assertEquals(Calendar.DECEMBER, value.get(Calendar.MONTH));
+        assertEquals(2, value.get(Calendar.DAY_OF_MONTH));
     }
 
     /*

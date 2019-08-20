@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 public class JsonLocationInstantiator
     extends ValueInstantiator.Base
 {
+    private static final long serialVersionUID = 1L;
+
     public JsonLocationInstantiator() {
         super(JsonLocation.class);
     }

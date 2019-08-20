@@ -15,6 +15,8 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     extends BaseJsonNode
     implements JsonNodeCreator
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * We will keep a reference to the Object (usually TreeMapper)
      * that can construct instances of nodes to add to this container

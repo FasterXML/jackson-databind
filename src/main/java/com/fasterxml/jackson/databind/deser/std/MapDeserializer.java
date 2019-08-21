@@ -665,7 +665,11 @@ public class MapDeserializer
                 Object old = result.get(key);
                 Object value;
                 if (old != null) {
-                    value = valueDes.deserialize(p, ctxt, old);
+                    if (typeDeser == null) {
+                        value = valueDes.deserialize(p, ctxt, old);
+                    } else {
+                        value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
+                    }
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
@@ -682,7 +686,7 @@ public class MapDeserializer
 
     /**
      * Optimized method used when keys can be deserialized as plain old
-     * {@link java.lang.String}s, and there is no custom deserialized
+     * {@link java.lang.String}s, and there is no custom deserializer
      * specified.
      *
      * @since 2.9
@@ -728,7 +732,11 @@ public class MapDeserializer
                 Object old = result.get(key);
                 Object value;
                 if (old != null) {
-                    value = valueDes.deserialize(p, ctxt, old);
+                    if (typeDeser == null) {
+                        value = valueDes.deserialize(p, ctxt, old);
+                    } else {
+                        value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
+                    }
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {

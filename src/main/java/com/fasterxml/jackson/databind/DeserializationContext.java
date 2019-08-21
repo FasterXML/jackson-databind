@@ -1287,6 +1287,24 @@ targetType, goodValue.getClass()));
         throw missingTypeIdException(baseType, extraDesc);
     }
 
+    /**
+     * Method that deserializer may call if it is called to do an update ("merge")
+     * but deserializer operates on a non-mergeable type. Although this should
+     * usually be caught earlier, sometimes it may only be caught during operation
+     * and if so this is the method to call.
+     * Note that if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled,
+     * this method will simply return null; otherwise {@link InvalidDefinitionException}
+     * will be thrown.
+     */
+    public void handleBadMerge(JsonDeserializer<?> deser) throws JsonMappingException
+    {
+        if (!isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
+            JavaType type = constructType(deser.handledType());
+            String msg = String.format("Invalid configuration: values of type %s cannot be merged", type);
+            throw InvalidDefinitionException.from(getParser(), msg, type);
+        }
+    }
+
     protected boolean _isCompatible(Class<?> target, Object value)
     {
         if ((value == null) || target.isInstance(value)) {
@@ -1452,25 +1470,6 @@ trailingToken, ClassUtil.nameOf(targetType)
     @Override
     public <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException {
         throw InvalidDefinitionException.from(_parser, msg, type);
-    }
-
-    /**
-     * Method that deserializer may call if it is called to do an update ("merge")
-     * but deserializer operates on a non-mergeable type. Although this should
-     * usually be caught earlier, sometimes it may only be caught during operation
-     * and if so this is the method to call.
-     * Note that if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled,
-     * this method will simply return null; otherwise {@link InvalidDefinitionException}
-     * will be thrown.
-     */
-    public <T> T reportBadMerge(JsonDeserializer<?> deser) throws JsonMappingException
-    {
-        if (isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
-            return null;
-        }
-        JavaType type = constructType(deser.handledType());
-        String msg = String.format("Invalid configuration: values of type %s cannot be merged", type);
-        throw InvalidDefinitionException.from(getParser(), msg, type);
     }
 
     /*

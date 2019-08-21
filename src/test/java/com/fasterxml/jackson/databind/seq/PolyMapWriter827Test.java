@@ -36,7 +36,7 @@ public class PolyMapWriter827Test extends BaseMapTest
     public void testPolyCustomKeySerializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .addModule(new SimpleModule("keySerializerModule")
                         .addKeySerializer(CustomKey.class, new CustomKeySerializer()))

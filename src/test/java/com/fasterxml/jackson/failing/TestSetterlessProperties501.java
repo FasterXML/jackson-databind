@@ -52,7 +52,7 @@ public class TestSetterlessProperties501
     {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .build();
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(input);

@@ -129,7 +129,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
     public void testInnerClassWithType() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .build();
         String json = mapper.writeValueAsString(new BeanWithAnon());

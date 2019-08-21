@@ -1,25 +1,12 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.TreeNode;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 
 /**
- * Enumeration used with <code>ObjectMapper.enableDefaultTyping()</code>
+ * Enumeration used with <code>JsonMapper.defaultTyping()</code> methods
  * to specify what kind of types (classes) default typing should
  * be used for. It will only be used if no explicit type information
  * is found, but this enumeration further limits subset of those types.
- *<p>
- * Since 2.4 there are special exceptions for JSON Tree model
- * types (sub-types of {@link TreeNode}: default typing is never
- * applied to them.
- * Since 2.8 additional checks are made to avoid attempts at default
- * typing primitive-valued properties.
- *<p>
- * NOTE: use of Default Typing can be a potential security risk if incoming
- * content comes from untrusted sources, and it is recommended that this
- * is either not done, or, if enabled, use <code>ObjectMapper.setDefaultTyping()</code>
- * passing a custom {@link TypeResolverBuilder} implementation that white-lists
- * legal types to use.
  */
 public enum DefaultTyping {
     /**

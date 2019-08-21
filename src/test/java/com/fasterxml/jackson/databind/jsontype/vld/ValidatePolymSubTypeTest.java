@@ -112,11 +112,11 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     // // // Mappers with Default Typing
     
     private final ObjectMapper MAPPER_DEF_TYPING_NAME_CHECK = jsonMapperBuilder()
-            .enableDefaultTyping(new SimpleNameBasedValidator())
+            .activateDefaultTyping(new SimpleNameBasedValidator())
             .build();
 
     private final ObjectMapper MAPPER_DEF_TYPING_CLASS_CHECK = jsonMapperBuilder()
-            .enableDefaultTyping(new SimpleNameBasedValidator())
+            .activateDefaultTyping(new SimpleNameBasedValidator())
             .build();
 
     // // // Mappers without Default Typing (explicit annotation needed)

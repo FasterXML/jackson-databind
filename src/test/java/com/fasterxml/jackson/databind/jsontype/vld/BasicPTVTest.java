@@ -83,7 +83,7 @@ public class BasicPTVTest extends BaseMapTest
                 .allowIfBaseType(BaseValue.class)
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();        
 
         // First, test accepted case
@@ -103,7 +103,7 @@ public class BasicPTVTest extends BaseMapTest
 
         // and then yet again accepted one with different config
         ObjectMapper mapper2 = jsonMapperBuilder()
-                .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Number.class)
                         .build(), DefaultTyping.NON_FINAL)
                 .build();
@@ -118,7 +118,7 @@ public class BasicPTVTest extends BaseMapTest
                 .allowIfBaseType("com.fasterxml.")
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();        
 
         // First, test accepted case
@@ -143,7 +143,7 @@ public class BasicPTVTest extends BaseMapTest
                 .allowIfBaseType(Pattern.compile("\\w+\\.fasterxml\\..+"))
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();        
 
         // First, test accepted case
@@ -171,7 +171,7 @@ public class BasicPTVTest extends BaseMapTest
                 .denyForExactBaseType(Object.class)
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();        
         final String json = mapper.writeValueAsString(new ObjectWrapper(new ValueA(15)));
         try {
@@ -195,7 +195,7 @@ public class BasicPTVTest extends BaseMapTest
                 .allowIfSubType(ValueB.class)
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();        
 
         // First, test accepted case
@@ -219,7 +219,7 @@ public class BasicPTVTest extends BaseMapTest
                 .allowIfSubType(ValueB.class.getName())
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();        
 
         // First, test accepted case
@@ -243,7 +243,7 @@ public class BasicPTVTest extends BaseMapTest
                 .allowIfSubType(Pattern.compile(Pattern.quote(ValueB.class.getName())))
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(ptv, DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();        
 
         // First, test accepted case

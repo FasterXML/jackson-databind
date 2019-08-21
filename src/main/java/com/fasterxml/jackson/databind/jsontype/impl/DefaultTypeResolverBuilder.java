@@ -16,7 +16,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 /**
  * Customized {@link TypeResolverBuilder} that provides type resolver builders
  * used with so-called "default typing"
- * (see <code>MapperBuilder.enableDefaultTyping()</code> for details).
+ * (see {@link com.fasterxml.jackson.databind.cfg.MapperBuilder#activateDefaultTyping(PolymorphicTypeValidator)}
+ * for details).
  *<p>
  * Type resolver construction is based on configuration: implementation takes care
  * of only providing builders in cases where type information should be applied.

@@ -132,7 +132,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
     public void testIssue811() throws Exception
     {
         ObjectMapper om = jsonMapperBuilder()
-                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL, "@class")
                 .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX,
                         SerializationFeature.INDENT_OUTPUT)

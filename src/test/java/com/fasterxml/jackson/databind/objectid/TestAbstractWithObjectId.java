@@ -54,7 +54,7 @@ public class TestAbstractWithObjectId extends BaseMapTest
 
         // make an object mapper that will add class info in so deserialisation works
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL, "@class")
                 .build();
 

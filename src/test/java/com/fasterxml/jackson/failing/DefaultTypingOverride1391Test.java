@@ -22,7 +22,7 @@ public class DefaultTypingOverride1391Test extends BaseMapTest
     public void testCollectionWithOverride() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-            .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+            .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
                     DefaultTyping.OBJECT_AND_NON_CONCRETE,
                     "$type")
             .build();

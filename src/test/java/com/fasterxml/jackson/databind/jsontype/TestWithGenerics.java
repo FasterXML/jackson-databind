@@ -147,7 +147,7 @@ public class TestWithGenerics extends BaseMapTest
     {
         ObjectMapper om = jsonMapperBuilder()
                 .enable( SerializationFeature.INDENT_OUTPUT)
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY)
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
                 .build();

@@ -221,7 +221,7 @@ public class UntypedDeserializationTest
     public void testObjectSerializeWithLong() throws IOException
     {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY)
                 .build();
         final long VALUE = 1337800584532L;

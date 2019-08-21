@@ -32,7 +32,7 @@ public class TestDefaultForEnums
      */
 
     private final ObjectMapper DEFTYPING_MAPPER = jsonMapperBuilder()
-            .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance)
             .build();
     
     public void testSimpleEnumBean() throws Exception

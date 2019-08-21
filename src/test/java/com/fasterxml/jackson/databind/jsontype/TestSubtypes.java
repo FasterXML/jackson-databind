@@ -251,7 +251,7 @@ public class TestSubtypes extends BaseMapTest
         // and then with defaults
         mapper = jsonMapperBuilder()
             .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-            .enableDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
             .build();
         json = mapper.writeValueAsString(new EmptyNonFinal());
         assertEquals("[\"com.fasterxml.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);

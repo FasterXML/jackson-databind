@@ -125,11 +125,8 @@ public abstract class JsonDeserializer<T>
     public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue)
         throws IOException
     {
-        if (ctxt.isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
-            return deserialize(p, ctxt);
-        }
-        throw new UnsupportedOperationException("Cannot update object of type "
-                +intoValue.getClass().getName()+" (by deserializer of type "+getClass().getName()+")");
+        ctxt.reportBadMerge(this);
+        return deserialize(p, ctxt);
     }
 
     /**
@@ -151,6 +148,20 @@ public abstract class JsonDeserializer<T>
         throws IOException
     {
         // We could try calling 
+        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
+    }
+
+    /**
+     * Method similar to {@link #deserializeWithType(JsonParser,DeserializationContext,TypeDeserializer)}
+     * but called when merging value.
+     *
+     * @since 2.10
+     */
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer, T intoValue)
+        throws IOException
+    {
+        ctxt.reportBadMerge(this);
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 

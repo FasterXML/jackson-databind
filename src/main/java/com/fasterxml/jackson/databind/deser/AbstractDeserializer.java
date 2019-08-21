@@ -221,7 +221,7 @@ handledType().getName()));
     /* Deserializer implementation
     /**********************************************************
      */
-    
+
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)

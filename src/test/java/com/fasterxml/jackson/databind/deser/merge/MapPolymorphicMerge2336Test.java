@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.merge;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -11,9 +11,7 @@ public class MapPolymorphicMerge2336Test extends BaseMapTest
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "discriminator"
-            //, visible = true
-    )
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "discriminator")
     @JsonSubTypes({@JsonSubTypes.Type(value = SomeClassA.class, name = "FirstConcreteImpl")})
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static abstract class SomeBaseClass {
@@ -71,7 +69,7 @@ public class MapPolymorphicMerge2336Test extends BaseMapTest
         }
 
         @JsonMerge
-        private Map<String, SomeBaseClass> data = new LinkedHashMap<>();
+        Map<String, SomeBaseClass> data = new LinkedHashMap<>();
 
         public void addValue(String key, SomeBaseClass value) {
             data.put(key, value);
@@ -87,24 +85,35 @@ public class MapPolymorphicMerge2336Test extends BaseMapTest
         }
     }
 
+    // [databind#2336]
     public void testPolymorphicMapMerge() throws Exception
     {
         // first let's just get some valid JSON
-        SomeOtherClass test = new SomeOtherClass("house");
-        test.addValue("SOMEKEY", new SomeClassA("fred", 1, null));
-//        String serializedValue = MAPPER.writeValueAsString(test);
-
-//System.out.println("Serialized value: " + serializedValue);
+        SomeOtherClass baseValue = new SomeOtherClass("house");
+        baseValue.addValue("SOMEKEY", new SomeClassA("fred", 1, null));
 
         // now create a reader specifically for merging
-        ObjectReader reader = MAPPER.readerForUpdating(test);
+        ObjectReader reader = MAPPER.readerForUpdating(baseValue);
 
+        
         SomeOtherClass toBeMerged = new SomeOtherClass("house");
         toBeMerged.addValue("SOMEKEY", new SomeClassA("jim", null, 2));
         String jsonForMerging = MAPPER.writeValueAsString(toBeMerged);
-System.out.println("JSON to be merged: " + jsonForMerging);
+
+        assertEquals("fred", baseValue.data.get("SOMEKEY").getName());
+        
         // now try to do the merge and it blows up
         SomeOtherClass mergedResult = reader.readValue(jsonForMerging);
-System.out.println("Serialized value: " + MAPPER.writeValueAsString(mergedResult));
+
+        // First of all, should update main POJO (since it's "value to update")
+        assertSame(baseValue, mergedResult);
+        // as well as Map within
+        assertSame(baseValue.data, mergedResult.data);
+
+        assertEquals(1, mergedResult.data.size());
+        // but entry value has changed by necessity
+        assertEquals(SomeClassA.class, mergedResult.data.get("SOMEKEY").getClass());
+
+        assertEquals("jim", mergedResult.data.get("SOMEKEY").getName());
     }
 }

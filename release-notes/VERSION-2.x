@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2331: `JsonMappingException` through nested getter with generic wildcard return type
  (reported by sunchezz89@github)
+#2336: `MapDeserializer` can not merge `Map`s with polymorphic values
+ (reported by Robert G)
 #2390: `Iterable` serialization breaks when adding `@JsonFilter` annotation
  (reported by Chris M)
 #2392: `BeanDeserializerModifier.modifyDeserializer()` not applied to custom bean deserializers

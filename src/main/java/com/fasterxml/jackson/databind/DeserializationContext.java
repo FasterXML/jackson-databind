@@ -1220,6 +1220,26 @@ targetType, goodValue.getClass()));
     }
 
     /**
+     * Method that deserializer may call if it is called to do an update ("merge")
+     * but deserializer operates on a non-mergeable type. Although this should
+     * usually be caught earlier, sometimes it may only be caught during operation
+     * and if so this is the method to call.
+     * Note that if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled,
+     * this method will simply return null; otherwise {@link InvalidDefinitionException}
+     * will be thrown.
+     *
+     * @since 2.10
+     */
+    public void handleBadMerge(JsonDeserializer<?> deser) throws JsonMappingException
+    {
+        if (!isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
+            JavaType type = constructType(deser.handledType());
+            String msg = String.format("Invalid configuration: values of type %s cannot be merged", type);
+            throw InvalidDefinitionException.from(getParser(), msg, type);
+        }
+    }
+
+    /**
      * @since 2.9.2
      */
     protected boolean _isCompatible(Class<?> target, Object value)
@@ -1454,24 +1474,12 @@ trailingToken, ClassUtil.nameOf(targetType)
     }
 
     /**
-     * Method that deserializer may call if it is called to do an update ("merge")
-     * but deserializer operates on a non-mergeable type. Although this should
-     * usually be caught earlier, sometimes it may only be caught during operation
-     * and if so this is the method to call.
-     * Note that if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled,
-     * this method will simply return null; otherwise {@link InvalidDefinitionException}
-     * will be thrown.
-     *
-     * @since 2.9
+     * @deprecated Since 2.10 use {@link #handleBadMerge} instead
      */
-    public <T> T reportBadMerge(JsonDeserializer<?> deser) throws JsonMappingException
-    {
-        if (isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
-            return null;
-        }
-        JavaType type = constructType(deser.handledType());
-        String msg = String.format("Invalid configuration: values of type %s cannot be merged", type);
-        throw InvalidDefinitionException.from(getParser(), msg, type);
+    @Deprecated // since 2.10
+    public <T> T reportBadMerge(JsonDeserializer<?> deser) throws JsonMappingException {
+        handleBadMerge(deser);
+        return null;
     }
 
     /*

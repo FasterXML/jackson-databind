@@ -899,9 +899,9 @@ public abstract class BeanDeserializerBase
                 }
             } else if (!mayMerge.booleanValue()) { // prevented
                 if (!merge.fromDefaults) {
-                    // If attempts was made via explicit annotation/per-type config override,
+                    // If attempt was made via explicit annotation/per-type config override,
                     // should be reported; may or may not result in exception
-                    ctxt.reportBadMerge(valueDeser);
+                    ctxt.handleBadMerge(valueDeser);
                 }
                 return prop;
             }

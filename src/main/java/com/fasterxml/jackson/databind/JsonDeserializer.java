@@ -125,7 +125,7 @@ public abstract class JsonDeserializer<T>
     public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue)
         throws IOException
     {
-        ctxt.reportBadMerge(this);
+        ctxt.handleBadMerge(this);
         return deserialize(p, ctxt);
     }
 
@@ -153,7 +153,9 @@ public abstract class JsonDeserializer<T>
 
     /**
      * Method similar to {@link #deserializeWithType(JsonParser,DeserializationContext,TypeDeserializer)}
-     * but called when merging value.
+     * but called when merging value. Considered "bad merge" by default implementation,
+     * but if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled will simple delegate to
+     * {@link #deserializeWithType(JsonParser, DeserializationContext, TypeDeserializer)}.
      *
      * @since 2.10
      */
@@ -161,8 +163,8 @@ public abstract class JsonDeserializer<T>
             TypeDeserializer typeDeserializer, T intoValue)
         throws IOException
     {
-        ctxt.reportBadMerge(this);
-        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
+        ctxt.handleBadMerge(this);
+        return deserializeWithType(p, ctxt, typeDeserializer);
     }
 
     /*

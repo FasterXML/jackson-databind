@@ -896,14 +896,18 @@ Manuel Hegner (manuel-hegner@github)
   * Suggested #2311: Unnecessary MultiView creation for property writers
    (2.10.0)
 
+Chris Mercer (cmercer@github)
+  * Reported #2331: `JsonMappingException` through nested getter with generic wildcard return type
+   (2.10.0)
+
+Robert Greig (rgreig@github)
+  * Reported #2336: `MapDeserializer` can not merge `Map`s with polymorphic values
+   (2.10.0)
+
 Victor Noël (victornoel@github)
   * Reported #2338: Suboptimal return type for `JsonNode.withArray()`
    (2.10.0)
   * Reported #2339: Suboptimal return type for `ObjectNode.set()`
-   (2.10.0)
-
-Chris Mercer (cmercer@github)
-  * Reported #2331: `JsonMappingException` through nested getter with generic wildcard return type
    (2.10.0)
 
 Vladimir Tsanev (tsachev@github)

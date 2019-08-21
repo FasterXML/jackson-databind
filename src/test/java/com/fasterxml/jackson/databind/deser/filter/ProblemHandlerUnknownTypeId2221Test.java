@@ -85,7 +85,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
 
     public void testWithDeserializationProblemHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance);
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance);
         mapper.addHandler(new DeserializationProblemHandler() {
             @Override
             public JavaType handleUnknownTypeId(DeserializationContext ctxt, JavaType baseType, String subTypeId, TypeIdResolver idResolver, String failureMsg) throws IOException {
@@ -101,7 +101,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
     public void testWithDisabledFAIL_ON_INVALID_SUBTYPE() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
                 .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
         ;
         GenericContent processableContent = mapper.readValue(JSON, GenericContent.class);
         assertNotNull(processableContent.getInnerObjects());

@@ -47,13 +47,13 @@ public class TestSetterlessProperties501
     /**********************************************************
      */
 
-    // For [Issue#501]
+    // For [databind#501]
     public void testSetterlessWithPolymorphic() throws Exception
     {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
-        m.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+        m.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL);
 
         String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);

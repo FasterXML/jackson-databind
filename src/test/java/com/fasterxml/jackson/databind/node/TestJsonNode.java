@@ -178,7 +178,7 @@ public class TestJsonNode extends NodeTestBase
     public void testArrayWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
-            .enableDefaultTyping(NoCheckSubTypeValidator.instance);
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance);
 
         JsonNode array = mapper.readTree("[ 1, 2 ]");
         assertTrue(array.isArray());

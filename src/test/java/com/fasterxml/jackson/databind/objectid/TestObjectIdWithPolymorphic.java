@@ -135,7 +135,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         ObjectMapper om = new ObjectMapper();
         om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
         om.enable(SerializationFeature.INDENT_OUTPUT);
-        om.enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+        om.activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
                 DefaultTyping.NON_FINAL, "@class");
     
         Process p = new Process();

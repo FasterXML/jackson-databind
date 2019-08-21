@@ -47,7 +47,7 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArrayTypingSimple() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder().
-                enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_CONCRETE_AND_ARRAYS)
                 .build();
         ArrayBean bean = new ArrayBean(new String[0]);
@@ -61,7 +61,7 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArrayTypingNested() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_CONCRETE_AND_ARRAYS)
                 .build();
         ArrayBean bean = new ArrayBean(new String[0][0]);
@@ -75,7 +75,7 @@ public class TestDefaultForArrays extends BaseMapTest
     {
         JsonNode node = new ObjectMapper().readTree("{\"a\":3}");
         ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
         Object[] obs = new Object[] { node };
@@ -100,10 +100,10 @@ public class TestDefaultForArrays extends BaseMapTest
 
         m = jsonMapperBuilder()
                 .disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
-        m.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+        m.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 DefaultTyping.JAVA_LANG_OBJECT);
 
         Object[] obs = new Object[] { node };
@@ -119,7 +119,7 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArraysOfArrays() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 
@@ -135,7 +135,7 @@ public class TestDefaultForArrays extends BaseMapTest
     public void testArrayTypingForPrimitiveArrays() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+        m.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 DefaultTyping.NON_CONCRETE_AND_ARRAYS);
         _testArrayTypingForPrimitiveArrays(m, new int[] { 1, 2, 3 });
         _testArrayTypingForPrimitiveArrays(m, new long[] { 1, 2, 3 });

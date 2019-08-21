@@ -11,12 +11,6 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 public class TestDefaultForLists
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     /**
      * Wrapper bean needed before there is a way to force
      * type of the root value. Long is used because it is a final
@@ -67,16 +61,17 @@ public class TestDefaultForLists
     /* Unit tests
     /**********************************************************
      */
+
+    private final ObjectMapper POLY_MAPPER = jsonMapperBuilder()
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance)
+            .build();
     
     public void testListOfLongs() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
-                .build();
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
-        String json = m.writeValueAsString(input);
+        String json = POLY_MAPPER.writeValueAsString(input);
         assertEquals("{\"longs\":[\"java.util.ArrayList\",[1,2,3]]}", json);
-        ListOfLongs output = m.readValue(json, ListOfLongs.class);
+        ListOfLongs output = POLY_MAPPER.readValue(json, ListOfLongs.class);
 
         assertNotNull(output.longs);
         assertEquals(3, output.longs.size());
@@ -93,13 +88,10 @@ public class TestDefaultForLists
      */
     public void testListOfNumbers() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
-                .build();
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
-        String json = m.writeValueAsString(input);
+        String json = POLY_MAPPER.writeValueAsString(input);
         assertEquals("{\"nums\":[\"java.util.ArrayList\",[[\"java.lang.Long\",1],2,3.0]]}", json);
-        ListOfNumbers output = m.readValue(json, ListOfNumbers.class);
+        ListOfNumbers output = POLY_MAPPER.readValue(json, ListOfNumbers.class);
 
         assertNotNull(output.nums);
         assertEquals(3, output.nums.size());
@@ -110,17 +102,14 @@ public class TestDefaultForLists
 
     public void testDateTypes() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
-                .build();
         ObjectListBean input = new ObjectListBean();
         List<Object> inputList = new ArrayList<Object>();
         inputList.add(TimeZone.getTimeZone("EST"));
         inputList.add(Locale.CHINESE);
         input.values = inputList;
-        String json = m.writeValueAsString(input);
+        String json = POLY_MAPPER.writeValueAsString(input);
 
-        ObjectListBean output = m.readValue(json, ObjectListBean.class);
+        ObjectListBean output = POLY_MAPPER.readValue(json, ObjectListBean.class);
         List<Object> outputList = output.values;
         assertEquals(2, outputList.size());
         assertTrue(outputList.get(0) instanceof TimeZone);
@@ -130,7 +119,7 @@ public class TestDefaultForLists
     public void testJackson628() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL);
+        mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL);
         ArrayList<Foo> data = new ArrayList<Foo>();
         String json = mapper.writeValueAsString(data);
         List<?> output = mapper.readValue(json, List.class);
@@ -140,7 +129,7 @@ public class TestDefaultForLists
     public void testJackson667() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+        mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
         String json = mapper.writeValueAsString(new SetBean("abc"));

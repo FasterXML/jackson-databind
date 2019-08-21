@@ -140,7 +140,7 @@ public class ObjectId825BTest extends BaseMapTest
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
 

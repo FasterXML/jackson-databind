@@ -125,7 +125,7 @@ public class TestDefaultForMaps
     public void testList() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+        mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
         ItemList child = new ItemList();
         child.value = "I am child";
@@ -142,7 +142,7 @@ public class TestDefaultForMaps
     public void testMap() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+        mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
         ItemMap child = new ItemMap();
         child.value = "I am child";

@@ -58,7 +58,7 @@ public class IllegalTypesCheckTest extends BaseMapTest
 +"}"
         );
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance);
+        mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance);
         try {
             mapper.readValue(JSON, Bean1599.class);
             fail("Should not pass");
@@ -106,7 +106,7 @@ public class IllegalTypesCheckTest extends BaseMapTest
     public void testJDKTypes1872() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 

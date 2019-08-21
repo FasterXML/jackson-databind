@@ -275,7 +275,7 @@ public class CollectionSerializationTest
 
         // but then with default typing
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(w);
         assertEquals(aposToQuotes(String.format("['%s',{'list':['%s',['a','b','c']]}]",

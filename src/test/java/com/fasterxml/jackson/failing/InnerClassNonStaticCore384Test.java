@@ -172,7 +172,7 @@ public class InnerClassNonStaticCore384Test extends BaseMapTest
 
     public void testHierarchy() throws IOException {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
 
         Fleet fleet = initVehicle();

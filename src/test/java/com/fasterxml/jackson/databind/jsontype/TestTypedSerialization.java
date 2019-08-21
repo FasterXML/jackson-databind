@@ -151,7 +151,7 @@ public class TestTypedSerialization
         // ensure we'll use mapper with default configs
         ObjectMapper m = new ObjectMapper();
         // ... so this should NOT be needed...
-        m.disableDefaultTyping();
+        m.deactivateDefaultTyping();
         
         Animal[] animals = new Animal[] { new Cat("Miuku", "white"), new Dog("Murre", 9) };
         Map<String,Object> map = new HashMap<String,Object>();

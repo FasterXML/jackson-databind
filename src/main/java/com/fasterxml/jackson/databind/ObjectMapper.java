@@ -130,7 +130,7 @@ public class ObjectMapper
      */
 
     /**
-     * Enumeration used with {@link ObjectMapper#enableDefaultTyping()}
+     * Enumeration used with {@link ObjectMapper#activateDefaultTyping(PolymorphicTypeValidator)}
      * to specify what kind of types (classes) default typing should
      * be used for. It will only be used if no explicit type information
      * is found, but this enumeration further limits subset of those types.
@@ -143,9 +143,9 @@ public class ObjectMapper
      *<p>
      * NOTE: use of Default Typing can be a potential security risk if incoming
      * content comes from untrusted sources, and it is recommended that this
-     * is either not done, or, if enabled, use {@link #setDefaultTyping}
-     * passing a custom {@link TypeResolverBuilder} implementation that white-lists
-     * legal types to use.
+     * is either not done, or, if enabled, make sure to {@code activateDefaultTyping(...)}
+     * methods that take {@link PolymorphicTypeValidator} that limits applicability
+     * to known trusted types.
      */
     public enum DefaultTyping {
         /**
@@ -190,7 +190,7 @@ public class ObjectMapper
     /**
      * Customized {@link TypeResolverBuilder} that provides type resolver builders
      * used with so-called "default typing"
-     * (see {@link ObjectMapper#enableDefaultTyping(PolymorphicTypeValidator)} for details).
+     * (see {@link ObjectMapper#activateDefaultTyping(PolymorphicTypeValidator)} for details).
      *<p>
      * Type resolver construction is based on configuration: implementation takes care
      * of only providing builders in cases where type information should be applied.
@@ -1412,7 +1412,7 @@ public class ObjectMapper
     /**
      * Method for specifying {@link PolymorphicTypeValidator} to use for validating
      * polymorphic subtypes used with explicit polymorphic types (annotation-based),
-     * but NOT one with "default typing" (see {@link #enableDefaultTyping(PolymorphicTypeValidator)}
+     * but NOT one with "default typing" (see {@link #activateDefaultTyping(PolymorphicTypeValidator)}
      * for details).
      *
      * @since 2.10
@@ -1426,7 +1426,7 @@ public class ObjectMapper
     /**
      * Accessor for configured {@link PolymorphicTypeValidator} used for validating
      * polymorphic subtypes used with explicit polymorphic types (annotation-based),
-     * but NOT one with "default typing" (see {@link #enableDefaultTyping(PolymorphicTypeValidator)}
+     * but NOT one with "default typing" (see {@link #activateDefaultTyping(PolymorphicTypeValidator)}
      * for details).
      *
      * @since 2.10
@@ -1590,8 +1590,8 @@ public class ObjectMapper
      *
      * @since 2.10
      */
-    public ObjectMapper enableDefaultTyping(PolymorphicTypeValidator ptv) {
-        return enableDefaultTyping(ptv, DefaultTyping.OBJECT_AND_NON_CONCRETE);
+    public ObjectMapper activateDefaultTyping(PolymorphicTypeValidator ptv) {
+        return activateDefaultTyping(ptv, DefaultTyping.OBJECT_AND_NON_CONCRETE);
     }
 
     /**
@@ -1610,9 +1610,9 @@ public class ObjectMapper
      *
      * @since 2.10
      */
-    public ObjectMapper enableDefaultTyping(PolymorphicTypeValidator ptv,
+    public ObjectMapper activateDefaultTyping(PolymorphicTypeValidator ptv,
             DefaultTyping applicability) {
-        return enableDefaultTyping(ptv, applicability, JsonTypeInfo.As.WRAPPER_ARRAY);
+        return activateDefaultTyping(ptv, applicability, JsonTypeInfo.As.WRAPPER_ARRAY);
     }
 
     /**
@@ -1635,7 +1635,7 @@ public class ObjectMapper
      *
      * @since 2.10
      */
-    public ObjectMapper enableDefaultTyping(PolymorphicTypeValidator ptv,
+    public ObjectMapper activateDefaultTyping(PolymorphicTypeValidator ptv,
             DefaultTyping applicability, JsonTypeInfo.As includeAs)
     {
         // 18-Sep-2014, tatu: Let's add explicit check to ensure no one tries to
@@ -1670,7 +1670,7 @@ public class ObjectMapper
      *
      * @since 2.10
      */
-    public ObjectMapper enableDefaultTypingAsProperty(PolymorphicTypeValidator ptv,
+    public ObjectMapper activateDefaultTypingAsProperty(PolymorphicTypeValidator ptv,
             DefaultTyping applicability, String propertyName)
     {
         TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability,
@@ -1689,7 +1689,7 @@ public class ObjectMapper
      * {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) will have
      * additional embedded type information.
      */
-    public ObjectMapper disableDefaultTyping() {
+    public ObjectMapper deactivateDefaultTyping() {
         return setDefaultTyping(null);
     }
 
@@ -1701,7 +1701,10 @@ public class ObjectMapper
      * NOTE: use of Default Typing can be a potential security risk if incoming
      * content comes from untrusted sources, so care should be taken to use
      * a {@link TypeResolverBuilder} that can limit allowed classes to
-     * deserialize.
+     * deserialize. Note in particular that
+     * {@link com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder}
+     * DOES NOT limit applicability but creates type (de)serializers for all
+     * types.
      *
      * @param typer Type information inclusion handler
      */
@@ -1718,15 +1721,15 @@ public class ObjectMapper
      */
     
     /**
-     * @deprecated Since 2.10 use {@link #enableDefaultTyping(PolymorphicTypeValidator)} instead
+     * @deprecated Since 2.10 use {@link #activateDefaultTyping(PolymorphicTypeValidator)} instead
      */
     @Deprecated
     public ObjectMapper enableDefaultTyping() {
-        return enableDefaultTyping(getPolymorphicTypeValidator());
+        return activateDefaultTyping(getPolymorphicTypeValidator());
     }
 
     /**
-     * @deprecated Since 2.10 use {@link #enableDefaultTyping(PolymorphicTypeValidator,DefaultTyping)} instead
+     * @deprecated Since 2.10 use {@link #activateDefaultTyping(PolymorphicTypeValidator,DefaultTyping)} instead
      */
     @Deprecated
     public ObjectMapper enableDefaultTyping(DefaultTyping dti) {
@@ -1734,19 +1737,27 @@ public class ObjectMapper
     }
 
     /**
-     * @deprecated Since 2.10 use {@link #enableDefaultTyping(PolymorphicTypeValidator,DefaultTyping,JsonTypeInfo.As)} instead
+     * @deprecated Since 2.10 use {@link #activateDefaultTyping(PolymorphicTypeValidator,DefaultTyping,JsonTypeInfo.As)} instead
      */
     @Deprecated
     public ObjectMapper enableDefaultTyping(DefaultTyping applicability, JsonTypeInfo.As includeAs) {
-        return enableDefaultTyping(getPolymorphicTypeValidator(), applicability, includeAs);
+        return activateDefaultTyping(getPolymorphicTypeValidator(), applicability, includeAs);
     }
 
     /**
-     * @deprecated Since 2.10 use {@link #enableDefaultTypingAsProperty(PolymorphicTypeValidator,DefaultTyping,String)} instead
+     * @deprecated Since 2.10 use {@link #activateDefaultTypingAsProperty(PolymorphicTypeValidator,DefaultTyping,String)} instead
      */
     @Deprecated
     public ObjectMapper enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName) {
-        return enableDefaultTypingAsProperty(getPolymorphicTypeValidator(), applicability, propertyName);
+        return activateDefaultTypingAsProperty(getPolymorphicTypeValidator(), applicability, propertyName);
+    }
+
+    /**
+     * @deprecated Since 2.10 use {@link #deactivateDefaultTyping} instead
+     */
+    @Deprecated
+    public ObjectMapper disableDefaultTyping() {
+        return setDefaultTyping(null);
     }
 
     /*

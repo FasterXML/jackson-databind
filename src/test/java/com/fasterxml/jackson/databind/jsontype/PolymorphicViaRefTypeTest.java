@@ -63,7 +63,7 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
     public void testAtomicRefViaDefaultTyping() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .build();
         AtomicStringWrapper data = new AtomicStringWrapper("foo");

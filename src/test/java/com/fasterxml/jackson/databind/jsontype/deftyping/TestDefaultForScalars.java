@@ -45,7 +45,7 @@ public class TestDefaultForScalars
      */
 
     private final ObjectMapper DEFAULT_TYPING_MAPPER = jsonMapperBuilder()
-        .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+        .activateDefaultTyping(NoCheckSubTypeValidator.instance)
         .build();
 
     /**
@@ -95,7 +95,7 @@ public class TestDefaultForScalars
     public void testScalarArrays() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
         Object[] input = new Object[] {

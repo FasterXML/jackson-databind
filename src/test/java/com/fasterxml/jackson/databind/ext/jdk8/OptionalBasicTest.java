@@ -172,7 +172,7 @@ public class OptionalBasicTest extends BaseMapTest
 	public void testWithTypingEnabled() throws Exception {
 	    final ObjectMapper mapper = jsonMapperBuilder()
 	            // ENABLE TYPING
-	            .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+	            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
 	                    DefaultTyping.OBJECT_AND_NON_CONCRETE)
 	            .build();
 

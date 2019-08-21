@@ -22,7 +22,7 @@ public class ArrayDelegatorCreatorForCollectionTest extends BaseMapTest
     {
         Class<?> unmodSetType = Collections.unmodifiableSet(Collections.<String>emptySet()).getClass();
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .addMixIn(unmodSetType, UnmodifiableSetMixin.class)
                 .build();

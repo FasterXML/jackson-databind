@@ -153,7 +153,7 @@ public class TestTypedSerialization
         // ensure we'll use mapper with default configs
         ObjectMapper m = jsonMapperBuilder()
                 // ... so this should NOT be needed...
-                .disableDefaultTyping()
+                .deactivateDefaultTyping()
                 .build();
         
         Animal[] animals = new Animal[] { new Cat("Miuku", "white"), new Dog("Murre", 9) };

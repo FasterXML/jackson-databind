@@ -159,7 +159,7 @@ public class EnumMapDeserializationTest extends BaseMapTest
         Pojo1859 input = new Pojo1859(enumMap);
 
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL, "@type")
                 .build();
 

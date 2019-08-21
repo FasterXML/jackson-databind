@@ -29,7 +29,7 @@ public class TestJava7Types extends BaseMapTest
     public void testPolymorphicPath() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-            .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                     DefaultTyping.NON_FINAL)
             .build();
         Path input = Paths.get(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");

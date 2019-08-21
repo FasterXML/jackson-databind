@@ -277,7 +277,7 @@ public class CollectionSerializationTest
 
         // but then with default typing
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(w);

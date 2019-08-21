@@ -20,7 +20,7 @@ public class TestDefaultForTreeNodes extends BaseMapTest
      */
 
     private final ObjectMapper DEFAULT_MAPPER = jsonMapperBuilder()
-            .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                     DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
             .build();
 

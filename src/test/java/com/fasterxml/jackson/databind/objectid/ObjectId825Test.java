@@ -26,7 +26,7 @@ public class ObjectId825Test extends BaseMapTest
     static class TestD extends AbstractEntity { }
 
     private final ObjectMapper DEF_TYPING_MAPPER = jsonMapperBuilder()
-            .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                     DefaultTyping.NON_FINAL)
             .build();
 

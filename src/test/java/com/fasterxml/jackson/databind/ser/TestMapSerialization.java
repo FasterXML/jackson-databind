@@ -187,7 +187,7 @@ public class TestMapSerialization extends BaseMapTest
 
         // and maybe with bit of extra typing?
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(input);

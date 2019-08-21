@@ -70,7 +70,7 @@ public class TestDefaultForLists
     public void testListOfLongs() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
         String json = m.writeValueAsString(input);
@@ -93,7 +93,7 @@ public class TestDefaultForLists
     public void testListOfNumbers() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
         String json = m.writeValueAsString(input);
@@ -110,7 +110,7 @@ public class TestDefaultForLists
     public void testDateTypes() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         ObjectListBean input = new ObjectListBean();
         List<Object> inputList = new ArrayList<Object>();
@@ -129,7 +129,7 @@ public class TestDefaultForLists
     public void testJackson628() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL)
                 .build();
         ArrayList<Foo> data = new ArrayList<Foo>();
@@ -141,7 +141,7 @@ public class TestDefaultForLists
     public void testJackson667() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
         String json = mapper.writeValueAsString(new SetBean("abc"));

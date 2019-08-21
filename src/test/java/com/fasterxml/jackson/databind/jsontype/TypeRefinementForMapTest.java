@@ -122,7 +122,7 @@ public class TypeRefinementForMapTest extends BaseMapTest
         final String TEST_INSTANCE_SERIALIZED =
                 "{\"mapProperty\":[\"java.util.HashMap\",{\"Compound|Key\":\"Value\"}]}";
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL)
                 .build();
 

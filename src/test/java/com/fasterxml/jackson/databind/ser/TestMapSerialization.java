@@ -187,7 +187,7 @@ public class TestMapSerialization extends BaseMapTest
         assertEquals(aposToQuotes("[{'answer':42}]"), json);
 
         // and maybe with bit of extra typing?
-        ObjectMapper mapper = new ObjectMapper().enableDefaultTyping(NoCheckSubTypeValidator.instance,
+        ObjectMapper mapper = new ObjectMapper().activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 DefaultTyping.NON_FINAL);
         json = mapper.writeValueAsString(input);
         assertEquals(aposToQuotes("['"+StringIntMapEntry.class.getName()+"',{'answer':42}]"),

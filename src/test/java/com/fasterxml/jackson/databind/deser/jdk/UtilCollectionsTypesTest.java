@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 public class UtilCollectionsTypesTest extends BaseMapTest
 {
    private final ObjectMapper DEFAULT_MAPPER = JsonMapper.builder()
-           .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+           .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                    ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
            .build();
 

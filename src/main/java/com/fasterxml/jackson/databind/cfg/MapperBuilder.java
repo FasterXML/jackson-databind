@@ -605,8 +605,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
      * as allowing all subtypes can be risky for untrusted content.
      */
-    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator) {
-        _mapper.enableDefaultTyping(subtypeValidator);
+    public B activateDefaultTyping(PolymorphicTypeValidator subtypeValidator) {
+        _mapper.activateDefaultTyping(subtypeValidator);
         return _this();
     }
 
@@ -619,9 +619,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
      * as allowing all subtypes can be risky for untrusted content.
      */
-    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator,
+    public B activateDefaultTyping(PolymorphicTypeValidator subtypeValidator,
             DefaultTyping dti) {
-        _mapper.enableDefaultTyping(subtypeValidator, dti);
+        _mapper.activateDefaultTyping(subtypeValidator, dti);
         return _this();
     }
 
@@ -640,10 +640,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * @param applicability Defines kinds of types for which additional type information
      *    is added; see {@link DefaultTyping} for more information.
      */
-    public B enableDefaultTyping(PolymorphicTypeValidator subtypeValidator,
+    public B activateDefaultTyping(PolymorphicTypeValidator subtypeValidator,
             DefaultTyping applicability, JsonTypeInfo.As includeAs)
     {
-        _mapper.enableDefaultTyping(subtypeValidator, applicability, includeAs);
+        _mapper.activateDefaultTyping(subtypeValidator, applicability, includeAs);
         return _this();
     }
 
@@ -658,10 +658,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
      * as allowing all subtypes can be risky for untrusted content.
      */
-    public B enableDefaultTypingAsProperty(PolymorphicTypeValidator subtypeValidator,
+    public B activateDefaultTypingAsProperty(PolymorphicTypeValidator subtypeValidator,
             DefaultTyping applicability, String propertyName)
     {
-        _mapper.enableDefaultTypingAsProperty(subtypeValidator, applicability, propertyName);
+        _mapper.activateDefaultTypingAsProperty(subtypeValidator, applicability, propertyName);
         return _this();
     }
 
@@ -671,8 +671,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) will have
      * additional embedded type information.
      */
-    public B disableDefaultTyping() {
-        _mapper.disableDefaultTyping();
+    public B deactivateDefaultTyping() {
+        _mapper.deactivateDefaultTyping();
         return _this();
     }
     

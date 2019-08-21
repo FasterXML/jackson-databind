@@ -70,7 +70,7 @@ public class TestTreeWithType extends BaseMapTest
 
     public void testValueAsStringWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 
@@ -86,7 +86,7 @@ public class TestTreeWithType extends BaseMapTest
         final String CLASS = Foo.class.getName();
 
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL,
                         JsonTypeInfo.As.PROPERTY)
                 .build();
@@ -104,7 +104,7 @@ public class TestTreeWithType extends BaseMapTest
 
     public void testValueToTreeWithDefaultTyping() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 
@@ -116,7 +116,7 @@ public class TestTreeWithType extends BaseMapTest
     public void testIssue353() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL, "@class")
                 .build();
 

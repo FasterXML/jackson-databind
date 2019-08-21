@@ -23,7 +23,7 @@ public class ArrayDelegatorCreatorForCollectionTest extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         Class<?> unmodSetType = Collections.unmodifiableSet(Collections.<String>emptySet()).getClass();
         mapper.addMixIn(unmodSetType, UnmodifiableSetMixin.class);
-        mapper.enableDefaultTyping(NoCheckSubTypeValidator.instance,
+        mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 
         final String EXPECTED_JSON = "[\""+unmodSetType.getName()+"\",[]]";

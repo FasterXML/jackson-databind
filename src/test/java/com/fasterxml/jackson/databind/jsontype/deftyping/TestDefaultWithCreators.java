@@ -68,7 +68,7 @@ public class TestDefaultWithCreators
     public void testWithCreators() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL)
                 .build();
         UrlJob input = new UrlJob(123L, "http://foo", 3);
@@ -88,7 +88,7 @@ public class TestDefaultWithCreators
     {
         final byte[] BYTES = new byte[] { 1, 2, 3, 4, 5 };
         ObjectMapper mapper = JsonMapper.builder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance)
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         String json = mapper.writeValueAsString(new Bean1385Wrapper(
                 new Bean1385(BYTES)

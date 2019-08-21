@@ -51,7 +51,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     public void testUnmodifiableSet() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .enableDefaultTyping(NoCheckSubTypeValidator.instance,
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
 

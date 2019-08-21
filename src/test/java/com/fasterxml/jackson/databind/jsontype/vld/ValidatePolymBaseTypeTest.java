@@ -91,7 +91,7 @@ public class ValidatePolymBaseTypeTest extends BaseMapTest
 
     private final ObjectMapper MAPPER_DEF_TYPING = jsonMapperBuilder()
             // Since GoodBalue, BadValue not abstraction need to use non-final
-            .enableDefaultTyping(new BaseTypeValidator(), DefaultTyping.NON_FINAL)
+            .activateDefaultTyping(new BaseTypeValidator(), DefaultTyping.NON_FINAL)
             .build();
 
     /*

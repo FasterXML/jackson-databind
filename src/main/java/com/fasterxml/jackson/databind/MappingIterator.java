@@ -185,15 +185,16 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         }
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public T next()
     {
         try {
             return nextValue();
         } catch (JsonMappingException e) {
-            throw new RuntimeJsonMappingException(e.getMessage(), e);
+            return (T) _handleMappingException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            return (T) _handleIOException(e);
         }
     }
 
@@ -218,10 +219,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**********************************************************
      */
 
-
-    /*
-     */
-    
     /**
      * Equivalent of {@link #next} but one that may throw checked
      * exceptions from Jackson due to invalid input.

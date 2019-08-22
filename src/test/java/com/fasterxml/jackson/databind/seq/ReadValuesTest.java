@@ -316,4 +316,14 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(it.hasNext());
         p.close();
     }
+
+    public void testEmptyIterator() throws Exception
+    {
+        MappingIterator<Object> empty = MappingIterator.emptyIterator();
+
+        assertFalse(empty.hasNext());
+        assertFalse(empty.hasNextValue());
+
+        empty.close();
+    }
 }

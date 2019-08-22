@@ -127,6 +127,7 @@ public final class GeneratorSettings
     public PrettyPrinter getPrettyPrinter() {
         PrettyPrinter pp = prettyPrinter;
         if (pp != null) {
+            // Important! Must return actual instance to use, NOT just blueprint
             if (pp instanceof Instantiatable<?>) {
                 pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
             }

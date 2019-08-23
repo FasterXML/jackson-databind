@@ -18,15 +18,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  */
 public class TestContextualSerialization extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /* NOTE: important; MUST be considered a 'Jackson' annotation to be seen
-     * (or recognized otherwise via AnnotationIntrospect.isHandled())
-     */
+    // NOTE: important; MUST be considered a 'Jackson' annotation to be seen
+    // (or recognized otherwise via AnnotationIntrospect.isHandled())
     @Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @JacksonAnnotation
@@ -162,13 +155,13 @@ public class TestContextualSerialization extends BaseMapTest
         protected int isResolved;
 
         public ContextualAndResolvable() { this(0, 0); }
-        
+
         public ContextualAndResolvable(int resolved, int contextual)
         {
             isContextual = contextual;
             isResolved = resolved;
         }
-        
+
         @Override
         public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
@@ -272,22 +265,23 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"value\":\"prefix->abc\"}", mapper.writeValueAsString(bean));
     }
 
-    /*
-    // [JACKSON-647]: is resolve() called for contextual instances?
     public void testResolveOnContextual() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new ContextualAndResolvable());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         assertEquals(quote("contextual=1,resolved=1"), mapper.writeValueAsString("abc"));
+
+        // also: should NOT be called again
+        assertEquals(quote("contextual=1,resolved=1"), mapper.writeValueAsString("foo"));
     }
 
     public void testContextualArrayElement() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newObjectMapper();
         ContextualArrayElementBean beans = new ContextualArrayElementBean("456");
         assertEquals("{\"beans\":[\"elem->456\"]}", mapper.writeValueAsString(beans));
     }
-    */
 }

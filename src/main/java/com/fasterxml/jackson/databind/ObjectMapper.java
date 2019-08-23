@@ -1194,7 +1194,9 @@ public class ObjectMapper
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws JsonProcessingException
     {
-        _assertNotNull("n", n);
+        if (n == null) {
+            return null;
+        }
         try {
             // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
             // Simple cast when we just want to cast to, say, ObjectNode
@@ -1202,9 +1204,14 @@ public class ObjectMapper
                     && valueType.isAssignableFrom(n.getClass())) {
                 return (T) n;
             }
+            final JsonToken tt = n.asToken();
+            // 22-Aug-2019, tatu: [databind#2430] Consider "null node" (minor optimization)
+            if (tt == JsonToken.VALUE_NULL) {
+                return null;
+            }
             // 20-Apr-2016, tatu: Another thing: for VALUE_EMBEDDED_OBJECT, assume similar
             //    short-cut coercion
-            if (n.asToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
+            if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
                 if (n instanceof POJONode) {
                     Object ob = ((POJONode) n).getPojo();
                     if ((ob == null) || valueType.isInstance(ob)) {
@@ -1238,14 +1245,17 @@ public class ObjectMapper
      * @param <T> Actual node type; usually either basic {@link JsonNode} or
      *  {@link com.fasterxml.jackson.databind.node.ObjectNode}
      * @param fromValue Bean value to convert
-     * @return Root node of the resulting JSON tree
+     *
+     * @return (non-null) Root node of the resulting JSON tree: in case of {@code null} value,
+     *    node for which {@link JsonNode#isNull()} returns {@code true}.
      */
     @SuppressWarnings({ "unchecked", "resource" })
     public <T extends JsonNode> T valueToTree(Object fromValue)
         throws IllegalArgumentException
     {
+        // [databind#2430]: `null` should become "null node":
         if (fromValue == null) {
-            return null;
+            return (T) getNodeFactory().nullNode();
         }
         // 06-Oct-2017, tatu: `convertValue()` disables root value wrapping so
         //   do it here too

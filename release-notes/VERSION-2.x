@@ -24,6 +24,7 @@ Project: jackson-databind
  (reported by dejanlokar1@github)
 #2425: Add global config override setting for `@JsonFormat.lenient()`
 #2428: Use "activateDefaultTyping" over "enableDefaultTyping" in 2.10 with new methods
+#2430: Change `ObjectMapper.valueToTree()` to convert `null` to `NullNode`
 
 2.10.0.pr1 (19-Jul-2019)
 

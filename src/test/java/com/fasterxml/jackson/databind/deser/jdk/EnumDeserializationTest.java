@@ -391,14 +391,14 @@ public class EnumDeserializationTest
 
     // [databind#381]
     public void testUnwrappedEnum() throws Exception {
-        final ObjectMapper mapper = newObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         
         assertEquals(TestEnum.JACKSON, mapper.readValue("[" + quote("JACKSON") + "]", TestEnum.class));
     }
     
     public void testUnwrappedEnumException() throws Exception {
-        final ObjectMapper mapper = newObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         try {
             Object v = mapper.readValue("[" + quote("JACKSON") + "]",
@@ -422,7 +422,7 @@ public class EnumDeserializationTest
         assertSame(TestEnum.values()[1], en);
 
         // [databind#1690]: unless prevented
-        final ObjectMapper mapper = objectMapperBuilder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
                 .build();
         try {
@@ -518,7 +518,7 @@ public class EnumDeserializationTest
     }
 
     public void testExceptionFromCustomEnumKeyDeserializer() throws Exception {
-        ObjectMapper mapper = newObjectMapper()
+        ObjectMapper mapper = newJsonMapper()
                 .registerModule(new EnumModule());
         try {
             mapper.readValue("{\"TWO\": \"dumpling\"}",

@@ -34,7 +34,7 @@ public class GenericNestedType2331Test extends BaseMapTest
         Node root = new Node();
         root.children.add(new Node());
 
-        String json = newObjectMapper().writeValueAsString(root);
+        String json = newJsonMapper().writeValueAsString(root);
         assertNotNull(json);
     }
 }

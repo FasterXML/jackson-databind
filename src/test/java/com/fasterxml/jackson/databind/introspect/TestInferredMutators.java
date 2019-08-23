@@ -33,7 +33,7 @@ public class TestInferredMutators extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         // default value is 'enabled', for backwards compatibility
         assertTrue(mapper.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS));
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .build();
         try {
@@ -55,7 +55,7 @@ public class TestInferredMutators extends BaseMapTest
         assertEquals(2, p.x);
 
         // but without it, should fail:
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
                 .build();
         try {

@@ -36,7 +36,7 @@ public class UpdateValueTest extends BaseMapTest
         }
     }
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     // [databind#318] (and Scala module issue #83]
     public void testValueUpdateWithCreator() throws Exception

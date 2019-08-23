@@ -37,11 +37,11 @@ public class TestBaseTypeAsDefault extends BaseMapTest
     /**********************************************************
      */
 
-    protected ObjectMapper MAPPER_WITH_BASE = objectMapperBuilder()
+    protected ObjectMapper MAPPER_WITH_BASE = jsonMapperBuilder()
                 .enable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
                 .build();
 
-    protected ObjectMapper MAPPER_WITHOUT_BASE = objectMapperBuilder()
+    protected ObjectMapper MAPPER_WITHOUT_BASE = jsonMapperBuilder()
             .disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
             .build();
     

@@ -35,7 +35,7 @@ public class EnumAsIndexMapKey1877Test extends BaseMapTest
     // [databind#1877]
     public void testEnumAsIndexMapKey() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
 
         Map<Type, String> map = new HashMap<>();
         map.put(Type.OTHER, "hello world");

@@ -37,7 +37,7 @@ public class DelegatingCreatorAnnotations2016Test extends BaseMapTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2016]
     public void testDelegatingWithAs() throws Exception

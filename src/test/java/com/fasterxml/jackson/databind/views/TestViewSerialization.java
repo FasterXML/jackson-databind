@@ -140,7 +140,7 @@ public class TestViewSerialization
         assertEquals("2", map.get("b"));
 
         // but can also change (but not necessarily on the fly...)
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
                 .build();
 

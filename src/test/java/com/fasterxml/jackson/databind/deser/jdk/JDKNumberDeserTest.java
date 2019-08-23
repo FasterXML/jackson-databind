@@ -131,7 +131,7 @@ public class JDKNumberDeserTest extends BaseMapTest
             verifyException(e, "Cannot coerce String \"null\"");
         }
 
-        ObjectMapper noCoerceMapper = objectMapperBuilder()
+        ObjectMapper noCoerceMapper = jsonMapperBuilder()
                 .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
                 .build();
         try {

@@ -125,7 +125,7 @@ public class TestUnknownPropertyDeserialization
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * By default we should just get an exception if an unknown property
@@ -146,7 +146,7 @@ public class TestUnknownPropertyDeserialization
      */
     public void testUnknownHandlingIgnoreWithHandler() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.clearProblemHandlers();
         mapper.addHandler(new MyHandler());
         TestBean result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
@@ -162,7 +162,7 @@ public class TestUnknownPropertyDeserialization
      */
     public void testUnknownHandlingIgnoreWithHandlerAndObjectReader() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.clearProblemHandlers();
         TestBean result = mapper.readerFor(TestBean.class).withHandler(new MyHandler()).readValue(new StringReader(JSON_UNKNOWN_FIELD));
         assertNotNull(result);
@@ -177,7 +177,7 @@ public class TestUnknownPropertyDeserialization
      */
     public void testUnknownHandlingIgnoreWithFeature() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         TestBean result = null;
         try {
@@ -271,7 +271,7 @@ public class TestUnknownPropertyDeserialization
 
     public void testIssue987() throws Exception
     {
-        ObjectMapper jsonMapper = newObjectMapper();
+        ObjectMapper jsonMapper = newJsonMapper();
         jsonMapper.addHandler(new DeserializationProblemHandler() {
             @Override
             public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException, JsonProcessingException {

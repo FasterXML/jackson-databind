@@ -72,7 +72,7 @@ public class SubTypeResolution1964Test extends BaseMapTest
     /**********************************************************************
      */
 
-    final ObjectMapper MAPPER = newObjectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1964]
     public void testTypeCompatibility1964() throws Exception

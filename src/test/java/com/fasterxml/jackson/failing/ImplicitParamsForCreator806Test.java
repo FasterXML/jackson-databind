@@ -37,7 +37,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper()
+    private final ObjectMapper MAPPER = newJsonMapper()
             .setAnnotationIntrospector(new MyParamIntrospector())
             .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
             ;

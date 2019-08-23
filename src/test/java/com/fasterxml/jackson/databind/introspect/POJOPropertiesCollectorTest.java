@@ -359,7 +359,7 @@ public class POJOPropertiesCollectorTest
 
     public void testGlobalVisibilityForGetters()
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
                 .build();
         POJOPropertiesCollector coll = collector(m, SimpleGetterVisibility.class, true);
@@ -427,7 +427,7 @@ public class POJOPropertiesCollectorTest
     public void testUseAnnotationsFalse() throws Exception
     {
         // note: need a separate mapper, need to reconfigure
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .configure(MapperFeature.USE_ANNOTATIONS, false)
                 .build();
         BasicBeanDescription beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Jackson703.class));

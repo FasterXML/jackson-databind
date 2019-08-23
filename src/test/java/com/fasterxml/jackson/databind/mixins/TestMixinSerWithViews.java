@@ -174,7 +174,7 @@ public class TestMixinSerWithViews
         A a = new A("myname", 29, "mysurname");
 
         // Property SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION set to false
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
             .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, Boolean.FALSE)
             .addMixIn(A.class, AMixInAnnotation.class)
             .build();
@@ -191,7 +191,7 @@ public class TestMixinSerWithViews
     
     private ObjectMapper createObjectMapper()
     {
-        ObjectMapper objectMapper = objectMapperBuilder()
+        ObjectMapper objectMapper = jsonMapperBuilder()
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false )
                 .serializationInclusion(JsonInclude.Include.NON_NULL )
                 .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false )

@@ -30,7 +30,7 @@ public class AutoDetect1947Test extends BaseMapTest
     }
     public void testDisablingAll() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.AUTO_DETECT_SETTERS)
                 .disable(MapperFeature.AUTO_DETECT_FIELDS)
                 .disable(MapperFeature.AUTO_DETECT_GETTERS)

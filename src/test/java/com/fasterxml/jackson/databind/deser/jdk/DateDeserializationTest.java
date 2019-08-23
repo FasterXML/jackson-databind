@@ -90,7 +90,7 @@ public class DateDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testDateUtil() throws Exception
     {
@@ -623,7 +623,7 @@ public class DateDeserializationTest
 
         // Standard mapper with timezone UTC: shared instance should be ok.
         // ... but, Travis manages to have fails, so insist on newly created
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         Date dateUTC = mapper.readValue(json, Date.class);  // 1970-01-01T00:00:00.000+00:00
     
         // Mapper with timezone GMT-2

@@ -26,7 +26,7 @@ public class BeanNamingTest extends BaseMapTest
         assertEquals(aposToQuotes("{'a':3}"),
                 mapper.writeValueAsString(new ABean()));
 
-        mapper = objectMapperBuilder()
+        mapper = jsonMapperBuilder()
                 .enable(MapperFeature.USE_STD_BEAN_NAMING)
                 .build();
         assertEquals(aposToQuotes("{'URL':'http://foo'}"),

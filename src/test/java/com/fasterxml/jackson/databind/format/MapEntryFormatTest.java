@@ -103,7 +103,7 @@ public class MapEntryFormatTest extends BaseMapTest
     /**********************************************************
      */
     
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testInclusion() throws Exception
     {

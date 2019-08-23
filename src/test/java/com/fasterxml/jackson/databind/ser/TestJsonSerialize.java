@@ -188,7 +188,7 @@ public class TestJsonSerialize
 
     public void testStaticTypingWithMap() throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();
         ValueMap map = new ValueMap();
@@ -198,7 +198,7 @@ public class TestJsonSerialize
 
     public void testStaticTypingWithArrayList() throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();
         ValueList list = new ValueList();
@@ -208,7 +208,7 @@ public class TestJsonSerialize
 
     public void testStaticTypingWithLinkedList() throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();
         ValueLinkedList list = new ValueLinkedList();
@@ -218,7 +218,7 @@ public class TestJsonSerialize
     
     public void testStaticTypingWithArray() throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();
         ValueInterface[] array = new ValueInterface[] { new ValueClass() };

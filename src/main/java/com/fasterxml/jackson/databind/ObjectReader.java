@@ -37,12 +37,13 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * instances are relatively light-weight.
  *<p>
  * NOTE: this class is NOT meant as sub-classable by users. It is left as
- * non-final mostly to allow frameworks  that require bytecode generation for proxying
+ * non-final mostly to allow frameworks  that require byte code generation for proxying
  * and similar use cases, but there is no expectation that functionality
  * should be extended by sub-classing.
  */
 public class ObjectReader
-    implements Versioned
+    implements Versioned, TreeCodec
+
     // NOTE: since 3.x, NO LONGER JDK Serializable
 {
     protected final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
@@ -899,19 +900,70 @@ public class ObjectReader
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createNonBlockingByteArrayParser(ctxt));
     }
-    
+
     /*
     /**********************************************************************
-    /* Convenience methods for JsonNode creation
+    /* TreeCodec implementation
     /**********************************************************************
      */
 
+    @Override
     public ObjectNode createObjectNode() {
         return _config.getNodeFactory().objectNode();
     }
 
+    @Override
+    public JsonNode missingNode() {
+        return _config.getNodeFactory().missingNode();
+    }
+
+    @Override
     public ArrayNode createArrayNode() {
         return _config.getNodeFactory().arrayNode();
+    }
+
+    @Override
+    public JsonParser treeAsTokens(TreeNode n) {
+        _assertNotNull("n", n);
+        return treeAsTokens((JsonNode) n, createDeserializationContext());
+    }
+
+    protected JsonParser treeAsTokens(JsonNode n, DeserializationContext ctxt) {
+        _assertNotNull("n", n);
+        return new TreeTraversingParser(n, ctxt);
+    }
+
+    /**
+     * Convenience method that binds content read using given parser, using
+     * configuration of this reader, except that content is bound as
+     * JSON tree instead of configured root value type.
+     * Returns {@link JsonNode} that represents the root of the resulting tree, if there
+     * was content to read, or {@code null} if no more content is accessible
+     * via passed {@link JsonParser}.
+     *<p>
+     * NOTE! Behavior with end-of-input (no more content) differs between this
+     * {@code readTree} method, and all other methods that take input source: latter
+     * will return "missing node", NOT {@code null}
+     *<p>
+     * Note: if an object was specified with {@link #withValueToUpdate}, it
+     * will be ignored.
+     *<p>
+     * NOTE: this method never tries to auto-detect format, since actual
+     * (data-format specific) parser is given.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+        _assertNotNull("p", p);
+        return (T) _bindAsTreeOrNull(createDeserializationContext(p), p);
+    }
+
+    // Alas, can't really support this part...
+    @Override
+    public void writeTree(JsonGenerator g, TreeNode tree)
+        throws IOException, JsonProcessingException
+    {
+        throw new UnsupportedOperationException();
     }
 
     /*
@@ -1088,46 +1140,6 @@ public class ObjectReader
     public <T> Iterator<T> readValues(JsonParser p, JavaType valueType) throws IOException {
         _assertNotNull("p", p);
         return forType(valueType).readValues(p);
-    }
-
-    /*
-    /**********************************************************************
-    /* TreeCodec impl
-    /**********************************************************************
-     */
-
-    public JsonParser treeAsTokens(TreeNode n) {
-        _assertNotNull("n", n);
-        return treeAsTokens((JsonNode) n, createDeserializationContext());
-    }
-
-    protected JsonParser treeAsTokens(JsonNode n, DeserializationContext ctxt) {
-        _assertNotNull("n", n);
-        return new TreeTraversingParser(n, ctxt);
-    }
-
-    /**
-     * Convenience method that binds content read using given parser, using
-     * configuration of this reader, except that content is bound as
-     * JSON tree instead of configured root value type.
-     * Returns {@link JsonNode} that represents the root of the resulting tree, if there
-     * was content to read, or {@code null} if no more content is accessible
-     * via passed {@link JsonParser}.
-     *<p>
-     * NOTE! Behavior with end-of-input (no more content) differs between this
-     * {@code readTree} method, and all other methods that take input source: latter
-     * will return "missing node", NOT {@code null}
-     *<p>
-     * Note: if an object was specified with {@link #withValueToUpdate}, it
-     * will be ignored.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
-        _assertNotNull("p", p);
-        return (T) _bindAsTreeOrNull(createDeserializationContext(p), p);
     }
 
     /*

@@ -88,7 +88,7 @@ Simplest usage is of form:
  * graph of deserializers involved).
  */
 public class ObjectMapper
-    implements Versioned,
+    implements TreeCodec, Versioned,
         java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
@@ -776,6 +776,123 @@ public class ObjectMapper
 
     /*
     /**********************************************************************
+    /* TreeCodec implementation
+    /**********************************************************************
+     */
+
+    /**
+     * Method to serialize given JSON Tree, using generator
+     * provided.
+     */
+    public void writeTree(JsonGenerator g, JsonNode rootNode) throws IOException
+    {
+        _assertNotNull("g", g);
+        SerializationConfig config = serializationConfig();
+        _serializerProvider(config).serializeValue(g, rootNode);
+        if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
+            g.flush();
+        }
+    }
+    /**
+     *<p>
+     * Note: return type is co-variant, as basic ObjectCodec
+     * abstraction cannot refer to concrete node types (as it's
+     * part of core package, whereas impls are part of mapper
+     * package)
+     */
+    @Override
+    public ObjectNode createObjectNode() {
+        return _deserializationConfig.getNodeFactory().objectNode();
+    }
+
+    /**
+     *<p>
+     * Note: return type is co-variant, as basic ObjectCodec
+     * abstraction cannot refer to concrete node types (as it's
+     * part of core package, whereas impls are part of mapper
+     * package)
+     */
+    @Override
+    public ArrayNode createArrayNode() {
+        return _deserializationConfig.getNodeFactory().arrayNode();
+    }
+
+    @Override
+    public JsonNode missingNode() {
+        return _deserializationConfig.getNodeFactory().missingNode();
+    }
+
+    /**
+     * Method for constructing a {@link JsonParser} out of JSON tree
+     * representation.
+     * 
+     * @param n Root node of the tree that resulting parser will read from
+     */
+    @Override
+    public JsonParser treeAsTokens(TreeNode n) {
+        _assertNotNull("n", n);
+        DeserializationContext ctxt = createDeserializationContext();
+        return new TreeTraversingParser((JsonNode) n, ctxt);
+    }
+    
+    /**
+     * Method to deserialize JSON content as a tree {@link JsonNode}.
+     * Returns {@link JsonNode} that represents the root of the resulting tree, if there
+     * was content to read, or {@code null} if no more content is accessible
+     * via passed {@link JsonParser}.
+     *<p>
+     * NOTE! Behavior with end-of-input (no more content) differs between this
+     * {@code readTree} method, and all other methods that take input source: latter
+     * will return "missing node", NOT {@code null}
+     * 
+     * @return a {@link JsonNode}, if valid JSON content found; null
+     *   if input has no content to bind -- note, however, that if
+     *   JSON <code>null</code> token is found, it will be represented
+     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
+     *   for {@link JsonNode#isNull()}
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     */
+    @Override
+    public JsonNode readTree(JsonParser p)
+        throws IOException, JsonProcessingException
+    {
+        _assertNotNull("p", p);
+        // Must check for EOF here before calling readValue(), since that'll choke on it otherwise
+        JsonToken t = p.currentToken();
+        if (t == null) {
+            t = p.nextToken();
+            if (t == null) {
+                return null;
+            }
+        }
+        DeserializationContext ctxt = createDeserializationContext(p);
+        // NOTE! _readValue() will check for trailing tokens
+        JsonNode n = (JsonNode) _readValue(ctxt, p, JSON_NODE_TYPE);
+        if (n == null) {
+            n = getNodeFactory().nullNode();
+        }
+        return n;
+    }
+
+    @Override
+    public void writeTree(JsonGenerator g, TreeNode rootNode) throws IOException
+    {
+        _assertNotNull("g", g);
+        SerializationConfig config = serializationConfig();
+        _serializerProvider(config).serializeValue(g, rootNode);
+        if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
+            g.flush();
+        }
+    }
+    
+    /*
+    /**********************************************************************
     /* Public API deserialization, main methods
     /**********************************************************************
      */
@@ -876,52 +993,6 @@ public class ObjectMapper
         _assertNotNull("p", p);
         DeserializationContext ctxt = createDeserializationContext(p);
         return (T) _readValue(ctxt, p, valueType);
-    }
-
-    /**
-     * Method to deserialize JSON content as a tree {@link JsonNode}.
-     * Returns {@link JsonNode} that represents the root of the resulting tree, if there
-     * was content to read, or {@code null} if no more content is accessible
-     * via passed {@link JsonParser}.
-     *<p>
-     * NOTE! Behavior with end-of-input (no more content) differs between this
-     * {@code readTree} method, and all other methods that take input source: latter
-     * will return "missing node", NOT {@code null}
-     * 
-     * @return a {@link JsonNode}, if valid JSON content found; null
-     *   if input has no content to bind -- note, however, that if
-     *   JSON <code>null</code> token is found, it will be represented
-     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
-     *   for {@link JsonNode#isNull()}
-     * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
-     *   network error) occurs (passed through as-is without additional wrapping -- note
-     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
-     *    of type {@link JsonParser} supports (JSON for default case)
-     */
-    public <T extends TreeNode> T readTree(JsonParser p)
-        throws IOException, JsonProcessingException
-    {
-        _assertNotNull("p", p);
-        // Must check for EOF here before calling readValue(), since that'll choke on it otherwise
-        JsonToken t = p.currentToken();
-        if (t == null) {
-            t = p.nextToken();
-            if (t == null) {
-                return null;
-            }
-        }
-        DeserializationContext ctxt = createDeserializationContext(p);
-        // NOTE! _readValue() will check for trailing tokens
-        JsonNode n = (JsonNode) _readValue(ctxt, p, JSON_NODE_TYPE);
-        if (n == null) {
-            n = getNodeFactory().nullNode();
-        }
-        @SuppressWarnings("unchecked")
-        T result = (T) n;
-        return result;
     }
 
     /**
@@ -1119,67 +1190,9 @@ public class ObjectMapper
 
     /*
     /**********************************************************************
-    /* Public API: Tree Model support
+    /* Public API: Additional Tree Model support beyond TreeCodec
     /**********************************************************************
      */
-
-    public void writeTree(JsonGenerator g, TreeNode rootNode) throws IOException
-    {
-        _assertNotNull("g", g);
-        SerializationConfig config = serializationConfig();
-        _serializerProvider(config).serializeValue(g, rootNode);
-        if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-            g.flush();
-        }
-    }
-    
-    /**
-     * Method to serialize given JSON Tree, using generator
-     * provided.
-     */
-    public void writeTree(JsonGenerator g, JsonNode rootNode) throws IOException
-    {
-        _assertNotNull("g", g);
-        SerializationConfig config = serializationConfig();
-        _serializerProvider(config).serializeValue(g, rootNode);
-        if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-            g.flush();
-        }
-    }
-    
-    /**
-     *<p>
-     * Note: return type is co-variant, as basic ObjectCodec
-     * abstraction cannot refer to concrete node types (as it's
-     * part of core package, whereas impls are part of mapper
-     * package)
-     */
-    public ObjectNode createObjectNode() {
-        return _deserializationConfig.getNodeFactory().objectNode();
-    }
-
-    /**
-     *<p>
-     * Note: return type is co-variant, as basic ObjectCodec
-     * abstraction cannot refer to concrete node types (as it's
-     * part of core package, whereas impls are part of mapper
-     * package)
-     */
-    public ArrayNode createArrayNode() {
-        return _deserializationConfig.getNodeFactory().arrayNode();
-    }
-
-    /**
-     * Method for constructing a {@link JsonParser} out of JSON tree
-     * representation.
-     * 
-     * @param n Root node of the tree that resulting parser will read from
-     */
-    public JsonParser treeAsTokens(TreeNode n) {
-        _assertNotNull("n", n);
-        DeserializationContext ctxt = createDeserializationContext();
-        return new TreeTraversingParser((JsonNode) n, ctxt);
-    }
 
     /**
      * Convenience conversion method that will bind data given JSON tree

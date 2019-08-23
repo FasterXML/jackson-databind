@@ -913,15 +913,30 @@ public class ObjectReader
     }
 
     @Override
+    public ArrayNode createArrayNode() {
+        return _config.getNodeFactory().arrayNode();
+    }
+
+    @Override
+    public JsonNode booleanNode(boolean b) {
+        return _config.getNodeFactory().booleanNode(b);
+    }
+
+    @Override
+    public JsonNode stringNode(String text) {
+        return _config.getNodeFactory().textNode(text);
+    }
+
+    @Override
     public JsonNode missingNode() {
         return _config.getNodeFactory().missingNode();
     }
 
     @Override
-    public ArrayNode createArrayNode() {
-        return _config.getNodeFactory().arrayNode();
+    public JsonNode nullNode() {
+        return _config.getNodeFactory().nullNode();
     }
-
+    
     @Override
     public JsonParser treeAsTokens(TreeNode n) {
         _assertNotNull("n", n);
@@ -953,9 +968,11 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+    public JsonNode readTree(JsonParser p) throws IOException {
+//        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
         _assertNotNull("p", p);
-        return (T) _bindAsTreeOrNull(createDeserializationContext(p), p);
+//        return (T) _bindAsTreeOrNull(createDeserializationContext(p), p);
+        return _bindAsTreeOrNull(createDeserializationContext(p), p);
     }
 
     // Alas, can't really support this part...

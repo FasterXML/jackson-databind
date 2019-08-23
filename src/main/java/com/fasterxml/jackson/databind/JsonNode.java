@@ -124,6 +124,11 @@ public abstract class JsonNode
         return false;
     }
 
+    @Override
+    public final boolean isNull() {
+        return getNodeType() == JsonNodeType.NULL;
+    }
+
     /**
      * Method for accessing value of the specified element of
      * an array node. For other nodes, null is always returned.
@@ -165,6 +170,7 @@ public abstract class JsonNode
      */
     @Override
     public JsonNode get(String fieldName) { return null; }
+
     /**
      * This method is similar to {@link #get(String)}, except
      * that instead of returning null if no such value exists (due
@@ -342,14 +348,6 @@ public abstract class JsonNode
      */
     public final boolean isBoolean() {
         return getNodeType() == JsonNodeType.BOOLEAN;
-    }
-
-    /**
-     * Method that can be used to check if this node was created from
-     * JSON literal null value.
-     */
-    public final boolean isNull() {
-        return getNodeType() == JsonNodeType.NULL;
     }
 
     /**

@@ -781,19 +781,6 @@ public class ObjectMapper
      */
 
     /**
-     * Method to serialize given JSON Tree, using generator
-     * provided.
-     */
-    public void writeTree(JsonGenerator g, JsonNode rootNode) throws IOException
-    {
-        _assertNotNull("g", g);
-        SerializationConfig config = serializationConfig();
-        _serializerProvider(config).serializeValue(g, rootNode);
-        if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-            g.flush();
-        }
-    }
-    /**
      *<p>
      * Note: return type is co-variant, as basic ObjectCodec
      * abstraction cannot refer to concrete node types (as it's
@@ -818,8 +805,23 @@ public class ObjectMapper
     }
 
     @Override
+    public JsonNode booleanNode(boolean b) {
+        return _deserializationConfig.getNodeFactory().booleanNode(b);
+    }
+
+    @Override
+    public JsonNode stringNode(String text) {
+        return _deserializationConfig.getNodeFactory().textNode(text);
+    }
+    
+    @Override
     public JsonNode missingNode() {
         return _deserializationConfig.getNodeFactory().missingNode();
+    }
+
+    @Override
+    public JsonNode nullNode() {
+        return _deserializationConfig.getNodeFactory().nullNode();
     }
 
     /**
@@ -858,6 +860,7 @@ public class ObjectMapper
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public JsonNode readTree(JsonParser p)
         throws IOException, JsonProcessingException

@@ -260,7 +260,7 @@ public class TestContextualSerialization extends BaseMapTest
 
     public void testContextualViaAnnotation() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         AnnotatedContextualBean bean = new AnnotatedContextualBean("abc");
         assertEquals("{\"value\":\"prefix->abc\"}", mapper.writeValueAsString(bean));
     }
@@ -280,7 +280,7 @@ public class TestContextualSerialization extends BaseMapTest
 
     public void testContextualArrayElement() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         ContextualArrayElementBean beans = new ContextualArrayElementBean("456");
         assertEquals("{\"beans\":[\"elem->456\"]}", mapper.writeValueAsString(beans));
     }

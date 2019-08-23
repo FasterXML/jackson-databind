@@ -41,7 +41,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     /****************************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1217]
     public void testIgnoreOnProperty1217() throws Exception

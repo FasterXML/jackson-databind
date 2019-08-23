@@ -91,7 +91,7 @@ public class VisibilityForSerializationTest
 
         // Then auto-detection disabled. But note: we MUST create a new
         // mapper, since old version of serializer may be cached by now
-        m = objectMapperBuilder()
+        m = jsonMapperBuilder()
                 .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
                 .build();
         result = writeAndMap(m, new GetterClass());
@@ -108,7 +108,7 @@ public class VisibilityForSerializationTest
         assertTrue(result.containsKey("x"));
 
         // And then class-level auto-detection enabling, should override defaults
-        m = objectMapperBuilder()
+        m = jsonMapperBuilder()
                 .configure(MapperFeature.AUTO_DETECT_GETTERS, true)
                 .build();
         result = writeAndMap(m, new EnabledGetterClass());
@@ -119,7 +119,7 @@ public class VisibilityForSerializationTest
 
     public void testPerClassAutoDetectionForIsGetter() throws IOException
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
         // class level should override
                 .configure(MapperFeature.AUTO_DETECT_GETTERS, true)
                 .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false)
@@ -135,7 +135,7 @@ public class VisibilityForSerializationTest
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
         assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
-        m = objectMapperBuilder()
+        m = jsonMapperBuilder()
                 .configure(MapperFeature.AUTO_DETECT_SETTERS, false)
                 .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
                 .build();
@@ -145,7 +145,7 @@ public class VisibilityForSerializationTest
 
     public void testVisibilityFeatures() throws Exception
     {
-        ObjectMapper om = objectMapperBuilder()
+        ObjectMapper om = jsonMapperBuilder()
         // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).
                 .configure(MapperFeature.AUTO_DETECT_FIELDS, false)
                 .configure(MapperFeature.AUTO_DETECT_GETTERS, false)

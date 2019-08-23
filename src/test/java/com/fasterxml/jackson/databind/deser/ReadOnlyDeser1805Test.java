@@ -48,7 +48,7 @@ public class ReadOnlyDeser1805Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testReadOnly1382() throws Exception
     {

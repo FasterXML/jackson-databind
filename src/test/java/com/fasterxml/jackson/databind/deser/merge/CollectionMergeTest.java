@@ -52,7 +52,7 @@ public class CollectionMergeTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapperBuilder()
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();

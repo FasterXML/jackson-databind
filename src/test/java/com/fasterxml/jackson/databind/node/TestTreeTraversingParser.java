@@ -38,7 +38,7 @@ public class TestTreeTraversingParser
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSimple() throws Exception
     {

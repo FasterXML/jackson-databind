@@ -103,7 +103,7 @@ public class TestViewDeserialization extends BaseMapTest
         assertEquals(3, bean.a);
         assertEquals(9, bean.b);
 
-        ObjectMapper myMapper = objectMapperBuilder()
+        ObjectMapper myMapper = jsonMapperBuilder()
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .build();
 

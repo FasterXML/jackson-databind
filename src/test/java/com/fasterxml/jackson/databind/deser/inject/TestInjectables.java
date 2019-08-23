@@ -90,11 +90,11 @@ public class TestInjectables extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testSimple() throws Exception
     {
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.setInjectableValues(new InjectableValues.Std()
             .addValue(String.class, "stuffValue")
             .addValue("myId", "xyz")
@@ -135,7 +135,7 @@ public class TestInjectables extends BaseMapTest
         final Object methodInjected = "methodInjected";
         final Object fieldInjected = "fieldInjected";
 
-        ObjectMapper mapper = newObjectMapper()
+        ObjectMapper mapper = newJsonMapper()
                         .setInjectableValues(new InjectableValues.Std()
                                 .addValue("constructor_injected", constructorInjected)
                                 .addValue("method_injected", methodInjected)

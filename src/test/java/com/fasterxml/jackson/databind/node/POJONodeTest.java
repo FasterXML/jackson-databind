@@ -31,7 +31,7 @@ public class POJONodeTest extends NodeTestBase
       }
     }
 
-    final ObjectMapper MAPPER = newObjectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     public void testPOJONodeCustomSer() throws Exception
     {

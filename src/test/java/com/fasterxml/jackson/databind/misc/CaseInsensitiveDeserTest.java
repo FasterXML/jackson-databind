@@ -51,7 +51,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    private final ObjectMapper INSENSITIVE_MAPPER = objectMapperBuilder()
+    private final ObjectMapper INSENSITIVE_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
             .build();
 

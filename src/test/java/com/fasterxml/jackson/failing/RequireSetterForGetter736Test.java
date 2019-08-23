@@ -29,7 +29,7 @@ public class RequireSetterForGetter736Test extends BaseMapTest
     // for [databind#736]
     public void testNeedForSetters() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .visibility(PropertyAccessor.ALL, Visibility.NONE)
                 .visibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY)
                 .visibility(PropertyAccessor.SETTER, Visibility.PUBLIC_ONLY)

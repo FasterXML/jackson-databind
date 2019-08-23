@@ -125,7 +125,7 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
 +"'invalid_4': 'target_invalid_4','status': 'target_status','context': 'target_context'}}"
 );
 
-        ObjectMapper mapper = newObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         final DeserializationProblemLogger logger = new DeserializationProblemLogger();
         mapper.addHandler(logger);

@@ -55,7 +55,7 @@ public class CaseInsensitive1854Test extends BaseMapTest
 
     public void testIssue1854() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
                 .build();
         final String DOC = aposToQuotes("{'ID': 1, 'Items': [ { 'ChildID': 10 } ]}");

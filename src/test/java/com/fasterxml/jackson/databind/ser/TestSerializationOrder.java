@@ -115,7 +115,7 @@ public class TestSerializationOrder
 
     public void testOrderWithMixins() throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .addMixIn(BeanWithOrder.class, OrderMixIn.class)
                 .build();
         assertEquals("{\"b\":2,\"a\":1,\"c\":3,\"d\":4}",
@@ -130,7 +130,7 @@ public class TestSerializationOrder
 
     public void testOrderWithFeature() throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .build();
         assertEquals("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}",
@@ -141,7 +141,7 @@ public class TestSerializationOrder
 
     public void testAlphaAndCreatorOrdering() throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .build();
         String json = m.writeValueAsString(new BeanForGH311(2, 1));

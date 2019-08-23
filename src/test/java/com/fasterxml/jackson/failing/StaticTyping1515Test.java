@@ -58,7 +58,7 @@ public class StaticTyping1515Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper STAT_MAPPER = objectMapperBuilder()
+    private final ObjectMapper STAT_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
 

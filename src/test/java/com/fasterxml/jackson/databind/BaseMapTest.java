@@ -211,7 +211,7 @@ public abstract class BaseMapTest
 
     protected ObjectMapper sharedMapper() {
         if (SHARED_MAPPER == null) {
-            SHARED_MAPPER = newObjectMapper();
+            SHARED_MAPPER = newJsonMapper();
         }
         return SHARED_MAPPER;
     }
@@ -232,14 +232,9 @@ public abstract class BaseMapTest
         return sharedMapper().readerFor(cls);
     }
 
-    // @since 2.9
-    protected static ObjectMapper newObjectMapper() {
-        return new ObjectMapper();
-    }
-
     // @since 2.10
-    protected static JsonMapper.Builder objectMapperBuilder() {
-        return JsonMapper.builder();
+    protected static ObjectMapper newJsonMapper() {
+        return new ObjectMapper();
     }
 
     // @since 2.10

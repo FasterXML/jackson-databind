@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class TestNodeJDKSerialization extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************

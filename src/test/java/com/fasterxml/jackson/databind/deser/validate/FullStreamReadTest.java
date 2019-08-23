@@ -31,7 +31,7 @@ public class FullStreamReadTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testMapperAcceptTrailing() throws Exception
     {
@@ -61,7 +61,7 @@ public class FullStreamReadTest extends BaseMapTest
     public void testMapperFailOnTrailing() throws Exception
     {
         // but things change if we enforce checks
-        ObjectMapper strict = newObjectMapper()
+        ObjectMapper strict = newJsonMapper()
                 .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         assertTrue(strict.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
@@ -112,7 +112,7 @@ public class FullStreamReadTest extends BaseMapTest
 
     public void testMapperFailOnTrailingWithNull() throws Exception
     {
-        final ObjectMapper strict = newObjectMapper()
+        final ObjectMapper strict = newJsonMapper()
                 .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
         // some still ok

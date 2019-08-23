@@ -68,7 +68,7 @@ public class TestSetterlessProperties
         ObjectMapper m = new ObjectMapper();
         // by default, it should be enabled
         assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
-        m = objectMapperBuilder()
+        m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_GETTERS_AS_SETTERS, false)
                 .build();
         assertFalse(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
@@ -100,7 +100,7 @@ public class TestSetterlessProperties
     public void testSimpleSetterlessMapFailure()
         throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_GETTERS_AS_SETTERS, false)
                 .build();
         // so this should fail now without a setter
@@ -118,7 +118,7 @@ public class TestSetterlessProperties
      */
     public void testSetterlessPrecedence() throws Exception
     {
-        ObjectMapper m = objectMapperBuilder()
+        ObjectMapper m = jsonMapperBuilder()
                 .configure(MapperFeature.USE_GETTERS_AS_SETTERS, true)
                 .build();
         Dual value = m.readValue("{\"list\":[1,2,3]}, valueType)", Dual.class);

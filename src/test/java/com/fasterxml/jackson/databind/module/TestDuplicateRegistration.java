@@ -48,7 +48,7 @@ public class TestDuplicateRegistration extends BaseMapTest
         final MyModule module2 = new MyModule();
         // and ditto for a new instance
         @SuppressWarnings("unused")
-        ObjectMapper mapper2 = objectMapperBuilder()
+        ObjectMapper mapper2 = jsonMapperBuilder()
                 .disable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS)
                 .addModule(module2)
                 .addModule(module2)

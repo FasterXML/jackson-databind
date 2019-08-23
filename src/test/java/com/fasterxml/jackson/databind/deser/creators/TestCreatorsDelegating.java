@@ -88,7 +88,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testBooleanDelegate() throws Exception
     {

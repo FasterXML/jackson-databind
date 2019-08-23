@@ -114,7 +114,7 @@ public class TestRootType
 
     public void testInArray() throws Exception
     {
-        ObjectMapper mapper = objectMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
         // must force static typing, otherwise won't matter a lot
                 .configure(MapperFeature.USE_STATIC_TYPING, true)
                 .build();

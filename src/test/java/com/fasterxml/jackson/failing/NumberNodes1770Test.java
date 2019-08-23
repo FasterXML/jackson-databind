@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
  */
 public class NumberNodes1770Test extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // Related to [databind#1770]
     public void testBigDecimalCoercion() throws Exception

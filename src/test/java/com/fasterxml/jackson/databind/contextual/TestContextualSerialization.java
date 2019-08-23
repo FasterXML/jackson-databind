@@ -184,7 +184,36 @@ public class TestContextualSerialization extends BaseMapTest
             ++isResolved;
         }
     }
+
+    static class AccumulatingContextual
+        extends JsonSerializer<String>
+        implements ContextualSerializer
+    {
+        protected String desc;
     
+        public AccumulatingContextual() { this(""); }
+    
+        public AccumulatingContextual(String newDesc) {
+            desc = newDesc;
+        }
+    
+        @Override
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider) throws IOException
+        {
+            g.writeString(desc+"/"+value);
+        }
+    
+        @Override
+        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+                throws JsonMappingException
+        {
+            if (property == null) {
+                return new AccumulatingContextual(desc+"/ROOT");
+            }
+            return new AccumulatingContextual(desc+"/"+property.getName());
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -281,5 +310,17 @@ public class TestContextualSerialization extends BaseMapTest
         ObjectMapper mapper = newJsonMapper();
         ContextualArrayElementBean beans = new ContextualArrayElementBean("456");
         assertEquals("{\"beans\":[\"elem->456\"]}", mapper.writeValueAsString(beans));
+    }
+
+    // Test to verify aspects of [databind#2429]
+    public void testRootContextualization2429() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule("test", Version.unknownVersion())
+                        .addSerializer(String.class, new AccumulatingContextual()))
+                .build();
+        assertEquals(quote("/ROOT/foo"), mapper.writeValueAsString("foo"));
+        assertEquals(quote("/ROOT/bar"), mapper.writeValueAsString("bar"));
+        assertEquals(quote("/ROOT/3"), mapper.writeValueAsString("3"));
     }
 }

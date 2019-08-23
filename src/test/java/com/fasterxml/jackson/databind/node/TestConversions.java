@@ -80,6 +80,32 @@ public class TestConversions extends BaseMapTest
         public Long longObj;
     }
 
+    // [databind#433]
+    static class CustomSerializedPojo implements JsonSerializable
+    {
+        private final ObjectNode node = JsonNodeFactory.instance.objectNode();
+
+        public void setFoo(final String foo) {
+            node.put("foo", foo);
+        }
+    
+        @Override
+        public void serialize(final JsonGenerator jgen, final SerializerProvider provider) throws IOException
+        {
+            jgen.writeTree(node);
+        }
+
+        @Override
+        public void serializeWithType(JsonGenerator g,
+                SerializerProvider provider, TypeSerializer typeSer) throws IOException
+        {
+            WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.START_OBJECT);
+            typeSer.writeTypePrefix(g, typeIdDef);
+            serialize(g, provider);
+            typeSer.writeTypePrefix(g, typeIdDef);
+        }    
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -242,31 +268,6 @@ public class TestConversions extends BaseMapTest
         assertTrue(tree.has("pi"));
     }
 
-    static class CustomSerializedPojo implements JsonSerializable
-    {
-        private final ObjectNode node = JsonNodeFactory.instance.objectNode();
-
-        public void setFoo(final String foo) {
-            node.put("foo", foo);
-        }
-
-        @Override
-        public void serialize(final JsonGenerator g, final SerializerProvider provider) throws IOException
-        {
-            g.writeTree(node);
-        }
-
-        @Override
-        public void serializeWithType(JsonGenerator g,
-                SerializerProvider provider, TypeSerializer typeSer) throws IOException
-        {
-            WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.START_OBJECT);
-            typeSer.writeTypePrefix(g, typeIdDef);
-            serialize(g, provider);
-            typeSer.writeTypePrefix(g, typeIdDef);
-        }    
-    }
-
     // [databind#433]
     public void testBeanToTree() throws Exception
     {
@@ -314,5 +315,17 @@ public class TestConversions extends BaseMapTest
         JsonNode tree = MAPPER.readTree("{\"longObj\": "+EXP+".0, \"_class\": \""+LongContainer1940.class.getName()+"\"}");
         LongContainer1940 obj = MAPPER.treeToValue(tree, LongContainer1940.class);
         assertEquals(Long.valueOf(EXP), obj.longObj);
+    }
+
+    public void testConversionsOfNull() throws Exception
+    {
+        // First: `null` value should become `NullNode`
+        JsonNode n = MAPPER.valueToTree(null);
+        assertNotNull(n);
+        assertTrue(n.isNull());
+
+        // and vice versa
+        Object pojo = MAPPER.treeToValue(n, Root.class);
+        assertNull(pojo);
     }
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.exc.RuntimeJsonMappingException;
 
 /**
  * Iterator exposed by {@link ObjectMapper} when binding sequence of
@@ -190,8 +191,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             return (Boolean) _handleIOException(e);
         }
     }
-    
-    @SuppressWarnings("unchecked")
+
     @Override
     public T next()
     {

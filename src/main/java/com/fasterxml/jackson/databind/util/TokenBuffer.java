@@ -701,84 +701,68 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override
     public final void writeStartArray() throws IOException
     {
-        _tokenWriteContext.writeValue();
-        _append(JsonToken.START_ARRAY);
+        _appendStartMarker(JsonToken.START_ARRAY);
         _tokenWriteContext = _tokenWriteContext.createChildArrayContext(null);
     }
 
     @Override
     public final void writeStartArray(Object forValue) throws IOException
     {
-        _tokenWriteContext.writeValue();
-        _append(JsonToken.START_ARRAY);
+        _appendStartMarker(JsonToken.START_ARRAY);
         _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
     }
 
     @Override
     public final void writeStartArray(Object forValue, int len) throws IOException
     {
-        _tokenWriteContext.writeValue();
-        _append(JsonToken.START_ARRAY);
+        _appendStartMarker(JsonToken.START_ARRAY);
         _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
     }
 
     @Override
     public final void writeEndArray() throws IOException
     {
-        _append(JsonToken.END_ARRAY);
-        // Let's allow unbalanced tho... i.e. not run out of root level, ever
-        SimpleTokenWriteContext c = _tokenWriteContext.getParent();
-        if (c != null) {
-            _tokenWriteContext = c;
-        }
+        _appendEndMarker(JsonToken.END_ARRAY);
     }
 
     @Override
     public final void writeStartObject() throws IOException
     {
-        _tokenWriteContext.writeValue();
-        _append(JsonToken.START_OBJECT);
+        _appendStartMarker(JsonToken.START_OBJECT);
         _tokenWriteContext = _tokenWriteContext.createChildObjectContext(null);
     }
 
     @Override
     public void writeStartObject(Object forValue) throws IOException
     {
-        _tokenWriteContext.writeValue();
-        _append(JsonToken.START_OBJECT);
+        _appendStartMarker(JsonToken.START_OBJECT);
         _tokenWriteContext = _tokenWriteContext.createChildObjectContext(forValue);
     }
 
     @Override
     public void writeStartObject(Object forValue, int size) throws IOException
     {
-        _tokenWriteContext.writeValue();
-        _append(JsonToken.START_OBJECT);
+        _appendStartMarker(JsonToken.START_OBJECT);
         _tokenWriteContext = _tokenWriteContext.createChildObjectContext(forValue);
     }
 
     @Override
     public final void writeEndObject() throws IOException
     {
-        _append(JsonToken.END_OBJECT);
-        // Let's allow unbalanced tho... i.e. not run out of root level, ever
-        SimpleTokenWriteContext c = _tokenWriteContext.getParent();
-        if (c != null) {
-            _tokenWriteContext = c;
-        }
+        _appendEndMarker(JsonToken.END_OBJECT);
     }
 
     @Override
     public final void writeFieldName(String name) throws IOException
     {
         _tokenWriteContext.writeFieldName(name);
-        _append(JsonToken.FIELD_NAME, name);
+        _appendFieldName(name);
     }
 
     @Override
     public void writeFieldName(SerializableString name) throws IOException {
         _tokenWriteContext.writeFieldName(name.getValue());
-        _append(JsonToken.FIELD_NAME, name);
+        _appendFieldName(name);
     }
 
     @Override
@@ -787,7 +771,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         //    buffering but...
         final String name = Long.toString(id);
         _tokenWriteContext.writeFieldName(name);
-        _append(JsonToken.FIELD_NAME, name);
+        _appendFieldName(name);
     }
 
     /*
@@ -1091,11 +1075,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             break;
         case VALUE_NUMBER_FLOAT:
             if (_forceBigDecimal) {
-                /* 10-Oct-2015, tatu: Ideally we would first determine whether underlying
-                 *   number is already decoded into a number (in which case might as well
-                 *   access as number); or is still retained as text (in which case we
-                 *   should further defer decoding that may not need BigDecimal):
-                 */
+                // 10-Oct-2015, tatu: Ideally we would first determine whether underlying
+                //   number is already decoded into a number (in which case might as well
+                //   access as number); or is still retained as text (in which case we
+                //   should further defer decoding that may not need BigDecimal):
                 writeNumber(p.getDecimalValue());
             } else {
                 switch (p.getNumberType()) {
@@ -1126,7 +1109,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             throw new RuntimeException("Internal error: should never end up through this code path");
         }
     }
-    
+
     @Override
     public void copyCurrentStructure(JsonParser p) throws IOException
     {
@@ -1140,6 +1123,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeFieldName(p.currentName());
             t = p.nextToken();
             // fall-through to copy the associated value
+        } else if (t == null) {
+            throw new IllegalStateException("No token available from argument `JsonParser`");
         }
 
         if (_mayHaveNativeIds) {
@@ -1183,42 +1168,19 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     /**********************************************************************
      */
 
-    protected final void _append(JsonToken type)
-    {
-        Segment next = _hasNativeId
-                ? _last.append(_appendAt, type, _objectId, _typeId)
-                : _last.append(_appendAt, type);
-        if (next == null) {
-            ++_appendAt;
-        } else {
-            _last = next;
-            _appendAt = 1; // since we added first at 0
-        }
-    }
-
-    protected final void _append(JsonToken type, Object value)
-    {
-        Segment next = _hasNativeId
-                ? _last.append(_appendAt, type, value, _objectId, _typeId)
-                : _last.append(_appendAt, type, value);
-        if (next == null) {
-            ++_appendAt;
-        } else {
-            _last = next;
-            _appendAt = 1;
-        }
-    }
-
     /**
-     * Similar to {@link #_append(JsonToken)} but also updates context with
-     * knowledge that a scalar value was written
+     * Method used for appending token known to represent a "simple" scalar
+     * value where token is the only information
      */
     protected final void _appendValue(JsonToken type)
     {
-        _tokenWriteContext.writeValue();
-        Segment next = _hasNativeId
-                ? _last.append(_appendAt, type, _objectId, _typeId)
-                : _last.append(_appendAt, type);
+         _tokenWriteContext.writeValue();
+        Segment next;
+        if (_hasNativeId) {
+            next = _last.append(_appendAt, type, _objectId, _typeId);
+        } else {
+            next = _last.append(_appendAt, type);
+        }
         if (next == null) {
             ++_appendAt;
         } else {
@@ -1228,21 +1190,95 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /**
-     * Similar to {@link #_append(JsonToken,Object)} but also updates context with
-     * knowledge that a scalar value was written
+     * Method used for appending token known to represent a scalar value
+     * where there is additional content (text, number) beyond type token
      */
     protected final void _appendValue(JsonToken type, Object value)
     {
-        _tokenWriteContext.writeValue();
-        Segment next = _hasNativeId
-                ? _last.append(_appendAt, type, value, _objectId, _typeId)
-                : _last.append(_appendAt, type, value);
+         _tokenWriteContext.writeValue();
+        Segment next;
+        if (_hasNativeId) {
+            next = _last.append(_appendAt, type, value, _objectId, _typeId);
+        } else {
+            next = _last.append(_appendAt, type, value);
+        }
         if (next == null) {
             ++_appendAt;
         } else {
             _last = next;
             _appendAt = 1;
         }
+    }
+
+    /*
+     * Specialized method used for appending a field name, appending either
+     * {@link String} or {@link SerializableString}.
+     *
+     * @since 2.10
+     */
+    protected final void _appendFieldName(Object value)
+    {
+        // NOTE: do NOT clear _objectId / _typeId
+        Segment next;
+        if (_hasNativeId) {
+            next =  _last.append(_appendAt, JsonToken.FIELD_NAME, value, _objectId, _typeId);
+        } else {
+            next = _last.append(_appendAt, JsonToken.FIELD_NAME, value);
+        }
+        if (next == null) {
+            ++_appendAt;
+        } else {
+            _last = next;
+            _appendAt = 1;
+        }
+    }
+
+    /**
+     * Specialized method used for appending a structural start Object/Array marker
+     */
+    protected final void _appendStartMarker(JsonToken type)
+    {
+        _tokenWriteContext.writeValue();
+
+        Segment next;
+        if (_hasNativeId) {
+            next =_last.append(_appendAt, type, _objectId, _typeId);
+        } else {
+            next =  _last.append(_appendAt, type);
+        }
+        if (next == null) {
+            ++_appendAt;
+        } else {
+            _last = next;
+            _appendAt = 1; // since we added first at 0
+        }
+    }
+
+    /**
+     * Specialized method used for appending a structural end Object/Array marker
+     */
+    protected final void _appendEndMarker(JsonToken type)
+    {
+        // NOTE: type/object id not relevant
+        Segment next = _last.append(_appendAt, type);
+        if (next == null) {
+            ++_appendAt;
+        } else {
+            _last = next;
+            _appendAt = 1;
+        }
+
+        // but then we need to update context. One twist: do allow unbalanced content;
+        // for that need to check that we will retain "root context"
+        SimpleTokenWriteContext c = _tokenWriteContext.getParent();
+        if (c != null) {
+            _tokenWriteContext = c;
+        }
+    }
+
+    @Override
+    protected <T> T _reportUnsupportedOperation() {
+        throw new UnsupportedOperationException("Called operation not supported for TokenBuffer");
     }
 
     /*

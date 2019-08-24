@@ -941,6 +941,9 @@ public class ObjectMapper
                 setPropertyNamingStrategy(naming);
             }
         });
+
+        registerModules(module.getDependencies());
+
         return this;
     }
 

@@ -1127,37 +1127,142 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             throw new IllegalStateException("No token available from argument `JsonParser`");
         }
 
-        if (_mayHaveNativeIds) {
-            _checkNativeIds(p);
-        }
-        
+        // We'll do minor handling here to separate structured, scalar values,
+        // then delegate appropriately
         switch (t) {
         case START_ARRAY:
-            writeStartArray();
-            while (p.nextToken() != JsonToken.END_ARRAY) {
-                copyCurrentStructure(p);
+            if (_mayHaveNativeIds) {
+                _checkNativeIds(p);
             }
-            writeEndArray();
+            writeStartArray();
+            _copyContents(p);
             break;
         case START_OBJECT:
-            writeStartObject();
-            while (p.nextToken() != JsonToken.END_OBJECT) {
-                copyCurrentStructure(p);
+            if (_mayHaveNativeIds) {
+                _checkNativeIds(p);
             }
-            writeEndObject();
+            writeStartObject();
+            _copyContents(p);
             break;
         default: // others are simple:
-            copyCurrentEvent(p);
+            _copyCurrentValue(p, t);
         }
     }
 
-    
-    private final void _checkNativeIds(JsonParser jp) throws IOException
+    private final void _copyContents(JsonParser p) throws IOException
     {
-        if ((_typeId = jp.getTypeId()) != null) {
+        int depth = 1;
+        JsonToken t;
+
+        while ((t = p.nextToken()) != null) {
+            switch (t) {
+            case FIELD_NAME:
+                if (_mayHaveNativeIds) {
+                    _checkNativeIds(p);
+                }
+                writeFieldName(p.getCurrentName());
+                break;
+
+            case START_ARRAY:
+                if (_mayHaveNativeIds) {
+                    _checkNativeIds(p);
+                }
+                writeStartArray();
+                ++depth;
+                break;
+
+            case START_OBJECT:
+                if (_mayHaveNativeIds) {
+                    _checkNativeIds(p);
+                }
+                writeStartObject();
+                ++depth;
+                break;
+
+            case END_ARRAY:
+                if (--depth == 0) {
+                    return;
+                }
+                writeEndArray();
+                break;
+            case END_OBJECT:
+                if (--depth == 0) {
+                    return;
+                }
+                writeEndObject();
+                break;
+
+            default:
+                _copyCurrentValue(p, t);
+            }
+        }
+    }
+
+    // NOTE: Copied from earlier `copyCurrentEvent()`
+    private void _copyCurrentValue(JsonParser p, JsonToken t) throws IOException
+    {
+        if (_mayHaveNativeIds) {
+            _checkNativeIds(p);
+        }
+        switch (t) {
+        case VALUE_STRING:
+            if (p.hasTextCharacters()) {
+                writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
+            } else {
+                writeString(p.getText());
+            }
+            break;
+        case VALUE_NUMBER_INT:
+            switch (p.getNumberType()) {
+            case INT:
+                writeNumber(p.getIntValue());
+                break;
+            case BIG_INTEGER:
+                writeNumber(p.getBigIntegerValue());
+                break;
+            default:
+                writeNumber(p.getLongValue());
+            }
+            break;
+        case VALUE_NUMBER_FLOAT:
+            if (_forceBigDecimal) {
+                writeNumber(p.getDecimalValue());
+            } else {
+                switch (p.getNumberType()) {
+                case BIG_DECIMAL:
+                    writeNumber(p.getDecimalValue());
+                    break;
+                case FLOAT:
+                    writeNumber(p.getFloatValue());
+                    break;
+                default:
+                    writeNumber(p.getDoubleValue());
+                }
+            }
+            break;
+        case VALUE_TRUE:
+            writeBoolean(true);
+            break;
+        case VALUE_FALSE:
+            writeBoolean(false);
+            break;
+        case VALUE_NULL:
+            writeNull();
+            break;
+        case VALUE_EMBEDDED_OBJECT:
+            writeObject(p.getEmbeddedObject());
+            break;
+        default:
+            throw new RuntimeException("Internal error: should never end up through this code path");
+        }
+    }
+    
+    private final void _checkNativeIds(JsonParser p) throws IOException
+    {
+        if ((_typeId = p.getTypeId()) != null) {
             _hasNativeId = true;
         }
-        if ((_objectId = jp.getObjectId()) != null) {
+        if ((_objectId = p.getObjectId()) != null) {
             _hasNativeId = true;
         }
     }

@@ -16,6 +16,7 @@ Project: jackson-databind
  (reported by andreasbaus@github)
 #2393: `TreeTraversingParser.getLongValue()` incorrectly checks `canConvertToInt()`
  (reported by RabbidDog@github)
+#2398: Replace recursion in `TokenBuffer.copyCurrentStructure()` with iteration
 #2415: Builder-based POJO deserializer should pass builder instance, not type,
   to `handleUnknownVanilla()`
  (proposed by Vladimir T, follow up to #822)

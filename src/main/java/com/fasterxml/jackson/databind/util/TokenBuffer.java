@@ -1106,7 +1106,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeObject(p.getEmbeddedObject());
             break;
         default:
-            throw new RuntimeException("Internal error: should never end up through this code path");
+            throw new RuntimeException("Internal error: unexpected token: "+p.getCurrentToken());
         }
     }
 
@@ -1128,7 +1128,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         // We'll do minor handling here to separate structured, scalar values,
-        // then delegate appropriately
+        // then delegate appropriately.
+        // Plus also deal with oddity of "dangling" END_OBJECT/END_ARRAY
         switch (t) {
         case START_ARRAY:
             if (_mayHaveNativeIds) {
@@ -1143,6 +1144,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             writeStartObject();
             _copyContents(p);
+            break;
+        case END_ARRAY:
+            writeEndArray();
+            break;
+        case END_OBJECT:
+            writeEndObject();
             break;
         default: // others are simple:
             _copyCurrentValue(p, t);
@@ -1180,16 +1187,16 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 break;
 
             case END_ARRAY:
+                writeEndArray();
                 if (--depth == 0) {
                     return;
                 }
-                writeEndArray();
                 break;
             case END_OBJECT:
+                writeEndObject();
                 if (--depth == 0) {
                     return;
                 }
-                writeEndObject();
                 break;
 
             default:
@@ -1253,7 +1260,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeObject(p.getEmbeddedObject());
             break;
         default:
-            throw new RuntimeException("Internal error: should never end up through this code path");
+            throw new RuntimeException("Internal error: unexpected token: "+t);
         }
     }
     

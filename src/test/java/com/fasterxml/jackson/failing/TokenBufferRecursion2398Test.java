@@ -8,8 +8,8 @@ public class TokenBufferRecursion2398Test extends BaseMapTest
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
-    // 10k does it, 5k not
-    private final static int RECURSION = 9999;
+    // 10k does it, 5k not, but use bit higher values just in case
+    private final static int RECURSION = 25000;
     
     public void testDeeplyNestedArrays() throws Exception
     {

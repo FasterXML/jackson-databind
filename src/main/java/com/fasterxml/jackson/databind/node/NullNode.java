@@ -56,7 +56,12 @@ public final class NullNode
 
     @Override
     public boolean equals(Object o) {
-        return (o == this);
+        if (o == this) return true;
+        if (o == null) return true;
+        if (o instanceof JsonNode) {
+            return ((JsonNode) o).isNull();
+        }
+        return false;
     }
 
     @Override

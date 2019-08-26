@@ -1136,14 +1136,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 _checkNativeIds(p);
             }
             writeStartArray();
-            _copyContents(p);
+            _copyBufferContents(p);
             break;
         case START_OBJECT:
             if (_mayHaveNativeIds) {
                 _checkNativeIds(p);
             }
             writeStartObject();
-            _copyContents(p);
+            _copyBufferContents(p);
             break;
         case END_ARRAY:
             writeEndArray();
@@ -1152,11 +1152,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeEndObject();
             break;
         default: // others are simple:
-            _copyCurrentValue(p, t);
+            _copyBufferValue(p, t);
         }
     }
 
-    private final void _copyContents(JsonParser p) throws IOException
+    protected void _copyBufferContents(JsonParser p) throws IOException
     {
         int depth = 1;
         JsonToken t;
@@ -1200,13 +1200,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 break;
 
             default:
-                _copyCurrentValue(p, t);
+                _copyBufferValue(p, t);
             }
         }
     }
 
     // NOTE: Copied from earlier `copyCurrentEvent()`
-    private void _copyCurrentValue(JsonParser p, JsonToken t) throws IOException
+    private void _copyBufferValue(JsonParser p, JsonToken t) throws IOException
     {
         if (_mayHaveNativeIds) {
             _checkNativeIds(p);

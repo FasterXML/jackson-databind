@@ -98,4 +98,13 @@ public class TestNullNode extends NodeTestBase
         ArrayNode an = bean._array;
         assertNull(an);
     }
+
+    public void testNullEquals() {
+        // Let's use something that doesn't add much beyond JsonNode base
+        NullNode n = NullNode.instance;
+
+        assertTrue(n.equals(NullNode.getInstance()));
+        assertTrue(n.equals(new NullNode()));
+        assertTrue(n.equals(null));
+    }
 }

@@ -1106,7 +1106,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeObject(p.getEmbeddedObject());
             break;
         default:
-            throw new RuntimeException("Internal error: unexpected token: "+p.getCurrentToken());
+            throw new RuntimeException("Internal error: unexpected token: "+p.currentToken());
         }
     }
 
@@ -1167,7 +1167,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (_mayHaveNativeIds) {
                     _checkNativeIds(p);
                 }
-                writeFieldName(p.getCurrentName());
+                writeFieldName(p.currentName());
                 break;
 
             case START_ARRAY:

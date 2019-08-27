@@ -79,6 +79,8 @@ public abstract class Module
      * Returns the list of dependent modules.
      *
      * It is called to let modules register other modules as dependencies.
+     *
+     * @since 2.10
      */
     public Iterable<? extends Module> getDependencies() {
         return Collections.emptyList();

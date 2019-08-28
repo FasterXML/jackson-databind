@@ -15,6 +15,8 @@ public final class NullNode
 {
     // // Just need a fly-weight singleton
 
+    private static final long serialVersionUID = 1L;
+
     public final static NullNode instance = new NullNode();
 
     /**
@@ -23,6 +25,11 @@ public final class NullNode
      */
     protected NullNode() { }
 
+    // To support JDK serialization, recovery of Singleton instance
+    protected Object readResolve() {
+        return instance;
+    }
+    
     public static NullNode getInstance() { return instance; }
 
     @Override

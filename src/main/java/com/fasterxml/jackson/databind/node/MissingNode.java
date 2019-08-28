@@ -22,14 +22,22 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public final class MissingNode
     extends ValueNode
 {
+    private static final long serialVersionUID = 1L;
+
     private final static MissingNode instance = new MissingNode();
 
     /**
      *<p>
-     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
+     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes
+     * (which may not be greatest idea ever to have but was requested)
      */
     protected MissingNode() { }
 
+    // To support JDK serialization, recovery of Singleton instance
+    protected Object readResolve() {
+        return instance;
+    }
+    
     @Override
     public boolean isMissingNode() {
         return true;

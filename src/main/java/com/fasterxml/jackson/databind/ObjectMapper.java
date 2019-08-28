@@ -862,8 +862,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     @Override
-    public JsonNode readTree(JsonParser p)
-        throws IOException, JsonProcessingException
+    public JsonNode readTree(JsonParser p) throws IOException
     {
         _assertNotNull("p", p);
         // Must check for EOF here before calling readValue(), since that'll choke on it otherwise
@@ -920,8 +919,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+    public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException
     {
         _assertNotNull("p", p);
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -945,8 +943,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("p", p);
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -969,8 +966,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public final <T> T readValue(JsonParser p, ResolvedType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+    public final <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException
     {
         _assertNotNull("p", p);
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -990,8 +986,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+    public <T> T readValue(JsonParser p, JavaType valueType) throws IOException
     {
         _assertNotNull("p", p);
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -1016,8 +1011,7 @@ public class ObjectMapper
      *<p>
      * Note that {@link ObjectReader} has more complete set of variants.
      */
-    public <T> MappingIterator<T> readValues(JsonParser p, JavaType valueType)
-        throws IOException, JsonProcessingException
+    public <T> MappingIterator<T> readValues(JsonParser p, JavaType valueType) throws IOException
     {
         _assertNotNull("p", p);
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -1035,16 +1029,14 @@ public class ObjectMapper
      *<p>
      * Type-safe overload of {@link #readValues(JsonParser, JavaType)}.
      */
-    public <T> MappingIterator<T> readValues(JsonParser p, Class<T> valueType)
-        throws IOException, JsonProcessingException
+    public <T> MappingIterator<T> readValues(JsonParser p, Class<T> valueType) throws IOException
     {
         _assertNotNull("p", p);
         return readValues(p, _typeFactory.constructType(valueType));
     }
 
     // Used by Kotlin module
-    public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<T> valueType)
-        throws IOException, JsonProcessingException
+    public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<T> valueType) throws IOException
     {
         _assertNotNull("p", p);
         return readValues(p, _typeFactory.constructType(valueType));

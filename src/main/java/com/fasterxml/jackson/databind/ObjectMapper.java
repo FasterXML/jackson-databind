@@ -184,7 +184,23 @@ public class ObjectMapper
          *<p>
          * Since 2.4, this does NOT apply to {@link TreeNode} and its subtypes.
          */
-        NON_FINAL
+        NON_FINAL,
+
+        /**
+         * Value that means that default typing will be used for
+         * all non-final types, with exception of small number of
+         * "natural" types (String, Boolean, Integer, Double) that
+         * can be correctly inferred from JSON, and primitives (which
+         * can not be polymorphic either). Typing is also enabled for
+         * all array types.
+         *<p>
+         * Note that the only known use case for this setting is for serialization
+         * when passing instances of final class, and base type is not
+         * separately specified.
+         *
+         * @since 2.10
+         */
+        EVERYTHING
     }
 
     /**
@@ -299,8 +315,12 @@ public class ObjectMapper
                 }
                 // [databind#88] Should not apply to JSON tree models:
                 return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
+            case EVERYTHING:
+                // So, excluding primitives (handled earlier) and "Natural types" (handled
+                // before this method is called), applied to everything
+                return true;
             default:
-            //case JAVA_LANG_OBJECT:
+            case JAVA_LANG_OBJECT:
                 return t.isJavaLangObject();
             }
         }

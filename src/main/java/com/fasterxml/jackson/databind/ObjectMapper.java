@@ -2830,6 +2830,16 @@ public class ObjectMapper
         return _deserializationConfig.getNodeFactory().arrayNode();
     }
 
+    @Override // since 2.10
+    public JsonNode missingNode() {
+        return _deserializationConfig.getNodeFactory().missingNode();
+    }
+
+    @Override // since 2.10
+    public JsonNode nullNode() {
+        return _deserializationConfig.getNodeFactory().nullNode();
+    }
+
     /**
      * Method for constructing a {@link JsonParser} out of JSON tree
      * representation.

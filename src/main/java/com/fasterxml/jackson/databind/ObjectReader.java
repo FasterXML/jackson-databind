@@ -1157,6 +1157,16 @@ public class ObjectReader
         return _config.getNodeFactory().objectNode();
     }
 
+    @Override // since 2.10
+    public JsonNode missingNode() {
+        return _config.getNodeFactory().missingNode();
+    }
+
+    @Override // since 2.10
+    public JsonNode nullNode() {
+        return _config.getNodeFactory().nullNode();
+    }
+
     @Override
     public JsonParser treeAsTokens(TreeNode n) {
         _assertNotNull("n", n);

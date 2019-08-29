@@ -127,6 +127,15 @@ public class ArrayNode
     }
 
     @Override
+    public JsonNode required(int index) {
+        if ((index >= 0) && (index < _children.size())) {
+            return _children.get(index);
+        }
+        return _reportRequiredViolation("No value at index #%d [0, %d) of `ArrayNode`",
+                index, _children.size());
+    }
+
+    @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {
         if (!(o instanceof ArrayNode)) {

@@ -19,9 +19,9 @@ public class BigIntegerNode
     private final static BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
     private final static BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
     private final static BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
-    
+
     final protected BigInteger _value;
-    
+
     /*
     /**********************************************************
     /* Construction

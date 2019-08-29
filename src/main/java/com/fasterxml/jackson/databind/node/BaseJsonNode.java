@@ -65,6 +65,24 @@ public abstract class BaseJsonNode
     @Override public abstract int hashCode();
 
     /*
+    /**********************************************************************
+    /* Improved required-ness checks for standard JsonNode implementations
+    /**********************************************************************
+     */
+
+    @Override
+    public JsonNode required(String fieldName) {
+        return _reportRequiredViolation("Node of type `%s` has no fields",
+                getClass().getSimpleName());
+    }
+
+    @Override
+    public JsonNode required(int index) {
+        return _reportRequiredViolation("Node of type `%s` has no indexed values",
+                getClass().getSimpleName());
+    }
+
+    /*
     /**********************************************************
     /* Support for traversal-as-stream
     /**********************************************************

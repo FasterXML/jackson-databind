@@ -68,7 +68,7 @@ public class ObjectNodeTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
 
     public void testSimpleObject() throws Exception
     {

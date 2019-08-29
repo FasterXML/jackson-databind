@@ -404,7 +404,7 @@ public abstract class JsonNode
      * @since 2.0
      */
     public boolean canConvertToLong() { return false; }
-    
+
     /*
     /**********************************************************
     /* Public API, straight value access
@@ -492,7 +492,7 @@ public abstract class JsonNode
      *   nodes.
      */
     public long longValue() { return 0L; }
-    
+
     /**
      * Returns 32-bit floating value for this node, <b>if and only if</b>
      * this node is numeric ({@link #isNumber} returns true). For other
@@ -674,6 +674,68 @@ public abstract class JsonNode
      */
     public boolean asBoolean(boolean defaultValue) {
         return defaultValue;
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, extended traversal (2.10) with "required()"
+    /**********************************************************************
+     */
+
+    /**
+     * @since 2.10
+     */
+    public <T extends JsonNode> T require() {
+        return _this();
+    }
+
+    /**
+     * @since 2.10
+     */
+    public <T extends JsonNode> T requireNonNull() {
+        return _this();
+    }
+
+    /**
+     * @since 2.10
+     */
+    public JsonNode required(String fieldName) {
+        return _reportRequiredViolation("Node of type `%s` has no fields", getClass().getName());
+    }
+
+    /**
+     * @since 2.10
+     */
+    public JsonNode required(int index) {
+        return _reportRequiredViolation("Node of type `%s` has no indexed values", getClass().getName());
+    }
+
+    /**
+     * @since 2.10
+     */
+    public JsonNode requiredAt(String pathExpr) {
+        return requiredAt(JsonPointer.compile(pathExpr));
+    }
+
+    /**
+     * @since 2.10
+     */
+    public final JsonNode requiredAt(final JsonPointer pathExpr) {
+        JsonPointer currentExpr = pathExpr;
+        JsonNode curr = this;
+
+        // Note: copied from `at()`
+        while (true) {
+            if (currentExpr.matches()) {
+                return curr;
+            }
+            curr = curr._at(currentExpr);
+            if (curr == null) {
+                _reportRequiredViolation("No node at '%s' (unmatched part: '%s')",
+                        pathExpr, currentExpr);
+            }
+            currentExpr = currentExpr.tail();
+        }
     }
 
     /*
@@ -1000,4 +1062,25 @@ public abstract class JsonNode
      */
     @Override
     public abstract boolean equals(Object o);
+
+    /*
+    /**********************************************************************
+    /* Helper methods,  for sub-classes
+    /**********************************************************************
+     */
+
+    // @since 2.10
+    @SuppressWarnings("unchecked")
+    protected <T extends JsonNode> T _this() {
+        return (T) this;
+    }
+
+    /**
+     * Helper method that throws {@link IllegalArgumentException} as a result of
+     * violating "required-constraint" for this node (for {@link #require() or related
+     * methods).
+     */
+    protected <T> T _reportRequiredViolation(String msgTemplate, Object...args) {
+        throw new IllegalArgumentException(String.format(msgTemplate, args));
+    }
 }

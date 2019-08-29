@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 
@@ -41,6 +42,12 @@ public final class NullNode
 
     @Override public String asText(String defaultValue) { return defaultValue; }
     @Override public String asText() { return "null"; }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonNode requireNonNull() {
+        return _reportRequiredViolation("requireNonNull() called on `NullNode`");
+    }
 
     // as with MissingNode, not considered number node; hence defaults are returned if provided
     

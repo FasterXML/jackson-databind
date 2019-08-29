@@ -10,6 +10,7 @@ Project: jackson-databind
  (reported by sunchezz89@github)
 #2336: `MapDeserializer` can not merge `Map`s with polymorphic values
  (reported by Robert G)
+#2349: Add option `DefaultTyping.EVERYTHING` to support Kotlin data classes
 #2390: `Iterable` serialization breaks when adding `@JsonFilter` annotation
  (reported by Chris M)
 #2392: `BeanDeserializerModifier.modifyDeserializer()` not applied to custom bean deserializers

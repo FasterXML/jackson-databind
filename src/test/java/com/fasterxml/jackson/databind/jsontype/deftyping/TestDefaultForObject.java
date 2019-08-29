@@ -21,6 +21,11 @@ public class TestDefaultForObject
         protected StringBean(String n)  { name = n; }
     }
 
+    final static class FinalStringBean extends StringBean {
+        protected FinalStringBean() { this(null); }
+        public FinalStringBean(String n)  { super(n); }
+    }
+
     enum Choice { YES, NO; }
 
     /**
@@ -371,7 +376,26 @@ public class TestDefaultForObject
             verifyException(e, "Cannot use includeAs of EXTERNAL_PROPERTY");
         }
     }
-    
+
+    // [databind#2349]
+    public void testWithFinalClass() throws Exception
+    {
+        // First: type info NOT included
+        ObjectMapper mapper = JsonMapper.builder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.NON_FINAL)
+                .build();
+        assertEquals(aposToQuotes("{'name':'abc'}"),
+                mapper.writeValueAsString(new FinalStringBean("abc")));
+
+        mapper = JsonMapper.builder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        ObjectMapper.DefaultTyping.EVERYTHING)
+                .build();
+        assertEquals(aposToQuotes("['"+FinalStringBean.class.getName()+"',{'name':'abc'}]"),
+                mapper.writeValueAsString(new FinalStringBean("abc")));
+    }
+
     /*
     /**********************************************************
     /* Helper methods

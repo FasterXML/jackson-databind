@@ -29,6 +29,11 @@ public final class MissingNode
 
     protected MissingNode() { }
 
+    // To support JDK serialization, recovery of Singleton instance
+    protected Object readResolve() {
+        return instance;
+    }
+
     // Immutable: no need to copy
     @SuppressWarnings("unchecked")
     @Override
@@ -36,11 +41,6 @@ public final class MissingNode
 
     public static MissingNode getInstance() { return instance; }
 
-    // To support JDK serialization, recovery of Singleton instance
-    protected Object readResolve() {
-        return instance;
-    }
-    
     @Override
     public JsonNodeType getNodeType() {
         return JsonNodeType.MISSING;

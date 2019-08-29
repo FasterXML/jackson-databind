@@ -42,5 +42,19 @@ public enum DefaultTyping {
      * all arrays of non-final types.
      * This does NOT apply to {@link TreeNode} and its subtypes.
      */
-    NON_FINAL
+    NON_FINAL,
+
+    /**
+     * Value that means that default typing will be used for
+     * all non-final types, with exception of small number of
+     * "natural" types (String, Boolean, Integer, Double) that
+     * can be correctly inferred from JSON, and primitives (which
+     * can not be polymorphic either). Typing is also enabled for
+     * all array types.
+     *<p>
+     * Note that the only known use case for this setting is for serialization
+     * when passing instances of final class, and base type is not
+     * separately specified.
+     */
+    EVERYTHING;
 }

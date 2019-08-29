@@ -137,8 +137,14 @@ public class DefaultTypeResolverBuilder
             }
             // [databind#88] Should not apply to JSON tree models:
             return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
+
+        case EVERYTHING:
+            // So, excluding primitives (handled earlier) and "Natural types" (handled
+            // before this method is called), applied to everything
+            return true;
+
         default:
-        //case JAVA_LANG_OBJECT:
+        case JAVA_LANG_OBJECT:
             return t.isJavaLangObject();
         }
     }

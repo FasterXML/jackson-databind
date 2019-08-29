@@ -101,6 +101,18 @@ public final class MissingNode
         return (o == this);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonNode require() {
+        return _reportRequiredViolation("require() called on `MissingNode`");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonNode requireNonNull() {
+        return _reportRequiredViolation("requireNonNull() called on `MissingNode`");
+    }
+
     @Override
     public int hashCode() {
         return JsonNodeType.MISSING.ordinal();

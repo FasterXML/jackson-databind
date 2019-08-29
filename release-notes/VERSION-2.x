@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.10.0.pr2 (not yet released)
 
+#2237: Add "required" methods in `JsonNode`: `required(String | int)`,
+  `requiredAt(JsonPointer)`
 #2331: `JsonMappingException` through nested getter with generic wildcard return type
  (reported by sunchezz89@github)
 #2336: `MapDeserializer` can not merge `Map`s with polymorphic values

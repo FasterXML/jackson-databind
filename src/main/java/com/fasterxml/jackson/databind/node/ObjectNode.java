@@ -126,6 +126,15 @@ public class ObjectNode
         return MissingNode.getInstance();
     }
 
+    @Override
+    public JsonNode required(String fieldName) {
+        JsonNode n = _children.get(fieldName);
+        if (n != null) {
+            return n;
+        }
+        return _reportRequiredViolation("No value for property '%s' of `ObjectNode`", fieldName);
+    }
+
     /**
      * Method to use for accessing all fields (with both names
      * and values) of this JSON Object.

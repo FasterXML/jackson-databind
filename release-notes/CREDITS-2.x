@@ -914,3 +914,7 @@ Vladimir Tsanev (tsachev@github)
   * Contributed #2415: Builder-based POJO deserializer should pass builder instance, not type,
     to `handleUnknownVanilla()` to fix earlier #822
    (2.10.0)
+
+David Becker (dsbecker@github)
+  * Suggested #2433: Improve `NullNode.equals()`
+   (2.10.0)

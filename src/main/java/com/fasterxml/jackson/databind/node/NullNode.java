@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * This singleton value class is used to contain explicit JSON null
  * value.
  */
-public final class NullNode
+public class NullNode
     extends ValueNode
 {
     private static final long serialVersionUID = 3L;
@@ -63,7 +63,11 @@ public final class NullNode
 
     @Override
     public boolean equals(Object o) {
-        return (o == this);
+        // 29-Aug-2019, tatu: [databind#2433] Since custom sub-classes are allowed (bad idea probably),
+        //     need to do better comparison
+        if (o == this) return true;
+        if (!(o instanceof NullNode)) return false;
+        return ((NullNode) o).isNull();
     }
 
     @Override

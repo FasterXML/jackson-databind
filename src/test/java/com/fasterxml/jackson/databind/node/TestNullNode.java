@@ -17,6 +17,11 @@ public class TestNullNode extends NodeTestBase
         public void setArray(ArrayNode n) { _array = n; }
     }
 
+    @SuppressWarnings("serial")
+    static class MyNull extends NullNode { }
+    
+    private final ObjectMapper MAPPER = sharedMapper();
+    
     public void testBasicsWithNullNode() throws Exception
     {
         // Let's use something that doesn't add much beyond JsonNode base
@@ -59,7 +64,7 @@ public class TestNullNode extends NodeTestBase
     public void testNullHandling() throws Exception
     {
         // First, a stand-alone null
-        JsonNode n = objectReader().readTree("null");
+        JsonNode n = MAPPER.readTree("null");
         assertNotNull(n);
         assertTrue(n.isNull());
         assertFalse(n.isNumber());
@@ -81,21 +86,32 @@ public class TestNullNode extends NodeTestBase
 
     public void testNullSerialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, NullNode.instance);
+        MAPPER.writeValue(sw, NullNode.instance);
         assertEquals("null", sw.toString());
     }
 
     public void testNullHandlingCovariance() throws Exception
     {
         String JSON = "{\"object\" : null, \"array\" : null }";
-        CovarianceBean bean = objectMapper().readValue(JSON, CovarianceBean.class);
+        CovarianceBean bean = MAPPER.readValue(JSON, CovarianceBean.class);
 
         ObjectNode on = bean._object;
         assertNull(on);
 
         ArrayNode an = bean._array;
         assertNull(an);
+    }
+
+    @SuppressWarnings("unlikely-arg-type")
+    public void testNullEquality() throws Exception
+    {
+        JsonNode n = MAPPER.nullNode();
+        assertTrue(n.isNull());
+        assertEquals(n, new MyNull());
+        assertEquals(new MyNull(), n);
+
+        assertFalse(n.equals(null));
+        assertFalse(n.equals("foo"));
     }
 }

@@ -1048,7 +1048,7 @@ public abstract class JsonNode
 
     /**
      * Helper method that throws {@link IllegalArgumentException} as a result of
-     * violating "required-constraint" for this node (for {@link #require() or related
+     * violating "required-constraint" for this node (for {@link #required} or related
      * methods).
      */
     protected <T> T _reportRequiredViolation(String msgTemplate, Object...args) {

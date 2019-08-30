@@ -30,6 +30,22 @@ public class PropertyAliasTest extends BaseMapTest
         }
     }
 
+    static class AliasBean2378 {
+        String partitionId;
+        String _id;
+
+        private AliasBean2378(boolean bogus, String partId, String userId) {
+            partitionId = partId;
+            _id = userId;
+        }
+
+        @JsonCreator
+        public static AliasBean2378 create(@JsonProperty("partitionId") String partId,
+                @JsonProperty("id") @JsonAlias("userId") String userId) {
+            return new AliasBean2378(false, partId, userId);
+        }
+    }
+
     static class PolyWrapperForAlias {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.WRAPPER_ARRAY)
@@ -80,5 +96,15 @@ public class PropertyAliasTest extends BaseMapTest
         AliasBean bean = (AliasBean) value.value;
         assertEquals("Bob", bean.name);
         assertEquals(17, bean._a);
+    }
+
+    // [databind#2378]
+    public void testAliasInFactoryMethod() throws Exception
+    {
+        AliasBean2378 bean = MAPPER.readValue(aposToQuotes(
+                "{'partitionId' : 'a', 'userId' : '123'}"
+                ), AliasBean2378.class);
+        assertEquals("a", bean.partitionId);
+        assertEquals("123", bean._id);
     }
 }

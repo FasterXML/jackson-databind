@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.10.0.pr2 (not yet released)
+2.10.0.pr2 (31-Aug-2019)
 
 #2237: Add "required" methods in `JsonNode`: `required(String | int)`,
   `requiredAt(JsonPointer)`

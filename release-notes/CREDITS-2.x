@@ -910,6 +910,9 @@ Victor Noël (victornoel@github)
   * Reported #2339: Suboptimal return type for `ObjectNode.set()`
    (2.10.0)
 
+Sam Smith (Oracle Security Researcher)
+  * Suggested #2398: Replace recursion in `TokenBuffer.copyCurrentStructure()` with iteration
+
 Vladimir Tsanev (tsachev@github)
   * Contributed #2415: Builder-based POJO deserializer should pass builder instance, not type,
     to `handleUnknownVanilla()` to fix earlier #822

@@ -108,7 +108,10 @@ public abstract class ConcreteBeanPropertyBase
         if (aliases == null) {
             AnnotationIntrospector intr = config.getAnnotationIntrospector();
             if (intr != null) {
-                aliases = intr.findPropertyAliases(getMember());
+                final AnnotatedMember member = getMember();
+                if (member != null) {
+                    aliases = intr.findPropertyAliases(member);
+                }
             }
             if (aliases == null) {
                 aliases = Collections.emptyList();

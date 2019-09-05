@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.10.0.pr2 (not yet released)
+2.10.0.pr2 (31-Aug-2019)
 
 #2237: Add "required" methods in `JsonNode`: `required(String | int)`,
   `requiredAt(JsonPointer)`
@@ -13,6 +13,8 @@ Project: jackson-databind
 #2336: `MapDeserializer` can not merge `Map`s with polymorphic values
  (reported by Robert G)
 #2349: Add option `DefaultTyping.EVERYTHING` to support Kotlin data classes
+#2378: `@JsonAlias` doesn't work with AutoValue
+ (reported by David H)
 #2390: `Iterable` serialization breaks when adding `@JsonFilter` annotation
  (reported by Chris M)
 #2392: `BeanDeserializerModifier.modifyDeserializer()` not applied to custom bean deserializers
@@ -20,6 +22,7 @@ Project: jackson-databind
 #2393: `TreeTraversingParser.getLongValue()` incorrectly checks `canConvertToInt()`
  (reported by RabbidDog@github)
 #2398: Replace recursion in `TokenBuffer.copyCurrentStructure()` with iteration
+ (reported by Sam S)
 #2415: Builder-based POJO deserializer should pass builder instance, not type,
   to `handleUnknownVanilla()`
  (proposed by Vladimir T, follow up to #822)

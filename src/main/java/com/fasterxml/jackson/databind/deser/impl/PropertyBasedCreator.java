@@ -114,7 +114,10 @@ public final class PropertyBasedCreator
         }
         return new PropertyBasedCreator(ctxt, valueInstantiator, creatorProps,
                 allProperties.isCaseInsensitive(),
-                allProperties.hasAliases());
+// 05-Sep-2019, tatu: As per [databind#2378] looks like not all aliases get merged into
+//    `allProperties` so force lookup anyway.
+//                allProperties.hasAliases()
+                true);
     }
 
     /**

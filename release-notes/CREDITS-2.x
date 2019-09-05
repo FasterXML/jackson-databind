@@ -910,6 +910,10 @@ Victor Noël (victornoel@github)
   * Reported #2339: Suboptimal return type for `ObjectNode.set()`
    (2.10.0)
 
+David Harris (toadzky@github)
+  * Reported #2378: `@JsonAlias` doesn't work with AutoValue
+   (2.10.0)
+
 Sam Smith (Oracle Security Researcher)
   * Suggested #2398: Replace recursion in `TokenBuffer.copyCurrentStructure()` with iteration
 

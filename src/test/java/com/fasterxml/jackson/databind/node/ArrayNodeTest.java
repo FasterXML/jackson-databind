@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
+import static java.util.Arrays.asList;
 
 /**
  * Additional tests for {@link ArrayNode} container class.
@@ -184,6 +185,23 @@ public class ArrayNodeTest
         for (JsonNode node : array) {
             assertTrue(node.isNull());
         }
+    }
+
+    public void testAddAllWithNullInCollection()
+    {
+        // preparation
+        final ArrayNode array = JsonNodeFactory.instance.arrayNode();
+
+        // test
+        array.addAll(asList(null, JsonNodeFactory.instance.objectNode()));
+
+        // assertions
+        assertEquals(2, array.size());
+
+        for (JsonNode node : array) {
+            assertFalse(node.isNull());
+        }
+        assertEquals(NullNode.getInstance(), array.get(0));
     }
 
     public void testNullInserts()

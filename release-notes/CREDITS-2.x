@@ -925,3 +925,8 @@ Vladimir Tsanev (tsachev@github)
 David Becker (dsbecker@github)
   * Suggested #2433: Improve `NullNode.equals()`
    (2.10.0)
+
+Hesham Massoud (heshamMassoud@github)
+  * Reported, contributed fix for #2442: `ArrayNode.addAll()` adds raw `null` values
+    which cause NPE on `deepCopy()`
+   (2.10.0)

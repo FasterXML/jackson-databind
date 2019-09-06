@@ -199,9 +199,9 @@ public class ArrayNodeTest
         assertEquals(2, array.size());
 
         for (JsonNode node : array) {
-            assertFalse(node.isNull());
+            assertNotNull(node);
         }
-        assertEquals(NullNode.getInstance(), array.get(0));
+        assertTrue(array.get(0).isNull());
     }
 
     public void testNullInserts()

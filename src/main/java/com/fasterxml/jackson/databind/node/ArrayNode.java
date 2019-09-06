@@ -316,7 +316,9 @@ public class ArrayNode
      */
     public ArrayNode addAll(Collection<? extends JsonNode> nodes)
     {
-        _children.addAll(nodes);
+        for (JsonNode node : nodes) {
+            add(node);
+        }
         return this;
     }
 

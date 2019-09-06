@@ -910,6 +910,10 @@ Victor Noël (victornoel@github)
   * Reported #2339: Suboptimal return type for `ObjectNode.set()`
    (2.10.0)
 
+David Harris (toadzky@github)
+  * Reported #2378: `@JsonAlias` doesn't work with AutoValue
+   (2.10.0)
+
 Sam Smith (Oracle Security Researcher)
   * Suggested #2398: Replace recursion in `TokenBuffer.copyCurrentStructure()` with iteration
 
@@ -920,4 +924,9 @@ Vladimir Tsanev (tsachev@github)
 
 David Becker (dsbecker@github)
   * Suggested #2433: Improve `NullNode.equals()`
+   (2.10.0)
+
+Hesham Massoud (heshamMassoud@github)
+  * Reported, contributed fix for #2442: `ArrayNode.addAll()` adds raw `null` values
+    which cause NPE on `deepCopy()`
    (2.10.0)

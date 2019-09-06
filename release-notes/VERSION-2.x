@@ -34,6 +34,9 @@ Project: jackson-databind
 #2430: Change `ObjectMapper.valueToTree()` to convert `null` to `NullNode`
 #2433: Improve `NullNode.equals()`
  (suggested by David B)
+#2442: `ArrayNode.addAll()` adds raw `null` values which cause NPE on `deepCopy()`
+  and `toString()`
+ (reported, fix contributed by Hesham M)
 
 2.10.0.pr1 (19-Jul-2019)
 

@@ -91,8 +91,17 @@ public class NullHandlingTest extends BaseMapTest
         // null doesn't really have a type, fake by assuming Object
         Object result = MAPPER.readValue("   null", Object.class);
         assertNull(result);
-    }  
-    
+
+        // although nominal type CAN matter
+        String str = MAPPER.readValue("null", String.class);
+        assertNull(str);
+
+        StringWrapper w = MAPPER.readValue(aposToQuotes("{'str': null}"),
+                StringWrapper.class);
+        assertNotNull(w);
+        assertNull(w.str);
+    }
+
     public void testAnySetterNulls() throws Exception {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());

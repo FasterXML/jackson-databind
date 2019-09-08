@@ -51,7 +51,7 @@ public class JsonNodeDeserializer
 
     @Override
     public JsonNode getNullValue(DeserializationContext ctxt) {
-        return NullNode.getInstance();
+        return ctxt.getNodeFactory().nullNode();
     }
 
     /**

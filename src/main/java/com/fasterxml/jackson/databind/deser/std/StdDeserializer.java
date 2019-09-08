@@ -637,7 +637,9 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
                 if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                    return getNullValue(ctxt);
+                    @SuppressWarnings("unchecked")
+                    T result = (T) getNullValue(ctxt);
+                    return result;
                 }
             }
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {

@@ -884,7 +884,7 @@ public class NumberDeserializers
                 // note: no need to call `coerce` as this is never primitive
                 if (_isEmptyOrTextualNull(text)) {
                     _verifyNullForScalarCoercion(ctxt, text);
-                    return getNullValue(ctxt);
+                    return (BigInteger) getNullValue(ctxt);
                 }
                 _verifyStringForScalarCoercion(ctxt, text);
                 try {
@@ -924,7 +924,7 @@ public class NumberDeserializers
                 // note: no need to call `coerce` as this is never primitive
                 if (_isEmptyOrTextualNull(text)) {
                     _verifyNullForScalarCoercion(ctxt, text);
-                    return getNullValue(ctxt);
+                    return (BigDecimal) getNullValue(ctxt);
                 }
                 _verifyStringForScalarCoercion(ctxt, text);
                 try {

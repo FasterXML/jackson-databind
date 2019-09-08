@@ -319,7 +319,7 @@ public abstract class JsonDeserializer<T>
      * Default implementation simply returns null.
      */
     @Override
-    public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         return null;
     }
 

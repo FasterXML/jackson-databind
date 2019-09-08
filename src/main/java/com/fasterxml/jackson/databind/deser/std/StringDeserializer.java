@@ -14,11 +14,10 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
 
     public StringDeserializer() { super(String.class); }
 
-    // since 2.6, slightly faster lookups for this very common type
     @Override
     public boolean isCachable() { return true; }
 
-    @Override // since 2.9
+    @Override
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         return "";
     }

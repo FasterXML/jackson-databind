@@ -280,9 +280,8 @@ public abstract class JsonDeserializer<T>
      * Java null, but for some types (especially primitives) it may be
      * necessary to use non-null values.
      *<p>
-     * Since version 2.6 (in which the context argument was added), call is
-     * expected to be made each and every time a null token needs to
-     * be handled.
+     * This method may be called once, or multiple times, depending on what
+     * {@link #getNullAccessPattern()} returns.
      *<p>
      * Default implementation simply returns null.
      * 
@@ -295,6 +294,11 @@ public abstract class JsonDeserializer<T>
     }
 
     /**
+     *  This method may be called in conjunction with calls to
+     * {@link #getNullValue(DeserializationContext)}, to check whether it needs
+     * to be called just once (static values), or each time empty value is
+     * needed.
+     *<p>
      * Default implementation indicates that "null value" to use for input null
      * is simply Java `null` for all deserializers, unless overridden by sub-classes.
      * This information may be used as optimization.
@@ -330,13 +334,11 @@ public abstract class JsonDeserializer<T>
      * (most commonly when deserializing from empty JSON Strings).
      * Usually this is same as {@link #getNullValue} (which in turn
      * is usually simply Java null), but it can be overridden
-     * for types. Or, if type should never be converted from empty
+     * for specific types. Or, if type should never be converted from empty
      * String, method can also throw an exception.
      *<p>
-     * Since version 2.6 (in which the context argument was added), call is
-     * expected to be made each and every time an empty value is needed.
-     *<p>
-     * Since version 2.9 does not require return of `T` any more.
+     * This method may be called once, or multiple times, depending on what
+     * {@link #getEmptyAccessPattern()} returns.
      *<p>
      * Default implementation simply calls {@link #getNullValue} and
      * returns value.

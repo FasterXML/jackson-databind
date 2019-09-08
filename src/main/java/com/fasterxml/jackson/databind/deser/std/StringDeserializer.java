@@ -22,6 +22,12 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
         return "";
     }
 
+    // Since default `getNullValue()` would just call `getEmptyValue()`, need to override
+    @Override
+    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        return null;
+    }
+
     @Override
     public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {

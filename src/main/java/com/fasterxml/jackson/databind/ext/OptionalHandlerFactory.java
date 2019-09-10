@@ -64,11 +64,11 @@ public class OptionalHandlerFactory implements java.io.Serializable
     // // (note: also assume it comes from JDK so that ClassLoader issues with OSGi
     // // can, I hope, be avoided?)
 
-    private static final Java7Support _jdk7Helper;
+    private static final Java7Handlers _jdk7Helper;
     static {
-        Java7Support x = null;
+        Java7Handlers x = null;
         try {
-            x = Java7Support.instance();
+            x = Java7Handlers.instance();
         } catch (Throwable t) { }
         _jdk7Helper = x;
     }
@@ -88,15 +88,17 @@ public class OptionalHandlerFactory implements java.io.Serializable
     {
         final Class<?> rawType = type.getRawClass();
 
+        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
+            return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE);
+        }
+
         if (_jdk7Helper != null) {
             JsonSerializer<?> ser = _jdk7Helper.getSerializerForJavaNioFilePath(rawType);
             if (ser != null) {
                 return ser;
             }
         }
-        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
-            return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE);
-        }
+
         String className = rawType.getName();
         String factoryName;
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML) || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {

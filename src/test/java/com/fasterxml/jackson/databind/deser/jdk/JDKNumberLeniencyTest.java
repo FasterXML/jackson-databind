@@ -8,7 +8,7 @@ public class JDKNumberLeniencyTest extends BaseMapTest
     final ObjectMapper VANILLA_MAPPER = sharedMapper();
 
     final ObjectMapper STRICT_MAPPER = jsonMapperBuilder()
-            .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+            .disable(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
 //            .defaultLeniency(false)
             .build();
 

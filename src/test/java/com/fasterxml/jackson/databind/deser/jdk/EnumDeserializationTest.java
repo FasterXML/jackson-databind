@@ -198,32 +198,13 @@ public class EnumDeserializationTest
         }
     }        
 
-    // for [databind#2309]
-    static enum Enum2309 {
-        NON_NULL("NON_NULL"),
-        NULL(null),
-        OTHER("OTHER")
-        ;
-
-        private String value;
-
-        private Enum2309(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }        
-
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = new ObjectMapper();
+    protected final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSimple() throws Exception
     {

@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.10.0-final (not yet released)
 
+#2149: Add `MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES`
+ (suggested by Craig P)
 #2309: READ_ENUMS_USING_TO_STRING doesn't support null values
  (reported, fix suggested by Ben A)
 #2442: `ArrayNode.addAll()` adds raw `null` values which cause NPE on `deepCopy()`

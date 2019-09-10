@@ -322,7 +322,7 @@ public abstract class JsonNode
      * Note, however, that even if this method returns false, it
      * is possible that conversion would be possible from other numeric
      * types -- to check if this is possible, use
-     * {@link #canConvertToInt()} instead.
+     * {@link #canConvertToLong()} instead.
      * 
      * @return True if the value contained by this node is stored as Java <code>long</code>
      */

@@ -7,12 +7,14 @@ import java.util.concurrent.TimeUnit;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -176,6 +178,25 @@ public class EnumDeserializationTest
             context.setMixIn(AnEnum.class, LanguageCodeMixin.class);
         }
     }
+
+    // for [databind#2309]
+    static enum Enum2309 {
+        NON_NULL("NON_NULL"),
+        NULL(null),
+        OTHER("OTHER")
+        ;
+
+        private String value;
+
+        private Enum2309(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }        
 
     // for [databind#2309]
     static enum Enum2309 {

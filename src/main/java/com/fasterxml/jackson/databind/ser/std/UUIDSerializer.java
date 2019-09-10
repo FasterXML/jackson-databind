@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -39,11 +41,10 @@ public class UUIDSerializer
     {
         // First: perhaps we could serialize it as raw binary data?
         if (gen.canWriteBinaryNatively()) {
-            /* 07-Dec-2013, tatu: One nasty case; that of TokenBuffer. While it can
-             *   technically retain binary data, we do not want to do use binary
-             *   with it, as that results in UUIDs getting converted to Base64 for
-             *   most conversions.
-             */
+            // 07-Dec-2013, tatu: One nasty case; that of TokenBuffer. While it can
+            //   technically retain binary data, we do not want to do use binary
+            //   with it, as that results in UUIDs getting converted to Base64 for
+            //   most conversions.
             if (!(gen instanceof TokenBuffer)) {
                 gen.writeBinary(_asBytes(value));
                 return;
@@ -72,12 +73,20 @@ public class UUIDSerializer
         gen.writeString(ch, 0, 36);
     }
 
+    // Need to add bit of extra info, format
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
+    {
+        visitStringFormat(visitor, typeHint, JsonValueFormat.UUID);
+    }
+
     private static void _appendInt(int bits, char[] ch, int offset)
     {
         _appendShort(bits >> 16, ch, offset);
         _appendShort(bits, ch, offset+4);
     }
-    
+
     private static void _appendShort(int bits, char[] ch, int offset)
     {
         ch[offset] = HEX_CHARS[(bits >> 12) & 0xF];

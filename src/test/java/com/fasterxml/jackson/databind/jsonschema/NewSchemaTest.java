@@ -202,8 +202,8 @@ public class NewSchemaTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
-    private final ObjectMapper MAPPER = new ObjectMapper();
+
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /* Silly little test for simply triggering traversal, without attempting to
      * verify what is being reported. Smoke test that should trigger problems

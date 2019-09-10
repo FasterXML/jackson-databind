@@ -361,7 +361,7 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Note that there is additional performance overhead since incoming property
      * names need to be lower-cased before comparison, for cases where there are upper-case
-     * letters. Overhead for names that are already lower-case should be negligible however.
+     * letters. Overhead for names that are already lower-case should be negligible.
      *<p>
      * Feature is disabled by default.
      * 
@@ -373,7 +373,7 @@ public enum MapperFeature implements ConfigFeature
     /**
      * Feature that determines if Enum deserialization should be case sensitive or not.
      * If enabled, Enum deserialization will ignore case, that is, case of incoming String
-     * value and enum id (dependant on other settings, either `name()`, `toString()`, or
+     * value and enum id (depending on other settings, either `name()`, `toString()`, or
      * explicit override) do not need to match.
      * <p>
      * Feature is disabled by default.
@@ -381,6 +381,20 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.9
      */
     ACCEPT_CASE_INSENSITIVE_ENUMS(false),
+
+    /**
+     * Feature that permits parsing some enumerated text-based value types but ignoring the case
+     * of the values on deserialization: for example, date/time type deserializers.
+     * Support for this feature depends on deserializer implementations using it.
+     *<p>
+     * Note, however, that regular {@code Enum} types follow {@link #ACCEPT_CASE_INSENSITIVE_ENUMS}
+     * setting instead.
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.10
+     */
+    ACCEPT_CASE_INSENSITIVE_VALUES(false),
 
     /**
      * Feature that can be enabled to make property names be

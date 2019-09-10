@@ -37,6 +37,8 @@ Project: jackson-databind
 #2442: `ArrayNode.addAll()` adds raw `null` values which cause NPE on `deepCopy()`
   and `toString()`
  (reported, fix contributed by Hesham M)
+#2446: Java 11: Unable to load JDK7 types (annotations, java.nio.file.Path): no Java7 support added
+ (reported by David C)
 
 2.10.0.pr1 (19-Jul-2019)
 

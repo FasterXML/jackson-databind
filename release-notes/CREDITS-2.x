@@ -930,3 +930,8 @@ Hesham Massoud (heshamMassoud@github)
   * Reported, contributed fix for #2442: `ArrayNode.addAll()` adds raw `null` values
     which cause NPE on `deepCopy()`
    (2.10.0)
+
+David Connelly (dconnelly@github)
+  * Reported#2446: Java 11: Unable to load JDK7 types (annotations, java.nio.file.Path):
+    no Java7 support added
+   (2.10.0)

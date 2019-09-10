@@ -892,6 +892,10 @@ Pavel Chervakov (pacher@github)
   * Reported #2230: `WRITE_BIGDECIMAL_AS_PLAIN` is ignored if `@JsonFormat` is used
    (2.10.0)
 
+Ben Anderson (andersonbd1@github)
+  * Reported, suggested fix for #2309: READ_ENUMS_USING_TO_STRING doesn't support null values
+   (2.10.0)
+
 Manuel Hegner (manuel-hegner@github)
   * Suggested #2311: Unnecessary MultiView creation for property writers
    (2.10.0)

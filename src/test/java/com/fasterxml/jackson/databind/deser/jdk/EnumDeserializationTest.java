@@ -177,6 +177,25 @@ public class EnumDeserializationTest
         }
     }
 
+    // for [databind#2309]
+    static enum Enum2309 {
+        NON_NULL("NON_NULL"),
+        NULL(null),
+        OTHER("OTHER")
+        ;
+
+        private String value;
+
+        private Enum2309(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }        
+
     /*
     /**********************************************************
     /* Test methods
@@ -285,12 +304,11 @@ public class EnumDeserializationTest
 
     public void testEnumsWithIndex() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX)
-                .build();
-        String json = m.writeValueAsString(TestEnum.RULES);
+        String json = MAPPER.writer()
+                .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                .writeValueAsString(TestEnum.RULES);
         assertEquals(String.valueOf(TestEnum.RULES.ordinal()), json);
-        TestEnum result = m.readValue(json, TestEnum.class);
+        TestEnum result = MAPPER.readValue(json, TestEnum.class);
         assertSame(TestEnum.RULES, result);
     }
 
@@ -390,10 +408,10 @@ public class EnumDeserializationTest
 
     // [databind#381]
     public void testUnwrappedEnum() throws Exception {
-        final ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .build();
-        assertEquals(TestEnum.JACKSON, mapper.readValue("[" + quote("JACKSON") + "]", TestEnum.class));
+        assertEquals(TestEnum.JACKSON,
+                MAPPER.readerFor(TestEnum.class)
+                    .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                    .readValue("[" + quote("JACKSON") + "]"));
     }
     
     public void testUnwrappedEnumException() throws Exception {
@@ -422,11 +440,10 @@ public class EnumDeserializationTest
         assertSame(TestEnum.values()[1], en);
 
         // [databind#1690]: unless prevented
-        final ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
-                .build();
         try {
-            en = mapper.readValue(quote("1"), TestEnum.class);
+            en = MAPPER.readerFor(TestEnum.class)
+                    .without(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
+                    .readValue(quote("1"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize value of type");
@@ -534,5 +551,14 @@ public class EnumDeserializationTest
         } catch (MismatchedInputException e) {
             assertTrue(e.getMessage().contains("Undefined AnEnum"));
         }
+    }
+
+    // [databind#2309]
+    public void testEnumToStringNull2309() throws Exception
+    {
+        Enum2309 value = MAPPER.readerFor(Enum2309.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(quote("NON_NULL"));
+        assertEquals(Enum2309.NON_NULL, value);
     }
 }

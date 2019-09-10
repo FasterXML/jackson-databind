@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.beans.ConstructorProperties;
-import java.beans.Transient;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.MalformedParametersException;
@@ -16,6 +14,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.ext.beans.JavaBeansAnnotations;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
@@ -60,6 +59,17 @@ public class JacksonAnnotationIntrospector
         JsonManagedReference.class,
         JsonMerge.class // since 2.9
     };
+
+    // NOTE: To avoid mandatory Module dependency to "java.beans", support for 2
+    // annotations is done dynamically.
+    private static final JavaBeansAnnotations _javaBeansHelper;
+    static {
+        JavaBeansAnnotations x = null;
+        try {
+            x = JavaBeansAnnotations.instance();
+        } catch (Throwable t) { }
+        _javaBeansHelper = x;
+    }
 
     /**
      * Since introspection of annotation types is a performance issue in some
@@ -298,13 +308,10 @@ public class JacksonAnnotationIntrospector
             AnnotatedParameter p = (AnnotatedParameter) m;
             AnnotatedWithParams owner = p.getOwner();
             if (owner instanceof AnnotatedConstructor) {
-                // 17-Sep-2017, tatu: Two possibilities; either `@ConstructorProperties` (JDK6)
-                ConstructorProperties props = owner.getAnnotation(ConstructorProperties.class);
-                if (props != null) {
-                    String[] names = props.value();
-                    int ix = p.getIndex();
-                    if (ix < names.length) {
-                        return names[ix];
+                if (_javaBeansHelper != null) {
+                    PropertyName name = _javaBeansHelper.findConstructorName(p);
+                    if (name != null) {
+                        return name.getSimpleName();
                     }
                 }
                 // ... or parameter names from bytecode (JDK8)
@@ -1216,10 +1223,13 @@ public class JacksonAnnotationIntrospector
         if (_cfgConstructorPropertiesImpliesCreator
                 && config.isEnabled(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES)
             ) {
-            if (_hasAnnotation(a, ConstructorProperties.class)) {
-                // 13-Sep-2016, tatu: Judgment call, but I don't think JDK ever implies
-                //    use of delegate; assumes as-properties implicitly
-                return JsonCreator.Mode.PROPERTIES;
+            if (_javaBeansHelper != null) {
+                Boolean b = _javaBeansHelper.hasCreatorAnnotation(a);
+                if ((b != null) && b.booleanValue()) {
+                    // 13-Sep-2016, tatu: Judgment call, but I don't think JDK ever implies
+                    //    use of delegate; assumes as-properties implicitly
+                    return JsonCreator.Mode.PROPERTIES;
+                }
             }
         }
         return null;
@@ -1237,10 +1247,12 @@ public class JacksonAnnotationIntrospector
         if (ann != null) {
             return ann.value();
         }
-        // From JDK 7:
-        Transient t = a.getAnnotation(Transient.class);
-        if (t != null) {
-            return t.value();
+        // From JDK 7/java.beans
+        if (_javaBeansHelper != null) {
+            Boolean b = _javaBeansHelper.findTransient(a);
+            if (b != null) {
+                return b.booleanValue();
+            }
         }
         return false;
     }

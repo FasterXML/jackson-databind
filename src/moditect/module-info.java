@@ -17,8 +17,6 @@ module com.fasterxml.jackson.databind {
     exports com.fasterxml.jackson.databind.deser.impl;
     exports com.fasterxml.jackson.databind.deser.std;
     exports com.fasterxml.jackson.databind.exc;
-    exports com.fasterxml.jackson.databind.ext;
-    exports com.fasterxml.jackson.databind.ext.jdk8;
     exports com.fasterxml.jackson.databind.introspect;
     exports com.fasterxml.jackson.databind.json;
     exports com.fasterxml.jackson.databind.jsonFormatVisitors;

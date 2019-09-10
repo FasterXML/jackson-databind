@@ -301,8 +301,6 @@ public enum MapperFeature implements ConfigFeature
      * setting instead.
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.10
      */
     ACCEPT_CASE_INSENSITIVE_VALUES(false),
 

@@ -7,12 +7,14 @@ import java.util.concurrent.TimeUnit;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -183,6 +185,25 @@ public class EnumDeserializationTest
         }
     }
 
+    // for [databind#2309]
+    static enum Enum2309 {
+        NON_NULL("NON_NULL"),
+        NULL(null),
+        OTHER("OTHER")
+        ;
+
+        private String value;
+
+        private Enum2309(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }        
+
     /*
     /**********************************************************
     /* Test methods
@@ -290,11 +311,11 @@ public class EnumDeserializationTest
 
     public void testEnumsWithIndex() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
-        String json = m.writeValueAsString(TestEnum.RULES);
+        String json = MAPPER.writer()
+                .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                .writeValueAsString(TestEnum.RULES);
         assertEquals(String.valueOf(TestEnum.RULES.ordinal()), json);
-        TestEnum result = m.readValue(json, TestEnum.class);
+        TestEnum result = MAPPER.readValue(json, TestEnum.class);
         assertSame(TestEnum.RULES, result);
     }
 
@@ -391,10 +412,10 @@ public class EnumDeserializationTest
 
     // [databind#381]
     public void testUnwrappedEnum() throws Exception {
-        final ObjectMapper mapper = newJsonMapper();
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
-        assertEquals(TestEnum.JACKSON, mapper.readValue("[" + quote("JACKSON") + "]", TestEnum.class));
+        assertEquals(TestEnum.JACKSON,
+                MAPPER.readerFor(TestEnum.class)
+                    .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                    .readValue("[" + quote("JACKSON") + "]"));
     }
     
     public void testUnwrappedEnumException() throws Exception {
@@ -422,11 +443,12 @@ public class EnumDeserializationTest
         assertSame(TestEnum.values()[1], en);
 
         // [databind#1690]: unless prevented
-        final ObjectMapper mapper = jsonMapperBuilder()
-                .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
-                .build();
         try {
-            en = mapper.readValue(quote("1"), TestEnum.class);
+            en = JsonMapper.builder()
+                    .configure(MapperFeature.ALLOW_COERCION_OF_SCALARS, false)
+                    .build()
+                    .readerFor(TestEnum.class)
+                    .readValue(quote("1"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize value of type");
@@ -527,5 +549,14 @@ public class EnumDeserializationTest
         } catch (MismatchedInputException e) {
             assertTrue(e.getMessage().contains("Undefined AnEnum"));
         }
+    }
+
+    // [databind#2309]
+    public void testEnumToStringNull2309() throws Exception
+    {
+        Enum2309 value = MAPPER.readerFor(Enum2309.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(quote("NON_NULL"));
+        assertEquals(Enum2309.NON_NULL, value);
     }
 }

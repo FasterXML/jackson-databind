@@ -51,6 +51,11 @@ public final class CompactStringObjectMap
         for (Map.Entry<String,?> entry : all.entrySet()) {
             String key = entry.getKey();
 
+            // 09-Sep-2019, tatu: [databind#2309] skip `null`s if any included
+            if (key == null) {
+                continue;
+            }
+            
             int slot = key.hashCode() & mask;
             int ix = slot+slot;
 

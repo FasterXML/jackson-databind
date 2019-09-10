@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2237: Add "required" methods in `JsonNode`: `required(String | int)`,
   `requiredAt(JsonPointer)`
+#2309: READ_ENUMS_USING_TO_STRING doesn't support null values
+ (reported, fix suggested by Ben A)
 #2331: `JsonMappingException` through nested getter with generic wildcard return type
  (reported by sunchezz89@github)
 #2336: `MapDeserializer` can not merge `Map`s with polymorphic values

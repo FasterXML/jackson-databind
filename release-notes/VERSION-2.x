@@ -15,6 +15,7 @@ Project: jackson-databind
  (reported, fix contributed by Hesham M)
 #2446: Java 11: Unable to load JDK7 types (annotations, java.nio.file.Path): no Java7 support added
  (reported by David C)
+#2451: Add new `JsonValueFormat` value, `UUID`
 
 2.10.0.pr2 (31-Aug-2019)
 

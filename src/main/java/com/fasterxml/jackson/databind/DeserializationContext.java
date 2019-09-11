@@ -150,7 +150,7 @@ public abstract class DeserializationContext
             InjectableValues injectableValues)
     {
         _streamFactory = streamFactory;
-        _factory = df;
+        _factory = Objects.requireNonNull(df, "Cannot pass null DeserializerFactory");
         _cache = cache;
 
         _config = config;
@@ -1148,6 +1148,10 @@ targetType, goodValue.getClass()));
         }
         // 18-May-2016, tatu: Only wrap if not already a valid type to throw
         ClassUtil.throwIfIOE(t);
+        // [databind#2164]: but see if wrapping is desired
+        if (!isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+            ClassUtil.throwIfRTE(t);
+        }
         throw instantiationException(instClass, t);
     }
 

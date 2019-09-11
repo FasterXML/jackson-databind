@@ -191,7 +191,7 @@ public class EnumDeserializer
                 if (c >= '0' && c <= '9') {
                     try {
                         int index = Integer.parseInt(name);
-                        if (!ctxt.isEnabled(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)) {
+                        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
                             return ctxt.handleWeirdStringValue(_enumClass(), name,
 "value looks like quoted Enum index, but `DeserializationFeature.ALLOW_COERCION_OF_SCALARS` prevents use"
                                     );

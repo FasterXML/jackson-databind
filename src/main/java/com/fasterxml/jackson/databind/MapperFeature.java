@@ -17,9 +17,9 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 public enum MapperFeature implements ConfigFeature
 {
     /*
-    /******************************************************
+    /**********************************************************************
     /* General introspection features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -118,9 +118,9 @@ public enum MapperFeature implements ConfigFeature
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Access modifier handling
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -166,9 +166,9 @@ public enum MapperFeature implements ConfigFeature
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Type-handling features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -215,9 +215,9 @@ public enum MapperFeature implements ConfigFeature
     USE_BASE_TYPE_AS_DEFAULT_IMPL(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* View-related features
-    /******************************************************
+    /**********************************************************************
      */
     
     /**
@@ -237,11 +237,11 @@ public enum MapperFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     DEFAULT_VIEW_INCLUSION(true),
-    
+
     /*
-    /******************************************************
+    /**********************************************************************
     /* Generic output features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -262,9 +262,9 @@ public enum MapperFeature implements ConfigFeature
     SORT_PROPERTIES_ALPHABETICALLY(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Name-related features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -326,9 +326,35 @@ public enum MapperFeature implements ConfigFeature
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
+    /* Coercion features
+    /**********************************************************************
+     */
+
+    /**
+     * Feature that determines whether coercions from secondary representations are allowed
+     * for simple non-textual scalar types: numbers and booleans. This includes `primitive`
+     * types and their wrappers, but excludes `java.lang.String` and date/time types.
+     *<p>
+     * When feature is disabled, only strictly compatible input may be bound: numbers for
+     * numbers, boolean values for booleans. When feature is enabled, conversions from
+     * JSON String are allowed, as long as textual value matches (for example, String
+     * "true" is allowed as equivalent of JSON boolean token `true`; or String "1.0"
+     * for `double`).
+     *<p>
+     * Note that it is possible that other configurability options can override this
+     * in closer scope (like on per-type or per-property basis); this is just the global
+     * default.
+     *<p>
+     * Feature is enabled by default (for backwards compatibility since this was the
+     * default behavior)
+     */
+    ALLOW_COERCION_OF_SCALARS(true),
+
+    /*
+    /**********************************************************************
     /* Other features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**

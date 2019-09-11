@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
+import java.util.Collections;
 
 /**
  * Simple interface for extensions that can be registered with {@link ObjectMapper}
@@ -73,6 +74,17 @@ public abstract class Module
      * using callback methods passed-in context object exposes.
      */
     public abstract void setupModule(SetupContext context);
+
+    /**
+     * Returns the list of dependent modules.
+     *
+     * It is called to let modules register other modules as dependencies.
+     *
+     * @since 2.10
+     */
+    public Iterable<? extends Module> getDependencies() {
+        return Collections.emptyList();
+    }
     
     /*
     /**********************************************************

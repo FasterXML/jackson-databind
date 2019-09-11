@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.*;
 import java.util.*;
 
@@ -409,5 +410,42 @@ public class ObjectMapperTest extends BaseMapTest
         JsonNode n = MAPPER.readerFor(Map.class)
                 .readTree(input);
         assertNotNull(n);
+    }
+
+    public void testRegisterDependentModules() {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final SimpleModule secondModule = new SimpleModule() {
+            @Override
+            public Object getTypeId() {
+                return "second";
+            }
+        };
+
+        final SimpleModule thirdModule = new SimpleModule() {
+            @Override
+            public Object getTypeId() {
+                return "third";
+            }
+        };
+
+        final SimpleModule firstModule = new SimpleModule() {
+            @Override
+            public Iterable<? extends Module> getDependencies() {
+                return Arrays.asList(secondModule, thirdModule);
+            }
+
+            @Override
+            public Object getTypeId() {
+                return "first";
+            }
+        };
+
+        objectMapper.registerModule(firstModule);
+
+        assertEquals(
+            new HashSet<>(Arrays.asList("first", "second", "third")),
+            objectMapper.getRegisteredModuleIds()
+        );
     }
 }

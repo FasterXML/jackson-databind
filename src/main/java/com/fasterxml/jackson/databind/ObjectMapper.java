@@ -768,6 +768,24 @@ public class ObjectMapper
     public ObjectMapper registerModule(Module module)
     {
         _assertNotNull("module", module);
+        // Let's ensure we have access to name and version information, 
+        // even if we do not have immediate use for either. This way we know
+        // that they will be available from beginning
+        String name = module.getModuleName();
+        if (name == null) {
+            throw new IllegalArgumentException("Module without defined name");
+        }
+        Version version = module.version();
+        if (version == null) {
+            throw new IllegalArgumentException("Module without defined version");
+        }
+
+        // [databind#2432]: Modules may depend on other modules; if so, register those first
+        for (Module dep : module.getDependencies()) {
+            registerModule(dep);
+        }
+
+        // then module itself
         if (isEnabled(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS)) {
             Object typeId = module.getTypeId();
             if (typeId != null) {
@@ -781,24 +799,6 @@ public class ObjectMapper
                     return this;
                 }
             }
-        }
-        
-        /* Let's ensure we have access to name and version information, 
-         * even if we do not have immediate use for either. This way we know
-         * that they will be available from beginning
-         */
-        String name = module.getModuleName();
-        if (name == null) {
-            throw new IllegalArgumentException("Module without defined name");
-        }
-        Version version = module.version();
-        if (version == null) {
-            throw new IllegalArgumentException("Module without defined version");
-        }
-
-        // [databind#2432]: Modules may depend on other modules; if so, register those first
-        for (Module dep : module.getDependencies()) {
-            registerModule(dep);
         }
 
         // And then call registration

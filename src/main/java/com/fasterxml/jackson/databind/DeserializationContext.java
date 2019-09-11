@@ -304,7 +304,7 @@ public abstract class DeserializationContext
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+    public JsonNode readTree(JsonParser p) throws IOException {
         // NOTE: inlined version of `_bindAsTree()` from `ObjectReader`
         JsonToken t = p.currentToken();
         if (t == null) {
@@ -314,10 +314,10 @@ public abstract class DeserializationContext
             }
         }
         if (t == JsonToken.VALUE_NULL) {
-            return (T) getNodeFactory().nullNode();
+            return getNodeFactory().nullNode();
         }
         JsonDeserializer<Object> deser = findRootValueDeserializer(ObjectReader.JSON_NODE_TYPE);
-        return (T) deser.deserialize(p, this);
+        return (JsonNode) deser.deserialize(p, this);
     }
 
     /**

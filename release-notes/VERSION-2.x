@@ -10,6 +10,8 @@ Project: jackson-databind
  (suggested by Craig P)
 #2309: READ_ENUMS_USING_TO_STRING doesn't support null values
  (reported, fix suggested by Ben A)
+#2357: Lack of path on MismatchedInputException
+ (suggested by TheEin@github)
 #2432: Add support for module bundles
  (contributed by Marcos P)
 #2442: `ArrayNode.addAll()` adds raw `null` values which cause NPE on `deepCopy()`

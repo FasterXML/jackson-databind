@@ -796,6 +796,8 @@ public class ObjectMapper
             throw new IllegalArgumentException("Module without defined version");
         }
 
+        registerModules(module.getDependencies());
+
         // And then call registration
         module.setupModule(new Module.SetupContext()
         {
@@ -961,6 +963,7 @@ public class ObjectMapper
                 setPropertyNamingStrategy(naming);
             }
         });
+
         return this;
     }
 

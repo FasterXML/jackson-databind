@@ -412,8 +412,9 @@ public class ObjectMapperTest extends BaseMapTest
         assertNotNull(n);
     }
 
+    @SuppressWarnings("serial")
     public void testRegisterDependentModules() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = newJsonMapper();
 
         final SimpleModule secondModule = new SimpleModule() {
             @Override
@@ -437,14 +438,14 @@ public class ObjectMapperTest extends BaseMapTest
 
             @Override
             public Object getTypeId() {
-                return "first";
+                return "main";
             }
         };
 
         objectMapper.registerModule(firstModule);
 
         assertEquals(
-            new HashSet<>(Arrays.asList("first", "second", "third")),
+            new HashSet<>(Arrays.asList("second", "third", "main")),
             objectMapper.getRegisteredModuleIds()
         );
     }

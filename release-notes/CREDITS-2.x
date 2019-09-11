@@ -880,12 +880,17 @@ Joe Barnett (josephlbarnett@github)
     ignored when creator properties are buffered
    (2.9.10)
 
-Christoph Breitkopf (bokesan@github)
-  * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
+Yiqiu Huang (huangyq23@github
+  * Reported #2164: `FactoryBasedEnumDeserializer` does not respect
+   `DeserializationFeature.WRAP_EXCEPTIONS`
    (2.10.0)
-
+   
 Alexander Saites (saites@github)
   * Reported #2189: `TreeTraversingParser` does not check int bounds
+   (2.10.0)
+
+Christoph Breitkopf (bokesan@github)
+  * Reported #2217: Suboptimal memory allocation in `TextNode.getBinaryValue()`
    (2.10.0)
 
 Pavel Chervakov (pacher@github)

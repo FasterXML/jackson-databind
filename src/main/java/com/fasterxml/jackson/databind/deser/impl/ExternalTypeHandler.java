@@ -225,7 +225,7 @@ public class ExternalTypeHandler
                     }
                     // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                     if (!_properties[i].hasDefaultType()) {
-                        ctxt.reportInputMismatch(bean.getClass(),
+                        ctxt.reportPropertyInputMismatch(bean.getClass(), extProp.getName(),
                                 "Missing external type id property '%s'",
                                 _properties[i].getTypePropertyName());                                
                     } else  {
@@ -237,7 +237,7 @@ public class ExternalTypeHandler
 
                 if(prop.isRequired() ||
                         ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
-                    ctxt.reportInputMismatch(bean.getClass(),
+                    ctxt.reportPropertyInputMismatch(bean.getClass(), prop.getName(),
                             "Missing property '%s' for external type id '%s'",
                             prop.getName(), _properties[i].getTypePropertyName());
                 }
@@ -270,7 +270,7 @@ public class ExternalTypeHandler
                 // but not just one
                 // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                 if (!extProp.hasDefaultType()) {
-                    ctxt.reportInputMismatch(_beanType,
+                    ctxt.reportPropertyInputMismatch(_beanType, extProp.getProperty().getName(),
                             "Missing external type id property '%s'",
                             extProp.getTypePropertyName());
                 } else {
@@ -280,7 +280,7 @@ public class ExternalTypeHandler
                 SettableBeanProperty prop = extProp.getProperty();
                 if (prop.isRequired() ||
                         ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
-                    ctxt.reportInputMismatch(_beanType,
+                    ctxt.reportPropertyInputMismatch(_beanType, prop.getName(),
                             "Missing property '%s' for external type id '%s'",
                             prop.getName(), _properties[i].getTypePropertyName());
                 }

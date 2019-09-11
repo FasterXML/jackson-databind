@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -241,5 +243,44 @@ public class ObjectMapperTest extends BaseMapTest
         JsonNode n = MAPPER.readerFor(Map.class)
                 .readTree(input);
         assertNotNull(n);
+    }
+
+    @SuppressWarnings("serial")
+    public void testRegisterDependentModules() {
+
+        final SimpleModule secondModule = new SimpleModule() {
+            @Override
+            public Object getRegistrationId() {
+                return "dep1";
+            }
+        };
+
+        final SimpleModule thirdModule = new SimpleModule() {
+            @Override
+            public Object getRegistrationId() {
+                return "dep2";
+            }
+        };
+
+        final SimpleModule mainModule = new SimpleModule() {
+            @Override
+            public Iterable<? extends Module> getDependencies() {
+                return Arrays.asList(secondModule, thirdModule);
+            }
+
+            @Override
+            public Object getRegistrationId() {
+                return "main";
+            }
+        };
+
+        ObjectMapper objectMapper = jsonMapperBuilder()
+                .addModule(mainModule)
+                .build();
+
+        Collection<Module> mods = objectMapper.getRegisteredModules();
+        List<Object> ids = mods.stream().map(mod -> mod.getRegistrationId())
+                .collect(Collectors.toList());
+        assertEquals(Arrays.asList("dep1", "dep2", "main"), ids);
     }
 }

@@ -895,13 +895,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B addModule(com.fasterxml.jackson.databind.Module module)
     {
-        if (module.getModuleName() == null) {
-            throw new IllegalArgumentException("Module without defined name");
-        }
-        if (module.version() == null) {
-            throw new IllegalArgumentException("Module without defined version");
-        }
-        // If dups are ok we still need a key, but just need to ensure it is unique so:
+        _verifyModuleMetadata(module);
         final Object moduleId = module.getRegistrationId();
         if (_modules == null) {
             _modules = new LinkedHashMap<>();
@@ -911,8 +905,25 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             // but simple does it for now.
             _modules.remove(moduleId);
         }
+
+        // 10-Sep-2019, tatu: [databind#2432] Module dependencies; need to add first
+        //   but unlike main module, do NOT replace module if already added
+        for (com.fasterxml.jackson.databind.Module dep : module.getDependencies()) {
+            _verifyModuleMetadata(dep);
+            _modules.putIfAbsent(dep.getRegistrationId(), dep);
+        }
         _modules.put(moduleId, module);
         return _this();
+    }
+
+    private void _verifyModuleMetadata(com.fasterxml.jackson.databind.Module module)
+    {
+        if (module.getModuleName() == null) {
+            throw new IllegalArgumentException("Module ("+module.getClass().getName()+") without defined name");
+        }
+        if (module.version() == null) {
+            throw new IllegalArgumentException("Module ("+module.getClass().getName()+") without defined version");
+        }
     }
 
     public B addModules(com.fasterxml.jackson.databind.Module... modules)

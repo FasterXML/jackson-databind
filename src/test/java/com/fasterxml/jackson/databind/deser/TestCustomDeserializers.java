@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
 /**
@@ -22,12 +23,6 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 public class TestCustomDeserializers
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     static class DummyDeserializer<T>
         extends StdDeserializer<T>
     {
@@ -305,6 +300,16 @@ public class TestCustomDeserializers
         }
     }
 
+    static class MyNodeDeserializer extends StdDeserializer<Object> {
+        public MyNodeDeserializer() { super(Object.class); }
+
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException {
+            return ctxt.readTree(p);
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -478,5 +483,21 @@ public class TestCustomDeserializers
                         ).build();
         String str = mapper.readValue(quote("foo"), String.class);
         assertEquals("FOOBAR", str);
+    }
+
+    // [databind#2452]
+    public void testCustomSerializerWithReadTree() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new SimpleModule()
+                        .addDeserializer(Object.class, new MyNodeDeserializer())
+                        )
+                .build();
+        ObjectWrapper w = mapper.readValue(aposToQuotes("[ 1, { 'a' : 3}, 123 ] "),
+                ObjectWrapper.class);
+        assertEquals(ArrayNode.class, w.getObject().getClass());
+        JsonNode n = (JsonNode) w.getObject();
+        assertEquals(3, n.size());
+        assertEquals(123, n.get(2).intValue());
     }
 }

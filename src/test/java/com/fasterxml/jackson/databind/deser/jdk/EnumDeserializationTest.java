@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -175,6 +177,16 @@ public class EnumDeserializationTest
         @Override
         public void setupModule(SetupContext context) {
             context.setMixIn(AnEnum.class, LanguageCodeMixin.class);
+        }
+    }
+
+    // for [databind#2164]
+    public enum TestEnum2164 {
+        A, B;
+
+        @JsonCreator
+        public static TestEnum2164 fromString(String input) {
+            throw new IllegalArgumentException("2164");
         }
     }
 
@@ -556,6 +568,31 @@ public class EnumDeserializationTest
         }
     }
 
+    // [databind#2164]
+    public void testWrapExceptions() throws Exception
+    {
+        // By default, wrap:
+        try {
+            MAPPER.readerFor(TestEnum2164.class)
+                .readValue(quote("B"));
+            fail("Should not pass");
+        } catch (ValueInstantiationException e) {
+            verifyException(e, "2164");
+        }
+
+        // But can disable:
+        try {
+            MAPPER.readerFor(TestEnum2164.class)
+                .without(DeserializationFeature.WRAP_EXCEPTIONS)
+                .readValue(quote("B"));
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            fail("Wrong exception, should not wrap, got: "+e);
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "2164");
+        }
+    }
+
     // [databind#2309]
     public void testEnumToStringNull2309() throws Exception
     {
@@ -564,4 +601,5 @@ public class EnumDeserializationTest
                 .readValue(quote("NON_NULL"));
         assertEquals(Enum2309.NON_NULL, value);
     }
+
 }

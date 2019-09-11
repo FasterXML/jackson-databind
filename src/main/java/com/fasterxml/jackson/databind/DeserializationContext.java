@@ -874,24 +874,6 @@ public abstract class DeserializationContext
         return (T) deser.deserialize(p, this);
     }
 
-    /**
-     * @since 2.10
-     */
-    public JsonNode readTree(JsonParser p) throws IOException {
-        JsonToken t = p.currentToken();
-        if (t == null) {
-            t = p.nextToken();
-            if (t == null) {
-                return getNodeFactory().missingNode();
-            }
-        }
-        if (t == JsonToken.VALUE_NULL) {
-            return getNodeFactory().nullNode();
-        }
-        return (JsonNode) findRootValueDeserializer(_config.constructType(JsonNode.class))
-                .deserialize(p, this);
-    }
-
     /*
     /**********************************************************************
     /* Methods for problem handling

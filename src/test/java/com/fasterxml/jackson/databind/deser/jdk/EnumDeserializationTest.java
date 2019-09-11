@@ -442,8 +442,10 @@ public class EnumDeserializationTest
 
         // [databind#1690]: unless prevented
         try {
-            en = MAPPER.readerFor(TestEnum.class)
-                    .without(DeserializationFeature.ALLOW_COERCION_OF_SCALARS)
+            en = jsonMapperBuilder()
+                    .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+                    .build()
+                    .readerFor(TestEnum.class)
                     .readValue(quote("1"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {

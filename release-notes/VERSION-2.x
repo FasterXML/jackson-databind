@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #2149: Add `MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES`
  (suggested by Craig P)
+#2164: `FactoryBasedEnumDeserializer` does not respect
+  `DeserializationFeature.WRAP_EXCEPTIONS`
+ (reported by Yiqiu H)
 #2309: READ_ENUMS_USING_TO_STRING doesn't support null values
  (reported, fix suggested by Ben A)
 #2357: Lack of path on MismatchedInputException

@@ -1722,7 +1722,7 @@ public class ObjectReader
         }
         String actualName = p.currentName();
         if (!expSimpleName.equals(actualName)) {
-            ctxt.reportInputMismatch(rootType,
+            ctxt.reportPropertyInputMismatch(rootType, actualName,
                     "Root name '%s' does not match expected ('%s') for type %s",
                     actualName, expSimpleName, rootType);
         }

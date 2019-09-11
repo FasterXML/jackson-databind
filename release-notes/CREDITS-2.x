@@ -926,6 +926,10 @@ Vladimir Tsanev (tsachev@github)
     to `handleUnknownVanilla()` to fix earlier #822
    (2.10.0)
 
+Marcos Passos (marcospassos@github(
+  * Contributed #2432: Add support for module bundles
+   (2.10.0)
+
 David Becker (dsbecker@github)
   * Suggested #2433: Improve `NullNode.equals()`
    (2.10.0)

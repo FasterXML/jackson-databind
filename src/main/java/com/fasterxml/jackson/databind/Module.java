@@ -76,16 +76,17 @@ public abstract class Module
     public abstract void setupModule(SetupContext context);
 
     /**
-     * Returns the list of dependent modules.
-     *
+     * Returns the list of dependent modules this module has, if any.
      * It is called to let modules register other modules as dependencies.
+     * Modules returned will be registered before this module is registered,
+     * in iteration order.
      *
      * @since 2.10
      */
     public Iterable<? extends Module> getDependencies() {
         return Collections.emptyList();
     }
-    
+
     /*
     /**********************************************************
     /* Helper types

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -1330,20 +1331,6 @@ targetType, goodValue.getClass()));
      *
      * @since 2.9
      */
-    public <T> T reportInputMismatch(BeanProperty prop,
-            String msg, Object... msgArgs) throws JsonMappingException
-    {
-        msg = _format(msg, msgArgs);
-        JavaType type = (prop == null) ? null : prop.getType();
-        throw MismatchedInputException.from(getParser(), type, msg);
-    }
-
-    /**
-     * Helper method used to indicate a problem with input in cases where more
-     * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
-     */
     public <T> T reportInputMismatch(JsonDeserializer<?> src,
             String msg, Object... msgArgs) throws JsonMappingException
     {
@@ -1376,6 +1363,57 @@ targetType, goodValue.getClass()));
         msg = _format(msg, msgArgs);
         throw MismatchedInputException.from(getParser(), targetType, msg);
     }
+
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.9
+     */
+    public <T> T reportInputMismatch(BeanProperty prop,
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
+        msg = _format(msg, msgArgs);
+        JavaType type = (prop == null) ? null : prop.getType();
+        final MismatchedInputException e = MismatchedInputException.from(getParser(), type, msg);
+        // [databind#2357]: Include property name, if we have it
+        if (prop != null) {
+            AnnotatedMember member = prop.getMember();
+            if (member != null) {
+                e.prependPath(member.getDeclaringClass(), prop.getName());
+            }
+        }
+        throw e;
+    }
+
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.10
+     */
+    public <T> T reportPropertyInputMismatch(Class<?> targetType, String propertyName,
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
+        msg = _format(msg, msgArgs);
+        MismatchedInputException e = MismatchedInputException.from(getParser(), targetType, msg);
+        if (propertyName != null) {
+            e.prependPath(targetType, propertyName);
+        }
+        throw e;
+    }
+
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.10
+     */
+    public <T> T reportPropertyInputMismatch(JavaType targetType, String propertyName,
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
+        return reportPropertyInputMismatch(targetType.getRawClass(), propertyName, msg, msgArgs);
+    }    
 
     public <T> T reportTrailingTokens(Class<?> targetType,
             JsonParser p, JsonToken trailingToken) throws JsonMappingException

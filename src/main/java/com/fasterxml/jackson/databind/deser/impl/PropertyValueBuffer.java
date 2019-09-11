@@ -171,7 +171,7 @@ public class PropertyValueBuffer
             for (int ix = 0; ix < props.length; ++ix) {
                 if (_creatorParameters[ix] == null) {
                     SettableBeanProperty prop = props[ix];
-                    _context.reportInputMismatch(prop.getType(),
+                    _context.reportInputMismatch(prop,
                             "Null value for creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS` enabled",
                             prop.getName(), props[ix].getCreatorIndex());
                 }

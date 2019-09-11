@@ -796,7 +796,10 @@ public class ObjectMapper
             throw new IllegalArgumentException("Module without defined version");
         }
 
-        registerModules(module.getDependencies());
+        // [databind#2432]: Modules may depend on other modules; if so, register those first
+        for (Module dep : module.getDependencies()) {
+            registerModule(dep);
+        }
 
         // And then call registration
         module.setupModule(new Module.SetupContext()

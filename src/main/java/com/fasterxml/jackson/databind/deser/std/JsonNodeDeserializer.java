@@ -213,8 +213,11 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         // [databind#237]: Report an error if asked to do so:
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
+            // 11-Sep-2019, tatu: Can not pass "property name" because we may be
+            //    missing enclosing JSON content context...
+// ctxt.reportPropertyInputMismatch(JsonNode.class, fieldName,
             ctxt.reportInputMismatch(JsonNode.class,
-                    "Duplicate field '%s' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled",
+"Duplicate field '%s' for `ObjectNode`: not allowed when `DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY` enabled",
                     fieldName);
         }
     }

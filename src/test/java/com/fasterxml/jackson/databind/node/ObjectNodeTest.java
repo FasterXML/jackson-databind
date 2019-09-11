@@ -45,6 +45,7 @@ public class ObjectNodeTest
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         public ObjectNode node;
 
+        protected ObNodeWrapper() { }
         public ObNodeWrapper(ObjectNode n) {
             node = n;
         }
@@ -373,17 +374,31 @@ public class ObjectNodeTest
         final String DUP_JSON = "{ \"a\":1, \"a\":2 }";
         
         // first: verify defaults:
-        ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
-        ObjectNode root = (ObjectNode) mapper.readTree(DUP_JSON);
+        assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
+        ObjectNode root = (ObjectNode) MAPPER.readTree(DUP_JSON);
         assertEquals(2, root.path("a").asInt());
         
         // and then enable checks:
         try {
-            mapper.reader(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY).readTree(DUP_JSON);
+            MAPPER.reader(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY).readTree(DUP_JSON);
             fail("Should have thrown exception!");
         } catch (JsonMappingException e) {
             verifyException(e, "duplicate field 'a'");
+        }
+    }
+
+    public void testFailOnDupNestedKeys() throws Exception
+    {
+        final String DOC = aposToQuotes(
+                "{'node' : { 'data' : [ 1, 2, { 'a':3 }, { 'foo' : 1, 'bar' : 2, 'foo': 3}]}}"
+        );
+        try {
+            MAPPER.readerFor(ObNodeWrapper.class)
+                .with(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
+                .readValue(DOC);
+            fail("Should have thrown exception!");
+        } catch (JsonMappingException e) {
+            verifyException(e, "duplicate field 'foo'");
         }
     }
 

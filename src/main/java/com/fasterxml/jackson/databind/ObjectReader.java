@@ -962,16 +962,11 @@ public class ObjectReader
      *<p>
      * Note: if an object was specified with {@link #withValueToUpdate}, it
      * will be ignored.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     @SuppressWarnings("unchecked")
     @Override
     public JsonNode readTree(JsonParser p) throws IOException {
-//        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
         _assertNotNull("p", p);
-//        return (T) _bindAsTreeOrNull(createDeserializationContext(p), p);
         return _bindAsTreeOrNull(createDeserializationContext(p), p);
     }
 
@@ -994,9 +989,6 @@ public class ObjectReader
      * configuration of this reader, including expected result type.
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p) throws IOException {
@@ -1011,9 +1003,6 @@ public class ObjectReader
      * is specified with the call (instead of currently configured root type).
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException {
         _assertNotNull("p", p);
@@ -1026,9 +1015,6 @@ public class ObjectReader
      * is specified with the call (instead of currently configured root type).
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
         _assertNotNull("p", p);
@@ -1041,9 +1027,6 @@ public class ObjectReader
      * is specified with the call (instead of currently configured root type).
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException {
@@ -1053,9 +1036,6 @@ public class ObjectReader
 
     /**
      * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, ResolvedType)}.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, JavaType valueType) throws IOException {
@@ -1078,9 +1058,6 @@ public class ObjectReader
      * parser MUST NOT point to the surrounding <code>START_ARRAY</code> (one that
      * contains values to read) but rather to the token following it which is the first
      * token of the first value to read.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     public <T> Iterator<T> readValues(JsonParser p, Class<T> valueType) throws IOException {
         _assertNotNull("p", p);
@@ -1102,9 +1079,6 @@ public class ObjectReader
      * parser MUST NOT point to the surrounding <code>START_ARRAY</code> (one that
      * contains values to read) but rather to the token following it which is the first
      * token of the first value to read.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     public <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
         _assertNotNull("p", p);
@@ -1126,9 +1100,6 @@ public class ObjectReader
      * parser MUST NOT point to the surrounding <code>START_ARRAY</code> (one that
      * contains values to read) but rather to the token following it which is the first
      * token of the first value to read.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     public <T> Iterator<T> readValues(JsonParser p, ResolvedType valueType) throws IOException {
         _assertNotNull("p", p);
@@ -1150,9 +1121,6 @@ public class ObjectReader
      * parser MUST NOT point to the surrounding <code>START_ARRAY</code> (one that
      * contains values to read) but rather to the token following it which is the first
      * token of the first value to read.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
      */
     public <T> Iterator<T> readValues(JsonParser p, JavaType valueType) throws IOException {
         _assertNotNull("p", p);
@@ -1809,13 +1777,6 @@ public class ObjectReader
 
     protected InputStream _inputStream(File f) throws IOException {
         return new FileInputStream(f);
-    }
-
-    protected void _reportUndetectableSource(Object src) throws JsonProcessingException
-    {
-        // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
-        throw new JsonParseException(null, "Cannot use source of type "
-                +src.getClass().getName()+" with format auto-detection: must be byte- not char-based");
     }
 
     protected final void _assertNotNull(String paramName, Object src) {

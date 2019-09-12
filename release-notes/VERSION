@@ -9,6 +9,8 @@ Unreleased but backported
   (reported by iSafeBlue@github / blue@ixsec.org)
 #2420: Block one more gadget type (no CVE allocated yet)
   (reported by crazylirui@gmail.com)
+#2449: Block one more gadget type (cve CVE-2019-14540)
+  (reported by Kaki K)
 
 2.8.11.4 (25-Jul-2019)
 

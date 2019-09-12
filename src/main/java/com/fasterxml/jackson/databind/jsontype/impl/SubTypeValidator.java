@@ -100,6 +100,8 @@ public class SubTypeValidator
 
         // [databind#2410]: HikariCP/metricRegistry config
         s.add("com.zaxxer.hikari.HikariConfig");
+        // [databind#2449]: and sub-class thereof
+        s.add("com.zaxxer.hikari.HikariDataSource");
 
         // [databind#2420]: CXF/JAX-RS provider/XSLT
         s.add("org.apache.cxf.jaxrs.provider.XSLTJaxbProvider");

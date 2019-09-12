@@ -496,9 +496,8 @@ public enum MapperFeature implements ConfigFeature
      * merging is skipped and new value is created (<code>true</code>) or
      * an exception is thrown (false).
      *<p>
-     * Feature is disabled by default since non-mergeable property types are ignored
-     * even if defaults call for merging, and usually explicit per-type or per-property
-     * settings for such types should result in an exception.
+     * Feature is enabled by default, to allow use of merge defaults even in presence
+     * of some unmergeable properties.
      *
      * @since 2.9
      */

@@ -661,6 +661,10 @@ svarzee@github
   * Reported #2109, suggested fix: Canonical string for reference type is built incorrectly
    (2.8.11.3 / 2.9.7)
 
+Kaki King (kingkk9279@g)
+  * Reported #2449: Block one more gadget type (cve CVE-2019-14540)
+   (2.9.10)
+  
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

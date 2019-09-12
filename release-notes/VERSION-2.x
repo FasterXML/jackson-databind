@@ -13,13 +13,15 @@ Project: jackson-databind
 #2387: Block yet another deserialization gadget (CVE-2019-14379)
 #2389: Block yet another deserialization gadget (CVE-2019-14439)
  (reported by xiexq)
+#2404: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY setting ignored when
+  creator properties are buffered
+ (contributed by Joe B)
 #2410: Block one more gadget type (CVE-2019-14540)
   (reported by iSafeBlue@github / blue@ixsec.org)
 #2420: Block one more gadget type (no CVE allocated yet)
   (reported by crazylirui@gmail.com)
-#2404: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY setting ignored when
-  creator properties are buffered
- (contributed by Joe B)
+#2449: Block one more gadget type (no CVE allocated yet)
+  (reported by Kaki K)
 
 2.9.9 (16-May-2019)
 

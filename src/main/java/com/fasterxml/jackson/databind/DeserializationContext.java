@@ -155,8 +155,7 @@ public abstract class DeserializationContext
     protected DeserializationContext(DeserializerFactory df,
             DeserializerCache cache)
     {
-        Objects.requireNonNull(df, "Cannot pass null DeserializerFactory");
-        _factory = df;
+        _factory = Objects.requireNonNull(df, "Cannot pass null DeserializerFactory");
         if (cache == null) {
             cache = new DeserializerCache();
         }

@@ -15,6 +15,6 @@ We would also appreciate if you:
     * no deep search necessary, just a quick sanity check
 * Include version information for Jackson version you use
 * (optional but highly recommended) Verify that the problem occurs with the latest patch of same minor version; and even better, if possible, try using the latest stable patch version
-    * For example: if you observe an issue with version `2.4.1`, first upgrade to `2.4.6` to ensure problem has not already been fixed.
+    * For example: if you observe an issue with version `2.9.3`, first upgrade to `2.9.9` to ensure problem has not already been fixed.
 
 With that, let's hear what problem you are having & thank you in advance for reporting it!

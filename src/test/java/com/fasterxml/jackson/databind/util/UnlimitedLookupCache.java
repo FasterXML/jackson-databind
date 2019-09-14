@@ -59,6 +59,6 @@ public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
     }
 
     protected Object readResolve() {
-        return new UnlimitedLookupCache<Object,Object>(_initialEntries, _maxEntries);
+        return snapshot();
     }
 }

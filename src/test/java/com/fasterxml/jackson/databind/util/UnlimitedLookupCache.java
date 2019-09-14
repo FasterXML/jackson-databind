@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 
 /**
  * A LookupCache implementation that has no synchronization (like SimpleLookupCache does)
- * but that has the down-side of not limiting the size of the cache.
+ * but that has the downside of not limiting the size of the cache.
  */
 public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
 
@@ -56,5 +56,9 @@ public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
     @Override
     public LookupCache<K, V> snapshot() {
         return new UnlimitedLookupCache<K,V>(_initialEntries, _maxEntries);
+    }
+
+    protected Object readResolve() {
+        return new UnlimitedLookupCache<Object,Object>(_initialEntries, _maxEntries);
     }
 }

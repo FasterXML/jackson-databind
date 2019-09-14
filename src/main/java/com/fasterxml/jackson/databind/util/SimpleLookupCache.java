@@ -4,8 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
-
 /**
  * Synchronized cache with bounded size: used for reusing lookup values
  * and lazily instantiated reusable items.

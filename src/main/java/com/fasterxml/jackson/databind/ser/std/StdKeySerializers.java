@@ -166,7 +166,8 @@ public abstract class StdKeySerializers
                         key = value.toString();
                     } else {
                         Enum<?> e = (Enum<?>) value;
-                        if (provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+                        // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
+                        if (provider.isEnabled(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                             key = String.valueOf(e.ordinal());
                         } else {
                             key = e.name();
@@ -293,7 +294,8 @@ public abstract class StdKeySerializers
                 return;
             }
             Enum<?> en = (Enum<?>) value;
-            if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+            // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
+            if (serializers.isEnabled(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                 g.writeFieldName(String.valueOf(en.ordinal()));
                 return;
             }

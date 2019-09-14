@@ -257,7 +257,7 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_ENUMS_USING_TO_STRING(false),
 
     /**
-     * Feature that determines whethere Java Enum values are serialized
+     * Feature that determines whether Java Enum values are serialized
      * as numbers (true), or textual values (false). If textual values are
      * used, other settings are also considered.
      * If this feature is enabled,
@@ -267,10 +267,27 @@ public enum SerializationFeature implements ConfigFeature
      * Note that this feature has precedence over {@link #WRITE_ENUMS_USING_TO_STRING},
      * which is only considered if this feature is set to false.
      *<p>
+     * Note that since 2.10, this does NOT apply to {@link Enum}s written as
+     * keys of {@link java.util.Map} values, which has separate setting,
+     * {@link #WRITE_ENUM_KEYS_USING_INDEX}.
+     *<p>
      * Feature is disabled by default.
      */
     WRITE_ENUMS_USING_INDEX(false),
 
+    /**
+     * Feature that determines whether {link Enum}s
+     * used as {@link java.util.Map} keys are serialized
+     * as using {@link Enum#ordinal()} or not.
+     * Similar to {@link #WRITE_ENUMS_USING_INDEX} used when writing
+     * {@link Enum}s as regular values.
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.10
+     */
+    WRITE_ENUM_KEYS_USING_INDEX(false),
+    
     /**
      * Feature that determines whether Map entries with null values are
      * to be serialized (true) or not (false).

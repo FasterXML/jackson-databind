@@ -119,7 +119,6 @@ public class EnumSerializer
     public final void serialize(Enum<?> en, JsonGenerator gen, SerializerProvider serializers)
         throws IOException
     {
-        // [JACKSON-684]: serialize as index?
         if (_serializeAsIndex(serializers)) {
             gen.writeNumber(en.ordinal());
             return;

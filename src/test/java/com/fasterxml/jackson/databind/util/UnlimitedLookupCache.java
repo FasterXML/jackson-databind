@@ -4,6 +4,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
+/**
+ * A LookupCache implementation that has no synchronization (like SimpleLookupCache does)
+ * but that has the down-side of not limiting the size of the cache.
+ */
 public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
 
     private final int _initialEntries, _maxEntries;

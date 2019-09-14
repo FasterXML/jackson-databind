@@ -60,7 +60,7 @@ public final class SerializerCache
         _sharedMap = new SimpleLookupCache<TypeKey, JsonSerializer<Object>>(initial, maxCached);
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
-    
+
     protected SerializerCache(LookupCache<TypeKey, JsonSerializer<Object>> shared) {
         _sharedMap = shared;
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();

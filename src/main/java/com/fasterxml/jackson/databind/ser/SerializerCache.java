@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
+import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
@@ -40,7 +41,7 @@ public final class SerializerCache
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private final SimpleLookupCache<TypeKey, JsonSerializer<Object>> _sharedMap;
+    private final LookupCache<TypeKey, JsonSerializer<Object>> _sharedMap;
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
@@ -60,7 +61,10 @@ public final class SerializerCache
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 
-    private SerializerCache(SimpleLookupCache<TypeKey, JsonSerializer<Object>> shared) {
+    /**
+     * @since 3.0
+     */
+    public SerializerCache(LookupCache<TypeKey, JsonSerializer<Object>> shared) {
         _sharedMap = shared;
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }

@@ -119,49 +119,6 @@ public class TestEnumSerialization
         }
     }
 
-    static enum MyEnum594 {
-        VALUE_WITH_A_REALLY_LONG_NAME_HERE("longValue");
-
-        private final String key;
-        private MyEnum594(String k) { key = k; }
-
-        @JsonValue
-        public String getKey() { return key; }
-    }
-
-    static class MyStuff594 {
-        public Map<MyEnum594,String> stuff = new EnumMap<MyEnum594,String>(MyEnum594.class);
-        
-        public MyStuff594(String value) {
-            stuff.put(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE, value);
-        }
-    }
-
-    public class MyBean661 {
-        private Map<Foo661, String> foo = new EnumMap<Foo661, String>(Foo661.class);
-
-        public MyBean661(String value) {
-            foo.put(Foo661.FOO, value);
-        }
-
-        @JsonAnyGetter
-        @JsonSerialize(keyUsing = Foo661.Serializer.class)
-        public Map<Foo661, String> getFoo() {
-            return foo;
-        }
-    }
-
-    enum Foo661 {
-        FOO;
-        public static class Serializer extends JsonSerializer<Foo661> {
-            @Override
-            public void serialize(Foo661 value, JsonGenerator jgen, SerializerProvider provider) 
-                    throws IOException {
-                jgen.writeFieldName("X-"+value.name());
-            }
-        }
-    }
-
     protected static enum LC749Enum {
         A, B, C;
         private LC749Enum() { }
@@ -176,12 +133,12 @@ public class TestEnumSerialization
     }
 
     /*
-    /**********************************************************
-    /* Tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testSimple() throws Exception
     {
@@ -267,32 +224,6 @@ public class TestEnumSerialization
         assertEquals("{\"c\":\"value\"}", m.writeValueAsString(enums));
     }
 
-    public void testMapWithEnumKeys() throws Exception
-    {
-        MapBean bean = new MapBean();
-        bean.add(TestEnum.B, 3);
-
-        // By default Enums serialized using `name()`
-        String json = MAPPER.writeValueAsString(bean);
-        assertEquals("{\"map\":{\"B\":3}}", json);
-
-        // but can change
-        json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
-                .writeValueAsString(bean);
-        assertEquals("{\"map\":{\"b\":3}}", json);
-
-        // [databind#1570]
-
-        // 14-Sep-2019, tatu: as per [databind#2129], must NOT use this feature but
-        //    instead new `WRITE_ENUM_KEYS_USING_INDEX` added in 2.10
-        json = MAPPER.writer()
-                .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
-                .writeValueAsString(bean);
-//        assertEquals(aposToQuotes("{'map':{'"+TestEnum.B.ordinal()+"':3}}"), json);
-        assertEquals(aposToQuotes("{'map':{'B':3}}"), json);
-    }
-
     public void testAsIndex() throws Exception
     {
         // By default, serialize using name
@@ -314,6 +245,7 @@ public class TestEnumSerialization
         assertEquals(quote("V2"), MAPPER.writeValueAsString(NOT_OK2.V2));
     }
 
+    // [databind#227]
     public void testGenericEnumSerializer() throws Exception
     {
         // By default, serialize using name
@@ -325,22 +257,10 @@ public class TestEnumSerialization
         assertEquals(quote("b"), mapper.writeValueAsString(TestEnum.B));
     }
 
-    // [databind#594]
-    public void testJsonValueForEnumMapKey() throws Exception {
-        assertEquals(aposToQuotes("{'stuff':{'longValue':'foo'}}"),
-                MAPPER.writeValueAsString(new MyStuff594("foo")));
-    }
-
-    // [databind#661]
-    public void testCustomEnumMapKeySerializer() throws Exception {
-        String json = MAPPER.writeValueAsString(new MyBean661("abc"));
-        assertEquals(aposToQuotes("{'X-FOO':'abc'}"), json);
-    }
-
     // [databind#749]
 
     public void testEnumMapSerDefault() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", mapper.writeValueAsString(m));

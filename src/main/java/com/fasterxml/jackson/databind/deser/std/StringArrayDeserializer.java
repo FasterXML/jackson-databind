@@ -307,6 +307,6 @@ public final class StringArrayDeserializer
                 return null;
             }
         }
-        return (String[]) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (String[]) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 }

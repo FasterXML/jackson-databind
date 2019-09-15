@@ -184,7 +184,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             }
             return _deserializeEmbedded(ob, ctxt);
         }
-        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
         
     protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;

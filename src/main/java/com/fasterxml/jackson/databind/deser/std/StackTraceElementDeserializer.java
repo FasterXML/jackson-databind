@@ -80,7 +80,7 @@ public class StackTraceElementDeserializer
             }
             return value;
         }
-        return (StackTraceElement) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (StackTraceElement) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /**

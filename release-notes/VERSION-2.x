@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #2129: Add `SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX`, separate from value setting
  (suggested by renzihui@github)
+#2133: Improve `DeserializationProblemHandler.handleUnexpectedToken()` to allow handling of
+  Collection problems
+ (contributed by Semyon L)
 #2149: Add `MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES`
  (suggested by Craig P)
 #2164: `FactoryBasedEnumDeserializer` does not respect

@@ -377,7 +377,7 @@ public class MapDeserializer
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
-            return (Map<Object,Object>) ctxt.handleUnexpectedToken(getMapClass(), p);
+            return (Map<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
         // 21-Apr-2017, tatu: Need separate methods to do proper merging
         if (_standardStringKey) {

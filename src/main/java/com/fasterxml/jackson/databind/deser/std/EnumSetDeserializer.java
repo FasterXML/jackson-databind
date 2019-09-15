@@ -150,7 +150,7 @@ public class EnumSetDeserializer
                  * deserializers)
                  */
                 if (t == JsonToken.VALUE_NULL) {
-                    return (EnumSet<?>) ctxt.handleUnexpectedToken(_enumClass, p);
+                    return (EnumSet<?>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 }
                 Enum<?> value = _enumDeserializer.deserialize(p, ctxt);
                 /* 24-Mar-2012, tatu: As per [JACKSON-810], may actually get nulls;
@@ -190,11 +190,11 @@ public class EnumSetDeserializer
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
 
         if (!canWrap) {
-            return (EnumSet<?>) ctxt.handleUnexpectedToken(EnumSet.class, p);
+            return (EnumSet<?>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
         // First: since `null`s not allowed, slightly simpler...
         if (p.hasToken(JsonToken.VALUE_NULL)) {
-            return (EnumSet<?>) ctxt.handleUnexpectedToken(_enumClass, p);
+            return (EnumSet<?>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
         try {
             Enum<?> value = _enumDeserializer.deserialize(p, ctxt);

@@ -211,7 +211,7 @@ public class EnumDeserializer
         }
         if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
             return ctxt.handleWeirdStringValue(_enumClass(), name,
-                    "not one of the values accepted for Enum class: %s",  lookup.keys());
+                    "not one of the values accepted for Enum class: %s", lookup.keys());
         }
         return null;
     }
@@ -222,7 +222,7 @@ public class EnumDeserializer
         if (p.hasToken(JsonToken.START_ARRAY)) {
             return _deserializeFromArray(p, ctxt);
         }
-        return ctxt.handleUnexpectedToken(_enumClass(), p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     protected Class<?> _enumClass() {

@@ -72,7 +72,7 @@ public class TestValueAnnotations
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 return new RootStringImpl(p.getText());
             }
-            return (RootString) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (RootString) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 

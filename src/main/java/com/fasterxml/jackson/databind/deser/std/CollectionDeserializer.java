@@ -321,7 +321,7 @@ _containerType,
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
+            return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType, p);
         }
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;

@@ -223,7 +223,7 @@ public class BeanDeserializer
             default:
             }
         }
-        return ctxt.handleUnexpectedToken(handledType(), p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /**
@@ -709,7 +709,7 @@ public class BeanDeserializer
             tb.close();
             return ob;
         }
-        return ctxt.handleUnexpectedToken(handledType(), p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /*
@@ -1196,7 +1196,7 @@ public class BeanDeserializer
     protected Object _handleUnexpectedWithin(JsonParser p,
             DeserializationContext ctxt, Object bean) throws IOException
     {
-        return ctxt.handleUnexpectedToken(handledType(), p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     static class BeanReferring extends Referring

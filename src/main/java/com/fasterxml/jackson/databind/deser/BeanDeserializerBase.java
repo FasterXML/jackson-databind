@@ -1408,10 +1408,9 @@ public abstract class BeanDeserializerBase
             if (t == JsonToken.END_ARRAY) {
                 return null;
             }
-            return ctxt.handleUnexpectedToken(handledType(),
-                    JsonToken.START_ARRAY, p, null);
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
         }
-        return ctxt.handleUnexpectedToken(handledType(), p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     public Object deserializeFromEmbedded(JsonParser p, DeserializationContext ctxt)

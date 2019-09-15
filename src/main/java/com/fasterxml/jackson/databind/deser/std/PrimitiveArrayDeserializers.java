@@ -229,7 +229,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         if (canWrap) {
             return handleSingleElementUnwrapped(p, ctxt);
         }
-        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     protected void _failOnNull(DeserializationContext ctxt) throws IOException
@@ -295,7 +295,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                         _verifyNullForPrimitive(ctxt);
                         str = "\0";
                     } else {
-                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
+                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                         str = cs.toString();
                     }
                     if (str.length() != 1) {
@@ -322,14 +322,14 @@ public abstract class PrimitiveArrayDeserializers<T>
                 }
                 // not recognized, just fall through
             }
-            return (char[]) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (char[]) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
 
         @Override
         protected char[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
             // not sure how this should work...
-            return (char[]) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (char[]) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
 
         @Override
@@ -536,7 +536,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                     _verifyNullForPrimitive(ctxt);
                     return null;
                 }
-                Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
+                Number n = (Number) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                 value = n.byteValue();
             }
             return new byte[] { value };

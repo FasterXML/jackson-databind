@@ -60,7 +60,7 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
                 return text;
             }
         }
-        return (String) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (String) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):

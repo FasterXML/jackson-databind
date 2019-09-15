@@ -52,6 +52,6 @@ public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<Opt
             }
             break;
         }
-        return (OptionalLong) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (OptionalLong) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 }

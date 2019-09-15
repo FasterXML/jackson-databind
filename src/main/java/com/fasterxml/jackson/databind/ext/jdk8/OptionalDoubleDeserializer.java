@@ -48,6 +48,6 @@ public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<O
             }
             break;
         }
-        return (OptionalDouble) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (OptionalDouble) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 }

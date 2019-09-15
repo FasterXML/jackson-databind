@@ -178,7 +178,7 @@ public class MapEntryDeserializer
                 return ctxt.reportInputMismatch(this,
                         "Cannot deserialize a Map.Entry out of empty JSON Object");
             }
-            return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(handledType(), p);
+            return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
 
         final KeyDeserializer keyDes = _keyDeserializer;

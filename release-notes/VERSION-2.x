@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.10.0-final (not yet released)
 
+#2129: Add `SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX`, separate from value setting
+ (suggested by renzihui@github)
 #2149: Add `MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES`
  (suggested by Craig P)
 #2164: `FactoryBasedEnumDeserializer` does not respect

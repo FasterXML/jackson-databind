@@ -884,6 +884,10 @@ Joe Barnett (josephlbarnett@github)
     ignored when creator properties are buffered
    (2.9.10)
 
+Zihui Ren (renzihui@github)
+  * Suggested #2129: Add `SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX`, separate from value setting
+   (2.10.0)
+
 Yiqiu Huang (huangyq23@github
   * Reported #2164: `FactoryBasedEnumDeserializer` does not respect
    `DeserializationFeature.WRAP_EXCEPTIONS`

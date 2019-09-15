@@ -283,10 +283,14 @@ public class TestEnumSerialization
         assertEquals("{\"map\":{\"b\":3}}", json);
 
         // [databind#1570]
+
+        // 14-Sep-2019, tatu: as per [databind#2129], must NOT use this feature but
+        //    instead new `WRITE_ENUM_KEYS_USING_INDEX` added in 2.10
         json = MAPPER.writer()
                 .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
                 .writeValueAsString(bean);
-        assertEquals(aposToQuotes("{'map':{'"+TestEnum.B.ordinal()+"':3}}"), json);
+//        assertEquals(aposToQuotes("{'map':{'"+TestEnum.B.ordinal()+"':3}}"), json);
+        assertEquals(aposToQuotes("{'map':{'B':3}}"), json);
     }
 
     public void testAsIndex() throws Exception

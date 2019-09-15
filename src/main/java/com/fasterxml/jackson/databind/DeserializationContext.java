@@ -1133,31 +1133,73 @@ targetType, goodValue.getClass()));
             JsonParser p, String msg, Object... msgArgs)
         throws IOException
     {
+        return handleUnexpectedToken(constructType(instClass), t, p, msg, msgArgs);
+    }
+
+    /**
+     * Method that deserializers should call if the first token of the value to
+     * deserialize is of unexpected type (that is, type of token that deserializer
+     * cannot handle). This could occur, for example, if a Number deserializer
+     * encounter {@link JsonToken#START_ARRAY} instead of
+     * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     *
+     * @param targetType Type that was to be instantiated
+     * @param p Parser that points to the JSON value to decode
+     *
+     * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
+     *
+     * @since 2.10
+     */
+    public Object handleUnexpectedToken(JavaType targetType, JsonParser p)
+        throws IOException
+    {
+        return handleUnexpectedToken(targetType, p.getCurrentToken(), p, null);
+    }
+
+    /**
+     * Method that deserializers should call if the first token of the value to
+     * deserialize is of unexpected type (that is, type of token that deserializer
+     * cannot handle). This could occur, for example, if a Number deserializer
+     * encounter {@link JsonToken#START_ARRAY} instead of
+     * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     *
+     * @param targetType Type that was to be instantiated
+     * @param t Token encountered that does match expected
+     * @param p Parser that points to the JSON value to decode
+     *
+     * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
+     *
+     * @since 2.10
+     */
+    public Object handleUnexpectedToken(JavaType targetType, JsonToken t,
+            JsonParser p, String msg, Object... msgArgs)
+        throws IOException
+    {
         msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             Object instance = h.value().handleUnexpectedToken(this,
-                    instClass, t, p, msg);
+                    targetType, t, p, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
-                if (_isCompatible(instClass, instance)) {
+                if (_isCompatible(targetType.getRawClass(), instance)) {
                     return instance;
                 }
-                reportBadDefinition(constructType(instClass), String.format(
+                reportBadDefinition(targetType, String.format(
                         "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        ClassUtil.nameOf(instClass), ClassUtil.classNameOf(instance)));
+                        targetType, ClassUtil.classNameOf(instance)));
             }
             h = h.next();
         }
         if (msg == null) {
             if (t == null) {
                 msg = String.format("Unexpected end-of-input when binding data into %s",
-                        ClassUtil.nameOf(instClass));
+                        targetType);
             } else {
                 msg = String.format("Cannot deserialize instance of %s out of %s token",
-                        ClassUtil.nameOf(instClass), t);
+                        targetType, t);
             }
         }
-        reportInputMismatch(instClass, msg);
+        reportInputMismatch(targetType, msg);
         return null; // never gets here
     }
 

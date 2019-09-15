@@ -342,11 +342,14 @@ public class BeanAsArrayBuilderDeserializer
         throws IOException
     {
         // Let's start with failure
-        return ctxt.handleUnexpectedToken(handledType(), p.getCurrentToken(), p,
-                "Cannot deserialize a POJO (of type %s) from non-Array representation (token: %s): "
-                +"type/property designed to be serialized as JSON Array",
-                _beanType.getRawClass().getName(),
-                p.getCurrentToken());
+        String message = "Cannot deserialize a POJO (of type %s) from non-Array representation (token: %s): "
+            + "type/property designed to be serialized as JSON Array";
+        JavaType valueType = getValueType();
+        if (valueType != null) {
+            return ctxt.handleUnexpectedToken(valueType, p.getCurrentToken(), p, message, _beanType.getRawClass().getName(), p.getCurrentToken());
+        } else {
+            return ctxt.handleUnexpectedToken(handledType(), p.getCurrentToken(), p, message, _beanType.getRawClass().getName(), p.getCurrentToken());
+        }
         // in future, may allow use of "standard" POJO serialization as well; if so, do:
         //return _delegate.deserialize(p, ctxt);
     }

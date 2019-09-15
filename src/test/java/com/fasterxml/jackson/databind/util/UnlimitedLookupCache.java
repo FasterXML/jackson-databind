@@ -22,6 +22,11 @@ public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
     }
 
     @Override
+    public LookupCache<K, V> snapshot() {
+        return new UnlimitedLookupCache<K,V>(_initialEntries, _maxEntries);
+    }
+
+    @Override
     public void contents(BiConsumer<K, V> consumer) {
         for (Map.Entry<K,V> entry : _map.entrySet()) {
             consumer.accept(entry.getKey(), entry.getValue());
@@ -51,14 +56,5 @@ public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
     @Override
     public void clear() {
         _map.clear();
-    }
-
-    @Override
-    public LookupCache<K, V> snapshot() {
-        return new UnlimitedLookupCache<K,V>(_initialEntries, _maxEntries);
-    }
-
-    protected Object readResolve() {
-        return snapshot();
     }
 }

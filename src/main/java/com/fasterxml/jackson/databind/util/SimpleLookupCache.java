@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
  * a shaded variant may be used one day.
  */
 public class SimpleLookupCache<K,V>
-    implements LookupCache<K,V>
+    implements LookupCache<K,V>, java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
 
@@ -52,7 +52,7 @@ public class SimpleLookupCache<K,V>
     }
 
     @Override
-    public SimpleLookupCache<K, V> snapshot() {
+    public LookupCache<K, V> snapshot() {
         return new SimpleLookupCache<K,V>(_initialEntries, _maxEntries);
     }
 

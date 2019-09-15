@@ -11,9 +11,10 @@ import java.util.function.BiConsumer;
  * @see SimpleLookupCache
  */
 public interface LookupCache <K,V>
-        extends Snapshottable<LookupCache<K,V>>,
-        java.io.Serializable {
+        extends Snapshottable<LookupCache<K,V>> {
+
     void contents(BiConsumer<K,V> consumer);
+
     int size();
 
     /**
@@ -24,6 +25,8 @@ public interface LookupCache <K,V>
     V get(Object key);
 
     V put(K key, V value);
+
     V putIfAbsent(K key, V value);
+
     void clear();
 }

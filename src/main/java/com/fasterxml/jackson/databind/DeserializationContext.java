@@ -393,8 +393,6 @@ public abstract class DeserializationContext
     /**
      * Bulk access method for checking that all features specified by
      * mask are enabled.
-     * 
-     * @since 2.3
      */
     public final boolean hasDeserializationFeatures(int featureMask) {
         return (_featureFlags & featureMask) == featureMask;
@@ -403,8 +401,6 @@ public abstract class DeserializationContext
     /**
      * Bulk access method for checking that at least one of features specified by
      * mask is enabled.
-     * 
-     * @since 2.6
      */
     public final boolean hasSomeOfFeatures(int featureMask) {
         return (_featureFlags & featureMask) != 0;
@@ -1155,22 +1151,38 @@ targetType, goodValue.getClass()));
         throw instantiationException(instClass, t);
     }
 
+// 15-Sep-2019, tatu: Remove from 3.0 due to [databind#2133] adding `JavaType` overloads    
+/*    
+    public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
+        throws IOException
+    {
+        return handleUnexpectedToken(constructType(instClass), p.currentToken(), p, null);
+    }
+
+    public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
+            JsonParser p, String msg, Object... msgArgs)
+        throws IOException
+    {
+        return handleUnexpectedToken(constructType(instClass), t, p, msg, msgArgs);
+    }
+*/
+
     /**
      * Method that deserializers should call if the first token of the value to
      * deserialize is of unexpected type (that is, type of token that deserializer
      * cannot handle). This could occur, for example, if a Number deserializer
      * encounter {@link JsonToken#START_ARRAY} instead of
      * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
-     * 
-     * @param instClass Type that was to be instantiated
+     *
+     * @param targetType Type that was to be instantiated
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
      */
-    public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
+    public Object handleUnexpectedToken(JavaType targetType, JsonParser p)
         throws IOException
     {
-        return handleUnexpectedToken(instClass, p.currentToken(), p, null);
+        return handleUnexpectedToken(targetType, p.currentToken(), p, null);
     }
 
     /**
@@ -1179,14 +1191,14 @@ targetType, goodValue.getClass()));
      * cannot handle). This could occur, for example, if a Number deserializer
      * encounter {@link JsonToken#START_ARRAY} instead of
      * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
-     * 
-     * @param instClass Type that was to be instantiated
+     *
+     * @param targetType Type that was to be instantiated
      * @param t Token encountered that does match expected
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
      */
-    public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
+    public Object handleUnexpectedToken(JavaType targetType, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)
         throws IOException
     {
@@ -1194,27 +1206,27 @@ targetType, goodValue.getClass()));
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             Object instance = h.value().handleUnexpectedToken(this,
-                    instClass, t, p, msg);
+                    targetType, t, p, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
-                if (_isCompatible(instClass, instance)) {
+                if (_isCompatible(targetType.getRawClass(), instance)) {
                     return instance;
                 }
-                reportBadDefinition(constructType(instClass), String.format(
+                reportBadDefinition(targetType, String.format(
                         "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        ClassUtil.nameOf(instClass), ClassUtil.classNameOf(instance)));
+                        targetType, ClassUtil.classNameOf(instance)));
             }
             h = h.next();
         }
         if (msg == null) {
             if (t == null) {
                 msg = String.format("Unexpected end-of-input when binding data into %s",
-                        ClassUtil.nameOf(instClass));
+                        targetType);
             } else {
                 msg = String.format("Cannot deserialize value of type %s out of %s token",
-                        ClassUtil.nameOf(instClass), t);
+                        targetType, t);
             }
         }
-        reportInputMismatch(instClass, msg);
+        reportInputMismatch(targetType, msg);
         return null; // never gets here
     }
 
@@ -1438,8 +1450,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.10
      */
     public <T> T reportPropertyInputMismatch(Class<?> targetType, String propertyName,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1455,8 +1465,6 @@ targetType, goodValue.getClass()));
     /**
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.10
      */
     public <T> T reportPropertyInputMismatch(JavaType targetType, String propertyName,
             String msg, Object... msgArgs) throws JsonMappingException

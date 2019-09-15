@@ -456,7 +456,7 @@ public class BeanAsArrayDeserializer
     protected Object _deserializeFromNonArray(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        return ctxt.handleUnexpectedToken(handledType(), p.currentToken(), p,
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p,
                 "Cannot deserialize a POJO (of type %s) from non-Array representation (token: %s): "
                 +"type/property designed to be serialized as JSON Array",
                 _beanType.getRawClass().getName(),

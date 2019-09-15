@@ -242,7 +242,7 @@ public class BuilderBasedDeserializer
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         default:
         }
-        return ctxt.handleUnexpectedToken(handledType(), p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /**
@@ -831,6 +831,6 @@ public class BuilderBasedDeserializer
     protected Object _handleUnexpectedWithin(JsonParser p,
             DeserializationContext ctxt, Object beanOrBuilder) throws IOException
     {
-        return ctxt.handleUnexpectedToken(handledType(), p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 }

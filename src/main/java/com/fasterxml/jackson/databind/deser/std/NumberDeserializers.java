@@ -255,7 +255,7 @@ public class NumberDeserializers
                 return Boolean.FALSE;
             }
             // Otherwise, no can do:
-            return (Boolean) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Boolean) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -325,7 +325,7 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_NUMBER_INT) { // shouldn't usually be called with it but
                 return p.getByteValue();
             }
-            return (Byte) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Byte) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -390,7 +390,7 @@ public class NumberDeserializers
             if (t == JsonToken.START_ARRAY) {
                 return _deserializeFromArray(p, ctxt);
             }
-            return (Short) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Short) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -435,7 +435,7 @@ public class NumberDeserializers
                 return _deserializeFromArray(p, ctxt);
             default:
             }
-            return (Character) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -516,7 +516,7 @@ public class NumberDeserializers
                 return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
-            return (Integer) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Integer) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -575,7 +575,7 @@ public class NumberDeserializers
                 return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
-            return (Long) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Long) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -645,7 +645,7 @@ public class NumberDeserializers
                 return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
-            return (Float) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Float) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -719,7 +719,7 @@ public class NumberDeserializers
                 return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
-            return (Double) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Double) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -810,7 +810,7 @@ public class NumberDeserializers
                 return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
-            return ctxt.handleUnexpectedToken(_valueClass, p);
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
 
         /**
@@ -894,7 +894,7 @@ public class NumberDeserializers
                         "not a valid representation");
             }
             // String is ok too, can easily convert; otherwise, no can do:
-            return (BigInteger) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (BigInteger) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
@@ -936,7 +936,7 @@ public class NumberDeserializers
                 return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
-            return (BigDecimal) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (BigDecimal) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 }

@@ -217,13 +217,13 @@ public abstract class DeserializationProblemHandler
      *    <code>null</code>
      */
     public Object handleUnexpectedToken(DeserializationContext ctxt,
-            Class<?> targetType, JsonToken t, JsonParser p,
+            JavaType targetType, JsonToken t, JsonParser p,
             String failureMsg)
         throws IOException
     {
         return NOT_HANDLED;
     }
-    
+
     /**
      * Method called when instance creation for a type fails due to an exception.
      * Handler may choose to do one of following things:

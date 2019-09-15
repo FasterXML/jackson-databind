@@ -269,7 +269,7 @@ public class UntypedObjectDeserializer
 //        case JsonTokenId.ID_END_ARRAY: // invalid
         default:
         }
-        return ctxt.handleUnexpectedToken(Object.class, p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     @Override
@@ -324,7 +324,7 @@ public class UntypedObjectDeserializer
             return null;
         default:
         }
-        return ctxt.handleUnexpectedToken(Object.class, p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     @SuppressWarnings("unchecked")
@@ -474,7 +474,7 @@ public class UntypedObjectDeserializer
             key1 = p.currentName();
         } else {
             if (t != JsonToken.END_OBJECT) {
-                return ctxt.handleUnexpectedToken(handledType(), p);
+                return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
             key1 = null;
         }
@@ -670,7 +670,7 @@ public class UntypedObjectDeserializer
             //case JsonTokenId.ID_END_ARRAY: // invalid
             default:
             }
-            return ctxt.handleUnexpectedToken(Object.class, p);
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
 
         @Override
@@ -708,7 +708,7 @@ public class UntypedObjectDeserializer
                 return null;
             default:
             }
-            return ctxt.handleUnexpectedToken(Object.class, p);
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
 
         @SuppressWarnings("unchecked")

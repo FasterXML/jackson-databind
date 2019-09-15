@@ -52,6 +52,6 @@ public class OptionalIntDeserializer extends BaseScalarOptionalDeserializer<Opti
             break;
         default:
         }
-        return (OptionalInt) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (OptionalInt) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 }

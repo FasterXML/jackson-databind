@@ -1455,19 +1455,9 @@ public abstract class BeanDeserializerBase
             if (t == JsonToken.END_ARRAY) {
                 return null;
             }
-            JavaType valueType = getValueType();
-            if (valueType != null) {
-                return ctxt.handleUnexpectedToken(valueType, JsonToken.START_ARRAY, p, null);
-            } else {
-                return ctxt.handleUnexpectedToken(handledType(), JsonToken.START_ARRAY, p, null);
-            }
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
         }
-        JavaType valueType = getValueType();
-        if (valueType != null) {
-            return ctxt.handleUnexpectedToken(valueType, p);
-        } else {
-            return ctxt.handleUnexpectedToken(handledType(), p);
-        }
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     public Object deserializeFromEmbedded(JsonParser p, DeserializationContext ctxt)

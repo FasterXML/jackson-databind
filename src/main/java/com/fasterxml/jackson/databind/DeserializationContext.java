@@ -1111,7 +1111,7 @@ targetType, goodValue.getClass()));
     public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
         throws IOException
     {
-        return handleUnexpectedToken(instClass, p.getCurrentToken(), p, null);
+        return handleUnexpectedToken(constructType(instClass), p.getCurrentToken(), p, null);
     }
 
     /**

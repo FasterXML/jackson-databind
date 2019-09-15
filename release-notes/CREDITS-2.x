@@ -837,6 +837,9 @@ Christopher Smith (chrylis@github)
 Semyon Levin (remal@github)
   * Contributed #2120: `NioPathDeserializer` improvement
    (2.9.7)
+  * Contributed #2133: Improve `DeserializationProblemHandler.handleUnexpectedToken()`
+    to allow handling of Collection problems
+   (2.10.0)
 
 Pavel Nikitin (morj@github)
   * Requested #2181: Don't re-use dynamic serializers for property-updating copy constructors

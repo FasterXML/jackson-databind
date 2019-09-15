@@ -110,6 +110,26 @@ public abstract class StdDeserializer<T>
     public JavaType getValueType() { return _valueType; }
 
     /**
+     * Convenience method for getting handled type as {@link JavaType}, regardless
+     * of whether deserializer has one already resolved (and accessible via
+     * {@link #getValueType()}) or not: equivalent to:
+     *<pre>
+     *   if (getValueType() != null) {
+     *        return getValueType();
+     *   }
+     *   return ctxt.constructType(handledType());
+     *</pre>
+     * 
+     * @since 2.10
+     */
+    public JavaType getValueType(DeserializationContext ctxt) {
+        if (_valueType != null) {
+            return _valueType;
+        }
+        return ctxt.constructType(_valueClass);
+    }
+
+    /**
      * Method that can be called to determine if given deserializer is the default
      * deserializer Jackson uses; as opposed to a custom deserializer installed by
      * a module or calling application. Determination is done using
@@ -677,15 +697,9 @@ public abstract class StdDeserializer<T>
         } else {
             t = p.getCurrentToken();
         }
-        if (_valueType != null) {
-            @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleUnexpectedToken(_valueType, t, p, null);
-            return result;
-        } else {
-            @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleUnexpectedToken(_valueClass, t, p, null);
-            return result;
-        }
+        @SuppressWarnings("unchecked")
+        T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.getCurrentToken(), p, null);
+        return result;
     }
 
     /**
@@ -705,15 +719,9 @@ public abstract class StdDeserializer<T>
 "Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
                     ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
                     "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
-            if (_valueType != null) {
-                @SuppressWarnings("unchecked")
-                T result = (T) ctxt.handleUnexpectedToken(_valueType, p.getCurrentToken(), p, msg);
-                return result;
-            } else {
-                @SuppressWarnings("unchecked")
-                T result = (T) ctxt.handleUnexpectedToken(_valueClass, p.getCurrentToken(), p, msg);
-                return result;
-            }
+            @SuppressWarnings("unchecked")
+            T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.getCurrentToken(), p, msg);
+            return result;
         }
         return (T) deserialize(p, ctxt);
     }

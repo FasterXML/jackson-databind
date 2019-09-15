@@ -216,12 +216,7 @@ public class BuilderBasedDeserializer
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         default:
         }
-        JavaType valueType = getValueType();
-        if (valueType != null) {
-            return ctxt.handleUnexpectedToken(valueType, p);
-        } else {
-            return ctxt.handleUnexpectedToken(handledType(), p);
-        }
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /**

@@ -195,12 +195,7 @@ public class BeanDeserializer
             default:
             }
         }
-        JavaType valueType = getValueType();
-        if (valueType != null) {
-            return ctxt.handleUnexpectedToken(valueType, p);
-        } else {
-            return ctxt.handleUnexpectedToken(handledType(), p);
-        }
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     @Deprecated // since 2.8; remove unless getting used
@@ -564,12 +559,7 @@ public class BeanDeserializer
             p2.close();
             return ob;
         }
-        JavaType valueType = getValueType();
-        if (valueType != null) {
-            return ctxt.handleUnexpectedToken(valueType, p);
-        } else {
-            return ctxt.handleUnexpectedToken(handledType(), p);
-        }
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /*

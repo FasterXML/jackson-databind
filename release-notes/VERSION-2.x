@@ -129,8 +129,8 @@ Project: jackson-databind
   (reported by iSafeBlue@github / blue@ixsec.org)
 #2420: Block one more gadget type (no CVE allocated yet)
   (reported by crazylirui@gmail.com)
-#2449: Block one more gadget type (no CVE allocated yet)
-  (reported by Kaki K)
+#2449: Block one more gadget type (CVE-2019-14540)
+  (reported by kingkk)
 
 2.9.9 (16-May-2019)
 

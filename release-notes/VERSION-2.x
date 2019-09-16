@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.10.0-final (not yet released)
 
+#1093: Default typing does not work with `writerFor(Object.class)`
+ (reported by hoomanv@github)
 #2129: Add `SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX`, separate from value setting
  (suggested by renzihui@github)
 #2133: Improve `DeserializationProblemHandler.handleUnexpectedToken()` to allow handling of

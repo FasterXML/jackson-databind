@@ -145,7 +145,6 @@ public class TestDefaultForObject
             // let's use whatever is currently thrown exception... may change tho
             verifyException(e, "cannot construct");
         }
-        
         // and then that we will succeed with default type info
         m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

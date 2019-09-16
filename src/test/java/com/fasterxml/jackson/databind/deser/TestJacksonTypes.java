@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class TestJacksonTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
 
     public void testJsonLocation() throws Exception
     {
@@ -36,10 +36,23 @@ public class TestJacksonTypes
         JsonLocation loc = new JsonLocation(null,  -1, -1, 100, 13);
         assertTrue(loc.equals(loc));
         assertFalse(loc.equals(null));
-        assertFalse(loc.equals("abx"));
+        final Object value = "abx";
+        assertFalse(loc.equals(value));
 
         // should we check it's not 0?
         loc.hashCode();
+    }
+
+    public void testJavaType() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        // first simple type:
+        String json = MAPPER.writeValueAsString(tf.constructType(String.class));
+        assertEquals(quote(java.lang.String.class.getName()), json);
+        // and back
+        JavaType t = MAPPER.readValue(json, JavaType.class);
+        assertNotNull(t);
+        assertEquals(String.class, t.getRawClass());
     }
 
     /**
@@ -94,7 +107,11 @@ public class TestJacksonTypes
         assertNull(p.nextToken());
     }
 
-    public void testJavaType() throws Exception
+    // 10k does it, 5k not, but use bit higher values just in case
+    private final static int RECURSION_2398 = 25000;
+
+    // [databind#2398]
+    public void testDeeplyNestedArrays() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         // first simple type:
@@ -104,5 +121,29 @@ public class TestJacksonTypes
         JavaType t = MAPPER.readValue(json, JavaType.class);
         assertNotNull(t);
         assertEquals(String.class, t.getRawClass());
+    }
+
+    public void testDeeplyNestedObjects() throws Exception
+    {
+        try (JsonParser p = MAPPER.createParser(_createNested(RECURSION_2398,
+                "{\"a\":", "42", "}"))) {
+            p.nextToken();
+            TokenBuffer b = TokenBuffer.forGeneration();
+            b.copyCurrentStructure(p);
+            b.close();
+        }
+    }
+
+    private String _createNested(int nesting, String open, String middle, String close) 
+    {
+        StringBuilder sb = new StringBuilder(2 * nesting);
+        for (int i = 0; i < nesting; ++i) {
+            sb.append(open);
+        }
+        sb.append(middle);
+        for (int i = 0; i < nesting; ++i) {
+            sb.append(close);
+        }
+        return sb.toString();
     }
 }

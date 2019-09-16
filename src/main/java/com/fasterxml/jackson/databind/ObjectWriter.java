@@ -104,12 +104,14 @@ public class ObjectWriter
         _generatorSettings = (pp == null) ? GeneratorSettings.empty
                 : new GeneratorSettings(pp, null, null, null);
 
-        // 29-Apr-2014, tatu: There is no "untyped serializer", so:
-        if (rootType == null || rootType.hasRawClass(Object.class)) {
+        if (rootType == null) {
             _prefetch = Prefetch.empty;
-        } else {
-            rootType = rootType.withStaticTyping();
+        } else if (rootType.hasRawClass(Object.class)) {
+            // 15-Sep-2019, tatu: There is no "untyped serializer", but...
+            //     as per [databind#1093] we do need `TypeSerializer`
             _prefetch = Prefetch.empty.forRootType(this, rootType);
+        } else {
+            _prefetch = Prefetch.empty.forRootType(this, rootType.withStaticTyping());
         }
     }
 
@@ -202,11 +204,9 @@ public class ObjectWriter
     }
 
     /*
-    /**********************************************************
-    /* Methods sub-classes MUST override, used for constructing
-    /* writer instances, (re)configuring parser instances.
-    /* Added in 2.5
-    /**********************************************************
+    /**********************************************************************
+    /* Internal factory methods, for convenience
+    /**********************************************************************
      */
 
     /**
@@ -411,9 +411,6 @@ public class ObjectWriter
      * @since 2.5
      */
     public ObjectWriter forType(Class<?> rootType) {
-        if (rootType == Object.class) {
-            return forType((JavaType) null);
-        }
         return forType(_config.constructType(rootType));
     }
 
@@ -1360,19 +1357,35 @@ public class ObjectWriter
         }
 
         public Prefetch forRootType(ObjectWriter parent, JavaType newType) {
-            // First: if nominal type not defined, or trivial (java.lang.Object),
-            // not thing much to do
-            boolean noType = (newType == null) || newType.isJavaLangObject();
-
-            if (noType) {
+            // First: if nominal type not defined not thing much to do
+            if (newType == null) {
                 if ((rootType == null) || (valueSerializer == null)) {
                     return this;
                 }
-                return new Prefetch(null, null, typeSerializer);
+                return new Prefetch(null, null, null);
             }
+
+            // Second: if no change, nothing to do either
             if (newType.equals(rootType)) {
                 return this;
             }
+
+            // But one more trick: `java.lang.Object` has no serialized, but may
+            // have `TypeSerializer` to use
+            if (newType.isJavaLangObject()) {
+                DefaultSerializerProvider prov = parent._serializerProvider();
+                TypeSerializer typeSer;
+
+                try {
+                    typeSer = prov.findTypeSerializer(newType);
+                } catch (JsonMappingException e) {
+                    // Unlike with value serializer pre-fetch, let's not allow exception
+                    // for TypeSerializer be swallowed
+                    throw new RuntimeJsonMappingException(e);
+                }
+                return new Prefetch(null, null, typeSer);
+            }
+
             if (parent.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
                 DefaultSerializerProvider prov = parent._serializerProvider();
                 // 17-Dec-2014, tatu: Need to be bit careful here; TypeSerializers are NOT cached,
@@ -1387,7 +1400,7 @@ public class ObjectWriter
                                 ((TypeWrappedSerializer) ser).typeSerializer());
                     }
                     return new Prefetch(newType, ser, null);
-                } catch (JsonProcessingException e) {
+                } catch (JsonMappingException e) {
                     // need to swallow?
                     ;
                 }

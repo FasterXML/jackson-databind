@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.10.0-final (not yet released)
+2.10.0.pr3 (17-Sep-2019)
 
 #1093: Default typing does not work with `writerFor(Object.class)`
  (reported by hoomanv@github)

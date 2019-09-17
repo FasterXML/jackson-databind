@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 /**
@@ -41,7 +42,7 @@ public final class DeserializerCache
      * This currently (3.0) means POJO, Enum and Container (collection,
      * map) deserializers.
      */
-    private final SimpleLookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
+    private final LookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
 
     /**
      * During deserializer construction process we may need to keep track of partially

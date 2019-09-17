@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 
 /**
  * A LookupCache implementation that has no synchronization (like SimpleLookupCache does)
@@ -26,12 +24,14 @@ public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
         return new UnlimitedLookupCache<K,V>(_initialEntries, _maxEntries);
     }
 
+    /*
     @Override
     public void contents(BiConsumer<K, V> consumer) {
         for (Map.Entry<K,V> entry : _map.entrySet()) {
             consumer.accept(entry.getKey(), entry.getValue());
         }
     }
+    */
 
     @Override
     public int size() {

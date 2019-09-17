@@ -14,37 +14,40 @@ public class UnwrappedCaching2461Test extends BaseMapTest
         }
     }
 
-    static class BaseContainer {
+    static class InnerContainer {
         @JsonUnwrapped(prefix = "base.")
         public Base base;
 
-        BaseContainer(Base base) {
+        InnerContainer(Base base) {
             this.base = base;
         }
     }
 
-    static class BaseContainerContainer {
+    static class OuterContainer {
         @JsonUnwrapped(prefix = "container.")
-        public BaseContainer container;
+        public InnerContainer container;
 
-        BaseContainerContainer(BaseContainer container) {
+        OuterContainer(InnerContainer container) {
             this.container = container;
         }
     }
 
     // [databind#2461]
     public void testUnwrappedCaching() throws Exception {
-        final BaseContainer inner = new BaseContainer(new Base("12345"));
-        final BaseContainerContainer outer = new BaseContainerContainer(inner);
+        final InnerContainer inner = new InnerContainer(new Base("12345"));
+        final OuterContainer outer = new OuterContainer(inner);
 
+        final String EXP_INNER = "{\"base.id\":\"12345\"}";
+        final String EXP_OUTER = "{\"container.base.id\":\"12345\"}";
+        
         final ObjectMapper mapperOrder1 = newJsonMapper();
-        assertEquals("{\"container.base.id\":\"12345\"}", mapperOrder1.writeValueAsString(outer));
-        assertEquals("{\"base.id\":\"12345\"}", mapperOrder1.writeValueAsString(inner));
-        assertEquals("{\"container.base.id\":\"12345\"}", mapperOrder1.writeValueAsString(outer));
+        assertEquals(EXP_OUTER, mapperOrder1.writeValueAsString(outer));
+        assertEquals(EXP_INNER, mapperOrder1.writeValueAsString(inner));
+        assertEquals(EXP_OUTER, mapperOrder1.writeValueAsString(outer));
 
         final ObjectMapper mapperOrder2 = newJsonMapper();
-        assertEquals("{\"base.id\":\"12345\"}", mapperOrder2.writeValueAsString(inner));
+        assertEquals(EXP_INNER, mapperOrder2.writeValueAsString(inner));
         //  Will fail here
-        assertEquals("{\"container.base.id\":\"12345\"}", mapperOrder2.writeValueAsString(outer));
+        assertEquals(EXP_OUTER, mapperOrder2.writeValueAsString(outer));
     }
 }

@@ -848,7 +848,7 @@ public abstract class DeserializationContext
     /* Convenience methods for reading parsed values
     /**********************************************************************
      */
-    
+
     /**
      * Convenience method that may be used by composite or container deserializers,
      * for reading one-off values for the composite type, taking into account
@@ -865,7 +865,7 @@ public abstract class DeserializationContext
         if (deser == null) {
             return reportBadDefinition(type, String.format(
                     "Could not find JsonDeserializer for type %s (via property %s)",
-                    type, ClassUtil.nameOf(prop)));
+                    ClassUtil.getTypeDescription(type), ClassUtil.nameOf(prop)));
         }
         return (T) deser.deserialize(p, this);
     }
@@ -942,7 +942,9 @@ public abstract class DeserializationContext
                 }
                 throw weirdStringException(keyValue, keyClass, String.format(
                         "DeserializationProblemHandler.handleWeirdStringValue() for type %s returned value of type %s",
-                        keyClass, key.getClass()));
+                        ClassUtil.getClassDescription(keyClass),
+                        ClassUtil.getClassDescription(key)
+                ));
             }
             h = h.next();
         }
@@ -984,7 +986,9 @@ public abstract class DeserializationContext
                 }
                 throw weirdStringException(value, targetClass, String.format(
                         "DeserializationProblemHandler.handleWeirdStringValue() for type %s returned value of type %s",
-                        targetClass, instance.getClass()));
+                        ClassUtil.getClassDescription(targetClass),
+                        ClassUtil.getClassDescription(instance)
+                ));
             }
             h = h.next();
         }
@@ -1025,7 +1029,9 @@ public abstract class DeserializationContext
                 }
                 throw weirdNumberException(value, targetClass, _format(
                         "DeserializationProblemHandler.handleWeirdNumberValue() for type %s returned value of type %s",
-                        targetClass, key.getClass()));
+                        ClassUtil.getClassDescription(targetClass),
+                        ClassUtil.getClassDescription(key)
+                ));
             }
             h = h.next();
         }
@@ -1048,7 +1054,9 @@ public abstract class DeserializationContext
                 }
                 throw JsonMappingException.from(p, _format(
 "DeserializationProblemHandler.handleWeirdNativeValue() for type %s returned value of type %s",
-targetType, goodValue.getClass()));
+                    ClassUtil.getClassDescription(targetType),
+                    ClassUtil.getClassDescription(goodValue)
+                ));
             }
         }
         throw weirdNativeValueException(badValue, raw);
@@ -1090,7 +1098,9 @@ targetType, goodValue.getClass()));
                 }
                 reportBadDefinition(constructType(instClass), String.format(
 "DeserializationProblemHandler.handleMissingInstantiator() for type %s returned value of type %s",
-                        instClass, ClassUtil.classNameOf(instance)));
+                    ClassUtil.getClassDescription(instClass),
+                    ClassUtil.getClassDescription((instance)
+                )));
             }
             h = h.next();
         }
@@ -1138,7 +1148,9 @@ targetType, goodValue.getClass()));
                 }
                 reportBadDefinition(constructType(instClass), String.format(
 "DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s",
-                        instClass, ClassUtil.classNameOf(instance)));
+                    ClassUtil.getClassDescription(instClass),
+                    ClassUtil.classNameOf(instance)
+                ));
             }
             h = h.next();
         }
@@ -1213,17 +1225,19 @@ targetType, goodValue.getClass()));
                 }
                 reportBadDefinition(targetType, String.format(
                         "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        targetType, ClassUtil.classNameOf(instance)));
+                        ClassUtil.getClassDescription(targetType),
+                        ClassUtil.classNameOf(instance)
+                ));
             }
             h = h.next();
         }
         if (msg == null) {
             if (t == null) {
                 msg = String.format("Unexpected end-of-input when binding data into %s",
-                        targetType);
+                        ClassUtil.getTypeDescription(targetType));
             } else {
                 msg = String.format("Cannot deserialize value of type %s out of %s token",
-                        targetType, t);
+                        ClassUtil.getTypeDescription(targetType), t);
             }
         }
         reportInputMismatch(targetType, msg);
@@ -1264,7 +1278,8 @@ targetType, goodValue.getClass()));
                     return type;
                 }
                 throw invalidTypeIdException(baseType, id,
-                        "problem handler tried to resolve into non-subtype: "+type);
+                        "problem handler tried to resolve into non-subtype: "+
+                                ClassUtil.getTypeDescription(type));
             }
             h = h.next();
         }
@@ -1291,7 +1306,8 @@ targetType, goodValue.getClass()));
                     return type;
                 }
                 throw invalidTypeIdException(baseType, null,
-                        "problem handler tried to resolve into non-subtype: "+type);
+                        "problem handler tried to resolve into non-subtype: "+
+                                ClassUtil.getTypeDescription(type));
             }
             h = h.next();
         }
@@ -1316,7 +1332,8 @@ targetType, goodValue.getClass()));
     {
         if (!isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
             JavaType type = constructType(deser.handledType());
-            String msg = String.format("Invalid configuration: values of type %s cannot be merged", type);
+            String msg = String.format("Invalid configuration: values of type %s cannot be merged",
+                    ClassUtil.getTypeDescription(type));
             throw InvalidDefinitionException.from(getParser(), msg, type);
         }
     }

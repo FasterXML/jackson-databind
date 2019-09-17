@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser.impl;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ser.SerializerCache;
-import com.fasterxml.jackson.databind.util.SimpleLookupCache;
+import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
@@ -27,7 +27,7 @@ public final class ReadOnlyClassToSerializerMap
     private final int _mask;
 
     protected ReadOnlyClassToSerializerMap(SerializerCache shared,
-            SimpleLookupCache<TypeKey, JsonSerializer<Object>> src)
+            LookupCache<TypeKey, JsonSerializer<Object>> src)
     {
         _sharedCache = shared;
         _size = findSize(src.size());
@@ -55,7 +55,7 @@ public final class ReadOnlyClassToSerializerMap
      * Factory method for constructing an instance.
      */
     public static ReadOnlyClassToSerializerMap from(SerializerCache shared,
-            SimpleLookupCache<TypeKey, JsonSerializer<Object>> src) {
+            LookupCache<TypeKey, JsonSerializer<Object>> src) {
         return new ReadOnlyClassToSerializerMap(shared, src);
     }
 

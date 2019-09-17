@@ -2,7 +2,10 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class ClassUtilTest extends BaseMapTest
@@ -196,8 +199,14 @@ public class ClassUtilTest extends BaseMapTest
 
     public void testDescs()
     {
-        final String exp = "`java.lang.String`";
-        assertEquals(exp, ClassUtil.getClassDescription("foo"));
-        assertEquals(exp, ClassUtil.getClassDescription(String.class));
+        final String stringExp = "`java.lang.String`";
+        assertEquals(stringExp, ClassUtil.getClassDescription("foo"));
+        assertEquals(stringExp, ClassUtil.getClassDescription(String.class));
+        final JavaType stringType = TypeFactory.defaultInstance().constructType(String.class);
+        assertEquals(stringExp, ClassUtil.getTypeDescription(stringType));
+        final JavaType mapType = TypeFactory.defaultInstance().constructType(
+                new TypeReference<Map<String, Integer>>() { });
+        assertEquals("`java.util.Map<java.lang.String,java.lang.Integer>`",
+                ClassUtil.getTypeDescription(mapType));
     }
 }

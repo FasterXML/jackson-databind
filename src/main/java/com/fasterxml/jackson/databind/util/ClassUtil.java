@@ -657,7 +657,7 @@ public final class ClassUtil
     /* Type name, name, desc handling methods
     /**********************************************************
      */
-    
+
     /**
      * Helper method used to construct appropriate description
      * when passed either type (Class) or an instance; in latter
@@ -671,6 +671,27 @@ public final class ClassUtil
         Class<?> cls = (classOrInstance instanceof Class<?>) ?
             (Class<?>) classOrInstance : classOrInstance.getClass();
         return nameOf(cls);
+    }
+
+    /**
+     * Helper method to create and return "backticked" description of given
+     * resolved type (or, {@code "null"} if {@code null} passed), similar
+     * to return vaue of {@link #getClassDescription(Object)}.
+     *
+     * @param type Fully resolved type or null
+     * @return String description of type including generic type parameters, surrounded
+     *   by backticks, if type passed; or string "null" if {code null} passed
+     *
+     * @since 2.10
+     */
+    public static String getTypeDescription(JavaType fullType)
+    {
+        if (fullType == null) {
+            return "[null]";
+        }
+        StringBuilder sb = new StringBuilder(80).append('`');
+        sb.append(fullType.toCanonical());
+        return sb.append('`').toString();
     }
 
     /**
@@ -729,7 +750,7 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Other escaping, description acces
+    /* Other escaping, description access
     /**********************************************************
      */
     

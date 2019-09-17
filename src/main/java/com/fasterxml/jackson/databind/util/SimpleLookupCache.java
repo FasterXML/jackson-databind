@@ -52,22 +52,16 @@ public class SimpleLookupCache<K,V>
     }
 
     @Override
-    public LookupCache<K, V> snapshot() {
+    public SimpleLookupCache<K,V> snapshot() {
         return new SimpleLookupCache<K,V>(_initialEntries, _maxEntries);
-    }
-
-    @Override
-    public void contents(BiConsumer<K,V> consumer) {
-        for (Map.Entry<K,V> entry : _map.entrySet()) {
-            consumer.accept(entry.getKey(), entry.getValue());
-        }
     }
 
     /*
     /**********************************************************************
-    /* Public API
+    /* Public API, basic lookup/additions
     /**********************************************************************
      */
+
     @Override
     public V put(K key, V value) {
         if (_map.size() >= _maxEntries) {
@@ -103,4 +97,16 @@ public class SimpleLookupCache<K,V>
 
     @Override
     public int size() { return _map.size(); }
+
+    /*
+    /**********************************************************************
+    /* Extended API
+    /**********************************************************************
+     */
+    
+    public void contents(BiConsumer<K,V> consumer) {
+        for (Map.Entry<K,V> entry : _map.entrySet()) {
+            consumer.accept(entry.getKey(), entry.getValue());
+        }
+    }
 }

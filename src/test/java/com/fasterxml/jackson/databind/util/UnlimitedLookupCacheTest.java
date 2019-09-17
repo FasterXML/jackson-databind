@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.junit.Test;
 
@@ -28,7 +27,8 @@ public class UnlimitedLookupCacheTest {
     public void testCompatibility() throws JsonProcessingException {
         UnlimitedLookupCache<Object, JavaType> cache = new UnlimitedLookupCache<>(4, 10);
         TypeFactory tf = TypeFactory.defaultInstance().withCache(cache);
-
+        assertNotNull(tf); // just to get rid of warning
+        
         //TODO find way to inject the `tf` instance into an ObjectMapper (via MapperBuilder?)
 
         //ObjectMapper mapper = new ObjectMapper();

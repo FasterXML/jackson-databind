@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 /**
@@ -121,7 +122,7 @@ public final class TypeFactory
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
      */
-    protected final SimpleLookupCache<Object,JavaType> _typeCache;
+    protected final LookupCache<Object,JavaType> _typeCache;
 
     /*
     /**********************************************************************
@@ -150,7 +151,7 @@ public final class TypeFactory
         this(null);
     }
 
-    protected TypeFactory(SimpleLookupCache<Object,JavaType> typeCache) {
+    protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
         if (typeCache == null) {
             typeCache = new SimpleLookupCache<Object,JavaType>(16, 200);
         }
@@ -159,7 +160,7 @@ public final class TypeFactory
         _classLoader = null;
     }
 
-    protected TypeFactory(SimpleLookupCache<Object,JavaType> typeCache,
+    protected TypeFactory(LookupCache<Object,JavaType> typeCache,
             TypeModifier[] mods, ClassLoader classLoader)
     {
         if (typeCache == null) {
@@ -190,7 +191,7 @@ public final class TypeFactory
      */
     public TypeFactory withModifier(TypeModifier mod) 
     {
-        SimpleLookupCache<Object,JavaType> typeCache = _typeCache;
+        LookupCache<Object,JavaType> typeCache = _typeCache;
         TypeModifier[] mods;
         if (mod == null) { // mostly for unit tests
             mods = null;
@@ -222,7 +223,7 @@ public final class TypeFactory
      * identical settings except for different cache; most likely one with
      * bigger maximum size.
      */
-    public TypeFactory withCache(SimpleLookupCache<Object,JavaType> cache)  {
+    public TypeFactory withCache(LookupCache<Object,JavaType> cache)  {
         return new TypeFactory(cache, _modifiers, _classLoader);
     }
 

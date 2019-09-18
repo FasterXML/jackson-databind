@@ -4,8 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
-
 /**
  * Synchronized cache with bounded size: used for reusing lookup values
  * and lazily instantiated reusable items.
@@ -26,8 +24,7 @@ import com.fasterxml.jackson.core.util.Snapshottable;
  * a shaded variant may be used one day.
  */
 public class SimpleLookupCache<K,V>
-    implements Snapshottable<SimpleLookupCache<K,V>>,
-        java.io.Serializable
+    implements LookupCache<K,V>, java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
 
@@ -55,22 +52,17 @@ public class SimpleLookupCache<K,V>
     }
 
     @Override
-    public SimpleLookupCache<K, V> snapshot() {
+    public SimpleLookupCache<K,V> snapshot() {
         return new SimpleLookupCache<K,V>(_initialEntries, _maxEntries);
-    }
-
-    public void contents(BiConsumer<K,V> consumer) {
-        for (Map.Entry<K,V> entry : _map.entrySet()) {
-            consumer.accept(entry.getKey(), entry.getValue());
-        }
     }
 
     /*
     /**********************************************************************
-    /* Public API
+    /* Public API, basic lookup/additions
     /**********************************************************************
      */
 
+    @Override
     public V put(K key, V value) {
         if (_map.size() >= _maxEntries) {
             // double-locking, yes, but safe here; trying to avoid "clear storms"
@@ -83,6 +75,7 @@ public class SimpleLookupCache<K,V>
         return _map.put(key, value);
     }
 
+    @Override
     public V putIfAbsent(K key, V value) {
         // not 100% optimal semantically, but better from correctness (never exceeds
         // defined maximum) and close enough all in all:
@@ -96,9 +89,24 @@ public class SimpleLookupCache<K,V>
         return _map.putIfAbsent(key, value);
     }
     
-    // NOTE: key is of type Object only to retain binary backwards-compatibility
+    @Override
     public V get(Object key) {  return _map.get(key); }
 
+    @Override
     public void clear() { _map.clear(); }
+
+    @Override
     public int size() { return _map.size(); }
+
+    /*
+    /**********************************************************************
+    /* Extended API
+    /**********************************************************************
+     */
+    
+    public void contents(BiConsumer<K,V> consumer) {
+        for (Map.Entry<K,V> entry : _map.entrySet()) {
+            consumer.accept(entry.getKey(), entry.getValue());
+        }
+    }
 }

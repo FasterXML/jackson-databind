@@ -605,7 +605,7 @@ public final class ClassUtil
      * resolved type (or, {@code "null"} if {@code null} passed), similar
      * to return vaue of {@link #getClassDescription(Object)}.
      *
-     * @param type Fully resolved type or null
+     * @param fullType Fully resolved type or null
      * @return String description of type including generic type parameters, surrounded
      *   by backticks, if type passed; or string "null" if {code null} passed
      *

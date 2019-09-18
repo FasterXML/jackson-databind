@@ -2110,11 +2110,10 @@ public class ObjectMapper
         // ok to use either one, should be kept in sync
         return _serializationConfig.isEnabled(f);
     }
-    
-    /**
-     * @deprecated Since 2.10 use {@code JsonMapper.builder().configure(...)} (or similarly for other datatypes)
-     */
-    @Deprecated
+
+    // Note: planned to be deprecated in 2.11 (not needed with 2.10):
+    // @deprecated Since 2.10 use {@code JsonMapper.builder().configure(...)} (or similarly for other datatypes)
+    // @Deprecated
     public ObjectMapper configure(MapperFeature f, boolean state) {
         _serializationConfig = state ?
                 _serializationConfig.with(f) : _serializationConfig.without(f);
@@ -2123,20 +2122,18 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * @deprecated Since 2.10 use {@code JsonMapper.builder().Enable(...)} (or similarly for other datatypes)
-     */
-    @Deprecated
+    // Note: planned to be deprecated in 2.11 (not needed with 2.10):
+    // @deprecated Since 2.10 use {@code JsonMapper.builder().Enable(...)} (or similarly for other datatypes)
+    // @Deprecated
     public ObjectMapper enable(MapperFeature... f) {
         _deserializationConfig = _deserializationConfig.with(f);
         _serializationConfig = _serializationConfig.with(f);
         return this;
     }
 
-    /**
-     * @deprecated Since 2.10 use {@code JsonMapper.builder().disable(...)} (or similarly for other datatypes)
-     */
-    @Deprecated
+    // Note: planned to be deprecated in 2.11 (not needed with 2.10):
+    // @deprecated Since 2.10 use {@code JsonMapper.builder().disable(...)} (or similarly for other datatypes)
+    // @Deprecated
     public ObjectMapper disable(MapperFeature... f) {
         _deserializationConfig = _deserializationConfig.without(f);
         _serializationConfig = _serializationConfig.without(f);

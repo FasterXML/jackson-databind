@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 public class BasicClassIntrospector
@@ -60,13 +61,13 @@ public class BasicClassIntrospector
      * because {@link #forMapper(Object)} initializes it properly, when mapper get
      * constructed.
      */
-    protected final transient SimpleLookupCache<JavaType,BasicBeanDescription> _cachedFCA;
+    protected final transient LookupCache<JavaType,BasicBeanDescription> _cachedFCA;
 
     public BasicClassIntrospector() {
         this(null);
     }
 
-    protected BasicClassIntrospector(SimpleLookupCache<JavaType,BasicBeanDescription> cache) {
+    protected BasicClassIntrospector(LookupCache<JavaType,BasicBeanDescription> cache) {
         _cachedFCA = cache;
     }
 

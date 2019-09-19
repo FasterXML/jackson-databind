@@ -17,7 +17,8 @@ public class Java7SupportImpl extends Java7Support
     private final Class<?> _bogus;
 
     public Java7SupportImpl() {
-        // Trigger loading of annotations that only JDK 7 has...
+        // Trigger loading of annotations that only JDK 7 has, to trigger
+        // early fail (see [databind#2466])
         Class<?> cls = Transient.class;
         cls = ConstructorProperties.class;
         _bogus = cls;

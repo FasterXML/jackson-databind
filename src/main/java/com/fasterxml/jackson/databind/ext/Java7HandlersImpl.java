@@ -10,14 +10,22 @@ import com.fasterxml.jackson.databind.JsonSerializer;
  */
 public class Java7HandlersImpl extends Java7Handlers
 {
+    private final Class<?> _pathClass;
+    
+    public Java7HandlersImpl() {
+        // 19-Sep-2019, tatu: Important to do this here, because otherwise
+        //    we get [databind#2466]
+        _pathClass = Path.class;
+    }
+    
     @Override
     public Class<?> getClassJavaNioFilePath() {
-        return Path.class;
+        return _pathClass;
     }
 
     @Override
     public JsonDeserializer<?> getDeserializerForJavaNioFilePath(Class<?> rawType) {
-        if (rawType == Path.class) {
+        if (rawType == _pathClass) {
             return new NioPathDeserializer();
         }
         return null;
@@ -25,7 +33,7 @@ public class Java7HandlersImpl extends Java7Handlers
 
     @Override
     public JsonSerializer<?> getSerializerForJavaNioFilePath(Class<?> rawType) {
-        if (Path.class.isAssignableFrom(rawType)) {
+        if (_pathClass.isAssignableFrom(rawType)) {
             return new NioPathSerializer();
         }
         return null;

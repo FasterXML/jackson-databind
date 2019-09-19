@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.0 (not yet released)
+
+#2466: Didn't find class "java.nio.file.Path" below Android api 26
+ (reported by KevynBct@github)
+
 2.10.0.pr3 (17-Sep-2019)
 
 #1093: Default typing does not work with `writerFor(Object.class)`

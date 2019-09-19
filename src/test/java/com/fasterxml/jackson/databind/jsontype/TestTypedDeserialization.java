@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestTypedDeserialization
@@ -63,6 +65,28 @@ public class TestTypedDeserialization
         public Fish()
         {
             super(null);
+        }
+    }
+
+    @JsonDeserialize(using = NullAnimalDeserializer.class)
+    static class NullAnimal extends Animal
+    {
+        public static final NullAnimal NULL_INSTANCE = new NullAnimal();
+
+        public NullAnimal() {
+            super(null);
+        }
+    }
+
+    static class NullAnimalDeserializer extends JsonDeserializer<NullAnimal> {
+        @Override
+        public NullAnimal getNullValue(final DeserializationContext context) {
+            return NullAnimal.NULL_INSTANCE;
+        }
+
+        @Override
+        public NullAnimal deserialize(final JsonParser parser, final DeserializationContext context) {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -238,6 +262,27 @@ public class TestTypedDeserialization
 
         Issue506NumberBean output = mapper.readValue(json, Issue506NumberBean.class);
         assertEquals(input.number, output.number);
+    }
+
+    public void testTypeAsArrayWithNullableType() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.addMixIn(Animal.class, TypeWithArray.class);
+        Animal a = m.readValue(
+                "[\""+Fish.class.getName()+"\"]", Animal.class);
+        assertNull(a);
+    }
+
+    public void testTypeAsArrayWithCustomDeserializer() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.addMixIn(Animal.class, TypeWithArray.class);
+        Animal a = m.readValue(
+                "[\""+NullAnimal.class.getName()+"\"]", Animal.class);
+        assertNotNull(a);
+        assertEquals(NullAnimal.class, a.getClass());
+        NullAnimal c = (NullAnimal) a;
+        assertNull(c.name);
     }
 }
 

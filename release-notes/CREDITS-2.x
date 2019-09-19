@@ -956,6 +956,10 @@ Hesham Massoud (heshamMassoud@github)
    (2.10.0)
 
 David Connelly (dconnelly@github)
-  * Reported#2446: Java 11: Unable to load JDK7 types (annotations, java.nio.file.Path):
+  * Reported #2446: Java 11: Unable to load JDK7 types (annotations, java.nio.file.Path):
     no Java7 support added
    (2.10.0)
+
+Wahey (KevynBct@github)
+  * Reported #2466: Didn't find class "java.nio.file.Path" below Android api 26
+  (2.10.0)

@@ -38,10 +38,10 @@ public class JacksonInject2465Test extends BaseMapTest
     public void testInjectWithCreator() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY))
+                .changeDefaultNullHandling(h -> JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY))
+                .changeDefaultVisibility(h -> h.withVisibility(PropertyAccessor.FIELD,
+                        JsonAutoDetect.Visibility.ANY))
                 .build();
-        mapper.setVisibility(mapper.getVisibilityChecker().withVisibility(PropertyAccessor.FIELD,
-                JsonAutoDetect.Visibility.ANY));
 
         final Internal2465 injected = new Internal2465("test");
         TestCase2465 o = mapper.readerFor(TestCase2465.class)

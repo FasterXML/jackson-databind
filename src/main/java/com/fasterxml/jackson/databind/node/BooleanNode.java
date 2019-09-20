@@ -29,6 +29,11 @@ public class BooleanNode
      */
     protected BooleanNode(boolean v) { _value = v; }
 
+    // To support JDK serialization, recovery of Singleton instance
+    protected Object readResolve() {
+        return _value ? TRUE : FALSE;
+    }
+
     public static BooleanNode getTrue() { return TRUE; }
     public static BooleanNode getFalse() { return FALSE; }
 

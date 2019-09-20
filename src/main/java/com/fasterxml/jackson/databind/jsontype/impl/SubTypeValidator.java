@@ -109,6 +109,9 @@ public class SubTypeValidator
         s.add("org.apache.commons.configuration.JNDIConfiguration");
         s.add("org.apache.commons.configuration2.JNDIConfiguration");
 
+        // [databind#2469]: xalan2
+        s.add("org.apache.xalan.lib.sql.JNDIConnectionPool");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

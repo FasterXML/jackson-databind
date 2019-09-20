@@ -11,7 +11,8 @@ Unreleased but backported
   (reported by crazylirui@gmail.com)
 #2449: Block one more gadget type (cve CVE-2019-14540)
   (reported by kingkk)
-#2460: Block one mode gadget type (ehcache, no CVE allocated yet)
+#2460: Block one more gadget type (ehcache, no CVE allocated yet)
+#2462: Block two more gadget types (commons-configuration)
 
 2.8.11.4 (25-Jul-2019)
 

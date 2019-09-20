@@ -113,6 +113,7 @@ public class AsArrayTypeDeserializer
             p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
             p.nextToken();
         }
+        // [databind#2467] (2.10): Allow missing value to be taken as "just use null value"
         if (hadStartArray && p.currentToken() == JsonToken.END_ARRAY) {
             return deser.getNullValue(ctxt);
         }

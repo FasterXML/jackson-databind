@@ -136,6 +136,8 @@ Project: jackson-databind
   (reported by crazylirui@gmail.com)
 #2449: Block one more gadget type (CVE-2019-14540)
   (reported by kingkk)
+#2460: Block one mode gadget type (ehcache, no CVE allocated yet)
+  (reported by Fei Lu)
 
 2.9.9 (16-May-2019)
 

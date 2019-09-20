@@ -104,7 +104,11 @@ public class SubTypeValidator
 
         // [databind#2420]: CXF/JAX-RS provider/XSLT
         s.add("org.apache.cxf.jaxrs.provider.XSLTJaxbProvider");
-        
+
+        // [databind#2462]: commons-configuration / -2
+        s.add("org.apache.commons.configuration.JNDIConfiguration");
+        s.add("org.apache.commons.configuration2.JNDIConfiguration");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

@@ -936,7 +936,6 @@ public final class ClassUtil
             if (force || 
                     (!Modifier.isPublic(member.getModifiers())
                             || !Modifier.isPublic(member.getDeclaringClass().getModifiers()))) {
-System.err.println(" SetAccessible for: "+member.getDeclaringClass().getSimpleName()+ " / "+member);
                 ao.setAccessible(true);
             }
         } catch (SecurityException se) {

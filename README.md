@@ -40,35 +40,21 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 </dependencies>
 ```
 
-Since package also depends on `jackson-core` and `jackson-annotations` packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
-If so, also add:
+Package also depends on `jackson-core` and `jackson-annotations` packages, but when using build tools
+like Maven or Gradle, dependencies are automatically included.
+You may, however, want to use [jackson-bom](../../../jackson-bom) to ensure compatible versions
+of dependencies.
+If not using build tool that can handle dependencies using project's `pom.xml`, you will need to download
+and include these 2 jars explicitly.
 
-```xml
-<dependencies>
-  ...
-  <dependency>
-    <!-- Note: core-annotations version x.y.0 is generally compatible with
-         (identical to) version x.y.1, x.y.2, etc. -->
-    <groupId>com.fasterxml.jackson.core</groupId>
-    <artifactId>jackson-annotations</artifactId>
-    <version>${jackson.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>com.fasterxml.jackson.core</groupId>
-    <artifactId>jackson-core</artifactId>
-    <version>${jackson.version}</version>
-  </dependency>
-  ...
-<dependencies>
-```
+## Non-Maven dependency resolution
 
-but note that this is optional, and only necessary if there are conflicts between jackson core dependencies through transitive dependencies.
-
-## Non-Maven
-
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/).
+For use cases that do not automaticall resolve dependencies from Maven repositories, you can still
+download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/).
 
 Databind jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
+
+With Jackson 2.10, jar will also include `module-info.class` to work as proper Java Module.
 
 -----
 
@@ -438,6 +424,16 @@ Main differences compared to 1.x "mapper" jar are:
 
 * Maven build instead of Ant
 * Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)
+
+-----
+
+## Support
+
+Full explanation of support can be found from [Main Jackson Portal](../../../jackson) but basically 2 types of support
+are available:
+
+* Community support via mailing lists, Gitter forum, Github issues
+* Optional Commercial Support is available via [Tidelift Subscriptions](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme)
 
 -----
 

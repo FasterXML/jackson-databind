@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class POJONode
     extends ValueNode
 {
+    private static final long serialVersionUID = 2L;
+
     protected final Object _value;
 
     public POJONode(Object v) { _value = v; }

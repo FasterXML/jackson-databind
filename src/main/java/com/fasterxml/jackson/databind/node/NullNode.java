@@ -69,9 +69,7 @@ public class NullNode
     public boolean equals(Object o) {
         // 29-Aug-2019, tatu: [databind#2433] Since custom sub-classes are allowed (bad idea probably),
         //     need to do better comparison
-        if (o == this) return true;
-        if (!(o instanceof NullNode)) return false;
-        return ((NullNode) o).isNull();
+        return (o == this) || (o instanceof NullNode);
     }
 
     @Override

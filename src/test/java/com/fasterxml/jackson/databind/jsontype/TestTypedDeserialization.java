@@ -57,7 +57,7 @@ public class TestTypedDeserialization
         public void setName(String n) { name = n; }
     }
 
-    // for [JACKSON-319] -- allow "empty" beans
+    // Allow "empty" beans
     @JsonTypeName("fishy")
     static class Fish extends Animal
     {
@@ -68,6 +68,7 @@ public class TestTypedDeserialization
         }
     }
 
+    // [databind#2467]: Allow missing "content" for as-array deserialization
     @JsonDeserialize(using = NullAnimalDeserializer.class)
     static class NullAnimal extends Animal
     {
@@ -264,6 +265,7 @@ public class TestTypedDeserialization
         assertEquals(input.number, output.number);
     }
 
+    // [databind#2467]: Allow missing "content" for as-array deserialization
     public void testTypeAsArrayWithNullableType() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -273,6 +275,7 @@ public class TestTypedDeserialization
         assertNull(a);
     }
 
+    // [databind#2467]
     public void testTypeAsArrayWithCustomDeserializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

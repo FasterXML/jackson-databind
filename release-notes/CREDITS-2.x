@@ -963,3 +963,8 @@ David Connelly (dconnelly@github)
 Wahey (KevynBct@github)
   * Reported #2466: Didn't find class "java.nio.file.Path" below Android api 26
   (2.10.0)
+
+Martín Coll (colltoaction@github)
+  * Contributed #2467: Accept `JsonTypeInfo.As.WRAPPER_ARRAY` with no second argument to
+   deserialize as "null value"
+  (2.10.0)

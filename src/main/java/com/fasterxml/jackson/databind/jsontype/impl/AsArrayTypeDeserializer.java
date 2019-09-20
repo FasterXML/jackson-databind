@@ -113,6 +113,9 @@ public class AsArrayTypeDeserializer
             p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
             p.nextToken();
         }
+        if (hadStartArray && p.currentToken() == JsonToken.END_ARRAY) {
+            return deser.getNullValue(ctxt);
+        }
         Object value = deser.deserialize(p, ctxt);
         // And then need the closing END_ARRAY
         if (hadStartArray && p.nextToken() != JsonToken.END_ARRAY) {

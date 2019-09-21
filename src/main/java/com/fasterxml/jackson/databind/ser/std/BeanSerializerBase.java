@@ -114,6 +114,8 @@ public abstract class BeanSerializerBase
         _props = properties;
         _filteredProps = filteredProperties;
         if (builder == null) { // mostly for testing
+            // 20-Sep-2019, tatu: Actually not just that but also "dummy" serializer for
+            //     case of no bean properties, too
             _typeId = null;
             _anyGetterWriter = null;
             _propertyFilterId = null;
@@ -414,7 +416,7 @@ public abstract class BeanSerializerBase
         final AnnotatedMember accessor = (property == null || intr == null)
                 ? null : property.getMember();
         final SerializationConfig config = provider.getConfig();
-        
+
         // Let's start with one big transmutation: Enums that are annotated
         // to serialize as Objects may want to revert
         JsonFormat.Value format = findFormatOverrides(provider, property, handledType());

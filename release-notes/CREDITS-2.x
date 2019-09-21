@@ -341,6 +341,9 @@ Sadayuki Furuhashi (frsyuki@github)
   * Reported #941: Deserialization from "{}" to ObjectNode field causes
     "out of END_OBJECT token" error
    (2.6.3)
+  * Reported #2077: `JsonTypeInfo` with a subtype having `JsonFormat.Shape.ARRAY`
+    and no fields generates `{}` not `[]`
+   (2.10.0)
 
 David Haraburda (dharaburda@github)
   * Contributed #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`

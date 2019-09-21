@@ -29,9 +29,9 @@ public class BeanSerializer
     extends BeanSerializerBase
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -69,18 +69,18 @@ public class BeanSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: factory methods, fluent factories
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method for constructing dummy bean serializer; one that
      * never outputs any properties
      */
-    public static BeanSerializer createDummy(JavaType forType)
+    public static BeanSerializer createDummy(JavaType forType, BeanSerializerBuilder builder)
     {
-        return new BeanSerializer(forType, null, NO_PROPS, null);
+        return new BeanSerializer(forType, builder, NO_PROPS, null);
     }
 
     @Override
@@ -120,9 +120,9 @@ public class BeanSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonSerializer implementation that differs between impls
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

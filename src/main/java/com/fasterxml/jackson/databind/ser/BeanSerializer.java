@@ -75,12 +75,23 @@ public class BeanSerializer
      */
 
     /**
-     * Method for constructing dummy bean serializer; one that
-     * never outputs any properties
+     * @deprecated Since 2.10
      */
+    @Deprecated
     public static BeanSerializer createDummy(JavaType forType)
     {
         return new BeanSerializer(forType, null, NO_PROPS, null);
+    }
+
+    /**
+     * Method for constructing dummy bean serializer; one that
+     * never outputs any properties
+     *
+     * @since 2.10
+     */
+    public static BeanSerializer createDummy(JavaType forType, BeanSerializerBuilder builder)
+    {
+        return new BeanSerializer(forType, builder, NO_PROPS, null);
     }
 
     @Override

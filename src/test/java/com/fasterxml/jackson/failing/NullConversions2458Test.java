@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.*;
 public class NullConversions2458Test extends BaseMapTest
 {
     static class Pojo {
-        private final List<String> list;
+        List<String> list;
 
         @JsonCreator
         public Pojo(@JsonProperty("list") List<String> list) {

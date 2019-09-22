@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
-public class NullConversionWithCreatorTest extends BaseMapTest
+public class NullConversionWithCreator2024Test extends BaseMapTest
 {
     // [databind#2024]
     static class EmptyFromNullViaCreator {
@@ -37,6 +37,7 @@ public class NullConversionWithCreatorTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2024]

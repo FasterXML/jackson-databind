@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.databind.*;
@@ -26,9 +25,10 @@ public class NullConversions2458Test extends BaseMapTest
     }
 
     public void testNullsViaCreator() throws Exception {
-        ObjectMapper mapper = newJsonMapper();
-        mapper.setDefaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY,
-                Nulls.AS_EMPTY));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.AS_EMPTY)
+                        .withContentNulls(Nulls.AS_EMPTY))
+                .build();
         Pojo pojo = mapper.readValue("{}", Pojo.class);
         assertNotNull(pojo);
     }

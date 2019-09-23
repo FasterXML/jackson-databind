@@ -8,9 +8,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
@@ -939,11 +942,14 @@ nonAnnotatedParamIndex, ctor);
         if (typeDeser == null) {
             typeDeser = ctxt.findTypeDeserializer(type);
         }
+
+        // 22-Sep-2019, tatu: for [databind#2458] need more work on getting metadata
+        //   about SetterInfo, mergeability
+        metadata = _getSetterInfo(ctxt, property, metadata);
+
         // Note: contextualization of typeDeser _should_ occur in constructor of CreatorProperty
         // so it is not called directly here
-
         Object injectableValueId = (injectable == null) ? null : injectable.getId();
-        
         SettableBeanProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
                 metadata);
@@ -975,6 +981,65 @@ nonAnnotatedParamIndex, ctor);
             }
         }
         return null;
+    }
+
+    /**
+     * Helper method copied from {@code POJOPropertyBuilder} since that won't be
+     * applied to creator parameters
+     *
+     * @since 2.10
+     */
+    protected PropertyMetadata _getSetterInfo(DeserializationContext ctxt,
+            BeanProperty prop, PropertyMetadata metadata)
+    {
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final DeserializationConfig config = ctxt.getConfig();
+
+        boolean needMerge = true;
+        Nulls valueNulls = null;
+        Nulls contentNulls = null;
+
+        // NOTE: compared to `POJOPropertyBuilder`, we only have access to creator
+        // parameter, not other accessors, so code bit simpler
+        AnnotatedMember prim = prop.getMember();
+
+        if (prim != null) {
+            // Ok, first: does property itself have something to say?
+            if (intr != null) {
+                JsonSetter.Value setterInfo = intr.findSetterInfo(prim);
+                if (setterInfo != null) {
+                    valueNulls = setterInfo.nonDefaultValueNulls();
+                    contentNulls = setterInfo.nonDefaultContentNulls();
+                }
+            }
+            // If not, config override?
+            // 25-Oct-2016, tatu: Either this, or type of accessor...
+            if (needMerge || (valueNulls == null) || (contentNulls == null)) {
+                ConfigOverride co = config.getConfigOverride(prop.getType().getRawClass());
+                JsonSetter.Value setterInfo = co.getSetterInfo();
+                if (setterInfo != null) {
+                    if (valueNulls == null) {
+                        valueNulls = setterInfo.nonDefaultValueNulls();
+                    }
+                    if (contentNulls == null) {
+                        contentNulls = setterInfo.nonDefaultContentNulls();
+                    }
+                }
+            }
+        }
+        if (needMerge || (valueNulls == null) || (contentNulls == null)) {
+            JsonSetter.Value setterInfo = config.getDefaultSetterInfo();
+            if (valueNulls == null) {
+                valueNulls = setterInfo.nonDefaultValueNulls();
+            }
+            if (contentNulls == null) {
+                contentNulls = setterInfo.nonDefaultContentNulls();
+            }
+        }
+        if ((valueNulls != null) || (contentNulls != null)) {
+            metadata = metadata.withNulls(valueNulls, contentNulls);
+        }
+        return metadata;
     }
 
     /*

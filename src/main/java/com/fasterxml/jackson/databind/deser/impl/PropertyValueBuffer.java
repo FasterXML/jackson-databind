@@ -194,7 +194,13 @@ public class PropertyValueBuffer
                     "Missing creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES` enabled",
                     prop.getName(), prop.getCreatorIndex());
         }
-        // Third: default value
+        // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
+        Object nullValue = prop.getNullValueProvider().getNullValue(_context);
+        if (nullValue != null) {
+            return nullValue;
+        }
+
+        // Fourth: default value
         JsonDeserializer<Object> deser = prop.getValueDeserializer();
         return deser.getNullValue(_context);
     }

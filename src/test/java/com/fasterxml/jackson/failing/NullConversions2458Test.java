@@ -12,24 +12,42 @@ import com.fasterxml.jackson.databind.*;
 
 public class NullConversions2458Test extends BaseMapTest
 {
+    // [databind#2458]
     static class Pojo {
-        List<String> list;
+        List<String> _value;
 
         @JsonCreator
-        public Pojo(@JsonProperty("list") List<String> list) {
-            this.list = Objects.requireNonNull(list, "list");
+        public Pojo(@JsonProperty("value") List<String> v) {
+            this._value = Objects.requireNonNull(v, "value");
         }
 
-        public List<String> getList() {
-            return list;
+        protected Pojo() { }
+
+        public List<String> value() {
+            return _value;
         }
+
+        public void setOther(List<String> v) { }
     }
 
-    public void testNullsViaCreator() throws Exception {
-        ObjectMapper mapper = newJsonMapper();
-        mapper.setDefaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY,
-                Nulls.AS_EMPTY));
-        Pojo pojo = mapper.readValue("{}", Pojo.class);
+    private final ObjectMapper MAPPER_WITH_AS_EMPTY = jsonMapperBuilder()
+            .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY,
+                    Nulls.AS_EMPTY))
+            .build();
+
+    // [databind#2458]
+    public void testMissingToEmptyViaCreator() throws Exception {
+        Pojo pojo = MAPPER_WITH_AS_EMPTY.readValue("{}", Pojo.class);
         assertNotNull(pojo);
+        assertNotNull(pojo.value());
+        assertEquals(0, pojo.value().size());
+    }
+
+    // [databind#2458]
+    public void testNullToEmptyViaCreator() throws Exception {
+        Pojo pojo = MAPPER_WITH_AS_EMPTY.readValue("{\"value\":null}", Pojo.class);
+        assertNotNull(pojo);
+        assertNotNull(pojo.value());
+        assertEquals(0, pojo.value().size());
     }
 }

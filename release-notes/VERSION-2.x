@@ -9,6 +9,8 @@ Project: jackson-databind
 #2077: `JsonTypeInfo` with a subtype having `JsonFormat.Shape.ARRAY` and
   no fields generates `{}` not `[]`
  (reported by Sadayuki F)
+#2458: `Nulls` property metadata ignored for creators
+ (reported  by XakepSDK@github)
 #2466: Didn't find class "java.nio.file.Path" below Android api 26
  (reported by KevynBct@github)
 #2467: Accept `JsonTypeInfo.As.WRAPPER_ARRAY` with no second argument to

@@ -260,6 +260,7 @@ public class CreatorProperty
         //   Not 100% sure why it would be needed (or fixes things) but... appears to.
         //   Need to understand better in future as it seems like it should probably be
         //   linked earlier during construction or something.
+        // 22-Sep-2019, tatu: Was hoping [databind#2458] fixed this, too, but no such luck
         PropertyMetadata md = super.getMetadata();
         if (_fallbackSetter != null) {
             return md.withMergeInfo(_fallbackSetter.getMetadata().getMergeInfo());

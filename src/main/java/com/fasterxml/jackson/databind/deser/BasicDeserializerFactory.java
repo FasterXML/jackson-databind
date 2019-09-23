@@ -1016,7 +1016,7 @@ nonAnnotatedParamIndex, ctor);
             // 25-Oct-2016, tatu: Either this, or type of accessor...
             if (needMerge || (valueNulls == null) || (contentNulls == null)) {
                 ConfigOverride co = config.getConfigOverride(prop.getType().getRawClass());
-                JsonSetter.Value setterInfo = co.getSetterInfo();
+                JsonSetter.Value setterInfo = co.getNullHandling();
                 if (setterInfo != null) {
                     if (valueNulls == null) {
                         valueNulls = setterInfo.nonDefaultValueNulls();
@@ -1028,7 +1028,7 @@ nonAnnotatedParamIndex, ctor);
             }
         }
         if (needMerge || (valueNulls == null) || (contentNulls == null)) {
-            JsonSetter.Value setterInfo = config.getDefaultSetterInfo();
+            JsonSetter.Value setterInfo = config.getDefaultNullHandling();
             if (valueNulls == null) {
                 valueNulls = setterInfo.nonDefaultValueNulls();
             }

@@ -31,7 +31,7 @@ public class NullConversionsViaCreator2458Test extends BaseMapTest
     }
 
     private final ObjectMapper MAPPER_WITH_AS_EMPTY = jsonMapperBuilder()
-            .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY,
+            .changeDefaultNullHandling(h -> JsonSetter.Value.construct(Nulls.AS_EMPTY,
                     Nulls.AS_EMPTY))
             .build();
 

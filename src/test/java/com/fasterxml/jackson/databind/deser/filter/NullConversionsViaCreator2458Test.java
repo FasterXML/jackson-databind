@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.filter;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.databind.*;
 
-public class NullConversions2458Test extends BaseMapTest
+public class NullConversionsViaCreator2458Test extends BaseMapTest
 {
     // [databind#2458]
     static class Pojo {

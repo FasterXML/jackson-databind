@@ -238,12 +238,15 @@ public class ObjectMapper
          */
         @Deprecated // since 2.10
         public DefaultTypeResolverBuilder(DefaultTyping t) {
-            this(t, null);
+            this(t, LaissezFaireSubTypeValidator.instance);
         }
 
+        /**
+         * @since 2.10
+         */
         public DefaultTypeResolverBuilder(DefaultTyping t, PolymorphicTypeValidator ptv) {
-            _appliesFor = t;
-            _subtypeValidator = ptv;
+            _appliesFor = Objects.requireNonNull(t, "Can not pass `null` DefaultTyping");
+            _subtypeValidator = Objects.requireNonNull(ptv, "Can not pass `null` PolymorphicTypeValidator");
         }
 
         /**

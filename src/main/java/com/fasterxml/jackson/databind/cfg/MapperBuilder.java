@@ -386,7 +386,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /**
      * Method called by mapper being constructed to first save state (delegated to
-     * {@link #_saveState()}), then apply modules (if any), and then return
+     * {code _saveState()} method), then apply modules (if any), and then return
      * the saved state (but retain reference to it). If method has been called previously,
      * it will simply return retained state.
      */

@@ -4,23 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.10.0 (not yet released)
+2.10.0 (26-Sep-2019)
 
-#2077: `JsonTypeInfo` with a subtype having `JsonFormat.Shape.ARRAY` and
-  no fields generates `{}` not `[]`
- (reported by Sadayuki F)
-#2458: `Nulls` property metadata ignored for creators
- (reported  by XakepSDK@github)
-#2466: Didn't find class "java.nio.file.Path" below Android api 26
- (reported by KevynBct@github)
-#2467: Accept `JsonTypeInfo.As.WRAPPER_ARRAY` with no second argument to
-  deserialize as "null value"
- (contributed by Martin C)
-
-2.10.0.pr3 (17-Sep-2019)
-
+#18: Make `JsonNode` serializable
 #1093: Default typing does not work with `writerFor(Object.class)`
  (reported by hoomanv@github)
+<<<<<<< HEAD
 #2129: Add `SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX`, separate from value setting
  (suggested by renzihui@github)
 #2133: Improve `DeserializationProblemHandler.handleUnexpectedToken()` to allow handling of
@@ -81,6 +70,8 @@ Project: jackson-databind
 2.10.0.pr1 (19-Jul-2019)
 
 #18: Make `JsonNode` serializable
+=======
+>>>>>>> 2.10
 #1675: Remove "impossible" `IOException` in `readTree()` and `readValue()` `ObjectMapper`
   methods which accept Strings
  (requested by matthew-pwnieexpress@github)
@@ -88,13 +79,26 @@ Project: jackson-databind
 #1995: Limit size of `DeserializerCache`, auto-flush on exceeding
 #2059: Remove `final` modifier for `TypeFactory`
  (requested by Thibaut R)
+#2077: `JsonTypeInfo` with a subtype having `JsonFormat.Shape.ARRAY` and
+  no fields generates `{}` not `[]`
+ (reported by Sadayuki F)
 #2115: Support naive deserialization of `Serializable` values as "untyped", same
   as `java.lang.Object`
  (requested by Christopher S)
 #2116: Make NumberSerializers.Base public and its inherited classes not final
  (requested by Édouard M)
 #2126: `DeserializationContext.instantiationException()` throws `InvalidDefinitionException`
+#2129: Add `SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX`, separate from value setting
+ (suggested by renzihui@github)
+#2133: Improve `DeserializationProblemHandler.handleUnexpectedToken()` to allow handling of
+  Collection problems
+ (contributed by Semyon L)
+#2149: Add `MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES`
+ (suggested by Craig P)
 #2153: Add `JsonMapper` to replace generic `ObjectMapper` usage
+#2164: `FactoryBasedEnumDeserializer` does not respect
+  `DeserializationFeature.WRAP_EXCEPTIONS`
+ (reported by Yiqiu H)
 #2187: Make `JsonNode.toString()` use shared `ObjectMapper` to produce valid json
 #2189: `TreeTraversingParser` does not check int bounds
  (reported by Alexander S)
@@ -114,6 +118,8 @@ Project: jackson-databind
  (reported by Pavel C)
 #2236: Type id not provided on `Double.NaN`, `Infinity` with `@JsonTypeInfo`
  (reported by C-B-B@github)
+#2237: Add "required" methods in `JsonNode`: `required(String | int)`,
+  `requiredAt(JsonPointer)`
 #2241: Add `PropertyNamingStrategy.LOWER_DOT_CASE` for dot-delimited names
  (contributed by zenglian@github.com)
 #2251: Getter that returns an abstract collection breaks a delegating `@JsonCreator`
@@ -121,12 +127,58 @@ Project: jackson-databind
 #2273: Add basic Java 9+ module info
 #2280: JsonMerge not work with constructor args
  (reported by Deblock T)
+#2309: READ_ENUMS_USING_TO_STRING doesn't support null values
+ (reported, fix suggested by Ben A)
 #2311: Unnecessary MultiView creation for property writers
  (suggested by Manuel H)
+#2331: `JsonMappingException` through nested getter with generic wildcard return type
+ (reported by sunchezz89@github)
+#2336: `MapDeserializer` can not merge `Map`s with polymorphic values
+ (reported by Robert G)
 #2338: Suboptimal return type for `JsonNode.withArray()`
  (reported by Victor N)
 #2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
+#2349: Add option `DefaultTyping.EVERYTHING` to support Kotlin data classes
+#2357: Lack of path on MismatchedInputException
+ (suggested by TheEin@github)
+#2378: `@JsonAlias` doesn't work with AutoValue
+ (reported by David H)
+#2390: `Iterable` serialization breaks when adding `@JsonFilter` annotation
+ (reported by Chris M)
+#2392: `BeanDeserializerModifier.modifyDeserializer()` not applied to custom bean deserializers
+ (reported by andreasbaus@github)
+#2393: `TreeTraversingParser.getLongValue()` incorrectly checks `canConvertToInt()`
+ (reported by RabbidDog@github)
+#2398: Replace recursion in `TokenBuffer.copyCurrentStructure()` with iteration
+ (reported by Sam S)
+#2415: Builder-based POJO deserializer should pass builder instance, not type,
+  to `handleUnknownVanilla()`
+ (proposed by Vladimir T, follow up to #822)
+#2416: Optimize `ValueInstantiator` construction for default `Collection`, `Map` types
+#2422: `scala.collection.immutable.ListMap` fails to serialize since 2.9.3
+ (reported by dejanlokar1@github)
+#2425: Add global config override setting for `@JsonFormat.lenient()`
+#2428: Use "activateDefaultTyping" over "enableDefaultTyping" in 2.10 with new methods
+#2430: Change `ObjectMapper.valueToTree()` to convert `null` to `NullNode`
+#2432: Add support for module bundles
+ (contributed by Marcos P)
+#2433: Improve `NullNode.equals()`
+ (suggested by David B)
+#2442: `ArrayNode.addAll()` adds raw `null` values which cause NPE on `deepCopy()`
+  and `toString()`
+ (reported, fix contributed by Hesham M)
+#2446: Java 11: Unable to load JDK7 types (annotations, java.nio.file.Path): no Java7 support added
+ (reported by David C)
+#2451: Add new `JsonValueFormat` value, `UUID`
+#2453: Add `DeserializationContext.readTree(JsonParser)` convenience method
+#2458: `Nulls` property metadata ignored for creators
+ (reported  by XakepSDK@github)
+#2466: Didn't find class "java.nio.file.Path" below Android api 26
+ (reported by KevynBct@github)
+#2467: Accept `JsonTypeInfo.As.WRAPPER_ARRAY` with no second argument to
+  deserialize as "null value"
+ (contributed by Martin C)
 
 2.9.10 (21-Sep-2019)
 

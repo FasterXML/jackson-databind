@@ -25,7 +25,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.9.0</jackson.version>
+  <jackson.version>2.10.0</jackson.version>
   ...
 </properties>
 
@@ -419,13 +419,13 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.10` is for developing the next (and possibly last) minor 2.x version
-* `2.8` and `2.9` are for backported fixes for 2.8/2.9 patch versions
+* `2.10` is the current stable minor 2.x version
+* `2.9` is for selected backported fixes 
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,
 but exist just in case a rare emergency patch is needed.
-All released versions have matching git tags (`jackson-dataformats-binary-2.9.4`).
+All released versions have matching git tags (`jackson-dataformats-binary-2.9.10`).
 
 -----
 

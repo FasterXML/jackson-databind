@@ -296,7 +296,7 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default for backwards compatibility.
      *
-     * @since 2.9.6
+     * @since 2.10
      */
     USE_BASE_TYPE_AS_DEFAULT_IMPL(false),
 

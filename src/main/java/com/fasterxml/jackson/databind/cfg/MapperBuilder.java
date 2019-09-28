@@ -96,19 +96,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
-    @SuppressWarnings("deprecation")
     public B enable(MapperFeature... features) {
         _mapper.enable(features);
         return _this();
     }
 
-    @SuppressWarnings("deprecation")
     public B disable(MapperFeature... features) {
         _mapper.disable(features);
         return _this();
     }
 
-    @SuppressWarnings("deprecation")
     public B configure(MapperFeature feature, boolean state) {
         _mapper.configure(feature, state);
         return _this();
@@ -583,6 +580,16 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
+     * Method for assigning {@link PolymorphicTypeValidator} to use for validating
+     * subtypes when using Class name - based polymorphic deserialization
+     * using annotations (validator used with "Default Typing" is specified by
+     * passing in {@link #activateDefaultTyping(PolymorphicTypeValidator)} instead).
+     *<p>
+     * Validator will be called on validating types for which no default databind
+     * deserializer, or module-provided deserializer is found: typically this
+     * includes "POJO" (aka Bean) types, but not (for example) most container
+     * types.
+     *
      * @since 2.10
      */
     public B polymorphicTypeValidator(PolymorphicTypeValidator ptv) {
@@ -599,7 +606,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableDefaultTyping(subtypeValidator, DefaultTyping.OBJECT_AND_NON_CONCRETE);
+     *  activateDefaultTyping(subtypeValidator, DefaultTyping.OBJECT_AND_NON_CONCRETE);
      *</pre>
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
@@ -613,7 +620,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableDefaultTyping(subtypeValidator, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+     *  activateDefaultTyping(subtypeValidator, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
      *</pre>
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security

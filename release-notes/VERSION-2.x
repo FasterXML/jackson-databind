@@ -95,7 +95,7 @@ Project: jackson-databind
 #2416: Optimize `ValueInstantiator` construction for default `Collection`, `Map` types
 #2422: `scala.collection.immutable.ListMap` fails to serialize since 2.9.3
  (reported by dejanlokar1@github)
-#2425: Add global config override setting for `@JsonFormat.lenient()`
+#2424: Add global config override setting for `@JsonFormat.lenient()`
 #2428: Use "activateDefaultTyping" over "enableDefaultTyping" in 2.10 with new methods
 #2430: Change `ObjectMapper.valueToTree()` to convert `null` to `NullNode`
 #2432: Add support for module bundles

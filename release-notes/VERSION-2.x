@@ -117,6 +117,11 @@ Project: jackson-databind
   deserialize as "null value"
  (contributed by Martin C)
 
+2.9.10.1 (not yet released)
+
+#2478: Block two more gadget types (commons-dbcp, p6spy)
+ (reported by b5mali4 / root@codersec.net)
+
 2.9.10 (21-Sep-2019)
 
 #2331: `JsonMappingException` through nested getter with generic wildcard return type

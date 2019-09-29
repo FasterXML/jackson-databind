@@ -288,7 +288,12 @@ public abstract class JavaType
     public boolean isArrayType() { return false; }
 
     @Override
-    public final boolean isEnumType() { return _class.isEnum(); }
+    public final boolean isEnumType() {
+        // 29-Sep-2019, tatu: `Class.isEnum()` not enough to detect custom subtypes,
+        //    use this instead
+//        return Enum.class.isAssignableFrom(_class);
+        return _class.isEnum();
+    }
 
     @Override
     public final boolean isInterface() { return _class.isInterface(); }

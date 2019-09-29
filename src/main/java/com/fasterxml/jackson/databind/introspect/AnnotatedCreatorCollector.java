@@ -274,7 +274,7 @@ final class AnnotatedCreatorCollector
             resolvedAnnotations = null;
             Class<?> dc = ctor.getDeclaringClass();
             // (a) is enum, which have two extra hidden params (name, index)
-            if (dc.isEnum() && (paramCount == paramAnns.length + 2)) {
+            if (ClassUtil.isEnumType(dc) && (paramCount == paramAnns.length + 2)) {
                 Annotation[][] old = paramAnns;
                 paramAnns = new Annotation[old.length+2][];
                 System.arraycopy(old, 0, paramAnns, 2, old.length);

@@ -112,6 +112,10 @@ public class SubTypeValidator
         // [databind#2469]: xalan2
         s.add("org.apache.xalan.lib.sql.JNDIConnectionPool");
 
+        // [databind#2478]: comons-dbcp, p6spy
+        s.add("org.apache.commons.dbcp.datasources.SharedPoolDataSource");
+        s.add("com.p6spy.engine.spy.P6DataSource");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

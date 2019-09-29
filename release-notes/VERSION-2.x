@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.10.1 (not yet released)
+
+#2478: Block two more gadget types (commons-dbcp, p6spy)
+ (reported by b5mali4 / root@codersec.net)
+
 2.9.10 (21-Sep-2019)
 
 #2331: `JsonMappingException` through nested getter with generic wildcard return type
@@ -26,7 +31,6 @@ Project: jackson-databind
   (reported by Fei Lu)
 #2462: Block two more gadget types (commons-configuration)
 #2469: Block one more gadget type (xalan2)
-#2478: Block two more gadget types (commons-dbcp, p6spy)
 
 2.9.9 (16-May-2019)
 

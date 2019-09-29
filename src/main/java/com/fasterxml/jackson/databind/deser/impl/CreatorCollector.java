@@ -336,7 +336,7 @@ public class CreatorCollector {
      * @since 2.8.1
      */
     protected boolean _isEnumValueOf(AnnotatedWithParams creator) {
-        return creator.getDeclaringClass().isEnum()
+        return ClassUtil.isEnumType(creator.getDeclaringClass())
                 && "valueOf".equals(creator.getName());
     }
 }

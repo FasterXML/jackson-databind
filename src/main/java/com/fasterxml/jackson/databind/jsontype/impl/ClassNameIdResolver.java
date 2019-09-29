@@ -90,7 +90,12 @@ public class ClassNameIdResolver
     {
         // Need to ensure that "enum subtypes" work too
         if (ClassUtil.isEnumType(cls)) {
-            if (!cls.isEnum()) { // means that it's sub-class of base enum, so:
+            // 29-Sep-2019, tatu: `Class.isEnum()` only returns true for main declaration,
+            //   but NOT from sub-class thereof (extending individual values). This
+            //   is why additional resolution is needed: we want class that contains
+            //   enumeration instances.
+            if (!cls.isEnum()) {
+                // and this parent would then have `Enum.class` as its parent:
                 cls = cls.getSuperclass();
             }
         }

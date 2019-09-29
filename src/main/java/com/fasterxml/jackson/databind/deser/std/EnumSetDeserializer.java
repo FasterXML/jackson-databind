@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Standard deserializer for {@link EnumSet}s.
@@ -44,7 +45,7 @@ public class EnumSetDeserializer
         _enumType = enumType;
         _enumClass = (Class<Enum>) enumType.getRawClass();
         // sanity check
-        if (!_enumClass.isEnum()) {
+        if (!ClassUtil.isEnumType(_enumClass)) {
             throw new IllegalArgumentException("Type "+enumType+" not Java Enum type");
         }
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;

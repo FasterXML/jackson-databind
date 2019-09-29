@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.1 (not yet released)
+
+#2457: Extended enum values are not handled as enums when used as Map keys
+ (reported by Andrey K)
+
 2.10.0 (26-Sep-2019)
 
 #18: Make `JsonNode` serializable

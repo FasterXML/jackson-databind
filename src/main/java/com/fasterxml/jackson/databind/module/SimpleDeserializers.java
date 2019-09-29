@@ -120,6 +120,10 @@ public class SimpleDeserializers
         }
         JsonDeserializer<?> deser = _classMappings.get(new ClassKey(type));
         if (deser == null) {
+            // 29-Sep-2019, tatu: Not 100% sure this is workable logic but leaving
+            //   as is (wrt [databind#2457]. Probably works ok since this covers direct
+            //   sub-classes of `Enum`; but even if custom sub-classes aren't, unlikely
+            //   mapping for those ever requested for deserialization
             if (_hasEnumDeserializer && type.isEnum()) {
                 deser = _classMappings.get(new ClassKey(Enum.class));
             }

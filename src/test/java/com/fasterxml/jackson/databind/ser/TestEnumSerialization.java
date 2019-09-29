@@ -147,10 +147,8 @@ public class TestEnumSerialization
 
     public void testEnumSet() throws Exception
     {
-        StringWriter sw = new StringWriter();
-        EnumSet<TestEnum> value = EnumSet.of(TestEnum.B);
-        MAPPER.writeValue(sw, value);
-        assertEquals("[\"B\"]", sw.toString());
+        final EnumSet<TestEnum> value = EnumSet.of(TestEnum.B);
+        assertEquals("[\"B\"]", MAPPER.writeValueAsString(value));
     }
 
     /**
@@ -160,9 +158,7 @@ public class TestEnumSerialization
      */
     public void testEnumUsingToString() throws Exception
     {
-        StringWriter sw = new StringWriter();
-        MAPPER.writeValue(sw, AnnotatedTestEnum.C2);
-        assertEquals("\"c2\"", sw.toString());
+        assertEquals("\"c2\"", MAPPER.writeValueAsString(AnnotatedTestEnum.C2));
     }
 
     public void testSubclassedEnums() throws Exception

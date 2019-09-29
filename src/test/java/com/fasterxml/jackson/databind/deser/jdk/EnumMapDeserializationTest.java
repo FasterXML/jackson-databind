@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
@@ -74,6 +75,22 @@ public class EnumMapDeserializationTest extends BaseMapTest
         public Pojo1859(EnumMap<Enum1859, String> v) {
             values = v;
         }
+    }
+
+    // [databind#2457]
+    enum MyEnum2457 {
+        A,
+        B() {
+            // just to ensure subclass construction
+            @Override
+            public void foo() { }
+        };
+
+        // needed to force subclassing
+        public void foo() { }
+
+        @Override
+        public String toString() { return name() + " as string"; }
     }
 
     /*
@@ -222,5 +239,22 @@ public class EnumMapDeserializationTest extends BaseMapTest
         // 25-Jan-2018, tatu: as per [databind#1883], we upgrade it to `EnumMap`, which won't accept nulls...
         assertEquals(0, value2.size());
         assertEquals(EnumMap.class, value2.getClass());
+    }
+
+    // [databind#2457]
+    public void testCustomEnumAsRootMapKey() throws Exception
+    {
+        final ObjectMapper mapper = newJsonMapper();
+        final Map<MyEnum2457, String> map = new LinkedHashMap<>();
+        map.put(MyEnum2457.A, "1");
+        map.put(MyEnum2457.B, "2");
+        assertEquals(aposToQuotes("{'A':'1','B':'2'}"),
+                mapper.writeValueAsString(map));
+
+        // But should be able to override
+        assertEquals(aposToQuotes("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
+                mapper.writer()
+                    .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                    .writeValueAsString(map));
     }
 }

@@ -100,7 +100,7 @@ public abstract class StdKeySerializers
             }
             // 29-Sep-2019, tatu: [databind#2457] can not use 'rawKeyType.isEnum()`, won't work
             //    for subtypes.
-            if (Enum.class.isAssignableFrom(rawKeyType)) {
+            if (ClassUtil.isEnumType(rawKeyType)) {
                 return EnumKeySerializer.construct(rawKeyType,
                         EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType));
             }

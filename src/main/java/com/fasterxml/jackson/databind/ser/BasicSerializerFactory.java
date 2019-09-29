@@ -421,7 +421,7 @@ public abstract class BasicSerializerFactory
             }
             return NumberSerializer.instance;
         }
-        if (Enum.class.isAssignableFrom(raw)) {
+        if (ClassUtil.isEnumType(raw) && raw != Enum.class) {
             return buildEnumSerializer(prov.getConfig(), type, beanDesc);
         }
         return null;

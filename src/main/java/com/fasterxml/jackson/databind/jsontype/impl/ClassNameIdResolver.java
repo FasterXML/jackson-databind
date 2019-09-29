@@ -89,7 +89,7 @@ public class ClassNameIdResolver
     protected String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
     {
         // Need to ensure that "enum subtypes" work too
-        if (Enum.class.isAssignableFrom(cls)) {
+        if (ClassUtil.isEnumType(cls)) {
             if (!cls.isEnum()) { // means that it's sub-class of base enum, so:
                 cls = cls.getSuperclass();
             }

@@ -169,7 +169,7 @@ public final class ClassUtil
         if (type.isArray()) {
             return "array";
         }
-        if (type.isEnum()) {
+        if (Enum.class.isAssignableFrom(type)) {
             return "enum";
         }
         if (type.isPrimitive()) {
@@ -953,6 +953,16 @@ public final class ClassUtil
     /* Enum type detection
     /**********************************************************
      */
+
+    /**
+     * Helper method that encapsulates reliable check on whether
+     * given raw type "is an Enum", that is, is or extends {@link java.lang.Enum}.
+     *
+     * @since 2.10.1
+     */
+    public static boolean isEnumType(Class<?> rawType) {
+        return Enum.class.isAssignableFrom(rawType);
+    }
 
     /**
      * Helper method that can be used to dynamically figure out

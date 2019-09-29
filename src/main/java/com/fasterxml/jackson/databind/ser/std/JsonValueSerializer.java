@@ -249,7 +249,7 @@ public class JsonValueSerializer
          */
         final JavaType type = _accessor.getType();
         Class<?> declaring = _accessor.getDeclaringClass();
-        if ((declaring != null) && declaring.isEnum()) {
+        if ((declaring != null) && ClassUtil.isEnumType(declaring)) {
             if (_acceptJsonFormatVisitorForEnum(visitor, typeHint, declaring)) {
                 return;
             }

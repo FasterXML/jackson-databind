@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -425,7 +426,7 @@ public abstract class BeanSerializerBase
             shape = format.getShape();
             // or, alternatively, asked to revert "back to" other representations...
             if ((shape != JsonFormat.Shape.ANY) && (shape != _serializationShape)) {
-                if (_handledType.isEnum()) {
+                if (ClassUtil.isEnumType(_handledType)) {
                     switch (shape) {
                     case STRING:
                     case NUMBER:

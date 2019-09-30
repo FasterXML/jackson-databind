@@ -74,7 +74,6 @@ public class EnumSetSerializer
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
                 enumSer = _findAndAddDynamic(ctxt, en.getDeclaringClass());
-
             }
             enumSer.serialize(en, gen, ctxt);
         }

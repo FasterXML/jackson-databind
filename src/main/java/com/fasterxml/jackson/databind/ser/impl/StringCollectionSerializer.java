@@ -26,9 +26,9 @@ public class StringCollectionSerializer
     public final static StringCollectionSerializer instance = new StringCollectionSerializer();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected StringCollectionSerializer() {
@@ -57,16 +57,15 @@ public class StringCollectionSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual serialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
     public void serialize(Collection<String> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
-        g.setCurrentValue(value);
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
@@ -86,9 +85,9 @@ public class StringCollectionSerializer
             SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        g.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
+        g.setCurrentValue(value);
         serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

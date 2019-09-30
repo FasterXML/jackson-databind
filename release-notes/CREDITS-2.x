@@ -975,3 +975,8 @@ Martín Coll (colltoaction@github)
 Andrey Kulikov (ankulikov@github)
   * Reported #2457: Extended enum values are not handled as enums when used as Map keys
   (2.10.1)
+
+Ryan Bohn (bohnman@github)
+  * Reported `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
+   which messes up current value for sibling properties
+  (2.10.1)

@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #2457: Extended enum values are not handled as enums when used as Map keys
  (reported by Andrey K)
+#2473: Array index missing in path of `JsonMappingException` for `Collection<String>`,
+  with custom deserializer
+ (reported by João G)
 #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
   which messes up current value for sibling properties
  (reported by Ryan B)

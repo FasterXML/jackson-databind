@@ -213,35 +213,39 @@ public final class StringCollectionDeserializer
     private Collection<String> deserializeUsingCustom(JsonParser p, DeserializationContext ctxt,
             Collection<String> result, final JsonDeserializer<String> deser) throws IOException
     {
-        while (true) {
-            /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
-             *   that suggest we are expecting a String; this helps with some formats,
-             *   notably XML. Note, however, that while we can get String, we can't
-             *   assume that's what we use due to custom deserializer
-             */
-            String value;
-            if (p.nextTextValue() == null) {
-                JsonToken t = p.currentToken();
-                if (t == JsonToken.END_ARRAY) {
-                    break;
-                }
-                // Ok: no need to convert Strings, but must recognize nulls
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
+        try {
+            while (true) {
+                /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
+                 *   that suggest we are expecting a String; this helps with some formats,
+                 *   notably XML. Note, however, that while we can get String, we can't
+                 *   assume that's what we use due to custom deserializer
+                 */
+                String value;
+                if (p.nextTextValue() == null) {
+                    JsonToken t = p.currentToken();
+                    if (t == JsonToken.END_ARRAY) {
+                        break;
                     }
-                    value = (String) _nullProvider.getNullValue(ctxt);
+                    // Ok: no need to convert Strings, but must recognize nulls
+                    if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        value = (String) _nullProvider.getNullValue(ctxt);
+                    } else {
+                        value = deser.deserialize(p, ctxt);
+                    }
                 } else {
                     value = deser.deserialize(p, ctxt);
                 }
-            } else {
-                value = deser.deserialize(p, ctxt);
+                result.add(value);
             }
-            result.add(value);
+        } catch (Exception e) {
+            throw JsonMappingException.wrapWithPath(e, result, result.size());
         }
         return result;
     }
-    
+
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException {

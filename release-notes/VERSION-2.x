@@ -130,7 +130,8 @@ Project: jackson-databind
 
 2.9.10.1 (not yet released)
 
-#2478: Block two more gadget types (commons-dbcp, p6spy)
+#2478: Block two more gadget types (commons-dbcp, p6spy,
+  CVE-2019-16942 / CVE-2019-16943)
  (reported by b5mali4 / root@codersec.net)
 
 2.9.10 (21-Sep-2019)

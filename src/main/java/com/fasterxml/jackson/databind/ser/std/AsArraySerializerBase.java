@@ -178,8 +178,6 @@ public abstract class AsArraySerializerBase<T>
             return;
         }
         gen.writeStartArray(value);
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
@@ -189,10 +187,10 @@ public abstract class AsArraySerializerBase<T>
     public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        g.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        g.setCurrentValue(value);
         serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

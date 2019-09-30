@@ -28,7 +28,7 @@ public class UnknownSerializer
             failForEmpty(provider, value);
         }
         // But if it's fine, we'll just output empty JSON Object:
-        gen.writeStartObject(value);
+        gen.writeStartObject(value, 0);
         gen.writeEndObject();
     }
 

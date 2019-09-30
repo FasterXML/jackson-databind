@@ -8,12 +8,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Element;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -146,11 +150,46 @@ public class TestCustomSerializers extends BaseMapTest
         }
     }
 
+    // [databind#2475]
+    static class MyFilter2475 extends SimpleBeanPropertyFilter {
+        @Override
+        public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws Exception {
+            // Ensure that "current value" remains pojo
+            final JsonStreamContext ctx = jgen.getOutputContext();
+            final Object curr = ctx.getCurrentValue();
+
+            if (!(curr instanceof Item2475)) {
+                throw new Error("Field '"+writer.getName()+"', context not that of `Item2475` instance");
+            }
+            super.serializeAsField(pojo, jgen, provider, writer);
+        }
+    }
+
+    @JsonFilter("myFilter")
+    @JsonPropertyOrder({ "id", "set" })
+    public static class Item2475 {
+        private Collection<String> set;
+        private String id;
+
+        public Item2475(Collection<String> set, String id) {
+            this.set = set;
+            this.id = id;
+        }
+
+        public Collection<String> getSet() {
+            return set;
+        }
+
+        public String getId() {
+            return id;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
-    */
+     */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -251,4 +290,19 @@ public class TestCustomSerializers extends BaseMapTest
         Set<String> set = new LinkedHashSet<String>(Arrays.asList("foo", null));
         assertEquals(aposToQuotes("['FOO',null]"), mapper.writeValueAsString(set));
     }
+
+    // [databind#2475]
+    public void testIssue2475() throws Exception {
+        SimpleFilterProvider provider = new SimpleFilterProvider().addFilter("myFilter", new MyFilter2475());
+        ObjectWriter writer = MAPPER.writer(provider);
+
+        // contents don't really matter that much as verification within filter but... let's
+        // check anyway
+        assertEquals(aposToQuotes("{'id':'ID-1','set':[]}"),
+                writer.writeValueAsString(new Item2475(new ArrayList<String>(), "ID-1")));
+
+        assertEquals(aposToQuotes("{'id':'ID-2','set':[]}"),
+                writer.writeValueAsString(new Item2475(new HashSet<String>(), "ID-2")));
+    }    
+
 }

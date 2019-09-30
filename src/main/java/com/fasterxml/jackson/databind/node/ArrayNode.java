@@ -173,7 +173,7 @@ public class ArrayNode
     {
         final List<JsonNode> c = _children;
         final int size = c.size();
-        f.writeStartArray(size);
+        f.writeStartArray(this, size);
         for (int i = 0; i < size; ++i) { // we'll typically have array list
             // For now, assuming it's either BaseJsonNode, JsonSerializable
             JsonNode n = c.get(i);

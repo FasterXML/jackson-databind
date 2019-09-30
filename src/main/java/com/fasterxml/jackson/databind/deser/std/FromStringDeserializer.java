@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * can be coerced into text, like Numbers and Booleans).
  * Simple JSON String values are trimmed using {@link java.lang.String#trim}.
  * Partial deserializer implementation will try to first access current token as
- * a String, calls {@link #_deserialize(String,DeserializationContext)} and
+ * a String, calls {@code _deserialize(String,DeserializationContext)} and
  * returns return value.
  * If this does not work (current token not a simple scalar type), attempts
  * are made so that:

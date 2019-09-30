@@ -67,7 +67,6 @@ public class StringCollectionSerializer
     public void serialize(Collection<String> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
-        g.setCurrentValue(value);
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
@@ -77,7 +76,7 @@ public class StringCollectionSerializer
                 return;
             }
         }
-        g.writeStartArray(len);
+        g.writeStartArray(value, len);
         serializeContents(value, g, provider);
         g.writeEndArray();
     }
@@ -87,9 +86,9 @@ public class StringCollectionSerializer
             SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        g.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
+        g.setCurrentValue(value);
         serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

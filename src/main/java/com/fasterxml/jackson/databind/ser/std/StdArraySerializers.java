@@ -141,8 +141,7 @@ public class StdArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
-            g.writeStartArray(len);
-            g.setCurrentValue(value);
+            g.writeStartArray(value, len);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
@@ -219,8 +218,7 @@ public class StdArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
-            g.writeStartArray(len);
-            g.setCurrentValue(value);
+            g.writeStartArray(value, len);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
@@ -274,8 +272,7 @@ public class StdArraySerializers
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
-                g.writeStartArray(value.length);
-                g.setCurrentValue(value);
+                g.writeStartArray(value, value.length);
                 _writeArrayContents(g, value);
                 g.writeEndArray();
             } else {
@@ -389,7 +386,6 @@ public class StdArraySerializers
                 return;
             }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
-            g.setCurrentValue(value);
             g.writeArray(value, 0, value.length);
         }
 
@@ -462,7 +458,6 @@ public class StdArraySerializers
                 return;
             }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
-            g.setCurrentValue(value);
             g.writeArray(value, 0, value.length);
         }
         
@@ -539,8 +534,7 @@ public class StdArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
-            g.writeStartArray(len);
-            g.setCurrentValue(value);
+            g.writeStartArray(value, len);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
@@ -626,7 +620,6 @@ public class StdArraySerializers
                 serializeContents(value, g, provider);
                 return;
             }
-            g.setCurrentValue(value);
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.writeArray(value, 0, value.length);
         }

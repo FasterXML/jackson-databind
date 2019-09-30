@@ -679,8 +679,20 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _writeContext = _writeContext.createChildArrayContext();
     }
 
-    // // TODO: add 2 more `writeStartArray()` methods from 2.10 (in 2.11 or later)
-    
+    @Override // since 2.10.1
+    public void writeStartArray(Object forValue) throws IOException {
+        _writeContext.writeValue();
+        _appendStartMarker(JsonToken.START_ARRAY);
+        _writeContext = _writeContext.createChildArrayContext();
+    }
+
+    @Override // since 2.10.1
+    public void writeStartArray(Object forValue, int size) throws IOException {
+        _writeContext.writeValue();
+        _appendStartMarker(JsonToken.START_ARRAY);
+        _writeContext = _writeContext.createChildArrayContext(forValue);
+    }
+
     @Override
     public final void writeEndArray() throws IOException
     {
@@ -705,16 +717,19 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _writeContext.writeValue();
         _appendStartMarker(JsonToken.START_OBJECT);
-        // 15-Aug-2019, tatu: Matching method only added in 2.10, don't yet call
-        JsonWriteContext ctxt = _writeContext.createChildObjectContext();
+        JsonWriteContext ctxt = _writeContext.createChildObjectContext(forValue);
         _writeContext = ctxt;
-        if (forValue != null) {
-            ctxt.setCurrentValue(forValue);
-        }
     }
 
-    // // TODO: add 1 more `writeStartObject()` methods from 2.10 (in 2.11 or later)
-    
+    @Override // since 2.10.1
+    public void writeStartObject(Object forValue, int size) throws IOException
+    {
+        _writeContext.writeValue();
+        _appendStartMarker(JsonToken.START_OBJECT);
+        JsonWriteContext ctxt = _writeContext.createChildObjectContext(forValue);
+        _writeContext = ctxt;
+    }
+
     @Override
     public final void writeEndObject() throws IOException
     {

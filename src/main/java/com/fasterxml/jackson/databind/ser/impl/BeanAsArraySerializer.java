@@ -136,9 +136,9 @@ public class BeanAsArraySerializer
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
-        gen.setCurrentValue(bean);
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
         typeSer.writeTypePrefix(gen, typeIdDef);
+        gen.setCurrentValue(bean);
         serializeAsArray(bean, gen, provider);
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
@@ -161,9 +161,7 @@ public class BeanAsArraySerializer
          * any getter, filtering) have already been checked; so code here
          * is trivial.
          */
-        gen.writeStartArray();
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(bean);
+        gen.writeStartArray(bean);
         serializeAsArray(bean, gen, provider);
         gen.writeEndArray();
     }

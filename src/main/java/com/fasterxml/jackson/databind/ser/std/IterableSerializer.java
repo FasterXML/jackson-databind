@@ -70,7 +70,7 @@ public class IterableSerializer
                 return;
             }
         }
-        gen.writeStartArray();
+        gen.writeStartArray(value);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }

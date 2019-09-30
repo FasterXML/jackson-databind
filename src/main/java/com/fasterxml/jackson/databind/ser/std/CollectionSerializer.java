@@ -103,7 +103,7 @@ public class CollectionSerializer
                 return;
             }
         }
-        g.writeStartArray(len);
+        g.writeStartArray(value, len);
         serializeContents(value, g, provider);
         g.writeEndArray();
     }

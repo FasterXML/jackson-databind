@@ -75,7 +75,7 @@ public final class IndexedListSerializer
                 return;
             }
         }
-        gen.writeStartArray(len);
+        gen.writeStartArray(value, len);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
@@ -182,7 +182,6 @@ public final class IndexedListSerializer
                 }
             }
         } catch (Exception e) {
-            // [JACKSON-55] Need to add reference information
             wrapAndThrow(provider, e, value, i);
         }
     }

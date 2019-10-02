@@ -8,7 +8,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
@@ -491,10 +493,10 @@ public class ExternalTypeIdTest extends BaseMapTest
     // for [databind#222]
     public void testExternalTypeWithProp222() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         Issue222Bean input = new Issue222Bean(13);
         String json = mapper.writeValueAsString(input);
-        assertEquals("{\"value\":{\"x\":13},\"type\":\"foo\"}", json);
+        assertEquals("{\"type\":\"foo\",\"value\":{\"x\":13}}", json);
     }
 
     // [databind#928]

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * This unit test suite tests use of @JsonClass Annotation
@@ -227,8 +228,9 @@ public class TestJsonSerialize
 
     public void testIssue294() throws Exception
     {
-        assertEquals("{\"id\":\"fooId\",\"bar\":\"barId\"}",
-                MAPPER.writeValueAsString(new Foo294("fooId", "barId")));
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        assertEquals("{\"bar\":\"barId\",\"id\":\"fooId\"}",
+                mapper.writeValueAsString(new Foo294("fooId", "barId")));
     }
 
     @JsonPropertyOrder({ "a", "something" })

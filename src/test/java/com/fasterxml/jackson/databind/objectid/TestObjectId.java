@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class TestObjectId extends BaseMapTest
 {
@@ -154,11 +155,12 @@ public class TestObjectId extends BaseMapTest
         comp.add(e1);
         comp.add(e2);
 
-        String json = MAPPER.writeValueAsString(comp);
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        String json = mapper.writeValueAsString(comp);
         
         assertEquals("{\"employees\":["
-                +"{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                +"{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                +"{\"id\":1,\"manager\":null,\"name\":\"First\",\"reports\":[2]},"
+                +"{\"id\":2,\"manager\":1,\"name\":\"Second\",\"reports\":[]}"
                 +"]}",
                 json);
     }

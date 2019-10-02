@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 @SuppressWarnings("serial")
 public class MapFormatShapeTest extends BaseMapTest
@@ -64,7 +65,7 @@ public class MapFormatShapeTest extends BaseMapTest
     @JsonPropertyOrder({ "property", "map" })
     static class Map1540Implementation implements Map<Integer, Integer> {
         public int property;
-        public Map<Integer, Integer> map = new HashMap<>();
+        public Map<Integer, Integer> map = new LinkedHashMap<>();
  
         public Map<Integer, Integer> getMap() {
             return map;
@@ -184,10 +185,10 @@ public class MapFormatShapeTest extends BaseMapTest
         input.property = 55;
         input.put(12, 45);
         input.put(6, 88);
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        String json = mapper.writeValueAsString(input);
 
-        String json = MAPPER.writeValueAsString(input);
-
-        assertEquals(aposToQuotes("{'property':55,'map':{'6':88,'12':45}}"), json);
+        assertEquals(aposToQuotes("{'property':55,'map':{'12':45,'6':88}}"), json);
 
         Map1540Implementation result = MAPPER.readValue(json, Map1540Implementation.class);
         assertEquals(result.property, input.property);

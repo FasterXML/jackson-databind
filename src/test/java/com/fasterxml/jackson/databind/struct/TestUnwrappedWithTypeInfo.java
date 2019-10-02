@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -47,7 +48,7 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
     /**********************************************************
      */
 
-	// [Issue#81]
+	// [databind#81]
 	public void testDefaultUnwrappedWithTypeInfo() throws Exception
 	{
 	    Outer outer = new Outer();
@@ -76,10 +77,13 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
 		inner.setP2("202");
 		outer.setInner(inner);
 
-		ObjectMapper mapper = new ObjectMapper();
-		mapper = mapper.disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);
+		ObjectMapper mapper = jsonMapperBuilder()
+		        .disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
+		        .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+		        .build();
 
 		String json = mapper.writeValueAsString(outer);
-		assertEquals("{\"@type\":\"OuterType\",\"p1\":\"101\",\"p2\":\"202\"}", json);
+
+		assertEquals("{\"@type\":\"OuterType\",\"p2\":\"202\",\"p1\":\"101\"}", json);
 	}
 }

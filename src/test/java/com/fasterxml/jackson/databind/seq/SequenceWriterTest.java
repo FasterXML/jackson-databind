@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class SequenceWriterTest extends BaseMapTest
 {
@@ -194,7 +195,8 @@ public class SequenceWriterTest extends BaseMapTest
     @SuppressWarnings("resource")
     public void testSimpleCloseable() throws Exception
     {
-        ObjectWriter w = MAPPER.writer()
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        ObjectWriter w = mapper.writer()
                 .with(SerializationFeature.CLOSE_CLOSEABLE);
         CloseableValue input = new CloseableValue();
         assertFalse(input.closed);
@@ -206,7 +208,7 @@ public class SequenceWriterTest extends BaseMapTest
         assertTrue(input.closed);
         seq.close();
         input.close();
-        assertEquals(aposToQuotes("{'x':0,'closed':false}"), out.toString());
+        assertEquals(aposToQuotes("{'closed':false,'x':0}"), out.toString());
     }
 
     public void testWithExplicitType() throws Exception

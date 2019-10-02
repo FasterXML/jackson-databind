@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * Unit test to verify handling of Object Id deserialization
@@ -184,7 +185,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     /*****************************************************
      */
 
-    private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
+    private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"next\":1,\"value\":13}";
     
     private final ObjectMapper MAPPER = objectMapper();
 
@@ -194,16 +195,17 @@ public class TestObjectIdSerialization extends BaseMapTest
         src.next = src;
         
         // First, serialize:
-        String json = MAPPER.writeValueAsString(src);
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        String json = mapper.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_CLASS, json);
 
         // and ensure that state is cleared in-between as well:
-        json = MAPPER.writeValueAsString(src);
+        json = mapper.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_CLASS, json);
     }
     
     // Bit more complex, due to extra wrapping etc:
-    private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
+    private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"next\":{\"node\":1},\"value\":7}}";
 
     public void testSimpleSerializationProperty() throws Exception
     {
@@ -211,10 +213,11 @@ public class TestObjectIdSerialization extends BaseMapTest
         src.node.next = src;
         
         // First, serialize:
-        String json = MAPPER.writeValueAsString(src);
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        String json = mapper.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_PROP, json);
         // and second time too, for a good measure
-        json = MAPPER.writeValueAsString(src);
+        json = mapper.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_PROP, json);
     }
 
@@ -260,34 +263,35 @@ public class TestObjectIdSerialization extends BaseMapTest
     /*****************************************************
      */
 
-    private final static String EXP_CUSTOM_PROP = "{\"customId\":123,\"value\":-19,\"next\":123}";
+    private final static String EXP_CUSTOM_PROP = "{\"customId\":123,\"next\":123,\"value\":-19}";
     // Test for verifying that custom
     public void testCustomPropertyForClass() throws Exception
     {
         IdentifiableWithProp src = new IdentifiableWithProp(123, -19);
         src.next = src;
-        
+
+        JsonMapper mapper =  JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         // First, serialize:
-        String json = MAPPER.writeValueAsString(src);
+        String json = mapper.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP, json);
 
         // and ensure that state is cleared in-between as well:
-        json = MAPPER.writeValueAsString(src);
+        json = mapper.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP, json);
     }
 
-    private final static String EXP_CUSTOM_PROP_VIA_REF = "{\"node\":{\"id\":123,\"value\":7,\"next\":{\"node\":123}}}";
+    private final static String EXP_CUSTOM_PROP_VIA_REF = "{\"node\":{\"id\":123,\"next\":{\"node\":123},\"value\":7}}";
     // Test for verifying that custom
     public void testCustomPropertyViaProperty() throws Exception
     {
         IdWrapperCustom src = new IdWrapperCustom(123, 7);
         src.node.next = src;
-        
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         // First, serialize:
-        String json = MAPPER.writeValueAsString(src);
+        String json = mapper.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP_VIA_REF, json);
         // and second time too, for a good measure
-        json = MAPPER.writeValueAsString(src);
+        json = mapper.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP_VIA_REF, json);
     }
 
@@ -302,10 +306,10 @@ public class TestObjectIdSerialization extends BaseMapTest
         TreeNode root = new TreeNode(null, 1, "root");     
         TreeNode leaf = new TreeNode(root, 2, "leaf");
         root.child = leaf;
-        String json = MAPPER.writeValueAsString(root);
-//        System.out.println(json);
-        assertEquals("{\"id\":1,\"name\":\"root\",\"parent\":null,\"child\":"
-                +"{\"id\":2,\"name\":\"leaf\",\"parent\":1,\"child\":null}}",
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        String json = mapper.writeValueAsString(root);
+        assertEquals("{\"id\":1,\"child\":"
+                +"{\"id\":2,\"child\":null,\"name\":\"leaf\",\"parent\":1},\"name\":\"root\",\"parent\":null}",
                 json);
         		
     }

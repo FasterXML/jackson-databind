@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.struct;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * Unit tests for verifying that basic {@link JsonUnwrapped} annotation
@@ -148,13 +149,15 @@ public class TestUnwrapped extends BaseMapTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testSimpleUnwrappingSerialize() throws Exception {
-        assertEquals("{\"name\":\"Tatu\",\"x\":1,\"y\":2}",
-                MAPPER.writeValueAsString(new Unwrapping("Tatu", 1, 2)));
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        assertEquals("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
+                mapper.writeValueAsString(new Unwrapping("Tatu", 1, 2)));
     }
 
     public void testDeepUnwrappingSerialize() throws Exception {
-        assertEquals("{\"name\":\"Tatu\",\"x\":1,\"y\":2}",
-                MAPPER.writeValueAsString(new DeepUnwrapping("Tatu", 1, 2)));
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        assertEquals("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
+                mapper.writeValueAsString(new DeepUnwrapping("Tatu", 1, 2)));
     }
 
     /*

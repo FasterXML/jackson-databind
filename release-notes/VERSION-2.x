@@ -14,6 +14,8 @@ Project: jackson-databind
 #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
   which messes up current value for sibling properties
  (reported by Ryan B)
+#2485: Add `uses` for `Module` in module-info
+ (contributed by Marc M)
 
 2.10.0 (26-Sep-2019)
 

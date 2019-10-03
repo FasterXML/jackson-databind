@@ -5,6 +5,7 @@ module com.fasterxml.jackson.databind {
 
     requires transitive com.fasterxml.jackson.annotation;
     requires transitive com.fasterxml.jackson.core;
+    requires java.base;
     // these types were suggested as transitive, but aren't actually
     // exposed externally (only within internal APIs)
     requires java.sql;
@@ -31,6 +32,9 @@ module com.fasterxml.jackson.databind {
     exports com.fasterxml.jackson.databind.ser.std;
     exports com.fasterxml.jackson.databind.type;
     exports com.fasterxml.jackson.databind.util;
+
+    // [databind#2485]: prevent warning for "unused" with self-use
+    uses com.fasterxml.jackson.databind.Module;
 
     provides com.fasterxml.jackson.core.ObjectCodec with
         com.fasterxml.jackson.databind.ObjectMapper;

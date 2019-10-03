@@ -1,5 +1,6 @@
 // Generated 14-Mar-2019 using Moditect maven plugin
 module com.fasterxml.jackson.databind {
+    requires java.base;
     requires java.desktop;
     requires java.logging;
     requires java.sql;
@@ -29,6 +30,9 @@ module com.fasterxml.jackson.databind {
     exports com.fasterxml.jackson.databind.ser.std;
     exports com.fasterxml.jackson.databind.type;
     exports com.fasterxml.jackson.databind.util;
+
+    // [databind#2485]: prevent warning for "unused" with self-use
+    uses com.fasterxml.jackson.databind.Module;
 
     provides com.fasterxml.jackson.databind.ObjectMapper with
         com.fasterxml.jackson.databind.json.JsonMapper;

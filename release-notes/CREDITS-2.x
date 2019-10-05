@@ -985,3 +985,7 @@ Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
    which messes up current value for sibling properties
   (2.10.1)
+
+Ville Koskela (vjkoskela@github)
+  * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
+  (2.11.0)

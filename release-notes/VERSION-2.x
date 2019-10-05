@@ -6,7 +6,8 @@ Project: jackson-databind
 
 2.11.0 (not yet released)
 
--
+#2487: BeanDeserializerBuilder Protected Factory Method for Extension
+ (contributed by Ville K)
 
 2.10.1 (not yet released)
 

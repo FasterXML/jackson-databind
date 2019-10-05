@@ -449,6 +449,16 @@ public class BeanDeserializerBuilder
             propertyMap = propertyMap.withProperty(prop);
         }
 
+        return createBuilderBasedDeserializer(valueType, propertyMap, anyViews);
+    }
+
+    /**
+     * Extension point for overriding the actual creation of the builder deserializer.
+     *
+     * @since 2.10.1 (officially in 2.10.0)
+     */
+    protected JsonDeserializer<?> createBuilderBasedDeserializer(JavaType valueType,
+            BeanPropertyMap propertyMap, boolean anyViews) {
         return new BuilderBasedDeserializer(this,
                 _beanDesc, valueType, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 anyViews);

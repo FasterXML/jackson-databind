@@ -1,11 +1,8 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -14,6 +11,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
+
+import java.io.IOException;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -58,7 +57,7 @@ public class EnumDeserializer
     /**
      * Factory method used when Enum instances are to be deserialized
      * using a creator (static factory method)
-     * 
+     *
      * @return Deserializer based on given factory method
      */
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
@@ -77,7 +76,7 @@ public class EnumDeserializer
     /**
      * Factory method used when Enum instances are to be deserialized
      * using a zero-/no-args factory method
-     * 
+     *
      * @return Deserializer based on given no-args factory method
      */
     public static JsonDeserializer<?> deserializerForNoArgsCreator(DeserializationConfig config,
@@ -96,7 +95,7 @@ public class EnumDeserializer
         }
         return new EnumDeserializer(this, caseInsensitive);
     }
-    
+
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
@@ -126,7 +125,8 @@ public class EnumDeserializer
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         JsonToken curr = p.currentToken();
-        
+
+
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
             CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
@@ -169,10 +169,11 @@ public class EnumDeserializer
     /* Internal helper methods
     /**********************************************************
      */
-    
+
     private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,
             CompactStringObjectMap lookup, String name) throws IOException
     {
+
         name = name.trim();
         if (name.length() == 0) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {

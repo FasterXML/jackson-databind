@@ -1,13 +1,8 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
@@ -16,6 +11,12 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+
+import java.io.IOException;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("serial")
 public class EnumDeserializationTest
@@ -132,7 +133,7 @@ public class EnumDeserializationTest
     }
 
     // // 
-    
+
     public enum AnEnum {
         ZERO,
         ONE
@@ -206,7 +207,38 @@ public class EnumDeserializationTest
         public String toString() {
             return value;
         }
-    }        
+    }
+
+    // for [databind#2352]: Support aliases on enum values
+    enum MyEnum2352_1 {
+        A,
+        @JsonAlias({"singleAlias"})
+        B,
+        @JsonAlias({"multipleAliases1", "multipleAliases2"})
+        C
+    }
+
+    enum MyEnum2352_2 {
+        A,
+        @JsonAlias({"singleAlias"})
+        B,
+        @JsonAlias({"multipleAliases1", "multipleAliases2"})
+        C;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
+
+    enum MyEnum2352_3 {
+        A,
+        @JsonEnumDefaultValue
+        @JsonAlias({"singleAlias"})
+        B,
+        @JsonAlias({"multipleAliases1", "multipleAliases2"})
+        C
+    }
 
     /*
     /**********************************************************
@@ -256,7 +288,7 @@ public class EnumDeserializationTest
         TimeUnit result = MAPPER.readValue(json, TimeUnit.class);
         assertSame(TimeUnit.SECONDS, result);
     }
-    
+
     /**
      * Testing to see that annotation override works
      */
@@ -425,7 +457,7 @@ public class EnumDeserializationTest
                     .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                     .readValue("[" + quote("JACKSON") + "]"));
     }
-    
+
     public void testUnwrappedEnumException() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
@@ -499,7 +531,7 @@ public class EnumDeserializationTest
                 .readValue(quote("A"));
         assertSame(Enum1161.A, result);
     }
-    
+
     public void testEnumWithDefaultAnnotation() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -601,4 +633,49 @@ public class EnumDeserializationTest
         assertEquals(Enum2309.NON_NULL, value);
     }
 
+    // for [databind#2352]
+    public void testEnumWithAlias() throws Exception {
+        ObjectReader reader = MAPPER.readerFor(MyEnum2352_1.class);
+        MyEnum2352_1 nonAliased = reader.readValue(quote("A"));
+        assertEquals(MyEnum2352_1.A, nonAliased);
+        MyEnum2352_1 singleAlias = reader.readValue(quote("singleAlias"));
+        assertEquals(MyEnum2352_1.B, singleAlias);
+        MyEnum2352_1 multipleAliases1 = reader.readValue(quote("multipleAliases1"));
+        assertEquals(MyEnum2352_1.C, multipleAliases1);
+        MyEnum2352_1 multipleAliases2 = reader.readValue(quote("multipleAliases2"));
+        assertEquals(MyEnum2352_1.C, multipleAliases2);
+    }
+
+    // for [databind#2352]
+    public void testEnumWithAliasAndToStringSupported() throws Exception {
+        ObjectReader reader = MAPPER.readerFor(MyEnum2352_2.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+
+        MyEnum2352_2 nonAliased = reader.readValue(quote("a"));
+        assertEquals(MyEnum2352_2.A, nonAliased);
+        MyEnum2352_2 singleAlias = reader.readValue(quote("singleAlias"));
+        assertEquals(MyEnum2352_2.B, singleAlias);
+        MyEnum2352_2 multipleAliases1 = reader.readValue(quote("multipleAliases1"));
+        assertEquals(MyEnum2352_2.C, multipleAliases1);
+        MyEnum2352_2 multipleAliases2 = reader.readValue(quote("multipleAliases2"));
+        assertEquals(MyEnum2352_2.C, multipleAliases2);
+    }
+
+    // for [databind#2352]
+    public void testEnumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
+        ObjectReader reader = MAPPER.readerFor(MyEnum2352_3.class)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+
+        MyEnum2352_3 nonAliased = reader.readValue(quote("A"));
+        assertEquals(MyEnum2352_3.A, nonAliased);
+        MyEnum2352_3 singleAlias = reader.readValue(quote("singleAlias"));
+        assertEquals(MyEnum2352_3.B, singleAlias);
+        MyEnum2352_3 defaulted = reader.readValue(quote("unknownValue"));
+        assertEquals(MyEnum2352_3.B, defaulted);
+        MyEnum2352_3 multipleAliases1 = reader.readValue(quote("multipleAliases1"));
+        assertEquals(MyEnum2352_3.C, multipleAliases1);
+        MyEnum2352_3 multipleAliases2 = reader.readValue(quote("multipleAliases2"));
+        assertEquals(MyEnum2352_3.C, multipleAliases2);
+
+    }
 }

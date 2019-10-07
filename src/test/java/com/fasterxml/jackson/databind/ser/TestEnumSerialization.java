@@ -1,17 +1,22 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.*;
-import java.util.*;
-
-import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Unit tests for verifying serialization of simple basic non-structured
@@ -242,7 +247,7 @@ public class TestEnumSerialization
     {
         assertEquals(quote("V1"), MAPPER.writeValueAsString(OK.V1));
         assertEquals(quote("V1"), MAPPER.writeValueAsString(NOT_OK.V1));
-        assertEquals(quote("V2"), MAPPER.writeValueAsString(NOT_OK2.V2));
+        assertEquals(quote("B"), MAPPER.writeValueAsString(NOT_OK2.V2));
     }
 
     // [databind#227]

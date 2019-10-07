@@ -1,14 +1,8 @@
 package com.fasterxml.jackson.databind;
 
-import java.lang.annotation.Annotation;
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
-
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -18,6 +12,12 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
+
+import java.lang.annotation.Annotation;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Abstract class that defines API used for introspecting annotation-based
@@ -717,6 +717,15 @@ public abstract class AnnotationIntrospector
      */
     public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         return names;
+    }
+
+    /**
+     * Method to find any aliases on enum-constants in the given class.
+     * @param enumType - Class definition to search.
+     * @return Returns a Map<String, String[]> with enum value as key and found aliases as value.
+     */
+    public Map<String, String[]> findEnumAliases(Class<? extends Enum> enumType) {
+        return null;
     }
 
     /**

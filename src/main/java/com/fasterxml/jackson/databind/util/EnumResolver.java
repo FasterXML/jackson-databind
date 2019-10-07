@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+
+import java.util.*;
 
 /**
  * Helper class used to resolve String values (either JSON Object field
@@ -40,6 +40,7 @@ public class EnumResolver implements java.io.Serializable
             throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
         }
         String[] names = ai.findEnumValues(enumCls, enumValues, new String[enumValues.length]);
+        Map<String, String[]> aliasMap = ai.findEnumAliases(enumCls);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         for (int i = 0, len = enumValues.length; i < len; ++i) {
             String name = names[i];
@@ -47,11 +48,24 @@ public class EnumResolver implements java.io.Serializable
                 name = enumValues[i].name();
             }
             map.put(name, enumValues[i]);
+            addAliasesToEnumValueMap(enumValues[i], aliasMap, map, name);
         }
 
         Enum<?> defaultEnum = ai.findDefaultEnumValue(enumCls);
 
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+    }
+
+    // for [databind#2352]: Support aliases on enum values
+    private static void addAliasesToEnumValueMap(Enum<?> enumValue, Map<String, String[]> aliasMap, HashMap<String, Enum<?>> map, String name) {
+        if(!aliasMap.isEmpty()){
+            String[] aliases = aliasMap.get(name);
+            if(aliases != null){
+                for(String alias : aliases){
+                    map.put(alias, enumValue);
+                }
+            }
+        }
     }
 
     /**
@@ -61,15 +75,17 @@ public class EnumResolver implements java.io.Serializable
     public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls,
             AnnotationIntrospector ai)
     {
-        Enum<?>[] enumValues = enumCls.getEnumConstants();
+        Enum<?>[] enumConstants = enumCls.getEnumConstants();
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        Map<String, String[]> aliasMap = ai.findEnumAliases(enumCls);
         // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumValues.length; --i >= 0; ) {
-            Enum<?> e = enumValues[i];
-            map.put(e.toString(), e);
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> enumConstant = enumConstants[i];
+            map.put(enumConstant.toString(), enumConstant);
+            addAliasesToEnumValueMap(enumConstants[i], aliasMap, map, enumConstant.name());
         }
         Enum<?> defaultEnum = (ai == null) ? null : ai.findDefaultEnumValue(enumCls);
-        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+        return new EnumResolver(enumCls, enumConstants, map, defaultEnum);
     }
 
     public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,

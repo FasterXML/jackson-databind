@@ -1,15 +1,9 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -27,6 +21,13 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.*;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Abstract factory base class that can provide deserializers for standard
@@ -1394,7 +1395,7 @@ nonAnnotatedParamIndex, ctor);
                     }
                 }
             }
-           
+
             // Need to consider @JsonValue if one found
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass,
@@ -1409,6 +1410,9 @@ nonAnnotatedParamIndex, ctor);
                 deser = mod.modifyEnumDeserializer(config, type, beanDesc, deser);
             }
         }
+
+        boolean derp = beanDesc.hasKnownClassAnnotations();
+
         return deser;
     }
 
@@ -1562,6 +1566,7 @@ nonAnnotatedParamIndex, ctor);
                 return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
         }
+
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueAccessor());
         // May have @JsonCreator for static factory method:
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {

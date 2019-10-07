@@ -212,6 +212,25 @@ public class JacksonAnnotationIntrospector
         return ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
     }
 
+    /**
+     * @param enumType - Class definition to search.
+     * @return Returns a Map<String, String[]> with enum value as key and found aliases as value.
+     */
+    public Map<String, String[]> findEnumAliases(Class<? extends Enum> enumType) {
+        HashMap<String, String[]> aliasMap = new HashMap<>();
+        for (Field f : ClassUtil.getDeclaredFields(enumType)) {
+            if (!f.isEnumConstant()) {
+                continue;
+            }
+            JsonAlias aliasAnnotation = f.getAnnotation(JsonAlias.class);
+            if(aliasAnnotation != null){
+                String[] aliases = aliasAnnotation.value();
+                aliasMap.put(f.getName(), aliases);
+            }
+        }
+        return aliasMap;
+    }
+
     /*
     /**********************************************************************
     /* General class annotations

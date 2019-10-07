@@ -719,6 +719,9 @@ public abstract class AnnotationIntrospector
         return names;
     }
 
+
+    public Map<String, String[]> findEnumAliases(Class<? extends Enum> enumType){ return new HashMap<>(); }
+
     /**
      * Finds the Enum value that should be considered the default value, if possible.
      *

@@ -11,7 +11,7 @@ Unreleased but backported
   (reported by crazylirui@gmail.com)
 #2449: Block one more gadget type (cve CVE-2019-14540)
   (reported by kingkk)
-#2460: Block one more gadget type (ehcache, no CVE allocated yet)
+#2460: Block one more gadget type (ehcache, CVE-2019-17267)
 #2462: Block two more gadget types (commons-configuration)
 #2469: Block one more gadget type (xalan2)
 #2478: Block two more gadget types (commons-dbcp, p6spy)

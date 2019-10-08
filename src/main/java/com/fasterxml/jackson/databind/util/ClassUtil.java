@@ -1059,9 +1059,9 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
-    /* Jackson-specific stuff
-    /**********************************************************
+    /**********************************************************************
+    /* Methods for detecting special class categories
+    /**********************************************************************
      */
 
     /**
@@ -1080,6 +1080,17 @@ public final class ClassUtil
 
     public static boolean isJacksonStdImpl(Class<?> implClass) {
         return (implClass.getAnnotation(JacksonStdImpl.class) != null);
+    }
+
+    /**
+     * Some aspects of handling need to be changed for JDK types (and possibly
+     * some extensions under {@code javax.}?): for example, forcing of access
+     * will not work well for future JDKs (12 and later).
+     *
+     * @since 2.11
+     */
+    public static boolean isJDKClass(Class<?> rawType) {
+        return rawType.getName().startsWith("java.");
     }
 
     /*

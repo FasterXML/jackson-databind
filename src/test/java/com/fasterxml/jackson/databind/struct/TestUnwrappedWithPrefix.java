@@ -2,7 +2,9 @@ package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class TestUnwrappedWithPrefix extends BaseMapTest
 {
@@ -148,14 +150,16 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
 
     public void testPrefixedUnwrappingSerialize() throws Exception
     {
-        assertEquals("{\"name\":\"Tatu\",\"_x\":1,\"_y\":2}",
-                MAPPER.writeValueAsString(new PrefixUnwrap("Tatu", 1, 2)));
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        assertEquals("{\"_x\":1,\"_y\":2,\"name\":\"Tatu\"}",
+                mapper.writeValueAsString(new PrefixUnwrap("Tatu", 1, 2)));
     }
 
     public void testDeepPrefixedUnwrappingSerialize() throws Exception
     {
-        String json = MAPPER.writeValueAsString(new DeepPrefixUnwrap("Bubba", 1, 1));
-        assertEquals("{\"u.name\":\"Bubba\",\"u._x\":1,\"u._y\":1}", json);
+        JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
+        String json = mapper.writeValueAsString(new DeepPrefixUnwrap("Bubba", 1, 1));
+        assertEquals("{\"u._x\":1,\"u._y\":1,\"u.name\":\"Bubba\"}", json);
     }
 
     public void testHierarchicConfigSerialize() throws Exception

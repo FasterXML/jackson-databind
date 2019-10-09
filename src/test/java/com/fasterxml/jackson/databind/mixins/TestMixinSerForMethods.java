@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.introspect.MixInResolver;
 
 public class TestMixinSerForMethods
@@ -149,28 +150,44 @@ public class TestMixinSerForMethods
         assertEquals(Integer.valueOf(42), result.get("x"));
     }
 
+    public void testSimpleMixInResolverHasMixins() {
+        MixInHandler simple = new MixInHandler(null);
+        assertFalse(simple.hasMixIns());
+        simple.addLocalDefinition(String.class, Number.class);
+        assertTrue(simple.hasMixIns());
+    }
+
     // [databind#688]
     public void testCustomResolver() throws IOException
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .mixInOverrides(new MixInResolver() {
-                    @Override
-                    public Class<?> findMixInClassFor(Class<?> target) {
-                        if (target == EmptyBean.class) {
-                            return MixInForSimple.class;
-                        }
-                        return null;
-                    }
+        final MixInResolver res = new MixInResolver() {
+            @Override
+            public Class<?> findMixInClassFor(Class<?> target) {
+                if (target == EmptyBean.class) {
+                    return MixInForSimple.class;
+                }
+                return null;
+            }
         
-                    @Override
-                    public MixInResolver snapshot() {
-                        return this;
-                    }
-                })
-                .build();
+            @Override
+            public MixInResolver snapshot() {
+                return this;
+            }
 
+            @Override
+            public boolean hasMixIns() {
+                return true;
+            }
+        };
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .mixInOverrides(res)
+                .build();
         Map<String,Object> result = writeAndMap(mapper, new SimpleBean());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(42), result.get("x"));
+
+        MixInHandler simple = new MixInHandler(res);
+        assertTrue(simple.hasMixIns());
     }
 }

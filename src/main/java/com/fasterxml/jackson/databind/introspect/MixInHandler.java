@@ -119,6 +119,12 @@ public class MixInHandler
         return mixin;
     }
 
+    @Override
+    public boolean hasMixIns() {
+        return (_localMixIns != null)
+                || ((_overrides != null) && _overrides.hasMixIns());
+    }
+
     /*
     /**********************************************************************
     /* Other

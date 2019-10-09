@@ -557,7 +557,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     /*
     /**********************************************************************
-    /* ClassIntrospector.MixInResolver impl:
+    /* MixInResolver impl:
     /**********************************************************************
      */
 
@@ -570,6 +570,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _mixIns.findMixInClassFor(cls);
     }
 
+    @Override
+    public boolean hasMixIns() {
+        return _mixIns.hasMixIns();
+    }
+    
     // Not really relevant here (should not get called)
     @Override
     public MixInResolver snapshot() {

@@ -76,6 +76,11 @@ public final class AnnotatedClass
      */
     final protected Class<?> _primaryMixIn;
 
+    /**
+     * @since 2.11
+     */
+    final protected boolean _collectAnnotations;
+
     /*
     /**********************************************************
     /* Gathered information
@@ -129,7 +134,8 @@ public final class AnnotatedClass
      */
     AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
             Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
-            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf)
+            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf,
+            boolean collectAnnotations)
     {
         _type = type;
         _class = rawType;
@@ -140,6 +146,16 @@ public final class AnnotatedClass
         _annotationIntrospector = aintr;
         _mixInResolver = mir;
         _typeFactory = tf;
+        _collectAnnotations = collectAnnotations;
+    }
+
+    @Deprecated // since 2.10
+    AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
+            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
+            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf)
+    {
+        this(type, rawType, superTypes, primaryMixIn, classAnnotations, bindings,
+                aintr, mir, tf, true);
     }
 
     /**
@@ -158,6 +174,7 @@ public final class AnnotatedClass
         _annotationIntrospector = null;
         _mixInResolver = null;
         _typeFactory = null;
+        _collectAnnotations = false;
     }
 
     /**
@@ -347,7 +364,7 @@ public final class AnnotatedClass
                 f = Collections.emptyList();
             } else {
                 f = AnnotatedFieldCollector.collectFields(_annotationIntrospector,
-                        this, _mixInResolver, _typeFactory, _type);
+                        this, _mixInResolver, _typeFactory, _type, _collectAnnotations);
             }
             _fields = f;
         }
@@ -365,7 +382,7 @@ public final class AnnotatedClass
                 m = AnnotatedMethodCollector.collectMethods(_annotationIntrospector,
                         this,
                         _mixInResolver, _typeFactory,
-                        _type, _superTypes, _primaryMixIn);
+                        _type, _superTypes, _primaryMixIn, _collectAnnotations);
             }
             _memberMethods = m;
         }
@@ -379,7 +396,7 @@ public final class AnnotatedClass
                 c = NO_CREATORS;
             } else {
                 c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
-                        this, _type, _primaryMixIn);
+                        this, _type, _primaryMixIn, _collectAnnotations);
             }
             _creators = c;
         }

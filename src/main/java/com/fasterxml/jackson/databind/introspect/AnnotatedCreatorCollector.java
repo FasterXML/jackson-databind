@@ -27,23 +27,32 @@ final class AnnotatedCreatorCollector
 
     private final TypeResolutionContext _typeContext;
 
+    /**
+     * @since 2.11
+     */
+    private final boolean _collectAnnotations;
+
     // // // Collected state
 
     private AnnotatedConstructor _defaultConstructor;
 
     AnnotatedCreatorCollector(AnnotationIntrospector intr,
-            TypeResolutionContext tc)
+            TypeResolutionContext tc, boolean collectAnnotations)
     {
         super(intr);
         _typeContext = tc;
+        _collectAnnotations = collectAnnotations;
     }
 
     public static Creators collectCreators(AnnotationIntrospector intr,
             TypeResolutionContext tc, 
-            JavaType type, Class<?> primaryMixIn)
+            JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
     {
+        final boolean checkClassAnnotations = (intr != null)
+                && !ClassUtil.isJDKClass(type.getRawClass());
+
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorCollector(intr, tc)
+        return new AnnotatedCreatorCollector(intr, tc, checkClassAnnotations)
                 .collect(type, primaryMixIn);
     }
 
@@ -60,7 +69,7 @@ final class AnnotatedCreatorCollector
          * ignorable after all annotations have been properly collapsed.
          */
         // AnnotationIntrospector is null if annotations not enabled; if so, can skip:
-        if (_intr != null) {
+        if (_collectAnnotations) {
             if (_defaultConstructor != null) {
                 if (_intr.hasIgnoreMarker(_defaultConstructor)) {
                     _defaultConstructor = null;
@@ -236,10 +245,6 @@ final class AnnotatedCreatorCollector
     protected AnnotatedConstructor constructDefaultConstructor(ClassUtil.Ctor ctor,
             ClassUtil.Ctor mixin)
     {
-        if (_intr == null) { // when annotation processing is disabled
-            return new AnnotatedConstructor(_typeContext, ctor.getConstructor(),
-                    _emptyAnnotationMap(), NO_ANNOTATION_MAPS);
-        }
         return new AnnotatedConstructor(_typeContext, ctor.getConstructor(),
                 collectAnnotations(ctor, mixin),
                 // 16-Jun-2019, tatu: default is zero-args, so can't have parameter annotations
@@ -320,27 +325,33 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
     }
 
     private AnnotationMap[] collectAnnotations(Annotation[][] mainAnns, Annotation[][] mixinAnns) {
-        final int count = mainAnns.length;
-        AnnotationMap[] result = new AnnotationMap[count];
-        for (int i = 0; i < count; ++i) {
-            AnnotationCollector c = collectAnnotations(AnnotationCollector.emptyCollector(),
-                    mainAnns[i]);
-            if (mixinAnns != null) {
-                c = collectAnnotations(c, mixinAnns[i]);
+        if (_collectAnnotations) {
+            final int count = mainAnns.length;
+            AnnotationMap[] result = new AnnotationMap[count];
+            for (int i = 0; i < count; ++i) {
+                AnnotationCollector c = collectAnnotations(AnnotationCollector.emptyCollector(),
+                        mainAnns[i]);
+                if (mixinAnns != null) {
+                    c = collectAnnotations(c, mixinAnns[i]);
+                }
+                result[i] = c.asAnnotationMap();
             }
-            result[i] = c.asAnnotationMap();
+            return result;
         }
-        return result;
+        return NO_ANNOTATION_MAPS;
     }
 
     // // NOTE: these are only called when we know we have AnnotationIntrospector
-    
+
     private AnnotationMap collectAnnotations(ClassUtil.Ctor main, ClassUtil.Ctor mixin) {
-        AnnotationCollector c = collectAnnotations(main.getConstructor().getDeclaredAnnotations());
-        if (mixin != null) {
-            c = collectAnnotations(c, mixin.getConstructor().getDeclaredAnnotations());
+        if (_collectAnnotations) {
+            AnnotationCollector c = collectAnnotations(main.getConstructor().getDeclaredAnnotations());
+            if (mixin != null) {
+                c = collectAnnotations(c, mixin.getConstructor().getDeclaredAnnotations());
+            }
+            return c.asAnnotationMap();
         }
-        return c.asAnnotationMap();
+        return _emptyAnnotationMap();
     }
 
     private final AnnotationMap collectAnnotations(AnnotatedElement main, AnnotatedElement mixin) {

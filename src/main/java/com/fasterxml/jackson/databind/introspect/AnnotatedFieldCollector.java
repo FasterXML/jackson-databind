@@ -18,22 +18,29 @@ public class AnnotatedFieldCollector
     private final TypeFactory _typeFactory;
     private final MixInResolver _mixInResolver;
 
+    /**
+     * @since 2.11
+     */
+    private final boolean _collectAnnotations;
+
     // // // Collected state
 
     AnnotatedFieldCollector(AnnotationIntrospector intr,
-            TypeFactory types, MixInResolver mixins)
+            TypeFactory types, MixInResolver mixins, boolean collectAnnotations)
     {
         super(intr);
         _typeFactory = types;
         _mixInResolver = (intr == null) ? null : mixins;
+        _collectAnnotations = collectAnnotations;
     }
 
     public static List<AnnotatedField> collectFields(AnnotationIntrospector intr,
             TypeResolutionContext tc,
             MixInResolver mixins, TypeFactory types,
-            JavaType type)
+            JavaType type, boolean collectAnnotations)
     {
-        return new AnnotatedFieldCollector(intr, types, mixins).collect(tc, type);
+        return new AnnotatedFieldCollector(intr, types, mixins, collectAnnotations)
+                .collect(tc, type);
     }
 
     List<AnnotatedField> collect(TypeResolutionContext tc, JavaType type)
@@ -75,7 +82,7 @@ public class AnnotatedFieldCollector
                 fields = new LinkedHashMap<>();
             }
             FieldBuilder b = new FieldBuilder(tc, f);
-            if (_intr != null) {
+            if (_collectAnnotations) {
                 b.annotations = collectAnnotations(b.annotations, f.getDeclaredAnnotations());
             }
             fields.put(f.getName(), b);

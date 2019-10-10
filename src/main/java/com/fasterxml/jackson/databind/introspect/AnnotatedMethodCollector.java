@@ -16,20 +16,27 @@ public class AnnotatedMethodCollector
 {
     private final MixInResolver _mixInResolver;
 
+    /**
+     * @since 2.11
+     */
+    private final boolean _collectAnnotations;
+
     AnnotatedMethodCollector(AnnotationIntrospector intr,
-            MixInResolver mixins)
+            MixInResolver mixins, boolean collectAnnotations)
     {
         super(intr);
         _mixInResolver = (intr == null) ? null : mixins;
+        _collectAnnotations = collectAnnotations;
     }
 
     public static AnnotatedMethodMap collectMethods(AnnotationIntrospector intr,
             TypeResolutionContext tc,
             MixInResolver mixins, TypeFactory types,
-            JavaType type, List<JavaType> superTypes, Class<?> primaryMixIn)
+            JavaType type, List<JavaType> superTypes, Class<?> primaryMixIn,
+            boolean collectAnnotations)
     {
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedMethodCollector(intr, mixins)
+        return new AnnotatedMethodCollector(intr, mixins, collectAnnotations)
                 .collect(types, tc, type, superTypes, primaryMixIn);
     }
 
@@ -118,7 +125,7 @@ public class AnnotatedMethodCollector
                         : collectAnnotations(m.getDeclaredAnnotations());
                 methods.put(key, new MethodBuilder(tc, m, c));
             } else {
-                if (_intr != null) {
+                if (_collectAnnotations) {
                     b.annotations = collectDefaultAnnotations(b.annotations, m.getDeclaredAnnotations());
                 }
                 Method old = b.method;

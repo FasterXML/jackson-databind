@@ -30,6 +30,11 @@ public class AnnotatedClassResolver
     private final Class<?> _class;
     private final Class<?> _primaryMixin;
 
+    /**
+     * @since 2.11
+     */
+    private final boolean _collectAnnotations;
+
     AnnotatedClassResolver(MapperConfig<?> config, JavaType type, MixInResolver r) {
         _config = config;
         _type = type;
@@ -38,7 +43,10 @@ public class AnnotatedClassResolver
         _bindings = type.getBindings();
         _intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
-        _primaryMixin = _config.findMixInClassFor(_class);
+        _primaryMixin = (r == null) ? null : r.findMixInClassFor(_class);
+
+        // Also... JDK types do not have annotations that are of interest to us
+        _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(_class);
     }
 
     AnnotatedClassResolver(MapperConfig<?> config, Class<?> cls, MixInResolver r) {
@@ -53,8 +61,10 @@ public class AnnotatedClassResolver
         } else {
             _intr = config.isAnnotationProcessingEnabled()
                     ? config.getAnnotationIntrospector() : null;
-            _primaryMixin = _config.findMixInClassFor(_class);
+            _primaryMixin = (r == null) ? null : r.findMixInClassFor(_class);
         }
+
+        _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(_class);
     }
 
     public static AnnotatedClass resolve(MapperConfig<?> config, JavaType forType,
@@ -113,7 +123,8 @@ public class AnnotatedClassResolver
         List<JavaType> superTypes = ClassUtil.findSuperTypes(_type, null, false);
         return new AnnotatedClass(_type, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
-                _bindings, _intr, _mixInResolver, _config.getTypeFactory());
+                _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
+                _collectAnnotations);
 
     }
 
@@ -121,7 +132,8 @@ public class AnnotatedClassResolver
         List<JavaType> superTypes = Collections.<JavaType>emptyList();
         return new AnnotatedClass(null, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
-                _bindings, _intr, _config, _config.getTypeFactory());
+                _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
+                _collectAnnotations);
     }
 
     /*
@@ -141,33 +153,46 @@ public class AnnotatedClassResolver
         if (_intr == null) {
             return NO_ANNOTATIONS;
         }
+        // Plus we may or may not have mix-ins to consider
+        final boolean checkMixIns = (_mixInResolver != null) && _mixInResolver.hasMixIns();
+
+        // also skip if there's nothing to do
+        if (!checkMixIns && !_collectAnnotations) {
+            return NO_ANNOTATIONS;
+        }
+
         AnnotationCollector resolvedCA = AnnotationCollector.emptyCollector();
         // add mix-in annotations first (overrides)
         if (_primaryMixin != null) {
             resolvedCA = _addClassMixIns(resolvedCA, _class, _primaryMixin);
         }
         // then annotations from the class itself:
-        resolvedCA = _addAnnotationsIfNotPresent(resolvedCA,
-                ClassUtil.findClassAnnotations(_class));
+        // 06-Oct-2019, tatu: [databind#2464] Skip class annotations for JDK classes
+        if (_collectAnnotations) {
+            resolvedCA = _addAnnotationsIfNotPresent(resolvedCA,
+                    ClassUtil.findClassAnnotations(_class));
+        }
 
         // and then from super types
         for (JavaType type : superTypes) {
             // and mix mix-in annotations in-between
-            if (_mixInResolver != null) {
+            if (checkMixIns) {
                 Class<?> cls = type.getRawClass();
                 resolvedCA = _addClassMixIns(resolvedCA, cls,
                         _mixInResolver.findMixInClassFor(cls));
             }
-            resolvedCA = _addAnnotationsIfNotPresent(resolvedCA,
-                    ClassUtil.findClassAnnotations(type.getRawClass()));
+            if (_collectAnnotations) {
+                resolvedCA = _addAnnotationsIfNotPresent(resolvedCA,
+                        ClassUtil.findClassAnnotations(type.getRawClass()));
+            }
         }
-        /* and finally... any annotations there might be for plain
-         * old Object.class: separate because for all other purposes
-         * it is just ignored (not included in super types)
-         */
+
+        // and finally... any annotations there might be for plain old Object.class:
+        // separate because otherwise it is just ignored (not included in super types)
+
         // 12-Jul-2009, tatu: Should this be done for interfaces too?
         //  For now, yes, seems useful for some cases, and not harmful for any?
-        if (_mixInResolver != null) {
+        if (checkMixIns) {
             resolvedCA = _addClassMixIns(resolvedCA, Object.class,
                     _mixInResolver.findMixInClassFor(Object.class));
         }

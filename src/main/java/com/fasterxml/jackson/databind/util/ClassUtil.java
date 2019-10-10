@@ -191,16 +191,13 @@ public final class ClassUtil
             if (hasEnclosingMethod(type)) {
                 return "local/anonymous";
             }
-            
             /* But how about non-static inner classes? Can't construct
              * easily (theoretically, we could try to check if parent
              * happens to be enclosing... but that gets convoluted)
              */
             if (!allowNonStatic) {
-                if (!Modifier.isStatic(type.getModifiers())) {
-                    if (getEnclosingClass(type) != null) {
-                        return "non-static member class";
-                    }
+                if (isNonStaticInnerClass(type)) {
+                    return "non-static member class";
                 }
             }
         }
@@ -215,19 +212,18 @@ public final class ClassUtil
     public static Class<?> getOuterClass(Class<?> type)
     {
         // as above, GAE has some issues...
-        try {
-            // one more: method locals, anonymous, are not good:
-            if (hasEnclosingMethod(type)) {
-                return null;
-            }
-            if (!Modifier.isStatic(type.getModifiers())) {
+        if (!Modifier.isStatic(type.getModifiers())) {
+            try {
+                // one more: method locals, anonymous, are not good:
+                if (hasEnclosingMethod(type)) {
+                    return null;
+                }
                 return getEnclosingClass(type);
-            }
-        } catch (SecurityException e) { }
+            } catch (SecurityException e) { }
+        }
         return null;
     }
-    
-    
+
     /**
      * Helper method used to weed out dynamic Proxy types; types that do
      * not expose concrete method API that we could use to figure out
@@ -279,11 +275,6 @@ public final class ClassUtil
     public static boolean isBogusClass(Class<?> cls) {
         return (cls == Void.class || cls == Void.TYPE
                 || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
-    }
-
-    public static boolean isNonStaticInnerClass(Class<?> cls) {
-        return !Modifier.isStatic(cls.getModifiers())
-                && (getEnclosingClass(cls) != null);
     }
 
     /**
@@ -1101,6 +1092,11 @@ public final class ClassUtil
     /* resulted in removal of caching
     /**********************************************************
      */
+
+    public static boolean isNonStaticInnerClass(Class<?> cls) {
+        return !Modifier.isStatic(cls.getModifiers())
+                && (getEnclosingClass(cls) != null);
+    }
 
     /**
      * @since 2.7

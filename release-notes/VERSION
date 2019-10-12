@@ -15,7 +15,7 @@ Unreleased but backported
 #2462: Block two more gadget types (commons-configuration)
 #2469: Block one more gadget type (xalan2)
 #2478: Block two more gadget types (commons-dbcp, p6spy, CVE-2019-16942 / CVE-2019-16943)
-#2498: Block one more gadget type (log4j-extras/1.2)
+#2498: Block one more gadget type (log4j-extras/1.2, CVE-2019-17531)
 
 2.8.11.4 (25-Jul-2019)
 

@@ -98,8 +98,8 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 // 24-Feb-2011, tatu: As per [JACKSON-498], may need to dynamically look up name
                 // can either throw an exception, or use default name...
                 if (_config.isAnnotationProcessingEnabled()) {
-                    BeanDescription beanDesc = _config.introspectClassAnnotations(cls);
-                    name = _config.getAnnotationIntrospector().findTypeName(_config, beanDesc.getClassInfo());
+                    name = _config.getAnnotationIntrospector().findTypeName(_config,
+                            _config.introspectClassAnnotations(cls));
                 }
                 if (name == null) {
                     // And if still not found, let's choose default?

@@ -398,7 +398,7 @@ public abstract class BeanSerializerBase
                     case NUMBER_INT:
                         // 12-Oct-2014, tatu: May need to introspect full annotations... but
                         //   for now, just do class ones
-                        BeanDescription desc = config.introspectClassAnnotations(_beanType);
+                        BeanDescription desc = config.introspect(_beanType);
                         JsonSerializer<?> ser = EnumSerializer.construct(_beanType.getRawClass(),
                                 ctxt.getConfig(), desc, format);
                         return ctxt.handlePrimaryContextualization(ser, property);

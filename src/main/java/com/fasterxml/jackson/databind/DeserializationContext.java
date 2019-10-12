@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -463,7 +464,7 @@ public abstract class DeserializationContext
         return _config.introspect(type);
     }
 
-    public BeanDescription introspectClassAnnotations(JavaType type) throws JsonMappingException {
+    public AnnotatedClass introspectClassAnnotations(JavaType type) throws JsonMappingException {
         return _config.introspectClassAnnotations(type);
     }
 
@@ -561,11 +562,11 @@ public abstract class DeserializationContext
     }
 
     public TypeDeserializer findTypeDeserializer(JavaType baseType,
-            BeanDescription beanDesc)
+            AnnotatedClass classAnnotations)
         throws JsonMappingException
     {
         return _config.getTypeResolverProvider().findTypeDeserializer(this,
-                baseType, beanDesc.getClassInfo());
+                baseType, classAnnotations);
     }
 
     /**

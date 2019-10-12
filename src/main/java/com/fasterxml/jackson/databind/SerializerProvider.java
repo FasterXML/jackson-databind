@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -430,14 +431,14 @@ public abstract class SerializerProvider
         return _config.introspect(type);
     }
 
-    public BeanDescription introspectClassAnnotations(Class<?> rawType) throws JsonMappingException {
+    public AnnotatedClass introspectClassAnnotations(Class<?> rawType) throws JsonMappingException {
         return _config.introspectClassAnnotations(rawType);
     }
 
-    public BeanDescription introspectClassAnnotations(JavaType type) throws JsonMappingException {
+    public AnnotatedClass introspectClassAnnotations(JavaType type) throws JsonMappingException {
         return _config.introspectClassAnnotations(type);
     }
-    
+
     /*
     /**********************************************************************
     /* Serializer discovery: root/non-property value serializers
@@ -680,10 +681,10 @@ public abstract class SerializerProvider
      *
      * @since 3.0
      */
-    public TypeSerializer findTypeSerializer(JavaType baseType, BeanDescription beanDesc)
+    public TypeSerializer findTypeSerializer(JavaType baseType, AnnotatedClass classAnnotations)
             throws JsonMappingException {
         return _config.getTypeResolverProvider().findTypeSerializer(this, baseType,
-                beanDesc.getClassInfo());
+                classAnnotations);
     }
 
     /**

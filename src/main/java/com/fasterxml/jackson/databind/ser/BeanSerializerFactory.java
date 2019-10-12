@@ -605,8 +605,7 @@ public class BeanSerializerFactory
             if (result == null) {
                 result = config.getConfigOverride(type).getIsIgnoredType();
                 if (result == null) {
-                    BeanDescription desc = config.introspectClassAnnotations(type);
-                    AnnotatedClass ac = desc.getClassInfo();
+                    AnnotatedClass ac = config.introspectClassAnnotations(type);
                     result = intr.isIgnorableType(ac);
                     // default to false, non-ignorable
                     if (result == null) {

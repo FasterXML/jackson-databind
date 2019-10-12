@@ -117,8 +117,7 @@ public class TypeResolverProvider
         }
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {
-            BeanDescription bean = ctxt.introspectClassAnnotations(baseType);
-            return findTypeSerializer(ctxt, baseType, bean.getClassInfo());
+            return findTypeSerializer(ctxt, baseType, ctxt.introspectClassAnnotations(baseType));
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, baseType);
@@ -139,8 +138,7 @@ public class TypeResolverProvider
         }
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {
-            BeanDescription bean = ctxt.introspectClassAnnotations(baseType);
-            return findTypeDeserializer(ctxt, baseType, bean.getClassInfo());
+            return findTypeDeserializer(ctxt, baseType, ctxt.introspectClassAnnotations(baseType));
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,
                     accessor, baseType);
@@ -169,8 +167,8 @@ public class TypeResolverProvider
         TypeResolverBuilder<?> b = _findTypeResolver(config, accessor, containerType);
         // No annotation on property? Then base it on actual type (and further, default typing if need be)
         if (b == null) {
-            BeanDescription beanDesc = ctxt.introspectClassAnnotations(contentType.getRawClass());
-            return findTypeSerializer(ctxt, contentType, beanDesc.getClassInfo());
+            return findTypeSerializer(ctxt, contentType,
+                    ctxt.introspectClassAnnotations(contentType.getRawClass()));
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                 config, accessor, contentType);
@@ -190,8 +188,7 @@ public class TypeResolverProvider
         }
         TypeResolverBuilder<?> b = _findTypeResolver(config, accessor, containerType);
         if (b == null) {
-            BeanDescription beanDesc = ctxt.introspectClassAnnotations(contentType);
-            return findTypeDeserializer(ctxt, contentType, beanDesc.getClassInfo());
+            return findTypeDeserializer(ctxt, contentType, ctxt.introspectClassAnnotations(contentType));
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config,
                 accessor, contentType);

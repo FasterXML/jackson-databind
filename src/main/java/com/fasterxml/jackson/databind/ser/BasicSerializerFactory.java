@@ -185,7 +185,7 @@ public abstract class BasicSerializerFactory
     {
         // We should not need any member method info; at most class annotations for Map type
         // ... at least, not here.
-        BeanDescription beanDesc = ctxt.introspectClassAnnotations(keyType);
+        BeanDescription beanDesc = ctxt.introspect(keyType);
         final SerializationConfig config = ctxt.getConfig();
         JsonSerializer<?> ser = null;
         // Minor optimization: to avoid constructing beanDesc, bail out if none registered

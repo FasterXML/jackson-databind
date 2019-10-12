@@ -282,9 +282,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
      */
-    public final AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
-        return getClassIntrospector().introspectDirectClassAnnotations(this, type, this);
-    }
+//    public final AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
+//        return getClassIntrospector().introspectDirectClassAnnotations(this, type, this);
+//    }
 
     /*
     /**********************************************************************

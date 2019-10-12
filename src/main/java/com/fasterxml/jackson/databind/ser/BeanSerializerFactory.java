@@ -472,13 +472,13 @@ public class BeanSerializerFactory
         final SerializationConfig config = ctxt.getConfig();
 
         // ignore specified types
-        removeIgnorableTypes(config, beanDesc, properties);
-        
+        removeIgnorableTypes(ctxt, beanDesc, properties);
+
         // and possibly remove ones without matching mutator...
         if (config.isEnabled(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)) {
             removeSetterlessGetters(config, beanDesc, properties);
         }
-        
+
         // nothing? can't proceed (caller may or may not throw an exception)
         if (properties.isEmpty()) {
             return null;
@@ -584,10 +584,10 @@ public class BeanSerializerFactory
      * annotation but can be supplied by module-provided introspectors too.
      * Starting with 2.8 there are also "Config overrides" to consider.
      */
-    protected void removeIgnorableTypes(SerializationConfig config, BeanDescription beanDesc,
+    protected void removeIgnorableTypes(SerializerProvider ctxt, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)
     {
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         HashMap<Class<?>,Boolean> ignores = new HashMap<Class<?>,Boolean>();
         Iterator<BeanPropertyDefinition> it = properties.iterator();
         while (it.hasNext()) {
@@ -603,9 +603,9 @@ public class BeanSerializerFactory
             Class<?> type = property.getRawPrimaryType();
             Boolean result = ignores.get(type);
             if (result == null) {
-                result = config.getConfigOverride(type).getIsIgnoredType();
+                result = ctxt.getConfig().getConfigOverride(type).getIsIgnoredType();
                 if (result == null) {
-                    AnnotatedClass ac = config.introspectClassAnnotations(type);
+                    AnnotatedClass ac = ctxt.introspectClassAnnotations(type);
                     result = intr.isIgnorableType(ac);
                     // default to false, non-ignorable
                     if (result == null) {

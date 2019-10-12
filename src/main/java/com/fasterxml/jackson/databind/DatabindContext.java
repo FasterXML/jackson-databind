@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
@@ -295,6 +296,22 @@ public abstract class DatabindContext
      * (between serialization, deserialization)
      */
     public abstract BeanDescription introspectBeanDescription(JavaType type);
+
+    public AnnotatedClass introspectClassAnnotations(Class<?> rawType) {
+        return introspectClassAnnotations(constructType(rawType));
+    }
+
+    public AnnotatedClass introspectClassAnnotations(JavaType type) {
+        final MapperConfig<?> config = getConfig();
+        return config.getClassIntrospector().introspectClassAnnotations(config,
+                type, config);
+    }
+
+    public AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
+        final MapperConfig<?> config = getConfig();
+        return config.getClassIntrospector().introspectDirectClassAnnotations(config,
+                type, config);
+    }
 
     /*
     /**********************************************************************

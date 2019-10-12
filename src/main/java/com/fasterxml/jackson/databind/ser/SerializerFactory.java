@@ -104,7 +104,7 @@ public abstract class SerializerFactory
     public JsonSerializer<Object> createSerializer(SerializerProvider ctxt, JavaType baseType)
         throws JsonMappingException
     {
-        BeanDescription beanDesc = ctxt.introspect(baseType);
+        BeanDescription beanDesc = ctxt.introspectBeanDescription(baseType);
         return createSerializer(ctxt, baseType, beanDesc, null);
     }
 }

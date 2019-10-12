@@ -1611,7 +1611,7 @@ nonAnnotatedParamIndex, ctor);
         final DeserializationConfig config = ctxt.getConfig();
         Class<?> enumClass = type.getRawClass();
 
-        BeanDescription beanDesc = ctxt.introspect(type);
+        BeanDescription beanDesc = ctxt.introspectBeanDescription(type);
         // 24-Sep-2015, bim: a key deserializer is the preferred thing.
         KeyDeserializer des = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
         if (des != null) {

@@ -33,9 +33,8 @@ public class RootNameLookup implements java.io.Serializable
         if (name != null) {
             return name;
         }
-        BeanDescription beanDesc = config.introspectClassAnnotations(rootType);
+        AnnotatedClass ac = config.introspectClassAnnotations(rootType);
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        AnnotatedClass ac = beanDesc.getClassInfo();
         name = intr.findRootName(ac);
         // No answer so far? Let's just default to using simple class name
         if (name == null || !name.hasSimpleName()) {

@@ -265,7 +265,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    public BeanDescription introspectClassAnnotations(Class<?> cls) {
+    public AnnotatedClass introspectClassAnnotations(Class<?> cls) {
         return introspectClassAnnotations(constructType(cls));
     }
 
@@ -273,8 +273,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    public BeanDescription introspectClassAnnotations(JavaType type) {
-        return getClassIntrospector().forClassAnnotations(this, type, this);
+    public AnnotatedClass introspectClassAnnotations(JavaType type) {
+        return getClassIntrospector().forClassAnnotations(this, type, this).getClassInfo();
     }
 
     /**
@@ -282,8 +282,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
      */
-    public final BeanDescription introspectDirectClassAnnotations(JavaType type) {
-        return getClassIntrospector().forDirectClassAnnotations(this, type, this);
+    public final AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
+        return getClassIntrospector().forDirectClassAnnotations(this, type, this).getClassInfo();
     }
 
     /*

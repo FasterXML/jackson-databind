@@ -1577,7 +1577,7 @@ nonAnnotatedParamIndex, ctor);
         final DeserializationConfig config = ctxt.getConfig();
         KeyDeserializer deser = null;
         if (_factoryConfig.hasKeyDeserializers()) {
-            BeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
+            BeanDescription beanDesc = config.introspect(type);
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
                 deser = d.findKeyDeserializer(type, config, beanDesc);
                 if (deser != null) {

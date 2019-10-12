@@ -465,10 +465,6 @@ public abstract class DeserializationContext
         return _config.introspect(type);
     }
 
-    public AnnotatedClass introspectClassAnnotations(JavaType type) {
-        return _config.introspectClassAnnotations(type);
-    }
-
     public BeanDescription introspectBeanDescriptionForCreation(JavaType type) {
         return _config.introspectForCreation(type);
     }

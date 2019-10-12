@@ -354,18 +354,6 @@ public abstract class SerializerProvider
         return _config.introspect(type);
     }
 
-    public AnnotatedClass introspectClassAnnotations(Class<?> rawType) {
-        return _config.introspectClassAnnotations(rawType);
-    }
-
-    public AnnotatedClass introspectClassAnnotations(JavaType type) {
-        return _config.introspectClassAnnotations(type);
-    }
-
-    public AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
-        return _config.introspectDirectClassAnnotations(type);
-    }
-
     /*
     /**********************************************************************
     /* Generic attributes

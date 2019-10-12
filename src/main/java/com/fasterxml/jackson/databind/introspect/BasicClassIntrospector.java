@@ -61,7 +61,37 @@ public class BasicClassIntrospector
 
     /*
     /**********************************************************************
-    /* Factory method impls
+    /* Factory method impls: annotation resolution
+    /**********************************************************************
+     */
+
+    @Override
+    public BasicBeanDescription forClassAnnotations(MapperConfig<?> config,
+            JavaType type, MixInResolver r)
+    {
+        BasicBeanDescription desc = _findStdTypeDesc(type);
+        if (desc == null) {
+            desc = BasicBeanDescription.forOtherUse(config, type,
+                    _resolveAnnotatedClass(config, type, r));
+        }
+        return desc;
+    }
+
+    @Override
+    public BasicBeanDescription forDirectClassAnnotations(MapperConfig<?> config,
+            JavaType type, MixInResolver r)
+    {
+        BasicBeanDescription desc = _findStdTypeDesc(type);
+        if (desc == null) {
+            desc = BasicBeanDescription.forOtherUse(config, type,
+                    _resolveAnnotatedWithoutSuperTypes(config, type, r));
+        }
+        return desc;
+    }
+
+    /*
+    /**********************************************************************
+    /* Factory method impls: bean introspection
     /**********************************************************************
      */
 
@@ -123,30 +153,6 @@ public class BasicClassIntrospector
                 desc = BasicBeanDescription.forDeserialization(
             		collectProperties(cfg, type, r, false, "set"));
             }
-        }
-        return desc;
-    }
-
-    @Override
-    public BasicBeanDescription forClassAnnotations(MapperConfig<?> config,
-            JavaType type, MixInResolver r)
-    {
-        BasicBeanDescription desc = _findStdTypeDesc(type);
-        if (desc == null) {
-            desc = BasicBeanDescription.forOtherUse(config, type,
-                    _resolveAnnotatedClass(config, type, r));
-        }
-        return desc;
-    }
-
-    @Override
-    public BasicBeanDescription forDirectClassAnnotations(MapperConfig<?> config,
-            JavaType type, MixInResolver r)
-    {
-        BasicBeanDescription desc = _findStdTypeDesc(type);
-        if (desc == null) {
-            desc = BasicBeanDescription.forOtherUse(config, type,
-                    _resolveAnnotatedWithoutSuperTypes(config, type, r));
         }
         return desc;
     }

@@ -11,13 +11,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.LRUMap;
 
 public class BasicClassIntrospector
     extends ClassIntrospector
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /* We keep a small set of pre-constructed descriptions to use for
      * common non-structured values, such as Numbers and Strings.
@@ -54,17 +53,7 @@ public class BasicClassIntrospector
     /**********************************************************
      */
 
-    /**
-     * Looks like 'forClassAnnotations()' gets called so frequently that we
-     * should consider caching to avoid some of the lookups.
-     * 
-     * @since 2.5
-     */
-    protected final LRUMap<JavaType,BasicBeanDescription> _cachedFCA;
-
     public BasicClassIntrospector() {
-        // a small cache should go a long way here
-        _cachedFCA = new LRUMap<JavaType,BasicBeanDescription>(16, 64);
     }
 
     @Override
@@ -92,8 +81,6 @@ public class BasicClassIntrospector
                 desc = BasicBeanDescription.forSerialization(collectProperties(cfg,
                         type, r, true, "set"));
             }
-            // Also: this is a superset of "forClassAnnotations", so may optimize by optional add:
-            _cachedFCA.putIfAbsent(type, desc);
         }
         return desc;
     }
@@ -112,8 +99,6 @@ public class BasicClassIntrospector
                 desc = BasicBeanDescription.forDeserialization(collectProperties(cfg,
                         		type, r, false, "set"));
             }
-            // Also: this is a superset of "forClassAnnotations", so may optimize by optional add:
-            _cachedFCA.putIfAbsent(type, desc);
         }
         return desc;
     }
@@ -123,12 +108,8 @@ public class BasicClassIntrospector
             JavaType type, MixInResolver r)
     {
         // no std JDK types with Builders, so:
-
-        BasicBeanDescription desc = BasicBeanDescription.forDeserialization(collectPropertiesWithBuilder(cfg,
+        return BasicBeanDescription.forDeserialization(collectPropertiesWithBuilder(cfg,
                 type, r, false));
-        // this is still a superset of "forClassAnnotations", so may optimize by optional add:
-        _cachedFCA.putIfAbsent(type, desc);
-        return desc;
     }
     
     @Override
@@ -145,7 +126,6 @@ public class BasicClassIntrospector
             		collectProperties(cfg, type, r, false, "set"));
             }
         }
-        // should this be cached for FCA?
         return desc;
     }
 
@@ -155,12 +135,8 @@ public class BasicClassIntrospector
     {
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
-            desc = _cachedFCA.get(type);
-            if (desc == null) {
-                desc = BasicBeanDescription.forOtherUse(config, type,
-                        _resolveAnnotatedClass(config, type, r));
-                _cachedFCA.put(type, desc);
-            }
+            desc = BasicBeanDescription.forOtherUse(config, type,
+                    _resolveAnnotatedClass(config, type, r));
         }
         return desc;
     }

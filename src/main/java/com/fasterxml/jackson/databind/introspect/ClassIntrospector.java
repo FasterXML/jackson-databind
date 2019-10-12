@@ -40,7 +40,7 @@ public abstract class ClassIntrospector
      * information regarding annotations class itself (or its supertypes) has,
      * but nothing on methods or constructors.
      */
-    public abstract BeanDescription forClassAnnotations(MapperConfig<?> cfg, JavaType type,
+    public abstract AnnotatedClass introspectClassAnnotations(MapperConfig<?> cfg, JavaType type,
             MixInResolver r);
 
     /**
@@ -48,9 +48,9 @@ public abstract class ClassIntrospector
      * information regarding annotations class itself has (but NOT including
      * its supertypes), but nothing on methods or constructors.
      */
-    public abstract BeanDescription forDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
+    public abstract AnnotatedClass introspectDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
             MixInResolver r);
-    
+
     /*
     /**********************************************************************
     /* Public API: bean property introspection

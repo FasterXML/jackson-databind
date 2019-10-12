@@ -185,7 +185,7 @@ public abstract class BasicSerializerFactory
     {
         // We should not need any member method info; at most class annotations for Map type
         // ... at least, not here.
-        BeanDescription beanDesc = ctxt.introspect(keyType);
+        BeanDescription beanDesc = ctxt.introspectBeanDescription(keyType);
         final SerializationConfig config = ctxt.getConfig();
         JsonSerializer<?> ser = null;
         // Minor optimization: to avoid constructing beanDesc, bail out if none registered
@@ -202,7 +202,7 @@ public abstract class BasicSerializerFactory
             ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
             // As per [databind#47], also need to support @JsonValue
             if (ser == null) {
-                beanDesc = ctxt.introspect(keyType);
+                beanDesc = ctxt.introspectBeanDescription(keyType);
                 AnnotatedMember am = beanDesc.findJsonValueAccessor();
                 if (am != null) {
                     final Class<?> rawType = am.getRawType();

@@ -330,7 +330,7 @@ public final class DeserializerCache
         if (type.isAbstract() || type.isMapLikeType() || type.isCollectionLikeType()) {
             type = config.mapAbstractType(type);
         }
-        BeanDescription beanDesc = ctxt.introspect(type);
+        BeanDescription beanDesc = ctxt.introspectBeanDescription(type);
         // Then: does type define explicit deserializer to use, with annotation(s)?
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt,
                 beanDesc.getClassInfo());
@@ -342,7 +342,7 @@ public final class DeserializerCache
         JavaType newType = modifyTypeByAnnotation(ctxt, beanDesc.getClassInfo(), type);
         if (newType != type) {
             type = newType;
-            beanDesc = ctxt.introspect(newType);
+            beanDesc = ctxt.introspectBeanDescription(newType);
         }
 
         // We may also have a Builder type to consider...
@@ -361,7 +361,7 @@ public final class DeserializerCache
         JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
         // One more twist, as per [databind#288]; probably need to get new BeanDesc
         if (!delegateType.hasRawClass(type.getRawClass())) {
-            beanDesc = ctxt.introspect(delegateType);
+            beanDesc = ctxt.introspectBeanDescription(delegateType);
         }
         return new StdConvertingDeserializer<Object>(conv, delegateType,
                 _createDeserializer2(ctxt, factory, delegateType, beanDesc));

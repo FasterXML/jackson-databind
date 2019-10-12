@@ -345,6 +345,29 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************************
+    /* Annotation, BeanDescription introspection
+    /**********************************************************************
+     */
+
+    @Override
+    public BeanDescription introspectBeanDescription(JavaType type) {
+        return _config.introspect(type);
+    }
+
+    public AnnotatedClass introspectClassAnnotations(Class<?> rawType) {
+        return _config.introspectClassAnnotations(rawType);
+    }
+
+    public AnnotatedClass introspectClassAnnotations(JavaType type) {
+        return _config.introspectClassAnnotations(type);
+    }
+
+    public AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
+        return _config.introspectDirectClassAnnotations(type);
+    }
+
+    /*
+    /**********************************************************************
     /* Generic attributes
     /**********************************************************************
      */
@@ -416,28 +439,6 @@ public abstract class SerializerProvider
      */
     public abstract WritableObjectId findObjectId(Object forPojo,
         ObjectIdGenerator<?> generatorType);
-
-    /*
-    /**********************************************************************
-    /* Introspection support
-    /**********************************************************************
-     */
-    
-    /**
-     * Convenience method for doing full "for serialization" introspection of specified
-     * type; results may be cached during lifespan of this context as well.
-     */
-    public BeanDescription introspect(JavaType type) {
-        return _config.introspect(type);
-    }
-
-    public AnnotatedClass introspectClassAnnotations(Class<?> rawType) {
-        return _config.introspectClassAnnotations(rawType);
-    }
-
-    public AnnotatedClass introspectClassAnnotations(JavaType type) {
-        return _config.introspectClassAnnotations(type);
-    }
 
     /*
     /**********************************************************************
@@ -834,7 +835,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // Important: must introspect all annotations, not just class
-        BeanDescription beanDesc = introspect(fullType);
+        BeanDescription beanDesc = introspectBeanDescription(fullType);
         JsonSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
@@ -851,7 +852,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // Important: must introspect all annotations, not just class
-        BeanDescription beanDesc = introspect(type);
+        BeanDescription beanDesc = introspectBeanDescription(type);
         JsonSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
@@ -872,7 +873,7 @@ public abstract class SerializerProvider
             JavaType fullType, BeanProperty prop)
         throws JsonMappingException
     {
-        BeanDescription beanDesc = introspect(fullType);
+        BeanDescription beanDesc = introspectBeanDescription(fullType);
         JsonSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
@@ -895,7 +896,7 @@ public abstract class SerializerProvider
             BeanProperty prop)
         throws JsonMappingException
     {
-        BeanDescription beanDesc = introspect(type);
+        BeanDescription beanDesc = introspectBeanDescription(type);
         JsonSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, type, beanDesc, null);

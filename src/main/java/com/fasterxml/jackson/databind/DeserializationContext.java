@@ -452,7 +452,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************************
-    /* Introspection support
+    /* Annotation, BeanDescription introspection
     /**********************************************************************
      */
 
@@ -460,7 +460,8 @@ public abstract class DeserializationContext
      * Convenience method for doing full "for serialization" introspection of specified
      * type; results may be cached during lifespan of this context as well.
      */
-    public BeanDescription introspect(JavaType type) {
+    @Override
+    public BeanDescription introspectBeanDescription(JavaType type) {
         return _config.introspect(type);
     }
 

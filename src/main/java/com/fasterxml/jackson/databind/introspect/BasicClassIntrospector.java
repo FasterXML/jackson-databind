@@ -66,7 +66,7 @@ public class BasicClassIntrospector
      */
 
     @Override
-    public BasicBeanDescription forClassAnnotations(MapperConfig<?> config,
+    public AnnotatedClass introspectClassAnnotations(MapperConfig<?> config,
             JavaType type, MixInResolver r)
     {
         BasicBeanDescription desc = _findStdTypeDesc(type);
@@ -74,11 +74,11 @@ public class BasicClassIntrospector
             desc = BasicBeanDescription.forOtherUse(config, type,
                     _resolveAnnotatedClass(config, type, r));
         }
-        return desc;
+        return desc.getClassInfo();
     }
 
     @Override
-    public BasicBeanDescription forDirectClassAnnotations(MapperConfig<?> config,
+    public AnnotatedClass introspectDirectClassAnnotations(MapperConfig<?> config,
             JavaType type, MixInResolver r)
     {
         BasicBeanDescription desc = _findStdTypeDesc(type);
@@ -86,7 +86,7 @@ public class BasicClassIntrospector
             desc = BasicBeanDescription.forOtherUse(config, type,
                     _resolveAnnotatedWithoutSuperTypes(config, type, r));
         }
-        return desc;
+        return desc.getClassInfo();
     }
 
     /*

@@ -154,7 +154,7 @@ public class BeanDeserializerFactory
         } else {
             builderType = ctxt.constructType(builderClass);
         }
-        BeanDescription builderDesc = ctxt.introspectForBuilder(builderType);
+        BeanDescription builderDesc = ctxt.introspectBeanDescriptionForBuilder(builderType);
         return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
     }
 

@@ -1183,7 +1183,7 @@ nonAnnotatedParamIndex, ctor);
                 } else {
                     type = implType;
                     // But if so, also need to re-check creators...
-                    beanDesc = ctxt.introspectForCreation(type);
+                    beanDesc = ctxt.introspectBeanDescriptionForCreation(type);
                 }
             }
             if (deser == null) {
@@ -1333,7 +1333,7 @@ nonAnnotatedParamIndex, ctor);
                         type = (MapType) fallback;
                         mapClass = type.getRawClass();
                         // But if so, also need to re-check creators...
-                        beanDesc = ctxt.introspectForCreation(type);
+                        beanDesc = ctxt.introspectBeanDescriptionForCreation(type);
                     } else {
                         // [databind#292]: Actually, may be fine, but only if polymorphic deser enabled
                         if (type.getTypeHandler() == null) {

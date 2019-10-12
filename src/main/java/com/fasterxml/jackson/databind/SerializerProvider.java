@@ -427,15 +427,15 @@ public abstract class SerializerProvider
      * Convenience method for doing full "for serialization" introspection of specified
      * type; results may be cached during lifespan of this context as well.
      */
-    public BeanDescription introspect(JavaType type) throws JsonMappingException {
+    public BeanDescription introspect(JavaType type) {
         return _config.introspect(type);
     }
 
-    public AnnotatedClass introspectClassAnnotations(Class<?> rawType) throws JsonMappingException {
+    public AnnotatedClass introspectClassAnnotations(Class<?> rawType) {
         return _config.introspectClassAnnotations(rawType);
     }
 
-    public AnnotatedClass introspectClassAnnotations(JavaType type) throws JsonMappingException {
+    public AnnotatedClass introspectClassAnnotations(JavaType type) {
         return _config.introspectClassAnnotations(type);
     }
 

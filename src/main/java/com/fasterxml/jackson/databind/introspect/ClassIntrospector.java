@@ -31,10 +31,32 @@ public abstract class ClassIntrospector
 
     /*
     /**********************************************************************
-    /* Public API: factory methods
+    /* Public API: annotation introspection
     /**********************************************************************
      */
 
+    /**
+     * Factory method that constructs an introspector that only has
+     * information regarding annotations class itself (or its supertypes) has,
+     * but nothing on methods or constructors.
+     */
+    public abstract BeanDescription forClassAnnotations(MapperConfig<?> cfg, JavaType type,
+            MixInResolver r);
+
+    /**
+     * Factory method that constructs an introspector that only has
+     * information regarding annotations class itself has (but NOT including
+     * its supertypes), but nothing on methods or constructors.
+     */
+    public abstract BeanDescription forDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
+            MixInResolver r);
+    
+    /*
+    /**********************************************************************
+    /* Public API: bean property introspection
+    /**********************************************************************
+     */
+    
     /**
      * Factory method that constructs an introspector that has all
      * information needed for serialization purposes.
@@ -64,21 +86,5 @@ public abstract class ClassIntrospector
      * no information on member methods
      */
     public abstract BeanDescription forCreation(DeserializationConfig cfg, JavaType type,
-            MixInResolver r);
-
-    /**
-     * Factory method that constructs an introspector that only has
-     * information regarding annotations class itself (or its supertypes) has,
-     * but nothing on methods or constructors.
-     */
-    public abstract BeanDescription forClassAnnotations(MapperConfig<?> cfg, JavaType type,
-            MixInResolver r);
-
-    /**
-     * Factory method that constructs an introspector that only has
-     * information regarding annotations class itself has (but NOT including
-     * its supertypes), but nothing on methods or constructors.
-     */
-    public abstract BeanDescription forDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
             MixInResolver r);
 }

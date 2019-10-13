@@ -130,7 +130,7 @@ public class AsArrayTypeDeserializer
             // Need to allow even more customized handling, if something unexpected seen...
             // but should there be a way to limit this to likely success cases?
             if (_defaultImpl != null) {
-                return _idResolver.idFromBaseType();
+                return _idResolver.idFromBaseType(ctxt);
             }
              ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
                      "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
@@ -144,7 +144,7 @@ public class AsArrayTypeDeserializer
             return result;
         }
         if (_defaultImpl != null) {
-            return _idResolver.idFromBaseType();
+            return _idResolver.idFromBaseType(ctxt);
         }
         ctxt.reportWrongTokenException(baseType(), JsonToken.VALUE_STRING,
                 "need JSON String that contains type id (for subtype of %s)", baseTypeName());

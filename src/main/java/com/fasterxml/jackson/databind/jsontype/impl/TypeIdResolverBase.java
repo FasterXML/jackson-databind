@@ -44,13 +44,13 @@ public abstract class TypeIdResolverBase
     public void init(JavaType bt) { }
 
     @Override
-    public String idFromBaseType() {
+    public String idFromBaseType(DatabindContext ctxt) {
         /* By default we will just defer to regular handling, handing out the
          * base type; and since there is no value, must just pass null here
          * assuming that implementations can deal with it.
          * Alternative would be to pass a bogus Object, but that does not seem right.
          */
-        return idFromValueAndType(null, _baseType.getRawClass());
+        return idFromValueAndType(ctxt, null, _baseType.getRawClass());
     }
 
     @Override

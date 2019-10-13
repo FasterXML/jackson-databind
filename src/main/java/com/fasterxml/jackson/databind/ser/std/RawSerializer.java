@@ -25,19 +25,19 @@ public class RawSerializer<T>
     }
 
     @Override
-    public void serialize(T value, JsonGenerator g, SerializerProvider provider) throws IOException {
+    public void serialize(T value, JsonGenerator g, SerializerProvider ctxt) throws IOException {
         g.writeRawValue(value.toString());
     }
 
     @Override
-    public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
-        serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override

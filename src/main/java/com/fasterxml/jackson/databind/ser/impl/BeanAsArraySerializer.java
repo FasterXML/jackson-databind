@@ -133,22 +133,22 @@ public class BeanAsArraySerializer
     // Re-defined from base class, due to differing prefixes
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen,
-            SerializerProvider provider, TypeSerializer typeSer)
+            SerializerProvider ctxt, TypeSerializer typeSer)
         throws IOException
     {
         // 10-Dec-2014, tatu: Not sure if this can be made to work reliably;
         //   but for sure delegating to default implementation will not work. So:
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, gen, provider, typeSer);
+            _serializeWithObjectId(bean, gen, ctxt, typeSer);
             return;
         }
         gen.setCurrentValue(bean);
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
-        typeSer.writeTypePrefix(gen, typeIdDef);
-        final boolean filtered = (_filteredProps != null && provider.getActiveView() != null);
-        if (filtered) serializeFiltered(bean, gen, provider);
-        else serializeNonFiltered(bean, gen, provider);
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
+        final boolean filtered = (_filteredProps != null && ctxt.getActiveView() != null);
+        if (filtered) serializeFiltered(bean, gen, ctxt);
+        else serializeNonFiltered(bean, gen, ctxt);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     /**

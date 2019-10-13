@@ -45,16 +45,16 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     }
 
     @Override
-    public void serializeWithType(byte[] value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(byte[] value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
         // most likely scalar
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
-        g.writeBinary(provider.getConfig().getBase64Variant(),
+        g.writeBinary(ctxt.getConfig().getBase64Variant(),
                 value, 0, value.length);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
 
         /* OLD impl
         typeSer.writeTypePrefixForScalar(value, g);

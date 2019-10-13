@@ -49,7 +49,7 @@ public interface TypeIdResolver
      * Method called to serialize type of the type of given value
      * as a String to include in serialized JSON content.
      */
-    public String idFromValue(Object value);
+    public String idFromValue(DatabindContext ctxt, Object value);
 
     /**
      * Alternative method used for determining type from combination of
@@ -57,7 +57,7 @@ public interface TypeIdResolver
      * and possibly value of that type. Most common implementation will
      * use suggested type as is.
      */
-    public String idFromValueAndType(Object value, Class<?> suggestedType);
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType);
 
     /**
      * Method that can be called to figure out type id to use for instances
@@ -65,12 +65,12 @@ public interface TypeIdResolver
      * for fallback handling, for cases where real type information is not
      * available for some reason.
      */
-    public String idFromBaseType();
+    public String idFromBaseType(DatabindContext ctxt);
 
     /**
      * Method called to resolve type from given type identifier.
      */
-    public JavaType typeFromId(DatabindContext context, String id) throws IOException;
+    public JavaType typeFromId(DatabindContext ctxt, String id) throws IOException;
 
     /**
      * Method called for error-reporting and diagnostics purposes.

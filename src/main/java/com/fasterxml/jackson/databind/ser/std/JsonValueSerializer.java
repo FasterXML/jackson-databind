@@ -214,10 +214,10 @@ public class JsonValueSerializer
         //    this (note: type is for the wrapper type, not enclosed value!)
         if (_forceTypeInformation) {
             // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
-            WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
+            WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen, ctxt,
                     typeSer0.typeId(bean, JsonToken.VALUE_STRING));
             ser.serialize(value, gen, ctxt);
-            typeSer0.writeTypeSuffix(gen, typeIdDef);
+            typeSer0.writeTypeSuffix(gen, ctxt, typeIdDef);
             return;
         }
 
@@ -359,18 +359,18 @@ public class JsonValueSerializer
         }
 
         @Override
-        public WritableTypeId writeTypePrefix(JsonGenerator g,
+        public WritableTypeId writeTypePrefix(JsonGenerator g, SerializerProvider ctxt,
                 WritableTypeId typeId) throws IOException {
             // 28-Jun-2017, tatu: Important! Need to "override" value
             typeId.forValue = _forObject;
-            return _typeSerializer.writeTypePrefix(g, typeId);
+            return _typeSerializer.writeTypePrefix(g, ctxt, typeId);
         }
 
         @Override
-        public WritableTypeId writeTypeSuffix(JsonGenerator g,
+        public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializerProvider ctxt,
                 WritableTypeId typeId) throws IOException {
             // NOTE: already overwrote value object so:
-            return _typeSerializer.writeTypeSuffix(g, typeId);
+            return _typeSerializer.writeTypeSuffix(g, ctxt, typeId);
         }
     }
 }

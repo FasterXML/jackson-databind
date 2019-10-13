@@ -177,15 +177,15 @@ public class ArrayNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(this, JsonToken.START_ARRAY));
         for (JsonNode n : _children) {
-            ((BaseJsonNode)n).serialize(g, provider);
+            ((BaseJsonNode)n).serialize(g, ctxt);
         }
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     /*

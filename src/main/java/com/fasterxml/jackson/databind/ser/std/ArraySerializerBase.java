@@ -65,16 +65,16 @@ public abstract class ArraySerializerBase<T>
     }
 
     @Override
-    public final void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
+    public final void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         // [databind#631]: Assign current value, to be accessible by custom serializers
         g.setCurrentValue(value);
-        serializeContents(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serializeContents(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)

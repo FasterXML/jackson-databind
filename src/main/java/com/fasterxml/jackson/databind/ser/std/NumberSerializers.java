@@ -221,18 +221,18 @@ public class NumberSerializers {
         // IMPORTANT: copied from `NonTypedScalarSerializerBase`
         @Override
         public void serializeWithType(Object value, JsonGenerator g,
-                SerializerProvider provider, TypeSerializer typeSer)
+                SerializerProvider ctxt, TypeSerializer typeSer)
                 throws IOException {
             // no type info, just regular serialization
             // 08-Feb-2018, tatu: Except that as per [databind#2236], NaN values need
             //    special handling
             Double d = (Double) value;
             if (NumberOutput.notFinite(d)) {
-                WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                         // whether to indicate it's number or string is arbitrary; important it is scalar
                         typeSer.typeId(value, JsonToken.VALUE_NUMBER_FLOAT));
                 g.writeNumber(d);
-                typeSer.writeTypeSuffix(g, typeIdDef);
+                typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
             } else {
                 g.writeNumber(d);
             }

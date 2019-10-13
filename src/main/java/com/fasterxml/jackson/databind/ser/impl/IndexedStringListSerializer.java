@@ -77,15 +77,15 @@ public final class IndexedStringListSerializer
     }
 
     @Override
-    public void serializeWithType(List<String> value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(List<String> value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         g.setCurrentValue(value);
-        serializeContents(value, g, provider, value.size());
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serializeContents(value, g, ctxt, value.size());
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     private final void serializeContents(List<String> value, JsonGenerator g,

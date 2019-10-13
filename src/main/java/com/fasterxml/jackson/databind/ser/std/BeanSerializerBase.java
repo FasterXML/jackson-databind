@@ -600,22 +600,22 @@ public abstract class BeanSerializerBase
 
     // Type-info-augmented case implemented as it does not usually differ between impls
     @Override
-    public void serializeWithType(Object bean, JsonGenerator gen,
-            SerializerProvider provider, TypeSerializer typeSer)
+    public void serializeWithType(Object bean,
+            JsonGenerator gen, SerializerProvider ctxt, TypeSerializer typeSer)
         throws IOException
     {
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, gen, provider, typeSer);
+            _serializeWithObjectId(bean, gen, ctxt, typeSer);
             return;
         }
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
-        typeSer.writeTypePrefix(gen, typeIdDef);
+        typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
         if (_propertyFilterId != null) {
-            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            _serializeFieldsFiltered(bean, gen, ctxt, _propertyFilterId);
         } else {
-            _serializeFields(bean, gen, provider);
+            _serializeFields(bean, gen, ctxt);
         }
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     protected final void _serializeWithObjectId(Object bean, JsonGenerator gen,
@@ -667,21 +667,21 @@ public abstract class BeanSerializerBase
         _serializeObjectId(bean, gen, provider, typeSer, objectId);
     }
 
-    protected  void _serializeObjectId(Object bean, JsonGenerator g,
-            SerializerProvider provider,
+    protected  void _serializeObjectId(Object bean,
+            JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer, WritableObjectId objectId) throws IOException
     {
         final ObjectIdWriter w = _objectIdWriter;
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
 
-        typeSer.writeTypePrefix(g, typeIdDef);
-        objectId.writeAsField(g, provider, w);
+        typeSer.writeTypePrefix(g, ctxt, typeIdDef);
+        objectId.writeAsField(g, ctxt, w);
         if (_propertyFilterId != null) {
-            _serializeFieldsFiltered(bean, g, provider, _propertyFilterId);
+            _serializeFieldsFiltered(bean, g, ctxt, _propertyFilterId);
         } else {
-            _serializeFields(bean, g, provider);
+            _serializeFields(bean, g, ctxt);
         }
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     protected final WritableTypeId _typeIdDef(TypeSerializer typeSer,

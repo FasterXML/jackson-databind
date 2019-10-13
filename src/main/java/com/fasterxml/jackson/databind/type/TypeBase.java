@@ -153,14 +153,14 @@ public abstract class TypeBase
      */
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
         WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.VALUE_STRING);
-        typeSer.writeTypePrefix(g, typeIdDef);
-        this.serialize(g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypePrefix(g, ctxt, typeIdDef);
+        this.serialize(g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override

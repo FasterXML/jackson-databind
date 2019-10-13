@@ -48,7 +48,7 @@ public class MinimalClassNameIdResolver
     public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.MINIMAL_CLASS; }
     
     @Override
-    public String idFromValue(Object value)
+    public String idFromValue(DatabindContext ctxt, Object value)
     {
         String n = value.getClass().getName();
         if (n.startsWith(_basePackagePrefix)) {

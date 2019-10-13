@@ -326,15 +326,15 @@ public class ObjectNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
         @SuppressWarnings("deprecation")
-        boolean trimEmptyArray = (provider != null) &&
-                !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+        boolean trimEmptyArray = (ctxt != null) &&
+                !ctxt.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
 
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(this, JsonToken.START_OBJECT));
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
             BaseJsonNode value = (BaseJsonNode) en.getValue();
@@ -342,14 +342,14 @@ public class ObjectNode
             // check if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
             // if the feature is disabled, then should not write an empty array
             // to the output, so continue to the next element in the iteration
-            if (trimEmptyArray && value.isArray() && value.isEmpty(provider)) {
+            if (trimEmptyArray && value.isArray() && value.isEmpty(ctxt)) {
                 continue;
             }
             
             g.writeFieldName(en.getKey());
-            value.serialize(g, provider);
+            value.serialize(g, ctxt);
         }
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     /*

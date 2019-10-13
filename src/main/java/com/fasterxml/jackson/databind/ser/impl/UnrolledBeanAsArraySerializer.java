@@ -146,14 +146,14 @@ public class UnrolledBeanAsArraySerializer
     // Re-defined from base class, due to differing prefixes
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen,
-            SerializerProvider provider, TypeSerializer typeSer)
+            SerializerProvider ctxt, TypeSerializer typeSer)
         throws IOException
     {
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
-        typeSer.writeTypePrefix(gen, typeIdDef);
+        typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
         // NOTE: instances NOT constructed if view-processing available
-        serializeNonFiltered(bean, gen, provider);
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        serializeNonFiltered(bean, gen, ctxt);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     /**

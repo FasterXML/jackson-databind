@@ -41,14 +41,14 @@ public abstract class ValueNode
     @Override public abstract JsonToken asToken();
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(this, asToken()));
-        serialize(g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serialize(g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     /*

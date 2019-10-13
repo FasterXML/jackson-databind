@@ -33,15 +33,15 @@ public class UnknownSerializer
     }
 
     @Override
-    public final void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
+    public final void serializeWithType(Object value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer) throws IOException
     {
-        if (provider.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
-            failForEmpty(provider, value);
+        if (ctxt.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
+            failForEmpty(ctxt, value);
         }
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     @Override

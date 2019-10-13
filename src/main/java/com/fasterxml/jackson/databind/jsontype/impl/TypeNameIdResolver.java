@@ -79,11 +79,11 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.NAME; }
 
     @Override
-    public String idFromValue(Object value) {
-        return idFromClass(value.getClass());
+    public String idFromValue(DatabindContext ctxt, Object value) {
+        return idFromClass(ctxt, value.getClass());
     }
 
-    protected String idFromClass(Class<?> cls)
+    protected String idFromClass(DatabindContext ctxt, Class<?> cls)
     {
         if (cls == null) {
             return null;
@@ -119,13 +119,13 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     }
 
     @Override
-    public String idFromValueAndType(Object value, Class<?> type) {
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> type) {
         // 18-Jan-2013, tatu: We may be called with null value occasionally
         //   it seems; nothing much we can figure out that way.
         if (value == null) {
-            return idFromClass(type);
+            return idFromClass(ctxt, type);
         }
-        return idFromValue(value);
+        return idFromValue(ctxt, value);
     }
 
     @Override

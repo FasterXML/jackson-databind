@@ -97,19 +97,19 @@ public class TestConversions extends BaseMapTest
 
         @Override
         public void serializeWithType(JsonGenerator g,
-                SerializerProvider provider, TypeSerializer typeSer) throws IOException
+                SerializerProvider ctxt, TypeSerializer typeSer) throws IOException
         {
             WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.START_OBJECT);
-            typeSer.writeTypePrefix(g, typeIdDef);
-            serialize(g, provider);
-            typeSer.writeTypePrefix(g, typeIdDef);
+            typeSer.writeTypePrefix(g, ctxt, typeIdDef);
+            serialize(g, ctxt);
+            typeSer.writeTypePrefix(g, ctxt, typeIdDef);
         }    
     }
-    
+
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = objectMapper();

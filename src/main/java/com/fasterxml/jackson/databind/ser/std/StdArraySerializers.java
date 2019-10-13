@@ -263,23 +263,23 @@ public class StdArraySerializers
         }
 
         @Override
-        public void serializeWithType(char[] value, JsonGenerator g, SerializerProvider provider,
+        public void serializeWithType(char[] value, JsonGenerator g, SerializerProvider ctxt,
                 TypeSerializer typeSer)
             throws IOException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
-            final boolean asArray = provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS);
+            final boolean asArray = ctxt.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS);
             WritableTypeId typeIdDef;
             if (asArray) {
-                typeIdDef = typeSer.writeTypePrefix(g,
+                typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                         typeSer.typeId(value, JsonToken.START_ARRAY));
                 _writeArrayContents(g, value);
             } else { // default is to write as simple String
-                typeIdDef = typeSer.writeTypePrefix(g,
+                typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                         typeSer.typeId(value, JsonToken.VALUE_STRING));
                 g.writeString(value, 0, value.length);
             }
-            typeSer.writeTypeSuffix(g, typeIdDef);
+            typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
         }
 
         private final void _writeArrayContents(JsonGenerator g, char[] value)

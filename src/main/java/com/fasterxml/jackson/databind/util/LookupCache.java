@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.util.Snapshottable;
  * implementations, specific use cases do. Typically implementations are
  * expected to be thread-safe, that is, to handle synchronization.
  *
- * @see com.fasterxml.jackson.databind.type.TypeFactory#withCache(LookupCache<java.lang.Object,com.fasterxml.jackson.databind.JavaType>)
+ * @see com.fasterxml.jackson.databind.type.TypeFactory#withCache
  * @see SimpleLookupCache
  */
 public interface LookupCache <K,V>

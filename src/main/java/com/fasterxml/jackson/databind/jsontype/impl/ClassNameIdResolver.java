@@ -52,12 +52,12 @@ public class ClassNameIdResolver
     }
 
     @Override
-    public String idFromValue(Object value) {
+    public String idFromValue(DatabindContext context, Object value) {
         return _idFrom(value, value.getClass(), _typeFactory);
     }
 
     @Override
-    public String idFromValueAndType(Object value, Class<?> type) {
+    public String idFromValueAndType(DatabindContext context, Object value, Class<?> type) {
         return _idFrom(value, type, _typeFactory);
     }
 

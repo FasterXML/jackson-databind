@@ -296,10 +296,10 @@ public class MapEntrySerializer
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         g.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         serializeDynamic(value, g, ctxt);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     protected void serializeDynamic(Map.Entry<?, ?> value, JsonGenerator gen,

@@ -170,29 +170,29 @@ public abstract class AsArraySerializerBase<T>
     // variant that passes size of array to output, which is helpful with some data formats
     /*
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public void serialize(T value, JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(value)) {
-            serializeContents(value, gen, provider);
+            serializeContents(value, gen, ctxt);
             return;
         }
         gen.writeStartArray(value);
-        serializeContents(value, gen, provider);
+        serializeContents(value, gen, ctxt);
         gen.writeEndArray();
     }
     */
 
     @Override
-    public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer) throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         // [databind#631]: Assign current value, to be accessible by custom serializers
         g.setCurrentValue(value);
-        serializeContents(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serializeContents(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)

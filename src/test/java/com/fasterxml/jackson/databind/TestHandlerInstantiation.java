@@ -129,7 +129,7 @@ public class TestHandlerInstantiation extends BaseMapTest
         }
 
         @Override
-        public String idFromValue(Object value)
+        public String idFromValue(DatabindContext ctxt, Object value)
         {
             if (value.getClass() == TypeIdBean.class) {
                 return _id;
@@ -138,8 +138,8 @@ public class TestHandlerInstantiation extends BaseMapTest
         }
 
         @Override
-        public String idFromValueAndType(Object value, Class<?> type) {
-            return idFromValue(value);
+        public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> type) {
+            return idFromValue(ctxt, value);
         }
 
         @Override
@@ -158,7 +158,7 @@ public class TestHandlerInstantiation extends BaseMapTest
             return null;
         }
         @Override
-        public String idFromBaseType() {
+        public String idFromBaseType(DatabindContext ctxt) {
             return "xxx";
         }
     }

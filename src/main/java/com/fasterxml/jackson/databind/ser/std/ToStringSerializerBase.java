@@ -44,14 +44,14 @@ public abstract class ToStringSerializerBase
      * change this behavior.
      */
     @Override
-    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.VALUE_STRING));
-        serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override

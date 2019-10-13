@@ -536,30 +536,30 @@ public class MapSerializer
     }
 
     @Override
-    public void serializeWithType(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(Map<?,?> value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
-            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _orderEntries(value, gen, provider);
+            if (_sortKeys || ctxt.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntries(value, gen, ctxt);
             }
             PropertyFilter pf;
-            if ((_filterId != null) && (pf = findPropertyFilter(provider, _filterId, value)) != null) {
-                serializeFilteredFields(value, gen, provider, pf, _suppressableValue);
+            if ((_filterId != null) && (pf = findPropertyFilter(ctxt, _filterId, value)) != null) {
+                serializeFilteredFields(value, gen, ctxt, pf, _suppressableValue);
             } else if ((_suppressableValue != null) || _suppressNulls) {
-                serializeOptionalFields(value, gen, provider, _suppressableValue);
+                serializeOptionalFields(value, gen, ctxt, _suppressableValue);
             } else if (_valueSerializer != null) {
-                serializeFieldsUsing(value, gen, provider, _valueSerializer);
+                serializeFieldsUsing(value, gen, ctxt, _valueSerializer);
             } else {
-                serializeFields(value, gen, provider);
+                serializeFields(value, gen, ctxt);
             }
         }
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     /*

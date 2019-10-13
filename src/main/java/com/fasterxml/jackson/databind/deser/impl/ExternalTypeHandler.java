@@ -229,7 +229,7 @@ public class ExternalTypeHandler
                                 "Missing external type id property '%s'",
                                 _properties[i].getTypePropertyName());                                
                     } else  {
-                        typeId = _properties[i].getDefaultTypeId();
+                        typeId = _properties[i].getDefaultTypeId(ctxt);
                     }
                 }
             } else if (_tokens[i] == null) {
@@ -274,7 +274,7 @@ public class ExternalTypeHandler
                             "Missing external type id property '%s'",
                             extProp.getTypePropertyName());
                 } else {
-                    typeId = extProp.getDefaultTypeId();
+                    typeId = extProp.getDefaultTypeId(ctxt);
                 }
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = extProp.getProperty();
@@ -471,12 +471,12 @@ public class ExternalTypeHandler
          * serializing: we may need to expose it for assignment to a property, or
          * it may be requested as visible for some other reason.
          */
-        public String getDefaultTypeId() {
+        public String getDefaultTypeId(DeserializationContext ctxt) {
             Class<?> defaultType = _typeDeserializer.getDefaultImpl();
             if (defaultType == null) {
                 return null;
             }
-            return _typeDeserializer.getTypeIdResolver().idFromValueAndType(null, defaultType);
+            return _typeDeserializer.getTypeIdResolver().idFromValueAndType(ctxt, null, defaultType);
         }
 
         public String getTypePropertyName() { return _typePropertyName; }

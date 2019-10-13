@@ -82,14 +82,14 @@ public class StringCollectionSerializer
 
     @Override
     public void serializeWithType(Collection<String> value, JsonGenerator g,
-            SerializerProvider provider, TypeSerializer typeSer)
+            SerializerProvider ctxt, TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         g.setCurrentValue(value);
-        serializeContents(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serializeContents(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     private final void serializeContents(Collection<String> value, JsonGenerator g,

@@ -34,14 +34,14 @@ public abstract class StdScalarSerializer<T>
      * change this behavior.
      */
     @Override
-    public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer) throws IOException
     {
         // NOTE: need not really be string; just indicates "scalar of some kind"
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,ctxt,
                 typeSer.typeId(value, JsonToken.VALUE_STRING));
-        serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override

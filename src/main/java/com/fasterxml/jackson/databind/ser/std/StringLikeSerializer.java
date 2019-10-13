@@ -112,16 +112,16 @@ public class StringLikeSerializer
      * change this behavior.
      */
     @Override
-    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
         // 15-Feb-2018, tatu: Note! In some cases `handledType` is base type, and not necessarily
         //    actual specific value type (f.ex. nio.Path)
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, handledType(), JsonToken.VALUE_STRING));
-        serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override

@@ -19,12 +19,12 @@ public class TimeZoneSerializer extends StdScalarSerializer<TimeZone>
 
     @Override
     public void serializeWithType(TimeZone value, JsonGenerator g,
-            SerializerProvider provider, TypeSerializer typeSer) throws IOException
+            SerializerProvider ctxt, TypeSerializer typeSer) throws IOException
     {
         // Better ensure we don't use specific sub-classes:
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, TimeZone.class, JsonToken.VALUE_STRING));
-        serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 }

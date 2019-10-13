@@ -120,15 +120,12 @@ public abstract class TypeSerializer
      * Note that for structured types (Object, Array), this call will add
      * necessary start token so it should NOT be explicitly written, unlike
      * with non-type-id value writes.
-     *<p>
-     * See {@link #writeTypeSuffix(JsonGenerator, WritableTypeId)} for a complete
-     * example of typical usage.
      *
      * @param g Generator to use for outputting type id and possible wrapping
      * @param typeId Details of what type id is to be written, how.
      */
     public abstract WritableTypeId writeTypePrefix(JsonGenerator g,
-            WritableTypeId typeId) throws IOException;
+            SerializerProvider ctxt, WritableTypeId typeId) throws IOException;
 
     /**
      * Method called to write the "closing" part of type information for given
@@ -140,5 +137,5 @@ public abstract class TypeSerializer
      * @param typeId Details of what type id is to be written, how.
      */
     public abstract WritableTypeId writeTypeSuffix(JsonGenerator g,
-            WritableTypeId typeId) throws IOException;
+            SerializerProvider ctxt, WritableTypeId typeId) throws IOException;
 }

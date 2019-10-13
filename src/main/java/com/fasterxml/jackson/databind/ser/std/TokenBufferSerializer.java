@@ -43,14 +43,14 @@ public class TokenBufferSerializer
      */
     @Override
     public final void serializeWithType(TokenBuffer value, JsonGenerator g,
-            SerializerProvider provider, TypeSerializer typeSer) throws IOException
+            SerializerProvider ctxt, TypeSerializer typeSer) throws IOException
     {
         // 28-Jun-2017, tatu: As per javadoc, not sure what to report as likely shape. Could
         //    even look into first actual token inside... but, for now let's keep it simple
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
-        serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override

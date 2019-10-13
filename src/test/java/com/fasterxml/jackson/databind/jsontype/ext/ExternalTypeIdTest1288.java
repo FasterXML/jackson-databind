@@ -144,7 +144,7 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
             @SuppressWarnings("unchecked")
             @Override
-            public String idFromValue(Object value) {
+            public String idFromValue(DatabindContext ctxt, Object value) {
                 if (! (value instanceof PaymentDetails)) {
                     return null;
                 }
@@ -152,8 +152,8 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             }
             
             @Override
-            public String idFromValueAndType(Object value, Class<?> suggestedType) {
-                return this.idFromValue (value);
+            public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
+                return idFromValue(ctxt, value);
             }
 
             @Override
@@ -466,7 +466,7 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
             @SuppressWarnings ("unchecked")
             @Override
-            public String idFromValue(Object value) {
+            public String idFromValue(DatabindContext ctxt, Object value) {
                 if (! (value instanceof PaymentDetails)) {
                     return null;
                 }
@@ -474,8 +474,8 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
             }
             
             @Override
-            public String idFromValueAndType(Object value, Class<?> suggestedType) {
-                return this.idFromValue(value);
+            public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
+                return idFromValue(ctxt, value);
             }
 
             @Override

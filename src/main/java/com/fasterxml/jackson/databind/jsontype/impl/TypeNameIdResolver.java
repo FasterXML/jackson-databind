@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BeanDescription;
+
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -83,12 +83,19 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         return idFromClass(value.getClass());
     }
 
-    protected String idFromClass(Class<?> clazz)
+    protected String idFromClass(Class<?> cls)
     {
-        if (clazz == null) {
+        if (cls == null) {
             return null;
         }
-        Class<?> cls = _typeFactory.constructType(clazz).getRawClass();
+        // 12-Oct-2019, tatu: This looked weird; was done in 2.x to force application
+        //   of `TypeModifier`. But that just... does not seem right, at least not in
+        //   the sense that raw class would be changed (intent for modifier is to change
+        //   `JavaType` being resolved, not underlying class. Hence commented out in
+        //   3.x. There should be better way to support whatever the use case is.
+
+//        cls = _typeFactory.constructType(cls).getRawClass();
+
         final String key = cls.getName();
         String name;
 

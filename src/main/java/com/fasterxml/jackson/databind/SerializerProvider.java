@@ -371,7 +371,7 @@ public abstract class SerializerProvider
     /* Misc config access
     /**********************************************************************
      */
-    
+
     @Override
     public PropertyName findRootName(JavaType rootType) {
         return _config.findRootName(this, rootType);
@@ -381,7 +381,7 @@ public abstract class SerializerProvider
     public PropertyName findRootName(Class<?> rawRootType) {
         return _config.findRootName(this, rawRootType);
     }
-    
+
     /*
     /**********************************************************************
     /* Generic attributes

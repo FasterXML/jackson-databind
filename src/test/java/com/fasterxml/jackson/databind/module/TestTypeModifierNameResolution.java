@@ -9,6 +9,11 @@ import com.fasterxml.jackson.databind.type.TypeModifier;
 
 import java.lang.reflect.Type;
 
+// 12-Oct-2019, tatu: This is related to `TypeNameIdResolver#idFromClass` which for 2.x
+//    forced application of `TypeModifier` by resolving raw class to `JavaType`, then
+//    taking raw class. That seems wrong.
+//    But leaving in place just in case it turns out there was a valid use case.
+
 public class TestTypeModifierNameResolution extends BaseMapTest
 {
     interface MyType {
@@ -55,9 +60,13 @@ public class TestTypeModifierNameResolution extends BaseMapTest
         obj.setData("something");
 
         String s = mapper.writer().writeValueAsString(obj);
+        assertNotNull(s);
+
+        /*
         final String EXP = "{\"TestTypeModifierNameResolution$MyType\":";
         if (!s.startsWith(EXP)) {
             fail("Should start with ["+EXP+"], does not ["+s+"]");
         }
+        */
     }
 }

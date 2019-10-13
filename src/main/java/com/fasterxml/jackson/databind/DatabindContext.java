@@ -301,17 +301,9 @@ public abstract class DatabindContext
         return introspectClassAnnotations(constructType(rawType));
     }
 
-    public AnnotatedClass introspectClassAnnotations(JavaType type) {
-        final MapperConfig<?> config = getConfig();
-        return config.getClassIntrospector().introspectClassAnnotations(config,
-                type, config);
-    }
+    public abstract AnnotatedClass introspectClassAnnotations(JavaType type);
 
-    public AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
-        final MapperConfig<?> config = getConfig();
-        return config.getClassIntrospector().introspectDirectClassAnnotations(config,
-                type, config);
-    }
+    public abstract AnnotatedClass introspectDirectClassAnnotations(JavaType type);
 
     /*
     /**********************************************************************
@@ -384,6 +376,16 @@ public abstract class DatabindContext
         }
         return (Converter<Object,Object>) conv;
     }
+
+    /*
+    /**********************************************************************
+    /* Misc config access
+    /**********************************************************************
+     */
+
+    public abstract PropertyName findRootName(JavaType rootType);
+
+    public abstract PropertyName findRootName(Class<?> rawRootType);
 
     /*
     /**********************************************************************

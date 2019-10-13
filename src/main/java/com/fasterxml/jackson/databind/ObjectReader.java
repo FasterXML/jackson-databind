@@ -1674,7 +1674,7 @@ public class ObjectReader
     protected Object _unwrapAndDeserialize(JsonParser p, DeserializationContext ctxt,
             JavaType rootType, JsonDeserializer<Object> deser) throws IOException
     {
-        PropertyName expRootName = _config.findRootName(rootType);
+        PropertyName expRootName = ctxt.findRootName(rootType);
         // 12-Jun-2015, tatu: Should try to support namespaces etc but...
         String expSimpleName = expRootName.getSimpleName();
 

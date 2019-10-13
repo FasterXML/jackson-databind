@@ -232,7 +232,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
-                _serialize(gen, value, ser, _config.findRootName(cls));
+                _serialize(gen, value, ser, findRootName(cls));
                 return;
             }
         } else if (!rootName.isEmpty()) {
@@ -269,7 +269,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
-                _serialize(gen, value, ser, _config.findRootName(rootType));
+                _serialize(gen, value, ser, findRootName(rootType));
                 return;
             }
         } else if (!rootName.isEmpty()) {
@@ -309,8 +309,8 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
         if (rootName == null) { // not explicitly specified
             if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
                 rootName = (rootType == null)
-                        ? _config.findRootName(value.getClass())
-                        : _config.findRootName(rootType);
+                        ? findRootName(value.getClass())
+                        : findRootName(rootType);
                 _serialize(gen, value, ser, rootName);
                 return;
             }
@@ -357,7 +357,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 gen.writeStartObject();
-                PropertyName pname = _config.findRootName(value.getClass());
+                PropertyName pname = findRootName(value.getClass());
                 gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.isEmpty()) {

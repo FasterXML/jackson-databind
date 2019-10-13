@@ -540,19 +540,19 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
 
     @Override
-    public PropertyName findRootName(JavaType rootType) {
+    public PropertyName findRootName(DatabindContext ctxt, JavaType rootType) {
         if (_rootName != null) {
             return _rootName;
         }
-        return _rootNames.findRootName(rootType, this);
+        return _rootNames.findRootName(ctxt, rootType);
     }
 
     @Override
-    public PropertyName findRootName(Class<?> rawRootType) {
+    public PropertyName findRootName(DatabindContext ctxt, Class<?> rawRootType) {
         if (_rootName != null) {
             return _rootName;
         }
-        return _rootNames.findRootName(rawRootType, this);
+        return _rootNames.findRootName(ctxt, rawRootType);
     }
 
     /*

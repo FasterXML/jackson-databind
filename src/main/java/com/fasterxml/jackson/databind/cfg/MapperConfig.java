@@ -266,16 +266,17 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * annotations: useful if no getter/setter/creator information is needed.
      */
     public AnnotatedClass introspectClassAnnotations(Class<?> cls) {
-        return introspectClassAnnotations(constructType(cls));
+      return getClassIntrospector().introspectClassAnnotations(this,
+              constructType(cls), this);
     }
 
     /**
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    public AnnotatedClass introspectClassAnnotations(JavaType type) {
-        return getClassIntrospector().introspectClassAnnotations(this, type, this);
-    }
+//    public AnnotatedClass introspectClassAnnotations(JavaType type) {
+//        return getClassIntrospector().introspectClassAnnotations(this, type, this);
+//    }
 
     /**
      * Accessor for getting bean description that only contains immediate class
@@ -517,9 +518,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public abstract ContextAttributes getAttributes();
 
-    public abstract PropertyName findRootName(JavaType rootType);
+    public abstract PropertyName findRootName(DatabindContext ctxt, JavaType rootType);
 
-    public abstract PropertyName findRootName(Class<?> rawRootType);
+    public abstract PropertyName findRootName(DatabindContext ctxt, Class<?> rawRootType);
 
     /*
     /**********************************************************************

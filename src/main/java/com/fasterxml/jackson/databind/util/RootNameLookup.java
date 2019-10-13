@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.type.ClassKey;
 
@@ -22,19 +21,19 @@ public class RootNameLookup implements java.io.Serializable
         _rootNames = new SimpleLookupCache<ClassKey,PropertyName>(20, 200);
    }
 
-    public PropertyName findRootName(JavaType rootType, MapperConfig<?> config) {
-        return findRootName(rootType.getRawClass(), config);
+    public PropertyName findRootName(DatabindContext ctxt, JavaType rootType) {
+        return findRootName(ctxt, rootType.getRawClass());
     }
 
-    public PropertyName findRootName(Class<?> rootType, MapperConfig<?> config)
+    public PropertyName findRootName(DatabindContext ctxt, Class<?> rootType)
     {
         ClassKey key = new ClassKey(rootType);
         PropertyName name = _rootNames.get(key); 
         if (name != null) {
             return name;
         }
-        AnnotatedClass ac = config.introspectClassAnnotations(rootType);
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        AnnotatedClass ac = ctxt.introspectClassAnnotations(rootType);
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         name = intr.findRootName(ac);
         // No answer so far? Let's just default to using simple class name
         if (name == null || !name.hasSimpleName()) {
@@ -46,9 +45,9 @@ public class RootNameLookup implements java.io.Serializable
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serializable overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

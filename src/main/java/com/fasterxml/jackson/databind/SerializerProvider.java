@@ -354,6 +354,34 @@ public abstract class SerializerProvider
         return _config.introspect(type);
     }
 
+    @Override
+    public AnnotatedClass introspectClassAnnotations(JavaType type) {
+        return _config.getClassIntrospector().introspectClassAnnotations(_config,
+                type, _config);
+    }
+
+    @Override
+    public AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
+        return _config.getClassIntrospector().introspectDirectClassAnnotations(_config,
+                type, _config);
+    }
+
+    /*
+    /**********************************************************************
+    /* Misc config access
+    /**********************************************************************
+     */
+    
+    @Override
+    public PropertyName findRootName(JavaType rootType) {
+        return _config.findRootName(this, rootType);
+    }
+
+    @Override
+    public PropertyName findRootName(Class<?> rawRootType) {
+        return _config.findRootName(this, rawRootType);
+    }
+    
     /*
     /**********************************************************************
     /* Generic attributes

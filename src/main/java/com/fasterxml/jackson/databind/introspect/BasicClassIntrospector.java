@@ -24,26 +24,10 @@ public class BasicClassIntrospector
      * usually one-time cost, but seems useful for some cases considering
      * simplicity.
      */
-    protected final static BasicBeanDescription STRING_DESC;
-    static {
-        STRING_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(String.class),
-                AnnotatedClassResolver.createPrimordial(String.class));
-    }
-    protected final static BasicBeanDescription BOOLEAN_DESC;
-    static {
-        BOOLEAN_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Boolean.TYPE),
-                AnnotatedClassResolver.createPrimordial(Boolean.TYPE));
-    }
-    protected final static BasicBeanDescription INT_DESC;
-    static {
-        INT_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Integer.TYPE),
-                AnnotatedClassResolver.createPrimordial(Integer.TYPE));
-    }
-    protected final static BasicBeanDescription LONG_DESC;
-    static {
-        LONG_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Long.TYPE),
-                AnnotatedClassResolver.createPrimordial(Long.TYPE));
-    }
+    protected final static AnnotatedClass STRING_DESC = AnnotatedClassResolver.createPrimordial(String.class);
+    protected final static AnnotatedClass BOOLEAN_DESC = AnnotatedClassResolver.createPrimordial(Boolean.TYPE);
+    protected final static AnnotatedClass INT_DESC = AnnotatedClassResolver.createPrimordial(Integer.TYPE);
+    protected final static AnnotatedClass LONG_DESC = AnnotatedClassResolver.createPrimordial(Long.TYPE);
 
     /*
     /**********************************************************************
@@ -193,11 +177,16 @@ public class BasicClassIntrospector
         return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
     }
 
+    protected BasicBeanDescription _findStdTypeDesc(JavaType type) {
+        AnnotatedClass ac = _findStdTypeDef(type);
+        return (ac == null) ? null : BasicBeanDescription.forOtherUse(null, type, ac);
+    }
+
     /**
      * Method called to see if type is one of core JDK types
      * that we have cached for efficiency.
      */
-    protected BasicBeanDescription _findStdTypeDesc(JavaType type)
+    protected AnnotatedClass _findStdTypeDef(JavaType type)
     {
         Class<?> cls = type.getRawClass();
         if (cls.isPrimitive()) {

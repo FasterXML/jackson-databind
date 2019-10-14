@@ -111,8 +111,7 @@ public class BasicBeanDescription extends BeanDescription
      * Alternate constructor used in cases where property information is not needed,
      * only class info.
      */
-    protected BasicBeanDescription(MapperConfig<?> config,
-            JavaType type, AnnotatedClass classDef, List<BeanPropertyDefinition> props)
+    protected BasicBeanDescription(MapperConfig<?> config, JavaType type, AnnotatedClass classDef)
     {
         super(type);
         _propCollector = null;
@@ -121,7 +120,7 @@ public class BasicBeanDescription extends BeanDescription
         _annotationIntrospector = (_config == null) ? NopAnnotationIntrospector.nopInstance()
                 : _config.getAnnotationIntrospector();
         _classInfo = classDef;
-        _properties = props;
+        _properties = Collections.<BeanPropertyDefinition>emptyList();
     }
 
     protected BasicBeanDescription(POJOPropertiesCollector coll)
@@ -154,8 +153,7 @@ public class BasicBeanDescription extends BeanDescription
     public static BasicBeanDescription forOtherUse(MapperConfig<?> config,
             JavaType type, AnnotatedClass ac)
     {
-        return new BasicBeanDescription(config, type,
-                ac, Collections.<BeanPropertyDefinition>emptyList());
+        return new BasicBeanDescription(config, type, ac);
     }
 
     protected List<BeanPropertyDefinition> _properties() {

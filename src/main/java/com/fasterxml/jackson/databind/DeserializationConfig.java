@@ -599,32 +599,4 @@ public final class DeserializationConfig
     public LinkedNode<DeserializationProblemHandler> getProblemHandlers() {
         return _problemHandlers;
     }
-
-    /*
-    /**********************************************************************
-    /* Introspection methods
-    /**********************************************************************
-     */
-
-    /**
-     * Method that will introspect full bean properties for the purpose
-     * of building a bean deserializer
-     *
-     * @param type Type of class to be introspected
-     */
-    public BeanDescription introspect(JavaType type) {
-        return getClassIntrospector().forDeserialization(this, type, this);
-    }
-
-    /**
-     * Method that will introspect subset of bean properties needed to
-     * construct bean instance.
-     */
-    public BeanDescription introspectForCreation(JavaType type) {
-        return getClassIntrospector().forCreation(this, type, this);
-    }
-
-    public BeanDescription introspectForBuilder(JavaType type) {
-        return getClassIntrospector().forDeserializationWithBuilder(this, type, this);
-    }
 }

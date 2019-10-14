@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
@@ -30,13 +31,10 @@ public class AnnotatedClassResolver
     private final Class<?> _class;
     private final Class<?> _primaryMixin;
 
-    /**
-     * @since 2.11
-     */
     private final boolean _collectAnnotations;
 
     AnnotatedClassResolver(MapperConfig<?> config, JavaType type, MixInResolver r) {
-        _config = config;
+        _config = Objects.requireNonNull(config, "Can not pass null `config`");
         _type = type;
         _class = type.getRawClass();
         _mixInResolver = r;
@@ -50,19 +48,14 @@ public class AnnotatedClassResolver
     }
 
     AnnotatedClassResolver(MapperConfig<?> config, Class<?> cls, MixInResolver r) {
-        _config = config;
+        _config = Objects.requireNonNull(config, "Can not pass null `config`");
         _type = null;
         _class = cls;
         _mixInResolver = r;
         _bindings = TypeBindings.emptyBindings();
-        if (config == null) {
-            _intr = null;
-            _primaryMixin = null;
-        } else {
-            _intr = config.isAnnotationProcessingEnabled()
-                    ? config.getAnnotationIntrospector() : null;
-            _primaryMixin = (r == null) ? null : r.findMixInClassFor(_class);
-        }
+        _intr = config.isAnnotationProcessingEnabled()
+                ? config.getAnnotationIntrospector() : null;
+        _primaryMixin = (r == null) ? null : r.findMixInClassFor(_class);
 
         _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(_class);
     }

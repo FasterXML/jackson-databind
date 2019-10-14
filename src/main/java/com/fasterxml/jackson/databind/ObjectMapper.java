@@ -318,7 +318,7 @@ public class ObjectMapper
 
         // Handlers, introspection
         _typeFactory =  Snapshottable.takeSnapshot(builder.typeFactory());
-        ClassIntrospector classIntr = builder.classIntrospector().forMapper(this);
+        ClassIntrospector classIntr = builder.classIntrospector().forMapper();
         SubtypeResolver subtypeResolver =  Snapshottable.takeSnapshot(builder.subtypeResolver());
         MixInHandler mixIns = (MixInHandler) Snapshottable.takeSnapshot(builder.mixInHandler());
         // NOTE: TypeResolverProvider apparently ok without snapshot, hence config objects fetch

@@ -182,7 +182,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**********************************************************************
      */
 
-    public abstract ClassIntrospector getClassIntrospector();
+    /**
+     * Accessor for getting a new {@link ClassIntrospector} instance initialized
+     * for per-call usage (with possible local caching)
+     */
+    public abstract ClassIntrospector classIntrospectorInstance();
 
     /**
      * Method for getting {@link AnnotationIntrospector} configured

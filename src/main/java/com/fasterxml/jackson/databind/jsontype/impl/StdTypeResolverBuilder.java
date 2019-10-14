@@ -257,9 +257,9 @@ public class StdTypeResolverBuilder
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
         switch (_idType) {
         case CLASS:
-            return ClassNameIdResolver.construct(baseType, ctxt.getConfig(), subtypeValidator);
+            return ClassNameIdResolver.construct(baseType, subtypeValidator);
         case MINIMAL_CLASS:
-            return MinimalClassNameIdResolver.construct(baseType, ctxt.getConfig(), subtypeValidator);
+            return MinimalClassNameIdResolver.construct(baseType, subtypeValidator);
         case NAME:
             return TypeNameIdResolver.construct(ctxt.getConfig(), baseType, subtypes, forSer, forDeser);
         case NONE: // hmmh. should never get this far with 'none'

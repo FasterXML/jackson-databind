@@ -69,6 +69,10 @@ public abstract class DatabindContext
      */
     public abstract boolean isEnabled(MapperFeature feature);
 
+    public final boolean isAnnotationProcessingEnabled() {
+        return isEnabled(MapperFeature.USE_ANNOTATIONS);
+    }
+
     /**
      * Convenience method for accessing serialization view in use (if any); equivalent to:
      *<pre>

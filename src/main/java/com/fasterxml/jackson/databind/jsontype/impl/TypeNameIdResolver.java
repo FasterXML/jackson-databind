@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 public class TypeNameIdResolver extends TypeIdResolverBase
 {
-    protected final MapperConfig<?> _config;
-
     /**
      * Mappings from class name to type id, used for serialization
      */
@@ -23,11 +21,10 @@ public class TypeNameIdResolver extends TypeIdResolverBase
      */
     protected final Map<String, JavaType> _idToType;
 
-    protected TypeNameIdResolver(MapperConfig<?> config, JavaType baseType,
+    protected TypeNameIdResolver(JavaType baseType,
             Map<String, String> typeToId, Map<String, JavaType> idToType)
     {
-        super(baseType, config.getTypeFactory());
-        _config = config;
+        super(baseType);
         _typeToId = typeToId;
         _idToType = idToType;
     }
@@ -72,7 +69,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 }
             }
         }
-        return new TypeNameIdResolver(config, baseType, typeToId, idToType);
+        return new TypeNameIdResolver(baseType, typeToId, idToType);
     }
 
     @Override
@@ -104,9 +101,9 @@ public class TypeNameIdResolver extends TypeIdResolverBase
             if (name == null) {
                 // 24-Feb-2011, tatu: As per [JACKSON-498], may need to dynamically look up name
                 // can either throw an exception, or use default name...
-                if (_config.isAnnotationProcessingEnabled()) {
-                    name = _config.getAnnotationIntrospector().findTypeName(_config,
-                            _config.introspectClassAnnotations(cls));
+                if (ctxt.isAnnotationProcessingEnabled()) {
+                    name = ctxt.getAnnotationIntrospector().findTypeName(ctxt.getConfig(),
+                            ctxt.introspectClassAnnotations(cls));
                 }
                 if (name == null) {
                     // And if still not found, let's choose default?

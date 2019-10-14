@@ -136,7 +136,7 @@ public class VisibilityForSerializationTest
 
     public void testVisibilityFeatures() throws Exception
     {
-        ObjectMapper om = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.USE_GETTERS_AS_SETTERS, MapperFeature.INFER_PROPERTY_MUTATORS)
                 .enable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, MapperFeature.USE_ANNOTATIONS)
                 .changeDefaultVisibility(vc ->
@@ -144,8 +144,7 @@ public class VisibilityForSerializationTest
                 .build();
         // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).
         
-        JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
-        BeanDescription desc = (BeanDescription) om.serializationConfig().introspect(javaType);
+        BeanDescription desc = ObjectMapperTestAccess.beanDescriptionForSer(mapper, TCls.class);
         List<BeanPropertyDefinition> props = desc.findProperties();
         if (props.size() != 1) {
             fail("Should find 1 property, not "+props.size()+"; properties = "+props);

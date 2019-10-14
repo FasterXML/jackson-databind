@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -139,6 +140,11 @@ public abstract class DeserializationContext
      */
     protected LinkedNode<JavaType> _currentType;
 
+    /**
+     * Lazily constructed {@link ClassIntrospector} instance: created from "blueprint"
+     */
+    protected transient ClassIntrospector _classIntrospector;
+    
     /*
     /**********************************************************************
     /* Life-cycle
@@ -456,33 +462,25 @@ public abstract class DeserializationContext
     /**********************************************************************
      */
 
-    /**
-     * Convenience method for doing full "for serialization" introspection of specified
-     * type; results may be cached during lifespan of this context as well.
-     */
+    @Override
+    protected ClassIntrospector classIntrospector() {
+        if (_classIntrospector == null) {
+            _classIntrospector = _config.classIntrospectorInstance();
+        }
+        return _classIntrospector;
+    }
+
     @Override
     public BeanDescription introspectBeanDescription(JavaType type) {
-        return _config.introspect(type);
-    }
-
-    @Override
-    public AnnotatedClass introspectClassAnnotations(JavaType type) {
-        return _config.getClassIntrospector().introspectClassAnnotations(_config,
-                type, _config);
-    }
-
-    @Override
-    public AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
-        return _config.getClassIntrospector().introspectDirectClassAnnotations(_config,
-                type, _config);
+        return classIntrospector().introspectForDeserialization(type);
     }
 
     public BeanDescription introspectBeanDescriptionForCreation(JavaType type) {
-        return _config.introspectForCreation(type);
+        return classIntrospector().introspectForCreation(type);
     }
 
     public BeanDescription introspectBeanDescriptionForBuilder(JavaType type) {
-        return _config.introspectForBuilder(type);
+        return classIntrospector().introspectForDeserializationWithBuilder(type);
     }
 
     /*

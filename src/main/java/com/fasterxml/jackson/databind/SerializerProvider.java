@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
@@ -140,6 +141,11 @@ public abstract class SerializerProvider
      */
     protected DateFormat _dateFormat;
 
+    /**
+     * Lazily constructed {@link ClassIntrospector} instance: created from "blueprint"
+     */
+    protected transient ClassIntrospector _classIntrospector;
+    
     /*
     /**********************************************************************
     /* Other state
@@ -350,20 +356,16 @@ public abstract class SerializerProvider
      */
 
     @Override
+    protected ClassIntrospector classIntrospector() {
+        if (_classIntrospector == null) {
+            _classIntrospector = _config.classIntrospectorInstance();
+        }
+        return _classIntrospector;
+    }
+
+    @Override
     public BeanDescription introspectBeanDescription(JavaType type) {
-        return _config.introspect(type);
-    }
-
-    @Override
-    public AnnotatedClass introspectClassAnnotations(JavaType type) {
-        return _config.getClassIntrospector().introspectClassAnnotations(_config,
-                type, _config);
-    }
-
-    @Override
-    public AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
-        return _config.getClassIntrospector().introspectDirectClassAnnotations(_config,
-                type, _config);
+        return classIntrospector().introspectForSerialization(type);
     }
 
     /*

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
@@ -296,18 +297,24 @@ public abstract class DatabindContext
      */
 
     /**
-     * NOTE: sub-class implementations vary in kind of description produced
-     * (between serialization, deserialization)
+     * Convenience method for doing full "for serialization" introspection of specified
+     * type; results may be cached during lifespan of this context as well.
      */
     public abstract BeanDescription introspectBeanDescription(JavaType type);
+
+    public AnnotatedClass introspectClassAnnotations(JavaType type) {
+        return classIntrospector().introspectClassAnnotations(type);
+    }
+
+    public AnnotatedClass introspectDirectClassAnnotations(JavaType type) {
+        return classIntrospector().introspectDirectClassAnnotations(type);
+    }
 
     public AnnotatedClass introspectClassAnnotations(Class<?> rawType) {
         return introspectClassAnnotations(constructType(rawType));
     }
 
-    public abstract AnnotatedClass introspectClassAnnotations(JavaType type);
-
-    public abstract AnnotatedClass introspectDirectClassAnnotations(JavaType type);
+    protected abstract ClassIntrospector classIntrospector();
 
     /*
     /**********************************************************************

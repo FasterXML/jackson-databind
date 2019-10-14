@@ -361,8 +361,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     @Override
-    public ClassIntrospector getClassIntrospector() {
-        return _classIntrospector;
+    public ClassIntrospector classIntrospectorInstance() {
+        return _classIntrospector.forOperation(this);
     }
 
     @Override

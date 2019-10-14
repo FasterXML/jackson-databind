@@ -66,9 +66,6 @@ public final class AnnotatedClass
      */
     final protected Class<?> _primaryMixIn;
 
-    /**
-     * @since 2.11
-     */
     final protected boolean _collectAnnotations;
 
     /*
@@ -132,15 +129,6 @@ public final class AnnotatedClass
         _mixInResolver = mir;
         _typeFactory = tf;
         _collectAnnotations = collectAnnotations;
-    }
-
-    @Deprecated // since 2.10
-    AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
-            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
-            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf)
-    {
-        this(type, rawType, superTypes, primaryMixIn, classAnnotations, bindings,
-                aintr, mir, tf, true);
     }
 
     /**

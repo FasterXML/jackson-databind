@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -20,15 +17,20 @@ public abstract class ClassIntrospector
     /**
      * Method called to create an instance to be exclusive used by specified
      * mapper. Needed to ensure that no sharing through cache occurs.
-     *
-     * @param mapper "owner" of this instance: always of type
-     *    {@link com.fasterxml.jackson.databind.ObjectMapper}, but not fully
-     *     typed to avoid compile dependency
+     *<p>
+     * Basic implementation just returns instance itself.
      *
      * @since 3.0
      */
-    public abstract ClassIntrospector forMapper(Object mapper);
+    public abstract ClassIntrospector forMapper();
 
+    /**
+     * Method called to further create an instance to be used for a single operation
+     * (read or write, typically matching {@link ObjectMapper} {@code readValue()} or
+     * {@code writeValue()}).
+     */
+    public abstract ClassIntrospector forOperation(MapperConfig<?> config);
+    
     /*
     /**********************************************************************
     /* Public API: annotation introspection
@@ -40,51 +42,45 @@ public abstract class ClassIntrospector
      * information regarding annotations class itself (or its supertypes) has,
      * but nothing on methods or constructors.
      */
-    public abstract AnnotatedClass introspectClassAnnotations(MapperConfig<?> cfg, JavaType type,
-            MixInResolver r);
+    public abstract AnnotatedClass introspectClassAnnotations(JavaType type);
 
     /**
      * Factory method that constructs an introspector that only has
      * information regarding annotations class itself has (but NOT including
      * its supertypes), but nothing on methods or constructors.
      */
-    public abstract AnnotatedClass introspectDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
-            MixInResolver r);
+    public abstract AnnotatedClass introspectDirectClassAnnotations(JavaType type);
 
     /*
     /**********************************************************************
     /* Public API: bean property introspection
     /**********************************************************************
      */
-    
+
     /**
      * Factory method that constructs an introspector that has all
      * information needed for serialization purposes.
      */
-    public abstract BeanDescription forSerialization(SerializationConfig cfg,
-    		JavaType type, MixInResolver r);
+    public abstract BeanDescription introspectForSerialization(JavaType type);
 
     /**
      * Factory method that constructs an introspector that has all
      * information needed for deserialization purposes.
      */
-    public abstract BeanDescription forDeserialization(DeserializationConfig cfg,
-    		JavaType type, MixInResolver r);
+    public abstract BeanDescription introspectForDeserialization(JavaType type);
 
     /**
      * Factory method that constructs an introspector that has all
      * information needed for constructing deserializers that use
      * intermediate Builder objects.
      */
-    public abstract BeanDescription forDeserializationWithBuilder(DeserializationConfig cfg,
-    		JavaType type, MixInResolver r);
-    
+    public abstract BeanDescription introspectForDeserializationWithBuilder(JavaType type);
+
     /**
      * Factory method that constructs an introspector that has
      * information necessary for creating instances of given
      * class ("creator"), as well as class annotations, but
      * no information on member methods
      */
-    public abstract BeanDescription forCreation(DeserializationConfig cfg, JavaType type,
-            MixInResolver r);
+    public abstract BeanDescription introspectForCreation(JavaType type);
 }

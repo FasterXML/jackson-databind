@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -22,26 +21,14 @@ public class ClassNameIdResolver
 
     protected final PolymorphicTypeValidator _subTypeValidator;
 
-    /**
-     * @deprecated Since 2.10 use variant that takes {@link PolymorphicTypeValidator}
-     */
-    @Deprecated
-    protected ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
-        this(baseType, typeFactory, LaissezFaireSubTypeValidator.instance);
-    }
-
-    /**
-     * @since 2.10
-     */
-    public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
-            PolymorphicTypeValidator ptv) {
-        super(baseType, typeFactory);
+    public ClassNameIdResolver(JavaType baseType, PolymorphicTypeValidator ptv) {
+        super(baseType);
         _subTypeValidator = ptv;
     }
 
-    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
+    public static ClassNameIdResolver construct(JavaType baseType,
             PolymorphicTypeValidator ptv) {
-        return new ClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
+        return new ClassNameIdResolver(baseType, ptv);
     }
 
     @Override
@@ -52,21 +39,21 @@ public class ClassNameIdResolver
     }
 
     @Override
-    public String idFromValue(DatabindContext context, Object value) {
-        return _idFrom(value, value.getClass(), _typeFactory);
+    public String idFromValue(DatabindContext ctxt, Object value) {
+        return _idFrom(ctxt, value, value.getClass());
     }
 
     @Override
-    public String idFromValueAndType(DatabindContext context, Object value, Class<?> type) {
-        return _idFrom(value, type, _typeFactory);
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> type) {
+        return _idFrom(ctxt, value, type);
     }
 
     @Override
-    public JavaType typeFromId(DatabindContext context, String id) throws IOException {
-        return _typeFromId(id, context);
+    public JavaType typeFromId(DatabindContext ctxt, String id) throws IOException {
+        return _typeFromId(ctxt, id);
     }
 
-    protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
+    protected JavaType _typeFromId(DatabindContext ctxt, String id) throws IOException
     {
         // 24-Apr-2019, tatu: [databind#2195] validate as well as resolve:
         JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);
@@ -86,7 +73,7 @@ public class ClassNameIdResolver
     /**********************************************************
      */
 
-    protected String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
+    protected String _idFrom(DatabindContext ctxt, Object value, Class<?> cls)
     {
         // Need to ensure that "enum subtypes" work too
         if (ClassUtil.isEnumType(cls)) {
@@ -110,12 +97,12 @@ public class ClassNameIdResolver
             if (value instanceof EnumSet<?>) { // Regular- and JumboEnumSet...
                 Class<?> enumClass = ClassUtil.findEnumType((EnumSet<?>) value);
                 // not optimal: but EnumSet is not a customizable type so this is sort of ok
-               str = typeFactory.constructCollectionType(EnumSet.class, enumClass).toCanonical();
+               str = ctxt.getTypeFactory().constructCollectionType(EnumSet.class, enumClass).toCanonical();
             } else if (value instanceof EnumMap<?,?>) {
                 Class<?> enumClass = ClassUtil.findEnumType((EnumMap<?,?>) value);
                 Class<?> valueClass = Object.class;
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
-                str = typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
+                str = ctxt.getTypeFactory().constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
             }
             // 10-Jan-2018, tatu: Up until 2.9.4 we used to have other conversions for `Collections.xxx()`
             //    and `Arrays.asList(...)`; but it was changed to be handled on receiving end instead

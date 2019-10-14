@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Partial base implementation of {@link TypeIdResolver}: all custom implementations
@@ -23,20 +22,17 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public abstract class TypeIdResolverBase
     implements TypeIdResolver
 {
-    protected final TypeFactory _typeFactory;
-
     /**
      * Common base type for all polymorphic instances handled.
      */
     protected final JavaType _baseType;
 
     protected TypeIdResolverBase() {
-        this(null, null);
+        this(null);
     }
     
-    protected TypeIdResolverBase(JavaType baseType, TypeFactory typeFactory) {
+    protected TypeIdResolverBase(JavaType baseType) {
         _baseType = baseType;
-        _typeFactory = typeFactory;
     }
 
     // Standard type id resolvers do not need this: only useful for custom ones.

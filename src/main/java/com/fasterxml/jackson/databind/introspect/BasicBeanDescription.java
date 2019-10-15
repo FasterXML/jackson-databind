@@ -40,7 +40,7 @@ public class BasicBeanDescription extends BeanDescription
      * are only accessed when they are actually needed.
      */
     final protected POJOPropertiesCollector _propCollector;
-    
+
     final protected MapperConfig<?> _config;
 
     final protected AnnotationIntrospector _annotationIntrospector;
@@ -100,7 +100,7 @@ public class BasicBeanDescription extends BeanDescription
     {
         super(type);
         _propCollector = coll;
-        _config = coll.getConfig();
+        _config = Objects.requireNonNull(coll.getConfig());
         // NOTE: null config only for some pre-constructed types
         _annotationIntrospector = (_config == null) ? NopAnnotationIntrospector.nopInstance()
                 : _config.getAnnotationIntrospector();
@@ -115,10 +115,8 @@ public class BasicBeanDescription extends BeanDescription
     {
         super(type);
         _propCollector = null;
-        _config = config;
-        // NOTE: null config only for some pre-constructed types
-        _annotationIntrospector = (_config == null) ? NopAnnotationIntrospector.nopInstance()
-                : _config.getAnnotationIntrospector();
+        _config = Objects.requireNonNull(config);
+        _annotationIntrospector = _config.getAnnotationIntrospector();
         _classInfo = classDef;
         _properties = Collections.<BeanPropertyDefinition>emptyList();
     }

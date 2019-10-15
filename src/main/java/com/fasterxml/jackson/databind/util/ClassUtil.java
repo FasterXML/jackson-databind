@@ -20,15 +20,14 @@ public final class ClassUtil
 {
     private final static Class<?> CLS_OBJECT = Object.class;
 
-    private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     private final static Ctor[] NO_CTORS = new Ctor[0];
 
     private final static Iterator<?> EMPTY_ITERATOR = Collections.emptyIterator();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -37,9 +36,9 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods that deal with inheritance
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -126,16 +125,16 @@ public final class ClassUtil
             }
             result.add(cls);
         }
-        for (Class<?> intCls : _interfaces(cls)) {
+        for (Class<?> intCls : cls.getInterfaces()) {
             _addRawSuperTypes(intCls, endBefore, result, true);
         }
         _addRawSuperTypes(cls.getSuperclass(), endBefore, result, true);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Class type detection methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -279,9 +278,9 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Exception handling; simple re-throw
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -318,9 +317,9 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Exception handling; other
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -448,9 +447,9 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Instantiation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -506,24 +505,18 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Class name, description access
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.9
-     */
     public static Class<?> classOf(Object inst) {
         if (inst == null) {
             return null;
         }
         return inst.getClass();
     }
-    
-    /**
-     * @since 2.9
-     */
+
     public static Class<?> rawClass(JavaType t) {
         if (t == null) {
             return null;
@@ -531,16 +524,10 @@ public final class ClassUtil
         return t.getRawClass();
     }
 
-    /**
-     * @since 2.9
-     */
     public static <T> T nonNull(T valueOrNull, T defaultValue) {
         return (valueOrNull == null) ? defaultValue : valueOrNull;
     }
 
-    /**
-     * @since 2.9
-     */
     public static String nullOrToString(Object value) {
         if (value == null) {
             return null;
@@ -548,9 +535,6 @@ public final class ClassUtil
         return value.toString();
     }
 
-    /**
-     * @since 2.9
-     */
     public static String nonNullString(String str) {
         if (str == null) {
             return "";
@@ -558,12 +542,6 @@ public final class ClassUtil
         return str;
     }
 
-    /**
-     * Returns either quoted value (with double-quotes) -- if argument non-null
-     * String -- or String NULL (no quotes) (if null).
-     *
-     * @since 2.9
-     */
     public static String quotedOr(Object str, String forNull) {
         if (str == null) {
             return forNull;
@@ -572,9 +550,9 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Type name, name, desc handling methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -600,8 +578,6 @@ public final class ClassUtil
      * @param fullType Fully resolved type or null
      * @return String description of type including generic type parameters, surrounded
      *   by backticks, if type passed; or string "null" if {code null} passed
-     *
-     * @since 2.10
      */
     public static String getTypeDescription(JavaType fullType)
     {
@@ -617,8 +593,6 @@ public final class ClassUtil
      * Helper method used to construct appropriate description
      * when passed either type (Class) or an instance; in latter
      * case, class of instance is to be used.
-     *
-     * @since 2.9
      */
     public static String classNameOf(Object inst) {
         if (inst == null) {
@@ -631,8 +605,6 @@ public final class ClassUtil
     /**
      * Returns either `cls.getName()` (if `cls` not null),
      * or "[null]" if `cls` is null.
-     *
-     * @since 2.9
      */
     public static String nameOf(Class<?> cls) {
         if (cls == null) {
@@ -666,9 +638,9 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other escaping, description access
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -687,8 +659,6 @@ public final class ClassUtil
      * returned instead.
      * Method is used to avoid accidentally including trailing location information twice
      * in message when wrapping exceptions.
-     *
-     * @since 2.9.7
      */
     public static String exceptionMessage(Throwable t) {
         if (t instanceof JsonProcessingException) {
@@ -698,9 +668,9 @@ public final class ClassUtil
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Primitive type support
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -809,9 +779,9 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Access checking/handling methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -850,16 +820,14 @@ public final class ClassUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Enum type detection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Helper method that encapsulates reliable check on whether
      * given raw type "is an Enum", that is, is or extends {@link java.lang.Enum}.
-     *
-     * @since 2.10.1
      */
     public static boolean isEnumType(Class<?> rawType) {
         return Enum.class.isAssignableFrom(rawType);
@@ -942,7 +910,7 @@ public final class ClassUtil
      */
     public static <T extends Annotation> Enum<?> findFirstAnnotatedEnumValue(Class<Enum<?>> enumClass, Class<T> annotationClass)
     {
-        Field[] fields = getDeclaredFields(enumClass);
+        Field[] fields = enumClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isEnumConstant()) {
                 Annotation defaultValueAnnotation = field.getAnnotation(annotationClass);
@@ -987,20 +955,16 @@ public final class ClassUtil
      * Some aspects of handling need to be changed for JDK types (and possibly
      * some extensions under {@code javax.}?): for example, forcing of access
      * will not work well for future JDKs (12 and later).
-     *
-     * @since 2.11
      */
     public static boolean isJDKClass(Class<?> rawType) {
         return rawType.getName().startsWith("java.");
     }
 
     /*
-    /**********************************************************
-    /* Access to various Class definition aspects; possibly
-    /* cacheable; and attempts was made in 2.7.0 - 2.7.7; however
-    /* unintented retention (~= memory leak) wrt [databind#1363]
-    /* resulted in removal of caching
-    /**********************************************************
+    /**********************************************************************
+    /* Access to various Class definition aspects; leftover
+    /* from some (failed) caching attempts
+    /**********************************************************************
      */
 
     public static boolean isNonStaticInnerClass(Class<?> cls) {
@@ -1011,40 +975,8 @@ public final class ClassUtil
     /**
      * @since 2.7
      */
-    public static String getPackageName(Class<?> cls) {
-        Package pkg = cls.getPackage();
-        return (pkg == null) ? null : pkg.getName();
-    }
-
-    /**
-     * @since 2.7
-     */
     public static boolean hasEnclosingMethod(Class<?> cls) {
         return !isObjectOrPrimitive(cls) && (cls.getEnclosingMethod() != null);
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Field[] getDeclaredFields(Class<?> cls) {
-        return cls.getDeclaredFields();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Method[] getDeclaredMethods(Class<?> cls) {
-        return cls.getDeclaredMethods();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Annotation[] findClassAnnotations(Class<?> cls) {
-        if (isObjectOrPrimitive(cls)) {
-            return NO_ANNOTATIONS;
-        }
-        return cls.getDeclaredAnnotations();
     }
 
     /**
@@ -1057,7 +989,7 @@ public final class ClassUtil
     public static Method[] getClassMethods(Class<?> cls)
     {
         try {
-            return ClassUtil.getDeclaredMethods(cls);
+            return cls.getDeclaredMethods();
         } catch (final NoClassDefFoundError ex) {
             // One of the methods had a class that was not found in the cls.getClassLoader.
             // Maybe the developer was nice and has a different class loader for this context.
@@ -1104,21 +1036,6 @@ public final class ClassUtil
     public static Class<?> getDeclaringClass(Class<?> cls) {
         return isObjectOrPrimitive(cls) ? null : cls.getDeclaringClass();
     }
-
-    /**
-     * @since 2.7
-     */
-    public static Type getGenericSuperclass(Class<?> cls) {
-        return cls.getGenericSuperclass();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Type[] getGenericInterfaces(Class<?> cls) {
-        return cls.getGenericInterfaces();
-    }
-
     /**
      * @since 2.7
      */
@@ -1127,14 +1044,10 @@ public final class ClassUtil
         return isObjectOrPrimitive(cls) ? null : cls.getEnclosingClass();
     }
 
-    private static Class<?>[] _interfaces(Class<?> cls) {
-        return cls.getInterfaces();
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1186,7 +1099,7 @@ public final class ClassUtil
         {
             Field found = null;
     	        // First: let's see if we can find exact match:
-            Field[] fields = getDeclaredFields(fromClass);
+            Field[] fields = fromClass.getDeclaredFields();
     	        for (Field f : fields) {
     	            if (expectedName.equals(f.getName()) && f.getType() == type) {
     	                found = f;
@@ -1212,17 +1125,8 @@ public final class ClassUtil
         }
     }
 
-    /*
-    /**********************************************************
-    /* Helper classed used for caching
-    /**********************************************************
-     */
-
     /**
-     * Value class used for caching Constructor declarations; used because
-     * caching done by JDK appears to be somewhat inefficient for some use cases.
-     *
-     * @since 2.7
+     * Value class used for containing information about discovered Constructors
      */
     public final static class Ctor
     {

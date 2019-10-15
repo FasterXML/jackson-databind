@@ -5,12 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 class CollectorBase
 {
     protected final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
     protected final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
+    private final static Class<?> CLS_OBJECT = Object.class;
 
     protected final AnnotationIntrospector _intr;
 
@@ -44,7 +44,7 @@ class CollectorBase
     }
 
     protected final AnnotationCollector collectFromBundle(AnnotationCollector c, Annotation bundle) {
-        Annotation[] anns = ClassUtil.findClassAnnotations(bundle.annotationType());
+        Annotation[] anns = _findClassAnnotations(bundle.annotationType());
         for (int i = 0, end = anns.length; i < end; ++i) {
             Annotation ann = anns[i];
             // minor optimization: by-pass 2 common JDK meta-annotations
@@ -83,7 +83,7 @@ class CollectorBase
 
     protected final AnnotationCollector collectDefaultFromBundle(AnnotationCollector c,
             Annotation bundle) {
-        Annotation[] anns = ClassUtil.findClassAnnotations(bundle.annotationType());
+        Annotation[] anns = _findClassAnnotations(bundle.annotationType());
         for (int i = 0, end = anns.length; i < end; ++i) {
             Annotation ann = anns[i];
             // minor optimization: by-pass 2 common JDK meta-annotations
@@ -118,5 +118,18 @@ class CollectorBase
             maps[i] = _emptyAnnotationMap();
         }
         return maps;
+    }
+
+    /*
+    /**********************************************************************
+    /* Methods copied from `ClassUtil`
+    /**********************************************************************
+     */
+
+    private static Annotation[] _findClassAnnotations(Class<?> cls) {
+        if (cls == CLS_OBJECT) { // never called with primitive types but might get Object.class
+            return NO_ANNOTATIONS;
+        }
+        return cls.getDeclaredAnnotations();
     }
 }

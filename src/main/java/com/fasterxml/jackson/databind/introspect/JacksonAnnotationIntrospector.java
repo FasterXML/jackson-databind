@@ -165,10 +165,10 @@ public class JacksonAnnotationIntrospector
     /**********************************************************************
      */
 
-    @Override // since 2.7
+    @Override
     public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         HashMap<String,String> expl = null;
-        for (Field f : ClassUtil.getDeclaredFields(enumType)) {
+        for (Field f : enumType.getDeclaredFields()) {
             if (!f.isEnumConstant()) {
                 continue;
             }

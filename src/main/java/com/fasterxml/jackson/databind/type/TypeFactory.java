@@ -1292,7 +1292,7 @@ s     */
 
     protected JavaType _resolveSuperClass(ClassStack context, Class<?> rawType, TypeBindings parentBindings)
     {
-        Type parent = ClassUtil.getGenericSuperclass(rawType);
+        Type parent = rawType.getGenericSuperclass();
         if (parent == null) {
             return null;
         }
@@ -1301,7 +1301,7 @@ s     */
 
     protected JavaType[] _resolveSuperInterfaces(ClassStack context, Class<?> rawType, TypeBindings parentBindings)
     {
-        Type[] types = ClassUtil.getGenericInterfaces(rawType);
+        Type[] types = rawType.getGenericInterfaces();
         if (types == null || types.length == 0) {
             return NO_TYPES;
         }

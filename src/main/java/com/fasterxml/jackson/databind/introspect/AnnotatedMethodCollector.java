@@ -151,7 +151,7 @@ public class AnnotatedMethodCollector
             return;
         }
         for (Class<?> mixin : ClassUtil.findRawSuperTypes(mixInCls, targetClass, true)) {
-            for (Method m : ClassUtil.getDeclaredMethods(mixin)) {
+            for (Method m : mixin.getDeclaredMethods()) {
                 if (!_isIncludableMemberMethod(m)) {
                     continue;
                 }

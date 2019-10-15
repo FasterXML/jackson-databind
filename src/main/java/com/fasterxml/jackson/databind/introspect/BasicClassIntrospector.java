@@ -30,7 +30,7 @@ public class BasicClassIntrospector
 
         final AnnotatedClass BOOLEAN_AC = AnnotatedClassResolver.createPrimordial(Boolean.TYPE);
         preresolved.put(Boolean.TYPE, BOOLEAN_AC);
-        // NOTE: ok to pass non-primitive type for descriptions
+        // NOTE: should be ok to pass non-primitive type for descriptions
         preresolved.put(Boolean.class, BOOLEAN_AC);
 
         final AnnotatedClass INT_AC = AnnotatedClassResolver.createPrimordial(Integer.TYPE);
@@ -63,6 +63,10 @@ public class BasicClassIntrospector
     protected HashMap<JavaType, AnnotatedClass> _resolvedFullAnnotations;
 
     protected HashMap<JavaType, AnnotatedClass> _resolvedDirectAnnotations;
+
+    protected HashMap<JavaType, BasicBeanDescription> _resolvedSerBeanDescs;
+
+    protected HashMap<JavaType, BasicBeanDescription> _resolvedDeserBeanDescs;
 
     /*
     /**********************************************************************
@@ -158,9 +162,18 @@ public class BasicClassIntrospector
             // structured types as well
             desc = _findStdJdkCollectionDesc(type);
             if (desc == null) {
+                if (_resolvedSerBeanDescs == null) {
+                    _resolvedSerBeanDescs = new HashMap<>();
+                } else {
+                    desc = _resolvedSerBeanDescs.get(type);
+                    if (desc != null) {
+                        return desc;
+                    }
+                }
                 desc = BasicBeanDescription.forSerialization(collectProperties(type,
                         introspectClassAnnotations(type),
                         true, "set"));
+                _resolvedSerBeanDescs.put(type, desc);
             }
         }
         return desc;
@@ -172,13 +185,22 @@ public class BasicClassIntrospector
         // minor optimization: for some JDK types do minimal introspection
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
-            // As per [Databind#550], skip full introspection for some of standard
+            // As per [databind#550], skip full introspection for some of standard
             // structured types as well
             desc = _findStdJdkCollectionDesc(type);
             if (desc == null) {
+                if (_resolvedDeserBeanDescs == null) {
+                    _resolvedDeserBeanDescs = new HashMap<>();
+                } else {
+                    desc = _resolvedDeserBeanDescs.get(type);
+                    if (desc != null) {
+                        return desc;
+                    }
+                }
                 desc = BasicBeanDescription.forDeserialization(collectProperties(type,
                         introspectClassAnnotations(type),
                         false, "set"));
+                _resolvedDeserBeanDescs.put(type, desc);
             }
         }
         return desc;

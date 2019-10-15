@@ -16,21 +16,24 @@ public class BasicClassIntrospector
 {
     private static final long serialVersionUID = 3L;
 
+    private final static Class<?> CLS_OBJECT = Object.class;
+    private final static Class<?> CLS_STRING = String.class;
+    private final static Class<?> CLS_NUMBER = Number.class;
+
     /* We keep a small set of pre-constructed descriptions to use for
      * common non-structured values, such as Numbers and Strings.
      * This is strictly performance optimization to reduce what is
      * usually one-time cost, but seems useful for some cases considering
      * simplicity.
      */
-    private final static AnnotatedClass STRING_AC = new AnnotatedClass(String.class);
-
-    private final static AnnotatedClass OBJECT_AC = new AnnotatedClass(Object.class);
+    private final static AnnotatedClass OBJECT_AC = new AnnotatedClass(CLS_OBJECT);
+    private final static AnnotatedClass STRING_AC = new AnnotatedClass(CLS_STRING);
 
     private final static AnnotatedClass BOOLEAN_AC = new AnnotatedClass(Boolean.TYPE);
-
     private final static AnnotatedClass INT_AC = new AnnotatedClass(Integer.TYPE);
-
     private final static AnnotatedClass LONG_AC = new AnnotatedClass(Long.TYPE);
+
+    private final static AnnotatedClass NUMBER_AC = new AnnotatedClass(CLS_NUMBER);
 
     /*
     /**********************************************************************
@@ -257,7 +260,7 @@ public class BasicClassIntrospector
 
     protected BasicBeanDescription _findStdTypeDesc(JavaType type) {
         AnnotatedClass ac = _findStdTypeDef(type.getRawClass());
-        return (ac == null) ? null : BasicBeanDescription.forOtherUse(null, type, ac);
+        return (ac == null) ? null : BasicBeanDescription.forOtherUse(_config, type, ac);
     }
 
     /**
@@ -293,6 +296,10 @@ public class BasicClassIntrospector
 
             if (rawType == Object.class) {
                 return OBJECT_AC;
+            }
+            // This mostly matters for "untyped" deserialization
+            if (rawType == CLS_NUMBER) {
+                return NUMBER_AC;
             }
         }
         return null;

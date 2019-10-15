@@ -90,8 +90,6 @@ public class POJOPropertiesCollector
 
     /**
      * Method(s) marked with 'JsonValue' annotation
-     *<p>
-     * NOTE: before 2.9, was `AnnotatedMethod`; with 2.9 allows fields too
      */
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 

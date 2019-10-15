@@ -3,9 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
@@ -20,10 +18,34 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class AnnotatedClassResolver
 {
-    private final static Class<?> CLS_OBJECT = Object.class;
     private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
-
     private final static Annotations EMPTY_ANNOTATIONS = AnnotationCollector.emptyAnnotations();
+
+    private final static Class<?> CLS_OBJECT = Object.class;
+
+    // 15-Oct-2019, tatu: There are certain types that we can ignore during super-type
+    //    traversal: either because they have no information, or because they are from JDK
+    //    and are just replicating info that sub-classes have.
+    //    Need to be careful tho as mix-in use might cause some problems.
+
+    private final static HashSet<Class<?>> BORING_SUPER_CLASSES = new HashSet<>();
+    {
+        BORING_SUPER_CLASSES.add(Object.class);
+
+        // Enum in particular is good to avoid since it introduces cyclic type dep:
+        BORING_SUPER_CLASSES.add(Enum.class);
+
+        // these are tag/marker interfaces of no interest
+        BORING_SUPER_CLASSES.add(Cloneable.class);
+        BORING_SUPER_CLASSES.add(java.io.Serializable.class);
+        BORING_SUPER_CLASSES.add(Comparable.class);
+        BORING_SUPER_CLASSES.add(RandomAccess.class);
+
+        // this is where things get tricky: Maps, for example, can be "serialized as POJOs",
+        // and possibly ditto for Lists. So only stop at abstract impl
+        BORING_SUPER_CLASSES.add(AbstractList.class);
+        BORING_SUPER_CLASSES.add(AbstractMap.class);
+    }
 
     private final MapperConfig<?> _config;
     private final AnnotationIntrospector _intr;
@@ -36,6 +58,12 @@ public class AnnotatedClassResolver
 
     private final boolean _collectAnnotations;
 
+    /*
+    /**********************************************************************
+    /* Life-cycle
+    /**********************************************************************
+     */
+    
     AnnotatedClassResolver(MapperConfig<?> config, JavaType type, MixInResolver r) {
         _config = Objects.requireNonNull(config, "Can not pass null `config`");
         _type = type;
@@ -63,6 +91,12 @@ public class AnnotatedClassResolver
         _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(_class);
     }
 
+    /*
+    /**********************************************************************
+    /* Public static API
+    /**********************************************************************
+     */
+    
     public static AnnotatedClass resolve(MapperConfig<?> config, JavaType forType,
             MixInResolver r)
     {
@@ -99,14 +133,6 @@ public class AnnotatedClassResolver
     }
 
     /**
-     * Internal helper method used for resolving a small set of "primordial" types for which
-     * we do not accept any annotation information or overrides. 
-     */
-    static AnnotatedClass createPrimordial(Class<?> raw) {
-        return new AnnotatedClass(raw);
-    }
-
-    /**
      * Internal helper method used for resolving array types, unless they happen
      * to have associated mix-in to apply.
      */
@@ -114,8 +140,16 @@ public class AnnotatedClassResolver
         return new AnnotatedClass(raw);
     }
 
+    /*
+    /**********************************************************************
+    /* Main resolution methods
+    /**********************************************************************
+     */
+    
     AnnotatedClass resolveFully() {
-        List<JavaType> superTypes = ClassUtil.findSuperTypes(_type, null, false);
+        final List<JavaType> superTypes = new ArrayList<>(8);
+        _addSuperTypes(_type, superTypes, false);
+//System.err.println(" resolveFully("+_type.getRawClass().getSimpleName()+") -> "+superTypes);        
         return new AnnotatedClass(_type, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
                 _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
@@ -129,6 +163,34 @@ public class AnnotatedClassResolver
                 resolveClassAnnotations(superTypes),
                 _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
                 _collectAnnotations);
+    }
+
+    private static void _addSuperTypes(JavaType type, Collection<JavaType> result,
+            boolean addClassItself)
+    {
+        if (type == null) {
+            return;
+        }
+        final Class<?> cls = type.getRawClass();
+
+        // 15-Oct-2019, tatu: certain paths do not lead to useful information, so prune
+        //    as optimization
+
+        if (cls.getName().startsWith("java.")) { // inlined ClassUtil.isJDKType()
+            if (BORING_SUPER_CLASSES.contains(cls)) {
+                return;
+            }
+        }
+        if (addClassItself) {
+            if (result.contains(type)) { // already added, no need to check supers
+                return;
+            }
+            result.add(type);
+        }
+        for (JavaType intCls : type.getInterfaces()) {
+            _addSuperTypes(intCls, result, true);
+        }
+        _addSuperTypes(type.getSuperClass(), result, true);
     }
 
     /*

@@ -41,28 +41,6 @@ public final class ClassUtil
     /**********************************************************************
      */
 
-    /**
-     * Method that will find all sub-classes and implemented interfaces
-     * of a given class or interface. Classes are listed in order of
-     * precedence, starting with the immediate super-class, followed by
-     * interfaces class directly declares to implemented, and then recursively
-     * followed by parent of super-class and so forth.
-     * Note that <code>Object.class</code> is not included in the list
-     * regardless of whether <code>endBefore</code> argument is defined or not.
-     *
-     * @param endBefore Super-type to NOT include in results, if any; when
-     *    encountered, will be ignored (and no super types are checked).
-     */
-    public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore,
-            boolean addClassItself) {
-        if ((type == null) || type.hasRawClass(endBefore) || type.hasRawClass(Object.class)) {
-            return Collections.emptyList();
-        }
-        List<JavaType> result = new ArrayList<JavaType>(8);
-        _addSuperTypes(type, endBefore, result, addClassItself);
-        return result;
-    }
-
     public static List<Class<?>> findRawSuperTypes(Class<?> cls, Class<?> endBefore, boolean addClassItself) {
         if ((cls == null) || (cls == endBefore) || (cls == Object.class)) {
             return Collections.emptyList();
@@ -95,26 +73,6 @@ public final class ClassUtil
             }
         }
         return result;
-    }
-
-    private static void _addSuperTypes(JavaType type, Class<?> endBefore, Collection<JavaType> result,
-            boolean addClassItself)
-    {
-        if (type == null) {
-            return;
-        }
-        final Class<?> cls = type.getRawClass();
-        if (cls == endBefore || cls == Object.class) { return; }
-        if (addClassItself) {
-            if (result.contains(type)) { // already added, no need to check supers
-                return;
-            }
-            result.add(type);
-        }
-        for (JavaType intCls : type.getInterfaces()) {
-            _addSuperTypes(intCls, endBefore, result, true);
-        }
-        _addSuperTypes(type.getSuperClass(), endBefore, result, true);
     }
 
     private static void _addRawSuperTypes(Class<?> cls, Class<?> endBefore, Collection<Class<?>> result, boolean addClassItself) {

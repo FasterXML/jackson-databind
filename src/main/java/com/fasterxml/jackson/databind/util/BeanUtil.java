@@ -147,15 +147,13 @@ public class BeanUtil
              */
             Class<?> compType = rt.getComponentType();
             // Actually, let's just verify it's a "net.sf.cglib.*" class/interface
-            String pkgName = ClassUtil.getPackageName(compType);
-            if (pkgName != null) {
-                if (pkgName.contains(".cglib")) {
-                    return pkgName.startsWith("net.sf.cglib")
-                        // also, as per [JACKSON-177]
-                        || pkgName.startsWith("org.hibernate.repackage.cglib")
-                        // and [core#674]
-                        || pkgName.startsWith("org.springframework.cglib");
-                }
+            String className = compType.getName();
+            if (className.contains(".cglib")) {
+                return className.startsWith("net.sf.cglib")
+                    // also, as per [JACKSON-177]
+                    || className.startsWith("org.hibernate.repackage.cglib")
+                    // and [core#674]
+                    || className.startsWith("org.springframework.cglib");
             }
         }
         return false;
@@ -164,12 +162,9 @@ public class BeanUtil
     /**
      * Another helper method to deal with Groovy's problematic metadata accessors
      */
-    protected static boolean isGroovyMetaClassGetter(AnnotatedMember am)
-    {
-        String pkgName = ClassUtil.getPackageName(am.getRawType());
-        return (pkgName != null) && pkgName.startsWith("groovy.lang");
+    protected static boolean isGroovyMetaClassGetter(AnnotatedMember am) {
+        return am.getRawType().getName().startsWith("groovy.lang");
     }
-
     /*
     /**********************************************************
     /* Actual name mangling methods

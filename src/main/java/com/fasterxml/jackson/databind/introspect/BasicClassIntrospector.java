@@ -22,28 +22,16 @@ public class BasicClassIntrospector
      * usually one-time cost, but seems useful for some cases considering
      * simplicity.
      */
-    protected final static HashMap<Class<?>, AnnotatedClass> PRE_RESOLVED_AC;
-    static {
-        final HashMap<Class<?>, AnnotatedClass> preresolved = new HashMap<>();
+    private final static AnnotatedClass STRING_AC = new AnnotatedClass(String.class);
 
-        preresolved.put(String.class, AnnotatedClassResolver.createPrimordial(String.class));
+    private final static AnnotatedClass OBJECT_AC = new AnnotatedClass(Object.class);
 
-        final AnnotatedClass BOOLEAN_AC = AnnotatedClassResolver.createPrimordial(Boolean.TYPE);
-        preresolved.put(Boolean.TYPE, BOOLEAN_AC);
-        // NOTE: should be ok to pass non-primitive type for descriptions
-        preresolved.put(Boolean.class, BOOLEAN_AC);
+    private final static AnnotatedClass BOOLEAN_AC = new AnnotatedClass(Boolean.TYPE);
 
-        final AnnotatedClass INT_AC = AnnotatedClassResolver.createPrimordial(Integer.TYPE);
-        preresolved.put(Integer.TYPE, INT_AC);
-        preresolved.put(Integer.class, INT_AC);
+    private final static AnnotatedClass INT_AC = new AnnotatedClass(Integer.TYPE);
 
-        final AnnotatedClass LONG_AC = AnnotatedClassResolver.createPrimordial(Long.TYPE);
-        preresolved.put(Long.TYPE, LONG_AC);
-        preresolved.put(Long.class, LONG_AC);
+    private final static AnnotatedClass LONG_AC = new AnnotatedClass(Long.TYPE);
 
-        PRE_RESOLVED_AC = preresolved;
-    }
-    
     /*
     /**********************************************************************
     /* Configuration
@@ -104,37 +92,45 @@ public class BasicClassIntrospector
     public AnnotatedClass introspectClassAnnotations(JavaType type)
     {
         AnnotatedClass ac = _findStdTypeDef(type.getRawClass());
-        if (ac == null) {
-            if (_resolvedFullAnnotations == null) {
-                _resolvedFullAnnotations = new HashMap<>();
-            } else {
-                ac = _resolvedFullAnnotations.get(type);
-                if (ac != null) {
-                    return ac;
-                }
-            }
-            ac = _resolveAnnotatedClass(type);
-            _resolvedFullAnnotations.put(type, ac);
+        if (ac != null) {
+//System.err.println(" AC.introspectClassAnnotations "+type.getRawClass().getSimpleName()+" -> std-def");
+            return ac;
         }
+        if (_resolvedFullAnnotations == null) {
+            _resolvedFullAnnotations = new HashMap<>();
+        } else {
+            ac = _resolvedFullAnnotations.get(type);
+            if (ac != null) {
+//System.err.println(" AC.introspectClassAnnotations "+type.getRawClass().getSimpleName()+" -> CACHED");
+                return ac;
+            }
+        }
+//System.err.println(" AC.introspectClassAnnotations "+type.getRawClass().getSimpleName()+" -> resolve");
+        ac = _resolveAnnotatedClass(type);
+        _resolvedFullAnnotations.put(type, ac);
         return ac;
     }
 
     @Override
     public AnnotatedClass introspectDirectClassAnnotations(JavaType type)
     {
+//System.err.println(" AC.introspectDirectClassAnnotations "+type.getRawClass().getSimpleName()+" -> std-def");
         AnnotatedClass ac = _findStdTypeDef(type.getRawClass());
-        if (ac == null) {
-            if (_resolvedDirectAnnotations == null) {
-                _resolvedDirectAnnotations = new HashMap<>();
-            } else {
-                ac = _resolvedDirectAnnotations.get(type);
-                if (ac != null) {
-                    return ac;
-                }
-            }
-            ac = _resolveAnnotatedWithoutSuperTypes(type);
-            _resolvedDirectAnnotations.put(type, ac);
+        if (ac != null) {
+            return ac;
         }
+        if (_resolvedDirectAnnotations == null) {
+            _resolvedDirectAnnotations = new HashMap<>();
+        } else {
+            ac = _resolvedDirectAnnotations.get(type);
+            if (ac != null) {
+//System.err.println(" AC.introspectDirectClassAnnotations "+type.getRawClass().getSimpleName()+" -> CACHED");
+                return ac;
+            }
+        }
+//System.err.println(" AC.introspectDirectClassAnnotations "+type.getRawClass().getSimpleName()+" -> resolve");
+        ac = _resolveAnnotatedWithoutSuperTypes(type);
+        _resolvedDirectAnnotations.put(type, ac);
         return ac;
     }
 
@@ -275,10 +271,33 @@ public class BasicClassIntrospector
      */
     protected AnnotatedClass _findStdTypeDef(Class<?> rawType)
     {
-        if (rawType.isPrimitive() || ClassUtil.isJDKClass(rawType)) {
-            AnnotatedClass ac = PRE_RESOLVED_AC.get(rawType);
-            if (ac != null) {
-                return ac;
+        if (rawType.isPrimitive()) {
+            if (rawType == Integer.TYPE) {
+                return INT_AC;
+            }
+            if (rawType == Long.TYPE) {
+                return LONG_AC;
+            }
+            if (rawType == Boolean.TYPE) {
+                return BOOLEAN_AC;
+            }
+        } else if (ClassUtil.isJDKClass(rawType)) {
+            if (rawType == String.class) {
+                return STRING_AC;
+            }
+            // Should be ok to just pass "primitive" info
+            if (rawType == Integer.class) {
+                return INT_AC;
+            }
+            if (rawType == Long.class) {
+                return LONG_AC;
+            }
+            if (rawType == Boolean.class) {
+                return BOOLEAN_AC;
+            }
+
+            if (rawType == Object.class) {
+                return OBJECT_AC;
             }
         }
         return null;

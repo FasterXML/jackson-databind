@@ -67,7 +67,7 @@ public class AnnotatedFieldCollector
                     typeFactory, parentType, parentMixin, fields);
         }
         final Class<?> rawType = type.getRawClass();
-        for (Field f : ClassUtil.getDeclaredFields(rawType)) {
+        for (Field f : rawType.getDeclaredFields()) {
             // static fields not included (transients are at this point, filtered out later)
             if (!_isIncludableField(f)) {
                 continue;
@@ -101,7 +101,7 @@ public class AnnotatedFieldCollector
     {
         List<Class<?>> parents = ClassUtil.findSuperClasses(mixInCls, targetClass, true);
         for (Class<?> mixin : parents) {
-            for (Field mixinField : ClassUtil.getDeclaredFields(mixin)) {
+            for (Field mixinField : mixin.getDeclaredFields()) {
                 // there are some dummy things (static, synthetic); better ignore
                 if (!_isIncludableField(mixinField)) {
                     continue;

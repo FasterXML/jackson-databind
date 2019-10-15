@@ -142,7 +142,7 @@ public class AnnotatedClassResolver
                 _collectAnnotations);
     }
 
-    private static void _addSuperTypes(JavaType type, Collection<JavaType> result,
+    private static void _addSuperTypes(JavaType type, List<JavaType> result,
             boolean addClassItself)
     {
         if (type == null) {
@@ -157,7 +157,7 @@ public class AnnotatedClassResolver
         }
         
         if (addClassItself) {
-            if (result.contains(type)) { // already added, no need to check supers
+            if (_contains(result, cls)) { // already added, no need to check supers
                 return;
             }
             result.add(type);
@@ -166,6 +166,15 @@ public class AnnotatedClassResolver
             _addSuperTypes(intCls, result, true);
         }
         _addSuperTypes(type.getSuperClass(), result, true);
+    }
+
+    private static boolean _contains(List<JavaType> found, Class<?> raw) {
+        for (int i = 0, end = found.size(); i < end; ++i) {
+            if (found.get(i).getRawClass() == raw) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /*

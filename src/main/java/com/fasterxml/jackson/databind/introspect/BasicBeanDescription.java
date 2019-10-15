@@ -50,7 +50,7 @@ public class BasicBeanDescription extends BeanDescription
     /* Information about type itself
     /**********************************************************************
      */
-    
+
     /**
      * Information collected about the class introspected.
      */
@@ -88,7 +88,7 @@ public class BasicBeanDescription extends BeanDescription
      * @since 3.0
      */
     protected transient JsonFormat.Value _classFormat;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle

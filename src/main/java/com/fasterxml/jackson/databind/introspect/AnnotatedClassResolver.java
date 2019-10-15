@@ -22,30 +22,7 @@ public class AnnotatedClassResolver
     private final static Annotations EMPTY_ANNOTATIONS = AnnotationCollector.emptyAnnotations();
 
     private final static Class<?> CLS_OBJECT = Object.class;
-
-    // 15-Oct-2019, tatu: There are certain types that we can ignore during super-type
-    //    traversal: either because they have no information, or because they are from JDK
-    //    and are just replicating info that sub-classes have.
-    //    Need to be careful tho as mix-in use might cause some problems.
-
-    private final static HashSet<Class<?>> BORING_SUPER_CLASSES = new HashSet<>();
-    {
-        BORING_SUPER_CLASSES.add(Object.class);
-
-        // Enum in particular is good to avoid since it introduces cyclic type dep:
-        BORING_SUPER_CLASSES.add(Enum.class);
-
-        // these are tag/marker interfaces of no interest
-        BORING_SUPER_CLASSES.add(Cloneable.class);
-        BORING_SUPER_CLASSES.add(java.io.Serializable.class);
-        BORING_SUPER_CLASSES.add(Comparable.class);
-        BORING_SUPER_CLASSES.add(RandomAccess.class);
-
-        // this is where things get tricky: Maps, for example, can be "serialized as POJOs",
-        // and possibly ditto for Lists. So only stop at abstract impl
-        BORING_SUPER_CLASSES.add(AbstractList.class);
-        BORING_SUPER_CLASSES.add(AbstractMap.class);
-    }
+    private final static Class<?> CLS_ENUM = Enum.class;
 
     private final MapperConfig<?> _config;
     private final AnnotationIntrospector _intr;
@@ -175,12 +152,10 @@ public class AnnotatedClassResolver
 
         // 15-Oct-2019, tatu: certain paths do not lead to useful information, so prune
         //    as optimization
-
-        if (cls.getName().startsWith("java.")) { // inlined ClassUtil.isJDKType()
-            if (BORING_SUPER_CLASSES.contains(cls)) {
-                return;
-            }
+        if ((cls == CLS_OBJECT) || (cls == CLS_ENUM)) {
+            return;
         }
+        
         if (addClassItself) {
             if (result.contains(type)) { // already added, no need to check supers
                 return;

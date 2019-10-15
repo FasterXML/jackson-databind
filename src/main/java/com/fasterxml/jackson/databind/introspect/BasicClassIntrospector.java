@@ -48,12 +48,23 @@ public class BasicClassIntrospector
     /**********************************************************************
      */
 
+    /**
+     * Reuse fully-resolved annotations during a single operation
+     */
     protected HashMap<JavaType, AnnotatedClass> _resolvedFullAnnotations;
 
-    protected HashMap<JavaType, AnnotatedClass> _resolvedDirectAnnotations;
+    // 15-Oct-2019, tatu: No measurable benefit from trying to reuse direct
+    //    annotation access.
+//    protected HashMap<JavaType, AnnotatedClass> _resolvedDirectAnnotations;
 
+    /**
+     * Reuse full bean descriptions for serialization during a single operation
+     */
     protected HashMap<JavaType, BasicBeanDescription> _resolvedSerBeanDescs;
 
+    /**
+     * Reuse full bean descriptions for serialization during a single operation
+     */
     protected HashMap<JavaType, BasicBeanDescription> _resolvedDeserBeanDescs;
 
     /*
@@ -114,24 +125,8 @@ public class BasicClassIntrospector
     @Override
     public AnnotatedClass introspectDirectClassAnnotations(JavaType type)
     {
-//System.err.println(" AC.introspectDirectClassAnnotations "+type.getRawClass().getSimpleName()+" -> std-def");
         AnnotatedClass ac = _findStdTypeDef(type.getRawClass());
-        if (ac != null) {
-            return ac;
-        }
-        if (_resolvedDirectAnnotations == null) {
-            _resolvedDirectAnnotations = new HashMap<>();
-        } else {
-            ac = _resolvedDirectAnnotations.get(type);
-            if (ac != null) {
-//System.err.println(" AC.introspectDirectClassAnnotations "+type.getRawClass().getSimpleName()+" -> CACHED");
-                return ac;
-            }
-        }
-//System.err.println(" AC.introspectDirectClassAnnotations "+type.getRawClass().getSimpleName()+" -> resolve");
-        ac = _resolveAnnotatedWithoutSuperTypes(type);
-        _resolvedDirectAnnotations.put(type, ac);
-        return ac;
+        return (ac != null) ? ac : _resolveAnnotatedWithoutSuperTypes(type);
     }
 
     protected AnnotatedClass _resolveAnnotatedClass(JavaType type) {

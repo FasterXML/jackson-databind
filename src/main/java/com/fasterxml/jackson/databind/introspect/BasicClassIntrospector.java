@@ -46,6 +46,11 @@ public class BasicClassIntrospector
         LONG_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Long.TYPE),
                 AnnotatedClassResolver.createPrimordial(Long.TYPE));
     }
+    protected final static BasicBeanDescription OBJECT_DESC;
+    static {
+        OBJECT_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Object.class),
+                AnnotatedClassResolver.createPrimordial(Object.class));
+    }
 
     /*
     /**********************************************************
@@ -196,18 +201,30 @@ public class BasicClassIntrospector
     {
         Class<?> cls = type.getRawClass();
         if (cls.isPrimitive()) {
-            if (cls == Boolean.TYPE) {
-                return BOOLEAN_DESC;
-            }
             if (cls == Integer.TYPE) {
                 return INT_DESC;
             }
             if (cls == Long.TYPE) {
                 return LONG_DESC;
             }
-        } else {
+            if (cls == Boolean.TYPE) {
+                return BOOLEAN_DESC;
+            }
+        } else if (ClassUtil.isJDKClass(cls)) {
+            if (cls == Object.class) {
+                return OBJECT_DESC;
+            }
             if (cls == String.class) {
                 return STRING_DESC;
+            }
+            if (cls == Integer.class) {
+                return INT_DESC;
+            }
+            if (cls == Long.class) {
+                return LONG_DESC;
+            }
+            if (cls == Boolean.class) {
+                return BOOLEAN_DESC;
             }
         }
         return null;

@@ -24,6 +24,9 @@ public class AnnotatedClassResolver
     private final static Class<?> CLS_OBJECT = Object.class;
     private final static Class<?> CLS_ENUM = Enum.class;
 
+    private final static Class<?> CLS_LIST = List.class;
+    private final static Class<?> CLS_MAP = Map.class;
+
     private final MapperConfig<?> _config;
     private final AnnotationIntrospector _intr;
     private final MixInResolver _mixInResolver;
@@ -40,7 +43,7 @@ public class AnnotatedClassResolver
     /* Life-cycle
     /**********************************************************************
      */
-    
+
     AnnotatedClassResolver(MapperConfig<?> config, JavaType type, MixInResolver r) {
         _config = Objects.requireNonNull(config, "Can not pass null `config`");
         _type = type;
@@ -124,8 +127,17 @@ public class AnnotatedClassResolver
      */
     
     AnnotatedClass resolveFully() {
-        final List<JavaType> superTypes = new ArrayList<>(8);
-        _addSuperTypes(_type, superTypes, false);
+        final List<JavaType> superTypes;
+
+        // 15-Oct-2019, tatu: Can avoid hierarchy traversal in some cases; but best
+        //    caught considering starting point and not the middle
+        if (!_collectAnnotations && // that is, JDK types
+            ((_class == CLS_LIST) || (_class == CLS_MAP))) {
+            superTypes = Collections.emptyList();
+        } else {
+            superTypes = new ArrayList<>(8);
+            _addSuperTypes(_type, superTypes, false);
+        }
 //System.err.println(" resolveFully("+_type.getRawClass().getSimpleName()+") -> "+superTypes);        
         return new AnnotatedClass(_type, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
@@ -135,7 +147,7 @@ public class AnnotatedClassResolver
     }
 
     AnnotatedClass resolveWithoutSuperTypes() {
-        List<JavaType> superTypes = Collections.<JavaType>emptyList();
+        List<JavaType> superTypes = Collections.emptyList();
         return new AnnotatedClass(null, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
                 _bindings, _intr, _mixInResolver, _config.getTypeFactory(),

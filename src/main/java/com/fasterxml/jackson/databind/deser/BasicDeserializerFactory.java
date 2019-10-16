@@ -1575,9 +1575,10 @@ nonAnnotatedParamIndex, ctor);
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
+        BeanDescription beanDesc = null;
         KeyDeserializer deser = null;
         if (_factoryConfig.hasKeyDeserializers()) {
-            BeanDescription beanDesc = ctxt.introspectBeanDescription(type);
+            beanDesc = ctxt.introspectBeanDescription(type);
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
                 deser = d.findKeyDeserializer(type, config, beanDesc);
                 if (deser != null) {
@@ -1585,12 +1586,20 @@ nonAnnotatedParamIndex, ctor);
                 }
             }
         }
+
         // the only non-standard thing is this:
         if (deser == null) {
-            if (type.isEnumType()) {
-                deser = _createEnumKeyDeserializer(ctxt, type);
-            } else {
-                deser = StdKeyDeserializers.findStringBasedKeyDeserializer(ctxt, type);
+            // [databind#2452]: Support `@JsonDeserialize(keyUsing = ...)`
+            if (beanDesc == null) {
+                beanDesc = ctxt.introspectBeanDescription(type);
+            }
+            deser = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+            if (deser == null) {
+                if (type.isEnumType()) {
+                    deser = _createEnumKeyDeserializer(ctxt, type);
+                } else {
+                    deser = StdKeyDeserializers.findStringBasedKeyDeserializer(ctxt, type);
+                }
             }
         }
         // and then post-processing
@@ -1907,7 +1916,7 @@ nonAnnotatedParamIndex, ctor);
 
     /**
      * Helper method called to check if a class or method
-     * has annotation that tells which class to use for deserialization.
+     * has annotation that tells which class to use for deserialization of {@link java.util.Map} keys.
      * Returns null if no such annotation found.
      */
     protected KeyDeserializer findKeyDeserializerFromAnnotation(DeserializationContext ctxt,

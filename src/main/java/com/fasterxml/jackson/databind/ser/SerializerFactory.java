@@ -78,7 +78,16 @@ public abstract class SerializerFactory
      * 
      * @return Serializer to use, if factory knows it; null if not (in which case default
      *   serializer is to be used)
+     *
+     * @since 2.11
      */
+    public JsonSerializer<Object> createKeySerializer(SerializerProvider prov,
+            JavaType type, JsonSerializer<Object> defaultImpl)
+        throws JsonMappingException {
+        return createKeySerializer(prov.getConfig(), type, defaultImpl);
+    }
+
+    @Deprecated // since 2.11
     public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config,
             JavaType type, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException;

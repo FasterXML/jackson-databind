@@ -28,7 +28,6 @@ public class TestDuplicateRegistration extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void testDuplicateRegistration() throws Exception
     {
         // by default, duplicate registration should be prevented

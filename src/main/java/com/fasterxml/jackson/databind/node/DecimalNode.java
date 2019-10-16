@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.*;
  * Numeric node that contains values that do not fit in simple
  * integer (int, long) or floating point (double) values.
  */
+@SuppressWarnings("serial")
 public class DecimalNode
     extends NumericNode
 {

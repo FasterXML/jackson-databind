@@ -29,11 +29,11 @@ public class CustomMapKeys2454Test extends BaseMapTest
         }
     }
 
-    static class Key2454Serializer extends JsonSerializer<String> {
+    static class Key2454Serializer extends JsonSerializer<Key2454> {
         @Override
-        public void serialize(String value, JsonGenerator gen,
+        public void serialize(Key2454 value, JsonGenerator gen,
                 SerializerProvider serializers) throws IOException {
-            gen.writeFieldName("id="+value);
+            gen.writeFieldName("id="+value.id);
         }
     }
 
@@ -42,7 +42,7 @@ public class CustomMapKeys2454Test extends BaseMapTest
     public void testCustomSerializer() throws Exception
     {
         assertEquals(aposToQuotes("{'id=a':'b'}"),
-                MAPPER.writeValueAsString(Collections.singletonMap("a", "b")));
+                MAPPER.writeValueAsString(Collections.singletonMap(new Key2454("a", true), "b")));
     }
 
     public void testCustomDeserializer() throws Exception

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * 
  * @since 2.2
  */
+@SuppressWarnings("serial")
 public class FloatNode extends NumericNode
 {
     protected final float _value;

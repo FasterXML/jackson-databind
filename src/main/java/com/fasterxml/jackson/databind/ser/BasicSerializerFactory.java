@@ -183,8 +183,6 @@ public abstract class BasicSerializerFactory
             JavaType keyType, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException
     {
-        // We should not need any member method info; at most class annotations for Map type
-        // ... at least, not here.
         BeanDescription beanDesc = ctxt.introspectBeanDescription(keyType);
         final SerializationConfig config = ctxt.getConfig();
         JsonSerializer<?> ser = null;
@@ -199,27 +197,30 @@ public abstract class BasicSerializerFactory
             }
         }
         if (ser == null) {
-            ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
-            // As per [databind#47], also need to support @JsonValue
+            // [databind#2503]: Support `@Json[De]Serialize(keyUsing)` on key type too
+            ser = _findKeySerializer(ctxt, beanDesc.getClassInfo());
             if (ser == null) {
-                beanDesc = ctxt.introspectBeanDescription(keyType);
-                AnnotatedMember am = beanDesc.findJsonValueAccessor();
-                if (am != null) {
-                    final Class<?> rawType = am.getRawType();
-                    JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
-                            rawType, true);
-                    if (config.canOverrideAccessModifiers()) {
-                        ClassUtil.checkAndFixAccess(am.getMember(),
-                                config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                    }
-                    // need to pass both type of key Object (on which accessor called), and actual
-                    // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
-                    ser = new JsonValueSerializer(keyType, am.getType(), false, null, delegate, am);
-                } else {
-                    // And aside from JDK defaults, use `defaultImpl` if any specified
-                    ser = defaultImpl;
-                    if (ser == null) {
-                        ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
+                // As per [databind#47], also need to support @JsonValue
+                if (ser == null) {
+                    AnnotatedMember am = beanDesc.findJsonValueAccessor();
+                    if (am != null) {
+                        final Class<?> rawType = am.getRawType();
+                        JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
+                                rawType, true);
+                        if (config.canOverrideAccessModifiers()) {
+                            ClassUtil.checkAndFixAccess(am.getMember(),
+                                    config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                        }
+                        // need to pass both type of key Object (on which accessor called), and actual
+                        // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
+                        ser = new JsonValueSerializer(keyType, am.getType(), false, null, delegate, am);
+                    } else {
+                        // And aside from JDK defaults, use `defaultImpl` if any specified
+                        ser = defaultImpl;
+                        if (ser == null) {
+                            ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                        }
                     }
                 }
             }
@@ -1179,13 +1180,13 @@ public abstract class BasicSerializerFactory
      * class that indicates key serializer to use.
      * If so, will try to instantiate key serializer and return it; otherwise returns null.
      */
-    protected JsonSerializer<Object> _findKeySerializer(SerializerProvider prov,
+    protected JsonSerializer<Object> _findKeySerializer(SerializerProvider ctxt,
             Annotated a)
         throws JsonMappingException
     {
-        AnnotationIntrospector intr = prov.getAnnotationIntrospector();
-        Object serDef = intr.findKeySerializer(prov.getConfig(), a);
-        return prov.serializerInstance(a, serDef);
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        Object serDef = intr.findKeySerializer(ctxt.getConfig(), a);
+        return ctxt.serializerInstance(a, serDef);
     }
 
     /**
@@ -1193,13 +1194,13 @@ public abstract class BasicSerializerFactory
      * class that indicates content ("value") serializer to use.
      * If so, will try to instantiate value serializer and return it; otherwise returns null.
      */
-    protected JsonSerializer<Object> _findContentSerializer(SerializerProvider prov,
+    protected JsonSerializer<Object> _findContentSerializer(SerializerProvider ctxt,
             Annotated a)
         throws JsonMappingException
     {
-        AnnotationIntrospector intr = prov.getAnnotationIntrospector();
-        Object serDef = intr.findContentSerializer(prov.getConfig(), a);
-        return prov.serializerInstance(a, serDef); // ok to pass null
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        Object serDef = intr.findContentSerializer(ctxt.getConfig(), a);
+        return ctxt.serializerInstance(a, serDef); // ok to pass null
     }
 
     /**

@@ -30,6 +30,7 @@ public class GenericNestedType2331Test extends BaseMapTest
         }
     }    
     
+    @SuppressWarnings("rawtypes")
     public void testGeneric2331() throws Exception {
         Node root = new Node();
         root.children.add(new Node());

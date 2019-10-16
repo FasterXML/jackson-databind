@@ -5,7 +5,6 @@ module com.fasterxml.jackson.databind {
 
     requires transitive com.fasterxml.jackson.annotation;
     requires transitive com.fasterxml.jackson.core;
-    requires java.base;
     // these types were suggested as transitive, but aren't actually
     // exposed externally (only within internal APIs)
     requires java.sql;

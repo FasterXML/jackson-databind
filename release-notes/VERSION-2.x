@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #2487: BeanDeserializerBuilder Protected Factory Method for Extension
  (contributed by Ville K)
+#2503: Support `@JsonSerialize(keyUsing)` and `@JsonDeserialize(keyUsing)` on Key class
 
 2.10.1 (not yet released)
 

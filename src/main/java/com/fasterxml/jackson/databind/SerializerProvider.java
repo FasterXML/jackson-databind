@@ -791,7 +791,7 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> findKeySerializer(JavaType keyType, BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType, _keySerializer);
+        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType, _keySerializer);
         // 25-Feb-2011, tatu: As per [JACKSON-519], need to ensure contextuality works here, too
         return _handleContextualResolvable(ser, property);
     }

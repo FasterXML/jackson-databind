@@ -95,6 +95,30 @@ public class SubTypeValidator
         // [databind#2389]: logback/jndi
         s.add("ch.qos.logback.core.db.JNDIConnectionSource");
 
+        // [databind#2410]: HikariCP/metricRegistry config
+        s.add("com.zaxxer.hikari.HikariConfig");
+        // [databind#2449]: and sub-class thereof
+        s.add("com.zaxxer.hikari.HikariDataSource");
+
+        // [databind#2420]: CXF/JAX-RS provider/XSLT
+        s.add("org.apache.cxf.jaxrs.provider.XSLTJaxbProvider");
+
+        // [databind#2462]: commons-configuration / -2
+        s.add("org.apache.commons.configuration.JNDIConfiguration");
+        s.add("org.apache.commons.configuration2.JNDIConfiguration");
+
+        // [databind#2469]: xalan2
+        s.add("org.apache.xalan.lib.sql.JNDIConnectionPool");
+
+        // [databind#2478]: comons-dbcp, p6spy
+        s.add("org.apache.commons.dbcp.datasources.PerUserPoolDataSource");
+        s.add("org.apache.commons.dbcp.datasources.SharedPoolDataSource");
+        s.add("com.p6spy.engine.spy.P6DataSource");
+
+        // [databind#2498]: log4j-extras (1.2)
+        s.add("org.apache.log4j.receivers.db.DriverManagerConnectionSource");
+        s.add("org.apache.log4j.receivers.db.JNDIConnectionSource");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

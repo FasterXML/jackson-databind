@@ -4,6 +4,29 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.8.3 (16-Nov-2019)
+
+Backport of full set of CVEs as of 2.9.10, including now
+
+#1680
+#1855
+#1899
+#2032
+#2052
+#2058
+#2097
+#2186
+#2326
+#2334
+#2341
+#2487
+#2389
+#2410
+#2449
+#2462
+#2478
+#2498
+
 2.6.7.2 (13-Nov-2018)
 
 #1737: Block more JDK types from polymorphic deserialization

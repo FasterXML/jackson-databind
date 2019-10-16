@@ -58,7 +58,9 @@ public class BeanDeserializerFactory
         s.add("org.codehaus.groovy.runtime.MethodClosure");
         s.add("org.springframework.beans.factory.ObjectFactory");
         s.add("com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl");
-
+        s.add("org.apache.xalan.xsltc.trax.TemplatesImpl");
+        // [databind#1680]: may or may not be problem, take no chance
+        s.add("com.sun.rowset.JdbcRowSetImpl");
         // [databind#1737]; JDK provided
         s.add("java.util.logging.FileHandler");
         s.add("java.rmi.server.UnicastRemoteObject");
@@ -68,11 +70,74 @@ public class BeanDeserializerFactory
         s.add("com.mchange.v2.c3p0.JndiRefForwardingDataSource");
         s.add("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource");
 
+        // [databind#1855]: more 3rd party
+        s.add("org.apache.tomcat.dbcp.dbcp2.BasicDataSource");
+        s.add("com.sun.org.apache.bcel.internal.util.ClassLoader");
+        // [databind#1899]: more 3rd party
+        s.add("org.hibernate.jmx.StatisticsService");
+        s.add("org.apache.ibatis.datasource.jndi.JndiDataSourceFactory");
+        // [databind#2032]: more 3rd party; data exfiltration via xml parsed ext entities
+        s.add("org.apache.ibatis.parsing.XPathParser");
+
+        // [databind#2052]: Jodd-db, with jndi/ldap lookup
+        s.add("jodd.db.connection.DataSourceConnectionProvider");
+
+        // [databind#2058]: Oracle JDBC driver, with jndi/ldap lookup
+        s.add("oracle.jdbc.connector.OracleManagedConnectionFactory");
+        s.add("oracle.jdbc.rowset.OracleJDBCRowSet");
+
         // [databind#2097]: some 3rd party, one JDK-bundled
         s.add("org.slf4j.ext.EventData");
         s.add("flex.messaging.util.concurrent.AsynchBeansWorkManagerExecutor");
         s.add("com.sun.deploy.security.ruleset.DRSHelper");
         s.add("org.apache.axis2.jaxws.spi.handler.HandlerResolverImpl");
+
+        // [databind#2186]: yet more 3rd party gadgets
+        s.add("org.jboss.util.propertyeditor.DocumentEditor");
+        s.add("org.apache.openjpa.ee.RegistryManagedRuntime");
+        s.add("org.apache.openjpa.ee.JNDIManagedRuntime");
+        s.add("org.apache.axis2.transport.jms.JMSOutTransportInfo");
+
+        // [databind#2326]
+        s.add("com.mysql.cj.jdbc.admin.MiniAdmin");
+
+        // [databind#2334]: logback-core
+        s.add("ch.qos.logback.core.db.DriverManagerConnectionSource");
+
+        // [databind#2341]: jdom/jdom2
+        s.add("org.jdom.transform.XSLTransformer");
+        s.add("org.jdom2.transform.XSLTransformer");
+
+        // [databind#2387], [databind#2460]: EHCache
+        s.add("net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup");
+        s.add("net.sf.ehcache.hibernate.EhcacheJtaTransactionManagerLookup");
+
+        // [databind#2389]: logback/jndi
+        s.add("ch.qos.logback.core.db.JNDIConnectionSource");
+
+        // [databind#2410]: HikariCP/metricRegistry config
+        s.add("com.zaxxer.hikari.HikariConfig");
+        // [databind#2449]: and sub-class thereof
+        s.add("com.zaxxer.hikari.HikariDataSource");
+
+        // [databind#2420]: CXF/JAX-RS provider/XSLT
+        s.add("org.apache.cxf.jaxrs.provider.XSLTJaxbProvider");
+
+        // [databind#2462]: commons-configuration / -2
+        s.add("org.apache.commons.configuration.JNDIConfiguration");
+        s.add("org.apache.commons.configuration2.JNDIConfiguration");
+
+        // [databind#2469]: xalan2
+        s.add("org.apache.xalan.lib.sql.JNDIConnectionPool");
+
+        // [databind#2478]: comons-dbcp, p6spy
+        s.add("org.apache.commons.dbcp.datasources.PerUserPoolDataSource");
+        s.add("org.apache.commons.dbcp.datasources.SharedPoolDataSource");
+        s.add("com.p6spy.engine.spy.P6DataSource");
+
+        // [databind#2498]: log4j-extras (1.2)
+        s.add("org.apache.log4j.receivers.db.DriverManagerConnectionSource");
+        s.add("org.apache.log4j.receivers.db.JNDIConnectionSource");
 
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }

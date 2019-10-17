@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * Numeric node that contains 64-bit ("double precision")
  * floating point values simple 32-bit integer values.
  */
+@SuppressWarnings("serial")
 public class DoubleNode
     extends NumericNode
 {

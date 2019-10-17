@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 /**
  * Numeric node that contains simple 32-bit integer values.
  */
+@SuppressWarnings("serial")
 public class IntNode
     extends NumericNode
 {

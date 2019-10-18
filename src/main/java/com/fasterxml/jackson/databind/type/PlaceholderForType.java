@@ -84,6 +84,7 @@ public class PlaceholderForType extends TypeBase
     }
 
     @Override
+    @Deprecated // since 2.7
     protected JavaType _narrow(Class<?> subclass) {
         return _unsupported();
     }

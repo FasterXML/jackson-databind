@@ -89,6 +89,8 @@ Project: jackson-databind
  (reported by Victor N)
 #2339: Suboptimal return type for `ObjectNode.set()`
  (reported by Victor N)
+#2348: Add sanity checks for `ObjectMapper.readXXX()` methods
+ (requested by ebundy@github)
 #2349: Add option `DefaultTyping.EVERYTHING` to support Kotlin data classes
 #2357: Lack of path on MismatchedInputException
  (suggested by TheEin@github)

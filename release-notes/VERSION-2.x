@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.10.1 (not yet released)
+2.9.10.1 (20-Oct-2019)
 
 #2478: Block two more gadget types (commons-dbcp, p6spy,
   CVE-2019-16942 / CVE-2019-16943)

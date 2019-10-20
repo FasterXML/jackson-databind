@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.JavaType;
 /**
  * Helper type used when introspecting bindings for already resolved types,
  * needed for specialization.
- *
- * @since 2.8.11
  */
 public class PlaceholderForType extends TypeBase
 {

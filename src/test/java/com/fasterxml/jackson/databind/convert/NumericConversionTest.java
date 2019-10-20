@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class NumericConversionTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
     private final ObjectReader R = MAPPER.reader().without(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
 
     public void testDoubleToInt() throws Exception

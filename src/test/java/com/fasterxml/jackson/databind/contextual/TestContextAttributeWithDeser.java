@@ -45,7 +45,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = objectMapper();
+    final ObjectMapper MAPPER = sharedMapper();
     
     public void testSimplePerCall() throws Exception
     {

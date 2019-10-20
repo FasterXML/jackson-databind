@@ -22,6 +22,8 @@ Project: jackson-databind
  (reported by Ryan B)
 #2485: Add `uses` for `Module` in module-info
  (contributed by Marc M)
+#2513: BigDecimalAsStringSerializer in NumberSerializer throws IllegalStateException in 2.10
+ (reported by Johan H)
 
 2.10.0 (26-Sep-2019)
 
@@ -138,7 +140,7 @@ Project: jackson-databind
   deserialize as "null value"
  (contributed by Martin C)
 
-2.9.10.1 (not yet released)
+2.9.10.1 (20-Oct-2019)
 
 #2478: Block two more gadget types (commons-dbcp, p6spy,
   CVE-2019-16942 / CVE-2019-16943)

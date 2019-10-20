@@ -986,6 +986,11 @@ Ryan Bohn (bohnman@github)
    which messes up current value for sibling properties
   (2.10.1)
 
+Johan Haleby (johanhaleby@github)
+  * Reported #2513: BigDecimalAsStringSerializer in NumberSerializer throws IllegalStateException
+    in 2.10
+   (2.11.0)
+
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)

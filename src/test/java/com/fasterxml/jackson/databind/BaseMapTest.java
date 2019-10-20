@@ -215,7 +215,7 @@ public abstract class BaseMapTest
         }
         return SHARED_MAPPER;
     }
-    
+
     protected ObjectMapper objectMapper() {
         return sharedMapper();
     }

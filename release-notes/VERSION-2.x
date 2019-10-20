@@ -16,6 +16,8 @@ Project: jackson-databind
  (reported by Ryan B)
 #2485: Add `uses` for `Module` in module-info
  (contributed by Marc M)
+#2513: BigDecimalAsStringSerializer in NumberSerializer throws IllegalStateException in 2.10
+ (reported by Johan H)
 
 2.10.0 (26-Sep-2019)
 

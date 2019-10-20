@@ -72,9 +72,9 @@ public class DelegatingArrayCreatorsTest extends BaseMapTest
         public Bag2324<Value2324> getValues() { return this.bagOfValues; }
         public void setValues(Bag2324<Value2324> bagOfValues) { this.bagOfValues = bagOfValues; }
         private Bag2324<Value2324> bagOfValues;
-    }    
+    }
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
 
     // [databind#1804]
     public void testDelegatingArray1804() throws Exception {

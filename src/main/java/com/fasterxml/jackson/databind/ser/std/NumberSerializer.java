@@ -120,7 +120,9 @@ public class NumberSerializer
 
         @Override
         public boolean isEmpty(SerializerProvider prov, Object value) {
-            return valueToString(value).isEmpty();
+            // As per [databind#2513], should not delegate; also, never empty (numbers do
+            // have "default value" to filter by, just not "empty"
+            return false;
         }
 
         @Override

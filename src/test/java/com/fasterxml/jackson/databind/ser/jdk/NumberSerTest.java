@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -16,7 +17,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 public class NumberSerTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
+
+    private final ObjectMapper NON_EMPTY_MAPPER = jsonMapperBuilder()
+            .changeDefaultPropertyInclusion(v -> v.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+            .build()
+            ;
 
     static class IntWrapper {
         public int i;
@@ -112,6 +118,15 @@ public class NumberSerTest extends BaseMapTest
         assertEquals(aposToQuotes("{'value':'-0.5'}"), MAPPER.writeValueAsString(new DoubleAsString()));
         assertEquals(aposToQuotes("{'value':'0.25'}"), MAPPER.writeValueAsString(new BigDecimalAsString()));
         assertEquals(aposToQuotes("{'value':'123456'}"), MAPPER.writeValueAsString(new BigIntegerAsString()));
+    }
+
+    public void testNumbersAsStringNonEmpty() throws Exception
+    {
+        assertEquals(aposToQuotes("{'value':'3'}"), NON_EMPTY_MAPPER.writeValueAsString(new IntAsString()));
+        assertEquals(aposToQuotes("{'value':'4'}"), NON_EMPTY_MAPPER.writeValueAsString(new LongAsString()));
+        assertEquals(aposToQuotes("{'value':'-0.5'}"), NON_EMPTY_MAPPER.writeValueAsString(new DoubleAsString()));
+        assertEquals(aposToQuotes("{'value':'0.25'}"), NON_EMPTY_MAPPER.writeValueAsString(new BigDecimalAsString()));
+        assertEquals(aposToQuotes("{'value':'123456'}"), NON_EMPTY_MAPPER.writeValueAsString(new BigIntegerAsString()));
     }
 
     public void testConfigOverridesForNumbers() throws Exception

@@ -978,15 +978,15 @@ Andrey Kulikov (ankulikov@github)
 
 João Guerra (joca-bt@github)
   * Reported #2473: Array index missing in path of `JsonMappingException` for `Collection<String>`,
-   with custom deserializer
+    with custom deserializer
   (2.10.1)
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
-   which messes up current value for sibling properties
+    which messes up current value for sibling properties
   (2.10.1)
 
 Johan Haleby (johanhaleby@github)
   * Reported #2513: BigDecimalAsStringSerializer in NumberSerializer throws IllegalStateException
     in 2.10
-   (2.11.0)
+  (2.10.1)

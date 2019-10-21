@@ -117,4 +117,34 @@ public class TestCyclicTypes
         assertEquals(aposToQuotes("{'id':1,'parent':{'id':1}}"), json);
     }
 
+    // [Issue#2501]: Should be possible to replace null cyclic ref
+    public void testReplacedCycle() throws Exception
+    {
+        Selfie405 self1 = new Selfie405(1);
+        self1.parent = self1;
+
+        // First: ignore WRITE_SELF_REFERENCES_AS_NULL property if FAIL_ON_SELF_REFERENCES is enabled
+        ObjectWriter w = MAPPER.writer()
+                .with(SerializationFeature.FAIL_ON_SELF_REFERENCES)
+                .with(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL);
+        assertTrue(w.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES));
+        assertTrue(w.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL));
+        try {
+            w.writeValueAsString(self1);
+            fail("Should fail with direct self-ref");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Direct self-reference");
+        }
+
+        // Second: write as null
+        w = MAPPER.writer()
+                .without(SerializationFeature.FAIL_ON_SELF_REFERENCES)
+                .with(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL);
+        assertFalse(w.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES));
+        assertTrue(w.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL));
+        String json = w.writeValueAsString(self1);
+        assertNotNull(json);
+        assertEquals(aposToQuotes("{'id':1,'parent':null}"), json);
+    }
+
 }

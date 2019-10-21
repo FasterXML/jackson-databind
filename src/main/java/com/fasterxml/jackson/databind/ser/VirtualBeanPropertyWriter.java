@@ -176,7 +176,7 @@ public abstract class VirtualBeanPropertyWriter
             }
         }
         if (value == bean) { // simple check for direct cycles
-            // three choices: exception; handled by call; or pass-through
+            // four choices: exception; handled by call; or pass-through; write null
             if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }

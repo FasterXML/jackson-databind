@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -717,7 +718,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         }
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
-            // three choices: exception; handled by call; or pass-through
+            // four choices: exception; handled by call; or pass-through; write null
             if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
@@ -932,7 +933,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     protected boolean _handleSelfReference(Object bean, JsonGenerator gen,
             SerializerProvider prov, JsonSerializer<?> ser)
-            throws JsonMappingException {
+            throws IOException {
         if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)
                 && !ser.usesObjectId()) {
             // 05-Feb-2013, tatu: Usually a problem, but NOT if we are handling
@@ -943,6 +944,13 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             if (ser instanceof BeanSerializerBase) {
                 prov.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
             }
+        } else if (prov.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)
+                && !ser.usesObjectId()) {
+            if (_nullSerializer != null) {
+                gen.writeFieldName(_name);
+                _nullSerializer.serialize(null, gen, prov);
+            }
+            return true;
         }
         return false;
     }

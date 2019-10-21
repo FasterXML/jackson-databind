@@ -160,6 +160,18 @@ public enum SerializationFeature implements ConfigFeature
      */
 
     /**
+     * Feature that determines what happens when a
+     * direct self-reference is detected by a POJO
+     * (and no Object Id handling is enabled for it):
+     * <p>
+     * If enabled. write that reference as null
+     * But if "FAIL_ON_SELF_REFERENCE" is enabled. this property is ignored.
+     * <p>
+     * Feature is disabled by default.
+     */
+    WRITE_SELF_REFERENCES_AS_NULL(false),
+
+    /**
      * Feature that determines whether Date (and date/time) values
      * (and Date-based things like {@link java.util.Calendar}s) are to be
      * serialized as numeric timestamps (true; the default),

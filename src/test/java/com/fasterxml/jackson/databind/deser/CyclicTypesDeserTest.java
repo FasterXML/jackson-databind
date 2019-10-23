@@ -9,15 +9,9 @@ import com.fasterxml.jackson.databind.*;
  * is not cyclic. This is the case for directed hierarchies like
  * trees and DAGs.
  */
-public class TestCyclicTypes
+public class CyclicTypesDeserTest
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper bean classes
-    /**********************************************************
-     */
-
     static class Bean
     {
         Bean _next;
@@ -63,7 +57,7 @@ public class TestCyclicTypes
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testLinked() throws Exception
     {

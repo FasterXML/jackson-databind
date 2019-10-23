@@ -11,15 +11,9 @@ import com.fasterxml.jackson.databind.*;
  * is not cyclic. This is the case for directed hierarchies like
  * trees and DAGs.
  */
-public class TestCyclicTypes
+public class CyclicTypeSerTest
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper bean classes
-    /**********************************************************
-     */
-
     static class Bean
     {
         Bean _next;
@@ -42,11 +36,13 @@ public class TestCyclicTypes
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     public void testLinked() throws Exception
     {
         Bean last = new Bean(null, "last");
         Bean first = new Bean(last, "first");
-        Map<String,Object> map = writeAndMap(new ObjectMapper(), first);
+        Map<String,Object> map = writeAndMap(MAPPER, first);
 
         assertEquals(2, map.size());
         assertEquals("first", map.get("name"));
@@ -67,10 +63,9 @@ public class TestCyclicTypes
         Bean selfRef = new Bean(null, "self-refs");
         Bean first = new Bean(selfRef, "first");
         selfRef.assignNext(selfRef);
-        ObjectMapper m = new ObjectMapper();
         Bean[] wrapper = new Bean[] { first };
         try {
-            writeAndMap(m, wrapper);
+            writeAndMap(MAPPER, wrapper);
         } catch (JsonMappingException e) {
             verifyException(e, "Direct self-reference leading to cycle");
         }

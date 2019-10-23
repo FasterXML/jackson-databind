@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
-
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -30,6 +29,14 @@ public class CyclicTypeSerTest
         public void assignNext(Bean n) { _next = n; }
     }
 
+    static class Selfie2501 {
+        public int id;
+
+        public Selfie2501 parent;
+        
+        public Selfie2501(int id) { this.id = id; }
+    }
+
     /*
     /**********************************************************
     /* Types
@@ -38,7 +45,7 @@ public class CyclicTypeSerTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testLinked() throws Exception
+    public void testLinkedButNotCyclic() throws Exception
     {
         Bean last = new Bean(null, "last");
         Bean first = new Bean(last, "first");
@@ -55,10 +62,7 @@ public class CyclicTypeSerTest
         assertNull(map2.get("next"));
     }
 
-    /**
-     * Test for verifying that [JACKSON-158] works as expected
-     */
-    public void testSelfReference() throws Exception
+    public void testSimpleDirectSelfReference() throws Exception
     {
         Bean selfRef = new Bean(null, "self-refs");
         Bean first = new Bean(selfRef, "first");
@@ -69,5 +73,20 @@ public class CyclicTypeSerTest
         } catch (JsonMappingException e) {
             verifyException(e, "Direct self-reference leading to cycle");
         }
+    }
+
+    // [databind#2501]: Should be possible to replace null cyclic ref
+    public void testReplacedCycle() throws Exception
+    {
+        Selfie2501 self1 = new Selfie2501(1);
+        self1.parent = self1;
+
+        ObjectWriter w = MAPPER.writer()
+                .without(SerializationFeature.FAIL_ON_SELF_REFERENCES)
+                .with(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)
+                ;
+        final String json = w.writeValueAsString(self1);
+        assertNotNull(json);
+        assertEquals(aposToQuotes("{'id':1,'parent':null}"), json);
     }
 }

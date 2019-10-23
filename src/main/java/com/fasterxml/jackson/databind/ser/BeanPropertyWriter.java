@@ -718,7 +718,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         }
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
-            // four choices: exception; handled by call; or pass-through; write null
+            // four choices: exception; handled by call; pass-through or write null
             if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
@@ -946,7 +946,14 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                 }
             } else if (prov.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)) {
                 if (_nullSerializer != null) {
-                    gen.writeFieldName(_name);
+                    // 23-Oct-2019, tatu: Tricky part -- caller does not specify if it's
+                    //   "as property" (in JSON Object) or "as element" (JSON array, via
+                    //   'POJO-as-array'). And since Afterburner calls method can not easily
+                    //   start passing info either. So check generator to see...
+                    //   (note: not considering ROOT context as possibility, does not seem legal)
+                    if (!gen.getOutputContext().inArray()) {
+                        gen.writeFieldName(_name);
+                    }
                     _nullSerializer.serialize(null, gen, prov);
                 }
                 return true;

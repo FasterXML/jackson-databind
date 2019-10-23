@@ -115,6 +115,19 @@ public enum SerializationFeature implements ConfigFeature
      */
     FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS(true),
 
+    /**
+     * Feature that determines what happens when a direct self-reference is detected
+     * by a POJO (and no Object Id handling is enabled for it):
+     * if enabled write that reference as null; if disabled, default behavior is
+     * used (which will try to serialize usually resulting in exception).
+     * But if {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} is enabled. this property is ignored.
+     * <p>
+     * Feature is disabled by default.
+     *
+     * @since 2.11
+     */
+    WRITE_SELF_REFERENCES_AS_NULL(false),
+
     /*
     /******************************************************
     /* Output life cycle features
@@ -158,18 +171,6 @@ public enum SerializationFeature implements ConfigFeature
     /* Datatype-specific serialization configuration
     /******************************************************
      */
-
-    /**
-     * Feature that determines what happens when a
-     * direct self-reference is detected by a POJO
-     * (and no Object Id handling is enabled for it):
-     * <p>
-     * If enabled. write that reference as null
-     * But if "FAIL_ON_SELF_REFERENCE" is enabled. this property is ignored.
-     * <p>
-     * Feature is disabled by default.
-     */
-    WRITE_SELF_REFERENCES_AS_NULL(false),
 
     /**
      * Feature that determines whether Date (and date/time) values

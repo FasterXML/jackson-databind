@@ -2,6 +2,9 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -29,12 +32,18 @@ public class CyclicTypeSerTest
         public void assignNext(Bean n) { _next = n; }
     }
 
+    @JsonPropertyOrder({ "id", "parent" })
     static class Selfie2501 {
         public int id;
 
         public Selfie2501 parent;
         
         public Selfie2501(int id) { this.id = id; }
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    static class Selfie2501AsArray extends Selfie2501 {
+        public Selfie2501AsArray(int id) { super(id); }
     }
 
     /*
@@ -80,13 +89,15 @@ public class CyclicTypeSerTest
     {
         Selfie2501 self1 = new Selfie2501(1);
         self1.parent = self1;
-
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.FAIL_ON_SELF_REFERENCES)
                 .with(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)
                 ;
-        final String json = w.writeValueAsString(self1);
-        assertNotNull(json);
-        assertEquals(aposToQuotes("{'id':1,'parent':null}"), json);
+        assertEquals(aposToQuotes("{'id':1,'parent':null}"), w.writeValueAsString(self1));
+
+        // Also consider a variant of cyclic POJO in container
+        Selfie2501AsArray self2 = new Selfie2501AsArray(2);
+        self2.parent = self2;
+        assertEquals(aposToQuotes("[2,null]"), w.writeValueAsString(self2));
     }
 }

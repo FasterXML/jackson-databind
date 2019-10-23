@@ -994,3 +994,7 @@ Johan Haleby (johanhaleby@github)
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)
+
+Fitz (Joongsoo.Park) (joongsoo@github)
+  * Contributed #2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
+  (2.11.0)

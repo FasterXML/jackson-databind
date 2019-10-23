@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 public enum SerializationFeature implements ConfigFeature
 {
     /*
-    /******************************************************
+    /**********************************************************************
     /* Generic output features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -49,9 +49,9 @@ public enum SerializationFeature implements ConfigFeature
     INDENT_OUTPUT(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Error handling features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -78,8 +78,6 @@ public enum SerializationFeature implements ConfigFeature
      * thrown (if true), or reference is normally processed (false).
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.4
      */
     FAIL_ON_SELF_REFERENCES(true),
 
@@ -110,15 +108,24 @@ public enum SerializationFeature implements ConfigFeature
      * object will be unwrapped and the type information discarded.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.4
      */
     FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS(true),
 
+    /**
+     * Feature that determines what happens when a direct self-reference is detected
+     * by a POJO (and no Object Id handling is enabled for it):
+     * if enabled write that reference as null; if disabled, default behavior is
+     * used (which will try to serialize usually resulting in exception).
+     * But if {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} is enabled. this property is ignored.
+     * <p>
+     * Feature is disabled by default.
+     */
+    WRITE_SELF_REFERENCES_AS_NULL(false),
+
     /*
-    /******************************************************
+    /**********************************************************************
     /* Output life cycle features
-    /******************************************************
+    /**********************************************************************
      */
 
      /**
@@ -154,22 +161,10 @@ public enum SerializationFeature implements ConfigFeature
     FLUSH_AFTER_WRITE_VALUE(true),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Datatype-specific serialization configuration
-    /******************************************************
+    /**********************************************************************
      */
-
-    /**
-     * Feature that determines what happens when a
-     * direct self-reference is detected by a POJO
-     * (and no Object Id handling is enabled for it):
-     * <p>
-     * If enabled. write that reference as null
-     * But if "FAIL_ON_SELF_REFERENCE" is enabled. this property is ignored.
-     * <p>
-     * Feature is disabled by default.
-     */
-    WRITE_SELF_REFERENCES_AS_NULL(false),
 
     /**
      * Feature that determines whether Date (and date/time) values
@@ -224,8 +219,6 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default, so that zone id is NOT included; rather, timezone
      * offset is used for ISO-8601 compatibility (if any timezone information is
      * included in value).
-     * 
-     * @since 2.6
      */
     WRITE_DATES_WITH_ZONE_ID(false), 
 
@@ -241,8 +234,6 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default, so that period/duration are by default
      * serialized as timestamps.
-     * 
-     * @since 2.5
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
     
@@ -295,8 +286,6 @@ public enum SerializationFeature implements ConfigFeature
      * {@link Enum}s as regular values.
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.10
      */
     WRITE_ENUM_KEYS_USING_INDEX(false),
 
@@ -356,8 +345,6 @@ public enum SerializationFeature implements ConfigFeature
      * This is the counterpart to {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
      * Feature is enabled by default, to support most accurate time values possible.
-     *
-     * @since 2.2
      */
     WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
 
@@ -372,9 +359,9 @@ public enum SerializationFeature implements ConfigFeature
     ORDER_MAP_ENTRIES_BY_KEYS(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Other
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -388,8 +375,6 @@ public enum SerializationFeature implements ConfigFeature
      * feature: only consider that if there are actual perceived problems.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.1
      */
     EAGER_SERIALIZER_FETCH(true),
 
@@ -409,8 +394,6 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default; meaning that strict identity is used, not
      * <code>equals()</code>
-     *
-     * @since 2.3
      */
     USE_EQUALITY_FOR_OBJECT_ID(false)
     ;

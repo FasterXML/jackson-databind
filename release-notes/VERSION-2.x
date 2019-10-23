@@ -9,6 +9,8 @@ Project: jackson-databind
 #2487: BeanDeserializerBuilder Protected Factory Method for Extension
  (contributed by Ville K)
 #2503: Support `@JsonSerialize(keyUsing)` and `@JsonDeserialize(keyUsing)` on Key class
+#2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
+ (contributed by Joongsoo P)
 
 2.10.1 (not yet released)
 

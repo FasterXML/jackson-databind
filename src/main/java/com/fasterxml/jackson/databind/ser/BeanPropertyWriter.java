@@ -831,24 +831,22 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     protected boolean _handleSelfReference(Object bean, JsonGenerator gen,
             SerializerProvider prov, JsonSerializer<?> ser)
-            throws IOException {
-        if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)
-                && !ser.usesObjectId()) {
-            // 05-Feb-2013, tatu: Usually a problem, but NOT if we are handling
-            // object id; this may be the case for BeanSerializers at least.
-            // 13-Feb-2014, tatu: another possible ok case: custom serializer
-            // (something
-            // OTHER than {@link BeanSerializerBase}
-            if (ser instanceof BeanSerializerBase) {
-                prov.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
+        throws IOException
+    {
+        if (!ser.usesObjectId()) {
+            if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
+                // 05-Feb-2013, tatu: Usually a problem, but NOT if we are handling
+                // object id; this may be the case for BeanSerializers at least.
+                if (ser instanceof BeanSerializerBase) {
+                    prov.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
+                }
+            } else if (prov.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)) {
+                if (_nullSerializer != null) {
+                    gen.writeFieldName(_name);
+                    _nullSerializer.serialize(null, gen, prov);
+                }
+                return true;
             }
-        } else if (prov.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)
-                && !ser.usesObjectId()) {
-            if (_nullSerializer != null) {
-                gen.writeFieldName(_name);
-                _nullSerializer.serialize(null, gen, prov);
-            }
-            return true;
         }
         return false;
     }

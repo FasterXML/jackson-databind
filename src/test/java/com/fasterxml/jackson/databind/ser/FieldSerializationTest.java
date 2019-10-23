@@ -131,7 +131,7 @@ public class FieldSerializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSimpleAutoDetect() throws Exception
     {

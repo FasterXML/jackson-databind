@@ -990,3 +990,8 @@ Johan Haleby (johanhaleby@github)
   * Reported #2513: BigDecimalAsStringSerializer in NumberSerializer throws IllegalStateException
     in 2.10
   (2.10.1)
+
+Mark Schäfer (mark--@github)
+  * Reported #2520: Sub-optimal exception message when failing to deserialize non-static inner classes
+  (2.10.1)
+ 

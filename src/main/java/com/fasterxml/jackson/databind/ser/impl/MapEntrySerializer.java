@@ -162,7 +162,7 @@ public class MapEntrySerializer
             //   we can consider it a static case as well.
             // 20-Aug-2013, tatu: Need to avoid trying to access serializer for java.lang.Object tho
             if (_valueTypeIsStatic && !_valueType.isJavaLangObject()) {
-                ser = provider.findSecondaryPropertySerializer(_valueType, property);
+                ser = provider.findContentValueSerializer(_valueType, property);
             }
         }
         if (keySer == null) {

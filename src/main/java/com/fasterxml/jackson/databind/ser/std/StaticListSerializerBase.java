@@ -69,7 +69,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         // [databind#124]: May have a content converter
         ser = findContextualConvertingSerializer(serializers, property, ser);
         if (ser == null) {
-            ser = serializers.findSecondaryPropertySerializer(String.class, property);
+            ser = serializers.findContentValueSerializer(String.class, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {

@@ -140,7 +140,7 @@ public class ObjectArraySerializer
             //   we can consider it a static case as well.
             if (_elementType != null) {
                 if (_staticTyping && !_elementType.isJavaLangObject()) {
-                    ser = ctxt.findSecondaryPropertySerializer(_elementType, property);
+                    ser = ctxt.findContentValueSerializer(_elementType, property);
                 }
             }
         }
@@ -297,7 +297,7 @@ public class ObjectArraySerializer
             JavaType contentType = _elementType;
             JsonSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
-                valueSer = visitor.getProvider().findSecondaryPropertySerializer(contentType, _property);
+                valueSer = visitor.getProvider().findContentValueSerializer(contentType, _property);
             }
             arrayVisitor.itemsFormat(valueSer, contentType);
         }

@@ -56,7 +56,7 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
             return new Jdk8StreamSerializer(
                     provider.getTypeFactory().constructParametricType(Stream.class, elemType),
                     elemType,
-                    provider.findSecondaryPropertySerializer(elemType, property));
+                    provider.findContentValueSerializer(elemType, property));
         }
         return this;
     }

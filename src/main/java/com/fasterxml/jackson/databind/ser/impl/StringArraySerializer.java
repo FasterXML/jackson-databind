@@ -102,7 +102,7 @@ public class StringArraySerializer
         // May have a content converter
         ser = findContextualConvertingSerializer(provider, property, ser);
         if (ser == null) {
-            ser = provider.findSecondaryPropertySerializer(String.class, property);
+            ser = provider.findContentValueSerializer(String.class, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {

@@ -612,7 +612,19 @@ public abstract class SerializerProvider
         return handlePrimaryContextualization(ser, property);
     }
 
-    public JsonSerializer<Object> findSecondaryPropertySerializer(JavaType valueType,
+    /**
+     * Method similar to {@link #findPrimaryPropertySerializer(JavaType, BeanProperty)}
+     * but used for "content values", secondary types used by "primary" serializers
+     * for structured types like Arrays, {@link java.util.Collection}s, {@link java.util.Map}s
+     * and so on.
+     *<p>
+     * Serializer will be contextualized, but will not have type serializer wrapped.
+     *
+     * @param valueType Type of (secondary / content) values being serialized
+     * @param property (optional) Property that refers to values via primary type (so type
+     *    DOES NOT necessarily match {@code valueType})
+     */
+    public JsonSerializer<Object> findContentValueSerializer(JavaType valueType,
             BeanProperty property)
         throws JsonMappingException
     {
@@ -623,7 +635,10 @@ public abstract class SerializerProvider
         return handleSecondaryContextualization(ser, property);
     }
 
-    public JsonSerializer<Object> findSecondaryPropertySerializer(Class<?> rawType,
+    /**
+     * See {@link #findContentValueSerializer(JavaType, BeanProperty)}.
+     */
+    public JsonSerializer<Object> findContentValueSerializer(Class<?> rawType,
             BeanProperty property)
         throws JsonMappingException
     {

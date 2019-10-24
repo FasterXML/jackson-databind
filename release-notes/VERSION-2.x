@@ -11,6 +11,8 @@ Project: jackson-databind
 #2503: Support `@JsonSerialize(keyUsing)` and `@JsonDeserialize(keyUsing)` on Key class
 #2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
  (contributed by Joongsoo P)
+#2522: `DeserializationContext.handleMissingInstantiator()` throws `MismatchedInputException`
+  for non-static inner classes
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.1 (not yet released)

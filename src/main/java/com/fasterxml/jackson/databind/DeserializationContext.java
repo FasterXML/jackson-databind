@@ -1049,10 +1049,17 @@ public abstract class DeserializationContext
         // 16-Oct-2016, tatu: This is either a definition problem (if no applicable creator
         //   exists), or input mismatch problem (otherwise) since none of existing creators
         //   match with token.
-        if ((valueInst != null) && !valueInst.canInstantiate()) {
-            msg = String.format("Cannot construct instance of %s (no Creators, like default construct, exist): %s",
+        // 24-Oct-2019, tatu: Further, as per [databind#2522], passing `null` ValueInstantiator
+        //   should simply trigger definition problem
+        if (valueInst == null ) {
+            msg = String.format("Cannot construct instance of %s: %s",
                     ClassUtil.nameOf(instClass), msg);
-            return reportBadDefinition(constructType(instClass), msg);
+            return reportBadDefinition(instClass, msg);
+        }
+        if (!valueInst.canInstantiate()) {
+            msg = String.format("Cannot construct instance of %s (no Creators, like default constructor, exist): %s",
+                    ClassUtil.nameOf(instClass), msg);
+            return reportBadDefinition(instClass, msg);
         }
         msg = String.format("Cannot construct instance of %s (although at least one Creator exists): %s",
                 ClassUtil.nameOf(instClass), msg);

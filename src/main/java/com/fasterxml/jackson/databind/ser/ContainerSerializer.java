@@ -114,7 +114,7 @@ public abstract class ContainerSerializer<T>
      * known statically.
      * Note that for dynamic types this may return null; if so,
      * caller has to instead use {@link #getContentType()} and
-     * {@link com.fasterxml.jackson.databind.SerializerProvider#findValueSerializer}.
+     * {@link com.fasterxml.jackson.databind.SerializerProvider#findContentValueSerializer}.
      */
     public abstract JsonSerializer<?> getContentSerializer();
 

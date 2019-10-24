@@ -991,7 +991,11 @@ Johan Haleby (johanhaleby@github)
     in 2.10
   (2.10.1)
 
+Richard Wise (Woodz@github)
+  * Reported #2519: Serializing `BigDecimal` values inside containers ignores shape override	
+  (2.10.1)
+
 Mark Schäfer (mark--@github)
   * Reported #2520: Sub-optimal exception message when failing to deserialize non-static inner classes
   (2.10.1)
- 
+

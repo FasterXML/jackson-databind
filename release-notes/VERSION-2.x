@@ -29,6 +29,8 @@ Project: jackson-databind
  (reported by Johan H)
 #2519: Serializing `BigDecimal` values inside containers ignores shape override
  (reported by Richard W)
+#2520: Sub-optimal exception message when failing to deserialize non-static inner classes
+ (reported by Mark S)
 
 2.10.0 (26-Sep-2019)
 

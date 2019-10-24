@@ -1246,7 +1246,7 @@ public abstract class BeanDeserializerBase
         Class<?> raw = _beanType.getRawClass();
         if (ClassUtil.isNonStaticInnerClass(raw)) {
             return ctxt.handleMissingInstantiator(raw, null, p,
-"can only instantiate non-static inner class by using default, no-argument constructor");
+"non-static inner classes like this can only by instantiated using default, no-argument constructor");
         }
         return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
                 "cannot deserialize from Object value (no delegate- or property-based Creator)");

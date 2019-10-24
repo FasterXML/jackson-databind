@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 /**
  * Base implementation for values of {@link ReferenceType}.
  * Implements most of functionality, only leaving couple of abstract
- * methods for sub-classes to implement
+ * methods for sub-classes to implement.
  *
  * @since 2.8
  */
@@ -454,9 +454,12 @@ public abstract class ReferenceTypeSerializer<T>
                 // [databind#1673] Must ensure we will resolve all available type information
                 //  so as not to miss generic declaration of, say, `List<GenericPojo>`...
                 JavaType fullType = provider.constructSpecializedType(_referredType, rawType);
-                ser = provider.findContentValueSerializer(fullType, _property);
+                // 23-Oct-2019, tatu: I _think_ we actually need to consider referenced
+                //    type as "primary" to allow applying various handlers -- done since 2.11
+                
+                ser = provider.findPrimaryPropertySerializer(fullType, _property);
             } else {
-                ser = provider.findContentValueSerializer(rawType, _property);
+                ser = provider.findPrimaryPropertySerializer(rawType, _property);
             }
             if (_unwrapper != null) {
                 ser = ser.unwrappingSerializer(_unwrapper);
@@ -474,6 +477,6 @@ public abstract class ReferenceTypeSerializer<T>
         // 15-Jan-2017, tatu: ... possibly because we need to access "secondary" serializer,
         //   not primary (primary being one for Reference type itself, not value)
 //        return provider.findTypedValueSerializer(type, true, prop);
-        return provider.findContentValueSerializer(type, prop);
+        return provider.findPrimaryPropertySerializer(type, prop);
     }
 }

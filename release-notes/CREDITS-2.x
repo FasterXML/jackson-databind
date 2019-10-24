@@ -990,3 +990,8 @@ Johan Haleby (johanhaleby@github)
   * Reported #2513: BigDecimalAsStringSerializer in NumberSerializer throws IllegalStateException
     in 2.10
   (2.10.1)
+
+Richard Wise (Woodz@github)
+  * Reported #2519: Serializing `BigDecimal` values inside containers ignores shape override	
+  (2.10.1)
+

@@ -79,7 +79,7 @@ public class EnumSetSerializer
             if (enumSer == null) {
                 // 12-Jan-2010, tatu: Since enums cannot be polymorphic, let's
                 //   not bother with typed serializer variant here
-                enumSer = provider.findValueSerializer(en.getDeclaringClass(), _property);
+                enumSer = provider.findContentValueSerializer(en.getDeclaringClass(), _property);
             }
             enumSer.serialize(en, gen, provider);
         }

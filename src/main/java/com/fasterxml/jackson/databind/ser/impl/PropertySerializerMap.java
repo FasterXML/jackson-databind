@@ -87,7 +87,7 @@ public abstract class PropertySerializerMap
             SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findValueSerializer(type, property);
+        JsonSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
@@ -95,7 +95,7 @@ public abstract class PropertySerializerMap
             SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findValueSerializer(type, property);
+        JsonSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 

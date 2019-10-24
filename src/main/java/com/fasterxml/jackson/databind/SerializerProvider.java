@@ -624,6 +624,7 @@ public abstract class SerializerProvider
      * and method(s) called: this method should only be called when caller is
      * certain that this is the primary property value serializer.
      * 
+     * @param valueType Type of values to serialize
      * @param property Property that is being handled; will never be null, and its
      *    type has to match <code>valueType</code> parameter.
      * 
@@ -652,6 +653,8 @@ public abstract class SerializerProvider
     }
 
     /**
+     * See {@link #findPrimaryPropertySerializer(JavaType, BeanProperty)}
+     *
      * @since 2.3
      */
     @SuppressWarnings("unchecked")
@@ -678,7 +681,79 @@ public abstract class SerializerProvider
         }
         return (JsonSerializer<Object>) handlePrimaryContextualization(ser, property);
     }
-    
+
+    /**
+     * Alternative to {@link #findPrimaryPropertySerializer(JavaType, BeanProperty)} called not
+     * for primary value, but "content" of such primary serializer: element of an array or
+     * {@link java.util.Collection}, value of {@link java.util.Map} entry and so on.
+     * This means that {@code property} passed (if any) does NOT represent value for which
+     * serializer is requested but its secondary type (or secondary type of that type,
+     * recursively).
+     *<p>
+     * Serializer returned SHOULD NOT handle type information; caller will (have to) add
+     * suitable wrapping if necessary.
+     *<p>
+     * Note: this call will also contextualize serializer (call {@code createContextual()}
+     * before returning it, if applicable (implements {@code ContextualSerializer})
+     *
+     * @param valueType Type of values to serialize
+     * @param property Property that indirectly refers to value being serialized (optional,
+     *    may be {@code null} for root level serializers)
+     *
+     * @since 2.11
+     */
+    @SuppressWarnings("unchecked")
+    public JsonSerializer<Object> findContentValueSerializer(JavaType valueType, BeanProperty property)
+            throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(valueType);
+            if (ser == null) {
+                ser = _createAndCacheUntypedSerializer(valueType);
+                if (ser == null) {
+                    ser = getUnknownTypeSerializer(valueType.getRawClass());
+                    // Should this be added to lookups?
+                    if (CACHE_UNKNOWN_MAPPINGS) {
+                        _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
+                    }
+                    return ser;
+                }
+            }
+        }
+        return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
+    }
+
+    /**
+     * See {@link #findContentValueSerializer(JavaType, BeanProperty)}.
+     *
+     * @since 2.11
+     */
+    @SuppressWarnings("unchecked")
+    public JsonSerializer<Object> findContentValueSerializer(Class<?> valueType,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(valueType);
+            if (ser == null) {
+                ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
+                if (ser == null) {
+                    ser = _createAndCacheUntypedSerializer(valueType);
+                    if (ser == null) {
+                        ser = getUnknownTypeSerializer(valueType);
+                        if (CACHE_UNKNOWN_MAPPINGS) {
+                            _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
+                        }
+                        return ser;
+                    }
+                }
+            }
+        }
+        return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
+    }
+
     /**
      * Method called to locate regular serializer, matching type serializer,
      * and if both found, wrap them in a serializer that calls both in correct
@@ -1383,10 +1458,10 @@ public abstract class SerializerProvider
         //    versions, likely due to concurrency fixes for `AnnotatedClass` introspection.
         //    This sync block could probably be removed; but to minimize any risk of
         //    regression sync block will only be removed from 3.0.
-        synchronized (_serializerCache) {
-            // 17-Feb-2013, tatu: Used to call deprecated method (that passed property)
+        // 23-Oct-2019, tatu: Due to continuation of 2.x line, removed from 2.11
+//        synchronized (_serializerCache) {
             return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type);
-        }
+//        }
     }
 
     /**

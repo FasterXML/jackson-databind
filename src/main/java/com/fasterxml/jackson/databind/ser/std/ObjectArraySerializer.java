@@ -158,7 +158,7 @@ public class ObjectArraySerializer
             //   we can consider it a static case as well.
             if (_elementType != null) {
                 if (_staticTyping && !_elementType.isJavaLangObject()) {
-                    ser = serializers.findValueSerializer(_elementType, property);
+                    ser = serializers.findContentValueSerializer(_elementType, property);
                 }
             }
         }
@@ -327,7 +327,7 @@ public class ObjectArraySerializer
 */
             JsonSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
-                valueSer = visitor.getProvider().findValueSerializer(contentType, _property);
+                valueSer = visitor.getProvider().findContentValueSerializer(contentType, _property);
             }
             arrayVisitor.itemsFormat(valueSer, contentType);
         }

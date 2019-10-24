@@ -1208,7 +1208,8 @@ public abstract class BasicSerializerFactory
      * serializer being built, if any.
      */
     protected Object findFilterId(SerializationConfig config, BeanDescription beanDesc) {
-        return config.getAnnotationIntrospector().findFilterId((Annotated)beanDesc.getClassInfo());
+        return config.getAnnotationIntrospector().findFilterId(config,
+                (Annotated)beanDesc.getClassInfo());
     }
 
     /**

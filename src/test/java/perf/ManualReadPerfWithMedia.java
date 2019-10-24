@@ -2,6 +2,7 @@ package perf;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -45,6 +46,6 @@ public class ManualReadPerfWithMedia extends ObjectReaderTestBase
     {
         private static final long serialVersionUID = 1L;
         @Override
-        public JsonFormat.Value findFormat(Annotated a) { return null; }
+        public JsonFormat.Value findFormat(MapperConfig<?> config, Annotated a) { return null; }
     }
 }

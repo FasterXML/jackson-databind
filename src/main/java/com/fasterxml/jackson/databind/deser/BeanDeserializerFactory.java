@@ -900,10 +900,11 @@ name, ((AnnotatedParameter) m).getIndex());
             status = Boolean.FALSE;
         } else {
             // 21-Apr-2016, tatu: For 2.8, can specify config overrides
-            status = ctxt.getConfig().getConfigOverride(type).getIsIgnoredType();
+            final DeserializationConfig config = ctxt.getConfig();
+            status = config.getConfigOverride(type).getIsIgnoredType();
             if (status == null) {
                 AnnotatedClass classAnnotations = ctxt.introspectClassAnnotations(type);
-                status = ctxt.getAnnotationIntrospector().isIgnorableType(classAnnotations);
+                status = ctxt.getAnnotationIntrospector().isIgnorableType(config, classAnnotations);
                 // We default to 'false', i.e. not ignorable
                 if (status == null) {
                     status = Boolean.FALSE;

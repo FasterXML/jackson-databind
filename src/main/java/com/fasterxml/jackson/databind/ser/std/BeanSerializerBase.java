@@ -400,7 +400,7 @@ public abstract class BeanSerializerBase
                         //   for now, just do class ones
                         BeanDescription desc = ctxt.introspectBeanDescription(_beanType);
                         JsonSerializer<?> ser = EnumSerializer.construct(_beanType.getRawClass(),
-                                ctxt.getConfig(), desc, format);
+                                config, desc, format);
                         return ctxt.handlePrimaryContextualization(ser, property);
                     }
                 // 16-Oct-2016, tatu: Ditto for `Map`, `Map.Entry` subtypes
@@ -429,7 +429,7 @@ public abstract class BeanSerializerBase
 
         // Then we may have an override for Object Id
         if (accessor != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(accessor);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, accessor);
             if (ignorals != null) {
                 ignoredProps = ignorals.findIgnoredForSerialization();
             }
@@ -490,7 +490,7 @@ public abstract class BeanSerializerBase
                 }
             }
             // Or change Filter Id in use?
-            Object filterId = intr.findFilterId(accessor);
+            Object filterId = intr.findFilterId(config, accessor);
             if (filterId != null) {
                 // but only consider case of adding a new filter id (no removal via annotation)
                 if (_propertyFilterId == null || !filterId.equals(_propertyFilterId)) {

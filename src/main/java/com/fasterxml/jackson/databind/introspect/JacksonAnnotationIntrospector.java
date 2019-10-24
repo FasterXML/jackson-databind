@@ -219,7 +219,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public PropertyName findRootName(AnnotatedClass ac)
+    public PropertyName findRootName(MapperConfig<?> config, AnnotatedClass ac)
     {
         JsonRootName ann = _findAnnotation(ac, JsonRootName.class);
         if (ann == null) {
@@ -233,7 +233,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override // since 2.8
-    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
+    public JsonIgnoreProperties.Value findPropertyIgnorals(MapperConfig<?> config, Annotated a)
     {
         JsonIgnoreProperties v = _findAnnotation(a, JsonIgnoreProperties.class);
         if (v == null) {
@@ -243,13 +243,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Boolean isIgnorableType(AnnotatedClass ac) {
+    public Boolean isIgnorableType(MapperConfig<?> config, AnnotatedClass ac) {
         JsonIgnoreType ignore = _findAnnotation(ac, JsonIgnoreType.class);
         return (ignore == null) ? null : ignore.value();
     }
  
     @Override
-    public Object findFilterId(Annotated a) {
+    public Object findFilterId(MapperConfig<?> config, Annotated a) {
         JsonFilter ann = _findAnnotation(a, JsonFilter.class);
         if (ann != null) {
             String id = ann.value();
@@ -262,14 +262,14 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findNamingStrategy(AnnotatedClass ac)
+    public Object findNamingStrategy(MapperConfig<?> config, AnnotatedClass ac)
     {
         JsonNaming ann = _findAnnotation(ac, JsonNaming.class);
         return (ann == null) ? null : ann.value();
     }
 
     @Override
-    public String findClassDescription(AnnotatedClass ac) {
+    public String findClassDescription(MapperConfig<?> config, AnnotatedClass ac) {
         JsonClassDescription ann = _findAnnotation(ac, JsonClassDescription.class);
         return (ann == null) ? null : ann.value();
     }
@@ -416,7 +416,7 @@ public class JacksonAnnotationIntrospector
     }
     
     @Override
-    public JsonFormat.Value findFormat(Annotated ann) {
+    public JsonFormat.Value findFormat(MapperConfig<?> config, Annotated ann) {
         JsonFormat f = _findAnnotation(ann, JsonFormat.class);
         return (f == null)  ? null : new JsonFormat.Value(f);
     }
@@ -1172,7 +1172,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public PropertyName findNameForDeserialization(Annotated a)
+    public PropertyName findNameForDeserialization(MapperConfig<?> config, Annotated a)
     {
         // @JsonSetter has precedence over @JsonProperty, being more specific
 

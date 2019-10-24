@@ -208,7 +208,7 @@ public abstract class AnnotationIntrospector
      * is defined. Returns null if no declaration found; can return
      * explicit empty String, which is usually ignored as well as null.
      */
-    public PropertyName findRootName(AnnotatedClass ac) {
+    public PropertyName findRootName(MapperConfig<?> config, AnnotatedClass ac) {
         return null;
     }
 
@@ -216,7 +216,7 @@ public abstract class AnnotationIntrospector
      * Method for finding information about properties to ignore either by
      * name, or by more general specification ("ignore all unknown").
      */
-    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated ac)
+    public JsonIgnoreProperties.Value findPropertyIgnorals(MapperConfig<?> config, Annotated ac)
     {
         return JsonIgnoreProperties.Value.empty();
     }
@@ -232,7 +232,7 @@ public abstract class AnnotationIntrospector
      *   Boolean.FALSE if they are not to be ignored, null for default
      *   handling (which is 'do not ignore')
      */
-    public Boolean isIgnorableType(AnnotatedClass ac) { return null; }
+    public Boolean isIgnorableType(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /**
      * Method for finding if annotated class has associated filter; and if so,
@@ -241,7 +241,7 @@ public abstract class AnnotationIntrospector
      * @return Id of the filter to use for filtering properties of annotated
      *    class, if any; or null if none found.
      */
-    public Object findFilterId(Annotated ann) { return null; }
+    public Object findFilterId(MapperConfig<?> config, Annotated ann) { return null; }
 
     /**
      * Method for finding {@link PropertyNamingStrategy} for given
@@ -252,7 +252,7 @@ public abstract class AnnotationIntrospector
      * @return Sub-class or instance of {@link PropertyNamingStrategy}, if one
      *   is specified for given class; null if not.
      */
-    public Object findNamingStrategy(AnnotatedClass ac) { return null; }
+    public Object findNamingStrategy(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /**
      * Method used to check whether specified class defines a human-readable
@@ -263,7 +263,7 @@ public abstract class AnnotationIntrospector
      * 
      * @return Human-readable description, if any.
      */
-    public String findClassDescription(AnnotatedClass ac) { return null; }
+    public String findClassDescription(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /*
     /**********************************************************************
@@ -340,9 +340,9 @@ public abstract class AnnotationIntrospector
     public Boolean isTypeId(MapperConfig<?> config, AnnotatedMember member) { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General member (field, method/constructor) annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -418,7 +418,7 @@ public abstract class AnnotationIntrospector
      * deserializers to customize presentation aspects of the
      * serialized value.
      */
-    public JsonFormat.Value findFormat(Annotated memberOrClass) {
+    public JsonFormat.Value findFormat(MapperConfig<?> config, Annotated memberOrClass) {
         return JsonFormat.Value.empty();
     }
 
@@ -504,9 +504,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization: general annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -614,9 +614,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization: type refinements
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -631,9 +631,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization: class annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -661,9 +661,9 @@ public abstract class AnnotationIntrospector
             List<BeanPropertyWriter> properties) { }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization: property annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -730,9 +730,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization: general annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -815,9 +815,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization: type refinements
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -831,9 +831,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization: class annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -865,9 +865,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization: property annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -882,7 +882,7 @@ public abstract class AnnotationIntrospector
      * 
      * @return Name to use if found; null if not.
      */
-    public PropertyName findNameForDeserialization(Annotated a) {
+    public PropertyName findNameForDeserialization(MapperConfig<?> config, Annotated a) {
         return null;
     }
     
@@ -932,10 +932,9 @@ public abstract class AnnotationIntrospector
     }
 
     /*
-    /**********************************************************
-    /* Overridable methods: may be used as low-level extension
-    /* points.
-    /**********************************************************
+    /**********************************************************************
+    /* Overridable methods: may be used as low-level extension points.
+    /**********************************************************************
      */
 
     /**

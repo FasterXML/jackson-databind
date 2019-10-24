@@ -269,7 +269,7 @@ public class MapDeserializer
         if (_neitherNull(intr, property)) {
             AnnotatedMember member = property.getMember();
             if (member != null) {
-                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(member);
+                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(ctxt.getConfig(), member);
                 if (ignorals != null) {
                     Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
                     if (!ignoresToAdd.isEmpty()) {

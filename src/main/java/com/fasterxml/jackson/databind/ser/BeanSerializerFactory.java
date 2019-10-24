@@ -603,10 +603,11 @@ public class BeanSerializerFactory
             Class<?> type = property.getRawPrimaryType();
             Boolean result = ignores.get(type);
             if (result == null) {
-                result = ctxt.getConfig().getConfigOverride(type).getIsIgnoredType();
+                final SerializationConfig config = ctxt.getConfig();
+                result = config.getConfigOverride(type).getIsIgnoredType();
                 if (result == null) {
                     AnnotatedClass ac = ctxt.introspectClassAnnotations(type);
-                    result = intr.isIgnorableType(ac);
+                    result = intr.isIgnorableType(config, ac);
                     // default to false, non-ignorable
                     if (result == null) {
                         result = Boolean.FALSE;

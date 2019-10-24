@@ -34,7 +34,7 @@ public class RootNameLookup implements java.io.Serializable
         }
         AnnotatedClass ac = ctxt.introspectClassAnnotations(rootType);
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        name = intr.findRootName(ac);
+        name = intr.findRootName(ctxt.getConfig(), ac);
         // No answer so far? Let's just default to using simple class name
         if (name == null || !name.hasSimpleName()) {
             // Should we strip out enclosing class tho? For now, nope:

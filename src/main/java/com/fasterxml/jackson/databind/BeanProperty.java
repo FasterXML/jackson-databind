@@ -232,7 +232,7 @@ public interface BeanProperty extends FullyNamed
             if ((intr == null) || (_member == null)) {
                 return v0;
             }
-            JsonFormat.Value v = intr.findFormat(_member);
+            JsonFormat.Value v = intr.findFormat(config, _member);
             if (v == null) {
                 return v0;
             }

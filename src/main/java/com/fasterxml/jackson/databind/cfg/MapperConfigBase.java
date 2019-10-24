@@ -483,7 +483,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     {
         AnnotationIntrospector intr = getAnnotationIntrospector();
         JsonIgnoreProperties.Value base = (intr == null) ? null
-                : intr.findPropertyIgnorals(actualClass);
+                : intr.findPropertyIgnorals(this, actualClass);
         JsonIgnoreProperties.Value overrides = getDefaultPropertyIgnorals(baseType);
         return JsonIgnoreProperties.Value.merge(base, overrides);
     }

@@ -376,7 +376,7 @@ public class POJOPropertiesCollector
                  */
                 pn = ai.findNameForSerialization(f);
             } else {
-                pn = ai.findNameForDeserialization(f);
+                pn = ai.findNameForDeserialization(_config, f);
             }
             boolean hasName = (pn != null);
             boolean nameExplicit = hasName;
@@ -452,7 +452,7 @@ public class POJOPropertiesCollector
         if (impl == null) {
             impl = "";
         }
-        PropertyName pn = _annotationIntrospector.findNameForDeserialization(param);
+        PropertyName pn = _annotationIntrospector.findNameForDeserialization(_config, param);
         boolean expl = (pn != null && !pn.isEmpty());
         if (!expl) {
             if (impl.isEmpty()) {
@@ -583,7 +583,7 @@ public class POJOPropertiesCollector
     {
         String implName; // from naming convention
         boolean visible;
-        PropertyName pn = (ai == null) ? null : ai.findNameForDeserialization(m);
+        PropertyName pn = (ai == null) ? null : ai.findNameForDeserialization(_config, m);
         boolean nameExplicit = (pn != null);
         if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
@@ -1025,7 +1025,7 @@ public class POJOPropertiesCollector
 
     private PropertyNamingStrategy _findNamingStrategy()
     {
-        Object namingDef = _annotationIntrospector.findNamingStrategy(_classDef);
+        Object namingDef = _annotationIntrospector.findNamingStrategy(_config, _classDef);
         if (namingDef == null) {
             return _config.getPropertyNamingStrategy();
         }

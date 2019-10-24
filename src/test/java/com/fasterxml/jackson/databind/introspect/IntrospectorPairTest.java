@@ -112,32 +112,32 @@ public class IntrospectorPairTest extends BaseMapTest
          */        
 
         @Override
-        public PropertyName findRootName(AnnotatedClass ac) {
+        public PropertyName findRootName(MapperConfig<?> config, AnnotatedClass ac) {
             return (PropertyName) values.get("findRootName");
         }
 
         @Override
-        public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a) {
+        public JsonIgnoreProperties.Value findPropertyIgnorals(MapperConfig<?> config, Annotated a) {
             return (JsonIgnoreProperties.Value) values.get("findPropertyIgnorals");
         }
 
         @Override
-        public Boolean isIgnorableType(AnnotatedClass ac) {
+        public Boolean isIgnorableType(MapperConfig<?> config, AnnotatedClass ac) {
             return (Boolean) values.get("isIgnorableType");
         }
 
         @Override
-        public Object findFilterId(Annotated ann) {
+        public Object findFilterId(MapperConfig<?> config, Annotated ann) {
             return (Object) values.get("findFilterId");
         }
         
         @Override
-        public Object findNamingStrategy(AnnotatedClass ac) {
+        public Object findNamingStrategy(MapperConfig<?> config, AnnotatedClass ac) {
             return (Object) values.get("findNamingStrategy");
         }
 
         @Override
-        public String findClassDescription(AnnotatedClass ac) {
+        public String findClassDescription(MapperConfig<?> config, AnnotatedClass ac) {
             return (String) values.get("findClassDescription");
         }
 
@@ -253,9 +253,9 @@ public class IntrospectorPairTest extends BaseMapTest
         PropertyName name = new PropertyName("test");
         IntrospectorWithMap intr = new IntrospectorWithMap()
                 .add("findRootName", name);
-        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findRootName(null));
-        assertEquals(name, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr).findRootName(null));
-        assertEquals(name, new AnnotationIntrospectorPair(intr, NO_ANNOTATIONS).findRootName(null));
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findRootName(null, null));
+        assertEquals(name, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr).findRootName(null, null));
+        assertEquals(name, new AnnotationIntrospectorPair(intr, NO_ANNOTATIONS).findRootName(null, null));
     }
 
     public void testPropertyIgnorals() throws Exception
@@ -266,10 +266,10 @@ public class IntrospectorPairTest extends BaseMapTest
         IntrospectorWithMap intrEmpty = new IntrospectorWithMap()
                 .add("findPropertyIgnorals", JsonIgnoreProperties.Value.empty());
         assertEquals(JsonIgnoreProperties.Value.empty(),
-                new AnnotationIntrospectorPair(intrEmpty, intrEmpty).findPropertyIgnorals(null));
+                new AnnotationIntrospectorPair(intrEmpty, intrEmpty).findPropertyIgnorals(null, null));
         // should actually verify inclusion combining, but there are separate tests for that
-        assertEquals(incl, new AnnotationIntrospectorPair(intrEmpty, intr).findPropertyIgnorals(null));
-        assertEquals(incl, new AnnotationIntrospectorPair(intr, intrEmpty).findPropertyIgnorals(null));
+        assertEquals(incl, new AnnotationIntrospectorPair(intrEmpty, intr).findPropertyIgnorals(null, null));
+        assertEquals(incl, new AnnotationIntrospectorPair(intr, intrEmpty).findPropertyIgnorals(null, null));
     }
 
     public void testIsIgnorableType() throws Exception
@@ -278,9 +278,9 @@ public class IntrospectorPairTest extends BaseMapTest
                 .add("isIgnorableType", Boolean.TRUE);
         IntrospectorWithMap intr2 = new IntrospectorWithMap()
                 .add("isIgnorableType", Boolean.FALSE);
-        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).isIgnorableType(null));
-        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, intr2).isIgnorableType(null));
-        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, intr1).isIgnorableType(null));
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).isIgnorableType(null, null));
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, intr2).isIgnorableType(null, null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, intr1).isIgnorableType(null, null));
     }
 
     public void testFindFilterId() throws Exception
@@ -289,9 +289,9 @@ public class IntrospectorPairTest extends BaseMapTest
                 .add("findFilterId", "a");
         IntrospectorWithMap intr2 = new IntrospectorWithMap()
                 .add("findFilterId", "b");
-        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findFilterId(null));
-        assertEquals("a", new AnnotationIntrospectorPair(intr1, intr2).findFilterId(null));
-        assertEquals("b", new AnnotationIntrospectorPair(intr2, intr1).findFilterId(null));
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findFilterId(null, null));
+        assertEquals("a", new AnnotationIntrospectorPair(intr1, intr2).findFilterId(null, null));
+        assertEquals("b", new AnnotationIntrospectorPair(intr2, intr1).findFilterId(null, null));
     }
 
     public void testFindNamingStrategy() throws Exception
@@ -301,11 +301,11 @@ public class IntrospectorPairTest extends BaseMapTest
                 .add("findNamingStrategy", Integer.class);
         IntrospectorWithMap intr2 = new IntrospectorWithMap()
                 .add("findNamingStrategy", String.class);
-        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findNamingStrategy(null));
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findNamingStrategy(null, null));
         assertEquals(Integer.class,
-                new AnnotationIntrospectorPair(intr1, intr2).findNamingStrategy(null));
+                new AnnotationIntrospectorPair(intr1, intr2).findNamingStrategy(null, null));
         assertEquals(String.class,
-                new AnnotationIntrospectorPair(intr2, intr1).findNamingStrategy(null));
+                new AnnotationIntrospectorPair(intr2, intr1).findNamingStrategy(null, null));
     }
 
     public void testFindClassDescription() throws Exception
@@ -314,11 +314,11 @@ public class IntrospectorPairTest extends BaseMapTest
                 .add("findClassDescription", "Desc1");
         IntrospectorWithMap intr2 = new IntrospectorWithMap()
                 .add("findClassDescription", "Desc2");
-        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findClassDescription(null));
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findClassDescription(null, null));
         assertEquals("Desc1",
-                new AnnotationIntrospectorPair(intr1, intr2).findClassDescription(null));
+                new AnnotationIntrospectorPair(intr1, intr2).findClassDescription(null, null));
         assertEquals("Desc2",
-                new AnnotationIntrospectorPair(intr2, intr1).findClassDescription(null));
+                new AnnotationIntrospectorPair(intr2, intr1).findClassDescription(null, null));
     }
 
     // // // 3 deprecated methods, skip

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -74,7 +75,7 @@ public class TestPOJOAsArray extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        public JsonFormat.Value findFormat(Annotated a) {
+        public JsonFormat.Value findFormat(MapperConfig<?> config, Annotated a) {
             return new JsonFormat.Value().withShape(JsonFormat.Shape.ARRAY);
         }
     }

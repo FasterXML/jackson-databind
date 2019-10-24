@@ -356,7 +356,7 @@ anyField.getName()));
             //   a small set of pre-discovered simple types that `BasicClassIntrospector`
             //   may expose. If so, nothing we can do
             v = (_config == null) ? null
-                    : _annotationIntrospector.findFormat(_classInfo);
+                    : _annotationIntrospector.findFormat(_config, _classInfo);
             if (v == null) {
                 v = JsonFormat.Value.empty();
             }
@@ -371,7 +371,7 @@ anyField.getName()));
         JsonFormat.Value v0 = _classFormat;
         if (v0 == null) { // copied from above
             v0 = (_config == null) ? null
-                    : _annotationIntrospector.findFormat(_classInfo);
+                    : _annotationIntrospector.findFormat(_config, _classInfo);
             if (v0 == null) {
                 v0 = JsonFormat.Value.empty();
             }
@@ -606,7 +606,7 @@ anyField.getName()));
 
     @Override
     public String findClassDescription() {
-        return _annotationIntrospector.findClassDescription(_classInfo);
+        return _annotationIntrospector.findClassDescription(_config, _classInfo);
     }
 
     /*

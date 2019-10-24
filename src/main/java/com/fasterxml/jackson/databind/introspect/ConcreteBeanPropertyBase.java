@@ -50,7 +50,7 @@ public abstract class ConcreteBeanPropertyBase
         if (intr != null) {
             AnnotatedMember member = getMember();
             if (member != null) {
-                return intr.findFormat(member);
+                return intr.findFormat(config, member);
             }
         }
         return null;

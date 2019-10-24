@@ -287,47 +287,48 @@ public class MapSerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
         throws JsonMappingException
     {
         JsonSerializer<?> ser = null;
         JsonSerializer<?> keySer = null;
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final SerializationConfig config = ctxt.getConfig();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
 
         // First: if we have a property, may have property-annotation overrides
         if (_neitherNull(propertyAcc, intr)) {
-            keySer = provider.serializerInstance(propertyAcc,
-                    intr.findKeySerializer(provider.getConfig(), propertyAcc));
-            ser = provider.serializerInstance(propertyAcc,
-                    intr.findContentSerializer(provider.getConfig(), propertyAcc));
+            keySer = ctxt.serializerInstance(propertyAcc,
+                    intr.findKeySerializer(config, propertyAcc));
+            ser = ctxt.serializerInstance(propertyAcc,
+                    intr.findContentSerializer(config, propertyAcc));
         }
         if (ser == null) {
             ser = _valueSerializer;
         }
         // [databind#124]: May have a content converter
-        ser = findContextualConvertingSerializer(provider, property, ser);
+        ser = findContextualConvertingSerializer(ctxt, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             // 20-Aug-2013, tatu: Need to avoid trying to access serializer for java.lang.Object tho
             if (_valueTypeIsStatic && !_valueType.isJavaLangObject()) {
-                ser = provider.findContentValueSerializer(_valueType, property);
+                ser = ctxt.findContentValueSerializer(_valueType, property);
             }
         }
         if (keySer == null) {
             keySer = _keySerializer;
         }
         if (keySer == null) {
-            keySer = provider.findKeySerializer(_keyType, property);
+            keySer = ctxt.findKeySerializer(_keyType, property);
         } else {
-            keySer = provider.handleSecondaryContextualization(keySer, property);
+            keySer = ctxt.handleSecondaryContextualization(keySer, property);
         }
         Set<String> ignored = _ignoredEntries;
         boolean sortKeys = false;
         if (_neitherNull(propertyAcc, intr)) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, propertyAcc);
             if (ignorals != null){
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if (_nonEmpty(newIgnored)) {
@@ -340,7 +341,7 @@ public class MapSerializer
             Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
             sortKeys = Boolean.TRUE.equals(b);
         }
-        JsonFormat.Value format = findFormatOverrides(provider, property, Map.class);
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, Map.class);
         if (format != null) {
             Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
             if (B != null) { // do NOT override if not defined
@@ -352,12 +353,12 @@ public class MapSerializer
         // [databind#307]: allow filtering
         if (property != null) {
             if (propertyAcc != null) {
-                Object filterId = intr.findFilterId(propertyAcc);
+                Object filterId = intr.findFilterId(config, propertyAcc);
                 if (filterId != null) {
                     mser = mser.withFilterId(filterId);
                 }
             }
-            JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), null);
+            JsonInclude.Value inclV = property.findPropertyInclusion(config, null);
             if (inclV != null) {
                 JsonInclude.Include incl = inclV.getContentInclusion();
 
@@ -383,11 +384,11 @@ public class MapSerializer
                         valueToSuppress = MARKER_FOR_EMPTY;
                         break;
                     case CUSTOM:
-                        valueToSuppress = provider.includeFilterInstance(null, inclV.getContentFilter());
+                        valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
                         if (valueToSuppress == null) { // is this legal?
                             suppressNulls = true;
                         } else {
-                            suppressNulls = provider.includeFilterSuppressNulls(valueToSuppress);
+                            suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
                         }
                         break;
                     case NON_NULL:

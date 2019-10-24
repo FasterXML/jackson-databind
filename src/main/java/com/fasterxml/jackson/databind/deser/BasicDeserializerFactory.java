@@ -823,7 +823,7 @@ nonAnnotatedParamIndex, ctor);
             SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
             for (int i = 0; i < argCount; ++i) {
                 final AnnotatedParameter param = ctor.getParameter(i);
-                final PropertyName name = _findParamName(param, intr);
+                final PropertyName name = _findParamName(ctxt, param, intr);
 
                 // must have name (implicit fine)
                 if (name == null || name.isEmpty()) {
@@ -965,10 +965,11 @@ nonAnnotatedParamIndex, ctor);
         return prop;
     }
 
-    private PropertyName _findParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    private PropertyName _findParamName(DeserializationContext ctxt,
+            AnnotatedParameter param, AnnotationIntrospector intr)
     {
         if (param != null && intr != null) {
-            PropertyName name = intr.findNameForDeserialization(param);
+            PropertyName name = intr.findNameForDeserialization(ctxt.getConfig(), param);
             if (name != null) {
                 return name;
             }

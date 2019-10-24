@@ -671,12 +671,13 @@ public abstract class BeanDeserializerBase
 
         // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final DeserializationConfig config = ctxt.getConfig();
         final AnnotatedMember accessor = _neitherNull(property, intr) ? property.getMember() : null;
         if (accessor != null) {
-            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(ctxt.getConfig(), accessor);
+            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(config, accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                 // 2.1: allow modifications by "id ref" annotations as well:
-                objectIdInfo = intr.findObjectReferenceInfo(ctxt.getConfig(), accessor, objectIdInfo);
+                objectIdInfo = intr.findObjectReferenceInfo(config, accessor, objectIdInfo);
                 
                 Class<?> implClass = objectIdInfo.getGeneratorType();
                 // Property-based generator is trickier
@@ -712,7 +713,7 @@ public abstract class BeanDeserializerBase
         }
         // And possibly add more properties to ignore
         if (accessor != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(accessor);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, accessor);
             if (ignorals != null) {
                 Set<String> ignored = ignorals.findIgnoredForDeserialization();
                 if (!ignored.isEmpty()) {

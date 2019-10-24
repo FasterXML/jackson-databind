@@ -92,64 +92,64 @@ public class AnnotationIntrospectorPair
      */
 
     @Override
-    public PropertyName findRootName(AnnotatedClass ac)
+    public PropertyName findRootName(MapperConfig<?> config, AnnotatedClass ac)
     {
-        PropertyName name1 = _primary.findRootName(ac);
+        PropertyName name1 = _primary.findRootName(config, ac);
         if (name1 == null) {
-            return _secondary.findRootName(ac);
+            return _secondary.findRootName(config, ac);
         }
         if (name1.hasSimpleName()) {
             return name1;
         }
         // name1 is empty; how about secondary?
-        PropertyName name2 = _secondary.findRootName(ac);
+        PropertyName name2 = _secondary.findRootName(config, ac);
         return (name2 == null) ? name1 : name2;
     }
 
     @Override
-    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
+    public JsonIgnoreProperties.Value findPropertyIgnorals(MapperConfig<?> config, Annotated a)
     {
-        JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnorals(a);
-        JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(a);
+        JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnorals(config, a);
+        JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(config, a);
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
     }
 
     @Override
-    public Boolean isIgnorableType(AnnotatedClass ac)
+    public Boolean isIgnorableType(MapperConfig<?> config, AnnotatedClass ac)
     {
-        Boolean result = _primary.isIgnorableType(ac);
+        Boolean result = _primary.isIgnorableType(config, ac);
         if (result == null) {
-            result = _secondary.isIgnorableType(ac);
+            result = _secondary.isIgnorableType(config, ac);
         }
         return result;
     }
 
     @Override
-    public Object findFilterId(Annotated ann)
+    public Object findFilterId(MapperConfig<?> config, Annotated ann)
     {
-        Object id = _primary.findFilterId(ann);
+        Object id = _primary.findFilterId(config, ann);
         if (id == null) {
-            id = _secondary.findFilterId(ann);
+            id = _secondary.findFilterId(config, ann);
         }
         return id;
     }
     
     @Override
-    public Object findNamingStrategy(AnnotatedClass ac)
+    public Object findNamingStrategy(MapperConfig<?> config, AnnotatedClass ac)
     {
-        Object str = _primary.findNamingStrategy(ac);
+        Object str = _primary.findNamingStrategy(config, ac);
         if (str == null) {
-            str = _secondary.findNamingStrategy(ac);
+            str = _secondary.findNamingStrategy(config, ac);
         }
         return str;
     }
 
     @Override
-    public String findClassDescription(AnnotatedClass ac) {
-        String str = _primary.findClassDescription(ac);
+    public String findClassDescription(MapperConfig<?> config, AnnotatedClass ac) {
+        String str = _primary.findClassDescription(config, ac);
         if ((str == null) || str.isEmpty()) {
-            str = _secondary.findClassDescription(ac);
+            str = _secondary.findClassDescription(config, ac);
         }
         return str;
     }
@@ -396,9 +396,9 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public JsonFormat.Value findFormat(Annotated ann) {
-        JsonFormat.Value v1 = _primary.findFormat(ann);
-        JsonFormat.Value v2 = _secondary.findFormat(ann);
+    public JsonFormat.Value findFormat(MapperConfig<?> config, Annotated ann) {
+        JsonFormat.Value v1 = _primary.findFormat(config, ann);
+        JsonFormat.Value v2 = _secondary.findFormat(config, ann);
         if (v2 == null) { // shouldn't occur but just in case
             return v1;
         }
@@ -633,14 +633,14 @@ public class AnnotationIntrospectorPair
     // // // Deserialization: method annotations
 
     @Override
-    public PropertyName findNameForDeserialization(Annotated a)
+    public PropertyName findNameForDeserialization(MapperConfig<?> config, Annotated a)
     {
         // note: "use default" should not block explicit answer, so:
-        PropertyName n = _primary.findNameForDeserialization(a);
+        PropertyName n = _primary.findNameForDeserialization(config, a);
         if (n == null) {
-            n = _secondary.findNameForDeserialization(a);
+            n = _secondary.findNameForDeserialization(config, a);
         } else if (n == PropertyName.USE_DEFAULT) {
-            PropertyName n2 = _secondary.findNameForDeserialization(a);
+            PropertyName n2 = _secondary.findNameForDeserialization(config, a);
             if (n2 != null) {
                 n = n2;
             }

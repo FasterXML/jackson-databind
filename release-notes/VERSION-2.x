@@ -27,6 +27,8 @@ Project: jackson-databind
  (contributed by Marc M)
 #2513: BigDecimalAsStringSerializer in NumberSerializer throws IllegalStateException in 2.10
  (reported by Johan H)
+#2519: Serializing `BigDecimal` values inside containers ignores shape override
+ (reported by Richard W)
 
 2.10.0 (26-Sep-2019)
 

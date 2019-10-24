@@ -25,11 +25,6 @@ public abstract class ConcreteBeanPropertyBase
      */
     protected final PropertyMetadata _metadata;
 
-    /**
-     * Lazily accessed value for per-property format override definition.
-     */
-    protected transient JsonFormat.Value _propertyFormat;
-
     protected transient List<PropertyName> _aliases;
 
     protected ConcreteBeanPropertyBase(PropertyMetadata md) {
@@ -38,7 +33,6 @@ public abstract class ConcreteBeanPropertyBase
 
     protected ConcreteBeanPropertyBase(ConcreteBeanPropertyBase src) {
         _metadata = src._metadata;
-        _propertyFormat = src._propertyFormat;
     }
 
     @Override
@@ -65,20 +59,12 @@ public abstract class ConcreteBeanPropertyBase
     @Override
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType)
     {
-        // 15-Apr-2016, tatu: Let's calculate lazily, retain; assumption being however that
-        //    baseType is always the same
-        JsonFormat.Value v = _propertyFormat;
-        if (v == null) {
-            JsonFormat.Value v1 = config.getDefaultPropertyFormat(baseType);
-            JsonFormat.Value v2 = findFormatOverrides(config);
-            if (v1 == null) {
-                v = (v2 == null) ? EMPTY_FORMAT : v2;
-            } else {
-                v = (v2 == null) ? v1 : v1.withOverrides(v2);
-            }
-            _propertyFormat = v;
+        JsonFormat.Value v1 = config.getDefaultPropertyFormat(baseType);
+        JsonFormat.Value v2 = findFormatOverrides(config);
+        if (v1 == null) {
+            return (v2 == null) ? EMPTY_FORMAT : v2;
         }
-        return v;
+        return (v2 == null) ? v1 : v1.withOverrides(v2);
     }
 
     @Override

@@ -991,6 +991,10 @@ Johan Haleby (johanhaleby@github)
     in 2.10
   (2.10.1)
 
+Richard Wise (Woodz@github)
+  * Reported #2519: Serializing `BigDecimal` values inside containers ignores shape override	
+  (2.10.1)
+
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)

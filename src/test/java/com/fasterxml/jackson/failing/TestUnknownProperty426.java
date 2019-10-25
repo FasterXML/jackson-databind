@@ -38,6 +38,7 @@ public class TestUnknownProperty426 extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    // Aside from [databind#426], also relevant: [databind#1044]?
     public void testIssue426() throws Exception
     {
         final String JSON = aposToQuotes("{'userId': 9, 'firstName': 'Mike' }");

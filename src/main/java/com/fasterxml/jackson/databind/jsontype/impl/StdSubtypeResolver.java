@@ -112,7 +112,8 @@ public class StdSubtypeResolver
             AnnotatedClass type)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        HashMap<NamedType, NamedType> subtypes = new HashMap<NamedType, NamedType>();
+        HashMap<NamedType, NamedType> subtypes = new HashMap<>();
+
         // then consider registered subtypes (which have precedence over annotations)
         if (_registeredSubtypes != null) {
             Class<?> rawBase = type.getRawType();
@@ -223,19 +224,23 @@ public class StdSubtypeResolver
             }
         }
 
+        //For Serialization we only want to return a single NamedType per class so it's
+        //unambiguous what name we use.
+        NamedType typeOnlyNamedType = new NamedType(namedType.getType());
+
         // First things first: is base type itself included?
-        if (collectedSubtypes.containsKey(namedType)) {
+        if (collectedSubtypes.containsKey(typeOnlyNamedType)) {
             // if so, no recursion; however, may need to update name?
             if (namedType.hasName()) {
-                NamedType prev = collectedSubtypes.get(namedType);
+                NamedType prev = collectedSubtypes.get(typeOnlyNamedType);
                 if (!prev.hasName()) {
-                    collectedSubtypes.put(namedType, namedType);
+                    collectedSubtypes.put(typeOnlyNamedType, namedType);
                 }
             }
             return;
         }
         // if it wasn't, add and check subtypes recursively
-        collectedSubtypes.put(namedType, namedType);
+        collectedSubtypes.put(typeOnlyNamedType, namedType);
         Collection<NamedType> st = ai.findSubtypes(annotatedType);
         if (st != null && !st.isEmpty()) {
             for (NamedType subtype : st) {

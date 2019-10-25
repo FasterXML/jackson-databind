@@ -260,6 +260,7 @@ public class ArrayNodeTest
         p.setCodec(null);
         assertNull(p.getCodec());
         assertNotNull(p.getParsingContext());
+//        assertTrue(p.getParsingContext().inRoot());
         assertNotNull(p.getTokenLocation());
         assertNotNull(p.getCurrentLocation());
         assertNull(p.getEmbeddedObject());
@@ -268,6 +269,8 @@ public class ArrayNodeTest
         //assertNull(p.getNumberType());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertNotNull(p.getParsingContext());
+        assertTrue(p.getParsingContext().inArray());
         p.skipChildren();
         assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
         p.close();

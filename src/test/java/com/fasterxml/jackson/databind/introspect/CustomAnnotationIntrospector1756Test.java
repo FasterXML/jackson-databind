@@ -72,7 +72,7 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
     public static class FoobarAnnotationIntrospector extends NopAnnotationIntrospector {
 
       @Override
-      public String findImplicitPropertyName(final AnnotatedMember member) {
+      public String findImplicitPropertyName(MapperConfig<?> config, final AnnotatedMember member) {
         // Constructor parameter
         if (member instanceof AnnotatedParameter) {
           final Field1756 field = member.getAnnotation(Field1756.class);

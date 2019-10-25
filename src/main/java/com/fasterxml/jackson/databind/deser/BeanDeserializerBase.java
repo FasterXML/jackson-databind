@@ -815,7 +815,8 @@ public abstract class BeanDeserializerBase
     {
         AnnotatedMember am = prop.getMember();
         if (am != null) {
-            NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(am);
+            NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(
+                    ctxt.getConfig(), am);
             if (unwrapper != null) {
                 // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
                 //   of unwrapped values through creator properties, so fail fast

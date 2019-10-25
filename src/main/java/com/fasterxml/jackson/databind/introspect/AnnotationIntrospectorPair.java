@@ -261,32 +261,32 @@ public class AnnotationIntrospectorPair
      */
     
     @Override        
-    public ReferenceProperty findReferenceType(AnnotatedMember member) {
-        ReferenceProperty r = _primary.findReferenceType(member);
-        return (r == null) ? _secondary.findReferenceType(member) : r;
+    public ReferenceProperty findReferenceType(MapperConfig<?> config, AnnotatedMember member) {
+        ReferenceProperty r = _primary.findReferenceType(config, member);
+        return (r == null) ? _secondary.findReferenceType(config, member) : r;
     }
 
     @Override        
-    public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member) {
-        NameTransformer r = _primary.findUnwrappingNameTransformer(member);
-        return (r == null) ? _secondary.findUnwrappingNameTransformer(member) : r;
+    public NameTransformer findUnwrappingNameTransformer(MapperConfig<?> config, AnnotatedMember member) {
+        NameTransformer r = _primary.findUnwrappingNameTransformer(config, member);
+        return (r == null) ? _secondary.findUnwrappingNameTransformer(config, member) : r;
     }
 
     @Override
-    public JacksonInject.Value findInjectableValue(AnnotatedMember m) {
-        JacksonInject.Value r = _primary.findInjectableValue(m);
-        return (r == null) ? _secondary.findInjectableValue(m) : r;
+    public JacksonInject.Value findInjectableValue(MapperConfig<?> config, AnnotatedMember m) {
+        JacksonInject.Value r = _primary.findInjectableValue(config, m);
+        return (r == null) ? _secondary.findInjectableValue(config, m) : r;
     }
 
     @Override
-    public boolean hasIgnoreMarker(AnnotatedMember m) {
-        return _primary.hasIgnoreMarker(m) || _secondary.hasIgnoreMarker(m);
+    public boolean hasIgnoreMarker(MapperConfig<?> config, AnnotatedMember m) {
+        return _primary.hasIgnoreMarker(config, m) || _secondary.hasIgnoreMarker(config, m);
     }
 
     @Override
-    public Boolean hasRequiredMarker(AnnotatedMember m) {
-        Boolean r = _primary.hasRequiredMarker(m);
-        return (r == null) ? _secondary.hasRequiredMarker(m) : r;
+    public Boolean hasRequiredMarker(MapperConfig<?> config, AnnotatedMember m) {
+        Boolean r = _primary.hasRequiredMarker(config, m);
+        return (r == null) ? _secondary.hasRequiredMarker(config, m) : r;
     }
 
     // // // Serialization: general annotations
@@ -362,14 +362,14 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Class<?>[] findViews(Annotated a) {
+    public Class<?>[] findViews(MapperConfig<?> config, Annotated a) {
         /* Theoretically this could be trickier, if multiple introspectors
          * return non-null entries. For now, though, we'll just consider
          * first one to return non-null to win.
          */
-        Class<?>[] result = _primary.findViews(a);
+        Class<?>[] result = _primary.findViews(config, a);
         if (result == null) {
-            result = _secondary.findViews(a);
+            result = _secondary.findViews(config, a);
         }
         return result;
     }
@@ -406,13 +406,13 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public PropertyName findWrapperName(Annotated ann) {
-        PropertyName name = _primary.findWrapperName(ann);
+    public PropertyName findWrapperName(MapperConfig<?> config, Annotated ann) {
+        PropertyName name = _primary.findWrapperName(config, ann);
         if (name == null) {
-            name = _secondary.findWrapperName(ann);
+            name = _secondary.findWrapperName(config, ann);
         } else if (name == PropertyName.USE_DEFAULT) {
             // does the other introspector have a better idea?
-            PropertyName name2 = _secondary.findWrapperName(ann);
+            PropertyName name2 = _secondary.findWrapperName(config, ann);
             if (name2 != null) {
                 name = name2;
             }
@@ -421,42 +421,42 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public String findPropertyDefaultValue(Annotated ann) {
-        String str = _primary.findPropertyDefaultValue(ann);
-        return (str == null || str.isEmpty()) ? _secondary.findPropertyDefaultValue(ann) : str;
+    public String findPropertyDefaultValue(MapperConfig<?> config, Annotated ann) {
+        String str = _primary.findPropertyDefaultValue(config, ann);
+        return (str == null || str.isEmpty()) ? _secondary.findPropertyDefaultValue(config, ann) : str;
     }
 
     @Override
-    public String findPropertyDescription(Annotated ann) {
-        String r = _primary.findPropertyDescription(ann);
-        return (r == null) ? _secondary.findPropertyDescription(ann) : r;
+    public String findPropertyDescription(MapperConfig<?> config, Annotated ann) {
+        String r = _primary.findPropertyDescription(config, ann);
+        return (r == null) ? _secondary.findPropertyDescription(config, ann) : r;
     }
 
     @Override
-    public Integer findPropertyIndex(Annotated ann) {
-        Integer r = _primary.findPropertyIndex(ann);
-        return (r == null) ? _secondary.findPropertyIndex(ann) : r;
+    public Integer findPropertyIndex(MapperConfig<?> config, Annotated ann) {
+        Integer r = _primary.findPropertyIndex(config, ann);
+        return (r == null) ? _secondary.findPropertyIndex(config, ann) : r;
     }
 
     @Override
-    public String findImplicitPropertyName(AnnotatedMember ann) {
-        String r = _primary.findImplicitPropertyName(ann);
-        return (r == null) ? _secondary.findImplicitPropertyName(ann) : r;
+    public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember ann) {
+        String r = _primary.findImplicitPropertyName(config, ann);
+        return (r == null) ? _secondary.findImplicitPropertyName(config, ann) : r;
     }
 
     @Override
-    public List<PropertyName> findPropertyAliases(Annotated ann) {
-        List<PropertyName> r = _primary.findPropertyAliases(ann);
-        return (r == null) ? _secondary.findPropertyAliases(ann) : r;
+    public List<PropertyName> findPropertyAliases(MapperConfig<?> config, Annotated ann) {
+        List<PropertyName> r = _primary.findPropertyAliases(config, ann);
+        return (r == null) ? _secondary.findPropertyAliases(config, ann) : r;
     }
 
     @Override
-    public JsonProperty.Access findPropertyAccess(Annotated ann) {
-        JsonProperty.Access acc = _primary.findPropertyAccess(ann);
+    public JsonProperty.Access findPropertyAccess(MapperConfig<?> config, Annotated ann) {
+        JsonProperty.Access acc = _primary.findPropertyAccess(config, ann);
         if ((acc != null) && (acc != JsonProperty.Access.AUTO)) {
             return acc;
         }
-        acc = _secondary.findPropertyAccess(ann);
+        acc = _secondary.findPropertyAccess(config, ann);
         if (acc != null) {
             return acc;
         }
@@ -487,15 +487,15 @@ public class AnnotationIntrospectorPair
     // // // Serialization: class annotations
 
     @Override
-    public String[] findSerializationPropertyOrder(AnnotatedClass ac) {
-        String[] r = _primary.findSerializationPropertyOrder(ac);
-        return (r == null) ? _secondary.findSerializationPropertyOrder(ac) : r;
+    public String[] findSerializationPropertyOrder(MapperConfig<?> config, AnnotatedClass ac) {
+        String[] r = _primary.findSerializationPropertyOrder(config, ac);
+        return (r == null) ? _secondary.findSerializationPropertyOrder(config, ac) : r;
     }
 
     @Override
-    public Boolean findSerializationSortAlphabetically(Annotated ann) {
-        Boolean r = _primary.findSerializationSortAlphabetically(ann);
-        return (r == null) ? _secondary.findSerializationSortAlphabetically(ann) : r;
+    public Boolean findSerializationSortAlphabetically(MapperConfig<?> config, Annotated ann) {
+        Boolean r = _primary.findSerializationSortAlphabetically(config, ann);
+        return (r == null) ? _secondary.findSerializationSortAlphabetically(config, ann) : r;
     }
 
     @Override
@@ -509,13 +509,13 @@ public class AnnotationIntrospectorPair
     // // // Serialization: property annotations
     
     @Override
-    public PropertyName findNameForSerialization(Annotated a) {
-        PropertyName n = _primary.findNameForSerialization(a);
+    public PropertyName findNameForSerialization(MapperConfig<?> config, Annotated a) {
+        PropertyName n = _primary.findNameForSerialization(config, a);
         // note: "use default" should not block explicit answer, so:
         if (n == null) {
-            n = _secondary.findNameForSerialization(a);
+            n = _secondary.findNameForSerialization(config, a);
         } else if (n == PropertyName.USE_DEFAULT) {
-            PropertyName n2 = _secondary.findNameForSerialization(a);
+            PropertyName n2 = _secondary.findNameForSerialization(config, a);
             if (n2 != null) {
                 n = n2;
             }
@@ -524,35 +524,36 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Boolean hasAsValue(Annotated a) {
-        Boolean b = _primary.hasAsValue(a);
+    public Boolean hasAsValue(MapperConfig<?> config, Annotated a) {
+        Boolean b = _primary.hasAsValue(config, a);
         if (b == null) {
-            b = _secondary.hasAsValue(a);
+            b = _secondary.hasAsValue(config, a);
         }
         return b;
     }
 
     @Override
-    public Boolean hasAnyGetter(Annotated a) {
-        Boolean b = _primary.hasAnyGetter(a);
+    public Boolean hasAnyGetter(MapperConfig<?> config, Annotated a) {
+        Boolean b = _primary.hasAnyGetter(config, a);
         if (b == null) {
-            b = _secondary.hasAnyGetter(a);
+            b = _secondary.hasAnyGetter(config, a);
         }
         return b;
     }
 
     @Override
-    public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+    public  String[] findEnumValues(MapperConfig<?> config,
+            Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         // reverse order to give _primary higher precedence
-        names = _secondary.findEnumValues(enumType, enumValues, names);
-        names = _primary.findEnumValues(enumType, enumValues, names);
+        names = _secondary.findEnumValues(config, enumType, enumValues, names);
+        names = _primary.findEnumValues(config, enumType, enumValues, names);
         return names;
     }
 
     @Override
-    public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
-        Enum<?> en = _primary.findDefaultEnumValue(enumCls);
-        return (en == null) ? _secondary.findDefaultEnumValue(enumCls) : en;
+    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<Enum<?>> enumCls) {
+        Enum<?> en = _primary.findDefaultEnumValue(config, enumCls);
+        return (en == null) ? _secondary.findDefaultEnumValue(config, enumCls) : en;
     }
 
     // // // Deserialization: general annotations
@@ -649,27 +650,27 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Boolean hasAnySetter(Annotated a) {
-        Boolean b = _primary.hasAnySetter(a);
+    public Boolean hasAnySetter(MapperConfig<?> config, Annotated a) {
+        Boolean b = _primary.hasAnySetter(config, a);
         if (b == null) {
-            b = _secondary.hasAnySetter(a);
+            b = _secondary.hasAnySetter(config, a);
         }
         return b;
     }
 
     @Override
-    public JsonSetter.Value findSetterInfo(Annotated a) {
-        JsonSetter.Value v2 = _secondary.findSetterInfo(a);
-        JsonSetter.Value v1 = _primary.findSetterInfo(a);
+    public JsonSetter.Value findSetterInfo(MapperConfig<?> config, Annotated a) {
+        JsonSetter.Value v2 = _secondary.findSetterInfo(config, a);
+        JsonSetter.Value v1 = _primary.findSetterInfo(config, a);
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
     }
 
     @Override
-    public Boolean findMergeInfo(Annotated a) {
-        Boolean b = _primary.findMergeInfo(a);
+    public Boolean findMergeInfo(MapperConfig<?> config, Annotated a) {
+        Boolean b = _primary.findMergeInfo(config, a);
         if (b == null) {
-            b = _secondary.findMergeInfo(a);
+            b = _secondary.findMergeInfo(config, a);
         }
         return b;
     }

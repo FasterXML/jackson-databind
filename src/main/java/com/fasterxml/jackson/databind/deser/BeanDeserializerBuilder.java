@@ -530,7 +530,7 @@ public class BeanDeserializerBuilder
                 if (member == null) {
                     continue;
                 }
-                List<PropertyName> aliases = intr.findPropertyAliases(member);
+                List<PropertyName> aliases = intr.findPropertyAliases(_config, member);
                 if ((aliases == null) || aliases.isEmpty()) {
                     continue;
                 }

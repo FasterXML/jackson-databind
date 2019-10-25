@@ -166,7 +166,8 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+    public String[] findEnumValues(MapperConfig<?> config,
+            Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         HashMap<String,String> expl = null;
         for (Field f : enumType.getDeclaredFields()) {
             if (!f.isEnumConstant()) {
@@ -208,7 +209,7 @@ public class JacksonAnnotationIntrospector
      * @since 2.8
      */
     @Override
-    public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
+    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<Enum<?>> enumCls) {
         return ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
     }
 
@@ -298,7 +299,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String findImplicitPropertyName(AnnotatedMember m)
+    public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember m)
     {
         // Always get name for fields so why not
         if (m instanceof AnnotatedField) {
@@ -345,7 +346,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public List<PropertyName> findPropertyAliases(Annotated m) {
+    public List<PropertyName> findPropertyAliases(MapperConfig<?> config, Annotated m) {
         JsonAlias ann = _findAnnotation(m, JsonAlias.class);
         if (ann == null) {
             return null;
@@ -363,12 +364,12 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public boolean hasIgnoreMarker(AnnotatedMember m) {
+    public boolean hasIgnoreMarker(MapperConfig<?> config, AnnotatedMember m) {
         return _isIgnorable(m);
     }
 
     @Override
-    public Boolean hasRequiredMarker(AnnotatedMember m)
+    public Boolean hasRequiredMarker(MapperConfig<?> config, AnnotatedMember m)
     {
         JsonProperty ann = _findAnnotation(m, JsonProperty.class);
         if (ann != null) {
@@ -378,7 +379,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public JsonProperty.Access findPropertyAccess(Annotated m) {
+    public JsonProperty.Access findPropertyAccess(MapperConfig<?> config, Annotated m) {
         JsonProperty ann = _findAnnotation(m, JsonProperty.class);
         if (ann != null) {
             return ann.access();
@@ -387,13 +388,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public String findPropertyDescription(Annotated ann) {
+    public String findPropertyDescription(MapperConfig<?> config, Annotated ann) {
         JsonPropertyDescription desc = _findAnnotation(ann, JsonPropertyDescription.class);
         return (desc == null) ? null : desc.value();
     }
 
     @Override
-    public Integer findPropertyIndex(Annotated ann) {
+    public Integer findPropertyIndex(MapperConfig<?> config, Annotated ann) {
         JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
         if (prop != null) {
             int ix = prop.index();
@@ -405,7 +406,7 @@ public class JacksonAnnotationIntrospector
     }
     
     @Override
-    public String findPropertyDefaultValue(Annotated ann) {
+    public String findPropertyDefaultValue(MapperConfig<?> config, Annotated ann) {
         JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
         if (prop == null) {
             return null;
@@ -422,7 +423,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override        
-    public ReferenceProperty findReferenceType(AnnotatedMember member)
+    public ReferenceProperty findReferenceType(MapperConfig<?> config, AnnotatedMember member)
     {
         JsonManagedReference ref1 = _findAnnotation(member, JsonManagedReference.class);
         if (ref1 != null) {
@@ -436,7 +437,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member)
+    public NameTransformer findUnwrappingNameTransformer(MapperConfig<?> config, AnnotatedMember member)
     {
         JsonUnwrapped ann = _findAnnotation(member, JsonUnwrapped.class);
         // if not enabled, just means annotation is not enabled; not necessarily
@@ -450,7 +451,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override // since 2.9
-    public JacksonInject.Value findInjectableValue(AnnotatedMember m) {
+    public JacksonInject.Value findInjectableValue(MapperConfig<?> config, AnnotatedMember m) {
         JacksonInject ann = _findAnnotation(m, JacksonInject.class);
         if (ann == null) {
             return null;
@@ -476,7 +477,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<?>[] findViews(Annotated a)
+    public Class<?>[] findViews(MapperConfig<?> config, Annotated a)
     {
         JsonView ann = _findAnnotation(a, JsonView.class);
         return (ann == null) ? null : ann.value();
@@ -852,13 +853,13 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String[] findSerializationPropertyOrder(AnnotatedClass ac) {
+    public String[] findSerializationPropertyOrder(MapperConfig<?> config, AnnotatedClass ac) {
         JsonPropertyOrder order = _findAnnotation(ac, JsonPropertyOrder.class);
         return (order == null) ? null : order.value();
     }
 
     @Override
-    public Boolean findSerializationSortAlphabetically(Annotated ann) {
+    public Boolean findSerializationSortAlphabetically(MapperConfig<?> config, Annotated ann) {
         return _findSortAlpha(ann);
     }
 
@@ -969,7 +970,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public PropertyName findNameForSerialization(Annotated a)
+    public PropertyName findNameForSerialization(MapperConfig<?> config, Annotated a)
     {
         boolean useDefault = false;
         JsonGetter jg = _findAnnotation(a, JsonGetter.class);
@@ -992,7 +993,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Boolean hasAsValue(Annotated a) {
+    public Boolean hasAsValue(MapperConfig<?> config, Annotated a) {
         JsonValue ann = _findAnnotation(a, JsonValue.class);
         if (ann == null) {
             return null;
@@ -1001,7 +1002,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Boolean hasAnyGetter(Annotated a) {
+    public Boolean hasAnyGetter(MapperConfig<?> config, Annotated a) {
         JsonAnyGetter ann = _findAnnotation(a, JsonAnyGetter.class);
         if (ann == null) {
             return null;
@@ -1198,18 +1199,18 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Boolean hasAnySetter(Annotated a) {
+    public Boolean hasAnySetter(MapperConfig<?> config, Annotated a) {
         JsonAnySetter ann = _findAnnotation(a, JsonAnySetter.class);
         return (ann == null) ? null : ann.enabled();
     }
 
     @Override
-    public JsonSetter.Value findSetterInfo(Annotated a) {
+    public JsonSetter.Value findSetterInfo(MapperConfig<?> config, Annotated a) {
         return JsonSetter.Value.from(_findAnnotation(a, JsonSetter.class));
     }
 
     @Override
-    public Boolean findMergeInfo(Annotated a) {
+    public Boolean findMergeInfo(MapperConfig<?> config, Annotated a) {
         JsonMerge ann = _findAnnotation(a, JsonMerge.class);
         return (ann == null) ? null : ann.value().asBoolean();
     }

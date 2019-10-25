@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Unit tests verifying handling of potential and actual
@@ -46,7 +47,7 @@ public class TestPropertyConflicts extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        public String findImplicitPropertyName(AnnotatedMember member) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
             String name = member.getName();
             if (name.startsWith("_")) {
                 return name.substring(1);

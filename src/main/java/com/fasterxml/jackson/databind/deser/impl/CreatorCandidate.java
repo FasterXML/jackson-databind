@@ -3,36 +3,38 @@ package com.fasterxml.jackson.databind.deser.impl;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 
 public final class CreatorCandidate
 {
-    protected final AnnotationIntrospector _intr;
+    protected final MapperConfig<?> _config;
     protected final AnnotatedWithParams _creator;
     protected final int _paramCount;
     protected final Param[] _params;
 
-    protected CreatorCandidate(AnnotationIntrospector intr,
+    protected CreatorCandidate(MapperConfig<?> config,
             AnnotatedWithParams ct, Param[] params, int count) {
-        _intr = intr;
+        _config = config;
         _creator = ct;
         _params = params;
         _paramCount = count;
     }
 
-    public static CreatorCandidate construct(AnnotationIntrospector intr,
+    public static CreatorCandidate construct(MapperConfig<?> config,
             AnnotatedWithParams creator, BeanPropertyDefinition[] propDefs)
     {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final int pcount = creator.getParameterCount();
         Param[] params = new Param[pcount];
         for (int i = 0; i < pcount; ++i) {
             AnnotatedParameter annParam = creator.getParameter(i);
-            JacksonInject.Value injectId = intr.findInjectableValue(annParam);
+            JacksonInject.Value injectId = intr.findInjectableValue(config, annParam);
             params[i] = new Param(annParam, (propDefs == null) ? null : propDefs[i], injectId);
         }
-        return new CreatorCandidate(intr, creator, params, pcount);
+        return new CreatorCandidate(config, creator, params, pcount);
     }
 
     public AnnotatedWithParams creator() { return _creator; }
@@ -60,7 +62,7 @@ public final class CreatorCandidate
     }
     
     public PropertyName findImplicitParamName(int i) {
-        String str = _intr.findImplicitPropertyName(_params[i].annotated);
+        String str = _config.getAnnotationIntrospector().findImplicitPropertyName(_config, _params[i].annotated);
         if (str != null && !str.isEmpty()) {
             return PropertyName.construct(str);
         }

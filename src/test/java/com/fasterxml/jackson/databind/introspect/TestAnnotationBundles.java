@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /* Tests mostly for [JACKSON-754]: ability to create "annotation bundles"
  */
@@ -99,13 +100,13 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
     @SuppressWarnings("serial")
     static class BundleAnnotationIntrospector extends JacksonAnnotationIntrospector {
         @Override
-        public PropertyName findNameForSerialization(Annotated a)
+        public PropertyName findNameForSerialization(MapperConfig<?> config, Annotated a)
         {
             InformativeHolder informativeHolder = a.getAnnotation(InformativeHolder.class);
             if ((informativeHolder != null) && informativeHolder.important()) {
                 return PropertyName.construct("important");
             }
-            return super.findNameForSerialization(a);
+            return super.findNameForSerialization(config, a);
         }
     }
 

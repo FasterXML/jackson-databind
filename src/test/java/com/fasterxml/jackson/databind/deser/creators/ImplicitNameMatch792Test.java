@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -16,11 +17,11 @@ public class ImplicitNameMatch792Test extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        public String findImplicitPropertyName(AnnotatedMember member) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
             if (member instanceof AnnotatedParameter) {
                 return String.format("ctor%d", ((AnnotatedParameter) member).getIndex());
             }
-            return super.findImplicitPropertyName(member);
+            return super.findImplicitPropertyName(config, member);
         }
     }
     

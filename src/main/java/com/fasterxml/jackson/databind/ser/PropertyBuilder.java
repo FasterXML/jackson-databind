@@ -85,7 +85,7 @@ public class PropertyBuilder
      *    to use for contained values (only used for properties that are
      *    of container type)
      */
-    protected BeanPropertyWriter buildWriter(SerializerProvider prov,
+    protected BeanPropertyWriter buildWriter(SerializerProvider ctxt,
             BeanPropertyDefinition propDef, JavaType declaredType, JsonSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
@@ -97,9 +97,9 @@ public class PropertyBuilder
             serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
         } catch (JsonMappingException e) {
             if (propDef == null) {
-                return prov.reportBadDefinition(declaredType, ClassUtil.exceptionMessage(e));
+                return ctxt.reportBadDefinition(declaredType, ClassUtil.exceptionMessage(e));
             }
-            return prov.reportBadPropertyDefinition(_beanDesc, propDef, ClassUtil.exceptionMessage(e));
+            return ctxt.reportBadPropertyDefinition(_beanDesc, propDef, ClassUtil.exceptionMessage(e));
         }
 
         // Container types can have separate type serializers for content (value / element) type
@@ -114,7 +114,7 @@ public class PropertyBuilder
             JavaType ct = serializationType.getContentType();
             // Not exactly sure why, but this used to occur; better check explicitly:
             if (ct == null) {
-                prov.reportBadPropertyDefinition(_beanDesc, propDef,
+                ctxt.reportBadPropertyDefinition(_beanDesc, propDef,
                         "serialization type "+serializationType+" has no content");
             }
             serializationType = serializationType.withContentTypeHandler(contentTypeSer);
@@ -131,7 +131,7 @@ public class PropertyBuilder
         AnnotatedMember accessor = propDef.getAccessor();
         if (accessor == null) {
             // neither Setter nor ConstructorParameter are expected here
-            return prov.reportBadPropertyDefinition(_beanDesc, propDef,
+            return ctxt.reportBadPropertyDefinition(_beanDesc, propDef,
                     "could not determine property type");
         }
         Class<?> rawPropertyType = accessor.getRawType();
@@ -165,7 +165,7 @@ public class PropertyBuilder
             //    (as per [databind#1417]
             if (_useRealPropertyDefaults && (defaultBean = getDefaultBean()) != null) {
                 // 07-Sep-2016, tatu: may also need to front-load access forcing now
-                if (prov.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+                if (ctxt.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                     am.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                 }
                 try {
@@ -200,11 +200,11 @@ public class PropertyBuilder
             valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
             break;
         case CUSTOM: // new with 2.9
-            valueToSuppress = prov.includeFilterInstance(propDef, inclV.getValueFilter());
+            valueToSuppress = ctxt.includeFilterInstance(propDef, inclV.getValueFilter());
             if (valueToSuppress == null) { // is this legal?
                 suppressNulls = true;
             } else {
-                suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+                suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
         case NON_NULL:
@@ -230,10 +230,10 @@ public class PropertyBuilder
         // How about custom null serializer?
         Object serDef = _annotationIntrospector.findNullSerializer(_config, am);
         if (serDef != null) {
-            bpw.assignNullSerializer(prov.serializerInstance(am, serDef));
+            bpw.assignNullSerializer(ctxt.serializerInstance(am, serDef));
         }
         // And then, handling of unwrapping
-        NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(am);
+        NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, am);
         if (unwrapper != null) {
             bpw = bpw.unwrappingWriter(unwrapper);
         }

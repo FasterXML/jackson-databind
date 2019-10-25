@@ -9,61 +9,57 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass.Creators;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used to contain details of how Creators (annotated constructors
  * and static methods) are discovered to be accessed by and via {@link AnnotatedClass}.
- *
- * @since 2.9
  */
 final class AnnotatedCreatorCollector
     extends CollectorBase
 {
     // // // Configuration
 
+    private final JavaType _primaryType;
     private final TypeResolutionContext _typeContext;
 
-    /**
-     * @since 2.11
-     */
     private final boolean _collectAnnotations;
 
     // // // Collected state
 
     private AnnotatedConstructor _defaultConstructor;
 
-    AnnotatedCreatorCollector(AnnotationIntrospector intr,
-            TypeResolutionContext tc, boolean collectAnnotations)
+    AnnotatedCreatorCollector(MapperConfig<?> config, JavaType type,
+            TypeResolutionContext tc)
     {
-        super(intr);
+        super(config);
+        _primaryType = type;
         _typeContext = tc;
-        _collectAnnotations = collectAnnotations;
+        _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(type.getRawClass());
+
+
     }
 
-    public static Creators collectCreators(AnnotationIntrospector intr,
+    public static Creators collectCreators(MapperConfig<?> config,
             TypeResolutionContext tc, 
             JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
     {
-        final boolean checkClassAnnotations = (intr != null)
-                && !ClassUtil.isJDKClass(type.getRawClass());
-
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorCollector(intr, tc, checkClassAnnotations)
-                .collect(type, primaryMixIn);
+        return new AnnotatedCreatorCollector(config, type, tc)
+                .collect(primaryMixIn);
     }
 
-    Creators collect(JavaType type, Class<?> primaryMixIn)
+    Creators collect(Class<?> primaryMixIn)
     {
     // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
     //   NOT apply to context since sub-class may have type bindings
 //        TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory, _type.getBindings());
 
-        List<AnnotatedConstructor> constructors = _findPotentialConstructors(type, primaryMixIn);
-        List<AnnotatedMethod> factories = _findPotentialFactories(type, primaryMixIn);
+        List<AnnotatedConstructor> constructors = _findPotentialConstructors(_primaryType, primaryMixIn);
+        List<AnnotatedMethod> factories = _findPotentialFactories(_primaryType, primaryMixIn);
 
         /* And then... let's remove all constructors that are deemed
          * ignorable after all annotations have been properly collapsed.
@@ -71,18 +67,18 @@ final class AnnotatedCreatorCollector
         // AnnotationIntrospector is null if annotations not enabled; if so, can skip:
         if (_collectAnnotations) {
             if (_defaultConstructor != null) {
-                if (_intr.hasIgnoreMarker(_defaultConstructor)) {
+                if (_intr.hasIgnoreMarker(_config, _defaultConstructor)) {
                     _defaultConstructor = null;
                 }
             }
             // count down to allow safe removal
             for (int i = constructors.size(); --i >= 0; ) {
-                if (_intr.hasIgnoreMarker(constructors.get(i))) {
+                if (_intr.hasIgnoreMarker(_config, constructors.get(i))) {
                     constructors.remove(i);
                 }
             }
             for (int i = factories.size(); --i >= 0; ) {
-                if (_intr.hasIgnoreMarker(factories.get(i))) {
+                if (_intr.hasIgnoreMarker(_config, factories.get(i))) {
                     factories.remove(i);
                 }
             }

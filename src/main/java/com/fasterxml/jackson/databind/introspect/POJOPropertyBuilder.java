@@ -170,7 +170,7 @@ public class POJOPropertyBuilder
          */
         AnnotatedMember member = getPrimaryMember();
         return (member == null) ? null
-                : _annotationIntrospector.findWrapperName(member);
+                : _annotationIntrospector.findWrapperName(_config, member);
     	/*
         return fromMemberAnnotations(new WithMember<PropertyName>() {
             @Override
@@ -249,7 +249,7 @@ public class POJOPropertyBuilder
             // Ok, first: does property itself have something to say?
             if (_annotationIntrospector != null) {
                 if (acc != null) {
-                    Boolean b = _annotationIntrospector.findMergeInfo(prim);
+                    Boolean b = _annotationIntrospector.findMergeInfo(_config, prim);
                     if (b != null) {
                         needMerge = false;
                         if (b.booleanValue()) {
@@ -257,7 +257,7 @@ public class POJOPropertyBuilder
                         }
                     }
                 }
-                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(prim);
+                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(_config, prim);
                 if (setterInfo != null) {
                     valueNulls = setterInfo.nonDefaultValueNulls();
                     contentNulls = setterInfo.nonDefaultContentNulls();
@@ -602,7 +602,7 @@ public class POJOPropertyBuilder
 
     @Override
     public Class<?>[] findViews() {
-        return _annotationIntrospector.findViews(getPrimaryMember());
+        return _annotationIntrospector.findViews(_config, getPrimaryMember());
     }
 
     @Override
@@ -617,7 +617,7 @@ public class POJOPropertyBuilder
             return result;
         }
         AnnotatedMember m = getPrimaryMember();
-        result = (m == null) ? null : _annotationIntrospector.findReferenceType(m);
+        result = (m == null) ? null : _annotationIntrospector.findReferenceType(_config, m);
         _referenceInfo = (result == null) ? NOT_REFEFERENCE_PROP : result;
         return result;
     }
@@ -637,25 +637,25 @@ public class POJOPropertyBuilder
     protected Boolean _findRequired() {
         AnnotatedMember m = getPrimaryMember();
         return (m == null) ? null
-                : _annotationIntrospector.hasRequiredMarker(m);
+                : _annotationIntrospector.hasRequiredMarker(_config, m);
     }
     
     protected String _findDescription() {
         AnnotatedMember m = getPrimaryMember();
         return (m == null) ? null
-                : _annotationIntrospector.findPropertyDescription(m);
+                : _annotationIntrospector.findPropertyDescription(_config, m);
     }
 
     protected Integer _findIndex() {
         AnnotatedMember m = getPrimaryMember();
         return (m == null) ? null
-                : _annotationIntrospector.findPropertyIndex(m);
+                : _annotationIntrospector.findPropertyIndex(_config, m);
     }
 
     protected String _findDefaultValue() {
         AnnotatedMember m = getPrimaryMember();
         return (m == null) ? null
-                : _annotationIntrospector.findPropertyDefaultValue(m);
+                : _annotationIntrospector.findPropertyDefaultValue(_config, m);
     }
 
     @Override
@@ -687,7 +687,7 @@ public class POJOPropertyBuilder
         return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
             @Override
             public JsonProperty.Access withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findPropertyAccess(member);
+                return _annotationIntrospector.findPropertyAccess(_config, member);
             }
         }, JsonProperty.Access.AUTO);
     }

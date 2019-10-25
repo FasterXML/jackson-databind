@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 class CollectorBase
 {
@@ -12,10 +13,12 @@ class CollectorBase
     protected final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     private final static Class<?> CLS_OBJECT = Object.class;
 
+    protected final MapperConfig<?> _config;
     protected final AnnotationIntrospector _intr;
 
-    protected CollectorBase(AnnotationIntrospector intr) {
-        _intr = intr;
+    protected CollectorBase(MapperConfig<?> config) {
+        _config = config;
+        _intr = (config == null) ? null : config.getAnnotationIntrospector();
     }
 
     // // // Annotation overrides ("mix over")

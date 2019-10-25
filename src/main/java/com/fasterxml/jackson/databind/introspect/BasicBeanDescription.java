@@ -43,7 +43,7 @@ public class BasicBeanDescription extends BeanDescription
 
     final protected MapperConfig<?> _config;
 
-    final protected AnnotationIntrospector _annotationIntrospector;
+    final protected AnnotationIntrospector _intr;
 
     /*
     /**********************************************************************
@@ -102,7 +102,7 @@ public class BasicBeanDescription extends BeanDescription
         _propCollector = coll;
         _config = Objects.requireNonNull(coll.getConfig());
         // NOTE: null config only for some pre-constructed types
-        _annotationIntrospector = (_config == null) ? NopAnnotationIntrospector.nopInstance()
+        _intr = (_config == null) ? NopAnnotationIntrospector.nopInstance()
                 : _config.getAnnotationIntrospector();
         _classInfo = classDef;
     }
@@ -116,7 +116,7 @@ public class BasicBeanDescription extends BeanDescription
         super(type);
         _propCollector = null;
         _config = Objects.requireNonNull(config);
-        _annotationIntrospector = _config.getAnnotationIntrospector();
+        _intr = _config.getAnnotationIntrospector();
         _classInfo = classDef;
         _properties = Collections.<BeanPropertyDefinition>emptyList();
     }
@@ -356,7 +356,7 @@ anyField.getName()));
             //   a small set of pre-discovered simple types that `BasicClassIntrospector`
             //   may expose. If so, nothing we can do
             v = (_config == null) ? null
-                    : _annotationIntrospector.findFormat(_config, _classInfo);
+                    : _intr.findFormat(_config, _classInfo);
             if (v == null) {
                 v = JsonFormat.Value.empty();
             }
@@ -371,7 +371,7 @@ anyField.getName()));
         JsonFormat.Value v0 = _classFormat;
         if (v0 == null) { // copied from above
             v0 = (_config == null) ? null
-                    : _annotationIntrospector.findFormat(_config, _classInfo);
+                    : _intr.findFormat(_config, _classInfo);
             if (v0 == null) {
                 v0 = JsonFormat.Value.empty();
             }
@@ -389,7 +389,7 @@ anyField.getName()));
     {
         if (!_defaultViewsResolved) {
             _defaultViewsResolved = true;
-            Class<?>[] def = _annotationIntrospector.findViews(_classInfo);
+            Class<?>[] def = _intr.findViews(_config, _classInfo);
             // one more twist: if default inclusion disabled, need to force empty set of views
             if (def == null) {
                 if (!_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)) {
@@ -410,7 +410,7 @@ anyField.getName()));
     @Override
     public Converter<Object,Object> findSerializationConverter()
     {
-        return _createConverter(_annotationIntrospector.findSerializationConverter(_config, _classInfo));
+        return _createConverter(_intr.findSerializationConverter(_config, _classInfo));
     }
 
     /**
@@ -421,7 +421,7 @@ anyField.getName()));
      */
     @Override
     public JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue) {
-        JsonInclude.Value incl = _annotationIntrospector.findPropertyInclusion(_config, _classInfo);
+        JsonInclude.Value incl = _intr.findPropertyInclusion(_config, _classInfo);
         if (incl != null) {
             return (defValue == null) ? incl : defValue.withOverrides(incl);
         }
@@ -557,7 +557,7 @@ anyField.getName()));
          * (a) marked with @JsonCreator annotation, or
          * (b) "valueOf" (at this point, need not be public)
          */
-        JsonCreator.Mode mode = _annotationIntrospector.findCreatorAnnotation(_config, am);
+        JsonCreator.Mode mode = _intr.findCreatorAnnotation(_config, am);
         if ((mode != null) && (mode != JsonCreator.Mode.DISABLED)) {
             return true;
         }
@@ -588,25 +588,25 @@ anyField.getName()));
 
     @Override
     public Class<?> findPOJOBuilder() {
-        return _annotationIntrospector.findPOJOBuilder(_config, _classInfo);
+        return _intr.findPOJOBuilder(_config, _classInfo);
     }
 
     @Override
     public JsonPOJOBuilder.Value findPOJOBuilderConfig()
     {
-        return _annotationIntrospector.findPOJOBuilderConfig(_config, _classInfo);
+        return _intr.findPOJOBuilderConfig(_config, _classInfo);
     }
 
     @Override
     public Converter<Object,Object> findDeserializationConverter()
     {
-        return _createConverter(_annotationIntrospector
+        return _createConverter(_intr
                         .findDeserializationConverter(_config, _classInfo));
     }
 
     @Override
     public String findClassDescription() {
-        return _annotationIntrospector.findClassDescription(_config, _classInfo);
+        return _intr.findClassDescription(_config, _classInfo);
     }
 
     /*

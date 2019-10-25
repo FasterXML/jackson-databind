@@ -5,9 +5,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class AnnotatedMethodCollector
@@ -17,25 +16,25 @@ public class AnnotatedMethodCollector
 
     private final boolean _collectAnnotations;
 
-    AnnotatedMethodCollector(AnnotationIntrospector intr,
+    AnnotatedMethodCollector(MapperConfig<?> config,
             MixInResolver mixins, boolean collectAnnotations)
     {
-        super(intr);
-        _mixInResolver = (intr == null) ? null : mixins;
+        super(config);
+        _mixInResolver = (_intr == null) ? null : mixins;
         _collectAnnotations = collectAnnotations;
     }
 
-    public static AnnotatedMethodMap collectMethods(AnnotationIntrospector intr,
-            TypeResolutionContext tc, MixInResolver mixins, TypeFactory typeFactory,
+    public static AnnotatedMethodMap collectMethods(MapperConfig<?> config,
+            TypeResolutionContext tc, MixInResolver mixins,
             JavaType type, List<JavaType> superTypes, Class<?> primaryMixIn,
             boolean collectAnnotations)
     {
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedMethodCollector(intr, mixins, collectAnnotations)
-                .collect(tc, typeFactory, type, superTypes, primaryMixIn);
+        return new AnnotatedMethodCollector(config, mixins, collectAnnotations)
+                .collect(tc, type, superTypes, primaryMixIn);
     }
 
-    AnnotatedMethodMap collect(TypeResolutionContext tc, TypeFactory typeFactory,
+    AnnotatedMethodMap collect(TypeResolutionContext tc,
             JavaType mainType, List<JavaType> superTypes, Class<?> primaryMixIn)
     {
         Map<MemberKey,MethodBuilder> methods = new LinkedHashMap<>();
@@ -47,7 +46,7 @@ public class AnnotatedMethodCollector
         for (JavaType type : superTypes) {
             Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(type.getRawClass());
             _addMemberMethods(
-                    new TypeResolutionContext.Basic(typeFactory, type.getBindings()),
+                    new TypeResolutionContext.Basic(_config.getTypeFactory(), type.getBindings()),
                     type.getRawClass(), methods, mixin);
         }
         // Special case: mix-ins for Object.class? (to apply to ALL classes)

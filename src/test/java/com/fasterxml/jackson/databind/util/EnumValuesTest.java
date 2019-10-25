@@ -52,7 +52,8 @@ public class EnumValuesTest extends BaseMapTest
 
     public void testEnumResolver()
     {
-        EnumResolver enumRes = EnumResolver.constructUnsafeUsingToString(ABC.class, null);
+        EnumResolver enumRes = EnumResolver.constructUnsafeUsingToString(MAPPER.serializationConfig(),
+                ABC.class);
         assertEquals(ABC.B, enumRes.getEnum(1));
         assertNull(enumRes.getEnum(-1));
         assertNull(enumRes.getEnum(3));

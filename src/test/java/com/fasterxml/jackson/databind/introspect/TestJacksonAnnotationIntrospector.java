@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
@@ -124,7 +125,8 @@ public class TestJacksonAnnotationIntrospector
         private static final long serialVersionUID = 1L;
 
         @Override
-        public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+        public  String[] findEnumValues(MapperConfig<?> config,
+                Class<?> enumType, Enum<?>[] enumValues, String[] names) {
             // kinda sorta wrong, but for testing's sake...
             for (int i = 0, len = enumValues.length; i < len; ++i) {
                 names[i] = enumValues[i].name().toLowerCase();

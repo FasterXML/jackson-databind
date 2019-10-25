@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -11,12 +12,12 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
     {
         @Override
-        public String findImplicitPropertyName(AnnotatedMember param) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
             if (param instanceof AnnotatedParameter) {
                 AnnotatedParameter ap = (AnnotatedParameter) param;
                 return "paramName"+ap.getIndex();
             }
-            return super.findImplicitPropertyName(param);
+            return super.findImplicitPropertyName(config, param);
         }
     }
 

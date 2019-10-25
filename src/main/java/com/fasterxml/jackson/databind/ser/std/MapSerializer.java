@@ -338,7 +338,7 @@ public class MapSerializer
                     }
                 }
             }
-            Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
+            Boolean b = intr.findSerializationSortAlphabetically(config, propertyAcc);
             sortKeys = Boolean.TRUE.equals(b);
         }
         JsonFormat.Value format = findFormatOverrides(ctxt, property, Map.class);

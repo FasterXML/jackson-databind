@@ -236,8 +236,7 @@ public class EnumDeserializer
         // reduce contention for the initial resolution
         if (lookup == null) {
             synchronized (this) {
-                lookup = EnumResolver.constructUnsafeUsingToString(_enumClass(),
-                        ctxt.getAnnotationIntrospector())
+                lookup = EnumResolver.constructUnsafeUsingToString(ctxt.getConfig(), _enumClass())
                     .constructLookup();
             }
             _lookupByToString = lookup;

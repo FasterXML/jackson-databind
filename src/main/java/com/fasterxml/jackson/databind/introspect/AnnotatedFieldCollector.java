@@ -4,9 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class AnnotatedFieldCollector
@@ -18,26 +17,26 @@ public class AnnotatedFieldCollector
 
     // // // Collected state
 
-    AnnotatedFieldCollector(AnnotationIntrospector intr, MixInResolver mixins,
+    AnnotatedFieldCollector(MapperConfig<?> config, MixInResolver mixins,
             boolean collectAnnotations)
     {
-        super(intr);
-        _mixInResolver = (intr == null) ? null : mixins;
+        super(config);
+        _mixInResolver = mixins;
         _collectAnnotations = collectAnnotations;
     }
 
-    public static List<AnnotatedField> collectFields(AnnotationIntrospector intr,
-            TypeResolutionContext tc, MixInResolver mixins, TypeFactory typeFactory,
+    public static List<AnnotatedField> collectFields(MapperConfig<?> config,
+            TypeResolutionContext tc, MixInResolver mixins,
             JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
     {
-        return new AnnotatedFieldCollector(intr, mixins, collectAnnotations)
-                .collect(tc, typeFactory, type, primaryMixIn);
+        return new AnnotatedFieldCollector(config, mixins, collectAnnotations)
+                .collect(tc, type, primaryMixIn);
     }
 
-    List<AnnotatedField> collect(TypeResolutionContext tc, TypeFactory typeFactory,
+    List<AnnotatedField> collect(TypeResolutionContext tc,
             JavaType type, Class<?> primaryMixIn)
     {
-        Map<String,FieldBuilder> foundFields = _findFields(tc, typeFactory, type, primaryMixIn, null);
+        Map<String,FieldBuilder> foundFields = _findFields(tc, type, primaryMixIn, null);
         if (foundFields == null) {
             return Collections.emptyList();
         }
@@ -48,7 +47,7 @@ public class AnnotatedFieldCollector
         return result;
     }
 
-    private Map<String,FieldBuilder> _findFields(TypeResolutionContext tc, TypeFactory typeFactory,
+    private Map<String,FieldBuilder> _findFields(TypeResolutionContext tc,
             JavaType type, Class<?> mixin,
             Map<String,FieldBuilder> fields)
     {
@@ -63,8 +62,9 @@ public class AnnotatedFieldCollector
         {
             Class<?> parentMixin = (_mixInResolver == null) ? null
                     : _mixInResolver.findMixInClassFor(parentType.getRawClass());
-            fields = _findFields(new TypeResolutionContext.Basic(typeFactory, parentType.getBindings()),
-                    typeFactory, parentType, parentMixin, fields);
+            fields = _findFields(new TypeResolutionContext.Basic(_config.getTypeFactory(),
+                    parentType.getBindings()),
+                    parentType, parentMixin, fields);
         }
         final Class<?> rawType = type.getRawClass();
         for (Field f : rawType.getDeclaredFields()) {

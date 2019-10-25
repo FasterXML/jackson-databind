@@ -139,18 +139,18 @@ public class AnnotatedClassResolver
             _addSuperTypes(_type, superTypes, false);
         }
 //System.err.println(" resolveFully("+_type.getRawClass().getSimpleName()+") -> "+superTypes);        
-        return new AnnotatedClass(_type, _class, superTypes, _primaryMixin,
+        return new AnnotatedClass(_config, _type, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
-                _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
+                _bindings, _mixInResolver,
                 _collectAnnotations);
 
     }
 
     AnnotatedClass resolveWithoutSuperTypes() {
         List<JavaType> superTypes = Collections.emptyList();
-        return new AnnotatedClass(null, _class, superTypes, _primaryMixin,
+        return new AnnotatedClass(_config, null, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
-                _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
+                _bindings, _mixInResolver,
                 _collectAnnotations);
     }
 

@@ -181,7 +181,7 @@ public class IntrospectorPairTest extends BaseMapTest
          */
 
         @Override
-        public Boolean hasAnySetter(Annotated a) {
+        public Boolean hasAnySetter(MapperConfig<?> config, Annotated a) {
             return (Boolean) values.get("hasAnySetter");
         }
 
@@ -447,15 +447,15 @@ public class IntrospectorPairTest extends BaseMapTest
                 .add("hasAnySetter", Boolean.TRUE);
         IntrospectorWithMap intr2 = new IntrospectorWithMap()
                 .add("hasAnySetter", Boolean.FALSE);
-        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).hasAnySetter(null));
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).hasAnySetter(null, null));
         assertEquals(Boolean.TRUE,
-                new AnnotationIntrospectorPair(intr1, intr2).hasAnySetter(null));
+                new AnnotationIntrospectorPair(intr1, intr2).hasAnySetter(null, null));
         assertEquals(Boolean.TRUE,
-                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).hasAnySetter(null));
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).hasAnySetter(null, null));
         assertEquals(Boolean.FALSE,
-                new AnnotationIntrospectorPair(intr2, intr1).hasAnySetter(null));
+                new AnnotationIntrospectorPair(intr2, intr1).hasAnySetter(null, null));
         assertEquals(Boolean.FALSE,
-                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).hasAnySetter(null));
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).hasAnySetter(null, null));
     }
 
     /*

@@ -4,10 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeBindings;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -25,11 +24,17 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
+    final protected MapperConfig<?> _config;
+
+    /**
+     * Resolved Java type for which information is collected: also works as
+     * context for resolving possible generic type of accessors declared in this
+     * type.
+     */
     final protected JavaType _type;
 
     /**
-     * Class for which annotations apply, and that owns other
-     * components (constructors, methods)
+     * Type erased {@link Class} matching {@code _type}.
      */
     final protected Class<?> _class;
 
@@ -44,15 +49,6 @@ public final class AnnotatedClass
      */
     final protected List<JavaType> _superTypes;
 
-    /**
-     * Filter used to determine which annotations to gather; used
-     * to optimize things so that unnecessary annotations are
-     * ignored.
-     */
-    final protected AnnotationIntrospector _annotationIntrospector;
-
-    final protected TypeFactory _typeFactory;
-    
     /**
      * Object that knows mapping of mix-in classes (ones that contain
      * annotations to add) with their target classes (ones that
@@ -114,20 +110,18 @@ public final class AnnotatedClass
      *    methods are to be accessed
      * @param rawType Type-erased class; pass if no `type` needed or available
      */
-    AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
+    AnnotatedClass(MapperConfig<?> config, JavaType type, Class<?> rawType, List<JavaType> superTypes,
             Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
-            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf,
-            boolean collectAnnotations)
+            MixInResolver mir, boolean collectAnnotations)
     {
+        _config = config;
         _type = type;
         _class = rawType;
         _superTypes = superTypes;
         _primaryMixIn = primaryMixIn;
         _classAnnotations = classAnnotations;
         _bindings = bindings;
-        _annotationIntrospector = aintr;
         _mixInResolver = mir;
-        _typeFactory = tf;
         _collectAnnotations = collectAnnotations;
     }
 
@@ -136,15 +130,14 @@ public final class AnnotatedClass
      * and array type placeholders where no fields or methods are needed.
      */
     AnnotatedClass(Class<?> rawType) {
+        _config = null;
         _type = null;
         _class = rawType;
         _superTypes = Collections.emptyList();
         _primaryMixIn = null;
         _classAnnotations = AnnotationCollector.emptyAnnotations();
         _bindings = TypeBindings.emptyBindings();
-        _annotationIntrospector = null;
         _mixInResolver = null;
-        _typeFactory = null;
         _collectAnnotations = false;
     }
 
@@ -156,7 +149,7 @@ public final class AnnotatedClass
 
     @Override
     public JavaType resolveType(Type type) {
-        return _typeFactory.constructType(type, _bindings);
+        return _config.getTypeFactory().constructType(type, _bindings);
     }
 
     /*
@@ -267,8 +260,8 @@ public final class AnnotatedClass
             if (_type == null) {
                 f = Collections.emptyList();
             } else {
-                f = AnnotatedFieldCollector.collectFields(_annotationIntrospector,
-                        this, _mixInResolver, _typeFactory,
+                f = AnnotatedFieldCollector.collectFields(_config,
+                        this, _mixInResolver,
                         _type, _primaryMixIn, _collectAnnotations);
             }
             _fields = f;
@@ -284,8 +277,8 @@ public final class AnnotatedClass
             if (_type == null) {
                 m = new AnnotatedMethodMap();
             } else {
-                m = AnnotatedMethodCollector.collectMethods(_annotationIntrospector,
-                        this, _mixInResolver, _typeFactory,
+                m = AnnotatedMethodCollector.collectMethods(_config,
+                        this, _mixInResolver,
                         _type, _superTypes, _primaryMixIn, _collectAnnotations);
             }
             _memberMethods = m;
@@ -299,7 +292,7 @@ public final class AnnotatedClass
             if (_type == null) {
                 c = NO_CREATORS;
             } else {
-                c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
+                c = AnnotatedCreatorCollector.collectCreators(_config,
                         this, _type, _primaryMixIn, _collectAnnotations);
             }
             _creators = c;

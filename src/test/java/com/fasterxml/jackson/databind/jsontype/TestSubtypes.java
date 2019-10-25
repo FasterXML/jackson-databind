@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.Version;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -38,7 +39,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     // "Empty" bean
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     static abstract class BaseBean { }
-    
+
     static class EmptyBean extends BaseBean { }
 
     static class EmptyNonFinal { }
@@ -49,7 +50,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     {
         @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
         public SuperType value;
-        
+
         public PropertyBean() { this(null); }
         public PropertyBean(SuperType v) { value = v; }
     }
@@ -68,6 +69,28 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     static class DefaultImpl505 extends SuperTypeWithoutDefault {
         public int a;
+    }
+
+    static class Sub extends SuperTypeWithoutDefault {
+        public int a;
+
+        public Sub(){}
+        public Sub(int a) {
+            this.a = a;
+        }
+    }
+
+    static class POJOWrapper {
+        @JsonProperty
+        Sub sub1;
+        @JsonProperty
+        Sub sub2;
+
+        public POJOWrapper(){}
+        public POJOWrapper(Sub sub1, Sub sub2) {
+            this.sub1 = sub1;
+            this.sub2 = sub2;
+        }
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="type")
@@ -118,7 +141,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         public Issue1125Wrapper() { }
         public Issue1125Wrapper(Base1125 v) { value = v; }
     }
-    
+
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, defaultImpl=Default1125.class)
     @JsonSubTypes({ @JsonSubTypes.Type(Interm1125.class) })
     static class Base1125 {
@@ -204,7 +227,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
     }
-    
+
     public void testSerialization() throws Exception
     {
         // serialization can detect type name ok without anything extra:
@@ -217,7 +240,17 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals("{\"@type\":\"typeB\",\"b\":1}", mapper.writeValueAsString(bean));
 
         // and default name ought to be simple class name; with context
-        assertEquals("{\"@type\":\"TestSubtypes$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));  
+        assertEquals("{\"@type\":\"TestSubtypes$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));
+    }
+
+    public void testSerializationWithDuplicateRegisteredSubtypes() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerSubtypes(new NamedType(Sub.class, "sub1"));
+        mapper.registerSubtypes(new NamedType(Sub.class, "sub2"));
+
+        // the first registered type name is used for serialization
+        Sub sub = new Sub(15);
+        assertEquals("{\"#type\":\"sub1\",\"a\":15}", mapper.writeValueAsString(sub));
     }
 
     public void testDeserializationNonNamed() throws Exception
@@ -245,6 +278,28 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         bean = mapper.readValue("{\"@type\":\"TypeD\", \"d\":-4}", SuperType.class);
         assertSame(SubD.class, bean.getClass());
         assertEquals(-4, ((SubD) bean).d);
+    }
+
+    public void testDeserializationWithDuplicateRegisteredSubtypes()
+        throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+
+        // We can register the same class with different names
+        mapper.registerSubtypes(new NamedType(Sub.class, "sub1"));
+        mapper.registerSubtypes(new NamedType(Sub.class, "sub2"));
+
+        // fields of a POJO will be deserialized correctly according to their field name
+        POJOWrapper pojoWrapper = mapper.readValue("{\"sub1\":{\"#type\":\"sub1\",\"a\":10},\"sub2\":{\"#type\":\"sub2\",\"a\":50}}", POJOWrapper.class);
+        assertEquals(10, pojoWrapper.sub1.a);
+        assertEquals(50, pojoWrapper.sub2.a);
+
+        // Instances of the same object can be deserialized with multiple names
+        SuperTypeWithoutDefault sub1 = mapper.readValue("{\"#type\":\"sub1\", \"a\":20}", SuperTypeWithoutDefault.class);
+        assertSame(Sub.class, sub1.getClass());
+        assertEquals(20, ((Sub) sub1).a);
+        SuperTypeWithoutDefault sub2 = mapper.readValue("{\"#type\":\"sub2\", \"a\":30}", SuperTypeWithoutDefault.class);
+        assertSame(Sub.class, sub2.getClass());
+        assertEquals(30, ((Sub) sub2).a);
     }
 
     // Trying to reproduce [JACKSON-366]
@@ -295,7 +350,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     public void testDefaultImplViaModule() throws Exception
     {
         final String JSON = "{\"a\":123}";
-        
+
         // first: without registration etc, epic fail:
         try {
             MAPPER.readValue(JSON, SuperTypeWithoutDefault.class);
@@ -317,7 +372,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         bean = mapper.readValue("{\"#type\":\"foobar\"}", SuperTypeWithoutDefault.class);
         assertEquals(DefaultImpl505.class, bean.getClass());
         assertEquals(0, ((DefaultImpl505) bean).a);
-    
+
     }
 
     public void testErrorMessage() throws Exception {
@@ -361,7 +416,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     public void testIssue1125NonDefault() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Issue1125Wrapper(new Impl1125(1, 2, 3)));
-        
+
         Issue1125Wrapper result = MAPPER.readValue(json, Issue1125Wrapper.class);
         assertNotNull(result.value);
         assertEquals(Impl1125.class, result.value.getClass());

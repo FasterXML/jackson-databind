@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.util.Objects;
+
 /**
  * Simple container class for types with optional logical name, used
  * as external identifier
@@ -14,10 +16,10 @@ public final class NamedType implements java.io.Serializable
     protected String _name;
     
     public NamedType(Class<?> c) { this(c, null); }
-    
+
     public NamedType(Class<?> c, String name) {
         _class = c;
-        _hashCode = c.getName().hashCode();
+        _hashCode = (c.getName() + (name != null ? name : "")).hashCode();
         setName(name);
     }
 
@@ -28,14 +30,16 @@ public final class NamedType implements java.io.Serializable
     public boolean hasName() { return _name != null; }
     
     /**
-     * Equality is defined based on class only, not on name
+     * Equality is defined based on class and name
      */
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
         if (o.getClass() != getClass()) return false;
-        return _class == ((NamedType) o)._class;
+        NamedType other = (NamedType)o;
+        if (!Objects.equals(_name, other._name)) return false;
+        return _class == other._class;
     }
 
     @Override

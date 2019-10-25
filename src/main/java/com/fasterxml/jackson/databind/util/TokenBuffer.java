@@ -1547,6 +1547,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     || _currToken == JsonToken.END_ARRAY) {
                 // Closing JSON Object/Array? Close matching context
                 _parsingContext = _parsingContext.parentOrCopy();
+            } else {
+                _parsingContext.updateForValue();
             }
             return _currToken;
         }

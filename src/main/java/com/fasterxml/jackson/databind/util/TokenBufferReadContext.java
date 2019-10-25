@@ -92,10 +92,14 @@ public class TokenBufferReadContext extends TokenStreamContext
     }
 
     public TokenBufferReadContext createChildArrayContext() {
+        // For current context there will be one next Array value, first:
+        ++_index;
         return new TokenBufferReadContext(this, TYPE_ARRAY, -1);
     }
 
     public TokenBufferReadContext createChildObjectContext() {
+        // For current context there will be one next Object value, first:
+        ++_index;
         return new TokenBufferReadContext(this, TYPE_OBJECT, -1);
     }
 
@@ -130,5 +134,18 @@ public class TokenBufferReadContext extends TokenStreamContext
 
     public void setCurrentName(String name) throws JsonProcessingException {
         _currentName = name;
+    }
+
+    /*
+    /**********************************************************
+    /* Extended support for context updates
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.10.1
+     */
+    public void updateForValue() {
+        ++_index;
     }
 }

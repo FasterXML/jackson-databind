@@ -179,18 +179,19 @@ public class ObjectMapperTest extends BaseMapTest
     {
         final int[] input = new int[] { 1, 2 };
 
-        JsonMapper m = new JsonMapper();
+        JsonMapper vanilla = new JsonMapper();
 
         // without anything else, compact:
-        assertEquals("[1,2]", m.writeValueAsString(input));
+        assertEquals("[1,2]", vanilla.writeValueAsString(input));
+        assertEquals("[1,2]", vanilla.writer().writeValueAsString(input));
 
         // or with default, get... defaults:
-        m = JsonMapper.builder()
+        JsonMapper m = JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();
         assertEquals("[ 1, 2 ]", m.writeValueAsString(input));
-        assertEquals("[ 1, 2 ]", m.writerWithDefaultPrettyPrinter().writeValueAsString(input));
-        assertEquals("[ 1, 2 ]", m.writer().withDefaultPrettyPrinter().writeValueAsString(input));
+        assertEquals("[ 1, 2 ]", vanilla.writerWithDefaultPrettyPrinter().writeValueAsString(input));
+        assertEquals("[ 1, 2 ]", vanilla.writer().withDefaultPrettyPrinter().writeValueAsString(input));
 
         // but then with our custom thingy...
         m = JsonMapper.builder()

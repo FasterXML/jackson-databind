@@ -1006,3 +1006,7 @@ Ville Koskela (vjkoskela@github)
 Fitz (Joongsoo.Park) (joongsoo@github)
   * Contributed #2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
   (2.11.0)
+
+Antonio Petrelli (apetrelli@github)
+  * Reported #2049: TreeTraversingParser and UTF8StreamJsonParser create contexts differently
+  (2.11.0)

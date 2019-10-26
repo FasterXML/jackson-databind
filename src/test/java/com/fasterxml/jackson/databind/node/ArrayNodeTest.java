@@ -260,7 +260,7 @@ public class ArrayNodeTest
         p.setCodec(null);
         assertNull(p.getCodec());
         assertNotNull(p.getParsingContext());
-//        assertTrue(p.getParsingContext().inRoot());
+        assertTrue(p.getParsingContext().inRoot());
         assertNotNull(p.getTokenLocation());
         assertNotNull(p.getCurrentLocation());
         assertNull(p.getEmbeddedObject());

@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.11.0 (not yet released)
 
+#2049: TreeTraversingParser and UTF8StreamJsonParser create contexts differently
+ (reported by Antonio P)
 #2487: BeanDeserializerBuilder Protected Factory Method for Extension
  (contributed by Ville K)
 #2503: Support `@JsonSerialize(keyUsing)` and `@JsonDeserialize(keyUsing)` on Key class
@@ -13,6 +15,7 @@ Project: jackson-databind
  (contributed by Joongsoo P)
 #2522: `DeserializationContext.handleMissingInstantiator()` throws `MismatchedInputException`
   for non-static inner classes
+#2525: Incorrect `JsonStreamContext` for `TokenBuffer` and `TreeTraversingParser`
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.1 (not yet released)

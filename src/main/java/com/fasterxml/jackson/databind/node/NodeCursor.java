@@ -128,6 +128,7 @@ abstract class NodeCursor
         @Override
         public JsonToken nextToken() {
             if (!_done) {
+                ++_index;
                 _done = true;
                 return _node.asToken();
             }
@@ -167,6 +168,7 @@ abstract class NodeCursor
                 _currentNode = null;
                 return null;
             }
+            ++_index;
             _currentNode = _contents.next();
             return _currentNode.asToken();
         }
@@ -213,6 +215,7 @@ abstract class NodeCursor
                     _current = null;
                     return null;
                 }
+                ++_index;
                 _needEntry = false;
                 _current = _contents.next();
                 _currentName = (_current == null) ? null : _current.getKey();

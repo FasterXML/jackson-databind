@@ -7,7 +7,6 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -19,9 +18,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class TreeTraversingParser extends ParserMinimalBase
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -35,23 +34,11 @@ public class TreeTraversingParser extends ParserMinimalBase
     protected NodeCursor _nodeCursor;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * Sometimes parser needs to buffer a single look-ahead token; if so,
-     * it'll be stored here. This is currently used for handling 
-     */
-    protected JsonToken _nextToken;
-
-    /**
-     * Flag needed to handle recursion into contents of child
-     * Array/Object nodes.
-     */
-    protected boolean _startContainer;
-    
     /**
      * Flag that indicates whether parser is closed or not. Gets
      * set when parser is either closed by explicit call
@@ -60,9 +47,9 @@ public class TreeTraversingParser extends ParserMinimalBase
     protected boolean _closed;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public TreeTraversingParser(JsonNode n) { this(n, null); }
@@ -71,15 +58,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     {
         super(readContext, 0);
         _source = n;
-        if (n.isArray()) {
-            _nextToken = JsonToken.START_ARRAY;
-            _nodeCursor = new NodeCursor.ArrayCursor(n, null);
-        } else if (n.isObject()) {
-            _nextToken = JsonToken.START_OBJECT;
-            _nodeCursor = new NodeCursor.ObjectCursor(n, null);
-        } else { // value node
-            _nodeCursor = new NodeCursor.RootCursor(n, null);
-        }
+        _nodeCursor = new NodeCursor.RootCursor(n, null);
     }
 
     @Override
@@ -93,9 +72,9 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Closeable implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -109,65 +88,45 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, traversal
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public JsonToken nextToken() throws IOException, JsonParseException
     {
-        if (_nextToken != null) {
-            _currToken = _nextToken;
-            _nextToken = null;
-            return _currToken;
-        }
-        // are we to descend to a container child?
-        if (_startContainer) {
-            _startContainer = false;
-            // minor optimization: empty containers can be skipped
-            if (!_nodeCursor.currentHasChildren()) {
-                _currToken = (_currToken == JsonToken.START_OBJECT) ?
-                    JsonToken.END_OBJECT : JsonToken.END_ARRAY;
-                return _currToken;
-            }
-            _nodeCursor = _nodeCursor.iterateChildren();
-            _currToken = _nodeCursor.nextToken();
-            if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-                _startContainer = true;
-            }
-            return _currToken;
-        }
-        // No more content?
-        if (_nodeCursor == null) {
+        _currToken = _nodeCursor.nextToken();
+        if (_currToken == null) {
             _closed = true; // if not already set
             return null;
         }
-        // Otherwise, next entry from current cursor
-        _currToken = _nodeCursor.nextToken();
-        if (_currToken != null) {
-            if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-                _startContainer = true;
-            }
-            return _currToken;
+        switch (_currToken) {
+        case START_OBJECT:
+            _nodeCursor = _nodeCursor.startObject();
+            break;
+        case START_ARRAY:
+            _nodeCursor = _nodeCursor.startArray();
+            break;
+        case END_OBJECT:
+        case END_ARRAY:
+            _nodeCursor = _nodeCursor.getParent();
+        default:
         }
-        // null means no more children; need to return end marker
-        _currToken = _nodeCursor.endToken();
-        _nodeCursor = _nodeCursor.getParent();
         return _currToken;
     }
-    
+
     // default works well here:
-    //public JsonToken nextValue() throws IOException, JsonParseException
+    //public JsonToken nextValue() throws IOException
 
     @Override
-    public JsonParser skipChildren() throws IOException, JsonParseException
+    public JsonParser skipChildren() throws IOException
     {
         if (_currToken == JsonToken.START_OBJECT) {
-            _startContainer = false;
+            _nodeCursor = _nodeCursor.getParent();
             _currToken = JsonToken.END_OBJECT;
         } else if (_currToken == JsonToken.START_ARRAY) {
-            _startContainer = false;
+            _nodeCursor = _nodeCursor.getParent();
             _currToken = JsonToken.END_ARRAY;
         }
         return this;
@@ -179,24 +138,29 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, token accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override
-    public String currentName() {
-        return (_nodeCursor == null) ? null : _nodeCursor.currentName();
+    @Override public String currentName() {
+        NodeCursor crsr = _nodeCursor;
+        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+            crsr = crsr.getParent();
+        }
+        return (crsr == null) ? null : crsr.currentName();
     }
 
-    @Override
-    public void overrideCurrentName(String name)
-    {
-        if (_nodeCursor != null) {
-            _nodeCursor.overrideCurrentName(name);
+    @Override public void overrideCurrentName(String name) {
+        NodeCursor crsr = _nodeCursor;
+        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+            crsr = crsr.getParent();
+        }
+        if (crsr != null) {
+            crsr.overrideCurrentName(name);
         }
     }
-    
+
     @Override
     public TokenStreamContext getParsingContext() {
         return _nodeCursor;
@@ -213,9 +177,9 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to textual content
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -264,11 +228,11 @@ public class TreeTraversingParser extends ParserMinimalBase
         // generally we do not have efficient access as char[], hence:
         return false;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, typed non-text access
-    /**********************************************************
+    /**********************************************************************
      */
 
     //public byte getByteValue() throws IOException
@@ -352,9 +316,9 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, typed binary (base64) access
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -389,9 +353,9 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonNode currentNode() {

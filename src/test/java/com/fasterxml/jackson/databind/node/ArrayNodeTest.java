@@ -259,7 +259,7 @@ public class ArrayNodeTest
         TreeTraversingParser p = new TreeTraversingParser(n, null);
         assertNull(p.getObjectReadContext());
         assertNotNull(p.getParsingContext());
-//        assertTrue(p.getParsingContext().inRoot());
+        assertTrue(p.getParsingContext().inRoot());
         assertNotNull(p.getTokenLocation());
         assertNotNull(p.getCurrentLocation());
         assertNull(p.getEmbeddedObject());

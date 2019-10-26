@@ -179,11 +179,7 @@ public class ObjectWriter
 
     /*
     /**********************************************************************
-<<<<<<< HEAD
-    /* Helper methdos to simplify mutant-factory implementation
-=======
-    /* Internal factory methods, for convenience
->>>>>>> 2.10
+    /* Helper methods to simplify mutant-factory implementation
     /**********************************************************************
      */
 
@@ -214,11 +210,11 @@ public class ObjectWriter
      * method (and its various overrides), and initializes it as necessary.
      */
     @SuppressWarnings("resource")
-    protected final SequenceWriter _newSequenceWriter(DefaultSerializerProvider prov,
+    protected final SequenceWriter _newSequenceWriter(DefaultSerializerProvider ctxt,
             boolean wrapInArray, JsonGenerator gen, boolean managedInput)
         throws IOException
     {
-        return new SequenceWriter(prov, gen, managedInput, _prefetch)
+        return new SequenceWriter(ctxt, gen, managedInput, _prefetch)
             .init(wrapInArray);
     }
 
@@ -379,7 +375,12 @@ public class ObjectWriter
      * pretty printer for serialization.
      */
     public ObjectWriter withDefaultPrettyPrinter() {
-        return with(_config.getDefaultPrettyPrinter());
+//        return with(_config.getDefaultPrettyPrinter());
+
+System.err.println(" withDefaultPrettyPrinter: default == "+_config.getDefaultPrettyPrinter());
+ObjectWriter w = with(_config.getDefaultPrettyPrinter());
+System.err.println(" PP now: "+_config.getDefaultPrettyPrinter());
+return w;
     }
 
     /**
@@ -608,9 +609,9 @@ public class ObjectWriter
      */
     public SequenceWriter writeValues(File target) throws IOException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        return _newSequenceWriter(prov, false,
-                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), true);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -644,9 +645,9 @@ public class ObjectWriter
      */
     public SequenceWriter writeValues(Writer target) throws IOException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        return _newSequenceWriter(prov, false,
-                _generatorFactory.createGenerator(prov, target), true);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -662,16 +663,16 @@ public class ObjectWriter
      */
     public SequenceWriter writeValues(OutputStream target) throws IOException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        return _newSequenceWriter(prov, false,
-                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), true);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValues(DataOutput target) throws IOException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        return _newSequenceWriter(prov, false,
-                _generatorFactory.createGenerator(prov, target), true);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -689,9 +690,9 @@ public class ObjectWriter
      */
     public SequenceWriter writeValuesAsArray(File target) throws IOException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        return _newSequenceWriter(prov, true,
-                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), true);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     /**
@@ -728,9 +729,9 @@ public class ObjectWriter
      */
     public SequenceWriter writeValuesAsArray(Writer target) throws IOException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        return _newSequenceWriter(prov, true,
-                _generatorFactory.createGenerator(prov, target), true);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /**
@@ -748,16 +749,16 @@ public class ObjectWriter
      */
     public SequenceWriter writeValuesAsArray(OutputStream target) throws IOException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        return _newSequenceWriter(prov, true,
-                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), true);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValuesAsArray(DataOutput target) throws IOException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        return _newSequenceWriter(prov, true,
-                _generatorFactory.createGenerator(prov, target), true);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target), true);
     }
 
     /*
@@ -866,9 +867,9 @@ public class ObjectWriter
         throws IOException, JsonGenerationException, JsonMappingException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        _configAndWriteValue(prov,
-                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), value);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        _configAndWriteValue(ctxt,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -885,9 +886,9 @@ public class ObjectWriter
     public void writeValue(OutputStream target, Object value) throws IOException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        _configAndWriteValue(prov,
-                _generatorFactory.createGenerator(prov, target, JsonEncoding.UTF8), value);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        _configAndWriteValue(ctxt,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -903,17 +904,17 @@ public class ObjectWriter
     public void writeValue(Writer target, Object value) throws IOException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        _configAndWriteValue(prov,
-                _generatorFactory.createGenerator(prov, target), value);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        _configAndWriteValue(ctxt,
+                _generatorFactory.createGenerator(ctxt, target), value);
     }
 
     public void writeValue(DataOutput target, Object value) throws IOException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider prov = _serializerProvider();
-        _configAndWriteValue(prov,
-                _generatorFactory.createGenerator(prov, target), value);
+        DefaultSerializerProvider ctxt = _serializerProvider();
+        _configAndWriteValue(ctxt,
+                _generatorFactory.createGenerator(ctxt, target), value);
     }
 
     /**
@@ -928,10 +929,10 @@ public class ObjectWriter
     {        
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
-        DefaultSerializerProvider prov = _serializerProvider();
+        DefaultSerializerProvider ctxt = _serializerProvider();
         try {
-            _configAndWriteValue(prov,
-                    _generatorFactory.createGenerator(prov, sw), value);
+            _configAndWriteValue(ctxt,
+                    _generatorFactory.createGenerator(ctxt, sw), value);
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -952,10 +953,10 @@ public class ObjectWriter
         throws JsonProcessingException
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_generatorFactory._getBufferRecycler());
-        DefaultSerializerProvider prov = _serializerProvider();
+        DefaultSerializerProvider ctxt = _serializerProvider();
         try {
-            _configAndWriteValue(prov,
-                    _generatorFactory.createGenerator(prov, bb, JsonEncoding.UTF8), value);
+            _configAndWriteValue(ctxt,
+                    _generatorFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -970,7 +971,7 @@ public class ObjectWriter
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(DefaultSerializerProvider prov,
+    protected final void _configAndWriteValue(DefaultSerializerProvider ctxt,
             JsonGenerator gen, Object value) throws IOException
     {
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
@@ -978,7 +979,7 @@ public class ObjectWriter
             return;
         }
         try {
-            _prefetch.serialize(gen, value, prov);
+            _prefetch.serialize(gen, value, ctxt);
         } catch (Exception e) {
             ClassUtil.closeOnFailAndThrowAsIOE(gen, e);
             return;
@@ -1135,11 +1136,11 @@ public class ObjectWriter
             // But one more trick: `java.lang.Object` has no serialized, but may
             // have `TypeSerializer` to use
             if (newType.isJavaLangObject()) {
-                DefaultSerializerProvider prov = parent._serializerProvider();
+                DefaultSerializerProvider ctxt = parent._serializerProvider();
                 TypeSerializer typeSer;
 
                 try {
-                    typeSer = prov.findTypeSerializer(newType);
+                    typeSer = ctxt.findTypeSerializer(newType);
                 } catch (JsonMappingException e) {
                     // Unlike with value serializer pre-fetch, let's not allow exception
                     // for TypeSerializer be swallowed
@@ -1149,13 +1150,13 @@ public class ObjectWriter
             }
 
             if (parent.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
-                DefaultSerializerProvider prov = parent._serializerProvider();
+                DefaultSerializerProvider ctxt = parent._serializerProvider();
                 // 17-Dec-2014, tatu: Need to be bit careful here; TypeSerializers are NOT cached,
                 //   so although it'd seem like a good idea to look for those first, and avoid
                 //   serializer for polymorphic types, it is actually more efficient to do the
                 //   reverse here.
                 try {
-                    JsonSerializer<Object> ser = prov.findTypedValueSerializer(newType, true);
+                    JsonSerializer<Object> ser = ctxt.findTypedValueSerializer(newType, true);
                     // Important: for polymorphic types, "unwrap"...
                     if (ser instanceof TypeWrappedSerializer) {
                         return new Prefetch(newType, null,
@@ -1182,17 +1183,17 @@ public class ObjectWriter
             return (valueSerializer != null) || (typeSerializer != null);
         }
 
-        public void serialize(JsonGenerator gen, Object value, DefaultSerializerProvider prov)
+        public void serialize(JsonGenerator gen, Object value, DefaultSerializerProvider ctxt)
             throws IOException
         {
             if (typeSerializer != null) {
-                prov.serializePolymorphic(gen, value, rootType, valueSerializer, typeSerializer);
+                ctxt.serializePolymorphic(gen, value, rootType, valueSerializer, typeSerializer);
             } else  if (valueSerializer != null) {
-                prov.serializeValue(gen, value, rootType, valueSerializer);
+                ctxt.serializeValue(gen, value, rootType, valueSerializer);
             } else if (rootType != null) {
-                prov.serializeValue(gen, value, rootType);
+                ctxt.serializeValue(gen, value, rootType);
             } else {
-                prov.serializeValue(gen, value);
+                ctxt.serializeValue(gen, value);
             }
         }
     }

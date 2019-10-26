@@ -175,7 +175,7 @@ public abstract class BasicSerializerFactory
      */
     
 // Implemented by sub-classes
-//    public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov, ....)
+//    public abstract JsonSerializer<Object> createSerializer(SerializerProvider ctxt, ....)
 
     @Override
     @SuppressWarnings("unchecked")
@@ -467,17 +467,17 @@ public abstract class BasicSerializerFactory
      * Returns null if no such annotation found.
      */
     @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> findSerializerFromAnnotation(SerializerProvider prov,
+    protected JsonSerializer<Object> findSerializerFromAnnotation(SerializerProvider ctxt,
             Annotated a)
         throws JsonMappingException
     {
-        Object serDef = prov.getAnnotationIntrospector().findSerializer(prov.getConfig(), a);
+        Object serDef = ctxt.getAnnotationIntrospector().findSerializer(ctxt.getConfig(), a);
         if (serDef == null) {
             return null;
         }
         // One more thing however: may need to also apply a converter:
-        return (JsonSerializer<Object>) findConvertingSerializer(prov, a,
-                prov.serializerInstance(a, serDef));
+        return (JsonSerializer<Object>) findConvertingSerializer(ctxt, a,
+                ctxt.serializerInstance(a, serDef));
     }
 
     /**
@@ -486,27 +486,27 @@ public abstract class BasicSerializerFactory
      * be used; and if so, to construct and return suitable serializer for it.
      * If not, will simply return given serializer as is.
      */
-    protected JsonSerializer<?> findConvertingSerializer(SerializerProvider prov,
+    protected JsonSerializer<?> findConvertingSerializer(SerializerProvider ctxt,
             Annotated a, JsonSerializer<?> ser)
         throws JsonMappingException
     {
-        Converter<Object,Object> conv = findConverter(prov, a);
+        Converter<Object,Object> conv = findConverter(ctxt, a);
         if (conv == null) {
             return ser;
         }
-        JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
+        JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
         return new StdDelegatingSerializer(conv, delegateType, ser, null);
     }
 
-    protected Converter<Object,Object> findConverter(SerializerProvider prov,
+    protected Converter<Object,Object> findConverter(SerializerProvider ctxt,
             Annotated a)
         throws JsonMappingException
     {
-        Object convDef = prov.getAnnotationIntrospector().findSerializationConverter(prov.getConfig(), a);
+        Object convDef = ctxt.getAnnotationIntrospector().findSerializationConverter(ctxt.getConfig(), a);
         if (convDef == null) {
             return null;
         }
-        return prov.converterInstance(a, convDef);
+        return ctxt.converterInstance(a, convDef);
     }
     
     /*
@@ -616,13 +616,13 @@ public abstract class BasicSerializerFactory
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.List} types that support efficient by-index access
      */
-    protected JsonSerializer<?> buildCollectionSerializer(SerializerProvider prov,
+    protected JsonSerializer<?> buildCollectionSerializer(SerializerProvider ctxt,
             CollectionType type, BeanDescription beanDesc,  JsonFormat.Value formatOverrides,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
         throws JsonMappingException
     {
-        SerializationConfig config = prov.getConfig();
+        SerializationConfig config = ctxt.getConfig();
         JsonSerializer<?> ser = null;
         // Order of lookups:
         // 1. Custom serializers
@@ -638,7 +638,7 @@ public abstract class BasicSerializerFactory
 
         JsonFormat.Value format = _calculateEffectiveFormat(beanDesc, Collection.class, formatOverrides);
         if (ser == null) {
-            ser = findSerializerByAnnotations(prov, type, beanDesc); // (2) Annotations
+            ser = findSerializerByAnnotations(ctxt, type, beanDesc); // (2) Annotations
             if (ser == null) {
                 // We may also want to use serialize Collections "as beans", if (and only if)
                 // shape specified as "POJO"
@@ -723,7 +723,7 @@ public abstract class BasicSerializerFactory
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.Map} types.
      */
-    protected JsonSerializer<?> buildMapSerializer(SerializerProvider prov,
+    protected JsonSerializer<?> buildMapSerializer(SerializerProvider ctxt,
             MapType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping, JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
@@ -743,14 +743,14 @@ public abstract class BasicSerializerFactory
         // 2. Annotations (@JsonValue, @JsonDeserialize)
         // 3. Defaults
         
-        final SerializationConfig config = prov.getConfig();
+        final SerializationConfig config = ctxt.getConfig();
         for (Serializers serializers : customSerializers()) { // (1) Custom
             ser = serializers.findMapSerializer(config, type, beanDesc, formatOverrides,
                     keySerializer, elementTypeSerializer, elementValueSerializer);
             if (ser != null) { break; }
         }
         if (ser == null) {
-            ser = findSerializerByAnnotations(prov, type, beanDesc); // (2) Annotations
+            ser = findSerializerByAnnotations(ctxt, type, beanDesc); // (2) Annotations
             if (ser == null) {
                 Object filterId = findFilterId(config, beanDesc);
                 // 01-May-2016, tatu: Which base type to use here gets tricky, since
@@ -764,7 +764,7 @@ public abstract class BasicSerializerFactory
                 MapSerializer mapSer = MapSerializer.construct(ignored,
                         type, staticTyping, elementTypeSerializer,
                         keySerializer, elementValueSerializer, filterId);
-                ser = _checkMapContentInclusion(prov, beanDesc, mapSer);
+                ser = _checkMapContentInclusion(ctxt, beanDesc, mapSer);
             }
         }
         // [databind#120]: Allow post-processing
@@ -780,12 +780,12 @@ public abstract class BasicSerializerFactory
      * Helper method that does figures out content inclusion value to use, if any,
      * and construct re-configured {@link MapSerializer} appropriately.
      */
-    protected MapSerializer _checkMapContentInclusion(SerializerProvider prov,
+    protected MapSerializer _checkMapContentInclusion(SerializerProvider ctxt,
             BeanDescription beanDesc, MapSerializer mapSer)
         throws JsonMappingException
     {
         final JavaType contentType = mapSer.getContentType();
-        JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
+        JsonInclude.Value inclV = _findInclusionWithContent(ctxt, beanDesc,
                 contentType, Map.class);
 
         // Need to support global legacy setting, for now:
@@ -818,11 +818,11 @@ public abstract class BasicSerializerFactory
             valueToSuppress = MapSerializer.MARKER_FOR_EMPTY;
             break;
         case CUSTOM: // new with 2.9
-            valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
+            valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
             if (valueToSuppress == null) { // is this legal?
                 suppressNulls = true;
             } else {
-                suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+                suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
         case NON_NULL:
@@ -903,12 +903,12 @@ public abstract class BasicSerializerFactory
      * @param contentType Declared full content type of container
      * @param configType Raw base type under which `configOverride`, if any, needs to be defined
      */
-    protected JsonInclude.Value _findInclusionWithContent(SerializerProvider prov,
+    protected JsonInclude.Value _findInclusionWithContent(SerializerProvider ctxt,
             BeanDescription beanDesc,
             JavaType contentType, Class<?> configType)
         throws JsonMappingException
     {
-        final SerializationConfig config = prov.getConfig();
+        final SerializationConfig config = ctxt.getConfig();
 
         // Defaulting gets complicated because we might have two distinct
         //   axis to consider: Container type itself , and then value (content) type.
@@ -946,7 +946,7 @@ public abstract class BasicSerializerFactory
      * Helper method that handles configuration details when constructing serializers for
      * <code>Object[]</code> (and subtypes, except for String).
      */
-    protected JsonSerializer<?> buildArraySerializer(SerializerProvider prov,
+    protected JsonSerializer<?> buildArraySerializer(SerializerProvider ctxt,
             ArrayType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
@@ -956,7 +956,7 @@ public abstract class BasicSerializerFactory
         //   types cannot be annotated (in theory I guess we could have mix-ins but... ?)
         //   so we need not do primary annotation lookup here.
         //   So all we need is (1) Custom, (2) Default array serializers
-        SerializationConfig config = prov.getConfig();
+        SerializationConfig config = ctxt.getConfig();
         JsonSerializer<?> ser = null;
 
         for (Serializers serializers : customSerializers()) { // (1) Custom
@@ -1039,13 +1039,13 @@ public abstract class BasicSerializerFactory
         return null;
     }
 
-    protected JsonSerializer<?> _buildReferenceSerializer(SerializerProvider prov, Class<?> baseType,
+    protected JsonSerializer<?> _buildReferenceSerializer(SerializerProvider ctxt, Class<?> baseType,
             ReferenceType refType, BeanDescription beanDesc, boolean staticTyping,
             TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentSerializer)
         throws JsonMappingException
     {
         final JavaType contentType = refType.getReferencedType();
-        JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
+        JsonInclude.Value inclV = _findInclusionWithContent(ctxt, beanDesc,
                 contentType, baseType);
         
         // Need to support global legacy setting, for now:
@@ -1053,8 +1053,7 @@ public abstract class BasicSerializerFactory
         Object valueToSuppress;
         boolean suppressNulls;
 
-        if (incl == JsonInclude.Include.USE_DEFAULTS
-                || incl == JsonInclude.Include.ALWAYS) {
+        if (incl == JsonInclude.Include.USE_DEFAULTS || incl == JsonInclude.Include.ALWAYS) {
             valueToSuppress = null;
             suppressNulls = false;
         } else {
@@ -1076,11 +1075,11 @@ public abstract class BasicSerializerFactory
                 valueToSuppress = MapSerializer.MARKER_FOR_EMPTY;
                 break;
             case CUSTOM:
-                valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
+                valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
                 if (valueToSuppress == null) { // is this legal?
                     suppressNulls = true;
                 } else {
-                    suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+                    suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
                 }
                 break;
             case NON_NULL:

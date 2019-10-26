@@ -200,12 +200,12 @@ public abstract class BasicSerializerFactory
 
     @Override // since 2.11
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> createKeySerializer(SerializerProvider prov,
+    public JsonSerializer<Object> createKeySerializer(SerializerProvider ctxt,
             JavaType keyType, JsonSerializer<Object> defaultImpl) throws JsonMappingException
     {
         // 16-Oct-2019, tatu: use to only introspect class annotations but we'll
         //    need methods too for `@JsonValue` later; and custom lookup might want it, too
-        final SerializationConfig config = prov.getConfig();
+        final SerializationConfig config = ctxt.getConfig();
         BeanDescription beanDesc = config.introspect(keyType);
         JsonSerializer<?> ser = null;
         // Minor optimization: to avoid constructing beanDesc, bail out if none registered
@@ -220,9 +220,7 @@ public abstract class BasicSerializerFactory
         }
         if (ser == null) {
             // [databind#2452]: Support `@JsonSerialize(keyUsing = ...)` -- new in 2.11
-            if (prov != null) {
-                ser = _findKeySerializer(prov, beanDesc.getClassInfo());
-            }
+            ser = _findKeySerializer(ctxt, beanDesc.getClassInfo());
             if (ser == null) {
                 ser = defaultImpl;
                 if (ser == null) {
@@ -274,24 +272,22 @@ public abstract class BasicSerializerFactory
             }
         }
         if (ser == null) {
+            ser = defaultImpl;
             if (ser == null) {
-                ser = defaultImpl;
+                ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
                 if (ser == null) {
-                    ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
-                    if (ser == null) {
-                        AnnotatedMember am = beanDesc.findJsonValueAccessor();
-                        if (am != null) {
-                            final Class<?> rawType = am.getRawType();
-                            JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
-                                    rawType, true);
-                            if (config.canOverrideAccessModifiers()) {
-                                ClassUtil.checkAndFixAccess(am.getMember(),
-                                        config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                            }
-                            ser = new JsonValueSerializer(am, delegate);
-                        } else {
-                            ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                    AnnotatedMember am = beanDesc.findJsonValueAccessor();
+                    if (am != null) {
+                        final Class<?> rawType = am.getRawType();
+                        JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
+                                rawType, true);
+                        if (config.canOverrideAccessModifiers()) {
+                            ClassUtil.checkAndFixAccess(am.getMember(),
+                                    config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
+                        ser = new JsonValueSerializer(am, delegate);
+                    } else {
+                        ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                     }
                 }
             }

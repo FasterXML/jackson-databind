@@ -28,7 +28,7 @@ public class SimpleSerializers
     extends Serializers.Base
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 8531646511998456779L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Class-based mappings that are used both for exact and

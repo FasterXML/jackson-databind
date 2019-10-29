@@ -33,7 +33,7 @@ public class NullConversionsForContentTest extends BaseMapTest
         @JsonSetter // leave with defaults
         public T values;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, fail-on-null

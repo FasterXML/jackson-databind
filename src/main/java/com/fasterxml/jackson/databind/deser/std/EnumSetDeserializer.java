@@ -6,7 +6,10 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -24,6 +27,21 @@ public class EnumSetDeserializer
     protected final Class<Enum> _enumClass;
 
     protected JsonDeserializer<Enum<?>> _enumDeserializer;
+
+    /**
+     * Handler we need for dealing with nulls.
+     *
+     * @since 2.10.1
+     */
+    protected final NullValueProvider _nullProvider;
+
+    /**
+     * Marker flag set if the <code>_nullProvider</code> indicates that all null
+     * content values should be skipped (instead of being possibly converted).
+     *
+     * @since 2.10.1
+     */
+    protected final boolean _skipNullValues;
 
     /**
      * Specific override for this instance (from proper, or global per-type overrides)
@@ -50,15 +68,19 @@ public class EnumSetDeserializer
         }
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
         _unwrapSingle = null;
+        _nullProvider = null;
+        _skipNullValues = false;
     }
 
     @SuppressWarnings("unchecked" )
     protected EnumSetDeserializer(EnumSetDeserializer base,
-            JsonDeserializer<?> deser, Boolean unwrapSingle) {
+            JsonDeserializer<?> deser, NullValueProvider nuller, Boolean unwrapSingle) {
         super(base);
         _enumType = base._enumType;
         _enumClass = base._enumClass;
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
+        _nullProvider = nuller;
+        _skipNullValues = NullsConstantProvider.isSkipper(nuller);
         _unwrapSingle = unwrapSingle;
     }
 
@@ -66,16 +88,31 @@ public class EnumSetDeserializer
         if (_enumDeserializer == deser) {
             return this;
         }
-        return new EnumSetDeserializer(this, deser, _unwrapSingle);
+        return new EnumSetDeserializer(this, deser, _nullProvider, _unwrapSingle);
     }
 
+    @Deprecated // since 2.10.1
     public EnumSetDeserializer withResolved(JsonDeserializer<?> deser, Boolean unwrapSingle) {
-        if ((_unwrapSingle == unwrapSingle) && (_enumDeserializer == deser)) {
+        return withResolved(deser, _nullProvider, unwrapSingle);
+    }
+
+    /**
+     * @since 2.10.1
+     */
+    public EnumSetDeserializer withResolved(JsonDeserializer<?> deser, NullValueProvider nuller,
+            Boolean unwrapSingle) {
+        if ((_unwrapSingle == unwrapSingle) && (_enumDeserializer == deser) && (_nullProvider == deser)) {
             return this;
         }
-        return new EnumSetDeserializer(this, deser, unwrapSingle);
+        return new EnumSetDeserializer(this, deser, nuller, unwrapSingle);
     }
 
+    /*
+    /**********************************************************
+    /* Basic metadata
+    /**********************************************************
+     */
+    
     /**
      * Because of costs associated with constructing Enum resolvers,
      * let's cache instances by default.
@@ -94,11 +131,27 @@ public class EnumSetDeserializer
         return Boolean.TRUE;
     }
 
+    @Override // since 2.10.1
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return constructSet();
+    }
+
+    @Override // since 2.10.1
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.DYNAMIC;
+    }
+
+    /*
+    /**********************************************************
+    /* Contextualization
+    /**********************************************************
+     */
+
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        Boolean unwrapSingle = findFormatFeature(ctxt, property, EnumSet.class,
+        final Boolean unwrapSingle = findFormatFeature(ctxt, property, EnumSet.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         JsonDeserializer<?> deser = _enumDeserializer;
         if (deser == null) {
@@ -106,7 +159,7 @@ public class EnumSetDeserializer
         } else { // if directly assigned, probably not yet contextual, so:
             deser = ctxt.handleSecondaryContextualization(deser, property, _enumType);
         }
-        return withResolved(deser, unwrapSingle);
+        return withResolved(deser, findContentNullProvider(ctxt, property, deser), unwrapSingle);
     }
 
     /*
@@ -145,18 +198,18 @@ public class EnumSetDeserializer
 
         try {
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-                /* What to do with nulls? Fail or ignore? Fail, for now
-                 * (note: would fail if we passed it to EnumDeserializer, too,
-                 * but in general nulls should never be passed to non-container
-                 * deserializers)
-                 */
+                // What to do with nulls? Fail or ignore? Fail, for now (note: would fail if we
+                // passed it to EnumDeserializer, too, but in general nulls should never be passed
+                // to non-container deserializers)
+                Enum<?> value;
                 if (t == JsonToken.VALUE_NULL) {
-                    return (EnumSet<?>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                    if (_skipNullValues) {
+                        continue;
+                    }
+                    value = (Enum<?>) _nullProvider.getNullValue(ctxt);
+                } else {
+                    value = _enumDeserializer.deserialize(p, ctxt);
                 }
-                Enum<?> value = _enumDeserializer.deserialize(p, ctxt);
-                /* 24-Mar-2012, tatu: As per [JACKSON-810], may actually get nulls;
-                 *    but EnumSets don't allow nulls so need to skip.
-                 */
                 if (value != null) { 
                     result.add(value);
                 }

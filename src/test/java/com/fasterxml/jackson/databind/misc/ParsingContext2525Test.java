@@ -45,9 +45,6 @@ public class ParsingContext2525Test extends BaseMapTest
     /**********************************************************************
      */
 
-    // 25-Oct-2019, tatu: These appear more problematic than I thought, wrt
-    //   parent contexts...
-
     public void testSimpleArrayWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(MINIMAL_ARRAY_DOC)) {
@@ -77,7 +74,7 @@ public class ParsingContext2525Test extends BaseMapTest
                     .overrideParentContext(null);
         }
     }
-    
+
     /*
     /**********************************************************************
     /* And Tree-backed tests
@@ -117,15 +114,18 @@ public class ParsingContext2525Test extends BaseMapTest
     private void _testSimpleArrayUsingPathAsPointer(JsonParser p) throws Exception
     {
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inRoot());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inArray());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("/0", p.getParsingContext().pathAsPointer().toString());
         
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inRoot());
 
         assertNull(p.nextToken());
     }
@@ -133,9 +133,11 @@ public class ParsingContext2525Test extends BaseMapTest
     private void _testSimpleObjectUsingPathAsPointer(JsonParser p) throws Exception
     {
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inRoot());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inObject());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("/answer", p.getParsingContext().pathAsPointer().toString());
@@ -145,6 +147,7 @@ public class ParsingContext2525Test extends BaseMapTest
         
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inRoot());
 
         assertNull(p.nextToken());
     }
@@ -153,10 +156,12 @@ public class ParsingContext2525Test extends BaseMapTest
     {
         // by default should just get "empty"
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inRoot());
 
         // let's just traverse, then:
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inObject());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken()); // a
         assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
@@ -225,8 +230,8 @@ public class ParsingContext2525Test extends BaseMapTest
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+        assertTrue(p.getParsingContext().inRoot());
 
         assertNull(p.nextToken());
     }
-
 }

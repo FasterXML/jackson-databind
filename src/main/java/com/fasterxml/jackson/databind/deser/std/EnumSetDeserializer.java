@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -118,6 +119,16 @@ public class EnumSetDeserializer
         return withResolved(deser, unwrapSingle);
     }
 
+    @Override // since 2.10.1
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return constructSet();
+    }
+
+    @Override // since 2.10.1
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.DYNAMIC;
+    }
+    
     /*
     /**********************************************************
     /* JsonDeserializer API
@@ -154,11 +165,9 @@ public class EnumSetDeserializer
 
         try {
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-                /* What to do with nulls? Fail or ignore? Fail, for now
-                 * (note: would fail if we passed it to EnumDeserializer, too,
-                 * but in general nulls should never be passed to non-container
-                 * deserializers)
-                 */
+                // What to do with nulls? Fail or ignore? Fail, for now (note: would fail if we
+                // passed it to EnumDeserializer, too, but in general nulls should never be passed
+                // to non-container deserializers)
                 if (t == JsonToken.VALUE_NULL) {
                     return (EnumSet<?>) ctxt.handleUnexpectedToken(_enumClass, p);
                 }

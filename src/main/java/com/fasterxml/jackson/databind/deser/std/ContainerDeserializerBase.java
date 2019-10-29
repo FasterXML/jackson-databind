@@ -31,6 +31,14 @@ public abstract class ContainerDeserializerBase<T>
     protected final NullValueProvider _nullProvider;
 
     /**
+     * Marker flag set if the <code>_nullProvider</code> indicates that all null
+     * content values should be skipped (instead of being possibly converted).
+     *
+     * @since 2.9
+     */
+    protected final boolean _skipNullValues;
+
+    /**
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
@@ -38,14 +46,6 @@ public abstract class ContainerDeserializerBase<T>
      * @since 2.9 (demoted from sub-classes where added in 2.7)
      */
     protected final Boolean _unwrapSingle;
-
-    /**
-     * Marker flag set if the <code>_nullProvider</code> indicates that all null
-     * content values should be skipped (instead of being possibly converted).
-     *
-     * @since 2.9
-     */
-    protected final boolean _skipNullValues;
 
     protected ContainerDeserializerBase(JavaType selfType,
             NullValueProvider nuller, Boolean unwrapSingle) {

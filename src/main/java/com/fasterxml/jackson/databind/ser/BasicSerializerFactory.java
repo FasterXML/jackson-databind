@@ -422,12 +422,7 @@ public abstract class BasicSerializerFactory
             return StringLikeSerializer.find(Path.class);
         }
         // Then check for optional/external serializers 
-        JsonSerializer<?> ser = OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(),
-                type, beanDesc);
-        if (ser != null) {
-            return ser;
-        }
-        return null;
+        return OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type);
     }
 
     /**

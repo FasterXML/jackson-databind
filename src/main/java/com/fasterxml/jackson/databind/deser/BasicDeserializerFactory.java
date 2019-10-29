@@ -138,7 +138,7 @@ public abstract class BasicDeserializerFactory
 
     /*
     /**********************************************************************
-    /* JsonDeserializerFactory impl (partial): ValueInstantiators
+    /* DeserializerFactory impl (partial): ValueInstantiators
     /**********************************************************************
      */
 
@@ -1083,7 +1083,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************************
-    /* JsonDeserializerFactory impl: array deserializers
+    /* DeserializerFactory impl: array deserializers
     /**********************************************************************
      */
 
@@ -1129,7 +1129,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************************
-    /* JsonDeserializerFactory impl: Collection(-like) deserializers
+    /* DeserializerFactory impl: Collection(-like) deserializers
     /**********************************************************************
      */
 
@@ -1264,7 +1264,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************************
-    /* JsonDeserializerFactory impl: Map(-like) deserializers
+    /* DeserializerFactory impl: Map(-like) deserializers
     /**********************************************************************
      */
 
@@ -1429,7 +1429,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************************
-    /* JsonDeserializerFactory impl: other types
+    /* DeserializerFactory impl: other types
     /**********************************************************************
      */
 
@@ -1555,7 +1555,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************************
-    /* JsonDeserializerFactory impl (partial): type deserializers
+    /* DeserializerFactory impl (partial): other deserializers
     /**********************************************************************
      */
 
@@ -1566,12 +1566,12 @@ nonAnnotatedParamIndex, ctor);
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        return OptionalHandlerFactory.instance.findDeserializer(type, ctxt.getConfig(), beanDesc);
+        return OptionalHandlerFactory.instance.findDeserializer(ctxt.getConfig(), type);
     }
     
     /*
     /**********************************************************************
-    /* JsonDeserializerFactory impl (partial): key deserializers
+    /* DeserializerFactory impl (partial): key deserializers
     /**********************************************************************
      */
     

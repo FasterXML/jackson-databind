@@ -33,13 +33,12 @@ public class OptionalHandlerFactory
     protected OptionalHandlerFactory() { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
-    
-    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type,
-            BeanDescription beanDesc)
+
+    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type)
     {
         final Class<?> rawType = type.getRawClass();
         if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
@@ -58,8 +57,7 @@ public class OptionalHandlerFactory
         return null;
     }
 
-    public JsonDeserializer<?> findDeserializer(JavaType type, DeserializationConfig config,
-            BeanDescription beanDesc)
+    public JsonDeserializer<?> findDeserializer(DeserializationConfig config, JavaType type)
         throws JsonMappingException
     {
         final Class<?> rawType = type.getRawClass();
@@ -73,15 +71,15 @@ public class OptionalHandlerFactory
 
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
                 || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
-            return CoreXMLDeserializers.findBeanDeserializer(type, config, beanDesc);
+            return CoreXMLDeserializers.findBeanDeserializer(config, type);
         }
         return null;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

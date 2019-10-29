@@ -280,7 +280,7 @@ public class BasicClassIntrospector
                 return BOOLEAN_AC;
             }
         } else if (ClassUtil.isJDKClass(rawType)) {
-            if (rawType == String.class) {
+            if (rawType == CLS_STRING) {
                 return STRING_AC;
             }
             // Should be ok to just pass "primitive" info
@@ -294,7 +294,7 @@ public class BasicClassIntrospector
                 return BOOLEAN_AC;
             }
 
-            if (rawType == Object.class) {
+            if (rawType == CLS_OBJECT) {
                 return OBJECT_AC;
             }
             // This mostly matters for "untyped" deserialization

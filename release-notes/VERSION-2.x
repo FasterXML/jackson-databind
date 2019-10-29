@@ -22,6 +22,7 @@ Project: jackson-databind
  (reported by Richard W)
 #2520: Sub-optimal exception message when failing to deserialize non-static inner classes
  (reported by Mark S)
+#2529: Add a tests to ensure `EnumSet` and `EnumMap` work correctly with "null-as-empty"
 
 2.10.0 (26-Sep-2019)
 

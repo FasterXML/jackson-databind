@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -103,7 +105,6 @@ public class AnnotatedClassResolver
 
     private static boolean skippableArray(MapperConfig<?> config, Class<?> type) {
         return (config == null) || (config.findMixInClassFor(type) == null);
-                
     }
 
     /**
@@ -123,7 +124,10 @@ public class AnnotatedClassResolver
     }
 
     AnnotatedClass resolveFully() {
-        List<JavaType> superTypes = ClassUtil.findSuperTypes(_type, null, false);
+        List<JavaType> superTypes = new ArrayList<JavaType>(8);
+        if (!_type.hasRawClass(Object.class)) {
+            _addSuperTypes(_type, superTypes, false);
+        }
         return new AnnotatedClass(_type, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
                 _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
@@ -137,6 +141,26 @@ public class AnnotatedClassResolver
                 resolveClassAnnotations(superTypes),
                 _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
                 _collectAnnotations);
+    }
+
+    private static void _addSuperTypes(JavaType type, Collection<JavaType> result,
+            boolean addClassItself)
+    {
+        final Class<?> cls = type.getRawClass();
+        if (cls == Object.class) { return; }
+        if (addClassItself) {
+            if (result.contains(type)) { // already added, no need to check supers
+                return;
+            }
+            result.add(type);
+        }
+        for (JavaType intCls : type.getInterfaces()) {
+            _addSuperTypes(intCls, result, true);
+        }
+        final JavaType superType = type.getSuperClass();
+        if (superType != null) {
+            _addSuperTypes(superType, result, true);
+        }
     }
 
     /*

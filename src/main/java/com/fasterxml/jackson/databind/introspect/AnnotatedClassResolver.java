@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +25,9 @@ public class AnnotatedClassResolver
 {
     private final static Annotations NO_ANNOTATIONS = AnnotationCollector.emptyAnnotations();
 
+    private final static Class<?> CLS_OBJECT = Object.class;
+    private final static Class<?> CLS_ENUM = Enum.class;
+    
     private final MapperConfig<?> _config;
     private final AnnotationIntrospector _intr;
     private final MixInResolver _mixInResolver;
@@ -143,13 +145,17 @@ public class AnnotatedClassResolver
                 _collectAnnotations);
     }
 
-    private static void _addSuperTypes(JavaType type, Collection<JavaType> result,
+    private static void _addSuperTypes(JavaType type, List<JavaType> result,
             boolean addClassItself)
     {
         final Class<?> cls = type.getRawClass();
-        if (cls == Object.class) { return; }
+        // 15-Oct-2019, tatu: certain paths do not lead to useful information, so prune
+        //    as optimization
+        if ((cls == CLS_OBJECT) || (cls == CLS_ENUM)) {
+            return;
+        }
         if (addClassItself) {
-            if (result.contains(type)) { // already added, no need to check supers
+            if (_contains(result, cls)) { // already added, no need to check supers
                 return;
             }
             result.add(type);
@@ -163,6 +169,15 @@ public class AnnotatedClassResolver
         }
     }
 
+    private static boolean _contains(List<JavaType> found, Class<?> raw) {
+        for (int i = 0, end = found.size(); i < end; ++i) {
+            if (found.get(i).getRawClass() == raw) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     /*
     /**********************************************************
     /* Class annotation resolution

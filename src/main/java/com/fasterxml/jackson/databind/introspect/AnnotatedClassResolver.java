@@ -6,6 +6,7 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
@@ -27,6 +28,9 @@ public class AnnotatedClassResolver
 
     private final static Class<?> CLS_OBJECT = Object.class;
     private final static Class<?> CLS_ENUM = Enum.class;
+
+    private final static Class<?> CLS_LIST = List.class;
+    private final static Class<?> CLS_MAP = Map.class;
     
     private final MapperConfig<?> _config;
     private final AnnotationIntrospector _intr;
@@ -128,8 +132,13 @@ public class AnnotatedClassResolver
     AnnotatedClass resolveFully() {
         List<JavaType> superTypes = new ArrayList<JavaType>(8);
         if (!_type.hasRawClass(Object.class)) {
-            _addSuperTypes(_type, superTypes, false);
+            if (_type.isInterface()) {
+                _addSuperInterfaces(_type, superTypes, false);
+            } else {
+                _addSuperTypes(_type, superTypes, false);
+            }
         }
+//System.err.println("resolveFully("+_type.getRawClass().getSimpleName()+") ("+superTypes.size()+") -> "+superTypes);
         return new AnnotatedClass(_type, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
                 _bindings, _intr, _mixInResolver, _config.getTypeFactory(),
@@ -161,11 +170,30 @@ public class AnnotatedClassResolver
             result.add(type);
         }
         for (JavaType intCls : type.getInterfaces()) {
-            _addSuperTypes(intCls, result, true);
+            _addSuperInterfaces(intCls, result, true);
         }
         final JavaType superType = type.getSuperClass();
         if (superType != null) {
             _addSuperTypes(superType, result, true);
+        }
+    }
+
+    private static void _addSuperInterfaces(JavaType type, List<JavaType> result,
+            boolean addClassItself)
+    {
+        final Class<?> cls = type.getRawClass();
+        if (addClassItself) {
+            if (_contains(result, cls)) { // already added, no need to check supers
+                return;
+            }
+            result.add(type);
+            // 30-Oct-2019, tatu: Further, no point going beyond some containers
+            if ((cls == CLS_LIST) || (cls == CLS_MAP)) {
+                return;
+            }
+        }
+        for (JavaType intCls : type.getInterfaces()) {
+            _addSuperInterfaces(intCls, result, true);
         }
     }
 

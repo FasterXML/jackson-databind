@@ -23,8 +23,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 {
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
-    protected final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
-
     /*
     /**********************************************************************
     /* Immutable config, factories

@@ -77,21 +77,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         _base = src._base;
         _mapperFeatures = src._mapperFeatures;
     }
-    
-    /**
-     * Method that calculates bit set (flags) of all features that
-     * are enabled by default.
-     */
-    public static <F extends Enum<F> & ConfigFeature> int collectFeatureDefaults(Class<F> enumClass)
-    {
-        int flags = 0;
-        for (F value : enumClass.getEnumConstants()) {
-            if (value.enabledByDefault()) {
-                flags |= value.getMask();
-            }
-        }
-        return flags;
-    }
 
     /*
     /**********************************************************************

@@ -19,6 +19,7 @@ public class BasicClassIntrospector
     private final static Class<?> CLS_OBJECT = Object.class;
     private final static Class<?> CLS_STRING = String.class;
     private final static Class<?> CLS_NUMBER = Number.class;
+    private final static Class<?> CLS_JSON_NODE = JsonNode.class;
 
     /* We keep a small set of pre-constructed descriptions to use for
      * common non-structured values, such as Numbers and Strings.
@@ -105,7 +106,7 @@ public class BasicClassIntrospector
     @Override
     public AnnotatedClass introspectClassAnnotations(JavaType type)
     {
-        AnnotatedClass ac = _findStdTypeDef(type.getRawClass());
+        AnnotatedClass ac = _findStdTypeDef(type);
         if (ac != null) {
 //System.err.println(" AC.introspectClassAnnotations "+type.getRawClass().getSimpleName()+" -> std-def");
             return ac;
@@ -128,7 +129,7 @@ public class BasicClassIntrospector
     @Override
     public AnnotatedClass introspectDirectClassAnnotations(JavaType type)
     {
-        AnnotatedClass ac = _findStdTypeDef(type.getRawClass());
+        AnnotatedClass ac = _findStdTypeDef(type);
         return (ac != null) ? ac : _resolveAnnotatedWithoutSuperTypes(type);
     }
 
@@ -259,7 +260,7 @@ public class BasicClassIntrospector
     }
 
     protected BasicBeanDescription _findStdTypeDesc(JavaType type) {
-        AnnotatedClass ac = _findStdTypeDef(type.getRawClass());
+        AnnotatedClass ac = _findStdTypeDef(type);
         return (ac == null) ? null : BasicBeanDescription.forOtherUse(_config, type, ac);
     }
 
@@ -267,8 +268,9 @@ public class BasicClassIntrospector
      * Method called to see if type is one of core JDK types
      * that we have cached for efficiency.
      */
-    protected AnnotatedClass _findStdTypeDef(Class<?> rawType)
+    protected AnnotatedClass _findStdTypeDef(JavaType type)
     {
+        final Class<?> rawType = type.getRawClass();
         if (rawType.isPrimitive()) {
             if (rawType == Integer.TYPE) {
                 return INT_AC;
@@ -301,6 +303,8 @@ public class BasicClassIntrospector
             if (rawType == CLS_NUMBER) {
                 return NUMBER_AC;
             }
+        } else if (CLS_JSON_NODE.isAssignableFrom(rawType)) {
+            return new AnnotatedClass(rawType);
         }
         return null;
     }

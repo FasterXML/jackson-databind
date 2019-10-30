@@ -37,6 +37,9 @@ public final class SerializationConfig
     // since 2.6
     protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
 
+    // since 2.10.1
+    private final static int SER_FEATURE_DEFAULTS = collectFeatureDefaults(SerializationFeature.class);
+
     /*
     /**********************************************************
     /* Configured helper objects
@@ -113,7 +116,7 @@ public final class SerializationConfig
             ConfigOverrides configOverrides)
     {
         super(base, str, mixins, rootNames, configOverrides);
-        _serFeatures = collectFeatureDefaults(SerializationFeature.class);
+        _serFeatures = SER_FEATURE_DEFAULTS;
         _filterProvider = null;
         _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
         _generatorFeatures = 0;

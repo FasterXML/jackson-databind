@@ -28,6 +28,9 @@ public final class DeserializationConfig
     // since 2.9
     private static final long serialVersionUID = 2;
 
+    // since 2.10.1
+    private final static int DESER_FEATURE_DEFAULTS = collectFeatureDefaults(DeserializationFeature.class);
+
     /*
     /**********************************************************
     /* Configured helper objects
@@ -101,7 +104,7 @@ public final class DeserializationConfig
             ConfigOverrides configOverrides)
     {
         super(base, str, mixins, rootNames, configOverrides);
-        _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
+        _deserFeatures = DESER_FEATURE_DEFAULTS;
         _nodeFactory = JsonNodeFactory.instance;
         _problemHandlers = null;
         _parserFeatures = 0;

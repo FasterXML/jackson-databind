@@ -6,6 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -18,6 +19,10 @@ public class BasicClassIntrospector
 {
     private static final long serialVersionUID = 2L;
 
+    private final static Class<?> CLS_OBJECT = Object.class;
+    private final static Class<?> CLS_STRING = String.class;
+    private final static Class<?> CLS_JSON_NODE = JsonNode.class;
+
     /* We keep a small set of pre-constructed descriptions to use for
      * common non-structured values, such as Numbers and Strings.
      * This is strictly performance optimization to reduce what is
@@ -29,7 +34,7 @@ public class BasicClassIntrospector
     protected final static BasicBeanDescription STRING_DESC;
     static {
         STRING_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(String.class),
-                AnnotatedClassResolver.createPrimordial(String.class));
+                AnnotatedClassResolver.createPrimordial(CLS_STRING));
     }
     protected final static BasicBeanDescription BOOLEAN_DESC;
     static {
@@ -49,7 +54,7 @@ public class BasicClassIntrospector
     protected final static BasicBeanDescription OBJECT_DESC;
     static {
         OBJECT_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Object.class),
-                AnnotatedClassResolver.createPrimordial(Object.class));
+                AnnotatedClassResolver.createPrimordial(CLS_OBJECT));
     }
 
     /*
@@ -73,17 +78,17 @@ public class BasicClassIntrospector
      */
 
     @Override
-    public BasicBeanDescription forSerialization(SerializationConfig cfg,
+    public BasicBeanDescription forSerialization(SerializationConfig config,
             JavaType type, MixInResolver r)
     {
         // minor optimization: for some JDK types do minimal introspection
-        BasicBeanDescription desc = _findStdTypeDesc(type);
+        BasicBeanDescription desc = _findStdTypeDesc(config, type);
         if (desc == null) {
             // As per [databind#550], skip full introspection for some of standard
             // structured types as well
-            desc = _findStdJdkCollectionDesc(cfg, type);
+            desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
-                desc = BasicBeanDescription.forSerialization(collectProperties(cfg,
+                desc = BasicBeanDescription.forSerialization(collectProperties(config,
                         type, r, true, "set"));
             }
         }
@@ -91,17 +96,17 @@ public class BasicClassIntrospector
     }
 
     @Override
-    public BasicBeanDescription forDeserialization(DeserializationConfig cfg,
+    public BasicBeanDescription forDeserialization(DeserializationConfig config,
             JavaType type, MixInResolver r)
     {
         // minor optimization: for some JDK types do minimal introspection
-        BasicBeanDescription desc = _findStdTypeDesc(type);
+        BasicBeanDescription desc = _findStdTypeDesc(config, type);
         if (desc == null) {
             // As per [Databind#550], skip full introspection for some of standard
             // structured types as well
-            desc = _findStdJdkCollectionDesc(cfg, type);
+            desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
-                desc = BasicBeanDescription.forDeserialization(collectProperties(cfg,
+                desc = BasicBeanDescription.forDeserialization(collectProperties(config,
                         		type, r, false, "set"));
             }
         }
@@ -109,26 +114,26 @@ public class BasicClassIntrospector
     }
 
     @Override
-    public BasicBeanDescription forDeserializationWithBuilder(DeserializationConfig cfg,
+    public BasicBeanDescription forDeserializationWithBuilder(DeserializationConfig config,
             JavaType type, MixInResolver r)
     {
         // no std JDK types with Builders, so:
-        return BasicBeanDescription.forDeserialization(collectPropertiesWithBuilder(cfg,
+        return BasicBeanDescription.forDeserialization(collectPropertiesWithBuilder(config,
                 type, r, false));
     }
-    
+
     @Override
-    public BasicBeanDescription forCreation(DeserializationConfig cfg,
+    public BasicBeanDescription forCreation(DeserializationConfig config,
             JavaType type, MixInResolver r)
     {
-        BasicBeanDescription desc = _findStdTypeDesc(type);
+        BasicBeanDescription desc = _findStdTypeDesc(config, type);
         if (desc == null) {
             // As per [databind#550], skip full introspection for some of standard
             // structured types as well
-            desc = _findStdJdkCollectionDesc(cfg, type);
+            desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
                 desc = BasicBeanDescription.forDeserialization(
-            		collectProperties(cfg, type, r, false, "set"));
+                        collectProperties(config, type, r, false, "set"));
             }
         }
         return desc;
@@ -138,7 +143,7 @@ public class BasicClassIntrospector
     public BasicBeanDescription forClassAnnotations(MapperConfig<?> config,
             JavaType type, MixInResolver r)
     {
-        BasicBeanDescription desc = _findStdTypeDesc(type);
+        BasicBeanDescription desc = _findStdTypeDesc(config, type);
         if (desc == null) {
             desc = BasicBeanDescription.forOtherUse(config, type,
                     _resolveAnnotatedClass(config, type, r));
@@ -150,7 +155,7 @@ public class BasicClassIntrospector
     public BasicBeanDescription forDirectClassAnnotations(MapperConfig<?> config,
             JavaType type, MixInResolver r)
     {
-        BasicBeanDescription desc = _findStdTypeDesc(type);
+        BasicBeanDescription desc = _findStdTypeDesc(config, type);
         if (desc == null) {
             desc = BasicBeanDescription.forOtherUse(config, type,
                     _resolveAnnotatedWithoutSuperTypes(config, type, r));
@@ -197,7 +202,7 @@ public class BasicClassIntrospector
      * Method called to see if type is one of core JDK types
      * that we have cached for efficiency.
      */
-    protected BasicBeanDescription _findStdTypeDesc(JavaType type)
+    protected BasicBeanDescription _findStdTypeDesc(MapperConfig<?> config, JavaType type)
     {
         Class<?> cls = type.getRawClass();
         if (cls.isPrimitive()) {
@@ -211,10 +216,10 @@ public class BasicClassIntrospector
                 return BOOLEAN_DESC;
             }
         } else if (ClassUtil.isJDKClass(cls)) {
-            if (cls == Object.class) {
+            if (cls == CLS_OBJECT) {
                 return OBJECT_DESC;
             }
-            if (cls == String.class) {
+            if (cls == CLS_STRING) {
                 return STRING_DESC;
             }
             if (cls == Integer.class) {
@@ -226,6 +231,9 @@ public class BasicClassIntrospector
             if (cls == Boolean.class) {
                 return BOOLEAN_DESC;
             }
+        } else if (CLS_JSON_NODE.isAssignableFrom(cls)) {
+            return BasicBeanDescription.forOtherUse(config, type,
+                    AnnotatedClassResolver.createPrimordial(cls));
         }
         return null;
     }

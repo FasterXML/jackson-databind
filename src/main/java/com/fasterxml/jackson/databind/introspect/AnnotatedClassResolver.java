@@ -136,7 +136,13 @@ public class AnnotatedClassResolver
             superTypes = Collections.emptyList();
         } else {
             superTypes = new ArrayList<>(8);
-            _addSuperTypes(_type, superTypes, false);
+            if (_type.isInterface()) {
+                _addSuperInterfaces(_type, superTypes, false);
+            } else {
+                if (!_type.hasRawClass(Object.class)) {
+                    _addSuperTypes(_type, superTypes, false);
+                }
+            }
         }
 //System.err.println(" resolveFully("+_type.getRawClass().getSimpleName()+") -> "+superTypes);        
         return new AnnotatedClass(_config, _type, _class, superTypes, _primaryMixin,
@@ -175,9 +181,28 @@ public class AnnotatedClassResolver
             result.add(type);
         }
         for (JavaType intCls : type.getInterfaces()) {
-            _addSuperTypes(intCls, result, true);
+            _addSuperInterfaces(intCls, result, true);
         }
         _addSuperTypes(type.getSuperClass(), result, true);
+    }
+
+    private static void _addSuperInterfaces(JavaType type, List<JavaType> result,
+            boolean addClassItself)
+    {
+        final Class<?> cls = type.getRawClass();
+        if (addClassItself) {
+            if (_contains(result, cls)) { // already added, no need to check supers
+                return;
+            }
+            result.add(type);
+            // 30-Oct-2019, tatu: Further, no point going beyond some containers
+            if ((cls == CLS_LIST) || (cls == CLS_MAP)) {
+                return;
+            }
+        }
+        for (JavaType intCls : type.getInterfaces()) {
+            _addSuperInterfaces(intCls, result, true);
+        }
     }
 
     private static boolean _contains(List<JavaType> found, Class<?> raw) {

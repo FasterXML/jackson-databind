@@ -47,8 +47,12 @@ public class ResolvedRecursiveType extends TypeBase
 
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb) {
+        // 30-Oct-2019, tatu: Alas, need to break recursion, otherwise we'll
+        //    end up in StackOverflowError... two choices; '?' for "not known",
+        //    or erased signature.
         if (_referencedType != null) {
-            return _referencedType.getGenericSignature(sb);
+//            return _referencedType.getGenericSignature(sb);
+            return _referencedType.getErasedSignature(sb);
         }
         return sb.append("?");
     }

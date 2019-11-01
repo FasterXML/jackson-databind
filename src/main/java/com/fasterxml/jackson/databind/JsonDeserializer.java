@@ -122,7 +122,7 @@ public abstract class JsonDeserializer<T>
      *  after the @class. Thus, if you want your method to work correctly
      *  both with and without polymorphism, you must begin your method with:
      *  <pre>
-     *       if (p.getCurrentToken() == JsonToken.START_OBJECT) {
+     *       if (p.currentToken() == JsonToken.START_OBJECT) {
      *         p.nextToken();
      *       }
      *  </pre>

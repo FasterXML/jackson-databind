@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.JavaType;
 public abstract class AnnotatedWithParams
     extends AnnotatedMember
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Annotations associated with parameters of the annotated
      * entity (method or constructor parameters)
@@ -21,9 +19,9 @@ public abstract class AnnotatedWithParams
     protected final AnnotationMap[] _paramAnnotations;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected AnnotatedWithParams(TypeResolutionContext ctxt, AnnotationMap annotations, AnnotationMap[] paramAnnotations)
@@ -66,9 +64,9 @@ public abstract class AnnotatedWithParams
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     public final AnnotationMap getParameterAnnotations(int index)

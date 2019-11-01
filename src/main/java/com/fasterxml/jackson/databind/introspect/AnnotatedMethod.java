@@ -7,26 +7,17 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public final class AnnotatedMethod
     extends AnnotatedWithParams
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     final protected transient Method _method;
 
     // // Simple lazy-caching:
 
     protected Class<?>[] _paramClasses;
 
-    /**
-     * Field that is used to make JDK serialization work with this
-     * object.
-     */
-    protected Serialization _serialization;
-    
     /*
-    /*****************************************************
+    /**********************************************************************
     /* Life-cycle
-    /*****************************************************
+    /**********************************************************************
      */
 
     public AnnotatedMethod(TypeResolutionContext ctxt, Method method,
@@ -39,21 +30,10 @@ public final class AnnotatedMethod
         _method = method;
     }
 
-    /**
-     * Method used for JDK serialization support
-     */
-    protected AnnotatedMethod(Serialization ser)
-    {
-        super(null, null, null);
-        _method = null;
-        _serialization = ser;
-    }
-
     @Override
     public AnnotatedMethod withAnnotations(AnnotationMap ann) {
         return new AnnotatedMethod(_typeContext, _method, ann, _paramAnnotations);
     }
-
 
     @Override
     public Method getAnnotated() { return _method; }
@@ -85,9 +65,9 @@ public final class AnnotatedMethod
     }
 
     /*
-    /*****************************************************
+    /**********************************************************************
     /* AnnotatedWithParams
-    /*****************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -114,9 +94,9 @@ public final class AnnotatedMethod
     }
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* AnnotatedMember impl
-    /********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -174,9 +154,9 @@ public final class AnnotatedMethod
     }
 
     /*
-    /*****************************************************
+    /**********************************************************************
     /* Extended API, generic
-    /*****************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -207,9 +187,9 @@ public final class AnnotatedMethod
     }
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* Other
-    /********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -227,51 +207,5 @@ public final class AnnotatedMethod
         if (o == this) return true;
         return ClassUtil.hasClass(o, getClass())
                 && (((AnnotatedMethod) o)._method == _method);
-    }
-
-    /*
-    /**********************************************************
-    /* JDK serialization handling
-    /**********************************************************
-     */
-
-    Object writeReplace() {
-        return new AnnotatedMethod(new Serialization(_method));
-    }
-
-    Object readResolve() {
-        Class<?> clazz = _serialization.clazz;
-        try {
-            Method m = clazz.getDeclaredMethod(_serialization.name,
-                    _serialization.args);
-            // 06-Oct-2012, tatu: Has "lost" its security override, may need to force back
-            if (!m.isAccessible()) {
-                ClassUtil.checkAndFixAccess(m, false);
-            }
-            return new AnnotatedMethod(null, m, null, null);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not find method '"+_serialization.name
-                        +"' from Class '"+clazz.getName());
-        }
-    }
-    
-    /**
-     * Helper class that is used as the workaround to persist
-     * Field references. It basically just stores declaring class
-     * and field name.
-     */
-    private final static class Serialization
-        implements java.io.Serializable
-    {
-        private static final long serialVersionUID = 1L;
-        protected Class<?> clazz;
-        protected String name;
-        protected Class<?>[] args;
-
-        public Serialization(Method setter) {
-            clazz = setter.getDeclaringClass();
-            name = setter.getName();
-            args = setter.getParameterTypes();
-        }
     }
 }

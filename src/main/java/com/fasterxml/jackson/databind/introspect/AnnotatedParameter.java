@@ -15,27 +15,25 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public final class AnnotatedParameter
     extends AnnotatedMember
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Member (method, constructor) that this parameter belongs to
      */
     protected final AnnotatedWithParams _owner;
-    
+
     /**
      * JDK type of the parameter, possibly contains generic type information
      */
     protected final JavaType _type;
-    
+
     /**
      * Index of the parameter within argument list
      */
     protected final int _index;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public AnnotatedParameter(AnnotatedWithParams owner, JavaType type,
@@ -57,9 +55,9 @@ public final class AnnotatedParameter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotated impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -94,9 +92,9 @@ public final class AnnotatedParameter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* AnnotatedMember extras
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -126,12 +124,12 @@ public final class AnnotatedParameter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
-    public Type getParameterType() { return _type; }
+//    public Type getParameterType() { return _type; }
 
     /**
      * Accessor for 'owner' of this parameter; method or constructor that
@@ -149,9 +147,9 @@ public final class AnnotatedParameter
     public int getIndex() { return _index; }
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* Other
-    /********************************************************
+    /**********************************************************************
      */
     
     @Override

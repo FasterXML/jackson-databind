@@ -13,21 +13,14 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class AnnotatedMember
     extends Annotated
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L; // since 2.5
-
-    // 19-Dec-2014, tatu: Similarly, assumed NOT to be needed in cases where
-    //    owning object (ObjectMapper or relatives) is being JDK-serialized
     /**
      * Context object needed for resolving generic type associated with this
      * member (method parameter or return value, or field type).
      */
-    protected final transient TypeResolutionContext _typeContext;
+    protected final TypeResolutionContext _typeContext;
 
-    // Transient since information not needed after construction, so
-    // no need to persist
-    protected final transient AnnotationMap _annotations;
+    protected final AnnotationMap _annotations;
 
     protected AnnotatedMember(TypeResolutionContext ctxt, AnnotationMap annotations) {
         super();

@@ -333,12 +333,11 @@ _containerType,
         }
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        JsonToken t = p.getCurrentToken();
 
         Object value;
 
         try {
-            if (t == JsonToken.VALUE_NULL) {
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
                 // 03-Feb-2017, tatu: Hmmh. I wonder... let's try skipping here, too
                 if (_skipNullValues) {
                     return result;

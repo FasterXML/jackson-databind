@@ -321,18 +321,16 @@ public class ObjectArrayDeserializer
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
             // One exception; byte arrays are generally serialized as base64, so that should be handled
-            JsonToken t = p.getCurrentToken();
-            if (t == JsonToken.VALUE_STRING
+            if (p.hasToken(JsonToken.VALUE_STRING)
                     // note: not `byte[]`, but `Byte[]` -- former is primitive array
                     && _elementClass == Byte.class) {
                 return deserializeFromBase64(p, ctxt);
             }
             return (Object[]) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
         }
-        JsonToken t = p.getCurrentToken();
+
         Object value;
-        
-        if (t == JsonToken.VALUE_NULL) {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
             // 03-Feb-2017, tatu: Should this be skipped or not?
             if (_skipNullValues) {
                 return NO_OBJECTS;

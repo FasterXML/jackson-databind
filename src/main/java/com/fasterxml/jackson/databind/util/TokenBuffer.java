@@ -477,7 +477,7 @@ public class TokenBuffer
      */
     public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        if (p.getCurrentTokenId() != JsonToken.FIELD_NAME.id()) {
+        if (!p.hasToken(JsonToken.FIELD_NAME)) {
             copyCurrentStructure(p);
             return this;
         }
@@ -1029,7 +1029,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         if (_mayHaveNativeIds) {
             _checkNativeIds(p);
         }
-        switch (p.getCurrentToken()) {
+        switch (p.currentToken()) {
         case START_OBJECT:
             writeStartObject();
             break;
@@ -1097,14 +1097,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeObject(p.getEmbeddedObject());
             break;
         default:
-            throw new RuntimeException("Internal error: unexpected token: "+p.getCurrentToken());
+            throw new RuntimeException("Internal error: unexpected token: "+p.currentToken());
         }
     }
 
     @Override
     public void copyCurrentStructure(JsonParser p) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
 
         // Let's handle field-name separately first
         if (t == JsonToken.FIELD_NAME) {

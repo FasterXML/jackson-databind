@@ -101,7 +101,7 @@ public class AsArrayTypeDeserializer
                 //   internal and external properties
                 //  TODO: but does it need to be injected in external case? Why not?
                 && !_usesExternalId()
-                && p.getCurrentToken() == JsonToken.START_OBJECT) {
+                && p.hasToken(JsonToken.START_OBJECT)) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
             TokenBuffer tb = new TokenBuffer(null, false);
             tb.writeStartObject(); // recreate START_OBJECT

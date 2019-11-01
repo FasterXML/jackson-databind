@@ -57,7 +57,7 @@ public class NullifyingDeserializer
     {
         // Not sure if we need to bother but:
 
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_ARRAY:
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_FIELD_NAME:

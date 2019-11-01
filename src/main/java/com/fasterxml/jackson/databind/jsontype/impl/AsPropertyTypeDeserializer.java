@@ -74,7 +74,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         }
         
         // but first, sanity check to ensure we have START_OBJECT or FIELD_NAME
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.FIELD_NAME) {
@@ -187,12 +187,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         /* Sometimes, however, we get an array wrapper; specifically
          * when an array or list has been serialized with type information.
          */
-        if (p.getCurrentToken() == JsonToken.START_ARRAY) {
+        if (p.hasToken(JsonToken.START_ARRAY)) {
             return super.deserializeTypedFromArray(p, ctxt);
         }
         return deserializeTypedFromObject(p, ctxt);
     }    
-    
+
     // These are fine from base class:
     //public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt)
     //public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt)    

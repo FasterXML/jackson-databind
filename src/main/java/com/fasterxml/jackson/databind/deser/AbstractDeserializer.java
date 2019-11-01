@@ -230,7 +230,7 @@ handledType().getName()));
         // Hmmh. One tricky question; for scalar, is it an Object Id, or "Natural" type?
         // for now, prefer Object Id:
         if (_objectIdReader != null) {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t != null) {
                 // Most commonly, a scalar (int id, uuid String, ...)
                 if (t.isScalarValue()) {
@@ -280,7 +280,7 @@ handledType().getName()));
          * Finally, we may have to consider possibility of custom handlers for
          * these values: but for now this should work ok.
          */
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             if (_acceptString) {
                 return p.getText();

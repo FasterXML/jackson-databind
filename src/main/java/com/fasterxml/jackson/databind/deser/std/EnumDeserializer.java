@@ -167,7 +167,7 @@ public class EnumDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken curr = p.getCurrentToken();
+        JsonToken curr = p.currentToken();
         
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {

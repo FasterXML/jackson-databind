@@ -18,7 +18,7 @@ public class StackTraceElementDeserializer
     @Override
     public StackTraceElement deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         // Must get an Object
         if (t == JsonToken.START_OBJECT) {
             String className = "", methodName = "", fileName = "";

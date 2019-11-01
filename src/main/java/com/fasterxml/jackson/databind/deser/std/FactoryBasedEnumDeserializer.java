@@ -110,7 +110,7 @@ class FactoryBasedEnumDeserializer
         if (_deser != null) {
             value = _deser.deserialize(p, ctxt);
         } else if (_hasArgs) {
-            JsonToken curr = p.getCurrentToken();
+            JsonToken curr = p.currentToken();
             //There can be a JSON object passed for deserializing an Enum,
             //the below case handles it.
             if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
@@ -161,7 +161,7 @@ class FactoryBasedEnumDeserializer
     {
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
     
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value

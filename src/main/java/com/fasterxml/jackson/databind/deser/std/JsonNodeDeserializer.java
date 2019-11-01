@@ -63,7 +63,7 @@ public class JsonNodeDeserializer
     @Override
     public JsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
             return deserializeObject(p, ctxt, ctxt.getNodeFactory());
         case JsonTokenId.ID_START_ARRAY:
@@ -511,11 +511,11 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
         }
     }
-    
+
     protected final JsonNode deserializeAny(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this?
             return nodeFactory.objectNode();
         case JsonTokenId.ID_FIELD_NAME:

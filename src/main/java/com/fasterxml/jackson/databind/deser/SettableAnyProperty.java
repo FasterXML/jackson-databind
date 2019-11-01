@@ -144,8 +144,7 @@ public class SettableAnyProperty
 
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
-        if (t == JsonToken.VALUE_NULL) {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
             return _valueDeserializer.getNullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {

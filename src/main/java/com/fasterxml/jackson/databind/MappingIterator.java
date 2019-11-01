@@ -152,7 +152,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
                 // regardless, recovery context should be whatever context we have now,
                 // with sole exception of pointing to a start marker, in which case it's
                 // the parent
-                JsonToken t = p.getCurrentToken();
+                JsonToken t = p.currentToken();
                 if ((t == JsonToken.START_OBJECT) || (t == JsonToken.START_ARRAY)) {
                     sctxt = sctxt.getParent();
                 }
@@ -238,7 +238,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             _resync();
             // fall-through
         case STATE_MAY_HAVE_VALUE:
-            JsonToken t = _parser.getCurrentToken();
+            JsonToken t = _parser.currentToken();
             if (t == null) { // un-initialized or cleared; find next
                 t = _parser.nextToken();
                 // If EOF, no more, or if we hit END_ARRAY (although we don't clear the token).

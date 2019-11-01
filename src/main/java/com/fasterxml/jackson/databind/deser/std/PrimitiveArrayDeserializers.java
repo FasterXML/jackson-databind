@@ -281,8 +281,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
              * convert other tokens to Strings... but let's not bother
              * yet, doesn't seem to make sense)
              */
-            JsonToken t = p.getCurrentToken();
-            if (t == JsonToken.VALUE_STRING) {
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
                 // note: can NOT return shared internal buffer, must copy:
                 char[] buffer = p.getTextCharacters();
                 int offset = p.getTextOffset();
@@ -295,6 +294,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             if (p.isExpectedStartArrayToken()) {
                 // Let's actually build as a String, then get chars
                 StringBuilder sb = new StringBuilder(64);
+                JsonToken t;
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     String str;
                     if (t == JsonToken.VALUE_STRING) {
@@ -319,7 +319,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 return sb.toString().toCharArray();
             }
             // or, maybe an embedded object?
-            if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
+            if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
                 Object ob = p.getEmbeddedObject();
                 if (ob == null) return null;
                 if (ob instanceof char[]) {
@@ -468,7 +468,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             
             // Most likely case: base64 encoded String?
             if (t == JsonToken.VALUE_STRING) {
@@ -538,7 +538,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException
         {
             byte value;
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
                 // should we catch overflow exceptions?
                 value = p.getByteValue();

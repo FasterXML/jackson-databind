@@ -119,6 +119,10 @@ public class SubTypeValidator
         s.add("org.apache.log4j.receivers.db.DriverManagerConnectionSource");
         s.add("org.apache.log4j.receivers.db.JNDIConnectionSource");
 
+        // [databind#2526]: some more ehcache
+        s.add("net.sf.ehcache.transaction.manager.selector.GenericJndiSelector");
+        s.add("net.sf.ehcache.transaction.manager.selector.GlassfishSelector");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

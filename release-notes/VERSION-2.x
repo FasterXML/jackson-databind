@@ -139,6 +139,11 @@ Project: jackson-databind
   deserialize as "null value"
  (contributed by Martin C)
 
+2.9.10.2 (not yet released)
+
+#2526: Block two more gadget types (ehcache/JNDI - CVEs to be allocated)
+  (repoerted by UltramanGaia)
+
 2.9.10.1 (20-Oct-2019)
 
 #2478: Block two more gadget types (commons-dbcp, p6spy,
@@ -168,8 +173,6 @@ Project: jackson-databind
   (reported by Fei Lu)
 #2462: Block two more gadget types (commons-configuration)
 #2469: Block one more gadget type (xalan2)
-<<<<<<< HEAD:release-notes/VERSION-2.x
-<<<<<<< HEAD:release-notes/VERSION-2.x
 
 2.9.9 (16-May-2019)
 

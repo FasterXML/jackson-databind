@@ -87,12 +87,6 @@ public final class AnnotatedMethod
         return _method.getReturnType();
     }
 
-    @Deprecated
-    @Override
-    public Type getGenericType() {
-        return _method.getGenericReturnType();
-    }
-
     /*
     /*****************************************************
     /* AnnotatedWithParams

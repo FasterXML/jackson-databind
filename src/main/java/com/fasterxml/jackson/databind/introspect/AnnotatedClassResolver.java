@@ -57,7 +57,9 @@ public class AnnotatedClassResolver
         _primaryMixin = (r == null) ? null : r.findMixInClassFor(_class);
 
         // Also... JDK types do not have annotations that are of interest to us
-        _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(_class);
+        // At least JDK container types
+        _collectAnnotations = (_intr != null) &&
+                (!ClassUtil.isJDKClass(_class) || !_type.isContainerType());
     }
 
     AnnotatedClassResolver(MapperConfig<?> config, Class<?> cls, MixInResolver r) {
@@ -75,7 +77,7 @@ public class AnnotatedClassResolver
             _primaryMixin = (r == null) ? null : r.findMixInClassFor(_class);
         }
 
-        _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(_class);
+        _collectAnnotations = (_intr != null);
     }
 
     public static AnnotatedClass resolve(MapperConfig<?> config, JavaType forType,

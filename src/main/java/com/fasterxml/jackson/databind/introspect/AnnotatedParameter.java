@@ -93,12 +93,6 @@ public final class AnnotatedParameter
         return _type;
     }
 
-    @Deprecated
-    @Override
-    public Type getGenericType() {
-        return _owner.getGenericParameterType(_index);
-    }
-
     /*
     /**********************************************************
     /* AnnotatedMember extras
@@ -112,9 +106,8 @@ public final class AnnotatedParameter
 
     @Override
     public Member getMember() {
-        /* This is bit tricky: since there is no JDK equivalent; can either
-         * return null or owner... let's do latter, for now.
-         */
+        // This is bit tricky: since there is no JDK equivalent; can either
+        // return null or owner... let's do latter, for now.
         return _owner.getMember();
     }
 

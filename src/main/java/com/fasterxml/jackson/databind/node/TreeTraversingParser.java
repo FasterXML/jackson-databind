@@ -151,16 +151,6 @@ public class TreeTraversingParser extends ParserMinimalBase
         return (crsr == null) ? null : crsr.currentName();
     }
 
-    @Override public void overrideCurrentName(String name) {
-        NodeCursor crsr = _nodeCursor;
-        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-            crsr = crsr.getParent();
-        }
-        if (crsr != null) {
-            crsr.overrideCurrentName(name);
-        }
-    }
-
     @Override
     public TokenStreamContext getParsingContext() {
         return _nodeCursor;

@@ -1617,23 +1617,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return _parsingContext.currentName();
         }
 
-        @Override
-        public void overrideCurrentName(String name)
-        {
-            // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
-            TokenStreamContext ctxt = _parsingContext;
-            if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-                ctxt = ctxt.getParent();
-            }
-            if (ctxt instanceof TokenBufferReadContext) {
-                try {
-                    ((TokenBufferReadContext) ctxt).setCurrentName(name);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
         /*
         /******************************************************************
         /* Public API, access to token information, text

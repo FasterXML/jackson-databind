@@ -156,6 +156,9 @@ public class TreeTraversingParser extends ParserMinimalBase
         return _nodeCursor;
     }
 
+    @Override public void setCurrentValue(Object v) { _nodeCursor.setCurrentValue(v); }
+    @Override public Object getCurrentValue() { return _nodeCursor.getCurrentValue(); }
+
     @Override
     public JsonLocation getTokenLocation() {
         return JsonLocation.NA;

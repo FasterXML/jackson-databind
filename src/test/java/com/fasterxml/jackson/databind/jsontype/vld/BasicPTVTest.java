@@ -1,9 +1,13 @@
 package com.fasterxml.jackson.databind.jsontype.vld;
 
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.exc.InsecureTypeMatchException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
@@ -36,6 +40,10 @@ public class BasicPTVTest extends BaseMapTest
             this.x = x;
         }
     }
+
+    static class ValueC extends ValueB implements Serializable {}
+    static class ValueD extends Object {}
+
 
     // // // Value types
 
@@ -262,6 +270,211 @@ public class BasicPTVTest extends BaseMapTest
             verifyException(e, "as a subtype of");
         }
     }
+
+
+    public void testBlockSerializableClass() throws Exception {
+        try {
+            BasicPolymorphicTypeValidator.builder()
+                    .allowIfSubType(Serializable.class)
+                    .build();
+            fail("no exception was thrown when allowIfSubType Serializable.class");
+        } catch (InsecureTypeMatchException tme) {
+            assertEquals("Insecure Base class found : java.io.Serializable",tme.getMessage());
+        }
+    }
+
+    public void testBlockObjectClass() throws Exception {
+        try {
+            BasicPolymorphicTypeValidator.builder()
+                    .allowIfSubType(Object.class)
+                    .build();
+            fail("no exception was thrown when allowIfSubType Object.class");
+        } catch (InsecureTypeMatchException tme) {
+            assertEquals("Insecure Base class found : java.io.Serializable",tme.getMessage());
+        }
+    }
+
+
+
+    public void testBlockBaseTypeMatchSerializable() throws Exception {
+        try {
+            BasicPolymorphicTypeValidator.builder()
+                    .allowIfBaseType(Object.class)
+                    .build();
+            fail("no exception was thrown when allowIfSubType Object.class");
+        } catch (InsecureTypeMatchException tme) {
+            assertEquals("Insecure Base class found : java.io.Serializable",tme.getMessage());
+        }
+    }
+
+    public void testBlockBaseTypeMatchObject() throws Exception {
+        try {
+            BasicPolymorphicTypeValidator.builder()
+                    .allowIfBaseType(Object.class)
+                    .build();
+            fail("no exception was thrown when allowIfSubType Object.class");
+        } catch (InsecureTypeMatchException tme) {
+            assertEquals("Insecure Base class found : java.io.Serializable",tme.getMessage());
+        }
+    }
+
+    public void testBlockSubTypeMatchObject() throws Exception {
+        try {
+            BasicPolymorphicTypeValidator.builder()
+                    .allowIfSubType(Object.class.getName())
+                    .build();
+            fail("no exception was thrown when allowIfSubType Object.class");
+        } catch (InsecureTypeMatchException tme) {
+            assertEquals("Insecure Base class found : java.lang.Object",tme.getMessage());
+        }
+    }
+
+
+
+    public void testBlockSubTypeMatchSerializable() throws Exception {
+        try {
+            BasicPolymorphicTypeValidator.builder()
+                    .allowIfSubType(Serializable.class.getName())
+                    .build();
+            fail("no exception was thrown when allowIfSubType Object.class");
+        } catch (InsecureTypeMatchException tme) {
+            assertEquals("Insecure Base class found : java.io.Serializable",tme.getMessage());
+        }
+    }
+
+
+    public void testNotBlockValidBaseTypesByClassName() throws Exception {
+        List<Class<?>> validClasses = Arrays.asList(ValueB.class,ValueC.class,ValueD.class);
+        for(Class klass : validClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(klass.getName())
+                        .build();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockValidBaseTypesByClass()  {
+        List<Class<?>> validClasses = Arrays.asList(ValueB.class,ValueC.class,ValueD.class);
+        for(Class klass : validClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(klass)
+                        .build();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockValidSubTypesByClass() throws Exception {
+        List<Class<?>> validClasses = Arrays.asList(ValueB.class,ValueC.class,ValueD.class);
+        for(Class klass : validClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(klass)
+                        .build();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockValidSubTypesByName() throws Exception {
+        List<Class<?>> validClasses = Arrays.asList(ValueB.class,ValueC.class,ValueD.class);
+        for(Class klass : validClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(klass.getName())
+                        .build();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockValidSubTypesByNameWhenBuildingInsecurely() throws Exception {
+        List<Class<?>> validClasses = Arrays.asList(ValueB.class,ValueC.class,ValueD.class);
+        for(Class klass : validClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(klass.getName())
+                        .build_insecure();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockValidBaseTypesByClassWhenBuildingInsecurely()  {
+        List<Class<?>> validClasses = Arrays.asList(ValueB.class,ValueC.class,ValueD.class);
+        for(Class klass : validClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(klass)
+                        .build_insecure();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockValidSubTypesByClassWhenBuildingInsecurely() throws Exception {
+        List<Class<?>> validClasses = Arrays.asList(ValueB.class,ValueC.class,ValueD.class);
+        for(Class klass : validClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(klass)
+                        .build_insecure();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockInvalidSubTypesByNameWhenBuildingInsecurely() throws Exception {
+        List<Class<?>> invalidClasses = Arrays.asList(Object.class,Serializable.class);
+        for(Class klass : invalidClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(klass.getName())
+                        .build_insecure();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockInvalidBaseTypesByClassWhenBuildingInsecurely()  {
+        List<Class<?>> invalidClasses = Arrays.asList(Object.class,Serializable.class);
+        for(Class klass : invalidClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfBaseType(klass)
+                        .build_insecure();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+    public void testNotBlockInvalidSubTypesByClassWhenBuildingInsecurely() throws Exception {
+        List<Class<?>> invalidClasses = Arrays.asList(Object.class,Serializable.class);
+        for(Class klass : invalidClasses) {
+            try {
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(klass)
+                        .build_insecure();
+            } catch (InsecureTypeMatchException tme) {
+                fail("Class "+klass.getName()+" was blocked");
+            }
+        }
+    }
+
+
+
 }
 
 

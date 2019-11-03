@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.exc.InsecureTypeMatchException;
 
 /**
  * Standard {@link BasicPolymorphicTypeValidator} implementation that users may want
@@ -64,6 +66,10 @@ public class BasicPolymorphicTypeValidator
      * rules are checked.
      */
     public static class Builder {
+
+        private static final List<Class<?>> invalidBaseClasses = Arrays.asList(Serializable.class,Object.class);
+
+
         protected Set<Class<?>> _invalidBaseTypes;
 
         /**
@@ -83,6 +89,8 @@ public class BasicPolymorphicTypeValidator
 
         
         protected Builder() { }
+
+
 
         // // Methods for checking solely by base type (before subtype even considered)
 
@@ -239,12 +247,73 @@ public class BasicPolymorphicTypeValidator
             });
         }
 
-        public BasicPolymorphicTypeValidator build() {
+        /**
+         * Validates and Constructs the BasicPolymorphicTypeValidator.
+         * Unlike build() no check is done to ensure the Matchers added to this validator will allow Object.class
+         * or Serializable.class and their subtypes to be deserialised.
+         * As the name suggests, this is an insecure operation. Please think very carefully before calling this method
+         * rather than build(), especially if the caller is outside the trust boundary of this application. As doing
+         * so will leave your application open to vulnerabilities including remote code execution.
+         * @return the BasicPolymorphicTypeValidator.
+         */
+        public BasicPolymorphicTypeValidator build_insecure()  {
             return new BasicPolymorphicTypeValidator(_invalidBaseTypes,
                     (_baseTypeMatchers == null) ? null : _baseTypeMatchers.toArray(new TypeMatcher[0]),
                     (_subTypeNameMatchers == null) ? null : _subTypeNameMatchers.toArray(new NameMatcher[0]),
                     (_subTypeClassMatchers == null) ? null : _subTypeClassMatchers.toArray(new TypeMatcher[0])
             );
+        }
+
+        /**
+         * Validates and Constructs the BasicPolymorphicTypeValidator.
+         * If a Matcher added to this Validator will allow Object.class or Serializable.class and all of their sub types
+         * to be deserialised a InsecureTypeMatchException will be thrown.
+         * This is due to the inherent security problems of allowing either all classes on the class path to be
+         * arbitrarily deserialised in the case of Object.class or large amounts of classes in the case of
+         * Serializable.class.
+         * If you really need to allow either of these blocked classes. Use build_insecure(). However please be aware
+         * of the very real security problems you are introducing into your application by doing so.
+         * @return the BasicPolymorphicTypeValidator.
+         * @throws InsecureTypeMatchException if any matcher added will allow Object.class, Serializable.class
+         */
+        public BasicPolymorphicTypeValidator build() throws InsecureTypeMatchException {
+            validateTypeMatch();
+            return build_insecure();
+        }
+
+        /**
+         * validates that each of the Matchers will not allow Serializable.class or Object.class.
+         * @throws InsecureTypeMatchException if an included Matcher will allow one or both of these classes through.
+         */
+        private void validateTypeMatch() throws InsecureTypeMatchException {
+            if(_baseTypeMatchers!=null) {
+                for (TypeMatcher tm : _baseTypeMatchers) {
+                    for (Class<?> klass : invalidBaseClasses) {
+                        if (tm.match(klass)) {
+                            throw new InsecureTypeMatchException("Insecure Base class found : " + klass.getName());
+                        }
+                    }
+                }
+            }
+            if(_subTypeNameMatchers!=null) {
+                for (NameMatcher nm : _subTypeNameMatchers) {
+                    for (Class<?> klass : invalidBaseClasses) {
+                        if (nm.match(klass.getName())) {
+                            throw new InsecureTypeMatchException("Insecure Base class found : " + klass.getName());
+                        }
+                    }
+                }
+            }
+            if(_subTypeClassMatchers!=null) {
+                for (TypeMatcher tm : _subTypeClassMatchers) {
+                    for (Class<?> klass : invalidBaseClasses) {
+                        if (tm.match(klass)) {
+                            throw new InsecureTypeMatchException("Insecure Base class found : " + klass.getName());
+                        }
+                    }
+                }
+            }
+
         }
 
         protected Builder _appendBaseMatcher(TypeMatcher matcher) {

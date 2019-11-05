@@ -1754,7 +1754,7 @@ trailingToken, ClassUtil.nameOf(targetType)
     public JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc) {
         String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
-                typeId, baseType);
+                typeId, ClassUtil.getTypeDescription(baseType));
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 
@@ -1784,7 +1784,7 @@ trailingToken, ClassUtil.nameOf(targetType)
             String extraDesc)
     {
         String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
-                id, type);
+                id, ClassUtil.getTypeDescription(type));
         msg = _colonConcat(msg, extraDesc);
         return MismatchedInputException.from(_parser, type, msg);
     }

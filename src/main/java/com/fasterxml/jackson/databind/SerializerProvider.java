@@ -1227,7 +1227,7 @@ public abstract class SerializerProvider
     public JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc) {
         String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
-                typeId, baseType);
+                typeId, ClassUtil.getTypeDescription(baseType));
         return InvalidTypeIdException.from(null, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 

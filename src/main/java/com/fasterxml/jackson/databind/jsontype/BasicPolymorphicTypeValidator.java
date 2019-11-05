@@ -318,6 +318,7 @@ public class BasicPolymorphicTypeValidator
 
     @Override
     public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
+//System.err.println("validateBaseType("+baseType+")");
         final Class<?> rawBase = baseType.getRawClass();
         if (_invalidBaseTypes != null) {
             if (_invalidBaseTypes.contains(rawBase)) {
@@ -339,6 +340,7 @@ public class BasicPolymorphicTypeValidator
             String subClassName)
         throws JsonMappingException
     {
+//System.err.println("validateSubClassName('"+subClassName+"')");
         if (_subTypeNameMatchers != null)  {
             for (NameMatcher m : _subTypeNameMatchers) {
                 if (m.match(subClassName)) {
@@ -352,7 +354,9 @@ public class BasicPolymorphicTypeValidator
 
     @Override
     public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType, JavaType subType)
-            throws JsonMappingException {
+            throws JsonMappingException
+    {
+//System.err.println("validateSubType("+subType+")");
         if (_subClassMatchers != null)  {
             final Class<?> subClass = subType.getRawClass();
             for (TypeMatcher m : _subClassMatchers) {

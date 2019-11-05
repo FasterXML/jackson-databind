@@ -243,11 +243,28 @@ public abstract class DatabindContext
         final JavaType subType = config.getTypeFactory().constructSpecializedType(baseType, cls);
         // May skip check if type was allowed by subclass name already
         if (vld != Validity.ALLOWED) {
-            if (ptv.validateSubType(config, baseType, subType) != Validity.ALLOWED) {
+            vld = ptv.validateSubType(config, baseType, subType);
+            if (vld != Validity.ALLOWED) {
+                // 04-Nov-2019, tatu: One complication: array types... for which we'll try unpeeling
+                if ((vld == Validity.INDETERMINATE) && subType.isArrayType()) {
+                    if (_validateArraySubType(baseType, subType, ptv) == Validity.ALLOWED) {
+                        return subType;
+                    }
+                }
                 return _throwSubtypeClassNotAllowed(baseType, subClass, ptv);
             }
         }
         return subType;
+    }
+
+    private Validity _validateArraySubType(JavaType baseType, JavaType subType,
+            PolymorphicTypeValidator ptv) throws JsonMappingException
+    {
+        JavaType elementType = subType.getContentType();
+        while (elementType.isArrayType()) {
+            elementType = elementType.getContentType();
+        }
+        return ptv.validateSubType(getConfig(), baseType, elementType);
     }
 
     private JavaType _resolveAndValidateGeneric(JavaType baseType, String subClass,

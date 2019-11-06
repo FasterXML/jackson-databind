@@ -85,7 +85,7 @@ public abstract class JsonNode
      * Convenience method that is functionally same as:
      *<pre>
      *    size() == 0
-     *<pre>
+     *</pre>
      * for all node types.
      *
      * @since 2.10
@@ -662,45 +662,122 @@ public abstract class JsonNode
      */
 
     /**
+     * Method that may be called to verify that {@code this} node is NOT so-called
+     * "missing node": that is, one for which {@link #isMissingNode()} returns {@code true}.
+     * If not missing node, {@code this} is returned to allow chaining; otherwise
+     * {@link IllegalArgumentException} is thrown.
+     *
+     * @return {@code this} node to allow chaining
+     *
+     * @throws IllegalArgumentException if this node is "missing node"
+     *
      * @since 2.10
      */
-    public <T extends JsonNode> T require() {
+    public <T extends JsonNode> T require() throws IllegalArgumentException {
         return _this();
     }
 
     /**
+     * Method that may be called to verify that {@code this} node is neither so-called
+     * "missing node" (that is, one for which {@link #isMissingNode()} returns {@code true})
+     * nor "null node" (one for which {@link #isNull()} returns {@code true}).
+     * If non-null non-missing node, {@code this} is returned to allow chaining; otherwise
+     * {@link IllegalArgumentException} is thrown.
+     *
+     * @return {@code this} node to allow chaining
+     *
+     * @throws IllegalArgumentException if this node is either "missing node" or "null node"
+     *
      * @since 2.10
      */
-    public <T extends JsonNode> T requireNonNull() {
+    public <T extends JsonNode> T requireNonNull() throws IllegalArgumentException {
         return _this();
     }
 
     /**
+     * Method is functionally equivalent to
+     *{@code
+     *   path(fieldName).required()
+     *}
+     * and can be used to check that this node is an {@code ObjectNode} (that is, represents
+     * JSON Object value) and has value for specified property with key {@code fieldName}
+     * (but note that value may be explicit JSON null value).
+     * If this node is Object Node and has value for specified property, {@code this} is returned
+     * to allow chaining; otherwise {@link IllegalArgumentException} is thrown.
+     *
+     * @return {@code this} node to allow chaining
+     *
+     * @throws IllegalArgumentException if this node is not an Object node or if it does not
+     *   have value for specified property
+     *
      * @since 2.10
      */
-    public JsonNode required(String fieldName) {
+    public JsonNode required(String fieldName) throws IllegalArgumentException {
         return _reportRequiredViolation("Node of type `%s` has no fields", getClass().getName());
     }
 
     /**
+     * Method is functionally equivalent to
+     *{@code
+     *   path(index).required()
+     *}
+     * and can be used to check that this node is an {@code ArrayNode} (that is, represents
+     * JSON Array value) and has value for specified {@code index}
+     * (but note that value may be explicit JSON null value).
+     * If this node is Array Node and has value for specified index, {@code this} is returned
+     * to allow chaining; otherwise {@link IllegalArgumentException} is thrown.
+     *
+     * @return {@code this} node to allow chaining
+     *
+     * @throws IllegalArgumentException if this node is not an Array node or if it does not
+     *   have value for specified index
+     *
      * @since 2.10
      */
-    public JsonNode required(int index) {
+    public JsonNode required(int index) throws IllegalArgumentException {
         return _reportRequiredViolation("Node of type `%s` has no indexed values", getClass().getName());
     }
 
     /**
+     * Method is functionally equivalent to
+     *{@code
+     *   at(pathExpr).required()
+     *}
+     * and can be used to check that there is an actual value node at specified {@link JsonPointer}
+     * starting from {@code this} node
+     * (but note that value may be explicit JSON null value).
+     * If such value node exists {@code this} is returned
+     * to allow chaining; otherwise {@link IllegalArgumentException} is thrown.
+     *
+     * @return {@code this} node to allow chaining
+     *
+     * @throws IllegalArgumentException if no value node exists at given {@code JSON Pointer} path
+     *
      * @since 2.10
      */
-    public JsonNode requiredAt(String pathExpr) {
+    public JsonNode requiredAt(String pathExpr) throws IllegalArgumentException {
         return requiredAt(JsonPointer.compile(pathExpr));
     }
 
     /**
+     * Method is functionally equivalent to
+     *{@code
+     *   at(path).required()
+     *}
+     * and can be used to check that there is an actual value node at specified {@link JsonPointer}
+     * starting from {@code this} node
+     * (but note that value may be explicit JSON null value).
+     * If such value node exists {@code this} is returned
+     * to allow chaining; otherwise {@link IllegalArgumentException} is thrown.
+     *
+     * @return {@code this} node to allow chaining
+     *
+     * @throws IllegalArgumentException if no value node exists at given {@code JSON Pointer} path
+     *
      * @since 2.10
      */
-    public final JsonNode requiredAt(final JsonPointer pathExpr) {
-        JsonPointer currentExpr = pathExpr;
+    public final JsonNode requiredAt(final JsonPointer path) throws IllegalArgumentException {
+        JsonPointer currentExpr = path;
         JsonNode curr = this;
 
         // Note: copied from `at()`
@@ -711,7 +788,7 @@ public abstract class JsonNode
             curr = curr._at(currentExpr);
             if (curr == null) {
                 _reportRequiredViolation("No node at '%s' (unmatched part: '%s')",
-                        pathExpr, currentExpr);
+                        path, currentExpr);
             }
             currentExpr = currentExpr.tail();
         }

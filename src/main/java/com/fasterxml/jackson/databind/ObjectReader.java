@@ -1274,7 +1274,7 @@ public class ObjectReader
      * Method that reads content from given input source,
      * using configuration of this reader, and binds it as JSON Tree.
      * Returns {@link JsonNode} that represents the root of the resulting tree, if there
-     * was content to read, or "missing node" (instance of {@JsonNode} for which
+     * was content to read, or "missing node" (instance of {@link JsonNode} for which
      * {@link JsonNode#isMissingNode()} returns true, and behaves otherwise similar to
      * "null node") if no more content is accessible through passed-in input source.
      *<p>

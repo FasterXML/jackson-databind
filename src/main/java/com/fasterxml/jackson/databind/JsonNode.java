@@ -6,10 +6,8 @@ import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -32,7 +30,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * {@link com.fasterxml.jackson.databind.node}.
  *<p>
  * Note that it is possible to "read" from nodes, using
- * method {@link TreeNode#traverse}, which will result in
+ * method {@link TreeNode#traverse(ObjectCodec)}, which will result in
  * a {@link JsonParser} being constructed. This can be used for (relatively)
  * efficient conversations between different representations; and it is what
  * core databind uses for methods like {@link ObjectMapper#treeToValue(TreeNode, Class)}
@@ -43,9 +41,9 @@ public abstract class JsonNode
     implements TreeNode, Iterable<JsonNode>
 {
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Construction, related
-    /**********************************************************************
+    /**********************************************************
      */
     
     protected JsonNode() { }
@@ -61,16 +59,18 @@ public abstract class JsonNode
      * Note: return type is guaranteed to have same type as the
      * node method is called on; which is why method is declared
      * with local generic type.
-     *
+     * 
+     * @since 2.0
+     * 
      * @return Node that is either a copy of this node (and all non-leaf
      *    children); or, for immutable leaf nodes, node itself.
      */
     public abstract <T extends JsonNode> T deepCopy();
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* TreeNode implementation
-    /**********************************************************************
+    /**********************************************************
      */
 
 //  public abstract JsonToken asToken();
@@ -124,11 +124,6 @@ public abstract class JsonNode
         return false;
     }
 
-    @Override
-    public final boolean isNull() {
-        return getNodeType() == JsonNodeType.NULL;
-    }
-
     /**
      * Method for accessing value of the specified element of
      * an array node. For other nodes, null is always returned.
@@ -170,7 +165,6 @@ public abstract class JsonNode
      */
     @Override
     public JsonNode get(String fieldName) { return null; }
-
     /**
      * This method is similar to {@link #get(String)}, except
      * that instead of returning null if no such value exists (due
@@ -207,6 +201,8 @@ public abstract class JsonNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link #isMissingNode()} returns true.
+     * 
+     * @since 2.3
      */
     @Override
     public final JsonNode at(JsonPointer ptr)
@@ -237,6 +233,8 @@ public abstract class JsonNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
+     * 
+     * @since 2.3
      */
     @Override
     public final JsonNode at(String jsonPtrExpr) {
@@ -246,9 +244,9 @@ public abstract class JsonNode
     protected abstract JsonNode _at(JsonPointer ptr);
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Public API, type introspection
-    /**********************************************************************
+    /**********************************************************
      */
 
     // // First high-level division between values, containers and "missing"
@@ -257,6 +255,8 @@ public abstract class JsonNode
      * Return the type of this node
      *
      * @return the node type as a {@link JsonNodeType} enum value
+     *
+     * @since 2.2
      */
     public abstract JsonNodeType getNodeType();
 
@@ -328,6 +328,9 @@ public abstract class JsonNode
      */
     public boolean isLong() { return false; }
 
+    /**
+     * @since 2.2
+     */
     public boolean isFloat() { return false; }
 
     public boolean isDouble() { return false; }
@@ -348,6 +351,14 @@ public abstract class JsonNode
      */
     public final boolean isBoolean() {
         return getNodeType() == JsonNodeType.BOOLEAN;
+    }
+
+    /**
+     * Method that can be used to check if this node was created from
+     * JSON literal null value.
+     */
+    public final boolean isNull() {
+        return getNodeType() == JsonNodeType.NULL;
     }
 
     /**
@@ -373,6 +384,8 @@ public abstract class JsonNode
      * from JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asInt} could still succeed
      * if node is a JSON String representing integral number, or boolean.
+     * 
+     * @since 2.0
      */
     public boolean canConvertToInt() { return false; }
 
@@ -387,13 +400,15 @@ public abstract class JsonNode
      * from JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asLong} could still succeed
      * if node is a JSON String representing integral number, or boolean.
+     * 
+     * @since 2.0
      */
     public boolean canConvertToLong() { return false; }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Public API, straight value access
-    /**********************************************************************
+    /**********************************************************
      */
 
     /**
@@ -486,6 +501,8 @@ public abstract class JsonNode
      * that an overflow is possible for `long` values
      *
      * @return 32-bit float value this node contains, if any; 0.0 for non-number nodes.
+     *
+     * @since 2.2
      */
     public float floatValue() { return 0.0f; }
 
@@ -497,6 +514,8 @@ public abstract class JsonNode
      * in overflows with {@link BigInteger} values.
      *
      * @return 64-bit double value this node contains, if any; 0.0 for non-number nodes.
+     *
+     * @since 2.2
      */
     public double doubleValue() { return 0.0; }
 
@@ -510,7 +529,7 @@ public abstract class JsonNode
     public BigDecimal decimalValue() { return BigDecimal.ZERO; }
 
     /**
-     * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
+     * Returns integer value for this node (as {@link BigDecimal}), <b>if and only if</b>
      * this node is numeric ({@link #isNumber} returns true). For other
      * types returns <code>BigInteger.ZERO</code>.
      *
@@ -519,9 +538,9 @@ public abstract class JsonNode
     public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Public API, value access with conversion(s)/coercion(s)
-    /**********************************************************************
+    /**********************************************************
      */
 
     /**
@@ -537,6 +556,8 @@ public abstract class JsonNode
      * <code>defaultValue</code> in cases where null value would be returned;
      * either for missing nodes (trying to access missing property, or element
      * at invalid item for array) or explicit nulls.
+     * 
+     * @since 2.4
      */
     public String asText(String defaultValue) {
         String str = asText();
@@ -546,8 +567,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using
-     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsInt(String, int)}
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -560,8 +581,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using
-     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsInt(String, int)}
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -574,8 +595,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using
-     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsLong(String, long)}
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
      *<p>
      * If representation cannot be converted to an long (including structured types
      * like Objects and Arrays),
@@ -588,8 +609,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
-     * and 1 (true), and Strings are parsed using
-     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsLong(String, long)}
+     * and 1 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
      *<p>
      * If representation cannot be converted to an long (including structured types
      * like Objects and Arrays),
@@ -602,8 +623,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using
-     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsDouble(String, double)}
+     * and 1.0 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -616,8 +637,8 @@ public abstract class JsonNode
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
-     * and 1.0 (true), and Strings are parsed using
-     * {@link com.fasterxml.jackson.core.io.NumberInput#parseAsDouble(String, double)}
+     * and 1.0 (true), and Strings are parsed using default Java language integer
+     * parsing rules.
      *<p>
      * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
@@ -664,16 +685,14 @@ public abstract class JsonNode
     /**
      * Method that may be called to verify that {@code this} node is NOT so-called
      * "missing node": that is, one for which {@link #isMissingNode()} returns {@code true}.
-     * If not missing node, {@code this} is returned to allow chaining; otherwise
-     * {@link IllegalArgumentException} is thrown.
+     * If not missing node, {@code this} is returned to allow chaining;
+     * otherwise exception is thrown.
      *
      * @return {@code this} node to allow chaining
      *
      * @throws IllegalArgumentException if this node is "missing node"
-     *
-     * @since 2.10
      */
-    public <T extends JsonNode> T require() throws IllegalArgumentException {
+    public <T extends JsonNode> T require() {
         return _this();
     }
 
@@ -681,16 +700,14 @@ public abstract class JsonNode
      * Method that may be called to verify that {@code this} node is neither so-called
      * "missing node" (that is, one for which {@link #isMissingNode()} returns {@code true})
      * nor "null node" (one for which {@link #isNull()} returns {@code true}).
-     * If non-null non-missing node, {@code this} is returned to allow chaining; otherwise
-     * {@link IllegalArgumentException} is thrown.
+     * If non-null non-missing node, {@code this} is returned to allow chaining;
+     * otherwise exception is thrown.
      *
      * @return {@code this} node to allow chaining
      *
      * @throws IllegalArgumentException if this node is either "missing node" or "null node"
-     *
-     * @since 2.10
      */
-    public <T extends JsonNode> T requireNonNull() throws IllegalArgumentException {
+    public <T extends JsonNode> T requireNonNull() {
         return _this();
     }
 
@@ -703,16 +720,15 @@ public abstract class JsonNode
      * JSON Object value) and has value for specified property with key {@code fieldName}
      * (but note that value may be explicit JSON null value).
      * If this node is Object Node and has value for specified property, {@code this} is returned
-     * to allow chaining; otherwise {@link IllegalArgumentException} is thrown.
+     * to allow chaining;
+     * otherwise exception is thrown.
      *
      * @return {@code this} node to allow chaining
      *
      * @throws IllegalArgumentException if this node is not an Object node or if it does not
      *   have value for specified property
-     *
-     * @since 2.10
      */
-    public JsonNode required(String fieldName) throws IllegalArgumentException {
+    public JsonNode required(String fieldName) {
         return _reportRequiredViolation("Node of type `%s` has no fields", getClass().getName());
     }
 
@@ -725,16 +741,15 @@ public abstract class JsonNode
      * JSON Array value) and has value for specified {@code index}
      * (but note that value may be explicit JSON null value).
      * If this node is Array Node and has value for specified index, {@code this} is returned
-     * to allow chaining; otherwise {@link IllegalArgumentException} is thrown.
+     * to allow chaining;
+     * otherwise exception is thrown.
      *
      * @return {@code this} node to allow chaining
      *
      * @throws IllegalArgumentException if this node is not an Array node or if it does not
      *   have value for specified index
-     *
-     * @since 2.10
      */
-    public JsonNode required(int index) throws IllegalArgumentException {
+    public JsonNode required(int index) {
         return _reportRequiredViolation("Node of type `%s` has no indexed values", getClass().getName());
     }
 
@@ -747,15 +762,14 @@ public abstract class JsonNode
      * starting from {@code this} node
      * (but note that value may be explicit JSON null value).
      * If such value node exists {@code this} is returned
-     * to allow chaining; otherwise {@link IllegalArgumentException} is thrown.
+     * to allow chaining;
+     * otherwise exception is thrown.
      *
      * @return {@code this} node to allow chaining
      *
      * @throws IllegalArgumentException if no value node exists at given {@code JSON Pointer} path
-     *
-     * @since 2.10
      */
-    public JsonNode requiredAt(String pathExpr) throws IllegalArgumentException {
+    public JsonNode requiredAt(String pathExpr) {
         return requiredAt(JsonPointer.compile(pathExpr));
     }
 
@@ -773,10 +787,8 @@ public abstract class JsonNode
      * @return {@code this} node to allow chaining
      *
      * @throws IllegalArgumentException if no value node exists at given {@code JSON Pointer} path
-     *
-     * @since 2.10
      */
-    public final JsonNode requiredAt(final JsonPointer path) throws IllegalArgumentException {
+    public final JsonNode requiredAt(final JsonPointer path) {
         JsonPointer currentExpr = path;
         JsonNode curr = this;
 
@@ -858,6 +870,8 @@ public abstract class JsonNode
      *<pre>
      *   node.get(fieldName) != null &amp;&amp; !node.get(fieldName).isNull()
      *</pre>
+     * 
+     * @since 2.1
      */
     public boolean hasNonNull(String fieldName) {
         JsonNode n = get(fieldName);
@@ -872,6 +886,8 @@ public abstract class JsonNode
      *<pre>
      *   node.get(index) != null &amp;&amp; !node.get(index).isNull()
      *</pre>
+     * 
+     * @since 2.1
      */
     public boolean hasNonNull(int index) {
         JsonNode n = get(index);
@@ -1018,8 +1034,10 @@ public abstract class JsonNode
      * If the node method is called on is not Object node,
      * or if property exists and has value that is not Object node,
      * {@link UnsupportedOperationException} is thrown
+     *<p>
+     * NOTE: since 2.10 has had co-variant return type
      */
-    public ObjectNode with(String propertyName) {
+    public <T extends JsonNode> T with(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
                 +getClass().getName()+"), cannot call with() on it");
     }
@@ -1034,7 +1052,7 @@ public abstract class JsonNode
      *<p>
      * NOTE: since 2.10 has had co-variant return type
      */
-    public ArrayNode withArray(String propertyName) {
+    public <T extends JsonNode> T withArray(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
                 +getClass().getName()+"), cannot call withArray() on it");
     }
@@ -1064,7 +1082,7 @@ public abstract class JsonNode
     public boolean equals(Comparator<JsonNode> comparator, JsonNode other) {
         return comparator.compare(this, other) == 0;
     }
-    
+
     /*
     /**********************************************************************
     /* Overridden standard methods
@@ -1072,7 +1090,7 @@ public abstract class JsonNode
      */
     
     /**
-     * Method that will produce valid JSON using
+     * Method that will produce (as of Jackson 2.10) valid JSON using
      * default settings of databind, as String.
      * If you want other kinds of JSON output (or output formatted using one of
      * other Jackson-supported data formats) make sure to use
@@ -1092,8 +1110,6 @@ public abstract class JsonNode
     /**
      * Alternative to {@link #toString} that will serialize this node using
      * Jackson default pretty-printer.
-     *
-     * @since 2.10
      */
     public String toPrettyString() {
         return toString();
@@ -1117,7 +1133,6 @@ public abstract class JsonNode
     /**********************************************************************
      */
 
-    // @since 2.10
     @SuppressWarnings("unchecked")
     protected <T extends JsonNode> T _this() {
         return (T) this;

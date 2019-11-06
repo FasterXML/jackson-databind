@@ -85,7 +85,7 @@ public abstract class JsonNode
      * Convenience method that is functionally same as:
      *<pre>
      *    size() == 0
-     *<pre>
+     *</pre>
      * for all node types.
      *
      * @since 2.10

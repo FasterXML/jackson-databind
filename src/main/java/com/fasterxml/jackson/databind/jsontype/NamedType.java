@@ -19,7 +19,7 @@ public final class NamedType implements java.io.Serializable
 
     public NamedType(Class<?> c, String name) {
         _class = c;
-        _hashCode = (c.getName() + (name != null ? name : "")).hashCode();
+        _hashCode = c.getName().hashCode() + ((name == null) ? 0 : name.hashCode());
         setName(name);
     }
 
@@ -38,8 +38,8 @@ public final class NamedType implements java.io.Serializable
         if (o == null) return false;
         if (o.getClass() != getClass()) return false;
         NamedType other = (NamedType)o;
-        if (!Objects.equals(_name, other._name)) return false;
-        return _class == other._class;
+        return (_class == other._class)
+                && Objects.equals(_name, other._name);
     }
 
     @Override

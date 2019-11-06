@@ -13,6 +13,9 @@ Project: jackson-databind
 #2503: Support `@JsonSerialize(keyUsing)` and `@JsonDeserialize(keyUsing)` on Key class
 #2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
  (contributed by Joongsoo P)
+#2515: `ObjectMapper.registerSubtypes(NamedType...)` doesn't allow registering the same POJO
+  for two different type ids
+ (contributed by Joseph K)
 #2522: `DeserializationContext.handleMissingInstantiator()` throws `MismatchedInputException`
   for non-static inner classes
 #2525: Incorrect `JsonStreamContext` for `TokenBuffer` and `TreeTraversingParser`

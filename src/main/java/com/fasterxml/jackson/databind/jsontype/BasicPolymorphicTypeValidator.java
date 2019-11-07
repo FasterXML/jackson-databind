@@ -37,7 +37,7 @@ public class BasicPolymorphicTypeValidator
      * General matcher interface (predicate) for validating class values
      * (base type or resolved subtype)
      */
-    protected abstract static class TypeMatcher {
+    public abstract static class TypeMatcher { // note: public since 2.11
         public abstract boolean match(Class<?> clazz);
     }
 
@@ -45,7 +45,7 @@ public class BasicPolymorphicTypeValidator
      * General matcher interface (predicate) for validating unresolved
      * subclass class name.
      */
-    protected abstract static class NameMatcher {
+    public abstract static class NameMatcher { // note: public since 2.11
         public abstract boolean match(String clazzName);
     }
     
@@ -64,6 +64,11 @@ public class BasicPolymorphicTypeValidator
      * rules are checked.
      */
     public static class Builder {
+        /**
+         * Optional set of base types (exact match) that are NOT accepted
+         * as base types for polymorphic properties. May be used to prevent "unsafe"
+         * base types like {@link java.lang.Object} or {@link java.io.Serializable}.
+         */
         protected Set<Class<?>> _invalidBaseTypes;
 
         /**
@@ -152,6 +157,21 @@ public class BasicPolymorphicTypeValidator
         }
 
         /**
+         * Method for appending custom matcher called with base type: if matcher returns
+         * {@code true}, all possible subtypes will be accepted; if {@code false}, other
+         * matchers are applied.
+         * 
+         * @param matcher Custom matcher to apply to base type
+         *
+         * @return This Builder to allow call chaining
+         *
+         * @since 2.11
+         */
+        public Builder allowIfBaseType(final TypeMatcher matcher) {
+            return _appendBaseMatcher(matcher);
+        }
+        
+        /**
          * Method for appending matcher that will mark any polymorphic properties with exact
          * specific class to be invalid.
          * For example, call to
@@ -236,6 +256,21 @@ public class BasicPolymorphicTypeValidator
                     return clazzName.startsWith(prefixForSubType);
                 }
             });
+        }
+
+        /**
+         * Method for appending custom matcher called with resolved subtype: if matcher returns
+         * {@code true}, type will be accepted; if {@code false}, other
+         * matchers are applied.
+         * 
+         * @param matcher Custom matcher to apply to resolved subtype
+         *
+         * @return This Builder to allow call chaining
+         *
+         * @since 2.11
+         */
+        public Builder allowIfSubType(final TypeMatcher matcher) {
+            return _appendSubClassMatcher(matcher);
         }
 
         /**

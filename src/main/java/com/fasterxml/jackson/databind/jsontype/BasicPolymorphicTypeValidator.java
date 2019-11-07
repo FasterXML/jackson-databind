@@ -28,16 +28,17 @@ public class BasicPolymorphicTypeValidator
     private static final long serialVersionUID = 1L;
 
     /*
-    /**********************************************************
-    /* Helper classes: matchers
-    /**********************************************************
+    /**********************************************************************
+    /* Helper types: matchers
+    /**********************************************************************
      */
 
     /**
      * General matcher interface (predicate) for validating class values
      * (base type or resolved subtype)
      */
-    public abstract static class TypeMatcher { // note: public since 2.11
+    @FunctionalInterface
+    public interface TypeMatcher {
         public abstract boolean match(Class<?> clazz);
     }
 
@@ -45,14 +46,15 @@ public class BasicPolymorphicTypeValidator
      * General matcher interface (predicate) for validating unresolved
      * subclass class name.
      */
-    public abstract static class NameMatcher { // note: public since 2.11
+    @FunctionalInterface
+    public interface NameMatcher {
         public abstract boolean match(String clazzName);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Builder class for configuring instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -330,9 +332,9 @@ public class BasicPolymorphicTypeValidator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

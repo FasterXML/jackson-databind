@@ -40,6 +40,7 @@ public class AtomicReferenceDeserializer
 
     @Override
     public AtomicReference<Object> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        // 07-May-2019, tatu: [databind#2303], needed for nested ReferenceTypes
         return new AtomicReference<Object>(_valueDeserializer.getNullValue(ctxt));
     }
 

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -142,6 +143,32 @@ public class TestSubtypes extends BaseMapTest
 
     @JsonTypeName("implB")
     static class Factory1311ImplB implements Factory1311 { }
+
+    // [databind#2515]
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="#type")
+    static abstract class SuperTypeWithoutDefault { }
+
+    static class Sub extends SuperTypeWithoutDefault {
+        public int a;
+
+        public Sub(){}
+        public Sub(int a) {
+            this.a = a;
+        }
+    }
+
+    static class POJOWrapper {
+        @JsonProperty
+        Sub sub1;
+        @JsonProperty
+        Sub sub2;
+
+        public POJOWrapper(){}
+        public POJOWrapper(Sub sub1, Sub sub2) {
+            this.sub1 = sub1;
+            this.sub2 = sub2;
+        }
+    }
 
     /*
     /**********************************************************************
@@ -319,4 +346,38 @@ public class TestSubtypes extends BaseMapTest
         assertEquals(5, impl.b);
         assertEquals(9, impl.def);
     }
+
+    // [databind#2525]
+    public void testSerializationWithDuplicateRegisteredSubtypes() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(new NamedType(Sub.class, "sub1"))
+                .registerSubtypes(new NamedType(Sub.class, "sub2"))
+                .build();
+
+        // the first registered type name is used for serialization
+        Sub sub = new Sub(15);
+        assertEquals("{\"#type\":\"sub1\",\"a\":15}", mapper.writeValueAsString(sub));
+    }
+
+    // [databind#2525]
+    public void testDeserializationWithDuplicateRegisteredSubtypes() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+            // We can register the same class with different names
+            .registerSubtypes(new NamedType(Sub.class, "sub1"))
+            .registerSubtypes(new NamedType(Sub.class, "sub2"))
+            .build();
+
+            // fields of a POJO will be deserialized correctly according to their field name
+            POJOWrapper pojoWrapper = mapper.readValue("{\"sub1\":{\"#type\":\"sub1\",\"a\":10},\"sub2\":{\"#type\":\"sub2\",\"a\":50}}", POJOWrapper.class);
+            assertEquals(10, pojoWrapper.sub1.a);
+            assertEquals(50, pojoWrapper.sub2.a);
+
+            // Instances of the same object can be deserialized with multiple names
+            SuperTypeWithoutDefault sub1 = mapper.readValue("{\"#type\":\"sub1\", \"a\":20}", SuperTypeWithoutDefault.class);
+            assertSame(Sub.class, sub1.getClass());
+            assertEquals(20, ((Sub) sub1).a);
+            SuperTypeWithoutDefault sub2 = mapper.readValue("{\"#type\":\"sub2\", \"a\":30}", SuperTypeWithoutDefault.class);
+            assertSame(Sub.class, sub2.getClass());
+            assertEquals(30, ((Sub) sub2).a);
+        }
 }

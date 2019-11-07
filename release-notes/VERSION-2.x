@@ -24,6 +24,7 @@ Project: jackson-databind
  (reported by Mark S)
 #2529: Add tests to ensure `EnumSet` and `EnumMap` work correctly with "null-as-empty"
 #2534: Add `BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray()`
+#2535: Allow String-to-byte[] coercion for String-value collections
 
 2.10.0 (26-Sep-2019)
 

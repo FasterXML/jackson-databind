@@ -81,7 +81,6 @@ public class BasicPolymorphicTypeValidator
          */
         protected List<TypeMatcher> _subTypeClassMatchers;
 
-        
         protected Builder() { }
 
         // // Methods for checking solely by base type (before subtype even considered)
@@ -239,6 +238,29 @@ public class BasicPolymorphicTypeValidator
             });
         }
 
+        /**
+         * Method for appending matcher that will allow all subtypes that are Java arrays
+         * (regardless of element type). Note that this does NOT validate element type
+         * itself as long as Polymorphic Type handling is enabled for element type: this
+         * is the case with all standard "Default Typing" inclusion criteria as well as for
+         * annotation ({@code @JsonTypeInfo}) use case (since annotation only applies to element
+         * types, not container).
+         *<p>
+         * NOTE: not used with other Java collection types ({@link java.util.List}s,
+         *    {@link java.util.Collection}s), mostly since use of generic types as polymorphic
+         *    values is not (well) supported.
+         *
+         * @since 2.10.1
+         */
+        public Builder allowIfSubTypeIsArray() {
+            return _appendSubClassMatcher(new TypeMatcher() {
+                @Override
+                public boolean match(Class<?> clazz) {
+                    return clazz.isArray();
+                }
+            });
+        }
+        
         public BasicPolymorphicTypeValidator build() {
             return new BasicPolymorphicTypeValidator(_invalidBaseTypes,
                     (_baseTypeMatchers == null) ? null : _baseTypeMatchers.toArray(new TypeMatcher[0]),

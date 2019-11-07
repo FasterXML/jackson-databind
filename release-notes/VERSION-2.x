@@ -23,6 +23,7 @@ Project: jackson-databind
 #2520: Sub-optimal exception message when failing to deserialize non-static inner classes
  (reported by Mark S)
 #2529: Add tests to ensure `EnumSet` and `EnumMap` work correctly with "null-as-empty"
+#2534: Add `BasicPolymorphicTypeValidator.Builder.allowIfSubTypeIsArray()`
 
 2.10.0 (26-Sep-2019)
 

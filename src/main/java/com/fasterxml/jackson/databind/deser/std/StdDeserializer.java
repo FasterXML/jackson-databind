@@ -555,6 +555,19 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_STRING) {
             return p.getText();
         }
+        // 07-Nov-2019, tatu: [databind#2535] Need to support byte[]->Base64 same as `StringDeserializer`
+        if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
+            Object ob = p.getEmbeddedObject();
+            if (ob instanceof byte[]) {
+                return ctxt.getBase64Variant().encode((byte[]) ob, false);
+            }
+            if (ob == null) {
+                return null;
+            }
+            // otherwise, try conversion using toString()...
+            return ob.toString();
+        }
+
         // 07-Nov-2016, tatu: Caller should take care of unwrapping and there shouldn't
         //    be need for extra pass here...
         /*

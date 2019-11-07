@@ -1,37 +1,33 @@
-package com.fasterxml.jackson.failing;
-
-import java.util.regex.Pattern;
+package com.fasterxml.jackson.databind.jsontype.vld;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
- * Tests for the main user-configurable {@code PolymorphicTypeValidator},
- * {@link BasicPolymorphicTypeValidator}.
+ * Tests related to [databind#2534], support for configuring
+ * {@link BasicPolymorphicTypeValidator} to allow all Array-valued
+ * polymorphic values.
  */
-public class BasicPTV2532Test extends BaseMapTest
+public class BasicPTVWithArraysTest extends BaseMapTest
 {
-    // // // Value types
-
-    static abstract class Base2532 {
+    static abstract class Base2534 {
         public int x = 3;
     }
 
-    static class Good2532 extends Base2532 {
-        protected Good2532() { }
-        public Good2532(int x) {
+    static class Good2534 extends Base2534 {
+        protected Good2534() { }
+        public Good2534(int x) {
             super();
             this.x = x;
         }
     }
 
-    static class Bad2532 extends Base2532 {
-        protected Bad2532() { }
-        public Bad2532(int x) {
+    static class Bad2534 extends Base2534 {
+        protected Bad2534() { }
+        public Bad2534(int x) {
             super();
             this.x = x;
         }
@@ -50,19 +46,17 @@ public class BasicPTV2532Test extends BaseMapTest
     /**********************************************************************
      */
 
-    // [databind#2532]: handle Java array-types appropriately wrt validation
+    // [databind#2534]: handle Java array-types appropriately wrt validation
     public void testAllowBySubClassInArray() throws Exception {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(Good2532.class)
+                .allowIfSubType(Good2534.class)
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();        
 
-        final ObjectWrapper input = new ObjectWrapper(new Base2532[] { new Good2532(42) });
-        final String json = mapper.writeValueAsString(input);
+        final String json = mapper.writeValueAsString(new ObjectWrapper(new Base2534[] { new Good2534(42) }));
 
-System.err.println("JSON: "+json);
         // First test blocked case:
         try {
             mapper.readValue(json, ObjectWrapper.class);
@@ -74,7 +68,8 @@ System.err.println("JSON: "+json);
 
         // and then accepted:
         ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(Good2532.class)
+                .allowIfSubTypeIsArray() // key addition
+                .allowIfSubType(Good2534.class)
                 .build();
         mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
@@ -83,10 +78,20 @@ System.err.println("JSON: "+json);
         ObjectWrapper w = mapper.readValue(json, ObjectWrapper.class);
         assertNotNull(w);
         assertNotNull(w.value);
-        assertEquals(Base2532[].class, w.value.getClass());
-        Base2532[] arrayOut = (Base2532[]) w.value;
+        assertEquals(Base2534[].class, w.value.getClass());
+        Base2534[] arrayOut = (Base2534[]) w.value;
         assertEquals(1, arrayOut.length);
-
         assertEquals(42, arrayOut[0].x);
+
+        // but ensure array-acceptance does NOT allow non-validated element types!
+        final String badJson = mapper.writeValueAsString(new ObjectWrapper(new Base2534[] { new Bad2534(13) }));
+        try {
+            mapper.readValue(badJson, ObjectWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id 'com.fasterxml.jackson.");
+            verifyException(e, "$Bad2534");
+            verifyException(e, "as a subtype of");
+        }
     }
 }

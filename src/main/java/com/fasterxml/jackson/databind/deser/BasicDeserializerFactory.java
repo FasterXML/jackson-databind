@@ -1568,7 +1568,7 @@ nonAnnotatedParamIndex, ctor);
     {
         return OptionalHandlerFactory.instance.findDeserializer(ctxt.getConfig(), type);
     }
-    
+
     /*
     /**********************************************************************
     /* DeserializerFactory impl (partial): key deserializers
@@ -1728,7 +1728,7 @@ nonAnnotatedParamIndex, ctor);
         String clsName = rawType.getName();
         if (rawType.isPrimitive() || clsName.startsWith("java.")) {
             // Primitives/wrappers, other Numbers:
-            JsonDeserializer<?> deser = NumberDeserializers.find(rawType, clsName);
+            JsonDeserializer<?> deser = NumberDeserializers.find(rawType);
             if (deser == null) {
                 deser = DateDeserializers.find(rawType, clsName);
             }
@@ -1745,6 +1745,45 @@ nonAnnotatedParamIndex, ctor);
             return deser;
         }
         return StdJdkDeserializers.find(rawType, clsName);
+    }
+
+    /**
+     * Method that can be used to check if databind module has deserializer
+     * for given (likely JDK) type: explicit meaning that it is not automatically
+     * generated for POJO.
+     *<p>
+     * This matches {@link Deserializers#hasDeserializerFor(Class)} method.
+     *
+     * @since 3.0
+     */
+    protected boolean hasExplicitDeserializerFor(Class<?> valueType) {
+        // Yes, we handle all Enum types
+        if (Enum.class.isAssignableFrom(valueType)) {
+            return true;
+        }
+        // Numbers?
+        final String clsName = valueType.getName();
+        if (clsName.startsWith("java.")) {
+            if (Number.class.isAssignableFrom(valueType)) {
+                return NumberDeserializers.find(valueType) != null;
+            }
+            if ((valueType == CLASS_STRING)
+                    || (valueType == Boolean.class)
+                    || (valueType == EnumMap.class)
+                    || (valueType == AtomicReference.class)
+                    ) {
+                return true;
+            }
+            if (DateDeserializers.hasDeserializerFor(valueType)) {
+                return true;
+            }
+        } else if (clsName.startsWith("com.fasterxml.")) {
+            return JsonNode.class.isAssignableFrom(valueType)
+                   || (valueType == TokenBuffer.class);
+        } else {
+            return OptionalHandlerFactory.instance.hasDeserializerFor(valueType);
+        }
+        return false;
     }
 
     private JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType)

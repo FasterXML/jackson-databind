@@ -76,6 +76,22 @@ public class OptionalHandlerFactory
         return null;
     }
 
+    public boolean hasDeserializerFor(Class<?> valueType) {
+        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(valueType)) {
+            return true;
+        }
+        if ((CLASS_DOM_DOCUMENT != null) && CLASS_DOM_DOCUMENT.isAssignableFrom(valueType)) {
+            return true;
+        }
+        String className = valueType.getName();
+
+        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
+                || hasSuperClassStartingWith(valueType, PACKAGE_PREFIX_JAVAX_XML)) {
+            return CoreXMLDeserializers.hasDeserializerFor(valueType);
+        }
+        return false;
+    }
+    
     /*
     /**********************************************************************
     /* Internal helper methods

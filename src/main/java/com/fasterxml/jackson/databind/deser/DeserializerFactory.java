@@ -201,4 +201,16 @@ public abstract class DeserializerFactory
     public abstract TypeDeserializer findTypeDeserializer(DeserializationConfig config,
             JavaType baseType)
         throws JsonMappingException;
+
+    /**
+     * Method that can be used to check if databind module has deserializer
+     * for given (likely JDK) type: explicit meaning that it is not automatically
+     * generated for POJO.
+     *<p>
+     * This matches {@code Deserializers.Base.hasDeserializerFor(Class)} method.
+     *
+     * @since 2.11
+     */
+    public abstract boolean hasExplicitDeserializerFor(DeserializationConfig config,
+            Class<?> valueType);
 }

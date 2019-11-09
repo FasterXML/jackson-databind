@@ -60,6 +60,11 @@ public class DateDeserializers
         return null;
     }
 
+    // @since 2.11
+    public static boolean hasDeserializerFor(Class<?> rawType) {
+        return _classNames.contains(rawType.getName());
+    }
+
     /*
     /**********************************************************
     /* Intermediate class for Date-based ones

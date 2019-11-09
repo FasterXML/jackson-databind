@@ -108,7 +108,7 @@ public class NumberDeserializers
         // should never occur
         throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());
     }
-    
+
     /*
     /**********************************************************
     /* Then one intermediate base class for things that have

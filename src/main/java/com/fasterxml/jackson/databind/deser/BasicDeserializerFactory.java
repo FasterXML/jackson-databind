@@ -193,7 +193,7 @@ public abstract class BasicDeserializerFactory
 
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl (partial): ValueInstantiators
+    /* DeserializerFactory impl (partial): ValueInstantiators
     /**********************************************************
      */
 
@@ -1108,7 +1108,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl: array deserializers
+    /* DeserializerFactory impl: array deserializers
     /**********************************************************
      */
         
@@ -1154,7 +1154,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************************
-    /* JsonDeserializerFactory impl: Collection(-like) deserializers
+    /* DeserializerFactory impl: Collection(-like) deserializers
     /**********************************************************************
      */
 
@@ -1283,7 +1283,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl: Map(-like) deserializers
+    /* DeserializerFactory impl: Map(-like) deserializers
     /**********************************************************
      */
 
@@ -1443,7 +1443,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl: other types
+    /* DeserializerFactory impl: other types
     /**********************************************************
      */
     
@@ -1560,7 +1560,7 @@ nonAnnotatedParamIndex, ctor);
 
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl (partial): type deserializers
+    /* DeserializerFactory impl (partial): type deserializers
     /**********************************************************
      */
 
@@ -1616,13 +1616,13 @@ nonAnnotatedParamIndex, ctor);
     {
         return OptionalHandlerFactory.instance.findDeserializer(type, ctxt.getConfig(), beanDesc);
     }
-    
+
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl (partial): key deserializers
+    /* DeserializerFactory impl (partial): key deserializers
     /**********************************************************
      */
-    
+
     @Override
     public KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
@@ -1716,6 +1716,44 @@ nonAnnotatedParamIndex, ctor);
         }
         // Also, need to consider @JsonValue, if one found
         return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes);
+    }
+
+    /*
+    /**********************************************************
+    /* DeserializerFactory impl: checking explicitly registered desers
+    /**********************************************************
+     */
+
+    @Override
+    public boolean hasExplicitDeserializerFor(DeserializationConfig config,
+            Class<?> valueType) {
+        // Yes, we handle all Enum types
+        if (Enum.class.isAssignableFrom(valueType)) {
+            return true;
+        }
+        // Numbers?
+        final String clsName = valueType.getName();
+        if (clsName.startsWith("java.")) {
+            if (Number.class.isAssignableFrom(valueType)) {
+                return NumberDeserializers.find(valueType, clsName) != null;
+            }
+            if ((valueType == CLASS_STRING)
+                    || (valueType == Boolean.class)
+                    || (valueType == EnumMap.class)
+                    || (valueType == AtomicReference.class)
+                    ) {
+                return true;
+            }
+            if (DateDeserializers.hasDeserializerFor(valueType)) {
+                return true;
+            }
+        } else if (clsName.startsWith("com.fasterxml.")) {
+            return JsonNode.class.isAssignableFrom(valueType)
+                   || (valueType == TokenBuffer.class);
+        } else {
+            return OptionalHandlerFactory.instance.hasDeserializerFor(valueType);
+        }
+        return false;
     }
 
     /*

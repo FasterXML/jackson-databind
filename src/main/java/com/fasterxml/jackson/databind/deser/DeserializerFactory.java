@@ -143,7 +143,8 @@ public abstract class DeserializerFactory
      *<p>
      * This matches {@link Deserializers#hasDeserializerFor(Class)} method.
      */
-    public abstract boolean hasExplicitDeserializerFor(Class<?> valueType);
+    public abstract boolean hasExplicitDeserializerFor(DatabindContext ctxt,
+            Class<?> valueType);
 
     /*
     /**********************************************************************

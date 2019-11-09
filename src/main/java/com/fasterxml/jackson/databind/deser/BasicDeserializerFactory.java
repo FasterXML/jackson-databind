@@ -1756,7 +1756,8 @@ nonAnnotatedParamIndex, ctor);
      *
      * @since 3.0
      */
-    protected boolean hasExplicitDeserializerFor(Class<?> valueType) {
+    @Override
+    public boolean hasExplicitDeserializerFor(Class<?> valueType) {
         // Yes, we handle all Enum types
         if (Enum.class.isAssignableFrom(valueType)) {
             return true;

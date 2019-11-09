@@ -51,7 +51,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
     }
 
     @Override // since 2.11
-    public boolean hasDeserializerFor(Class<?> valueType) {
+    public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
         return (valueType == QName.class)
                 || (valueType == XMLGregorianCalendar.class)
                 || (valueType == Duration.class)

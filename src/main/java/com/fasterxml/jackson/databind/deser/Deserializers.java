@@ -236,7 +236,7 @@ public interface Deserializers
         throws JsonMappingException;
 
     // To be added in 3.0
-//    public boolean hasDeserializerFor(Class<?> valueType);
+//    public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType);
 
     /*
     /**********************************************************
@@ -348,7 +348,8 @@ public interface Deserializers
          *
          * @since 2.11
          */
-        public boolean hasDeserializerFor(Class<?> valueType) {
+        public boolean hasDeserializerFor(DeserializationConfig config,
+                Class<?> valueType) {
             return false;
         }
 //      public abstract boolean hasDeserializerFor(Class<?> valueType);

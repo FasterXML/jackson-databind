@@ -18,7 +18,8 @@ import com.fasterxml.jackson.databind.type.*;
  * all mappings must be to exact declared deserialization type.
  */
 public class SimpleDeserializers
-   implements Deserializers, java.io.Serializable
+   extends Deserializers.Base
+   implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -78,7 +79,7 @@ public class SimpleDeserializers
     /* Serializers implementation
     /**********************************************************
      */
-    
+
     @Override
     public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
             DeserializationConfig config, BeanDescription beanDesc,
@@ -178,6 +179,12 @@ public class SimpleDeserializers
         throws JsonMappingException
     {
         return _find(type);
+    }
+
+    @Override // since 2.11
+    public boolean hasDeserializerFor(Class<?> valueType) {
+        return (_classMappings != null)
+                && _classMappings.containsKey(new ClassKey(valueType));
     }
 
     private final JsonDeserializer<?> _find(JavaType type) {

@@ -235,6 +235,9 @@ public interface Deserializers
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException;
 
+    // To be added in 3.0
+//    public boolean hasDeserializerFor(Class<?> valueType);
+
     /*
     /**********************************************************
     /* Helper classes
@@ -248,7 +251,8 @@ public interface Deserializers
      * of methods are not needed (especially enumeration and array deserializers are
      * very rarely overridden).
      */
-    public static class Base implements Deserializers
+    public abstract static class Base
+        implements Deserializers
     {
         @Override
         public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
@@ -266,14 +270,13 @@ public interface Deserializers
             return null;
         }
 
-        @Override // since 2.7
+        @Override
         public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
                 DeserializationConfig config, BeanDescription beanDesc,
                 TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
-            throws JsonMappingException {
-            // 21-Oct-2015, tatu: For backwards compatibility, let's delegate to "bean" variant,
-            //    for 2.7 -- remove work-around from 2.8 or later
-            return findBeanDeserializer(refType, config, beanDesc);
+            throws JsonMappingException
+        {
+            return null;
         }
         
         @Override
@@ -330,5 +333,24 @@ public interface Deserializers
         {
             return null;
         }
+
+        /**
+         * Method that may be called to check whether this deserializer provider would provide
+         * deserializer for values of given type, without attempting to construct (and possibly
+         * fail in some cases) actual deserializer. Mostly needed to support validation
+         * of polymorphic type ids.
+         *<p>
+         * Note: implementations should take care NOT to claim supporting types that they do
+         * not recognize as this could to incorrect assumption of safe support by caller.
+         *<p>
+         * Method added in this implementation since adding new methods for interfaces
+         * before Java 8 is not a good idea: will be added in Jackson 3.0 for `Deserializers`.
+         *
+         * @since 2.11
+         */
+        public boolean hasDeserializerFor(Class<?> valueType) {
+            return false;
+        }
+//      public abstract boolean hasDeserializerFor(Class<?> valueType);
     }
 }

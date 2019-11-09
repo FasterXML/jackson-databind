@@ -1681,7 +1681,7 @@ nonAnnotatedParamIndex, ctor);
      * for given (likely JDK) type: explicit meaning that it is not automatically
      * generated for POJO.
      *<p>
-     * This matches {@link Deserializers#hasDeserializerFor(Class)} method.
+     * This matches {@link Deserializers#hasDeserializerFor} method.
      *
      * @since 3.0
      */

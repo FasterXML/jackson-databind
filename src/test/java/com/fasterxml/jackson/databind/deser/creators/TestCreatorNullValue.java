@@ -48,8 +48,12 @@ public class TestCreatorNullValue extends BaseMapTest
             }
             return new ContainedDeserializer();
         }
+
         @Override
-        public boolean hasDeserializerFor(Class<?> valueType) { return false; }
+        public boolean hasDeserializerFor(DeserializationConfig config,
+                Class<?> valueType) {
+            return false;
+        }
     }
 
     protected static class TestModule extends com.fasterxml.jackson.databind.Module

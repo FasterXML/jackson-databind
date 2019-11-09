@@ -248,7 +248,8 @@ public interface Deserializers
      *
      * @since 3.0
      */
-    public boolean hasDeserializerFor(Class<?> valueType);
+    public boolean hasDeserializerFor(DeserializationConfig config,
+            Class<?> valueType);
 
     /*
     /**********************************************************
@@ -347,6 +348,7 @@ public interface Deserializers
         }
 
         @Override
-        public abstract boolean hasDeserializerFor(Class<?> valueType);
+        public abstract boolean hasDeserializerFor(DeserializationConfig config,
+                Class<?> valueType);
     }
 }

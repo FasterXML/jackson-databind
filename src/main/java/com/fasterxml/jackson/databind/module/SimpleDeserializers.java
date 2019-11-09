@@ -176,7 +176,8 @@ public class SimpleDeserializers
     }
 
     @Override // since 2.11
-    public boolean hasDeserializerFor(Class<?> valueType) {
+    public boolean hasDeserializerFor(DeserializationConfig config,
+            Class<?> valueType) {
         return (_classMappings != null)
                 && _classMappings.containsKey(new ClassKey(valueType));
     }

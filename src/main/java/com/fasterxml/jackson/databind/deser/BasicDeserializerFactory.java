@@ -1737,7 +1737,8 @@ nonAnnotatedParamIndex, ctor);
             if (Number.class.isAssignableFrom(valueType)) {
                 return NumberDeserializers.find(valueType, clsName) != null;
             }
-            if ((valueType == CLASS_STRING)
+            if (JdkDeserializers.hasDeserializerFor(valueType)
+                    || (valueType == CLASS_STRING)
                     || (valueType == Boolean.class)
                     || (valueType == EnumMap.class)
                     || (valueType == AtomicReference.class)

@@ -1,12 +1,11 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-
 import com.fasterxml.jackson.databind.*;
 
-public class TestTimestampDeserialization
+public class TimestampDeserializationTest
     extends BaseMapTest
 {
     // As for TestDateDeserialization except we don't need to test date conversion routines, so

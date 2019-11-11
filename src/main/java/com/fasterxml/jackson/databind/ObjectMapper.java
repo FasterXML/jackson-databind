@@ -559,7 +559,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(File src) throws IOException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
     }
 
@@ -573,7 +573,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(URL src) throws IOException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
     }
 
@@ -587,7 +587,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(InputStream in) throws IOException {
         _assertNotNull("in", in);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, in));
     }
 
@@ -601,7 +601,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(Reader r) throws IOException {
         _assertNotNull("r", r);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, r));
     }
 
@@ -615,7 +615,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] content) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
@@ -629,7 +629,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content, offset, len));
     }
 
@@ -643,7 +643,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(String content) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
@@ -657,7 +657,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
@@ -671,7 +671,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content, offset, len));
     }
 
@@ -685,7 +685,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(DataInput content) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
@@ -698,7 +698,7 @@ public class ObjectMapper
      * @since 3.0
      */
     public JsonParser createNonBlockingByteArrayParser() throws IOException {
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteArrayParser(ctxt));
     }
 
@@ -833,7 +833,7 @@ public class ObjectMapper
     @Override
     public JsonParser treeAsTokens(TreeNode n) {
         _assertNotNull("n", n);
-        DeserializationContext ctxt = createDeserializationContext();
+        DeserializationContext ctxt = _deserializationContext();
         return new TreeTraversingParser((JsonNode) n, ctxt);
     }
     
@@ -873,7 +873,7 @@ public class ObjectMapper
                 return null;
             }
         }
-        DeserializationContext ctxt = createDeserializationContext(p);
+        DeserializationContext ctxt = _deserializationContext(p);
         // NOTE! _readValue() will check for trailing tokens
         JsonNode n = (JsonNode) _readValue(ctxt, p, JSON_NODE_TYPE);
         if (n == null) {
@@ -922,7 +922,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = createDeserializationContext(p);
+        DeserializationContext ctxt = _deserializationContext(p);
         return (T) _readValue(ctxt, p, _typeFactory.constructType(valueType));
     } 
 
@@ -946,7 +946,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = createDeserializationContext(p);
+        DeserializationContext ctxt = _deserializationContext(p);
         return (T) _readValue(ctxt, p, _typeFactory.constructType(valueTypeRef));
     }
 
@@ -969,7 +969,7 @@ public class ObjectMapper
     public final <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = createDeserializationContext(p);
+        DeserializationContext ctxt = _deserializationContext(p);
         return (T) _readValue(ctxt, p, (JavaType) valueType);
     }
 
@@ -989,7 +989,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, JavaType valueType) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = createDeserializationContext(p);
+        DeserializationContext ctxt = _deserializationContext(p);
         return (T) _readValue(ctxt, p, valueType);
     }
 
@@ -1014,7 +1014,7 @@ public class ObjectMapper
     public <T> MappingIterator<T> readValues(JsonParser p, JavaType valueType) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = createDeserializationContext(p);
+        DeserializationContext ctxt = _deserializationContext(p);
         JsonDeserializer<?> deser = _findRootDeserializer(ctxt, valueType);
         // false -> do NOT close JsonParser (since caller passed it)
         return new MappingIterator<T>(valueType, p, ctxt, deser,
@@ -1078,7 +1078,7 @@ public class ObjectMapper
     public JsonNode readTree(InputStream in) throws IOException
     {
         _assertNotNull("in", in);
-        DeserializationContext ctxt = createDeserializationContext();
+        DeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, in));
     }
 
@@ -1088,7 +1088,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(Reader r) throws IOException {
         _assertNotNull("r", r);
-        DeserializationContext ctxt = createDeserializationContext();
+        DeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, r));
     }
 
@@ -1098,7 +1098,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(String content) throws IOException {
         _assertNotNull("content", content);
-        DeserializationContext ctxt = createDeserializationContext();
+        DeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
     }
 
@@ -1108,7 +1108,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(byte[] content) throws IOException {
         _assertNotNull("content", content);
-        DeserializationContext ctxt = createDeserializationContext();
+        DeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
     }
 
@@ -1118,7 +1118,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(byte[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        DeserializationContext ctxt = createDeserializationContext();
+        DeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content, offset, len));
     }
 
@@ -1129,7 +1129,7 @@ public class ObjectMapper
     public JsonNode readTree(File file) throws IOException
     {
         _assertNotNull("file", file);
-        DeserializationContext ctxt = createDeserializationContext();
+        DeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, file));
     }
 
@@ -1145,7 +1145,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(URL src) throws IOException {
         _assertNotNull("src", src);
-        DeserializationContext ctxt = createDeserializationContext();
+        DeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, src));
     }
 
@@ -1311,7 +1311,7 @@ public class ObjectMapper
     public <T> T readValue(File src, Class<T> valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
                 _typeFactory.constructType(valueType));
     } 
@@ -1332,7 +1332,7 @@ public class ObjectMapper
     public <T> T readValue(File src, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
                 _typeFactory.constructType(valueTypeRef));
     } 
@@ -1353,7 +1353,7 @@ public class ObjectMapper
     public <T> T readValue(File src, JavaType valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src), valueType);
     }
 
@@ -1379,7 +1379,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, Class<T> valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     } 
@@ -1391,7 +1391,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     } 
@@ -1403,7 +1403,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, JavaType valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), valueType);
     } 
@@ -1425,7 +1425,7 @@ public class ObjectMapper
         throws IOException, JsonParseException, JsonMappingException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueType));
     } 
@@ -1446,7 +1446,7 @@ public class ObjectMapper
     public <T> T readValue(String content, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueTypeRef));
     } 
@@ -1467,7 +1467,7 @@ public class ObjectMapper
     public <T> T readValue(String content, JavaType valueType) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), valueType);
     }
@@ -1476,7 +1476,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, Class<T> valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
@@ -1485,7 +1485,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
@@ -1494,7 +1494,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, JavaType valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), valueType);
     }
@@ -1503,7 +1503,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, Class<T> valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
@@ -1512,7 +1512,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
@@ -1521,7 +1521,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, JavaType valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), valueType);
     }
@@ -1530,7 +1530,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] content, Class<T> valueType) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueType));
     }
@@ -1539,7 +1539,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] content, int offset, int len, Class<T> valueType) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content, offset, len), _typeFactory.constructType(valueType));
     }
@@ -1548,7 +1548,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] content, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueTypeRef));
     }
@@ -1557,7 +1557,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] content, int offset, int len, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content, offset, len),
                 _typeFactory.constructType(valueTypeRef));
@@ -1567,7 +1567,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] content, JavaType valueType) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), valueType);
     }
@@ -1577,7 +1577,7 @@ public class ObjectMapper
                            JavaType valueType) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content, offset, len), valueType);
     } 
@@ -1586,7 +1586,7 @@ public class ObjectMapper
     public <T> T readValue(DataInput src, Class<T> valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
@@ -1595,7 +1595,7 @@ public class ObjectMapper
     public <T> T readValue(DataInput src, JavaType valueType) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), valueType);
     }
@@ -2152,7 +2152,7 @@ public class ObjectMapper
             prov.serializeValue(buf, fromValue);
 
             // then matching read, inlined 'readValue' with minor mods:
-            DefaultDeserializationContext readCtxt = createDeserializationContext();
+            DefaultDeserializationContext readCtxt = _deserializationContext();
             final JsonParser p = buf.asParser(readCtxt);
             readCtxt.assignParser(p);
             Object result;
@@ -2468,18 +2468,18 @@ public class ObjectMapper
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected DefaultDeserializationContext createDeserializationContext(JsonParser p) {
+    protected DefaultDeserializationContext _deserializationContext(JsonParser p) {
         return _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues)
                 .assignParser(p);
     }
 
-    protected DefaultDeserializationContext createDeserializationContext() {
+    protected DefaultDeserializationContext _deserializationContext() {
         return _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues);
     }
 
-    protected DefaultDeserializationContext createDeserializationContext(DeserializationConfig config,
+    protected DefaultDeserializationContext _deserializationContext(DeserializationConfig config,
             JsonParser p) {
         return _deserializationContexts.createContext(config,
                 /* FormatSchema */ null, _injectableValues)

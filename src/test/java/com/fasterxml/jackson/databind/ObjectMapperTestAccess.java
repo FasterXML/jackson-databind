@@ -9,7 +9,7 @@ package com.fasterxml.jackson.databind;
 public class ObjectMapperTestAccess
 {
     public static BeanDescription beanDescriptionForDeser(ObjectMapper mapper, Class<?> type) {
-        return mapper.createDeserializationContext().introspectBeanDescription(mapper.constructType(type));
+        return mapper._deserializationContext().introspectBeanDescription(mapper.constructType(type));
     }
 
     public static BeanDescription beanDescriptionForSer(ObjectMapper mapper, Class<?> type) {

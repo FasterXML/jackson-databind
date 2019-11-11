@@ -758,7 +758,7 @@ public class ObjectReader
      */
     public JsonParser createParser(File src) throws IOException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, src));
     }
 
@@ -772,7 +772,7 @@ public class ObjectReader
      */
     public JsonParser createParser(URL src) throws IOException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, src));
     }
 
@@ -786,7 +786,7 @@ public class ObjectReader
      */
     public JsonParser createParser(InputStream src) throws IOException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, src));
     }
 
@@ -800,7 +800,7 @@ public class ObjectReader
      */
     public JsonParser createParser(Reader src) throws IOException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, src));
     }
 
@@ -814,7 +814,7 @@ public class ObjectReader
      */
     public JsonParser createParser(byte[] content) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, content));
     }
 
@@ -828,7 +828,7 @@ public class ObjectReader
      */
     public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, content, offset, len));
     }
 
@@ -842,7 +842,7 @@ public class ObjectReader
      */
     public JsonParser createParser(String content) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, content));
     }
 
@@ -856,7 +856,7 @@ public class ObjectReader
      */
     public JsonParser createParser(char[] content) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, content));
     }
 
@@ -870,7 +870,7 @@ public class ObjectReader
      */
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, content, offset, len));
     }
 
@@ -884,7 +884,7 @@ public class ObjectReader
      */
     public JsonParser createParser(DataInput content) throws IOException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, content));
     }
 
@@ -897,7 +897,7 @@ public class ObjectReader
      * @since 3.0
      */
     public JsonParser createNonBlockingByteArrayParser() throws IOException {
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_parserFactory.createNonBlockingByteArrayParser(ctxt));
     }
 
@@ -940,7 +940,7 @@ public class ObjectReader
     @Override
     public JsonParser treeAsTokens(TreeNode n) {
         _assertNotNull("n", n);
-        return treeAsTokens((JsonNode) n, createDeserializationContext());
+        return treeAsTokens((JsonNode) n, _deserializationContext());
     }
 
     protected JsonParser treeAsTokens(JsonNode n, DeserializationContext ctxt) {
@@ -967,7 +967,7 @@ public class ObjectReader
     @Override
     public JsonNode readTree(JsonParser p) throws IOException {
         _assertNotNull("p", p);
-        return _bindAsTreeOrNull(createDeserializationContext(p), p);
+        return _bindAsTreeOrNull(_deserializationContext(p), p);
     }
 
     // Alas, can't really support this part...
@@ -993,7 +993,7 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p) throws IOException {
         _assertNotNull("p", p);
-        DefaultDeserializationContext ctxt = createDeserializationContext(p);
+        DefaultDeserializationContext ctxt = _deserializationContext(p);
         return (T) _bind(ctxt, p, _valueToUpdate);
     }
 
@@ -1143,7 +1143,7 @@ public class ObjectReader
     public <T> T readValue(InputStream src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
@@ -1158,7 +1158,7 @@ public class ObjectReader
     public <T> T readValue(Reader src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
@@ -1173,7 +1173,7 @@ public class ObjectReader
     public <T> T readValue(String src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
@@ -1188,7 +1188,7 @@ public class ObjectReader
     public <T> T readValue(byte[] content) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content), false));
     }
@@ -1203,7 +1203,7 @@ public class ObjectReader
     public <T> T readValue(byte[] content, int offset, int length) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content, offset, length), false));
     }
@@ -1212,7 +1212,7 @@ public class ObjectReader
     public <T> T readValue(File src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
@@ -1234,7 +1234,7 @@ public class ObjectReader
     public <T> T readValue(URL src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
@@ -1250,7 +1250,7 @@ public class ObjectReader
     public <T> T readValue(JsonNode content) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(treeAsTokens(content, ctxt), false));
     }
@@ -1259,7 +1259,7 @@ public class ObjectReader
     public <T> T readValue(DataInput content) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content), false));
     }
@@ -1290,7 +1290,7 @@ public class ObjectReader
     public JsonNode readTree(InputStream src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndCloseAsTree(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
@@ -1302,7 +1302,7 @@ public class ObjectReader
     public JsonNode readTree(Reader src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndCloseAsTree(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
@@ -1314,7 +1314,7 @@ public class ObjectReader
     public JsonNode readTree(String content) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndCloseAsTree(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content), false));
     }
@@ -1326,7 +1326,7 @@ public class ObjectReader
     public JsonNode readTree(byte[] content) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndCloseAsTree(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content), false));
     }
@@ -1338,7 +1338,7 @@ public class ObjectReader
     public JsonNode readTree(byte[] content, int offset, int len) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndCloseAsTree(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content, offset, len), false));
     }
@@ -1350,7 +1350,7 @@ public class ObjectReader
     public JsonNode readTree(DataInput content) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndCloseAsTree(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content), false));
     }
@@ -1376,7 +1376,7 @@ public class ObjectReader
         throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = createDeserializationContext(p);
+        DeserializationContext ctxt = _deserializationContext(p);
         // false -> do not close as caller gave parser instance
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), false);
     }
@@ -1404,7 +1404,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(InputStream src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndReadValues(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
@@ -1416,7 +1416,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(Reader src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, src), true);
         _initForMultiRead(ctxt, p);
         p.nextToken();
@@ -1432,7 +1432,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(String content) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         JsonParser p = _considerFilter(_parserFactory.createParser(ctxt, content), true);
         _initForMultiRead(ctxt, p);
         p.nextToken();
@@ -1445,7 +1445,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(byte[] content, int offset, int length) throws IOException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndReadValues(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content, offset, length), true));
     }
@@ -1464,7 +1464,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(File src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndReadValues(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
@@ -1483,7 +1483,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(URL src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndReadValues(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
@@ -1491,7 +1491,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(DataInput src) throws IOException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = createDeserializationContext();
+        DefaultDeserializationContext ctxt = _deserializationContext();
         return _bindAndReadValues(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
@@ -1762,11 +1762,11 @@ public class ObjectReader
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected DefaultDeserializationContext createDeserializationContext() {
+    protected DefaultDeserializationContext _deserializationContext() {
         return _contexts.createContext(_config, _schema, _injectableValues);
     }
 
-    protected DefaultDeserializationContext createDeserializationContext(JsonParser p) {
+    protected DefaultDeserializationContext _deserializationContext(JsonParser p) {
         return _contexts.createContext(_config, _schema, _injectableValues)
                 .assignParser(p);
     }
@@ -1852,7 +1852,7 @@ public class ObjectReader
         if (deser == null) {
             try {
                 // If not, need to resolve; for which we need a temporary context as well:
-                DeserializationContext ctxt = createDeserializationContext();
+                DeserializationContext ctxt = _deserializationContext();
                 deser = ctxt.findRootValueDeserializer(valueType);
                 if (deser != null) {
                     _rootDeserializers.put(valueType, deser);

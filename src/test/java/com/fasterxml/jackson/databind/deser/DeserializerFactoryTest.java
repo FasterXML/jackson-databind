@@ -4,7 +4,15 @@ import com.fasterxml.jackson.databind.*;
 
 public class DeserializerFactoryTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = sharedMapper();
+    // NOTE: need custom ObjectMapper subtype to create Deserializer
+    @SuppressWarnings("serial")
+    static class AccessibleMapper extends ObjectMapper {
+        public DefaultDeserializationContext deserializationContext() {
+            return _deserializationContext();
+        }
+    }
+
+    private final AccessibleMapper MAPPER = new AccessibleMapper();
 
     static class POJO2539 { }
 
@@ -35,10 +43,9 @@ public class DeserializerFactoryTest extends BaseMapTest
     }
 
     private boolean _verifyDeserExistence(Class<?> rawType) {
-        DeserializationContext ctxt = MAPPER.getDeserializationContext();
+        DeserializationContext ctxt = MAPPER.deserializationContext();
         DeserializerFactory factory = ctxt.getFactory();
-        DeserializationConfig config = MAPPER.getDeserializationConfig();
 
-        return factory.hasExplicitDeserializerFor(config, rawType);
+        return factory.hasExplicitDeserializerFor(ctxt, rawType);
     }
 }

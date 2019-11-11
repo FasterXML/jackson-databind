@@ -1689,6 +1689,13 @@ nonAnnotatedParamIndex, ctor);
     public boolean hasExplicitDeserializerFor(DatabindContext ctxt,
             Class<?> valueType)
     {
+        // First things first: unpeel Array types as the element type is
+        // what we are interested in -- this because we will always support array
+        // types via composition, and since array types are JDK provided (and hence
+        // can not be custom or customized).
+        while (valueType.isArray()) {
+            valueType = valueType.getComponentType();
+        }
         // Yes, we handle all Enum types
         if (Enum.class.isAssignableFrom(valueType)) {
             return true;
@@ -1696,6 +1703,12 @@ nonAnnotatedParamIndex, ctor);
         // Numbers?
         final String clsName = valueType.getName();
         if (clsName.startsWith("java.")) {
+            if (Collection.class.isAssignableFrom(valueType)) {
+                return true;
+            }
+            if (Map.class.isAssignableFrom(valueType)) {
+                return true;
+            }
             if (Number.class.isAssignableFrom(valueType)) {
                 return NumberDeserializers.find(valueType) != null;
             }

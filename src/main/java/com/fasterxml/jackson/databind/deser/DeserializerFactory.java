@@ -137,11 +137,20 @@ public abstract class DeserializerFactory
         throws JsonMappingException;
 
     /**
-     * Method that can be used to check if databind module has deserializer
-     * for given (likely JDK) type: explicit meaning that it is not automatically
-     * generated for POJO.
+     * Method that can be used to check if databind module has explicitly declared deserializer
+     * for given (likely JDK) type, explicit meaning that there is specific deserializer for
+     * given type as opposed to auto-generated "Bean" deserializer. Factory itself will check
+     * for known JDK-provided types, but registered {@link com.fasterxml.jackson.databind.Module}s
+     * are also called to see if they might provide explicit deserializer.
+     *<p> 
+     * Main use for this method is with Safe Default Typing (and generally Safe Polymorphic
+     * Deserialization), during which it is good to be able to check that given raw type
+     * is explicitly supported and as such "known type" (as opposed to potentially
+     * dangerous "gadget type" which could be exploited).
      *<p>
-     * This matches {@link Deserializers#hasDeserializerFor(Class)} method.
+     * This matches {@code Deserializers.Base.hasDeserializerFor(Class)} method, which is
+     * the mechanism used to determine if a {@code Module} might provide an explicit
+     * deserializer instead of core databind.
      */
     public abstract boolean hasExplicitDeserializerFor(DatabindContext ctxt,
             Class<?> valueType);

@@ -11,17 +11,34 @@ public class DeserializerFactoryTest extends BaseMapTest
     // [databind#2539]: check existence of deserializer for type
     public void testJDKDeserializerExistence() throws Exception
     {
+
+        // First verify some basic types
+        _verifyIsFound(String.class);
+        _verifyIsFound(java.math.BigDecimal.class);
+        _verifyIsFound(java.net.URL.class);
+        _verifyIsFound(java.util.UUID.class);
+
+        // and also negative testing
+        _verifyNotFound(Object.class);
+    }
+
+    private void _verifyIsFound(Class<?> rawType) {
+        if (!_verifyDeserExistence(rawType)) {
+            fail("Should have explicit deserializer for "+rawType.getName());
+        }
+    }
+
+    private void _verifyNotFound(Class<?> rawType) {
+        if (_verifyDeserExistence(rawType)) {
+            fail("Should NOT have explicit deserializer for "+rawType.getName());
+        }
+    }
+
+    private boolean _verifyDeserExistence(Class<?> rawType) {
         DeserializationContext ctxt = MAPPER.getDeserializationContext();
         DeserializerFactory factory = ctxt.getFactory();
         DeserializationConfig config = MAPPER.getDeserializationConfig();
 
-        // First verify some basic types
-        assertTrue(factory.hasExplicitDeserializerFor(config, String.class));
-        assertTrue(factory.hasExplicitDeserializerFor(config, java.math.BigDecimal.class));
-        assertTrue(factory.hasExplicitDeserializerFor(config, java.net.URL.class));
-        assertTrue(factory.hasExplicitDeserializerFor(config, java.util.UUID.class));
-
-        // and also negative testing
-        assertFalse(factory.hasExplicitDeserializerFor(config, Object.class));
+        return factory.hasExplicitDeserializerFor(config, rawType);
     }
 }

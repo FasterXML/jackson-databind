@@ -376,7 +376,7 @@ public abstract class BasicSerializerFactory
             }
             return NumberSerializer.instance;
         }
-        if (type.isTypeOrSubTypeOf(Enum.class)) {
+        if (type.isEnumType()) {
             return buildEnumSerializer(ctxt, type, beanDesc,
                     _calculateEffectiveFormat(beanDesc, Enum.class, formatOverrides));
         }
@@ -645,7 +645,7 @@ public abstract class BasicSerializerFactory
                     // this may or may not be available (Class doesn't; type of field/method does)
                     JavaType enumType = type.getContentType();
                     // and even if nominally there is something, only use if it really is enum
-                    if (!enumType.isEnumType()) {
+                    if (!enumType.isEnumImplType()) { // usually since it's `Enum.class`
                         enumType = null;
                     }
                     ser = buildEnumSetSerializer(enumType);

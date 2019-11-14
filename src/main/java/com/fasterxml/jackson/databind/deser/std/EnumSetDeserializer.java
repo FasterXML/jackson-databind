@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Standard deserializer for {@link EnumSet}s.
@@ -24,22 +23,16 @@ public class EnumSetDeserializer
 {
     protected final JavaType _enumType;
 
-    protected final Class<Enum> _enumClass;
-
     protected JsonDeserializer<Enum<?>> _enumDeserializer;
 
     /**
      * Handler we need for dealing with nulls.
-     *
-     * @since 2.10.1
      */
     protected final NullValueProvider _nullProvider;
 
     /**
      * Marker flag set if the <code>_nullProvider</code> indicates that all null
      * content values should be skipped (instead of being possibly converted).
-     *
-     * @since 2.10.1
      */
     protected final boolean _skipNullValues;
 
@@ -51,9 +44,9 @@ public class EnumSetDeserializer
     protected final Boolean _unwrapSingle;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked" )
@@ -61,9 +54,8 @@ public class EnumSetDeserializer
     {
         super(EnumSet.class);
         _enumType = enumType;
-        _enumClass = (Class<Enum>) enumType.getRawClass();
         // sanity check
-        if (!ClassUtil.isEnumType(_enumClass)) {
+        if (!enumType.isEnumType()) {
             throw new IllegalArgumentException("Type "+enumType+" not Java Enum type");
         }
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
@@ -77,7 +69,6 @@ public class EnumSetDeserializer
             JsonDeserializer<?> deser, NullValueProvider nuller, Boolean unwrapSingle) {
         super(base);
         _enumType = base._enumType;
-        _enumClass = base._enumClass;
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
         _nullProvider = nuller;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
@@ -108,9 +99,9 @@ public class EnumSetDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic metadata
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -142,9 +133,9 @@ public class EnumSetDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Contextualization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -163,9 +154,9 @@ public class EnumSetDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonDeserializer API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -231,7 +222,7 @@ public class EnumSetDeserializer
     @SuppressWarnings("unchecked") 
     private EnumSet constructSet()
     {
-        return EnumSet.noneOf(_enumClass);
+        return EnumSet.noneOf((Class<Enum>) _enumType.getRawClass());
     }
 
     @SuppressWarnings("unchecked") 

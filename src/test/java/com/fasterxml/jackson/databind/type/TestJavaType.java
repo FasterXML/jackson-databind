@@ -25,6 +25,22 @@ public class TestJavaType
         private MyEnum2(int value) { }
     }
 
+    static enum MyEnumSub {
+        A(1) {
+            @Override public String toString() { 
+                return "a";
+            }
+        },
+        B(2) {
+            @Override public String toString() { 
+                return "b";
+            }
+        }
+        ;
+
+        private MyEnumSub(int value) { }
+    }
+    
     // [databind#728]
     static class Issue728 {
         public <C extends CharSequence> C method(C input) { return null; }
@@ -105,7 +121,8 @@ public class TestJavaType
 
         assertTrue(arrayT.equals(arrayT));
         assertFalse(arrayT.equals(null));
-        assertFalse(arrayT.equals("xyz"));
+        final Object bogus = "xyz";
+        assertFalse(arrayT.equals(bogus));
 
         assertTrue(arrayT.equals(ArrayType.construct(tf.constructType(String.class), null)));
         assertFalse(arrayT.equals(ArrayType.construct(tf.constructType(Integer.class), null)));
@@ -128,14 +145,19 @@ public class TestJavaType
         
         assertTrue(mapT.equals(mapT));
         assertFalse(mapT.equals(null));
-        assertFalse(mapT.equals("xyz"));
+        Object bogus = "xyz";
+        assertFalse(mapT.equals(bogus));
     }
-    
+
     public void testEnumType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         JavaType enumT = tf.constructType(MyEnum.class);
+        // JDK actually works fine with "basic" Enum types...
+        assertTrue(enumT.getRawClass().isEnum());
         assertTrue(enumT.isEnumType());
+        assertTrue(enumT.isEnumImplType());
+
         assertFalse(enumT.hasHandlers());
         assertTrue(enumT.isTypeOrSubTypeOf(MyEnum.class));
         assertTrue(enumT.isTypeOrSubTypeOf(Object.class));
@@ -148,6 +170,17 @@ public class TestJavaType
         assertTrue(tf.constructType(MyEnum2.class).isEnumType());
         assertTrue(tf.constructType(MyEnum.A.getClass()).isEnumType());
         assertTrue(tf.constructType(MyEnum2.A.getClass()).isEnumType());
+
+        // [databind#2480]
+        assertFalse(tf.constructType(Enum.class).isEnumImplType());
+        JavaType enumSubT = tf.constructType(MyEnumSub.B.getClass());
+        assertTrue(enumSubT.isEnumType());
+        assertTrue(enumSubT.isEnumImplType());
+
+        // and this is kind of odd twist by JDK: one might except this to return true,
+        // but no, sub-classes (when Enum values have overrides, and require sub-class)
+        // are NOT considered enums for whatever reason
+        assertFalse(enumSubT.getRawClass().isEnum());
     }
 
     public void testClassKey()

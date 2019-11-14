@@ -1313,8 +1313,7 @@ nonAnnotatedParamIndex, ctor);
                 } else {
                     inst = findValueInstantiator(ctxt, beanDesc);
                 }
-                Class<?> kt = keyType.getRawClass();
-                if (kt == null || !ClassUtil.isEnumType(kt)) {
+                if (!keyType.isEnumImplType()) {
                     throw new IllegalArgumentException("Cannot construct EnumMap; generic (key) type not available");
                 }
                 deser = new EnumMapDeserializer(type, inst, null,

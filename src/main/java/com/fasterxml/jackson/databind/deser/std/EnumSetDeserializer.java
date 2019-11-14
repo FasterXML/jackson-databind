@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Standard deserializer for {@link EnumSet}s.
@@ -27,8 +26,6 @@ public class EnumSetDeserializer
     private static final long serialVersionUID = 1L; // since 2.5
 
     protected final JavaType _enumType;
-
-    protected final Class<Enum> _enumClass;
 
     protected JsonDeserializer<Enum<?>> _enumDeserializer;
 
@@ -67,9 +64,8 @@ public class EnumSetDeserializer
     {
         super(EnumSet.class);
         _enumType = enumType;
-        _enumClass = (Class<Enum>) enumType.getRawClass();
         // sanity check
-        if (!ClassUtil.isEnumType(_enumClass)) {
+        if (!enumType.isEnumType()) {
             throw new IllegalArgumentException("Type "+enumType+" not Java Enum type");
         }
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
@@ -96,7 +92,6 @@ public class EnumSetDeserializer
             JsonDeserializer<?> deser, NullValueProvider nuller, Boolean unwrapSingle) {
         super(base);
         _enumType = base._enumType;
-        _enumClass = base._enumClass;
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
         _nullProvider = nuller;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
@@ -250,7 +245,7 @@ public class EnumSetDeserializer
     @SuppressWarnings("unchecked") 
     private EnumSet constructSet()
     {
-        return EnumSet.noneOf(_enumClass);
+        return EnumSet.noneOf((Class<Enum>) _enumType.getRawClass());
     }
 
     @SuppressWarnings("unchecked") 
@@ -267,7 +262,7 @@ public class EnumSetDeserializer
         }
         // First: since `null`s not allowed, slightly simpler...
         if (p.hasToken(JsonToken.VALUE_NULL)) {
-            return (EnumSet<?>) ctxt.handleUnexpectedToken(_enumClass, p);
+            return (EnumSet<?>) ctxt.handleUnexpectedToken(_enumType, p);
         }
         try {
             Enum<?> value = _enumDeserializer.deserialize(p, ctxt);

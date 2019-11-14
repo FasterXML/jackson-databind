@@ -418,8 +418,11 @@ public abstract class BasicSerializerFactory
             boolean staticTyping)
         throws JsonMappingException
     {
-        Class<?> raw = type.getRawClass();
-        
+        if (type.isEnumType()) {
+            return buildEnumSerializer(prov.getConfig(), type, beanDesc);
+        }
+
+        final Class<?> raw = type.getRawClass();
         // Then check for optional/external serializers 
         JsonSerializer<?> ser = findOptionalStdSerializer(prov, type, beanDesc, staticTyping);
         if (ser != null) {
@@ -470,9 +473,6 @@ public abstract class BasicSerializerFactory
                 }
             }
             return NumberSerializer.instance;
-        }
-        if (ClassUtil.isEnumType(raw) && raw != Enum.class) {
-            return buildEnumSerializer(prov.getConfig(), type, beanDesc);
         }
         return null;
     }
@@ -714,7 +714,7 @@ public abstract class BasicSerializerFactory
                     // this may or may not be available (Class doesn't; type of field/method does)
                     JavaType enumType = type.getContentType();
                     // and even if nominally there is something, only use if it really is enum
-                    if (!enumType.isEnumType()) {
+                    if (!enumType.isEnumImplType()) { // usually since it's `Enum.class`
                         enumType = null;
                     }
                     ser = buildEnumSetSerializer(enumType);

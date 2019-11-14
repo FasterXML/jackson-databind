@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Base class for type token classes used both to contain information
@@ -289,11 +290,18 @@ public abstract class JavaType
 
     @Override
     public final boolean isEnumType() {
-        // 29-Sep-2019, tatu: `Class.isEnum()` not enough to detect custom subtypes,
-        //   but for some reason this fix will break couple of unit tests:
-        // See [databind#2480]:
-//        return ClassUtil.isEnumType(_class);
-        return _class.isEnum();
+        // 29-Sep-2019, tatu: `Class.isEnum()` not enough to detect custom subtypes.
+        return ClassUtil.isEnumType(_class);
+    }
+
+    /**
+     * Similar to {@link #isEnumType} except does NOT return {@code true}
+     * for {@link java.lang.Enum} (since that is not Enum implementation type).
+     *
+     * @since 2.11
+     */
+    public final boolean isEnumImplType() {
+        return ClassUtil.isEnumType(_class) && (_class != Enum.class);
     }
 
     @Override

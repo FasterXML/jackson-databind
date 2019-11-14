@@ -5,8 +5,10 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
@@ -23,7 +25,6 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -420,13 +421,13 @@ public abstract class BeanSerializerBase
 
         // Let's start with one big transmutation: Enums that are annotated
         // to serialize as Objects may want to revert
-        JsonFormat.Value format = findFormatOverrides(provider, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(provider, property, _handledType);
         JsonFormat.Shape shape = null;
         if ((format != null) && format.hasShape()) {
             shape = format.getShape();
             // or, alternatively, asked to revert "back to" other representations...
             if ((shape != JsonFormat.Shape.ANY) && (shape != _serializationShape)) {
-                if (ClassUtil.isEnumType(_handledType)) {
+                if (_beanType.isEnumType()) {
                     switch (shape) {
                     case STRING:
                     case NUMBER:

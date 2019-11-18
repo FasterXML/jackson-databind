@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2526: Block two more gadget types (ehcache/JNDI - CVEs to be allocated)
   (repoerted by UltramanGaia)
+#2544: java.lang.NoClassDefFoundError Thrown for compact profile1
+  (reported by Jon A)
 
 2.9.10.1 (20-Oct-2019)
 

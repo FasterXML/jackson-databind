@@ -51,7 +51,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         try {
             node = org.w3c.dom.Node.class;
             doc = org.w3c.dom.Document.class;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // not optimal but will do
             Logger.getLogger(OptionalHandlerFactory.class.getName())
                 .log(Level.INFO, "Could not load DOM `Node` and/or `Document` classes: no DOM support");

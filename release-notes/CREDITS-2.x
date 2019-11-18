@@ -664,10 +664,6 @@ svarzee@github
   * Reported #2109, suggested fix: Canonical string for reference type is built incorrectly
    (2.8.11.3 / 2.9.7)
 
-Kaki King (kingkk9279@g)
-  * Reported #2449: Block one more gadget type (cve CVE-2019-14540)
-   (2.9.10)
-  
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)
@@ -889,6 +885,14 @@ Joe Barnett (josephlbarnett@github)
   * Reported, contributed fix for #2404: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY setting
     ignored when creator properties are buffered
    (2.9.10)
+
+Kaki King (kingkk9279@g)
+  * Reported #2449: Block one more gadget type (cve CVE-2019-14540)
+   (2.9.10)
+
+Jon Anderson (Jon901@github)
+  * Reported #2544: java.lang.NoClassDefFoundError Thrown for compact profile1
+   (2.9.10.2)
 
 Zihui Ren (renzihui@github)
   * Suggested #2129: Add `SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX`, separate from value setting

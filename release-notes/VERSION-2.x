@@ -22,6 +22,11 @@ Project: jackson-databind
 #2525: Incorrect `JsonStreamContext` for `TokenBuffer` and `TreeTraversingParser`
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
+2.10.2 (not yet released)
+
+#2544: java.lang.NoClassDefFoundError Thrown for compact profile1
+  (reported by Jon A)
+
 2.10.1 (09-Nov-2019)
 
 #2457: Extended enum values are not handled as enums when used as Map keys

@@ -2,7 +2,11 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.*;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -12,6 +16,15 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
+
+// https://github.com/FasterXML/jackson-databind/issues/2083
+// TODO:
+// - add LambdaMetafactoryUtils
+// - add support of set and return
+// - add support for primitives
+// - tests of performance
+// - create pull request
+
 
 /**
  * This concrete sub-class implements property that is set
@@ -29,6 +42,8 @@ public final class MethodProperty
      * "regular" method-accessible properties.
      */
     protected final transient Method _setter;
+    protected final transient BiConsumer consumer;
+    protected final transient Object primitiveConsumer;
 
     /**
      * @since 2.9
@@ -42,6 +57,8 @@ public final class MethodProperty
         super(propDef, type, typeDeser, contextAnnotations);
         _annotated = method;
         _setter = method.getAnnotated();
+        primitiveConsumer = getPrimitiveConsumer();
+        consumer = getConsumer();
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
@@ -50,6 +67,9 @@ public final class MethodProperty
         super(src, deser, nva);
         _annotated = src._annotated;
         _setter = src._setter;
+        primitiveConsumer = getPrimitiveConsumer();
+        consumer = getConsumer();
+
         _skipNulls = NullsConstantProvider.isSkipper(nva);
     }
 
@@ -57,7 +77,135 @@ public final class MethodProperty
         super(src, newName);
         _annotated = src._annotated;
         _setter = src._setter;
+        primitiveConsumer = getPrimitiveConsumer();
+        consumer = getConsumer();
+
         _skipNulls = src._skipNulls;
+    }
+
+    private BiConsumer getConsumer() {
+        Class<?> setterParameterType = _setter.getParameterTypes()[0];
+        if (setterParameterType.isPrimitive()) {
+//            if (setterParameterType == int.class)
+//                return (a, b) -> ((ObjIntConsumer) primitiveConsumer).accept(a, (int) b);
+//            if (setterParameterType == long.class)
+//                return (a, b) -> ((ObjLongConsumer) primitiveConsumer).accept(a, (long) b);
+            return null;
+        } else {
+            try {
+                return getBiConsumerObjectSetter(unreflect(_setter));
+            } catch (Throwable throwable) {
+                return null;
+            }
+        }
+    }
+
+    private Object getPrimitiveConsumer() {
+        Class<?> setterParameterType = _setter.getParameterTypes()[0];
+        if (setterParameterType.isPrimitive()) {
+            try {
+                if (setterParameterType == int.class) {
+                        return getIntSetter(unreflect(_setter));
+                }
+                if (setterParameterType == long.class)
+                    return getLongSetter(unreflect(_setter));
+            } catch (Throwable throwable) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private static MethodHandle unreflect(Method method) {
+        try {
+            final MethodHandles.Lookup caller = getLookup(method);
+
+            return caller.unreflect(method);
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
+    private static MethodHandles.Lookup getLookup(Method method) throws NoSuchFieldException, IllegalAccessException {
+        // Define black magic.
+        final MethodHandles.Lookup original = MethodHandles.lookup();
+        final Field internal = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
+        internal.setAccessible(true);
+        final MethodHandles.Lookup trusted = (MethodHandles.Lookup) internal.get(original);
+
+        // Invoke black magic.
+        return trusted.in(method.getDeclaringClass());
+    }
+
+    private ObjIntConsumer getIntSetter(MethodHandle methodHandle) throws Throwable {
+        final Class<?> functionKlaz = ObjIntConsumer.class;
+        Object o = getSetter(methodHandle, functionKlaz);
+        return (ObjIntConsumer) o;
+    }
+
+    private ObjLongConsumer getLongSetter(MethodHandle methodHandle) throws Throwable {
+        final Class<?> functionKlaz = ObjLongConsumer.class;
+        Object o = getSetter(methodHandle, functionKlaz);
+        return (ObjLongConsumer) o;
+    }
+
+    private BiConsumer getBiConsumerObjectSetter(MethodHandle methodHandle) throws Throwable {
+        final Class<?> functionKlaz = BiConsumer.class;
+        Object o = getBiConsumerSetter(methodHandle, functionKlaz);
+        return (BiConsumer) o;
+    }
+
+    private Object getSetter(MethodHandle methodHandle, Class<?> functionKlaz) throws Throwable {
+        final String functionName = "accept";
+        final Class<?> functionReturn = void.class;
+        Class<?> aClass = !methodHandle.type().parameterType(1).isPrimitive()
+                ? Object.class
+                : methodHandle.type().parameterType(1);
+        final Class<?>[] functionParams = new Class<?>[] { Object.class,
+                aClass};
+
+        final MethodType factoryMethodType = MethodType
+                .methodType(functionKlaz);
+        final MethodType functionMethodType = MethodType.methodType(
+                functionReturn, functionParams);
+
+        final CallSite setterFactory = LambdaMetafactory.metafactory( //
+                getLookup(_setter), // Represents a lookup context.
+                functionName, // The name of the method to implement.
+                factoryMethodType, // Signature of the factory method.
+                functionMethodType, // Signature of function implementation.
+                methodHandle, // Function method implementation.
+                methodHandle.type() // Function method type signature.
+        );
+
+        final MethodHandle setterInvoker = setterFactory.getTarget();
+        return setterInvoker.invoke();
+    }
+
+
+    private Object getBiConsumerSetter(MethodHandle methodHandle, Class<?> functionKlaz) throws Throwable {
+        final String functionName = "accept";
+        final Class<?> functionReturn = void.class;
+        Class<?> aClass = Object.class;
+        final Class<?>[] functionParams = new Class<?>[] { Object.class,
+                aClass};
+
+        final MethodType factoryMethodType = MethodType
+                .methodType(functionKlaz);
+        final MethodType functionMethodType = MethodType.methodType(
+                functionReturn, functionParams);
+
+        final CallSite setterFactory = LambdaMetafactory.metafactory( //
+                getLookup(_setter), // Represents a lookup context.
+                functionName, // The name of the method to implement.
+                factoryMethodType, // Signature of the factory method.
+                functionMethodType, // Signature of function implementation.
+                methodHandle, // Function method implementation.
+                methodHandle.type() // Function method type signature.
+        );
+
+        final MethodHandle setterInvoker = setterFactory.getTarget();
+        return setterInvoker.invoke();
     }
 
     /**
@@ -67,6 +215,9 @@ public final class MethodProperty
         super(src);
         _annotated = src._annotated;
         _setter = m;
+        primitiveConsumer = getPrimitiveConsumer();
+        consumer = getConsumer();
+
         _skipNulls = src._skipNulls;
     }
 
@@ -138,7 +289,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            _setter.invoke(instance, value);
+            invokeWithoutResult(ctxt.isEnabled(DeserializationFeature.LAMBDA_METAFACTORY_AS_INVOKER), instance, value);
         } catch (Exception e) {
             _throwAsIOE(p, e, value);
         }
@@ -167,7 +318,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            Object result = _setter.invoke(instance, value);
+            Object result = invokeWithResult(instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
             _throwAsIOE(p, e, value);
@@ -175,11 +326,22 @@ public final class MethodProperty
         }
     }
 
+    private void invokeWithoutResult(boolean useConsumer, Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
+        if (useConsumer && consumer != null) {
+            consumer.accept(instance, value);
+        } else {
+            _setter.invoke(instance, value);
+        }
+    }
+
+    private Object invokeWithResult(Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
+        return _setter.invoke(instance, value);
+    }
     @Override
     public final void set(Object instance, Object value) throws IOException
     {
         try {
-            _setter.invoke(instance, value);
+            invokeWithoutResult(false, instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
             _throwAsIOE(e, value);
@@ -190,7 +352,7 @@ public final class MethodProperty
     public Object setAndReturn(Object instance, Object value) throws IOException
     {
         try {
-            Object result = _setter.invoke(instance, value);
+            Object result = invokeWithResult(instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?

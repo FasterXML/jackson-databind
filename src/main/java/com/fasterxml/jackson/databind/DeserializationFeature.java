@@ -452,8 +452,18 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      */
-    EAGER_DESERIALIZER_FETCH(true)
-    
+    EAGER_DESERIALIZER_FETCH(true),
+
+    /**
+     * Feature that determines whether properties should be set by
+     * dynamicly generated class invoking setter or standard reflection
+     *
+     * This should make deserialization about 3% faster.
+     *
+     * Feature is disabled by default.
+     */
+    LAMBDA_METAFACTORY_AS_INVOKER(false)
+
     ;
 
     private final boolean _defaultState;

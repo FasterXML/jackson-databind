@@ -800,6 +800,7 @@ name, ((AnnotatedParameter) m).getIndex());
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop;
         if (mutator instanceof AnnotatedMethod) {
+
             prop = new MethodProperty(propDef, type, typeDeser,
                     beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
         } else {

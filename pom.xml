@@ -10,7 +10,7 @@
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT-lambda</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -27,7 +27,7 @@
   <properties>
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
-    <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android --> 
+    <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android -->
     <osgi.import>
         org.w3c.dom.bootstrap;resolution:=optional,
         *

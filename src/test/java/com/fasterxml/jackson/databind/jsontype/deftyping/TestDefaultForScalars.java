@@ -131,6 +131,7 @@ public class TestDefaultForScalars
                 JsonTypeInfo.As.PROPERTY, "__t");
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
                 .setDefaultTyping(resolver)
                 .build();
 

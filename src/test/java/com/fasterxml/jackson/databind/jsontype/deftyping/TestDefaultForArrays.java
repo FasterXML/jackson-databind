@@ -126,9 +126,8 @@ public class TestDefaultForArrays extends BaseMapTest
 
     public void testArrayTypingForPrimitiveArrays() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        DefaultTyping.NON_CONCRETE_AND_ARRAYS)
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
                 .build();
         _testArrayTypingForPrimitiveArrays(mapper, new int[] { 1, 2, 3 });
         _testArrayTypingForPrimitiveArrays(mapper, new long[] { 1, 2, 3 });

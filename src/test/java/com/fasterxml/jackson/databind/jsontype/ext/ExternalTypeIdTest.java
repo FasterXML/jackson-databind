@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
@@ -504,8 +505,10 @@ public class ExternalTypeIdTest extends BaseMapTest
     {
         final String CLASS = Payload928.class.getName();
 
-        ObjectMapper mapper = new ObjectMapper();
-
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
+        
         final String successCase = "{\"payload\":{\"something\":\"test\"},\"class\":\""+CLASS+"\"}";
         Envelope928 envelope1 = mapper.readValue(successCase, Envelope928.class);
         assertNotNull(envelope1);

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import java.io.IOException;
 
@@ -203,15 +204,19 @@ public class JSOGDeserialize622Test extends BaseMapTest
     // polymorphic alternative for [databind#622]
     public void testPolymorphicRoundTrip() throws Exception
     {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
+        
         JSOGWrapper w = new JSOGWrapper(15);
         // create a nice little loop
         IdentifiableExampleJSOG ex = new IdentifiableExampleJSOG(123);
         ex.next = ex;
         w.jsog = ex;
 
-        String json = MAPPER.writeValueAsString(w);
+        String json = mapper.writeValueAsString(w);
 
-        JSOGWrapper out = MAPPER.readValue(json, JSOGWrapper.class);
+        JSOGWrapper out = mapper.readValue(json, JSOGWrapper.class);
         assertNotNull(out);
         assertEquals(15, out.value);
         assertTrue(out.jsog instanceof IdentifiableExampleJSOG);

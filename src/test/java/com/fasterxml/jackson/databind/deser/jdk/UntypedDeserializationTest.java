@@ -266,6 +266,7 @@ public class UntypedDeserializationTest
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
         final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
                 .addModule(m)
                 .build();
         // Also: since this is now non-vanilla variant, try more alternatives

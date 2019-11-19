@@ -296,35 +296,24 @@ public class BasicPolymorphicTypeValidator
             });
         }
 
-        /**
-         * Method for appending matcher that will allow all subtypes for which a
-         * {@link com.fasterxml.jackson.databind.JsonDeserializer})
-         * is explicitly provided by either {@code jackson-databind} itself or one of registered
-         * {@link com.fasterxml.jackson.databind.Module}s.
-         * Determination is implementation by calling
-         * {@link com.fasterxml.jackson.databind.deser.DeserializerFactory#hasExplicitDeserializerFor}.
-         *<p>
-         * In practice this matcher should remove the need to register any standard Jackson-supported
-         * JDK types, as well as most if not all 3rd party types; leaving only POJOs and those 3rd party
-         * types that are not supported by relevant modules. In turn this should not open security
-         * holes to "gadget" types since insecure types should not be supported by datatype modules.
-         * For highest security cases (where input is untrusted) it is still preferable to add
-         * more specific allow-rules, if possible.
-         *<p>
-         * NOTE: Modules need to provide support for detection so if 3rd party types do not seem to
-         * be supported, Module in question may need to be updated to indicate existence of explicit
-         * deserializers.
-         *
-         * @since 2.11
-         */
+        // 18-Nov-2019, tatu: alas, [databind#2539] can not be implemented with 2.x due
+        //    to (in hindsight) obvious design flaw: instead `MapperConfig`, `DatabindContext`
+        //    must be available to check what deserializers are registered.
+        /*
         public Builder allowSubTypesWithExplicitDeserializer() {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
                 public boolean match(MapperConfig<?> config, Class<?> clazz) {
+                    // First things first: "peel off" array type
+                    while (clazz.isArray()) {
+                        clazz = clazz.getComponentType();
+                    }
+                    DeserializerFactory df = ((DeserializationConfig) config).getDes
                     return clazz.isArray();
                 }
             });
         }
+         */
 
         public BasicPolymorphicTypeValidator build() {
             return new BasicPolymorphicTypeValidator(_invalidBaseTypes,

@@ -60,7 +60,7 @@ public abstract class DeserializationContext
     /* Configuration, immutable
     /**********************************************************
      */
-    
+
     /**
      * Object that handle details of {@link JsonDeserializer} caching.
      */

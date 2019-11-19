@@ -499,6 +499,25 @@ public abstract class DeserializationContext
         return _config.findRootName(this, rawRootType);
     }
 
+    /**
+     * Method that can be used to see whether there is an explicitly registered deserializer
+     * for given type: this is true for supported JDK types, as well as third-party types
+     * for which {@code Module} provides support but is NOT true (that is, returns {@code false})
+     * for POJO types for which {@code BeanDeserializer} is generated based on discovered
+     * properties.
+     *<p>
+     * Note that it is up to {@code Module}s to implement support for this method: some
+     * do (like basic {@code SimpleModule}).
+     *
+     * @param valueType Type-erased type to check
+     *
+     * @return True if this factory has explicit (non-POJO) deserializer for specified type,
+     *    or has a provider (of type {@link Deserializers}) that has.
+     */
+    public boolean hasExplicitDeserializerFor(Class<?> valueType) {
+        return _factory.hasExplicitDeserializerFor(this, valueType);
+    }
+
     /*
     /**********************************************************************
     /* Public API, value deserializer access

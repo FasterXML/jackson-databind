@@ -3,10 +3,15 @@ package com.fasterxml.jackson.databind.jsontype;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed.
- * Denies use of all types so isn't very useful as base.
+ * Denies use of most types so isn't very useful as base, as it only allows:
+ * <ul>
+ *  <li>Enums
+ *   </li>
+ *  </ul>
  */
 public class NoneShallPassValidator
     extends PolymorphicTypeValidator
@@ -16,17 +21,12 @@ public class NoneShallPassValidator
 
     @Override
     public Validity validateBaseType(DatabindContext ctxt, JavaType baseType)
-            throws JsonMappingException {
-        /* 24-Apr-2019, tatu: We do need to make it restrictive, BUT... as of now
-         *    tests would fail; need to get back to that right after 2.10
-        return Validity.DENIED;
-        */
-        /*
-        if (baseType.hasRawClass(Object.class)) {
-            return Validity.DENIED;
-        }
-        */
-        return Validity.ALLOWED;
+            throws JsonMappingException
+    {
+        // Actually let's not block any particular base type, just mark as 
+        // indeterminate to only base on actual subtype
+        
+        return Validity.INDETERMINATE;
     }
     
     @Override
@@ -37,16 +37,29 @@ public class NoneShallPassValidator
 
     @Override
     public Validity validateSubType(DatabindContext ctxt, JavaType baseType,
-            JavaType subType) {
-        /* 24-Apr-2019, tatu: We do need to make it restrictive, BUT... as of now
-         *    tests would fail; need to get back to that right after 2.10
-        return Validity.DENIED;
-        */
-        /*
-        if (baseType.hasRawClass(Object.class)) {
+            JavaType subType)
+    {
+        // Very small set of allowed types:
+        //
+        // 1. Enums
+        // 2. Primitives, their wrappers
+        
+        if (subType.isEnumType()) {
+            return Validity.ALLOWED;
+        }
+        if (ClassUtil.primitiveType(subType.getRawClass()) != null) {
+            return Validity.ALLOWED;
+        }
+
+        // But aside from that actually only allow if base type not too generic
+        final Class<?> rawBase = baseType.getRawClass();
+        if ((rawBase == Object.class)
+                || (rawBase == Object.class)
+                || (rawBase == Object.class)
+                ) {
             return Validity.DENIED;
         }
-        */
+
         return Validity.ALLOWED;
     }
 }

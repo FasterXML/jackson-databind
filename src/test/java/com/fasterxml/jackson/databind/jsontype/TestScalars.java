@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestScalars extends BaseMapTest
 {
@@ -49,7 +50,9 @@ public class TestScalars extends BaseMapTest
     /**********************************************************************
      */
 
-    final ObjectMapper MAPPER = newJsonMapper();
+    final ObjectMapper MAPPER = jsonMapperBuilder()
+            .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+            .build();
 
     /**
      * Ensure that per-property dynamic types work, both for "native" types

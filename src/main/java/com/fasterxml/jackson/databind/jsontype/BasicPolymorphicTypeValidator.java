@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
 
 /**
  * Standard {@link BasicPolymorphicTypeValidator} implementation that users may want
@@ -18,8 +19,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * For example:
  *<pre>
  *</pre>
- *
- * @since 2.10
  */
 public class BasicPolymorphicTypeValidator
     extends PolymorphicTypeValidator.Base
@@ -166,8 +165,6 @@ public class BasicPolymorphicTypeValidator
          * @param matcher Custom matcher to apply to base type
          *
          * @return This Builder to allow call chaining
-         *
-         * @since 2.11
          */
         public Builder allowIfBaseType(final TypeMatcher matcher) {
             return _appendBaseMatcher(matcher);
@@ -268,8 +265,6 @@ public class BasicPolymorphicTypeValidator
          * @param matcher Custom matcher to apply to resolved subtype
          *
          * @return This Builder to allow call chaining
-         *
-         * @since 2.11
          */
         public Builder allowIfSubType(final TypeMatcher matcher) {
             return _appendSubClassMatcher(matcher);
@@ -286,8 +281,6 @@ public class BasicPolymorphicTypeValidator
          * NOTE: not used with other Java collection types ({@link java.util.List}s,
          *    {@link java.util.Collection}s), mostly since use of generic types as polymorphic
          *    values is not (well) supported.
-         *
-         * @since 2.11
          */
         public Builder allowIfSubTypeIsArray() {
             return _appendSubClassMatcher(new TypeMatcher() {
@@ -316,14 +309,17 @@ public class BasicPolymorphicTypeValidator
          * NOTE: Modules need to provide support for detection so if 3rd party types do not seem to
          * be supported, Module in question may need to be updated to indicate existence of explicit
          * deserializers.
-         *
-         * @since 2.11
          */
         public Builder allowSubTypesWithExplicitDeserializer() {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(DatabindContext ctxt, Class<?> clazz) {
-                    return clazz.isArray();
+                public boolean match(DatabindContext ctxt, Class<?> valueType) {
+                    // First things first: "peel off" array type (since Array types are provided
+                    // by JDK and can not be gadget types)
+                    while (valueType.isArray()) {
+                        valueType = valueType.getComponentType();
+                    }
+                    return ((DeserializationContext) ctxt).hasExplicitDeserializerFor(valueType);
                 }
             });
         }

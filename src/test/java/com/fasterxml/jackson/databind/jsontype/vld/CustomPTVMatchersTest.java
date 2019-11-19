@@ -5,6 +5,7 @@ import java.net.URL;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -49,7 +50,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(new BasicPolymorphicTypeValidator.TypeMatcher() {
                     @Override
-                    public boolean match(Class<?> base) {
+                    public boolean match(MapperConfig<?> ctxt, Class<?> base) {
                         // Allow types within our packages
                         return base.getName().startsWith("com.fasterxml.");
                     }
@@ -81,7 +82,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(new BasicPolymorphicTypeValidator.TypeMatcher() {
                     @Override
-                    public boolean match(Class<?> clazz) {
+                    public boolean match(MapperConfig<?> ctxt, Class<?> clazz) {
                         // Allow anything that looks "Good" :)
                         return clazz.getSimpleName().endsWith("Good");
                     }

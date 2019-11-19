@@ -48,7 +48,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 // Allow types within our packages
-                .allowIfBaseType(base -> base.getName().startsWith("com.fasterxml." ))
+                .allowIfBaseType((ctxt, base) -> base.getName().startsWith("com.fasterxml." ))
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.EVERYTHING)
@@ -75,7 +75,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 // Allow anything that looks "Good" :)
-                .allowIfSubType(sub -> sub.getSimpleName().endsWith("Good") )
+                .allowIfSubType((ctxt, sub) -> sub.getSimpleName().endsWith("Good") )
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)

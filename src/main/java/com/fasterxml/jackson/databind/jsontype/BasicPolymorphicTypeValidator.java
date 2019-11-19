@@ -39,7 +39,7 @@ public class BasicPolymorphicTypeValidator
      */
     @FunctionalInterface
     public interface TypeMatcher {
-        public abstract boolean match(Class<?> clazz);
+        public abstract boolean match(DatabindContext ctxt, Class<?> clazz);
     }
 
     /**
@@ -48,7 +48,7 @@ public class BasicPolymorphicTypeValidator
      */
     @FunctionalInterface
     public interface NameMatcher {
-        public abstract boolean match(String clazzName);
+        public abstract boolean match(DatabindContext ctxt, String clazzName);
     }
 
     /*
@@ -106,7 +106,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfBaseType(final Class<?> baseOfBase) {
             return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return baseOfBase.isAssignableFrom(clazz);
                 }
             });
@@ -132,7 +132,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfBaseType(final Pattern patternForBase) {
             return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return patternForBase.matcher(clazz.getName()).matches();
                 }
             });
@@ -152,7 +152,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfBaseType(final String prefixForBase) {
             return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return clazz.getName().startsWith(prefixForBase);
                 }
             });
@@ -209,7 +209,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfSubType(final Class<?> subTypeBase) {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return subTypeBase.isAssignableFrom(clazz);
                 }
             });
@@ -234,7 +234,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfSubType(final Pattern patternForSubType) {
             return _appendSubNameMatcher(new NameMatcher() {
                 @Override
-                public boolean match(String clazzName) {
+                public boolean match(DatabindContext ctxt, String clazzName) {
                     return patternForSubType.matcher(clazzName).matches();
                 }
             });
@@ -254,7 +254,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfSubType(final String prefixForSubType) {
             return _appendSubNameMatcher(new NameMatcher() {
                 @Override
-                public boolean match(String clazzName) {
+                public boolean match(DatabindContext ctxt, String clazzName) {
                     return clazzName.startsWith(prefixForSubType);
                 }
             });
@@ -292,7 +292,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfSubTypeIsArray() {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return clazz.isArray();
                 }
             });
@@ -322,7 +322,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowSubTypesWithExplicitDeserializer() {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return clazz.isArray();
                 }
             });
@@ -416,7 +416,7 @@ public class BasicPolymorphicTypeValidator
         }
         if (_baseTypeMatchers != null) {
             for (TypeMatcher m : _baseTypeMatchers) {
-                if (m.match(rawBase)) {
+                if (m.match(ctxt, rawBase)) {
                     return Validity.ALLOWED;
                 }
             }
@@ -432,7 +432,7 @@ public class BasicPolymorphicTypeValidator
 //System.err.println("validateSubClassName('"+subClassName+"')");
         if (_subTypeNameMatchers != null)  {
             for (NameMatcher m : _subTypeNameMatchers) {
-                if (m.match(subClassName)) {
+                if (m.match(ctxt, subClassName)) {
                     return Validity.ALLOWED;
                 }
             }
@@ -448,7 +448,7 @@ public class BasicPolymorphicTypeValidator
         if (_subClassMatchers != null)  {
             final Class<?> subClass = subType.getRawClass();
             for (TypeMatcher m : _subClassMatchers) {
-                if (m.match(subClass)) {
+                if (m.match(ctxt, subClass)) {
                     return Validity.ALLOWED;
                 }
             }

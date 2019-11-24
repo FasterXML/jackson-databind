@@ -204,7 +204,7 @@ public class JacksonAnnotationIntrospector
     @Override // since 2.7
     public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         HashMap<String,String> expl = null;
-        for (Field f : ClassUtil.getDeclaredFields(enumType)) {
+        for (Field f : enumType.getDeclaredFields()) {
             if (!f.isEnumConstant()) {
                 continue;
             }
@@ -239,7 +239,7 @@ public class JacksonAnnotationIntrospector
     {
         // Main complication: discrepancy between Field that represent enum value,
         // Enum abstraction; joint by name but not reference
-        for (Field f : ClassUtil.getDeclaredFields(enumType)) {
+        for (Field f : enumType.getDeclaredFields()) {
             if (f.isEnumConstant()) {
                 JsonAlias aliasAnnotation = f.getAnnotation(JsonAlias.class);
                 if (aliasAnnotation != null) {

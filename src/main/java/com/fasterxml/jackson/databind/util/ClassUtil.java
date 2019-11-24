@@ -1032,7 +1032,7 @@ public final class ClassUtil
      */
     public static <T extends Annotation> Enum<?> findFirstAnnotatedEnumValue(Class<Enum<?>> enumClass, Class<T> annotationClass)
     {
-        Field[] fields = getDeclaredFields(enumClass);
+        Field[] fields = enumClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isEnumConstant()) {
                 Annotation defaultValueAnnotation = field.getAnnotation(annotationClass);
@@ -1114,15 +1114,17 @@ public final class ClassUtil
     }
 
     /**
-     * @since 2.7
+     * @deprecated since 2.11 (just call Class method directly)
      */
+    @Deprecated
     public static Field[] getDeclaredFields(Class<?> cls) {
         return cls.getDeclaredFields();
     }
 
     /**
-     * @since 2.7
+     * @deprecated since 2.11 (just call Class method directly)
      */
+    @Deprecated
     public static Method[] getDeclaredMethods(Class<?> cls) {
         return cls.getDeclaredMethods();
     }
@@ -1147,7 +1149,7 @@ public final class ClassUtil
     public static Method[] getClassMethods(Class<?> cls)
     {
         try {
-            return ClassUtil.getDeclaredMethods(cls);
+            return cls.getDeclaredMethods();
         } catch (final NoClassDefFoundError ex) {
             // One of the methods had a class that was not found in the cls.getClassLoader.
             // Maybe the developer was nice and has a different class loader for this context.
@@ -1276,7 +1278,7 @@ public final class ClassUtil
         {
             Field found = null;
     	        // First: let's see if we can find exact match:
-            Field[] fields = getDeclaredFields(fromClass);
+            Field[] fields = fromClass.getDeclaredFields();
     	        for (Field f : fields) {
     	            if (expectedName.equals(f.getName()) && f.getType() == type) {
     	                found = f;

@@ -70,7 +70,7 @@ public class AnnotatedFieldCollector
         // Let's add super-class' fields first, then ours.
         fields = _findFields(new TypeResolutionContext.Basic(_typeFactory, parent.getBindings()),
                 parent, fields);
-        for (Field f : ClassUtil.getDeclaredFields(cls)) {
+        for (Field f : cls.getDeclaredFields()) {
             // static fields not included (transients are at this point, filtered out later)
             if (!_isIncludableField(f)) {
                 continue;
@@ -107,7 +107,7 @@ public class AnnotatedFieldCollector
     {
         List<Class<?>> parents = ClassUtil.findSuperClasses(mixInCls, targetClass, true);
         for (Class<?> mixin : parents) {
-            for (Field mixinField : ClassUtil.getDeclaredFields(mixin)) {
+            for (Field mixinField : mixin.getDeclaredFields()) {
                 // there are some dummy things (static, synthetic); better ignore
                 if (!_isIncludableField(mixinField)) {
                     continue;

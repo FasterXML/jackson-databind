@@ -211,7 +211,7 @@ final class AnnotatedCreatorCollector
         // so far so good; but do we also need to find mix-ins overrides?
         if (primaryMixIn != null) {
             MemberKey[] methodKeys = null;
-            for (Method mixinFactory : ClassUtil.getDeclaredMethods(primaryMixIn)) {
+            for (Method mixinFactory : primaryMixIn.getDeclaredMethods()) {
                 if (!Modifier.isStatic(mixinFactory.getModifiers())) {
                     continue;
                 }

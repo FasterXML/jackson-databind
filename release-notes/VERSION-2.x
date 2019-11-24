@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2049: TreeTraversingParser and UTF8StreamJsonParser create contexts differently
  (reported by Antonio P)
+#2352: Support use of `@JsonAlias` for enum values
+ (contributed by Robert D)
 #2480: Fix `JavaType.isEnumType()` to support sub-classes
 #2487: BeanDeserializerBuilder Protected Factory Method for Extension
  (contributed by Ville K)

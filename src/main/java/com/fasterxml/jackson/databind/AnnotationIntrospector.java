@@ -715,9 +715,23 @@ public abstract class AnnotationIntrospector
      * have explicitly defined name. Method will overwrite entries in incoming <code>names</code>
      * array with explicit names found, if any, leaving other entries unmodified.
      */
-    public String[] findEnumValues(MapperConfig<?> config, 
+    public String[] findEnumValues(MapperConfig<?> config,
             Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         return names;
+    }
+
+    /**
+     * Method that is related to {@link #findEnumValues} but is called to check if
+     * there are alternative names (aliased) that can be accepted for entries, in 
+     * addition to primary names introspected earlier.
+     * If so, these aliases should be returned in {@code aliases} {@link List} passed
+     * as argument (and initialized for proper size by caller).
+     *
+     * @since 2.11
+     */
+    public void findEnumAliases(MapperConfig<?> config,
+            Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
+        ;
     }
 
     /**

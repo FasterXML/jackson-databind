@@ -556,6 +556,14 @@ public class AnnotationIntrospectorPair
         return (en == null) ? _secondary.findDefaultEnumValue(config, enumCls) : en;
     }
 
+    @Override
+    public void findEnumAliases(MapperConfig<?> config,
+            Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
+        // reverse order to give _primary higher precedence
+        _secondary.findEnumAliases(config, enumType, enumValues, aliases);
+        _primary.findEnumAliases(config, enumType, enumValues, aliases);
+    }
+
     // // // Deserialization: general annotations
 
     @Override

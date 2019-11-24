@@ -934,6 +934,19 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Method that is related to {@link #findEnumValues} but is called to check if
+     * there are alternative names (aliased) that can be accepted for entries, in 
+     * addition to primary names introspected earlier.
+     * If so, these aliases should be returned in {@code aliases} {@link List} passed
+     * as argument (and initialized for proper size by caller).
+     *
+     * @since 2.11
+     */
+    public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
+        ;
+    }
+
+    /**
      * Finds the Enum value that should be considered the default value, if possible.
      *
      * @param enumCls The Enum class to scan for the default value.

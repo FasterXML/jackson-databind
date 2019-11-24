@@ -21,7 +21,8 @@ public class EnumResolver implements java.io.Serializable
 
     protected final Enum<?> _defaultValue;
 
-    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums, HashMap<String, Enum<?>> map, Enum<?> defaultValue)
+    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
+            HashMap<String, Enum<?>> map, Enum<?> defaultValue)
     {
         _enumClass = enumClass;
         _enums = enums;
@@ -40,18 +41,28 @@ public class EnumResolver implements java.io.Serializable
             throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
         }
         String[] names = ai.findEnumValues(enumCls, enumValues, new String[enumValues.length]);
+        final String[][] allAliases = new String[names.length][];
+        ai.findEnumAliases(enumCls, enumValues, allAliases);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         for (int i = 0, len = enumValues.length; i < len; ++i) {
+            final Enum<?> enumValue = enumValues[i];
             String name = names[i];
             if (name == null) {
-                name = enumValues[i].name();
+                name = enumValue.name();
             }
-            map.put(name, enumValues[i]);
+            map.put(name, enumValue);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // TODO: JDK 1.8, use Map.putIfAbsent()
+                    // Avoid overriding any primary names
+                    if (!map.containsKey(alias)) {
+                        map.put(alias, enumValue);
+                    }
+                }
+            }
         }
-
-        Enum<?> defaultEnum = ai.findDefaultEnumValue(enumCls);
-
-        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+        return new EnumResolver(enumCls, enumValues, map,  ai.findDefaultEnumValue(enumCls));
     }
 
     /**
@@ -71,15 +82,27 @@ public class EnumResolver implements java.io.Serializable
     public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls,
             AnnotationIntrospector ai)
     {
-        Enum<?>[] enumValues = enumCls.getEnumConstants();
+        Enum<?>[] enumConstants = enumCls.getEnumConstants();
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        final String[][] allAliases = new String[enumConstants.length][];
+        ai.findEnumAliases(enumCls, enumConstants, allAliases);
+
         // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumValues.length; --i >= 0; ) {
-            Enum<?> e = enumValues[i];
-            map.put(e.toString(), e);
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> enumValue = enumConstants[i];
+            map.put(enumValue.toString(), enumValue);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // TODO: JDK 1.8, use Map.putIfAbsent()
+                    // Avoid overriding any primary names
+                    if (!map.containsKey(alias)) {
+                        map.put(alias, enumValue);
+                    }
+                }
+            }
         }
-        Enum<?> defaultEnum = (ai == null) ? null : ai.findDefaultEnumValue(enumCls);
-        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+        return new EnumResolver(enumCls, enumConstants, map, ai.findDefaultEnumValue(enumCls));
     }
 
     /**

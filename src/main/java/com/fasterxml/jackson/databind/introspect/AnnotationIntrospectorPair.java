@@ -617,6 +617,13 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
+        // reverse order to give _primary higher precedence
+        _secondary.findEnumAliases(enumType, enumValues, aliases);
+        _primary.findEnumAliases(enumType, enumValues, aliases);
+    }
+
+    @Override
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
         Enum<?> en = _primary.findDefaultEnumValue(enumCls);
         return (en == null) ? _secondary.findDefaultEnumValue(enumCls) : en;

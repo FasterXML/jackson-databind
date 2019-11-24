@@ -1015,6 +1015,10 @@ Antonio Petrelli (apetrelli@github)
   * Reported #2049: TreeTraversingParser and UTF8StreamJsonParser create contexts differently
   (2.11.0)
 
+Robert Diebels (RobertDiebels@github)
+  * Contributed #2352: Support use of `@JsonAlias` for enum values
+  (2.11.0)
+
 Joseph Koshakow (jkosh44@github)
   * Contributed fix for #2515: `ObjectMapper.registerSubtypes(NamedType...)` doesn't allow registering
     the same POJO for two different type ids

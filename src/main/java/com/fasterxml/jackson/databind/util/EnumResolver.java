@@ -57,11 +57,8 @@ public class EnumResolver implements java.io.Serializable
             String[] aliases = allAliases[i];
             if (aliases != null) {
                 for (String alias : aliases) {
-                    // TODO: JDK 1.8, use Map.putIfAbsent()
-                    // Avoid overriding any primary names
-                    if (!map.containsKey(alias)) {
-                        map.put(alias, enumValue);
-                    }
+                    // avoid accidental override of primary name (in case of conflicting annotations)
+                    map.putIfAbsent(alias, enumValue);
                 }
             }
         }
@@ -88,11 +85,8 @@ public class EnumResolver implements java.io.Serializable
             String[] aliases = allAliases[i];
             if (aliases != null) {
                 for (String alias : aliases) {
-                    // TODO: JDK 1.8, use Map.putIfAbsent()
-                    // Avoid overriding any primary names
-                    if (!map.containsKey(alias)) {
-                        map.put(alias, enumValue);
-                    }
+                    // avoid accidental override of primary name (in case of conflicting annotations)
+                    map.putIfAbsent(alias, enumValue);
                 }
             }
         }
@@ -128,9 +122,8 @@ public class EnumResolver implements java.io.Serializable
     @SuppressWarnings({ "unchecked" })
     public static EnumResolver constructUnsafe(MapperConfig<?> config, Class<?> rawEnumCls)
     {            
-        /* This is oh so wrong... but at least ugliness is mostly hidden in just
-         * this one place.
-         */
+        // This is oh so wrong... but at least ugliness is mostly hidden in just
+        // this one place.
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
         return constructFor(config, enumCls);
     }

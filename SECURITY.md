@@ -1,5 +1,7 @@
 # Security Policy
 
+Last Updated: 2019-11-26
+
 ## Supported Versions
 
 Current status of open branches, with new releases, can be found from [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases)

@@ -1,5 +1,9 @@
 language: java
 
+git:
+  quiet: true
+  submodules: false
+
 # Since Jackson 2.7, build requires jdk7, although module itself works on jdk6 still (for now)
 # and since 2.10, will require jdk8 for build
 jdk:

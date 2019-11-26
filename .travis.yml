@@ -1,12 +1,21 @@
 language: java
 
+git:
+  quiet: true
+  submodules: false
+
 # Jackson 3.x only compiles on Java 8 and above so...
 jdk:
   - openjdk8
   - openjdk11
 
+# 2019-11-26, tatu: Let's try caching Maven dependencies
+cache:
+  directories:
+    - $HOME/.m2
+
 # Below this line is configuration for deploying to the Sonatype OSS repo
-# http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html
+# https://knowm.org/configure-travis-ci-to-deploy-snapshots/
 before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
 after_success:
   - "mvn source:jar javadoc:jar deploy --settings target/travis/settings.xml"

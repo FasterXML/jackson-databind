@@ -381,12 +381,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             }
             // A few special cases where we can simplify handling:
 
-            // (1) Original target type has no generics -- just resolve subtype
-            if (baseType.getBindings().isEmpty()) {
-                newType = _fromClass(null, subclass, EMPTY_BINDINGS);
-                break;
-            }
-            // (2) A small set of "well-known" List/Map subtypes where can take a short-cut
+            // (1) A small set of "well-known" List/Map subtypes where can take a short-cut
             if (baseType.isContainerType()) {
                 if (baseType.isMapLikeType()) {
                     if ((subclass == HashMap.class)
@@ -413,6 +408,12 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                     }
                 }
             }
+            // (2) Original target type has no generics -- just resolve subtype
+            if (baseType.getBindings().isEmpty()) {
+                newType = _fromClass(null, subclass, EMPTY_BINDINGS);
+                break;
+            }
+
             // (3) Sub-class does not take type parameters -- just resolve subtype
             int typeParamCount = subclass.getTypeParameters().length;
             if (typeParamCount == 0) {

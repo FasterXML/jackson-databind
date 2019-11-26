@@ -28,6 +28,8 @@ Project: jackson-databind
 
 #2544: java.lang.NoClassDefFoundError Thrown for compact profile1
   (reported by Jon A)
+#2553: JsonDeserialize(contentAs=...) broken with raw collections
+ (reported by cpopp@github)
 
 2.10.1 (09-Nov-2019)
 

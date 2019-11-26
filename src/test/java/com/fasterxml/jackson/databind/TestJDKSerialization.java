@@ -66,7 +66,7 @@ public class TestJDKSerialization extends BaseMapTest
      *   ObjectMapper here can lead to strange unit test suite failures, so
      *   let's create a private copy for this class only.
      */
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testConfigs() throws IOException
     {
@@ -91,7 +91,7 @@ public class TestJDKSerialization extends BaseMapTest
     // for [databind#899]
     public void testEnumHandlers() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         // ensure we have serializers and/or deserializers, first
         String json = mapper.writerFor(EnumPOJO.class)
                 .writeValueAsString(new EnumPOJO());
@@ -212,7 +212,7 @@ public class TestJDKSerialization extends BaseMapTest
     
     protected byte[] jdkSerialize(Object o) throws IOException
     {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(1000);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(2000);
         ObjectOutputStream obOut = new ObjectOutputStream(bytes);
         obOut.writeObject(o);
         obOut.close();

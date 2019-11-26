@@ -72,10 +72,11 @@ public class TestBiggerData extends BaseMapTest
     /**********************************************************
      */
 
+	private final ObjectMapper MAPPER = newJsonMapper();
+
 	public void testReading() throws Exception
 	{
-		ObjectMapper mapper = objectMapper();
-		Citm citm = mapper.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),
+		Citm citm = MAPPER.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),
 				Citm.class);
 		assertNotNull(citm);
 		assertNotNull(citm.areaNames);
@@ -99,14 +100,13 @@ public class TestBiggerData extends BaseMapTest
 
 	public void testRoundTrip() throws Exception
 	{
-		ObjectMapper mapper = objectMapper();
-		Citm citm = mapper.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),
+		Citm citm = MAPPER.readValue(getClass().getResourceAsStream("/data/citm_catalog.json"),
 				Citm.class);
 
-		ObjectWriter w = mapper.writerWithDefaultPrettyPrinter();
+		ObjectWriter w = MAPPER.writerWithDefaultPrettyPrinter();
 		
 		String json1 = w.writeValueAsString(citm);
-		Citm citm2 = mapper.readValue(json1, Citm.class);
+		Citm citm2 = MAPPER.readValue(json1, Citm.class);
 		String json2 = w.writeValueAsString(citm2);
 
 		assertEquals(json1, json2);

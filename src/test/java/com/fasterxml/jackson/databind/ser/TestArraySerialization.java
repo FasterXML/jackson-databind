@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 public class TestArraySerialization
     extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testLongStringArray() throws Exception
     {

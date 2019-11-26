@@ -211,7 +211,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public SerializableString compileString(String src) {
         /* 20-Jan-2014, tatu: For now we will just construct it directly, but
-         *    for 2.4 need to allow overriding to support non-standard extensions
+         *    in future should allow overriding to support non-standard extensions
          *    to be used by extensions like Afterburner.
          */
         return new SerializedString(src);

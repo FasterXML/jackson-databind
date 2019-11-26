@@ -29,7 +29,7 @@ public class TestObjectBuffer
     private void _testObjectBuffer(Class<?> clz)
     {
         int[] SIZES = new int[] {
-            3, 19, 99, 1007, 79000, 256001
+            3, 19, 99, 1007, 19999, 99001
         };
 
         // Let's loop separately for reused instance, new instance

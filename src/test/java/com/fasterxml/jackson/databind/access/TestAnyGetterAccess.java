@@ -51,7 +51,7 @@ public class TestAnyGetterAccess
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testDynaBean() throws Exception
     {

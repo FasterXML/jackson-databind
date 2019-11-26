@@ -19,8 +19,7 @@ cache:
 # https://knowm.org/configure-travis-ci-to-deploy-snapshots/
 before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
 after_success:
-  - "mvn source:jar javadoc:jar deploy --settings target/travis/settings.xml"
-  - "mvn -B cobertura:cobertura coveralls:report"
+  - "mvn -B source:jar javadoc:jar deploy --settings target/travis/settings.xml"
 
 # whitelist
 branches:

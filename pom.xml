@@ -141,6 +141,11 @@
           <excludes>
             <exclude>com/fasterxml/jackson/failing/*.java</exclude>
           </excludes>
+          <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
+                  ... although not 100% sure this makes much difference TBH
+            -->
+          <threadCount>4</threadCount>
+          <parallel>classes</parallel>
         </configuration>
       </plugin>
 

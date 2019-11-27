@@ -28,21 +28,21 @@ public class TestNamingStrategyCustom extends BaseMapTest
     {
         @Override
         public String nameForField(MapperConfig<?> config,
-                AnnotatedField field, String defaultName)
+                AnnotatedField field, String defaultName, Locale locale)
         {
             return "Field-"+defaultName;
         }
 
         @Override
         public String nameForGetterMethod(MapperConfig<?> config,
-                AnnotatedMethod method, String defaultName)
+                AnnotatedMethod method, String defaultName, Locale locale)
         {
             return "Get-"+defaultName;
         }
 
         @Override
         public String nameForSetterMethod(MapperConfig<?> config,
-                AnnotatedMethod method, String defaultName)
+                AnnotatedMethod method, String defaultName, Locale locale)
         {
             return "Set-"+defaultName;
         }
@@ -51,19 +51,19 @@ public class TestNamingStrategyCustom extends BaseMapTest
     static class CStyleStrategy extends PropertyNamingStrategy
     {
         @Override
-        public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName)
+        public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName, Locale locale)
         {
             return convert(defaultName);
         }
 
         @Override
-        public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName)
+        public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName, Locale locale)
         {
             return convert(defaultName);
         }
 
         @Override
-        public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName)
+        public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName, Locale locale)
         {
             return convert(defaultName);
         }
@@ -140,7 +140,7 @@ public class TestNamingStrategyCustom extends BaseMapTest
     static class LcStrategy extends PropertyNamingStrategy.PropertyNamingStrategyBase
     {
         @Override
-        public String translate(String propertyName) {
+        public String translate(String propertyName, Locale locale) {
             return propertyName.toLowerCase();
         }
     }

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -57,18 +58,21 @@ public class BasicClassIntrospector
                 AnnotatedClassResolver.createPrimordial(CLS_OBJECT));
     }
 
+    private final Locale _locale;
+
     /*
     /**********************************************************
     /* Life cycle
     /**********************************************************
      */
 
-    public BasicClassIntrospector() {
+    public BasicClassIntrospector(Locale locale) {
+        _locale = locale;
     }
 
     @Override
     public ClassIntrospector copy() {
-        return new BasicClassIntrospector();
+        return new BasicClassIntrospector(_locale);
     }
 
     /*
@@ -195,7 +199,7 @@ public class BasicClassIntrospector
     protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
             AnnotatedClass ac, JavaType type, boolean forSerialization, String mutatorPrefix)
     {
-        return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
+        return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix, _locale);
     }
 
     /**

@@ -249,7 +249,7 @@ public class BeanDeserializerFactory
         if (type.isAbstract() && !valueInstantiator.canInstantiate()) {
             deserializer = builder.buildAbstract();
         } else {
-            deserializer = builder.build();
+            deserializer = builder.build(config.getLocale());
         }
         // may have modifier(s) that wants to modify or replace serializer we just built
         // (note that `resolve()` and `createContextual()` called later on)
@@ -408,7 +408,7 @@ public class BeanDeserializerFactory
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }
-        JsonDeserializer<?> deserializer = builder.build();
+        JsonDeserializer<?> deserializer = builder.build(config.getLocale());
         
         /* At this point it ought to be a BeanDeserializer; if not, must assume
          * it's some other thing that can handle deserialization ok...

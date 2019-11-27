@@ -344,13 +344,14 @@ public class BeanDeserializerBuilder
      * Method for constructing a {@link BeanDeserializer}, given all
      * information collected.
      */
-    public JsonDeserializer<?> build()
+    //TODO change
+    public JsonDeserializer<?> build(Locale locale)
     {
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
                 _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
-                _collectAliases(props));
+                _collectAliases(props), locale);
         propertyMap.assignIndexes();
 
         // view processing must be enabled if:
@@ -427,7 +428,7 @@ public class BeanDeserializerBuilder
         _fixAccess(props);
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
                 _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
-                _collectAliases(props));
+                _collectAliases(props), _context.getLocale());
         propertyMap.assignIndexes();
 
         boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);

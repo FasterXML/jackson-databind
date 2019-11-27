@@ -537,7 +537,7 @@ public class POJOPropertiesCollectorTest
     protected POJOPropertiesCollector collector(ObjectMapper m0,
             Class<?> cls, boolean forSerialization)
     {
-        BasicClassIntrospector bci = new BasicClassIntrospector();
+        BasicClassIntrospector bci = new BasicClassIntrospector(Locale.getDefault());
         // no real difference between serialization, deserialization, at least here
         if (forSerialization) {
             return bci.collectProperties(m0.getSerializationConfig(),

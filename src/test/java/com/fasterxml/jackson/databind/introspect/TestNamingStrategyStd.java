@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -197,7 +198,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     {
         for (Object[] pair : SNAKE_CASE_NAME_TRANSLATIONS) {
             String translatedJavaName = PropertyNamingStrategy.SNAKE_CASE.nameForField(null, null,
-                    (String) pair[0]);
+                    (String) pair[0], Locale.getDefault());
             assertEquals((String) pair[1], translatedJavaName);
         }
     }
@@ -270,13 +271,13 @@ public class TestNamingStrategyStd extends BaseMapTest
      */
     public void testPascalCaseStandAlone()
     {
-        assertEquals("UserName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "userName"));
-        assertEquals("User", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "User"));
-        assertEquals("User", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "user"));
-        assertEquals("X", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "x"));
+        assertEquals("UserName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "userName", Locale.getDefault()));
+        assertEquals("User", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "User", Locale.getDefault()));
+        assertEquals("User", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "user", Locale.getDefault()));
+        assertEquals("X", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "x", Locale.getDefault()));
 
-        assertEquals("BADPublicName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "bADPublicName"));
-        assertEquals("BADPublicName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForGetterMethod(null, null, "bADPublicName"));
+        assertEquals("BADPublicName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "bADPublicName", Locale.getDefault()));
+        assertEquals("BADPublicName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForGetterMethod(null, null, "bADPublicName", Locale.getDefault()));
     }
 
     // [databind#428]
@@ -315,15 +316,15 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testKebabCaseStrategyStandAlone()
     {
         assertEquals("some-value",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "someValue"));
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "someValue", Locale.getDefault()));
         assertEquals("some-value",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "SomeValue"));
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "SomeValue", Locale.getDefault()));
         assertEquals("url",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "URL"));
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "URL", Locale.getDefault()));
         assertEquals("url-stuff",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "URLStuff"));
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "URLStuff", Locale.getDefault()));
         assertEquals("some-url-stuff",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "SomeURLStuff"));
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "SomeURLStuff", Locale.getDefault()));
     }
     
     public void testSimpleKebabCase() throws Exception
@@ -347,15 +348,15 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseWithDotsStrategyStandAlone()
     {
         assertEquals("some.value",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "someValue"));
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "someValue", Locale.getDefault()));
         assertEquals("some.value",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "SomeValue"));
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "SomeValue", Locale.getDefault()));
         assertEquals("url",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "URL"));
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "URL", Locale.getDefault()));
         assertEquals("url.stuff",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "URLStuff"));
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "URLStuff", Locale.getDefault()));
         assertEquals("some.url.stuff",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "SomeURLStuff"));
+            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "SomeURLStuff", Locale.getDefault()));
     }
 
     public void testSimpleLowerCaseWithDots() throws Exception

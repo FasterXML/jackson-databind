@@ -393,6 +393,8 @@ public class ObjectMapper
      */
     protected final ConfigOverrides _configOverrides;
 
+    private Locale _locale = Locale.getDefault();
+
     /*
     /**********************************************************
     /* Configuration settings: mix-in annotations
@@ -639,7 +641,7 @@ public class ObjectMapper
      * @since 2.5
      */
     protected ClassIntrospector defaultClassIntrospector() {
-        return new BasicClassIntrospector();
+        return new BasicClassIntrospector(_locale);
     }
 
     /*
@@ -2085,6 +2087,7 @@ public class ObjectMapper
      * Default value used is {@link Locale#getDefault()}.
      */
     public ObjectMapper setLocale(Locale l) {
+        _locale = l;
         _deserializationConfig = _deserializationConfig.with(l);
         _serializationConfig = _serializationConfig.with(l);
         return this;

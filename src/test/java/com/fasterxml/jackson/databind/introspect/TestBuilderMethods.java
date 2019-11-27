@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.*;
@@ -47,7 +48,7 @@ public class TestBuilderMethods extends BaseMapTest
 
     protected POJOPropertiesCollector collector(Class<?> cls, String prefix)
     {
-        BasicClassIntrospector bci = new BasicClassIntrospector();
+        BasicClassIntrospector bci = new BasicClassIntrospector(Locale.getDefault());
         // no real difference between serialization, deserialization, at least here
         return bci.collectProperties(mapper.getSerializationConfig(),
                 mapper.constructType(cls), null, false, prefix);

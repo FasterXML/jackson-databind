@@ -58,7 +58,7 @@ public final class PropertyBasedCreator
     {
         _valueInstantiator = valueInstantiator;
         if (caseInsensitive) {
-            _propertyLookup = new CaseInsensitiveMap();
+            _propertyLookup = new CaseInsensitiveMap(ctxt.getLocale());
         } else {
             _propertyLookup = new HashMap<String, SettableBeanProperty>();
         }
@@ -225,15 +225,20 @@ public final class PropertyBasedCreator
     static class CaseInsensitiveMap extends HashMap<String, SettableBeanProperty>
     {
         private static final long serialVersionUID = 1L;
+        private final Locale locale;
+
+        CaseInsensitiveMap(Locale locale) {
+            this.locale = locale;
+        }
 
         @Override
         public SettableBeanProperty get(Object key0) {
-            return super.get(((String) key0).toLowerCase());
+            return super.get(((String) key0).toLowerCase(locale));
         }
 
         @Override
         public SettableBeanProperty put(String key, SettableBeanProperty value) {
-            key = key.toLowerCase();
+            key = key.toLowerCase(locale);
             return super.put(key, value);
         }
     }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 
+import java.util.Locale;
+
 /**
  * Class that defines how names of JSON properties ("external names")
  * are derived from names of POJO methods and fields ("internal names"),
@@ -57,12 +59,12 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * @since 2.7 (was formerly called {@link #PASCAL_CASE_TO_CAMEL_CASE})
      */
     public static final PropertyNamingStrategy LOWER_CAMEL_CASE = new PropertyNamingStrategy();
-    
+
     /**
      * Naming convention in which all words of the logical name are in lower case, and
      * no separator is used between words.
      * See {@link LowerCaseStrategy} for details.
-     * 
+     *
      * @since 2.4
      */
     public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy();
@@ -71,7 +73,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Naming convention used in languages like Lisp, where words are in lower-case
      * letters, separated by hyphens.
      * See {@link KebabCaseStrategy} for details.
-     * 
+     *
      * @since 2.7
      */
     public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy();
@@ -95,17 +97,17 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Method called to find external name (name used in JSON) for given logical
      * POJO property,
      * as defined by given field.
-     * 
+     *
      * @param config Configuration in used: either <code>SerializationConfig</code>
      *   or <code>DeserializationConfig</code>, depending on whether method is called
      *   during serialization or deserialization
      * @param field Field used to access property
      * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
+     *
      * @return Logical name to use for property that the field represents
      */
     public String nameForField(MapperConfig<?> config, AnnotatedField field,
-            String defaultName)
+            String defaultName, Locale locale)
     {
         return defaultName;
     }
@@ -116,17 +118,17 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * as defined by given getter method; typically called when building a serializer.
      * (but not always -- when using "getter-as-setter", may be called during
      * deserialization)
-     * 
+     *
      * @param config Configuration in used: either <code>SerializationConfig</code>
      *   or <code>DeserializationConfig</code>, depending on whether method is called
      *   during serialization or deserialization
      * @param method Method used to access property.
      * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
+     *
      * @return Logical name to use for property that the method represents
      */
     public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method,
-            String defaultName)
+            String defaultName, Locale locale)
     {
         return defaultName;
     }
@@ -136,17 +138,17 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * POJO property,
      * as defined by given setter method; typically called when building a deserializer
      * (but not necessarily only then).
-     * 
+     *
      * @param config Configuration in used: either <code>SerializationConfig</code>
      *   or <code>DeserializationConfig</code>, depending on whether method is called
      *   during serialization or deserialization
      * @param method Method used to access property.
      * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
+     *
      * @return Logical name to use for property that the method represents
      */
     public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method,
-            String defaultName)
+            String defaultName, Locale locale)
     {
         return defaultName;
     }
@@ -156,7 +158,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * POJO property,
      * as defined by given constructor parameter; typically called when building a deserializer
      * (but not necessarily only then).
-     * 
+     *
      * @param config Configuration in used: either <code>SerializationConfig</code>
      *   or <code>DeserializationConfig</code>, depending on whether method is called
      *   during serialization or deserialization
@@ -164,7 +166,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * @param defaultName Default name that would be used for property in absence of custom strategy
      */
     public String nameForConstructorParameter(MapperConfig<?> config, AnnotatedParameter ctorParam,
-            String defaultName)
+            String defaultName, Locale locale)
     {
         return defaultName;
     }
@@ -174,35 +176,35 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     /* Public base class for simple implementations
     /**********************************************************
      */
-    
+
     public static abstract class PropertyNamingStrategyBase extends PropertyNamingStrategy
     {
         @Override
-        public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName)
+        public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName, Locale locale)
         {
-            return translate(defaultName);
+            return translate(defaultName, locale);
         }
 
         @Override
-        public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName)
+        public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName, Locale locale)
         {
-            return translate(defaultName);
+            return translate(defaultName, locale);
         }
 
         @Override
-        public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName)
+        public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName,Locale locale)
         {
-            return translate(defaultName);
+            return translate(defaultName, locale);
         }
 
         @Override
         public String nameForConstructorParameter(MapperConfig<?> config, AnnotatedParameter ctorParam,
-                String defaultName)
+                String defaultName, Locale locale)
         {
-            return translate(defaultName);
+            return translate(defaultName, locale);
         }
-        
-        public abstract String translate(String propertyName);
+
+        public abstract String translate(String propertyName, Locale locale);
 
         /**
          * Helper method to share implementation between snake and dotted case.
@@ -216,13 +218,13 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
             if (length == 0) {
                 return input;
             }
-    
+
             final StringBuilder result = new StringBuilder(length + (length >> 1));
             int upperCount = 0;
             for (int i = 0; i < length; ++i) {
                 char ch = input.charAt(i);
                 char lc = Character.toLowerCase(ch);
-    
+
                 if (lc == ch) { // lower-case letter means we can get new word
                     // but need to check for multi-letter upper-case (acronym), where assumption
                     // is that the last upper-case char is start of a new word
@@ -249,41 +251,41 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     /* Standard implementations 
     /**********************************************************
      */
-    
+
     /**
-     * A {@link PropertyNamingStrategy} that translates typical camel case Java 
-     * property names to lower case JSON element names, separated by 
-     * underscores.  This implementation is somewhat lenient, in that it 
-     * provides some additional translations beyond strictly translating from 
-     * camel case only.  In particular, the following translations are applied 
+     * A {@link PropertyNamingStrategy} that translates typical camel case Java
+     * property names to lower case JSON element names, separated by
+     * underscores.  This implementation is somewhat lenient, in that it
+     * provides some additional translations beyond strictly translating from
+     * camel case only.  In particular, the following translations are applied
      * by this PropertyNamingStrategy.
-     * 
-     * <ul><li>Every upper case letter in the Java property name is translated 
-     * into two characters, an underscore and the lower case equivalent of the 
+     *
+     * <ul><li>Every upper case letter in the Java property name is translated
+     * into two characters, an underscore and the lower case equivalent of the
      * target character, with three exceptions.
      * <ol><li>For contiguous sequences of upper case letters, characters after
-     * the first character are replaced only by their lower case equivalent, 
+     * the first character are replaced only by their lower case equivalent,
      * and are not preceded by an underscore.
-     * <ul><li>This provides for reasonable translations of upper case acronyms, 
+     * <ul><li>This provides for reasonable translations of upper case acronyms,
      * e.g., &quot;theWWW&quot; is translated to &quot;the_www&quot;.</li></ul></li>
-     * <li>An upper case character in the first position of the Java property 
-     * name is not preceded by an underscore character, and is translated only 
+     * <li>An upper case character in the first position of the Java property
+     * name is not preceded by an underscore character, and is translated only
      * to its lower case equivalent.
-     * <ul><li>For example, &quot;Results&quot; is translated to &quot;results&quot;, 
+     * <ul><li>For example, &quot;Results&quot; is translated to &quot;results&quot;,
      * and not to &quot;_results&quot;.</li></ul></li>
-     * <li>An upper case character in the Java property name that is already 
-     * preceded by an underscore character is translated only to its lower case 
+     * <li>An upper case character in the Java property name that is already
+     * preceded by an underscore character is translated only to its lower case
      * equivalent, and is not preceded by an additional underscore.
-     * <ul><li>For example, &quot;user_Name&quot; is translated to 
-     * &quot;user_name&quot;, and not to &quot;user__name&quot; (with two 
+     * <ul><li>For example, &quot;user_Name&quot; is translated to
+     * &quot;user_name&quot;, and not to &quot;user__name&quot; (with two
      * underscore characters).</li></ul></li></ol></li>
-     * <li>If the Java property name starts with an underscore, then that 
-     * underscore is not included in the translated name, unless the Java 
-     * property name is just one character in length, i.e., it is the 
-     * underscore character.  This applies only to the first character of the 
+     * <li>If the Java property name starts with an underscore, then that
+     * underscore is not included in the translated name, unless the Java
+     * property name is just one character in length, i.e., it is the
+     * underscore character.  This applies only to the first character of the
      * Java property name.</li></ul>
-     * 
-     * These rules result in the following additional example translations from 
+     *
+     * These rules result in the following additional example translations from
      * Java property names to JSON element names.
      * <ul><li>&quot;userName&quot; is translated to &quot;user_name&quot;</li>
      * <li>&quot;UserName&quot; is translated to &quot;user_name&quot;</li>
@@ -294,7 +296,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * <li>&quot;USER&quot; is translated to &quot;user&quot;</li>
      * <li>&quot;_user&quot; is translated to &quot;user&quot;</li>
      * <li>&quot;_User&quot; is translated to &quot;user&quot;</li>
-     * <li>&quot;__user&quot; is translated to &quot;_user&quot; 
+     * <li>&quot;__user&quot; is translated to &quot;_user&quot;
      * (the first of two underscores was removed)</li>
      * <li>&quot;user__name&quot; is translated to &quot;user__name&quot;
      * (unchanged, with two underscores)</li></ul>
@@ -304,7 +306,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
     {
         @Override
-        public String translate(String input)
+        public String translate(String input, Locale locale)
         {
             if (input == null) return input; // garbage in, garbage out
             int length = input.length();
@@ -339,25 +341,25 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     }
 
     /**
-     * A {@link PropertyNamingStrategy} that translates typical camelCase Java 
+     * A {@link PropertyNamingStrategy} that translates typical camelCase Java
      * property names to PascalCase JSON element names (i.e., with a capital
-     * first letter).  In particular, the following translations are applied by 
+     * first letter).  In particular, the following translations are applied by
      * this PropertyNamingStrategy.
-     * 
-     * <ul><li>The first lower-case letter in the Java property name is translated 
+     *
+     * <ul><li>The first lower-case letter in the Java property name is translated
      * into its equivalent upper-case representation.</li></ul>
-     * 
-     * This rules result in the following example translation from 
+     *
+     * This rules result in the following example translation from
      * Java property names to JSON element names.
      * <ul><li>&quot;userName&quot; is translated to &quot;UserName&quot;</li></ul>
-     * 
+     *
      * @since 2.7 (was formerly called {@link PascalCaseStrategy})
      */
     public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
     {
         /**
          * Converts camelCase to PascalCase
-         * 
+         *
          * For example, "userName" would be converted to
          * "UserName".
          *
@@ -365,7 +367,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
          * @return input converted to PascalCase format
          */
         @Override
-        public String translate(String input) {
+        public String translate(String input, Locale locale) {
             if (input == null || input.length() == 0){
                 return input; // garbage in, garbage out
             }
@@ -386,14 +388,14 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * and no separators.
      * Conversion from internal name like "someOtherValue" would be into external name
      * if "someothervalue".
-     * 
+     *
      * @since 2.4
      */
     public static class LowerCaseStrategy extends PropertyNamingStrategyBase
     {
         @Override
-        public String translate(String input) {
-            return input.toLowerCase();
+        public String translate(String input, Locale locale) {
+            return input.toLowerCase(locale);
         }
     }
 
@@ -407,7 +409,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class KebabCaseStrategy extends PropertyNamingStrategyBase
     {
         @Override
-        public String translate(String input) {
+        public String translate(String input, Locale locale) {
             return translateLowerCaseWithSeparator(input, '-');
         }
     }
@@ -420,7 +422,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      */
     public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase {
         @Override
-        public String translate(String input){
+        public String translate(String input, Locale locale){
             return translateLowerCaseWithSeparator(input, '.');
         }
     }
@@ -430,7 +432,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     /* Deprecated variants, aliases
     /**********************************************************
      */
-    
+
     /**
      * @deprecated Since 2.7 use {@link #SNAKE_CASE} instead;
      */

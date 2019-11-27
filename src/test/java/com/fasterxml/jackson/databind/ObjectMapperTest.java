@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.*;
 import java.util.*;
@@ -448,5 +449,40 @@ public class ObjectMapperTest extends BaseMapTest
             new HashSet<>(Arrays.asList("second", "third", "main")),
             objectMapper.getRegisteredModuleIds()
         );
+    }
+
+    static class Id {
+        @JsonProperty("someId")
+        int someId;
+    }
+
+    public void testTurkishILetterDeserialization() throws Exception {
+        final String exp = "{\"someId\":1}";
+        Locale turkish = new Locale("tr", "TR");
+        ObjectMapper objectMapper = new ObjectMapper()
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+        Locale.setDefault(turkish);
+
+        objectMapper.readValue(exp, Id.class);
+        Locale.setDefault(Locale.UK);
+        //Reader is cached with turkish locale at this point, but default is now UK
+        Id result = objectMapper.readValue(exp, Id.class);
+
+        assertEquals(1, result.someId);
+    }
+
+    public void testObjectMapperUsesProperLocale() throws Exception {
+        //small i is needed, so the "someId".toLowerCase() with Turkish locale would be different from "someid"
+        final String exp = "{\"someid\":1}";
+        Locale turkish = new Locale("tr", "TR");
+
+        ObjectMapper objectMapper = new ObjectMapper()
+                .setLocale(Locale.UK)
+                .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+        Locale.setDefault(turkish);
+
+        Id result = objectMapper.readValue(exp, Id.class);
+
+        assertEquals(1, result.someId);
     }
 }

@@ -66,6 +66,8 @@ public class POJOPropertiesCollector
      * but differs for builder objects ("with" by default).
      */
     protected final String _mutatorPrefix;
+
+    private final Locale _locale;
     
     /*
     /**********************************************************
@@ -124,7 +126,7 @@ public class POJOPropertiesCollector
      */
 
     protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
-            JavaType type, AnnotatedClass classDef, String mutatorPrefix)
+                                      JavaType type, AnnotatedClass classDef, String mutatorPrefix, Locale locale)
     {
         _config = config;
         _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
@@ -132,6 +134,7 @@ public class POJOPropertiesCollector
         _type = type;
         _classDef = classDef;
         _mutatorPrefix = (mutatorPrefix == null) ? "set" : mutatorPrefix;
+        _locale = locale;
         if (config.isAnnotationProcessingEnabled()) {
             _useAnnotations = true;
             _annotationIntrospector = _config.getAnnotationIntrospector();
@@ -845,22 +848,22 @@ public class POJOPropertiesCollector
             if (!prop.isExplicitlyNamed() || _config.isEnabled(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)) {
                 if (_forSerialization) {
                     if (prop.hasGetter()) {
-                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName(), _locale);
                     } else if (prop.hasField()) {
-                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
+                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName(), _locale);
                     }
                 } else {
                     if (prop.hasSetter()) {
-                        rename = naming.nameForSetterMethod(_config, prop.getSetter(), fullName.getSimpleName());
+                        rename = naming.nameForSetterMethod(_config, prop.getSetter(), fullName.getSimpleName(), _locale);
                     } else if (prop.hasConstructorParameter()) {
-                        rename = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), fullName.getSimpleName());
+                        rename = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), fullName.getSimpleName(), _locale);
                     } else if (prop.hasField()) {
-                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
+                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName(), _locale);
                     } else if (prop.hasGetter()) {
                         /* Plus, when getter-as-setter is used, need to convert that too..
                          * (should we verify that's enabled? For now, assume it's ok always)
                          */
-                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName(), _locale);
                     }
                 }
             }

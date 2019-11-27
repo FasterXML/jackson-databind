@@ -43,13 +43,11 @@ import com.fasterxml.jackson.databind.*;
  * abstract base class, {@link PolymorphicTypeValidator.Base} which contains helper methods
  * and default implementations for returning {@link Validity#INDETERMINATE} for validation
  * methods (to allow only overriding relevant methods implementation cares about)
- *
- * @since 2.10
  */
 public abstract class PolymorphicTypeValidator
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Definition of return values to indicate determination regarding validity.

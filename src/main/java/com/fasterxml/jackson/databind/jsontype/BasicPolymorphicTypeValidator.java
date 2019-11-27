@@ -24,7 +24,7 @@ public class BasicPolymorphicTypeValidator
     extends PolymorphicTypeValidator.Base
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /*
     /**********************************************************************

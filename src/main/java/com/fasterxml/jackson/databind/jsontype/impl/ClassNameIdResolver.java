@@ -131,6 +131,6 @@ public class ClassNameIdResolver
 
     @Override
     public String getDescForKnownTypeIds() {
-        return "class name used as type id";
+        return "{class name used as type id}";
     }
 }

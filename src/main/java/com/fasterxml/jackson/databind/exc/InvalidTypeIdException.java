@@ -5,13 +5,11 @@ import com.fasterxml.jackson.databind.JavaType;
 
 /**
  * Exception thrown when resolution of a type id fails.
- *
- * @since 2.8
  */
 public class InvalidTypeIdException
-    extends MismatchedInputException // since 2.9
+    extends MismatchedInputException
 {
-    private static final long serialVersionUID = 1L; // silly Eclipse, warnings
+    private static final long serialVersionUID = 3L;
 
     /**
      * Basetype for which subtype was to be resolved
@@ -20,14 +18,14 @@ public class InvalidTypeIdException
 
     /**
      * Type id that failed to be resolved to a subtype; `null` in cases
-     * where no type id was located (since 2.9).
+     * where no type id was located.
      */
     protected final String _typeId;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public InvalidTypeIdException(JsonParser p, String msg,
@@ -44,9 +42,9 @@ public class InvalidTypeIdException
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JavaType getBaseType() { return _baseType; }

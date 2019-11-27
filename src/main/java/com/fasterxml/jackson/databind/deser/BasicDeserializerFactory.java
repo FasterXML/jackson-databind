@@ -1692,9 +1692,18 @@ nonAnnotatedParamIndex, ctor);
         // what we are interested in -- this because we will always support array
         // types via composition, and since array types are JDK provided (and hence
         // can not be custom or customized).
-        while (valueType.isArray()) {
-            valueType = valueType.getComponentType();
+        if (valueType.isArray()) {
+            do {
+                valueType = valueType.getComponentType();
+            } while (valueType.isArray());
+            // one special case: allow `Object[]`, but not `Object`; former
+            // will not automatically cause issues with contents as they
+            // must have type separately
+            if (valueType == CLASS_OBJECT) {
+                return true;
+            }
         }
+
         // Yes, we handle all Enum types
         if (Enum.class.isAssignableFrom(valueType)) {
             return true;
@@ -1713,6 +1722,7 @@ nonAnnotatedParamIndex, ctor);
             }
             if (StdJdkDeserializers.hasDeserializerFor(valueType)
                     || (valueType == CLASS_STRING)
+                    // note: number wrappers dealt with above
                     || (valueType == Boolean.class)
                     || (valueType == EnumMap.class)
                     || (valueType == AtomicReference.class)

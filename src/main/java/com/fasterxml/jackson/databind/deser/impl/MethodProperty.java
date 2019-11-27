@@ -16,10 +16,10 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.LambdaMetafactoryUtils;
 
 // https://github.com/FasterXML/jackson-databind/issues/2083
 // TODO:
-// - add LambdaMetafactoryUtils
 // - add support of set and return
 // - add support for primitives
 // - tests of performance
@@ -93,7 +93,7 @@ public final class MethodProperty
             return null;
         } else {
             try {
-                return getBiConsumerObjectSetter(unreflect(_setter));
+                return LambdaMetafactoryUtils.getBiConsumerObjectSetter(_setter);
             } catch (Throwable throwable) {
                 return null;
             }
@@ -101,112 +101,9 @@ public final class MethodProperty
     }
 
     private Object getPrimitiveConsumer() {
-        Class<?> setterParameterType = _setter.getParameterTypes()[0];
-        if (setterParameterType.isPrimitive()) {
-            try {
-                if (setterParameterType == int.class) {
-                        return getIntSetter(unreflect(_setter));
-                }
-                if (setterParameterType == long.class)
-                    return getLongSetter(unreflect(_setter));
-            } catch (Throwable throwable) {
-                return null;
-            }
-        }
-        return null;
+        return LambdaMetafactoryUtils.getPrimitiveConsumer(_setter);
     }
 
-    private static MethodHandle unreflect(Method method) {
-        try {
-            final MethodHandles.Lookup caller = getLookup(method);
-
-            return caller.unreflect(method);
-        } catch (Throwable e) {
-            return null;
-        }
-    }
-
-    private static MethodHandles.Lookup getLookup(Method method) throws NoSuchFieldException, IllegalAccessException {
-        // Define black magic.
-        final MethodHandles.Lookup original = MethodHandles.lookup();
-        final Field internal = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
-        internal.setAccessible(true);
-        final MethodHandles.Lookup trusted = (MethodHandles.Lookup) internal.get(original);
-
-        // Invoke black magic.
-        return trusted.in(method.getDeclaringClass());
-    }
-
-    private ObjIntConsumer getIntSetter(MethodHandle methodHandle) throws Throwable {
-        final Class<?> functionKlaz = ObjIntConsumer.class;
-        Object o = getSetter(methodHandle, functionKlaz);
-        return (ObjIntConsumer) o;
-    }
-
-    private ObjLongConsumer getLongSetter(MethodHandle methodHandle) throws Throwable {
-        final Class<?> functionKlaz = ObjLongConsumer.class;
-        Object o = getSetter(methodHandle, functionKlaz);
-        return (ObjLongConsumer) o;
-    }
-
-    private BiConsumer getBiConsumerObjectSetter(MethodHandle methodHandle) throws Throwable {
-        final Class<?> functionKlaz = BiConsumer.class;
-        Object o = getBiConsumerSetter(methodHandle, functionKlaz);
-        return (BiConsumer) o;
-    }
-
-    private Object getSetter(MethodHandle methodHandle, Class<?> functionKlaz) throws Throwable {
-        final String functionName = "accept";
-        final Class<?> functionReturn = void.class;
-        Class<?> aClass = !methodHandle.type().parameterType(1).isPrimitive()
-                ? Object.class
-                : methodHandle.type().parameterType(1);
-        final Class<?>[] functionParams = new Class<?>[] { Object.class,
-                aClass};
-
-        final MethodType factoryMethodType = MethodType
-                .methodType(functionKlaz);
-        final MethodType functionMethodType = MethodType.methodType(
-                functionReturn, functionParams);
-
-        final CallSite setterFactory = LambdaMetafactory.metafactory( //
-                getLookup(_setter), // Represents a lookup context.
-                functionName, // The name of the method to implement.
-                factoryMethodType, // Signature of the factory method.
-                functionMethodType, // Signature of function implementation.
-                methodHandle, // Function method implementation.
-                methodHandle.type() // Function method type signature.
-        );
-
-        final MethodHandle setterInvoker = setterFactory.getTarget();
-        return setterInvoker.invoke();
-    }
-
-
-    private Object getBiConsumerSetter(MethodHandle methodHandle, Class<?> functionKlaz) throws Throwable {
-        final String functionName = "accept";
-        final Class<?> functionReturn = void.class;
-        Class<?> aClass = Object.class;
-        final Class<?>[] functionParams = new Class<?>[] { Object.class,
-                aClass};
-
-        final MethodType factoryMethodType = MethodType
-                .methodType(functionKlaz);
-        final MethodType functionMethodType = MethodType.methodType(
-                functionReturn, functionParams);
-
-        final CallSite setterFactory = LambdaMetafactory.metafactory( //
-                getLookup(_setter), // Represents a lookup context.
-                functionName, // The name of the method to implement.
-                factoryMethodType, // Signature of the factory method.
-                functionMethodType, // Signature of function implementation.
-                methodHandle, // Function method implementation.
-                methodHandle.type() // Function method type signature.
-        );
-
-        final MethodHandle setterInvoker = setterFactory.getTarget();
-        return setterInvoker.invoke();
-    }
 
     /**
      * Constructor used for JDK Serialization when reading persisted object

@@ -344,7 +344,6 @@ public class BeanDeserializerBuilder
      * Method for constructing a {@link BeanDeserializer}, given all
      * information collected.
      */
-    //TODO change
     public JsonDeserializer<?> build(Locale locale)
     {
         Collection<SettableBeanProperty> props = _properties.values();

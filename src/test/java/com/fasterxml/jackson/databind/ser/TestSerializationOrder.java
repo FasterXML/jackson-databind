@@ -11,12 +11,6 @@ import com.fasterxml.jackson.databind.*;
 public class TestSerializationOrder
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Annotated helper classes
-    /**********************************************************
-     */
-
     static class BeanWithCreator
     {
         public int a;
@@ -33,7 +27,7 @@ public class TestSerializationOrder
     static class BeanWithOrder
     {
         public int d, b, a, c;
-        
+
         public BeanWithOrder(int a, int b, int c, int d) {
             this.a = a;
             this.b = b;
@@ -59,10 +53,10 @@ public class TestSerializationOrder
 
     @JsonPropertyOrder(value={"a","b","x","z"})
     static class BeanFor268 {
-    	@JsonProperty("a") public String xA = "a";
-    	@JsonProperty("z") public String aZ = "z";
-    	@JsonProperty("b") public String xB() { return "b"; }
-    	@JsonProperty("x") public String aX() { return "x"; }
+        @JsonProperty("a") public String xA = "a";
+        @JsonProperty("z") public String aZ = "z";
+    	   @JsonProperty("b") public String xB() { return "b"; }
+    	   @JsonProperty("x") public String aX() { return "x"; }
     }
 
     static class BeanFor459 {
@@ -72,7 +66,7 @@ public class TestSerializationOrder
         public int a = 1;
     }
 
-    // For [Issue#311]
+    // For [databind#311]
     @JsonPropertyOrder(alphabetic = true)
     public class BeanForGH311 {
         private final int a;
@@ -87,16 +81,15 @@ public class TestSerializationOrder
         public int getA() { return a; }
         public int getB() { return b; }
     }
-    
+
     /*
     /*********************************************
     /* Unit tests
     /*********************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
-    
-    // Test for [JACKSON-170]
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     public void testImplicitOrderByCreator() throws Exception
     {
         assertEquals("{\"c\":1,\"a\":2,\"b\":0}", MAPPER.writeValueAsString(new BeanWithCreator(1, 2)));
@@ -111,7 +104,6 @@ public class TestSerializationOrder
     {
         assertEquals("{\"d\":4,\"a\":1,\"b\":2,\"c\":3}", MAPPER.writeValueAsString(new SubBeanWithOrder(1, 2, 3, 4)));
     }
-
 
     public void testOrderWithMixins() throws Exception
     {
@@ -137,8 +129,7 @@ public class TestSerializationOrder
                 m.writeValueAsString(new BeanFor459()));
     }
 
-    // [Issue#311]
-
+    // [databind#311]
     public void testAlphaAndCreatorOrdering() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()

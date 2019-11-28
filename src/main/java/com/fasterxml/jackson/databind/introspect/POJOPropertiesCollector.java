@@ -336,17 +336,14 @@ public class POJOPropertiesCollector
             _renameUsing(props, naming);
         }
 
-        /* Sort by visibility (explicit over implicit); drop all but first
-         * of member type (getter, setter etc) if there is visibility
-         * difference
-         */
+        // Sort by visibility (explicit over implicit); drop all but first of member
+        // type (getter, setter etc) if there is visibility difference
         for (POJOPropertyBuilder property : props.values()) {
             property.trimByVisibility();
         }
 
-        /* and, if required, apply wrapper name: note, MUST be done after
-         * annotations are merged.
-         */
+        // and, if required, apply wrapper name: note, MUST be done after
+        // annotations are merged.
         if (_config.isEnabled(MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME)) {
             _renameWithWrappers(props);
         }
@@ -933,25 +930,24 @@ public class POJOPropertiesCollector
     /**********************************************************
      */
     
-    /* First, order by [JACKSON-90] (explicit ordering and/or alphabetic)
-     * and then for [JACKSON-170] (implicitly order creator properties before others)
-     */
+    // First, order by(explicit ordering and/or alphabetic),
+    // then by (optional) index (if any)
+    // and then implicitly order creator properties before others)
+
     protected void _sortProperties(Map<String, POJOPropertyBuilder> props)
     {
         // Then how about explicit ordering?
-        AnnotationIntrospector intr = _annotationIntrospector;
+        final AnnotationIntrospector intr = _annotationIntrospector;
         Boolean alpha = intr.findSerializationSortAlphabetically((Annotated) _classDef);
-        boolean sort;
-        
-        if (alpha == null) {
-            sort = _config.shouldSortPropertiesAlphabetically();
-        } else {
-            sort = alpha.booleanValue();
-        }
+        final boolean sort = (alpha == null)
+                ? _config.shouldSortPropertiesAlphabetically()
+                : alpha.booleanValue();
+        final boolean indexed = _anyIndexed(props.values());
+
         String[] propertyOrder = intr.findSerializationPropertyOrder(_classDef);
         
         // no sorting? no need to shuffle, then
-        if (!sort && (_creatorProperties == null) && (propertyOrder == null)) {
+        if (!sort && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
             return;
         }
         int size = props.size();
@@ -966,11 +962,11 @@ public class POJOPropertiesCollector
         for (POJOPropertyBuilder prop : props.values()) {
             all.put(prop.getName(), prop);
         }
-        Map<String,POJOPropertyBuilder> ordered = new LinkedHashMap<String,POJOPropertyBuilder>(size+size);
+        Map<String,POJOPropertyBuilder> ordered = new LinkedHashMap<>(size+size);
         // Ok: primarily by explicit order
         if (propertyOrder != null) {
             for (String name : propertyOrder) {
-                POJOPropertyBuilder w = all.get(name);
+                POJOPropertyBuilder w = all.remove(name);
                 if (w == null) { // will also allow use of "implicit" names for sorting
                     for (POJOPropertyBuilder prop : props.values()) {
                         if (name.equals(prop.getInternalName())) {
@@ -986,7 +982,26 @@ public class POJOPropertiesCollector
                 }
             }
         }
-        // And secondly by sorting Creator properties before other unordered properties
+
+        // Second (starting with 2.11): index, if any:
+        if (indexed) {
+            Map<Integer,POJOPropertyBuilder> byIndex = new TreeMap<>();
+            Iterator<Map.Entry<String,POJOPropertyBuilder>> it = all.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String,POJOPropertyBuilder> entry = it.next();
+                POJOPropertyBuilder prop = entry.getValue();
+                Integer index = prop.getMetadata().getIndex();
+                if (index != null) {
+                    byIndex.put(index, prop);
+                    it.remove();
+                }
+            }
+            for (POJOPropertyBuilder prop : byIndex.values()) {
+                ordered.put(prop.getName(), prop);
+            }
+        }
+
+        // Third by sorting Creator properties before other unordered properties
         if (_creatorProperties != null) {
             /* As per [databind#311], this is bit delicate; but if alphabetic ordering
              * is mandated, at least ensure creator properties are in alphabetic
@@ -1008,6 +1023,8 @@ public class POJOPropertiesCollector
                 // 16-Jan-2016, tatu: Related to [databind#1317], make sure not to accidentally
                 //    add back pruned creator properties!
                 String name = prop.getName();
+                // 27-Nov-2019, tatu: Not sure why, but we should NOT remove it from `all` tho:
+//                if (all.remove(name) != null) {
                 if (all.containsKey(name)) {
                     ordered.put(name, prop);
                 }
@@ -1017,7 +1034,16 @@ public class POJOPropertiesCollector
         ordered.putAll(all);
         props.clear();
         props.putAll(ordered);
-    }        
+    }
+
+    private boolean _anyIndexed(Collection<POJOPropertyBuilder> props) {
+        for (POJOPropertyBuilder prop : props) {
+            if (prop.getMetadata().hasIndex()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /*
     /**********************************************************

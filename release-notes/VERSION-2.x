@@ -22,6 +22,7 @@ Project: jackson-databind
 #2522: `DeserializationContext.handleMissingInstantiator()` throws `MismatchedInputException`
   for non-static inner classes
 #2525: Incorrect `JsonStreamContext` for `TokenBuffer` and `TreeTraversingParser`
+#2555: Use `@JsonProperty(index)` for sorting properties on serialization
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.2 (not yet released)

@@ -8,6 +8,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.ObjIntConsumer;
 import java.util.function.ObjLongConsumer;
 
@@ -67,6 +68,12 @@ public final class LambdaMetafactoryUtils {
         return (BiConsumer) o;
     }
 
+    public static BiFunction getBiFunctionObjectSetter(Method method) throws Throwable {
+        final Class<?> functionKlaz = BiFunction.class;
+        Object o = getBiFunctionSetter(method, functionKlaz);
+        return (BiFunction) o;
+    }
+
     private static Object getSetter(Method method, Class<?> functionKlaz) throws Throwable {
         MethodHandle methodHandle = unreflect(method);
 
@@ -105,6 +112,14 @@ public final class LambdaMetafactoryUtils {
         MethodHandle methodHandle = unreflect(method);
         final String functionName = "accept";
         final Class<?> functionReturn = void.class;
+        Class<?> aClass = Object.class;
+        return createSetter(method, functionKlaz, methodHandle, functionName, functionReturn, aClass);
+    }
+
+    private static Object getBiFunctionSetter(Method method, Class<?> functionKlaz) throws Throwable {
+        MethodHandle methodHandle = unreflect(method);
+        final String functionName = "apply";
+        final Class<?> functionReturn = Object.class;
         Class<?> aClass = Object.class;
         return createSetter(method, functionKlaz, methodHandle, functionName, functionReturn, aClass);
     }

@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.invoke.*;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.function.*;
@@ -20,10 +18,10 @@ import com.fasterxml.jackson.databind.util.LambdaMetafactoryUtils;
 
 // https://github.com/FasterXML/jackson-databind/issues/2083
 // TODO:
-// - add support of set and return
 // - add support for primitives
 // - tests of performance
 // - create pull request
+// - add support for Java 9,10,11,12,13
 
 
 /**
@@ -43,6 +41,7 @@ public final class MethodProperty
      */
     protected final transient Method _setter;
     protected final transient BiConsumer consumer;
+    protected final transient BiFunction function;
     protected final transient Object primitiveConsumer;
 
     /**
@@ -59,6 +58,7 @@ public final class MethodProperty
         _setter = method.getAnnotated();
         primitiveConsumer = getPrimitiveConsumer();
         consumer = getConsumer();
+        function = getFunction();
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
@@ -69,6 +69,7 @@ public final class MethodProperty
         _setter = src._setter;
         primitiveConsumer = getPrimitiveConsumer();
         consumer = getConsumer();
+        function = getFunction();
 
         _skipNulls = NullsConstantProvider.isSkipper(nva);
     }
@@ -79,6 +80,21 @@ public final class MethodProperty
         _setter = src._setter;
         primitiveConsumer = getPrimitiveConsumer();
         consumer = getConsumer();
+        function = getFunction();
+
+        _skipNulls = src._skipNulls;
+    }
+
+    /**
+     * Constructor used for JDK Serialization when reading persisted object
+     */
+    protected MethodProperty(MethodProperty src, Method m) {
+        super(src);
+        _annotated = src._annotated;
+        _setter = m;
+        primitiveConsumer = getPrimitiveConsumer();
+        consumer = getConsumer();
+        function = getFunction();
 
         _skipNulls = src._skipNulls;
     }
@@ -100,22 +116,25 @@ public final class MethodProperty
         }
     }
 
-    private Object getPrimitiveConsumer() {
-        return LambdaMetafactoryUtils.getPrimitiveConsumer(_setter);
+    private BiFunction getFunction() {
+        Class<?> setterParameterType = _setter.getParameterTypes()[0];
+        if (setterParameterType.isPrimitive() || _setter.getReturnType().isPrimitive()) {
+//            if (setterParameterType == int.class)
+//                return (a, b) -> ((ObjIntConsumer) primitiveConsumer).accept(a, (int) b);
+//            if (setterParameterType == long.class)
+//                return (a, b) -> ((ObjLongConsumer) primitiveConsumer).accept(a, (long) b);
+            return null;
+        } else {
+            try {
+                return LambdaMetafactoryUtils.getBiFunctionObjectSetter(_setter);
+            } catch (Throwable throwable) {
+                return null;
+            }
+        }
     }
 
-
-    /**
-     * Constructor used for JDK Serialization when reading persisted object
-     */
-    protected MethodProperty(MethodProperty src, Method m) {
-        super(src);
-        _annotated = src._annotated;
-        _setter = m;
-        primitiveConsumer = getPrimitiveConsumer();
-        consumer = getConsumer();
-
-        _skipNulls = src._skipNulls;
+    private Object getPrimitiveConsumer() {
+        return LambdaMetafactoryUtils.getPrimitiveConsumer(_setter);
     }
 
     @Override
@@ -186,7 +205,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            invokeWithoutResult(ctxt.isEnabled(DeserializationFeature.LAMBDA_METAFACTORY_AS_INVOKER), instance, value);
+            invokeWithoutResult(isConsumerEnabled(ctxt), instance, value);
         } catch (Exception e) {
             _throwAsIOE(p, e, value);
         }
@@ -215,7 +234,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            Object result = invokeWithResult(instance, value);
+            Object result = invokeWithResult(isConsumerEnabled(ctxt), instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
             _throwAsIOE(p, e, value);
@@ -223,17 +242,35 @@ public final class MethodProperty
         }
     }
 
+    private boolean isConsumerEnabled(DeserializationContext ctxt) {
+        return ctxt.isEnabled(DeserializationFeature.LAMBDA_METAFACTORY_AS_INVOKER);
+    }
+
+
     private void invokeWithoutResult(boolean useConsumer, Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
-        if (useConsumer && consumer != null) {
-            consumer.accept(instance, value);
+        if (useConsumer) {
+            if (consumer != null) {
+                consumer.accept(instance, value);
+            } else {
+                _setter.invoke(instance, value);
+            }
         } else {
             _setter.invoke(instance, value);
         }
     }
 
-    private Object invokeWithResult(Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
-        return _setter.invoke(instance, value);
+    private Object invokeWithResult(boolean useConsumer, Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
+        if (useConsumer) {
+            if (function != null) {
+                return function.apply(instance, value);
+            } else {
+                return _setter.invoke(instance, value);
+            }
+        } else {
+            return _setter.invoke(instance, value);
+        }
     }
+
     @Override
     public final void set(Object instance, Object value) throws IOException
     {
@@ -249,7 +286,7 @@ public final class MethodProperty
     public Object setAndReturn(Object instance, Object value) throws IOException
     {
         try {
-            Object result = invokeWithResult(instance, value);
+            Object result = invokeWithResult(false, instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?

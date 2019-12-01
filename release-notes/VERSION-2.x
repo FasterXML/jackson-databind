@@ -10,6 +10,8 @@ Project: jackson-databind
   (reported by Jon A)
 #2553: JsonDeserialize(contentAs=...) broken with raw collections
  (reported by cpopp@github)
+#2556: Contention in `TypeNameIdResolver.idFromClass()`
+ (reported by Fabian L)
 
 2.10.1 (09-Nov-2019)
 

@@ -88,23 +88,29 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         if (clazz == null) {
             return null;
         }
-        Class<?> cls = _typeFactory.constructType(clazz).getRawClass();
-        final String key = cls.getName();
+        // NOTE: although we may need to let `TypeModifier` change actual type to use
+        // for id, we can use original type as key for more efficient lookup:
+        final String key = clazz.getName();
         String name;
-
         synchronized (_typeToId) {
             name = _typeToId.get(key);
+        }
+
+        if (name == null) {
+            // 29-Nov-2019, tatu: As per test in `TestTypeModifierNameResolution` somehow
+            //    we need to do this odd piece here which seems unnecessary but isn't.
+            Class<?> cls = _typeFactory.constructType(clazz).getRawClass();                
+            // 24-Feb-2011, tatu: As per [JACKSON-498], may need to dynamically look up name
+            // can either throw an exception, or use default name...
+            if (_config.isAnnotationProcessingEnabled()) {
+                BeanDescription beanDesc = _config.introspectClassAnnotations(cls);
+                name = _config.getAnnotationIntrospector().findTypeName(beanDesc.getClassInfo());
+            }
             if (name == null) {
-                // 24-Feb-2011, tatu: As per [JACKSON-498], may need to dynamically look up name
-                // can either throw an exception, or use default name...
-                if (_config.isAnnotationProcessingEnabled()) {
-                    BeanDescription beanDesc = _config.introspectClassAnnotations(cls);
-                    name = _config.getAnnotationIntrospector().findTypeName(beanDesc.getClassInfo());
-                }
-                if (name == null) {
-                    // And if still not found, let's choose default?
-                    name = _defaultTypeId(cls);
-                }
+                // And if still not found, let's choose default?
+                name = _defaultTypeId(cls);
+            }
+            synchronized (_typeToId) {
                 _typeToId.put(key, name);
             }
         }

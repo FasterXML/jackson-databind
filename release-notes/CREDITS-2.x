@@ -1002,3 +1002,7 @@ Richard Wise (Woodz@github)
 Mark Schäfer (mark--@github)
   * Reported #2520: Sub-optimal exception message when failing to deserialize non-static inner classes
   (2.10.1)
+
+Fabian Lange (CodingFabian@github)
+  * Reported #2556: Contention in `TypeNameIdResolver.idFromClass()`
+  (2.10.2)

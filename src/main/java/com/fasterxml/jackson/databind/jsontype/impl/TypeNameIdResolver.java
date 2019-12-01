@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -28,8 +29,8 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     {
         super(baseType, config.getTypeFactory());
         _config = config;
-        _typeToId = typeToId;
-        _idToType = idToType;
+        _typeToId = new ConcurrentHashMap<String, String>(typeToId);
+        _idToType = new ConcurrentHashMap<String, JavaType>(idToType);
     }
  
     public static TypeNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
@@ -91,10 +92,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         // NOTE: although we may need to let `TypeModifier` change actual type to use
         // for id, we can use original type as key for more efficient lookup:
         final String key = clazz.getName();
-        String name;
-        synchronized (_typeToId) {
-            name = _typeToId.get(key);
-        }
+        String name = _typeToId.get(key);
 
         if (name == null) {
             // 29-Nov-2019, tatu: As per test in `TestTypeModifierNameResolution` somehow
@@ -110,9 +108,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 // And if still not found, let's choose default?
                 name = _defaultTypeId(cls);
             }
-            synchronized (_typeToId) {
-                _typeToId.put(key, name);
-            }
+            _typeToId.put(key, name);
         }
         return name;
     }

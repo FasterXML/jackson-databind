@@ -91,6 +91,10 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         //   `JavaType` being resolved, not underlying class. Hence commented out in
         //   3.x. There should be better way to support whatever the use case is.
 
+        // 29-Nov-2019, tatu: Looking at 2.x, test in `TestTypeModifierNameResolution` suggested
+        //   that use of `TypeModifier` was used for demoting some types (from impl class to
+        //   interface. For what that's worth. Still not supported for 3.x until proven necessary
+
 //        cls = _typeFactory.constructType(cls).getRawClass();
 
         final String key = cls.getName();
@@ -98,17 +102,20 @@ public class TypeNameIdResolver extends TypeIdResolverBase
 
         synchronized (_typeToId) {
             name = _typeToId.get(key);
+        }
+
+        if (name == null) {
+            // 24-Feb-2011, tatu: As per [JACKSON-498], may need to dynamically look up name
+            // can either throw an exception, or use default name...
+            if (ctxt.isAnnotationProcessingEnabled()) {
+                name = ctxt.getAnnotationIntrospector().findTypeName(ctxt.getConfig(),
+                        ctxt.introspectClassAnnotations(cls));
+            }
             if (name == null) {
-                // 24-Feb-2011, tatu: As per [JACKSON-498], may need to dynamically look up name
-                // can either throw an exception, or use default name...
-                if (ctxt.isAnnotationProcessingEnabled()) {
-                    name = ctxt.getAnnotationIntrospector().findTypeName(ctxt.getConfig(),
-                            ctxt.introspectClassAnnotations(cls));
-                }
-                if (name == null) {
-                    // And if still not found, let's choose default?
-                    name = _defaultTypeId(cls);
-                }
+                // And if still not found, let's choose default?
+                name = _defaultTypeId(cls);
+            }
+            synchronized (_typeToId) {
                 _typeToId.put(key, name);
             }
         }

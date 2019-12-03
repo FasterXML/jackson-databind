@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 
-public class ExternalTypeId198Test extends BaseMapTest
+// [databind#1198]
+public class ExternalTypeId1198Test extends BaseMapTest
 {
     public enum Attacks { KICK, PUNCH }
 

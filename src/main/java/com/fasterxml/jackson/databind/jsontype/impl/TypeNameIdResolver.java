@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -14,46 +15,55 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     protected final MapperConfig<?> _config;
 
     /**
-     * Mappings from class name to type id, used for serialization
+     * Mappings from class name to type id, used for serialization.
+     *<p>
+     * Since lazily constructed will require synchronization (either internal
+     * by type, or external)
      */
-    protected final Map<String, String> _typeToId;
+    protected final ConcurrentHashMap<String, String> _typeToId;
 
     /**
-     * Mappings from type id to JavaType, used for deserialization
+     * Mappings from type id to JavaType, used for deserialization.
+     *<p>
+     * Eagerly constructed, not modified, can use regular unsynchronized {@link Map}.
      */
     protected final Map<String, JavaType> _idToType;
 
     protected TypeNameIdResolver(MapperConfig<?> config, JavaType baseType,
-            Map<String, String> typeToId, Map<String, JavaType> idToType)
+            ConcurrentHashMap<String, String> typeToId,
+            HashMap<String, JavaType> idToType)
     {
         super(baseType, config.getTypeFactory());
         _config = config;
         _typeToId = typeToId;
         _idToType = idToType;
     }
- 
+
     public static TypeNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
             Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
         // sanity check
         if (forSer == forDeser) throw new IllegalArgumentException();
-        Map<String, String> typeToId = null;
-        Map<String, JavaType> idToType = null;
+
+        final ConcurrentHashMap<String, String> typeToId;
+        final HashMap<String, JavaType> idToType;
 
         if (forSer) {
-            typeToId = new HashMap<String, String>();
-        }
-        if (forDeser) {
-            idToType = new HashMap<String, JavaType>();
+            // Only need Class-to-id for serialization; but synchronized since may be
+            // lazily built (if adding type-id-mappings dynamically)
+            typeToId = new ConcurrentHashMap<>();
+            idToType = null;
+        } else {
+            idToType = new HashMap<>();
             // 14-Apr-2016, tatu: Apparently needed for special case of `defaultImpl`;
-            //    see [databind#1198] for details.
-            typeToId = new TreeMap<String, String>();
+            //    see [databind#1198] for details: but essentially we only need room
+            //    for a single value.
+            typeToId = new ConcurrentHashMap<>(4);
         }
         if (subtypes != null) {
             for (NamedType t : subtypes) {
-                /* no name? Need to figure out default; for now, let's just
-                 * use non-qualified class name
-                 */
+                // no name? Need to figure out default; for now, let's just
+                // use non-qualified class name
                 Class<?> cls = t.getType();
                 String id = t.hasName() ? t.getName() : _defaultTypeId(cls);
                 if (forSer) {
@@ -91,10 +101,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         // NOTE: although we may need to let `TypeModifier` change actual type to use
         // for id, we can use original type as key for more efficient lookup:
         final String key = clazz.getName();
-        String name;
-        synchronized (_typeToId) {
-            name = _typeToId.get(key);
-        }
+        String name = _typeToId.get(key);
 
         if (name == null) {
             // 29-Nov-2019, tatu: As per test in `TestTypeModifierNameResolution` somehow
@@ -110,9 +117,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 // And if still not found, let's choose default?
                 name = _defaultTypeId(cls);
             }
-            synchronized (_typeToId) {
-                _typeToId.put(key, name);
-            }
+            _typeToId.put(key, name);
         }
         return name;
     }

@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.util.LambdaMetafactoryUtils;
 
 // https://github.com/FasterXML/jackson-databind/issues/2083
 // TODO:
-// - add support for primitives
 // - tests of performance
 // - create pull request
 // - add support for Java 9,10,11,12,13
@@ -42,7 +41,6 @@ public final class MethodProperty
     protected final transient Method _setter;
     protected final transient BiConsumer consumer;
     protected final transient BiFunction function;
-    protected final transient Object primitiveConsumer;
 
     /**
      * @since 2.9
@@ -56,7 +54,6 @@ public final class MethodProperty
         super(propDef, type, typeDeser, contextAnnotations);
         _annotated = method;
         _setter = method.getAnnotated();
-        primitiveConsumer = getPrimitiveConsumer();
         consumer = getConsumer();
         function = getFunction();
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
@@ -67,7 +64,6 @@ public final class MethodProperty
         super(src, deser, nva);
         _annotated = src._annotated;
         _setter = src._setter;
-        primitiveConsumer = getPrimitiveConsumer();
         consumer = getConsumer();
         function = getFunction();
 
@@ -78,7 +74,6 @@ public final class MethodProperty
         super(src, newName);
         _annotated = src._annotated;
         _setter = src._setter;
-        primitiveConsumer = getPrimitiveConsumer();
         consumer = getConsumer();
         function = getFunction();
 
@@ -92,7 +87,6 @@ public final class MethodProperty
         super(src);
         _annotated = src._annotated;
         _setter = m;
-        primitiveConsumer = getPrimitiveConsumer();
         consumer = getConsumer();
         function = getFunction();
 
@@ -100,41 +94,11 @@ public final class MethodProperty
     }
 
     private BiConsumer getConsumer() {
-        Class<?> setterParameterType = _setter.getParameterTypes()[0];
-        if (setterParameterType.isPrimitive()) {
-//            if (setterParameterType == int.class)
-//                return (a, b) -> ((ObjIntConsumer) primitiveConsumer).accept(a, (int) b);
-//            if (setterParameterType == long.class)
-//                return (a, b) -> ((ObjLongConsumer) primitiveConsumer).accept(a, (long) b);
-            return null;
-        } else {
-            try {
-                return LambdaMetafactoryUtils.getBiConsumerObjectSetter(_setter);
-            } catch (Throwable throwable) {
-                return null;
-            }
-        }
+        return LambdaMetafactoryUtils.getBiConsumerObjectSetter(_setter);
     }
 
     private BiFunction getFunction() {
-        Class<?> setterParameterType = _setter.getParameterTypes()[0];
-        if (setterParameterType.isPrimitive() || _setter.getReturnType().isPrimitive()) {
-//            if (setterParameterType == int.class)
-//                return (a, b) -> ((ObjIntConsumer) primitiveConsumer).accept(a, (int) b);
-//            if (setterParameterType == long.class)
-//                return (a, b) -> ((ObjLongConsumer) primitiveConsumer).accept(a, (long) b);
-            return null;
-        } else {
-            try {
-                return LambdaMetafactoryUtils.getBiFunctionObjectSetter(_setter);
-            } catch (Throwable throwable) {
-                return null;
-            }
-        }
-    }
-
-    private Object getPrimitiveConsumer() {
-        return LambdaMetafactoryUtils.getPrimitiveConsumer(_setter);
+        return LambdaMetafactoryUtils.getBiFunctionObjectSetter(_setter);
     }
 
     @Override

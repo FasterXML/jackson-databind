@@ -53,7 +53,9 @@ public class NoneShallPassValidator
 
         // But aside from that actually only allow if base type not too generic
         final Class<?> rawBase = baseType.getRawClass();
-        if ((rawBase == Object.class)) {
+        if ((rawBase == Object.class)
+                // 06-Dec-2019, tatu: !!! TODO: maybe `java.io.Serializable`, `java.lang.Cloneable` too?
+                ) {
             return Validity.DENIED;
         }
 

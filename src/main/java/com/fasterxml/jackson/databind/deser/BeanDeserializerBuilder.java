@@ -348,8 +348,7 @@ public class BeanDeserializerBuilder
     {
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
-                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
                 _collectAliases(props));
         propertyMap.assignIndexes();
 
@@ -425,8 +424,7 @@ public class BeanDeserializerBuilder
         // And if so, we can try building the deserializer
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
-                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
                 _collectAliases(props));
         propertyMap.assignIndexes();
 

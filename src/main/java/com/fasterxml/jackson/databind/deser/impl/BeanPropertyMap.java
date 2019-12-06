@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -77,18 +79,38 @@ public class BeanPropertyMap
     private final Map<String,String> _aliasMapping;
 
     /**
-     * @since 2.9
+     * We require {@link Locale} since case changes are locale-sensitive in certain
+     * cases (see <a href="https://en.wikipedia.org/wiki/Dotted_and_dotless_I">Turkish I</a>
+     * for example)
+     *
+     * @since 2.11
+     */
+    private final Locale _locale;
+
+    /**
+     * @since 2.11
      */
     public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props,
-            Map<String,List<PropertyName>> aliasDefs)
+            Map<String,List<PropertyName>> aliasDefs,
+            Locale locale)
     {
         _caseInsensitive = caseInsensitive;
         _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
         _aliasDefs = aliasDefs;
         _aliasMapping = _buildAliasMapping(aliasDefs);
+        _locale = locale;
         init(props);
     }
 
+    /**
+     * @deprecated since 2.11
+     */
+    @Deprecated
+    public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props,
+            Map<String,List<PropertyName>> aliasDefs) {
+        this(caseInsensitive, props, aliasDefs, Locale.getDefault());
+    }
+    
     /* Copy constructors used when a property can replace existing one
      *
      * @since 2.9.6
@@ -98,6 +120,7 @@ public class BeanPropertyMap
     {
         // First, copy most fields as is:
         _caseInsensitive = src._caseInsensitive;
+        _locale = src._locale;
         _hashMask = src._hashMask;
         _size = src._size;
         _spillCount = src._spillCount;
@@ -120,6 +143,7 @@ public class BeanPropertyMap
     {
         // First, copy most fields as is:
         _caseInsensitive = src._caseInsensitive;
+        _locale = src._locale;
         _hashMask = src._hashMask;
         _size = src._size;
         _spillCount = src._spillCount;
@@ -156,7 +180,8 @@ public class BeanPropertyMap
     @Deprecated // since 2.8
     public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props)
     {
-        this(caseInsensitive, props, Collections.<String,List<PropertyName>>emptyMap());
+        this(caseInsensitive, props, Collections.<String,List<PropertyName>>emptyMap(),
+                Locale.getDefault());
     }
 
     /**
@@ -165,6 +190,7 @@ public class BeanPropertyMap
     protected BeanPropertyMap(BeanPropertyMap base, boolean caseInsensitive)
     {
         _caseInsensitive = caseInsensitive;
+        _locale = base._locale;
         _aliasDefs = base._aliasDefs;
         _aliasMapping = base._aliasMapping;
 
@@ -247,10 +273,22 @@ public class BeanPropertyMap
         }
         return result;
     }
-    
+
     /**
-     * @since 2.6
+     * @since 2.11
      */
+    public static BeanPropertyMap construct(MapperConfig<?> config,
+            Collection<SettableBeanProperty> props,
+            Map<String,List<PropertyName>> aliasMapping) {
+        return new BeanPropertyMap(config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
+                props, aliasMapping,
+                config.getLocale());
+    }
+
+    /**
+     * @deprecated since 2.11
+     */
+    @Deprecated
     public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
             boolean caseInsensitive, Map<String,List<PropertyName>> aliasMapping) {
         return new BeanPropertyMap(caseInsensitive, props, aliasMapping);
@@ -490,7 +528,7 @@ public class BeanPropertyMap
     // Confining this case insensitivity to this function (and the find method) in case we want to
     // apply a particular locale to the lower case function.  For now, using the default.
     protected final String getPropertyName(SettableBeanProperty prop) {
-        return _caseInsensitive ? prop.getName().toLowerCase() : prop.getName();
+        return _caseInsensitive ? prop.getName().toLowerCase(_locale) : prop.getName();
     }
 
     /*
@@ -521,7 +559,7 @@ public class BeanPropertyMap
             throw new IllegalArgumentException("Cannot pass null property name");
         }
         if (_caseInsensitive) {
-            key = key.toLowerCase();
+            key = key.toLowerCase(_locale);
         }
 
         // inlined `_hashCode(key)`
@@ -779,7 +817,7 @@ public class BeanPropertyMap
         for (Map.Entry<String,List<PropertyName>> entry : defs.entrySet()) {
             String key = entry.getKey();
             if (_caseInsensitive) {
-                key = key.toLowerCase();
+                key = key.toLowerCase(_locale);
             }
             for (PropertyName pn : entry.getValue()) {
                 String mapped = pn.getSimpleName();

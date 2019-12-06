@@ -1007,6 +1007,10 @@ Fabian Lange (CodingFabian@github)
   * Reported #2556: Contention in `TypeNameIdResolver.idFromClass()`
   (2.10.2)
 
+Stefan Wendt (stewe@github)
+  * Reported #2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
+  (2.10.2)
+
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)
@@ -1026,4 +1030,4 @@ Robert Diebels (RobertDiebels@github)
 Joseph Koshakow (jkosh44@github)
   * Contributed fix for #2515: `ObjectMapper.registerSubtypes(NamedType...)` doesn't allow registering
     the same POJO for two different type ids
- (contributed by Joseph	 K)
+ (2.11.0)

@@ -57,7 +57,7 @@ public final class PropertyBasedCreator
     {
         _valueInstantiator = valueInstantiator;
         if (caseInsensitive) {
-            _propertyLookup = new CaseInsensitiveMap();
+            _propertyLookup = CaseInsensitiveMap.construct(ctxt.getConfig().getLocale());
         } else {
             _propertyLookup = new HashMap<String, SettableBeanProperty>();
         }
@@ -210,14 +210,36 @@ public final class PropertyBasedCreator
     {
         private static final long serialVersionUID = 1L;
 
+        /**
+         * Lower-casing can have Locale-specific minor variations.
+         *
+         * @since 2.11
+         */
+        protected final Locale _locale;
+
+        @Deprecated // since 2.11
+        public CaseInsensitiveMap() {
+            this(Locale.getDefault());
+        }
+
+        // @since 2.11
+        public CaseInsensitiveMap(Locale l) {
+            _locale = l;
+        }
+
+        // @since 2.11
+        public static CaseInsensitiveMap construct(Locale l) {
+            return new CaseInsensitiveMap(l);
+        }
+        
         @Override
         public SettableBeanProperty get(Object key0) {
-            return super.get(((String) key0).toLowerCase());
+            return super.get(((String) key0).toLowerCase(_locale));
         }
 
         @Override
         public SettableBeanProperty put(String key, SettableBeanProperty value) {
-            key = key.toLowerCase();
+            key = key.toLowerCase(_locale);
             return super.put(key, value);
         }
     }

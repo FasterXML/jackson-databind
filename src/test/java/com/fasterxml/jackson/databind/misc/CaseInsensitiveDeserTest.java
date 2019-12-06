@@ -1,9 +1,13 @@
 package com.fasterxml.jackson.databind.misc;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 
 public class CaseInsensitiveDeserTest extends BaseMapTest
@@ -41,6 +45,51 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         @JsonCreator
         public InsensitiveCreator(@JsonProperty("value") int v0) {
             v = v0;
+        }
+    }
+
+    // [databind#1854]
+    static class Obj1854 {
+        private final int id;
+
+        private final List<ChildObj1854> items;
+
+        public Obj1854(int id, List<ChildObj1854> items) {
+            this.id = id;
+            this.items = items;
+        }
+
+        @JsonCreator
+        public static Obj1854 fromJson(@JsonProperty("ID") int id,
+                @JsonProperty("Items") List<ChildObj1854> items) {
+            return new Obj1854(id, items);
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public List<ChildObj1854> getItems() {
+            return items;
+        }
+
+    }
+
+    // [databind#1854]
+    static class ChildObj1854 {
+        private final String childId;
+
+        private ChildObj1854(String id) {
+            this.childId = id;
+        }
+
+        @JsonCreator
+        public static ChildObj1854 fromJson(@JsonProperty("ChildID") String cid) {
+            return new ChildObj1854(cid);
+        }
+
+        public String getId() {
+            return childId;
         }
     }
 
@@ -122,5 +171,15 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         assertNotNull(role);
         assertEquals("12", role.ID);
         assertEquals("Foo", role.Name);
+    }
+
+    public void testIssue1854() throws Exception
+    {
+        final String DOC = aposToQuotes("{'ID': 1, 'Items': [ { 'ChildID': 10 } ]}");
+        Obj1854 result = INSENSITIVE_MAPPER.readValue(DOC, Obj1854.class);
+        assertNotNull(result);
+        assertEquals(1, result.getId());
+        assertNotNull(result.getItems());
+        assertEquals(1, result.getItems().size());
     }
 }

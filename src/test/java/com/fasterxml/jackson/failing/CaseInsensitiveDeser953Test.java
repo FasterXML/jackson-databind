@@ -37,7 +37,7 @@ public class CaseInsensitiveDeser953Test extends BaseMapTest
     private void _testTurkishILetterDeserialization(ObjectMapper mapper, Locale locale) throws Exception
     {
         // Sanity check first
-        assertEquals(locale, mapper.getDeserializationConfig().getLocale());
+        assertEquals(locale, mapper.deserializationConfig().getLocale());
         
         final String ORIGINAL_KEY = "someId";
         

@@ -349,6 +349,10 @@ _containerType,
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
         } catch (Exception e) {
+            boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+            if (!wrap) {
+                ClassUtil.throwIfRTE(e);
+            }
             // note: pass Object.class, not Object[].class, as we need element type for error info
             throw JsonMappingException.wrapWithPath(e, Object.class, result.size());
         }

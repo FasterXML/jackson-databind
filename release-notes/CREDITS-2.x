@@ -1006,3 +1006,7 @@ Mark Schäfer (mark--@github)
 Fabian Lange (CodingFabian@github)
   * Reported #2556: Contention in `TypeNameIdResolver.idFromClass()`
   (2.10.2)
+
+Stefan Wendt (stewe@github)
+  * Reported #2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
+  (2.10.2)

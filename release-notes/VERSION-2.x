@@ -33,6 +33,8 @@ Project: jackson-databind
  (reported by cpopp@github)
 #2556: Contention in `TypeNameIdResolver.idFromClass()`
  (reported by Fabian L)
+#2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
+ (reported by Stefan W)
 
 2.10.1 (09-Nov-2019)
 

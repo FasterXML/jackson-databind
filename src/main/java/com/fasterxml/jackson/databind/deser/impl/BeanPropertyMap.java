@@ -8,7 +8,9 @@ import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -24,24 +26,13 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * as it is done for each and every POJO property deserialized.
  */
 public class BeanPropertyMap
-    implements Iterable<SettableBeanProperty>,
-        java.io.Serializable
+    implements Iterable<SettableBeanProperty>
 {
-    private static final long serialVersionUID = 2L;
-
     /*
     /**********************************************************
     /* Configuration
     /**********************************************************
      */
-
-    protected final boolean _caseInsensitive;
-
-    /**
-     * Configuration of alias mappings, if any (`null` if none),
-     * aligned with properties in <code>_propsInOrder</code>
-     */
-    private final PropertyName[][] _aliasDefs;
 
     /**
      * Array of properties in the exact order they were handed in. This is
@@ -50,6 +41,16 @@ public class BeanPropertyMap
      * entries) and possible aliased mappings
      */
     private SettableBeanProperty[] _propsInOrder;
+
+    /**
+     * Configuration of alias mappings, if any (`null` if none),
+     * aligned with properties in <code>_propsInOrder</code>
+     */
+    private final PropertyName[][] _aliasDefs;
+
+    private final Locale _locale;
+
+    private final boolean _caseInsensitive;
 
     /*
     /**********************************************************
@@ -78,10 +79,12 @@ public class BeanPropertyMap
      * @param aliasDefs Alias mappings, if any (null if none)
      * @param assignIndexes Whether to assign indices to property entities or not
      */
-    protected BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props,
+    protected BeanPropertyMap(Collection<SettableBeanProperty> props,
             PropertyName[][] aliasDefs,
+            Locale locale, boolean caseInsensitive,
             boolean assignIndexes)
     {
+        _locale = locale;
         _caseInsensitive = caseInsensitive;
         _aliasDefs = aliasDefs;
         _propsInOrder = props.toArray(new SettableBeanProperty[0]);
@@ -97,6 +100,7 @@ public class BeanPropertyMap
 
     protected BeanPropertyMap(BeanPropertyMap base, boolean caseInsensitive)
     {
+        _locale = base._locale;
         _caseInsensitive = caseInsensitive;
         _aliasDefs = base._aliasDefs;
 
@@ -105,10 +109,14 @@ public class BeanPropertyMap
 //        init(Arrays.asList(_propsInOrder));
     }
 
-    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
-            boolean caseInsensitive, PropertyName[][] aliases)
+    public static BeanPropertyMap construct(MapperConfig<?> config,
+            Collection<SettableBeanProperty> props,
+            PropertyName[][] aliases)
     {
-        return new BeanPropertyMap(caseInsensitive, props, aliases, true);
+        return new BeanPropertyMap(props, aliases,
+                config.getLocale(),
+                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
+                true);
     }
 
     /*
@@ -151,7 +159,7 @@ public class BeanPropertyMap
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(Arrays.asList(_propsInOrder));
         newProps.add(newProp);
         // !!! TODO: assign index for the last entry?
-        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false);
+        return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false);
     }
 
     /**
@@ -176,7 +184,7 @@ public class BeanPropertyMap
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change
 
         // !!! 18-Nov-2017, tatu: Should try recreating FieldNameMatcher here but...
-        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false)
+        return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false)
                 .initMatcher(ctxt.getParserFactory());
     }
 
@@ -222,7 +230,7 @@ public class BeanPropertyMap
         // should we try to re-index? Apparently no need
         // 17-Nov-2017, tatu: do NOT try to change indexes since this could lead to discrepancies
         //    (unless we actually copy property instances)
-        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false);
+        return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false);
     }
 
     /**

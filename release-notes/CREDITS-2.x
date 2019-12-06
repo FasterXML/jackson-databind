@@ -1031,3 +1031,7 @@ Joseph Koshakow (jkosh44@github)
   * Contributed fix for #2515: `ObjectMapper.registerSubtypes(NamedType...)` doesn't allow registering
     the same POJO for two different type ids
  (2.11.0)
+
+Máté Rédecsi (rmatesz@github)
+  * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
+ (2.11.0)

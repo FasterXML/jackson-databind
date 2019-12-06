@@ -352,8 +352,7 @@ public class BeanDeserializerBuilder
             props = _addIdProp(_properties,
                     new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
         }
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
-                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
                 _collectAliases(props));
 
         // view processing must be enabled if:
@@ -424,8 +423,7 @@ public class BeanDeserializerBuilder
         } else {
             props = _properties.values();
         }
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
-                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
                 _collectAliases(props));
 
         boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);

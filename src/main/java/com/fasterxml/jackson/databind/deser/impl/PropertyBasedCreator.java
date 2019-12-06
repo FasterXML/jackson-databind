@@ -44,9 +44,9 @@ public final class PropertyBasedCreator
     protected final SettableBeanProperty[] _propertiesInOrder;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected PropertyBasedCreator(DeserializationContext ctxt,
@@ -141,9 +141,9 @@ public final class PropertyBasedCreator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public Collection<SettableBeanProperty> properties() {
@@ -164,9 +164,9 @@ public final class PropertyBasedCreator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Building process
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -195,39 +195,29 @@ public final class PropertyBasedCreator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Simple override of standard {@link java.util.HashMap} to support
      * case-insensitive access to creator properties
-     *
-     * @since 2.8.5
      */
     static class CaseInsensitiveMap extends HashMap<String, SettableBeanProperty>
     {
-        private static final long serialVersionUID = 1L;
+        // doesn't really need to be Serializable with 3.x but... whatever
+        private static final long serialVersionUID = 3L;
 
         /**
          * Lower-casing can have Locale-specific minor variations.
-         *
-         * @since 2.11
          */
         protected final Locale _locale;
 
-        @Deprecated // since 2.11
-        public CaseInsensitiveMap() {
-            this(Locale.getDefault());
-        }
-
-        // @since 2.11
         public CaseInsensitiveMap(Locale l) {
             _locale = l;
         }
 
-        // @since 2.11
         public static CaseInsensitiveMap construct(Locale l) {
             return new CaseInsensitiveMap(l);
         }

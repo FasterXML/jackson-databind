@@ -53,10 +53,7 @@ public class NoneShallPassValidator
 
         // But aside from that actually only allow if base type not too generic
         final Class<?> rawBase = baseType.getRawClass();
-        if ((rawBase == Object.class)
-                || (rawBase == Object.class)
-                || (rawBase == Object.class)
-                ) {
+        if ((rawBase == Object.class)) {
             return Validity.DENIED;
         }
 

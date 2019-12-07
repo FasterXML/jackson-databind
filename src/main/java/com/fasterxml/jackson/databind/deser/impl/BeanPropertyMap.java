@@ -305,7 +305,7 @@ public class BeanPropertyMap
         }
         // `true` -> yes, they are intern()ed alright
         if (_caseInsensitive) {
-            _fieldMatcher = tsf.constructCIFieldNameMatcher(names, true);
+            _fieldMatcher = tsf.constructCIFieldNameMatcher(names, true, _locale);
         } else {
             _fieldMatcher = tsf.constructFieldNameMatcher(names, true);
         }

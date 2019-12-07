@@ -1,11 +1,10 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 import com.fasterxml.jackson.databind.*;
 
-// Fixed in 2.11.0, but not 2.10.x
 public class EnumAliasDeser2352Test extends BaseMapTest
 {
     // for [databind#2352]: Support aliases on enum values

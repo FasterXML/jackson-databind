@@ -95,6 +95,7 @@ public class ArrayBlockingQueueDeserializer
             return handleNonArray(p, ctxt, new ArrayBlockingQueue<Object>(1));
         }
         result0 = super.deserialize(p, ctxt, new ArrayList<Object>());
+        if (result0.isEmpty()) return new ArrayBlockingQueue<Object>(1, false);
         return new ArrayBlockingQueue<Object>(result0.size(), false, result0);
     }
 

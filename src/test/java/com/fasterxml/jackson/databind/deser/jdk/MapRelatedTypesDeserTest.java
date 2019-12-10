@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
 public class MapRelatedTypesDeserTest
     extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************

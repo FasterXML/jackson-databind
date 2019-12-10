@@ -92,11 +92,13 @@ public class ArrayBlockingQueueDeserializer
         }
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
-            return handleNonArray(p, ctxt, new ArrayBlockingQueue<Object>(1));
+            return handleNonArray(p, ctxt, new ArrayBlockingQueue<>(1));
         }
-        result0 = super.deserialize(p, ctxt, new ArrayList<Object>());
-        if (result0.isEmpty()) return new ArrayBlockingQueue<Object>(1, false);
-        return new ArrayBlockingQueue<Object>(result0.size(), false, result0);
+        result0 = super.deserialize(p, ctxt, new ArrayList<>());
+        if (result0.isEmpty()) {
+            return new ArrayBlockingQueue<>(1, false);
+        }
+        return new ArrayBlockingQueue<>(result0.size(), false, result0);
     }
 
     @Override

@@ -130,7 +130,12 @@ public abstract class ReferenceTypeSerializer<T>
     public JsonSerializer<T> unwrappingSerializer(NameTransformer transformer) {
         JsonSerializer<Object> valueSer = _valueSerializer;
         if (valueSer != null) {
+            // 09-Dec-2019, tatu: [databind#2565] Can not assume that serializer in
+            //    question actually can unwrap
             valueSer = valueSer.unwrappingSerializer(transformer);
+            if (valueSer == _valueSerializer) {
+                return this;
+            }
         }
         NameTransformer unwrapper = (_unwrapper == null) ? transformer
                 : NameTransformer.chainedTransformer(transformer, _unwrapper);

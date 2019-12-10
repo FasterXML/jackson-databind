@@ -25,6 +25,8 @@ Project: jackson-databind
   for non-static inner classes
 #2525: Incorrect `JsonStreamContext` for `TokenBuffer` and `TreeTraversingParser`
 #2555: Use `@JsonProperty(index)` for sorting properties on serialization
+#2565: Java 8 `Optional` not working with `@JsonUnwrapped` on unwrappable type
+ (reported by Haowei W)
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.2 (not yet released)

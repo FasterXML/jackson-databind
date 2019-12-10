@@ -1098,6 +1098,20 @@ public abstract class StdDeserializer<T>
         if (nulls == Nulls.SKIP) {
             return NullsConstantProvider.skipper();
         }
+        // 09-Dec-2019, tatu: [databind#2567] need to ensure correct target type (element,
+        //    not container), so inlined here before calling _findNullProvider
+        if (nulls == Nulls.FAIL) {
+            if (prop == null) {
+                JavaType type = ctxt.constructType(valueDeser.handledType());
+                // should always be container? But let's double-check just in case:
+                if (type.isContainerType()) {
+                    type = type.getContentType();
+                }
+                return NullsFailProvider.constructForRootValue(type);
+            }
+            return NullsFailProvider.constructForProperty(prop, prop.getType().getContentType());
+        }
+
         NullValueProvider prov = _findNullProvider(ctxt, prop, nulls, valueDeser);
         if (prov != null) {
             return prov;

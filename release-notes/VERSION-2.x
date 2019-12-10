@@ -14,6 +14,8 @@ Project: jackson-databind
  (reported by Fabian L)
 #2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
  (reported by Stefan W)
+#2567: Incorrect target type for arrays when providing nulls and nulls are disabled
+ (reported by João G)
 
 2.10.1 (09-Nov-2019)
 

@@ -984,6 +984,8 @@ João Guerra (joca-bt@github)
   * Reported #2473: Array index missing in path of `JsonMappingException` for `Collection<String>`,
     with custom deserializer
   (2.10.1)
+  * Reported #2567: Incorrect target type for arrays when providing nulls and nulls are disabled
+  (2.10.2)
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,

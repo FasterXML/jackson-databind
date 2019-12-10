@@ -62,6 +62,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"values\"");
+            assertEquals(String.class, e.getTargetType());
         }
 
         // or configured for type:
@@ -73,6 +74,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"values\"");
+            assertEquals(String.class, e.getTargetType());
         }
     }
     
@@ -96,6 +98,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(Integer.class, e.getTargetType());
         }
 
         // List<String>
@@ -104,6 +107,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(String.class, e.getTargetType());
         }
     }
 
@@ -116,6 +120,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(Object.class, e.getTargetType());
         }
 
         // String[]
@@ -124,6 +129,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(String.class, e.getTargetType());
         }
     }
 
@@ -137,6 +143,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(Boolean.TYPE, e.getTargetType());
         }
         // int[]
         try {
@@ -144,6 +151,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(Integer.TYPE, e.getTargetType());
         }
         // double[]
         try {
@@ -151,6 +159,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(Double.TYPE, e.getTargetType());
         }
     }
 
@@ -163,6 +172,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(String.class, e.getTargetType());
         }
 
         // Then: EnumMap<Enum,String>
@@ -172,6 +182,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
+            assertEquals(String.class, e.getTargetType());
         }
     }
 

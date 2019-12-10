@@ -102,9 +102,11 @@ public abstract class PrimitiveArrayDeserializers<T>
             nuller = NullsConstantProvider.skipper();
         } else if (nullStyle == Nulls.FAIL) {
             if (property == null) {
-                nuller = NullsFailProvider.constructForRootValue(ctxt.constructType(_valueClass));
+                // 09-Dec-2019, tatu: [databind#2567] need to ensure correct target type
+                nuller = NullsFailProvider.constructForRootValue(ctxt.constructType(_valueClass.getComponentType()));
             } else {
-                nuller = NullsFailProvider.constructForProperty(property);
+                // 09-Dec-2019, tatu: [databind#2567] need to ensure correct target type
+                nuller = NullsFailProvider.constructForProperty(property, property.getType().getContentType());
             }
         }
         if ((unwrapSingle == _unwrapSingle) && (nuller == _nuller)) {
@@ -190,29 +192,7 @@ public abstract class PrimitiveArrayDeserializers<T>
     /* Helper methods for sub-classes
     /********************************************************
      */
-    
-    /*
-     * Convenience method that constructs a concatenation of two arrays,
-     * with the type they have.
-     *
-     * @since 2.9
-    @SuppressWarnings("unchecked")
-    public static <T> T concatArrays(T array1, T array2)
-    {
-        int len1 = Array.getLength(array1);
-        if (len1 == 0) {
-            return array2;
-        }
-        int len2 = Array.getLength(array2);
-        if (len2 == 0) {
-            return array1;
-        }
-        Object result = Arrays.copyOf((Object[]) array1, len1 + len2);
-        System.arraycopy(array2, 0, result, len1, len2);
-        return (T) result;
-    }
-    */
-    
+
     @SuppressWarnings("unchecked")
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {

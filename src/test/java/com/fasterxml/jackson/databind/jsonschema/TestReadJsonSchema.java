@@ -3,12 +3,10 @@ package com.fasterxml.jackson.databind.jsonschema;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 
 /**
  * Trivial test to ensure <code>JsonSchema</code> can be also deserialized
  */
-@SuppressWarnings("deprecation")
 public class TestReadJsonSchema
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
@@ -48,6 +46,7 @@ public class TestReadJsonSchema
      * Verifies that a simple schema that is serialized can be
      * deserialized back to equal schema instance
      */
+    @SuppressWarnings("deprecation")
     public void testDeserializeSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

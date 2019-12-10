@@ -1013,6 +1013,10 @@ Stefan Wendt (stewe@github)
   * Reported #2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
   (2.10.2)
 
+Máté Rédecsi (rmatesz@github)
+  * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
+ (2.11.0)
+
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)
@@ -1034,6 +1038,6 @@ Joseph Koshakow (jkosh44@github)
     the same POJO for two different type ids
  (2.11.0)
 
-Máté Rédecsi (rmatesz@github)
-  * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
+Haowei Wen (yushijinhun@github)
+  * Reported #2565: Java 8 `Optional` not working with `@JsonUnwrapped` on unwrappable type
  (2.11.0)

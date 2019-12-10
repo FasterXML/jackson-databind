@@ -97,7 +97,7 @@ public class JDKAtomicTypesDeserTest
     // [databind#2303]
     static class MyBean2303 {
         public AtomicReference<AtomicReference<Integer>> refRef;
-    }    
+    }
 
     /*
     /**********************************************************

@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -64,13 +65,19 @@ public class AtomicTypeSerializationTest
         }
     }
 
+    // [databind#2565]: problems with JsonUnwrapped, non-unwrappable type
+    static class MyBean2565 {
+        @JsonUnwrapped
+        public AtomicReference<String> maybeText = new AtomicReference<>("value");
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testAtomicBoolean() throws Exception
     {
@@ -136,5 +143,12 @@ public class AtomicTypeSerializationTest
         // https://github.com/FasterXML/jackson-module-scala/issues/346#issuecomment-336483326
         String json = MAPPER.writeValueAsString(new ContainerB());
         assertEquals("{\"strategy\":[" + EXPECTED + "]}", json);
+    }
+
+    // [databind#2565]: problems with JsonUnwrapped, non-unwrappable type
+    public void testWithUnwrappableUnwrapped() throws Exception
+    {
+        assertEquals(aposToQuotes("{'maybeText':'value'}"),
+                MAPPER.writeValueAsString(new MyBean2565()));
     }
 }

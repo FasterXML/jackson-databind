@@ -1013,6 +1013,11 @@ Stefan Wendt (stewe@github)
   * Reported #2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
   (2.10.2)
 
+Greg Arakelian (arakelian@github)
+  * Reported #2566: `MissingNode.toString()` returns `null` (4 character token) instead
+    of empty string
+  (2.10.2)
+
 Máté Rédecsi (rmatesz@github)
   * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
  (2.11.0)

@@ -70,9 +70,15 @@ public final class MissingNode
     public double asDouble(double defaultValue);
     public boolean asBoolean(boolean defaultValue);
     */
+
+    /*
+    /**********************************************************
+    /* Serialization: bit tricky as we don't really have a value
+    /**********************************************************
+     */
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
         /* Nothing to output... should we signal an error tho?
@@ -81,7 +87,7 @@ public final class MissingNode
          * cannot just omit a value as JSON Object field name may have
          * been written out.
          */
-        jg.writeNull();
+        g.writeNull();
     }
 
     @Override
@@ -91,21 +97,13 @@ public final class MissingNode
     {
         g.writeNull();
     }
-    
-    @Override
-    public boolean equals(Object o)
-    {
-        /* Hmmh. Since there's just a singleton instance, this
-         * fails in all cases but with identity comparison.
-         * However: if this placeholder value was to be considered
-         * similar to SQL NULL, it shouldn't even equal itself?
-         * That might cause problems when dealing with collections
-         * like Sets... so for now, let's let identity comparison
-         * return true.
-         */
-        return (o == this);
-    }
 
+    /*
+    /**********************************************************
+    /* Jackson 2.10 improvements for validation
+    /**********************************************************
+     */
+    
     @SuppressWarnings("unchecked")
     @Override
     public JsonNode require() {
@@ -121,5 +119,35 @@ public final class MissingNode
     @Override
     public int hashCode() {
         return JsonNodeType.MISSING.ordinal();
+    }
+
+    /*
+    /**********************************************************
+    /* Standard method overrides
+    /**********************************************************
+     */
+
+    // 10-Dec-2019, tatu: Bit tricky case, see [databind#2566], but seems
+    //    best NOT to produce legit JSON.
+    @Override
+    public String toString() {
+        return "";
+    }
+
+    @Override
+    public String toPrettyString() {
+        return "";
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        /* Hmmh. Since there's just a singleton instance, this fails in all cases but with
+         * identity comparison. However: if this placeholder value was to be considered
+         * similar to SQL NULL, it shouldn't even equal itself?
+         * That might cause problems when dealing with collections like Sets...
+         * so for now, let's let identity comparison return true.
+         */
+        return (o == this);
     }
 }

@@ -127,7 +127,7 @@ public abstract class BaseJsonNode
 
    /*
    /**********************************************************
-   /* Std method overrides
+   /* Standard method overrides
    /**********************************************************
     */
 

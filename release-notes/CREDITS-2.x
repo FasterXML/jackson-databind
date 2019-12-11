@@ -1012,3 +1012,8 @@ Fabian Lange (CodingFabian@github)
 Stefan Wendt (stewe@github)
   * Reported #2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
   (2.10.2)
+
+Greg Arakelian (arakelian@github)
+  * Reported #2566: `MissingNode.toString()` returns `null` (4 character token) instead
+    of empty string
+  (2.10.2)

@@ -15,7 +15,9 @@ Project: jackson-databind
 #2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
  (reported by Stefan W)
 #2564: Fix `IllegalArgumentException` on empty input collection for `ArrayBlockingQueue`
- (repoted, fix suggested by yamert89@github)
+ (reported, fix suggested by yamert89@github)
+#2566: `MissingNode.toString()` returns `null` (4 character token) instead of empty string
+ (reported by Greg A)
 #2567: Incorrect target type for arrays when providing nulls and nulls are disabled
  (reported by João G)
 

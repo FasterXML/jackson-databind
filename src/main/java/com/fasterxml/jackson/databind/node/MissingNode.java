@@ -86,20 +86,6 @@ public final class MissingNode
     {
         g.writeNull();
     }
-    
-    @Override
-    public boolean equals(Object o)
-    {
-        /* Hmmh. Since there's just a singleton instance, this
-         * fails in all cases but with identity comparison.
-         * However: if this placeholder value was to be considered
-         * similar to SQL NULL, it shouldn't even equal itself?
-         * That might cause problems when dealing with collections
-         * like Sets... so for now, let's let identity comparison
-         * return true.
-         */
-        return (o == this);
-    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -111,11 +97,6 @@ public final class MissingNode
     @Override
     public JsonNode requireNonNull() {
         return _reportRequiredViolation("requireNonNull() called on `MissingNode`");
-    }
-
-    @Override
-    public int hashCode() {
-        return JsonNodeType.MISSING.ordinal();
     }
 
     @Override
@@ -157,5 +138,40 @@ public final class MissingNode
     @Override
     public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
         return foundSoFar;
+    }
+
+    /*
+    /**********************************************************
+    /* Standard method overrides
+    /**********************************************************
+     */
+
+    @Override
+    public boolean equals(Object o)
+    {
+        // Hmmh. Since there's just a singleton instance, this fails in all cases
+        // but with identity comparison.
+        // However: if this placeholder value was to be considered similar to SQL NULL,
+        // it shouldn't even equal itself?
+        // That might cause problems when dealing with collections like Sets...
+        // so for now, let's let identity comparison return true.
+        return (o == this);
+    }
+
+    @Override
+    public int hashCode() {
+        return JsonNodeType.MISSING.ordinal();
+    }
+
+    // 10-Dec-2019, tatu: Bit tricky case, see [databind#2566], but seems
+    //    best NOT to produce legit JSON.
+    @Override
+    public String toString() {
+        return "";
+    }
+
+    @Override
+    public String toPrettyString() {
+        return "";
     }
 }

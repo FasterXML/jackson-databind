@@ -93,6 +93,10 @@ public class SequenceWriter
         _dynamicSerializers = PropertySerializerMap.emptyForRootValues();
     }
 
+    /**
+     * Internal method called by {@link ObjectWriter}: should not be called by code
+     * outside {@code jackson-databind} classes.
+     */
     public SequenceWriter init(boolean wrapInArray) throws IOException
     {
         if (wrapInArray) {

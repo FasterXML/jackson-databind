@@ -212,27 +212,27 @@ public final class MethodProperty
 
 
     private void invokeWithoutResult(boolean useConsumer, Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
-        if (useConsumer) {
+//        if (useConsumer) {
             if (consumer != null) {
                 consumer.accept(instance, value);
             } else {
                 _setter.invoke(instance, value);
             }
-        } else {
-            _setter.invoke(instance, value);
-        }
+//        } else {
+//            _setter.invoke(instance, value);
+//        }
     }
 
     private Object invokeWithResult(boolean useConsumer, Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
-        if (useConsumer) {
+//        if (useConsumer) {
             if (function != null) {
                 return function.apply(instance, value);
             } else {
                 return _setter.invoke(instance, value);
             }
-        } else {
-            return _setter.invoke(instance, value);
-        }
+//        } else {
+//            return _setter.invoke(instance, value);
+//        }
     }
 
     @Override

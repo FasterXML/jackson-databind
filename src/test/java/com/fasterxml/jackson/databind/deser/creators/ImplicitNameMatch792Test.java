@@ -93,7 +93,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
     
     public void testBindingOfImplicitCreatorNames() throws Exception
     {

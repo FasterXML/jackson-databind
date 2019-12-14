@@ -291,6 +291,7 @@ public class TestTypeFactory
         JavaType t = tf.constructType(ArrayList.class);
         assertEquals(CollectionType.class, t.getClass());
         assertSame(ArrayList.class, t.getRawClass());
+        assertSame(Object.class, ((CollectionType) t).getContentType().getRawClass());
 
         // And then the proper way
         t = tf.constructType(new TypeReference<ArrayList<String>>() { });

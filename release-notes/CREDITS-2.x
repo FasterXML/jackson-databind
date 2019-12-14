@@ -1003,6 +1003,10 @@ Mark Schäfer (mark--@github)
   * Reported #2520: Sub-optimal exception message when failing to deserialize non-static inner classes
   (2.10.1)
 
+Fabian Lange (CodingFabian@github)
+  * Reported #2556: Contention in `TypeNameIdResolver.idFromClass()`
+  (2.10.2)
+
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)
@@ -1013,6 +1017,10 @@ Fitz (Joongsoo.Park) (joongsoo@github)
 
 Antonio Petrelli (apetrelli@github)
   * Reported #2049: TreeTraversingParser and UTF8StreamJsonParser create contexts differently
+  (2.11.0)
+
+Robert Diebels (RobertDiebels@github)
+  * Contributed #2352: Support use of `@JsonAlias` for enum values
   (2.11.0)
 
 Joseph Koshakow (jkosh44@github)

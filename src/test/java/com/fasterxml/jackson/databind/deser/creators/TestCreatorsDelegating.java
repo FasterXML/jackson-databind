@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -79,6 +80,32 @@ public class TestCreatorsDelegating extends BaseMapTest
         @JsonCreator
         public MapBean(Map<String, Long> map) {
             this.map = map;
+        }
+    }
+
+    // [databind#2353]: allow delegating and properties-based
+    static class SuperToken2353 {
+        public long time;
+        public String username;
+
+        @JsonCreator(mode=JsonCreator.Mode.DELEGATING) // invoked when a string is passed
+        public static SuperToken2353 from(String username) {
+            SuperToken2353 token = new SuperToken2353();
+            token.username = username;
+            token.time = System.currentTimeMillis();
+            return token;
+        }
+
+        @JsonCreator(mode=JsonCreator.Mode.PROPERTIES) // invoked when an object is passed, pre-validating property existence
+        public static SuperToken2353 create(
+                @JsonProperty("name") String username,
+                @JsonProperty("time") long time)
+        {
+            SuperToken2353 token = new SuperToken2353();
+            token.username = username;
+            token.time = time;
+
+            return token;
         }
     }
 
@@ -178,5 +205,18 @@ public class TestCreatorsDelegating extends BaseMapTest
         
         bean = MAPPER.readValue(EMPTY_JSON, MapBean.class);
         assertEquals(0, bean.map.size());
+    }
+
+    // [databind#2353]: allow delegating and properties-based
+    public void testMultipleCreators2353() throws Exception
+    {
+        // first, test delegating
+        SuperToken2353 result = MAPPER.readValue(quote("Bob"), SuperToken2353.class);
+        assertEquals("Bob", result.username);
+
+        // and then properties-based
+        result = MAPPER.readValue(aposToQuotes("{'name':'Billy', 'time':123}"), SuperToken2353.class);
+        assertEquals("Billy", result.username);
+        assertEquals(123L, result.time);
     }
 }

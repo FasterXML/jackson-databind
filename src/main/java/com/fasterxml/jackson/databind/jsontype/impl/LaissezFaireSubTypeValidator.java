@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
  * Simple {@link PolymorphicTypeValidator} implementation used by {@link StdTypeResolverBuilder}
- * in cases where all subtypes for given base type are deemeded acceptable; usually because
+ * in cases where all subtypes for given base type are deemed acceptable; usually because
  * user controls base type in question (and no serialization gadgets should exist).
  */
 final class LaissezFaireSubTypeValidator

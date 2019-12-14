@@ -199,6 +199,31 @@ public class JacksonAnnotationIntrospector
         return names;
     }
 
+    @Override
+    public void findEnumAliases(MapperConfig<?> config,
+            Class<?> enumType, Enum<?>[] enumValues, String[][] aliasList)
+    {
+        // Main complication: discrepancy between Field that represent enum value,
+        // Enum abstraction; joint by name but not reference
+        for (Field f : enumType.getDeclaredFields()) {
+            if (f.isEnumConstant()) {
+                JsonAlias aliasAnnotation = f.getAnnotation(JsonAlias.class);
+                if (aliasAnnotation != null) {
+                    String[] aliases = aliasAnnotation.value();
+                    if (aliases.length != 0) {
+                        final String name = f.getName();
+                        // Find matching enum (could create Ma
+                        for (int i = 0, end = enumValues.length; i < end; ++i) {
+                            if (name.equals(enumValues[i].name())) {
+                                aliasList[i] = aliases;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Finds the Enum value that should be considered the default value, if possible.
      * <p>

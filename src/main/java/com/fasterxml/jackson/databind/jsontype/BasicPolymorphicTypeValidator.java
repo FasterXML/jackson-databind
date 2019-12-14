@@ -24,7 +24,7 @@ public class BasicPolymorphicTypeValidator
     extends PolymorphicTypeValidator.Base
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /*
     /**********************************************************************
@@ -314,11 +314,6 @@ public class BasicPolymorphicTypeValidator
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
                 public boolean match(DatabindContext ctxt, Class<?> valueType) {
-                    // First things first: "peel off" array type (since Array types are provided
-                    // by JDK and can not be gadget types)
-                    while (valueType.isArray()) {
-                        valueType = valueType.getComponentType();
-                    }
                     return ((DeserializationContext) ctxt).hasExplicitDeserializerFor(valueType);
                 }
             });

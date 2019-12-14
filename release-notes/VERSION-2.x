@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2049: TreeTraversingParser and UTF8StreamJsonParser create contexts differently
  (reported by Antonio P)
+#2352: Support use of `@JsonAlias` for enum values
+ (contributed by Robert D)
 #2480: Fix `JavaType.isEnumType()` to support sub-classes
 #2487: BeanDeserializerBuilder Protected Factory Method for Extension
  (contributed by Ville K)
@@ -20,12 +22,17 @@ Project: jackson-databind
 #2522: `DeserializationContext.handleMissingInstantiator()` throws `MismatchedInputException`
   for non-static inner classes
 #2525: Incorrect `JsonStreamContext` for `TokenBuffer` and `TreeTraversingParser`
+#2555: Use `@JsonProperty(index)` for sorting properties on serialization
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.2 (not yet released)
 
 #2544: java.lang.NoClassDefFoundError Thrown for compact profile1
   (reported by Jon A)
+#2553: JsonDeserialize(contentAs=...) broken with raw collections
+ (reported by cpopp@github)
+#2556: Contention in `TypeNameIdResolver.idFromClass()`
+ (reported by Fabian L)
 
 2.10.1 (09-Nov-2019)
 

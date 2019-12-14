@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
@@ -176,6 +177,12 @@ public class TestContextualDeserialization extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper ANNOTATED_CTXT_MAPPER = JsonMapper.builder()
+            .addModule(new SimpleModule("test", Version.unknownVersion())
+                    .addDeserializer(StringValue.class, new AnnotatedContextualDeserializer()
+            ))
+            .build();
+    
     public void testSimple() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -292,12 +299,7 @@ public class TestContextualDeserialization extends BaseMapTest
     /**********************************************************
      */
 
-    private ObjectMapper _mapperWithAnnotatedContextual()
-    {
-        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        module.addDeserializer(StringValue.class, new AnnotatedContextualDeserializer());
-        return jsonMapperBuilder()
-                .addModule(module)
-                .build();
+    private ObjectMapper _mapperWithAnnotatedContextual() {
+        return ANNOTATED_CTXT_MAPPER;
     }
 }

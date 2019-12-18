@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.util.*;
+import sun.misc.Unsafe;
 
 /**
  * Base class for <code>BeanDeserializer</code>.
@@ -1253,19 +1254,19 @@ public abstract class BeanDeserializerBase
             return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
                 "cannot deserialize from Object value (no delegate- or property-based Creator)");
         */
+        // Support Bean deserialize with Non-default constructor Using Jvm Unsafe mechanism
         return _deserializeNonDefaultWithUnsafeAllocator(p,ctxt);
     }
 
     private Object _deserializeNonDefaultWithUnsafeAllocator(JsonParser p, DeserializationContext ctxt) throws IOException{
-        Unsafe unsafe= UnsafeUtil.getUnsafe();
         Object bean=null;
         try {
-            bean = unsafe.allocateInstance(_beanType.getRawClass());
-            fillBeanFieldValueBySetterProperty(p, ctxt, bean);
-        } catch (Exception e) {
+            bean = UnsafeAllocator.beanAllocatorByJvmUnsafe(_beanType.getRawClass());
+        } catch (InstantiationException e) {
             e.printStackTrace();
             throw new IOException("_deserializeNonDefaultWithUnsafeAllocator error",e);
         }
+        fillBeanFieldValueBySetterProperty(p, ctxt, bean);
         return bean;
     }
 

@@ -1241,16 +1241,52 @@ public abstract class BeanDeserializerBase
         if (_propertyBasedCreator != null) {
             return _deserializeUsingPropertyBased(p, ctxt);
         }
-        // 25-Jan-2017, tatu: We do not actually support use of Creators for non-static
-        //   inner classes -- with one and only one exception; that of default constructor!
-        //   -- so let's indicate it
-        Class<?> raw = _beanType.getRawClass();
-        if (ClassUtil.isNonStaticInnerClass(raw)) {
-            return ctxt.handleMissingInstantiator(raw, null, p,
-"non-static inner classes like this can only by instantiated using default, no-argument constructor");
-        }
-        return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
+        //================================= Unsafe Allocator support Bean instantiate with Non default creator,Include the non-static inner class  =======================
+        /*
+          // 25-Jan-2017, tatu: We do not actually support use of Creators for non-static
+          //   inner classes -- with one and only one exception; that of default constructor!
+          //   -- so let's indicate it
+            Class<?> raw = _beanType.getRawClass();
+            if (ClassUtil.isNonStaticInnerClass(raw)) {
+                return ctxt.handleMissingInstantiator(raw, null, p,"non-static inner classes like this can only by instantiated using default, no-argument constructor");
+            }
+            return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
                 "cannot deserialize from Object value (no delegate- or property-based Creator)");
+        */
+        return _deserializeNonDefaultWithUnsafeAllocator(p,ctxt);
+    }
+
+    private Object _deserializeNonDefaultWithUnsafeAllocator(JsonParser p, DeserializationContext ctxt) throws IOException{
+        Unsafe unsafe= UnsafeUtil.getUnsafe();
+        Object bean=null;
+        try {
+            bean = unsafe.allocateInstance(_beanType.getRawClass());
+            fillBeanFieldValueBySetterProperty(p, ctxt, bean);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IOException("_deserializeNonDefaultWithUnsafeAllocator error",e);
+        }
+        return bean;
+    }
+
+    private void fillBeanFieldValueBySetterProperty(JsonParser p, DeserializationContext ctxt, Object bean) throws IOException {
+        p.setCurrentValue(bean);
+        if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            String propName = p.getCurrentName();
+            do {
+                p.nextToken();
+                SettableBeanProperty prop = _beanProperties.find(propName);
+                if (prop != null) { // normal case
+                    try {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    } catch (Exception e) {
+                        wrapAndThrow(e, bean, propName, ctxt);
+                    }
+                    continue;
+                }
+                handleUnknownVanilla(p, ctxt, bean, propName);
+            } while ((propName = p.nextFieldName()) != null);
+        }
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,

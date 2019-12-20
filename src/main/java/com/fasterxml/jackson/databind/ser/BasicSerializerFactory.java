@@ -1129,7 +1129,8 @@ public abstract class BasicSerializerFactory
         // Challenge here is that EnumSerializer does not know how to produce
         // POJO style serialization, so we must handle that special case separately;
         // otherwise pass it to EnumSerializer.
-        if (effectiveFormat.getShape() == JsonFormat.Shape.POJO) {
+        JsonFormat.Shape shape = effectiveFormat.getShape();
+        if (shape == JsonFormat.Shape.POJO || shape == JsonFormat.Shape.OBJECT) {
             // one special case: suppress serialization of "getDeclaringClass()"...
             ((BasicBeanDescription) beanDesc).removeProperty("declaringClass");
             // returning null will mean that eventually BeanSerializer gets constructed

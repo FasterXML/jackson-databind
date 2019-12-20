@@ -278,8 +278,8 @@ public class BeanSerializerFactory
         // First things first: we know some types are not beans...
         if (!isPotentialBeanType(type.getRawClass())) {
             // 03-Aug-2012, tatu: Except we do need to allow serializers for Enums,
-            //   as per [databind#24]
-            if (!type.isEnumType()) {
+            //   as per [databind#24], [databind#2576]
+            if (!ClassUtil.isEnumType(type.getRawClass())) {
                 return null;
             }
         }

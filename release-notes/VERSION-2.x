@@ -20,6 +20,9 @@ Project: jackson-databind
  (reported by Greg A)
 #2567: Incorrect target type for arrays when providing nulls and nulls are disabled
  (reported by João G)
+#2576: Fail to serialize `Enum` instance which includes a method override
+  as POJO (shape = Shape.OBJECT)
+ (reported by ylhuang-veeva@github)
 
 2.10.1 (09-Nov-2019)
 

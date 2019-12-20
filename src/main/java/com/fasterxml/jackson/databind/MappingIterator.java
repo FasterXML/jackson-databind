@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -400,6 +401,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     }
 
     protected <R> R _handleIOException(IOException e) {
-        throw new RuntimeException(e.getMessage(), e);
+        throw new UncheckedIOException(e.getMessage(), e);
     }
 }

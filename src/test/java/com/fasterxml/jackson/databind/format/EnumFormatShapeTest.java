@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.format;
 
+import java.util.Collections;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
@@ -70,6 +73,24 @@ public class EnumFormatShapeTest
         }
     }
 
+    // [databind#2576]
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    public enum Enum2576 {
+        DEFAULT("default"),
+        ATTRIBUTES("attributes") {
+            @Override
+            public String toString() {
+                return name();
+            }
+        };
+
+        private final String key;
+        private Enum2576(String key) {
+            this.key = key;
+        }
+        public String getKey() { return this.key; }
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -112,5 +133,13 @@ public class EnumFormatShapeTest
     public void testEnumPropertyAsNumber() throws Exception {
         assertEquals(String.format(aposToQuotes("{'color':%s}"), Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(new ColorWrapper(Color.GREEN)));
+    }
+
+    // [databind#2576]
+    public void testEnumWithMethodOverride() throws Exception {
+        String stringResult = MAPPER.writeValueAsString(Enum2576.ATTRIBUTES);
+        Map<?,?> result = MAPPER.readValue(stringResult, Map.class);
+        Map<String,String> exp = Collections.singletonMap("key", "attributes");
+        assertEquals(exp, result);
     }
 }

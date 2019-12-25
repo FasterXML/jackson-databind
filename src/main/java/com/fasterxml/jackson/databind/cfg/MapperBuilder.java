@@ -520,15 +520,36 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * 
      * @param v Base64 variant to use
      * 
-     * @return This mapper, for convenience to allow chaining
+     * @return This builder instance to allow call chaining
      */
     public B defaultBase64Variant(Base64Variant v) {
         _mapper.setBase64Variant(v);
         return _this();
     }
 
+    /**
+     * Method for configured default property inclusion to use for serialization.
+     *
+     * @param incl Default property inclusion to set
+     *
+     * @return This builder instance to allow call chaining
+     */
     public B serializationInclusion(JsonInclude.Include incl) {
         _mapper.setSerializationInclusion(incl);
+        return _this();
+    }
+
+    /**
+     * Method for configured default property inclusion to use for serialization.
+     *
+     * @param incl Default property inclusion to set
+     *
+     * @return This builder instance to allow call chaining
+     *
+     * @since 2.11
+     */
+    public B defaultPropertyInclusion(JsonInclude.Value incl) {
+        _mapper.setDefaultPropertyInclusion(incl);
         return _this();
     }
 

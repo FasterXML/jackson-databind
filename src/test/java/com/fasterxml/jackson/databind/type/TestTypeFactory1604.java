@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-// for [databind#1604]
+// for [databind#1604], [databind#2577]
 public class TestTypeFactory1604 extends BaseMapTest
 {
     static class Data1604<T> { }
@@ -21,6 +21,17 @@ public class TestTypeFactory1604 extends BaseMapTest
     static class TwoParam1604<KEY,VALUE> { }
 
     static class SneakyTwoParam1604<V,K> extends TwoParam1604<K,List<V>> { }
+
+    // [databind#2577]
+
+    static class Either<L, R> { }
+
+    static class EitherWrapper<L, R> {
+        public Either<L, R> value;
+    }
+
+    static class Left<V> extends Either<V, Void> { }
+    static class Right<V> extends Either<Void, V> { }
 
     public void testCustomTypesRefinedSimple()
     {
@@ -107,5 +118,27 @@ public class TestTypeFactory1604 extends BaseMapTest
             verifyException(e, "Data1604");
             verifyException(e, "DataList1604");
         }
+    }
+
+    // [databind#2577]
+    public void testResolveGenericPartialSubtypes()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType base = tf.constructType(new TypeReference<Either<Object, Object>>() { });
+
+        JavaType lefty = tf.constructSpecializedType(base, Left.class);
+        assertEquals(Left.class, lefty.getRawClass());
+        JavaType[] params = tf.findTypeParameters(lefty, Either.class);
+        assertEquals(2, params.length);
+        assertEquals(Object.class, params[0].getRawClass());
+        assertEquals(Void.class, params[1].getRawClass());
+
+        JavaType righty = tf.constructSpecializedType(base, Right.class);
+        assertEquals(Right.class, righty.getRawClass());
+        
+        params = tf.findTypeParameters(righty, Either.class);
+        assertEquals(2, params.length);
+        assertEquals(Void.class, params[0].getRawClass());
+        assertEquals(Object.class, params[1].getRawClass());
     }
 }

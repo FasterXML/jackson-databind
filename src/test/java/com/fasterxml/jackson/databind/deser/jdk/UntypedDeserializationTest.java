@@ -216,27 +216,6 @@ public class UntypedDeserializationTest
         assertEquals(2, l.size());
         assertEquals(Integer.valueOf(2), l.get(1));
     }
-    
-    // Allow 'upgrade' of big integers into Long, BigInteger
-    public void testObjectSerializeWithLong() throws IOException
-    {
-        final ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY)
-                .build();
-        final long VALUE = 1337800584532L;
-
-        String serialized = "{\"timestamp\":"+VALUE+"}";
-        // works fine as node
-        JsonNode deserialized = mapper.readTree(serialized);
-        assertEquals(VALUE, deserialized.get("timestamp").asLong());
-        // and actually should work in Maps too
-        Map<?,?> deserMap = mapper.readValue(serialized, Map.class);
-        Number n = (Number) deserMap.get("timestamp");
-        assertNotNull(n);
-        assertSame(Long.class, n.getClass());
-        assertEquals(Long.valueOf(VALUE), n);
-    }
 
     public void testUntypedWithCustomScalarDesers() throws IOException
     {
@@ -411,5 +390,32 @@ public class UntypedDeserializationTest
         map = MAPPER.readValue(JSON1, new TypeReference<Map<Serializable, Object>>() { });
         assertEquals(1, map.size());
         assertEquals("value", map.keySet().iterator().next());
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, polymorphic
+    /**********************************************************
+     */
+
+    // Allow 'upgrade' of big integers into Long, BigInteger
+    public void testObjectSerializeWithLong() throws IOException
+    {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY)
+                .build();
+        final long VALUE = 1337800584532L;
+
+        String serialized = "{\"timestamp\":"+VALUE+"}";
+        // works fine as node
+        JsonNode deserialized = mapper.readTree(serialized);
+        assertEquals(VALUE, deserialized.get("timestamp").asLong());
+        // and actually should work in Maps too
+        Map<?,?> deserMap = mapper.readValue(serialized, Map.class);
+        Number n = (Number) deserMap.get("timestamp");
+        assertNotNull(n);
+        assertSame(Long.class, n.getClass());
+        assertEquals(Long.valueOf(VALUE), n);
     }
 }

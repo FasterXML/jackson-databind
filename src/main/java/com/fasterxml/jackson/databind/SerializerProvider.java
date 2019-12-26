@@ -324,7 +324,7 @@ public abstract class SerializerProvider
     }
 
     public final JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        return _config.getDefaultPropertyInclusion();
+        return _config.getDefaultPropertyInclusion(baseType);
     }
 
     /**

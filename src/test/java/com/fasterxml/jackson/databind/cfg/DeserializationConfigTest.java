@@ -87,8 +87,8 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testMisc() throws Exception
     {
         DeserializationConfig config = MAPPER.deserializationConfig();
-        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
-        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion(String.class));
+        assertEquals(ConfigOverrides.INCLUDE_DEFAULT, config.getDefaultPropertyInclusion());
+        assertEquals(ConfigOverrides.INCLUDE_DEFAULT, config.getDefaultPropertyInclusion(String.class));
 
         assertSame(config, config.withRootName((PropertyName) null)); // defaults to 'none'
 

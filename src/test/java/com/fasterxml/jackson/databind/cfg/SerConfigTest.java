@@ -15,8 +15,8 @@ public class SerConfigTest extends BaseMapTest
         SerializationConfig config = MAPPER.serializationConfig();
         assertTrue(config.hasSerializationFeatures(SerializationFeature.FAIL_ON_EMPTY_BEANS.getMask()));
         assertFalse(config.hasSerializationFeatures(SerializationFeature.CLOSE_CLOSEABLE.getMask()));
-        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
-        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion(String.class));
+        assertEquals(ConfigOverrides.INCLUDE_DEFAULT, config.getDefaultPropertyInclusion());
+        assertEquals(ConfigOverrides.INCLUDE_DEFAULT, config.getDefaultPropertyInclusion(String.class));
         assertFalse(config.useRootWrapping());
 
         assertNotSame(config, config.with(SerializationFeature.INDENT_OUTPUT,

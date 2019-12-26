@@ -22,11 +22,14 @@ public class ConfigOverrides
 
     /**
      * Convenience value used as the default root setting.
+     * Note that although in a way it would make sense use "ALWAYS" for both,
+     * problems arise in some cases where default is seen as explicit setting,
+     * overriding possible per-class annotation; hence use of "USE_DEFAULTS".
      *
      * @since 3.0
      */
-    public final static JsonInclude.Value INCLUDE_ALL
-        = JsonInclude.Value.construct(JsonInclude.Include.ALWAYS, JsonInclude.Include.ALWAYS);
+    final static JsonInclude.Value INCLUDE_DEFAULT // non-private for test access
+        = JsonInclude.Value.construct(JsonInclude.Include.USE_DEFAULTS, JsonInclude.Include.USE_DEFAULTS);
     
     /**
      * Per-type override definitions
@@ -53,7 +56,7 @@ public class ConfigOverrides
 
     public ConfigOverrides() {
         this(null,
-                INCLUDE_ALL,
+                INCLUDE_DEFAULT,
                 JsonSetter.Value.empty(),
                 VisibilityChecker.defaultInstance(),
                 null, null

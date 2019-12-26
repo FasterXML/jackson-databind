@@ -160,8 +160,8 @@ public class TestMapFiltering extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = objectMapper();
-    
+    final ObjectMapper MAPPER = newJsonMapper();
+
     public void testMapFilteringViaProps() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",

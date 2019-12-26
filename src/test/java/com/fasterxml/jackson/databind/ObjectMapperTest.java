@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
 import com.fasterxml.jackson.databind.cfg.DeserializationContexts;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -86,7 +85,6 @@ public class ObjectMapperTest extends BaseMapTest
     {
         ObjectMapper m = new ObjectMapper();
         SerializationConfig config = m.serializationConfig();
-        assertEquals(ConfigOverrides.INCLUDE_ALL, config.getDefaultPropertyInclusion());
         assertEquals(JsonSetter.Value.empty(), config.getDefaultNullHandling());
         assertNull(config.getDefaultMergeable());
 

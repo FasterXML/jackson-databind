@@ -466,53 +466,53 @@ public class MapSerializer
                     mser = mser.withFilterId(filterId);
                 }
             }
-            JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), null);
-            if (inclV != null) {
-                JsonInclude.Include incl = inclV.getContentInclusion();
+        }
+        JsonInclude.Value inclV = findIncludeOverrides(provider, property, Map.class);
+        if (inclV != null) {
+            JsonInclude.Include incl = inclV.getContentInclusion();
 
-                if (incl != JsonInclude.Include.USE_DEFAULTS) {
-                    Object valueToSuppress;
-                    boolean suppressNulls;
-                    switch (incl) {
-                    case NON_DEFAULT:
-                        valueToSuppress = BeanUtil.getDefaultValue(_valueType);
-                        suppressNulls = true;
-                        if (valueToSuppress != null) {
-                            if (valueToSuppress.getClass().isArray()) {
-                                valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
-                            }
+            if (incl != JsonInclude.Include.USE_DEFAULTS) {
+                Object valueToSuppress;
+                boolean suppressNulls;
+                switch (incl) {
+                case NON_DEFAULT:
+                    valueToSuppress = BeanUtil.getDefaultValue(_valueType);
+                    suppressNulls = true;
+                    if (valueToSuppress != null) {
+                        if (valueToSuppress.getClass().isArray()) {
+                            valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
                         }
-                        break;
-                    case NON_ABSENT:
-                        suppressNulls = true;
-                        valueToSuppress = _valueType.isReferenceType() ? MARKER_FOR_EMPTY : null;
-                        break;
-                    case NON_EMPTY:
-                        suppressNulls = true;
-                        valueToSuppress = MARKER_FOR_EMPTY;
-                        break;
-                    case CUSTOM:
-                        valueToSuppress = provider.includeFilterInstance(null, inclV.getContentFilter());
-                        if (valueToSuppress == null) { // is this legal?
-                            suppressNulls = true;
-                        } else {
-                            suppressNulls = provider.includeFilterSuppressNulls(valueToSuppress);
-                        }
-                        break;
-                    case NON_NULL:
-                        valueToSuppress = null;
-                        suppressNulls = true;
-                        break;
-                    case ALWAYS: // default
-                    default:
-                        valueToSuppress = null;
-                        // 30-Sep-2016, tatu: Should not need to check global flags here,
-                        //   if inclusion forced to be ALWAYS
-                        suppressNulls = false;
-                        break;
                     }
-                    mser = mser.withContentInclusion(valueToSuppress, suppressNulls);
+                    break;
+                case NON_ABSENT:
+                    suppressNulls = true;
+                    valueToSuppress = _valueType.isReferenceType() ? MARKER_FOR_EMPTY : null;
+                    break;
+                case NON_EMPTY:
+                    suppressNulls = true;
+                    valueToSuppress = MARKER_FOR_EMPTY;
+                    break;
+                case CUSTOM:
+                    valueToSuppress = provider.includeFilterInstance(null, inclV.getContentFilter());
+                    if (valueToSuppress == null) { // is this legal?
+                        suppressNulls = true;
+                    } else {
+                        suppressNulls = provider.includeFilterSuppressNulls(valueToSuppress);
+                    }
+                    break;
+                case NON_NULL:
+                    valueToSuppress = null;
+                    suppressNulls = true;
+                    break;
+                case ALWAYS: // default
+                default:
+                    valueToSuppress = null;
+                    // 30-Sep-2016, tatu: Should not need to check global flags here,
+                    //   if inclusion forced to be ALWAYS
+                    suppressNulls = false;
+                    break;
                 }
+                mser = mser.withContentInclusion(valueToSuppress, suppressNulls);
             }
         }
         return mser;

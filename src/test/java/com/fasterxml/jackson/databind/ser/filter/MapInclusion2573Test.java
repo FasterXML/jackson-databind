@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.ser.filter;
 
 import java.util.*;
 
@@ -78,7 +78,7 @@ public class MapInclusion2573Test extends BaseMapTest
                     JsonInclude.Include.ALWAYS));
         assertEquals(aposToQuotes("{'Speed':100,'Weight':null}"),
                 mapper.writeValueAsString(CAR_PROPERTIES));
-        assertEquals(aposToQuotes("{'model':'F60','properties':{'Speed':100,'Weight':null}}}"),
+        assertEquals(aposToQuotes("{'model':'F60','properties':{'Speed':100,'Weight':null}}"),
                 mapper.writeValueAsString(CAR));
     }
 }

@@ -106,6 +106,9 @@ public class UntypedDeserializationTest
     static class WrappedPolymorphicUntyped {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
         public Object value;
+
+        protected WrappedPolymorphicUntyped() { }
+        public WrappedPolymorphicUntyped(Object o) { value = o; }
     }
 
     static class WrappedUntyped1460 {
@@ -414,10 +417,12 @@ public class UntypedDeserializationTest
         map.put("a", 42);
 
         ObjectReader r = customMapper.readerFor(Object.class).withValueToUpdate(map);
-        Object result = r.readValue(aposToQuotes("{'b' : 'value'}"));
+        Object result = r.readValue(aposToQuotes("{'b' : 'value', 'c' : 111222333444, 'enabled':true}"));
         assertSame(map, result);
-        assertEquals(2, map.size());
+        assertEquals(4, map.size());
         assertEquals("VALUE", map.get("b"));
+        assertEquals(Long.valueOf(111222333444L), map.get("c"));
+        assertEquals(Boolean.TRUE, map.get("enabled"));
 
         // Try same with other types, too
         List<Object> list = new ArrayList<>();
@@ -456,7 +461,7 @@ public class UntypedDeserializationTest
         assertEquals(Long.valueOf(VALUE), n);
     }
 
-    public void testPolymorphicUntyped() throws IOException
+    public void testPolymorphicUntypedVanilla() throws IOException
     {
         ObjectReader rDefault = MAPPER.readerFor(WrappedPolymorphicUntyped.class);
         ObjectReader rAlt = rDefault
@@ -490,5 +495,37 @@ public class UntypedDeserializationTest
         for (int i = 0; i < 100; ++i) {
             assertEquals(Integer.valueOf(i), obs[i]);
         }
+    }
+
+    public void testPolymorphicUntypedCustom() throws IOException
+    {
+        // register module just to override one deserializer, to prevent use of Vanilla deser
+        SimpleModule m = new SimpleModule("test-module")
+                .addDeserializer(String.class, new UCStringDeserializer());
+        final ObjectMapper customMapper = newJsonMapper()
+            .registerModule(m);
+        ObjectReader rDefault = customMapper.readerFor(WrappedPolymorphicUntyped.class);
+
+        WrappedPolymorphicUntyped w = rDefault.readValue(aposToQuotes("{'value':10}"));
+        assertEquals(Integer.valueOf(10), w.value);
+
+        w = rDefault.readValue(aposToQuotes("{'value':9988776655}"));
+        assertEquals(Long.valueOf(9988776655L), w.value);
+        w = rDefault.readValue(aposToQuotes("{'value':0.75}"));
+        assertEquals(Double.valueOf(0.75), w.value);
+
+        w = rDefault.readValue(aposToQuotes("{'value':'abc'}"));
+        assertEquals("ABC", w.value);
+        w = rDefault.readValue(aposToQuotes("{'value':false}"));
+        assertEquals(Boolean.FALSE, w.value);
+        w = rDefault.readValue(aposToQuotes("{'value':null}"));
+        assertNull(w.value);
+
+        // but... actually how about real type id?
+        final Object SHORT = Short.valueOf((short) 3);
+        String json = customMapper.writeValueAsString(new WrappedPolymorphicUntyped(SHORT));
+
+        WrappedPolymorphicUntyped result = rDefault.readValue(json);
+        assertEquals(SHORT, result.value);
     }
 }

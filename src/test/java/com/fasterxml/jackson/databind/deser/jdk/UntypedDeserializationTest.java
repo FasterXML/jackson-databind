@@ -377,6 +377,60 @@ public class UntypedDeserializationTest
 
     /*
     /**********************************************************
+    /* Test methods, merging
+    /**********************************************************
+     */
+    
+    public void testValueUpdateVanillaUntyped() throws Exception
+    {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("a", 42);
+
+        ObjectReader r = MAPPER.readerFor(Object.class).withValueToUpdate(map);
+        Object result = r.readValue(aposToQuotes("{'b' : 57}"));
+        assertSame(map, result);
+        assertEquals(2, map.size());
+        assertEquals(Integer.valueOf(57), map.get("b"));
+
+        // Try same with other types, too
+        List<Object> list = new ArrayList<>();
+        list.add(1);
+        r = MAPPER.readerFor(Object.class).withValueToUpdate(list);
+        result = r.readValue("[ 2, true ]");
+        assertSame(list, result);
+        assertEquals(3, list.size());
+        assertEquals(Boolean.TRUE, list.get(2));
+    }
+
+    public void testValueUpdateCustomUntyped() throws Exception
+    {
+        SimpleModule m = new SimpleModule("test-module")
+                .addDeserializer(String.class, new UCStringDeserializer());
+        final ObjectMapper customMapper = jsonMapperBuilder()
+                .addModule(m)
+                .build();
+
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("a", 42);
+
+        ObjectReader r = customMapper.readerFor(Object.class).withValueToUpdate(map);
+        Object result = r.readValue(aposToQuotes("{'b' : 'value'}"));
+        assertSame(map, result);
+        assertEquals(2, map.size());
+        assertEquals("VALUE", map.get("b"));
+
+        // Try same with other types, too
+        List<Object> list = new ArrayList<>();
+        list.add(1);
+        r = customMapper.readerFor(Object.class).withValueToUpdate(list);
+        result = r.readValue(aposToQuotes("[ 2, 'foobar' ]"));
+        assertSame(list, result);
+        assertEquals(3, list.size());
+        assertEquals("FOOBAR", list.get(2));
+    }
+    
+    /*
+    /**********************************************************
     /* Test methods, polymorphic
     /**********************************************************
      */

@@ -502,8 +502,9 @@ public class UntypedDeserializationTest
         // register module just to override one deserializer, to prevent use of Vanilla deser
         SimpleModule m = new SimpleModule("test-module")
                 .addDeserializer(String.class, new UCStringDeserializer());
-        final ObjectMapper customMapper = newJsonMapper()
-            .registerModule(m);
+        final ObjectMapper customMapper = jsonMapperBuilder()
+                .addModule(m)
+                .build();
         ObjectReader rDefault = customMapper.readerFor(WrappedPolymorphicUntyped.class);
 
         WrappedPolymorphicUntyped w = rDefault.readValue(aposToQuotes("{'value':10}"));

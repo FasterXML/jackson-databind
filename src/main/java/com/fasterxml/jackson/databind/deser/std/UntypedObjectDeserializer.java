@@ -272,6 +272,11 @@ public class UntypedObjectDeserializer
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
+    // 26-Dec-2019, tatu: I don't think this has ever been actually used; unit tests
+    //   do not exercise it, and I think it could only ever be invoked if somehow
+    //   type info was marked as `java.lang.Object` which should never occur.
+    //   To be removed eventually but commenting out for 2.11 first
+/*    
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException
@@ -287,9 +292,8 @@ public class UntypedObjectDeserializer
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             return p.getEmbeddedObject();
 
-        /* Otherwise we probably got a "native" type (ones that map
-         * naturally and thus do not need or use type ids)
-         */
+        // Otherwise we probably got a "native" type (ones that map
+        // naturally and thus do not need or use type ids)
         case JsonTokenId.ID_STRING:
             if (_stringDeserializer != null) {
                 return _stringDeserializer.deserialize(p, ctxt);
@@ -326,6 +330,7 @@ public class UntypedObjectDeserializer
         }
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
+*/
 
     @SuppressWarnings("unchecked")
     @Override // since 2.9 (to support deep merge)

@@ -520,6 +520,16 @@ public class AnnotationIntrospectorPair
         return res;
     }
 
+    @Override // since 2.11
+    public PropertyName findRenameByField(MapperConfig<?> config,
+            AnnotatedField f, PropertyName implName) {
+        PropertyName n = _secondary.findRenameByField(config, f, implName);
+        if (n == null) {
+            n = _primary.findRenameByField(config, f, implName);
+        }
+        return n;
+    }
+
     // // // Serialization: type refinements
 
     @Override // since 2.7

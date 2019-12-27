@@ -314,6 +314,9 @@ public class POJOPropertiesCollector
         }
         _addInjectables(props);
 
+        // 27-Dec-2019, tatu: [databind#2527] initial re-linking by Field needs to
+        //    be applied before other processing
+        
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
@@ -372,9 +375,8 @@ public class POJOPropertiesCollector
          */
         final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
-        
+
         for (AnnotatedField f : _classDef.fields()) {
-            String implName = ai.findImplicitPropertyName(f);
             // @JsonValue?
             if (Boolean.TRUE.equals(ai.hasAsValue(f))) {
                 if (_jsonValueAccessors == null) {
@@ -391,17 +393,26 @@ public class POJOPropertiesCollector
                 _anySetterField.add(f);
                 continue;
             }
+            String implName = ai.findImplicitPropertyName(f);
             if (implName == null) {
                 implName = f.getName();
             }
+
+            // [databind#2527: Field-based renaming can be applied early (here),
+            // or at a later point, but probably must be done before pruning
+            // final fields. So let's do it early here
+            final PropertyName rename = ai.findRenameByField(_config, f, _propNameFromSimple(implName));
+            if (rename != null) {
+                // todo
+            }
+            
             PropertyName pn;
 
             if (_forSerialization) {
-                /* 18-Aug-2011, tatu: As per existing unit tests, we should only
-                 *   use serialization annotation (@JsonSerialize) when serializing
-                 *   fields, and similarly for deserialize-only annotations... so
-                 *   no fallbacks in this particular case.
-                 */
+                // 18-Aug-2011, tatu: As per existing unit tests, we should only
+                //   use serialization annotation (@JsonSerialize) when serializing
+                //   fields, and similarly for deserialize-only annotations... so
+                //   no fallbacks in this particular case.
                 pn = ai.findNameForSerialization(f);
             } else {
                 pn = ai.findNameForDeserialization(f);
@@ -434,7 +445,7 @@ public class POJOPropertiesCollector
             }
             /* [databind#190]: this is the place to prune final fields, if they are not
              *  to be used as mutators. Must verify they are not explicitly included.
-             *  Also: if 'ignored' is set, need to included until a later point, to
+             *  Also: if 'ignored' is set, need to include until a later point, to
              *  avoid losing ignoral information.
              */
             if (pruneFinalFields && (pn == null) && !ignored

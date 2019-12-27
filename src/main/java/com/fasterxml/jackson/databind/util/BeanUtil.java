@@ -260,9 +260,11 @@ public class BeanUtil
     }
 
     /**
+     * Note: public only since 2.11
+     *
      * @since 2.5
      */
-    protected static String stdManglePropertyName(final String basename, final int offset)
+    public static String stdManglePropertyName(final String basename, final int offset)
     {
         final int end = basename.length();
         if (end == offset) { // empty name, nope

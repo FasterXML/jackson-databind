@@ -536,6 +536,13 @@ public class JacksonAnnotationIntrospector
         return null;
     }
 
+    @Override // since 2.11
+    public PropertyName findRenameByField(MapperConfig<?> config,
+            AnnotatedField f, PropertyName implName) {
+        // Nothing to report, only used by modules. But define just as documentation
+        return null;
+    }
+    
     /*
     /**********************************************************************
     /* Annotations for Polymorphic Type handling

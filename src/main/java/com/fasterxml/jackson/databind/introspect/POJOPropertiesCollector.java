@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class POJOPropertiesCollector
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -58,11 +58,11 @@ public class POJOPropertiesCollector
      * but differs for builder objects ("with" by default).
      */
     protected final String _mutatorPrefix;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Collected property information
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -106,11 +106,11 @@ public class POJOPropertiesCollector
      * value injection.
      */
     protected LinkedHashMap<Object, AnnotatedMember> _injectables;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
@@ -133,9 +133,9 @@ public class POJOPropertiesCollector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
 
     public MapperConfig<?> getConfig() {
@@ -267,9 +267,9 @@ public class POJOPropertiesCollector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API: main-level collection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -289,6 +289,9 @@ public class POJOPropertiesCollector
         }
         _addInjectables(props);
 
+        // 27-Dec-2019, tatu: [databind#2527] initial re-linking by Field needs to
+        //    be applied before other processing
+        
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
@@ -326,9 +329,9 @@ public class POJOPropertiesCollector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable internal methods, adding members
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -343,7 +346,7 @@ public class POJOPropertiesCollector
          */
         final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
-        
+
         for (AnnotatedField f : _classDef.fields()) {
             // @JsonValue?
             if (Boolean.TRUE.equals(ai.hasAsValue(_config, f))) {
@@ -356,7 +359,7 @@ public class POJOPropertiesCollector
             // @JsonAnySetter?
             if (Boolean.TRUE.equals(ai.hasAnySetter(_config, f))) {
                 if (_anySetterField == null) {
-                    _anySetterField = new LinkedList<AnnotatedMember>();
+                    _anySetterField = new LinkedList<>();
                 }
                 _anySetterField.add(f);
                 continue;
@@ -365,14 +368,22 @@ public class POJOPropertiesCollector
             if (implName == null) {
                 implName = f.getName();
             }
+
+            // [databind#2527: Field-based renaming can be applied early (here),
+            // or at a later point, but probably must be done before pruning
+            // final fields. So let's do it early here
+            final PropertyName rename = ai.findRenameByField(_config, f, _propNameFromSimple(implName));
+            if (rename != null) {
+                // todo
+            }
+            
             PropertyName pn;
 
             if (_forSerialization) {
-                /* 18-Aug-2011, tatu: As per existing unit tests, we should only
-                 *   use serialization annotation (@JsonSerialize) when serializing
-                 *   fields, and similarly for deserialize-only annotations... so
-                 *   no fallbacks in this particular case.
-                 */
+                // 18-Aug-2011, tatu: As per existing unit tests, we should only
+                //   use serialization annotation (@JsonSerialize) when serializing
+                //   fields, and similarly for deserialize-only annotations... so
+                //   no fallbacks in this particular case.
                 pn = ai.findNameForSerialization(_config, f);
             } else {
                 pn = ai.findNameForDeserialization(_config, f);
@@ -405,7 +416,7 @@ public class POJOPropertiesCollector
             }
             /* [databind#190]: this is the place to prune final fields, if they are not
              *  to be used as mutators. Must verify they are not explicitly included.
-             *  Also: if 'ignored' is set, need to included until a later point, to
+             *  Also: if 'ignored' is set, need to include until a later point, to
              *  avoid losing ignoral information.
              */
             if (pruneFinalFields && (pn == null) && !ignored
@@ -427,7 +438,7 @@ public class POJOPropertiesCollector
         }
         for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
             if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                _creatorProperties = new LinkedList<>();
             }
             for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
                 _addCreatorParam(props, ctor.getParameter(i));
@@ -435,7 +446,7 @@ public class POJOPropertiesCollector
         }
         for (AnnotatedMethod factory : _classDef.getFactoryMethods()) {
             if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                _creatorProperties = new LinkedList<>();
             }
             for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
                 _addCreatorParam(props, factory.getParameter(i));
@@ -654,11 +665,11 @@ public class POJOPropertiesCollector
     private PropertyName _propNameFromSimple(String simpleName) {
         return PropertyName.construct(simpleName, null);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods; removing ignored properties
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -729,9 +740,9 @@ public class POJOPropertiesCollector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods; renaming properties
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void _renameProperties(Map<String, POJOPropertyBuilder> props)
@@ -893,9 +904,9 @@ public class POJOPropertiesCollector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable internal methods, sorting, other stuff
-    /**********************************************************
+    /**********************************************************************
      */
 
     // First, order by(explicit ordering and/or alphabetic),
@@ -1014,9 +1025,9 @@ public class POJOPropertiesCollector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods; helpers
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void reportProblem(String msg, Object... args) {

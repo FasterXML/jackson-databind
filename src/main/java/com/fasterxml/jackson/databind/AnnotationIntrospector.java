@@ -503,6 +503,40 @@ public abstract class AnnotationIntrospector
         return null;
     }
 
+    /**
+     * Method called on fields that are eligible candidates for properties
+     * (that is, non-static member fields), but not necessarily selected (may
+     * or may not be visible), to let fields affect name linking.
+     * Call will be made after finding implicit name (which by default is just
+     * name of the field, but may be overridden by introspector), but before
+     * discovering other accessors.
+     * If non-null name returned, it is to be used to find other accessors (getters,
+     * setters, creator parameters) and replace their implicit names with that
+     * of field's implicit name (assuming they differ).
+     *<p>
+     * Specific example (and initial use case is for support Kotlin's "is getter"
+     * matching (see
+     * <a href="https://kotlinlang.org/docs/reference/java-to-kotlin-interop.html">Kotling Interop</a>
+     * for details), in which field like '{@code isOpen}' would have implicit name of
+     * "isOpen", match getter {@code getOpen()} and setter {@code setOpen(boolean)},
+     * but use logical external name of "isOpen" (and not implicit name of getter/setter, "open"!).
+     * To achieve this, field implicit name needs to remain "isOpen" but this method needs
+     * to return name {@code PropertyName.construct("open")}: doing so will "pull in" getter
+     * and/or setter, and rename them as "isOpen".
+     *
+     * @param config Effective mapper configuration in use
+     * @param f Field to check
+     * @param implName Implicit name of the field; usually name of field itself but not always,
+     *    used as the target name for accessors to rename.
+     *
+     * @return Name used to find other accessors to rename, if any; {@code null} to indicate
+     *    no renaming
+     */
+    public PropertyName findRenameByField(MapperConfig<?> config,
+            AnnotatedField f, PropertyName implName) {
+        return null;
+    }
+
     /*
     /**********************************************************************
     /* Serialization: general annotations

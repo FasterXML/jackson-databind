@@ -174,7 +174,7 @@ public class BeanUtil
     // 24-Sep-2017, tatu: note that "std" here refers to earlier (1.x, 2.x) distinction
     //   between "legacy" (slightly non-conforming) and "std" (fully conforming): with 3.x
     //   only latter exists.
-    protected static String stdManglePropertyName(final String basename, final int offset)
+    public static String stdManglePropertyName(final String basename, final int offset)
     {
         final int end = basename.length();
         if (end == offset) { // empty name, nope

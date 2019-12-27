@@ -313,7 +313,7 @@ public class UntypedObjectDeserializer
 
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             return p.getEmbeddedObject();
-            
+
         /* Otherwise we probably got a "native" type (ones that map
          * naturally and thus do not need or use type ids)
          */

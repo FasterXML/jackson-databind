@@ -127,7 +127,7 @@ public class UntypedDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     @SuppressWarnings("unchecked")
     public void testSampleDoc() throws Exception
@@ -206,6 +206,22 @@ public class UntypedDeserializationTest
         assertNull(result.get(3));
     }
 
+    public void testSimpleVanillaScalars() throws IOException
+    {
+        assertEquals("foo", MAPPER.readValue(quote("foo"), Object.class));
+
+        assertEquals(Boolean.TRUE, MAPPER.readValue(" true ", Object.class));
+
+        assertEquals(Integer.valueOf(13), MAPPER.readValue("13 ", Object.class));
+        assertEquals(Double.valueOf(0.5), MAPPER.readValue("0.5 ", Object.class));
+    }
+
+    public void testSimpleVanillaStructured() throws IOException
+    {
+        List<?> list = (List<?>) MAPPER.readValue("[ 1, 2, 3]", Object.class);
+        assertEquals(Integer.valueOf(1), list.get(0));
+    }
+    
     public void testNestedUntypes() throws IOException
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
@@ -264,39 +280,6 @@ public class UntypedDeserializationTest
         assertEquals(2, l.size());
         assertTrue(l.get(0) instanceof Map<?,?>);
         assertTrue(l.get(1) instanceof List<?>);
-
-        ObjectReader rDefault = mapper.readerFor(WrappedPolymorphicUntyped.class);
-        ObjectReader rAlt = rDefault
-                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,
-                        DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
-        WrappedPolymorphicUntyped w;
-
-        w = rDefault.readValue(aposToQuotes("{'value':10}"));
-        assertEquals(Integer.valueOf(10), w.value);
-        w = rAlt.readValue(aposToQuotes("{'value':10}"));
-        assertEquals(BigInteger.TEN, w.value);
-
-        w = rDefault.readValue(aposToQuotes("{'value':5.0}"));
-        assertEquals(Double.valueOf(5.0), w.value);
-        w = rAlt.readValue(aposToQuotes("{'value':5.0}"));
-        assertEquals(new BigDecimal("5.0"), w.value);
-
-        StringBuilder sb = new StringBuilder(100).append("[0");
-        for (int i = 1; i < 100; ++i) {
-            sb.append(", ").append(i);
-        }
-        sb.append("]");
-        final String INT_ARRAY_JSON = sb.toString();
-
-        // First read as-is, no type wrapping
-        Object ob = mapper.readerFor(Object.class)
-                .with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
-                .readValue(INT_ARRAY_JSON);
-        assertTrue(ob instanceof Object[]);
-        Object[] obs = (Object[]) ob;
-        for (int i = 0; i < 100; ++i) {
-            assertEquals(Integer.valueOf(i), obs[i]);
-        }
     }
 
     public void testUntypedWithListDeser() throws IOException
@@ -354,8 +337,9 @@ public class UntypedDeserializationTest
         assertTrue(ob instanceof List<?>);
 
         // but can change to produce Object[]:
-        MAPPER.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
-        ob = MAPPER.readValue("[1]", Object.class);
+        ob = MAPPER.readerFor(Object.class)
+            .with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
+            .readValue("[1]");
         assertEquals(Object[].class, ob.getClass());
     }
 
@@ -417,5 +401,41 @@ public class UntypedDeserializationTest
         assertNotNull(n);
         assertSame(Long.class, n.getClass());
         assertEquals(Long.valueOf(VALUE), n);
+    }
+
+    public void testPolymorphicUntyped() throws IOException
+    {
+        ObjectReader rDefault = MAPPER.readerFor(WrappedPolymorphicUntyped.class);
+        ObjectReader rAlt = rDefault
+                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,
+                        DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+        WrappedPolymorphicUntyped w;
+
+        w = rDefault.readValue(aposToQuotes("{'value':10}"));
+        assertEquals(Integer.valueOf(10), w.value);
+        w = rAlt.readValue(aposToQuotes("{'value':10}"));
+        assertEquals(BigInteger.TEN, w.value);
+
+        w = rDefault.readValue(aposToQuotes("{'value':5.0}"));
+        assertEquals(Double.valueOf(5.0), w.value);
+        w = rAlt.readValue(aposToQuotes("{'value':5.0}"));
+        assertEquals(new BigDecimal("5.0"), w.value);
+
+        StringBuilder sb = new StringBuilder(100).append("[0");
+        for (int i = 1; i < 100; ++i) {
+            sb.append(", ").append(i);
+        }
+        sb.append("]");
+        final String INT_ARRAY_JSON = sb.toString();
+
+        // First read as-is, no type wrapping
+        Object ob = MAPPER.readerFor(Object.class)
+                .with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
+                .readValue(INT_ARRAY_JSON);
+        assertTrue(ob instanceof Object[]);
+        Object[] obs = (Object[]) ob;
+        for (int i = 0; i < 100; ++i) {
+            assertEquals(Integer.valueOf(i), obs[i]);
+        }
     }
 }

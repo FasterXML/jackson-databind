@@ -3,6 +3,7 @@ package com.fasterxml.jackson.failing;
 import java.util.Collections;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
@@ -24,18 +25,28 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         public void setEnabled(boolean b) { isEnabled = b; }
     }
 
-    static class POJO2527b {
+    static class POJO2527PublicField {
         public boolean isEnabled;
 
-        protected POJO2527b() { }
-        public POJO2527b(boolean b) {
+        protected POJO2527PublicField() { }
+        public POJO2527PublicField(boolean b) {
             isEnabled = b;
         }
 
         public boolean getEnabled() { return isEnabled; }
         public void setEnabled(boolean b) { isEnabled = b; }
     }
-    
+
+    static class POJO2527Creator {
+        private final boolean isEnabled;
+
+        public POJO2527Creator(@JsonProperty("enabled") boolean b) {
+            isEnabled = b;
+        }
+
+        public boolean getEnabled() { return isEnabled; }
+    }
+
     @SuppressWarnings("serial")
     static class MyIntrospector extends JacksonAnnotationIntrospector
     {
@@ -55,7 +66,9 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         }
     }
     
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .annotationIntrospector(new MyIntrospector())
+            .build();
 
     public void testIsPropertiesStdKotlin() throws Exception
     {
@@ -70,16 +83,29 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         assertEquals(input.isEnabled, output.isEnabled);
     }
 
-    public void testIsPropertiesAlt() throws Exception
+    public void testIsPropertiesWithPublicField() throws Exception
     {
-        POJO2527b input = new POJO2527b(true);
+        POJO2527PublicField input = new POJO2527PublicField(true);
         final String json = MAPPER.writeValueAsString(input);
 
         Map<?, ?> props = MAPPER.readValue(json, Map.class);
         assertEquals(Collections.singletonMap("isEnabled", Boolean.TRUE),
                 props);
         
-        POJO2527b output = MAPPER.readValue(json, POJO2527b.class);
+        POJO2527PublicField output = MAPPER.readValue(json, POJO2527PublicField.class);
+        assertEquals(input.isEnabled, output.isEnabled);
+    }
+
+    public void testIsPropertiesViaCreator() throws Exception
+    {
+        POJO2527Creator input = new POJO2527Creator(true);
+        final String json = MAPPER.writeValueAsString(input);
+
+        Map<?, ?> props = MAPPER.readValue(json, Map.class);
+        assertEquals(Collections.singletonMap("isEnabled", Boolean.TRUE),
+                props);
+        
+        POJO2527Creator output = MAPPER.readValue(json, POJO2527Creator.class);
         assertEquals(input.isEnabled, output.isEnabled);
     }
 }

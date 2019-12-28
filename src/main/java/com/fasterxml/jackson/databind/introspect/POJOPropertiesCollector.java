@@ -89,6 +89,22 @@ public class POJOPropertiesCollector
     protected LinkedHashMap<String, POJOPropertyBuilder> _properties;
 
     protected LinkedList<POJOPropertyBuilder> _creatorProperties;
+
+    /**
+     * A set of "field renamings" that have been discovered, indicating
+     * intended renaming of other accesors: key is the implicit original
+     * name and value intended name to use instead.
+     *<p>
+     * Note that these renamings are applied earlier than "regular" (explicit)
+     * renamings and affect implicit name: their effect may be changed by
+     * further renaming based on explicit indicators.
+     * The main use case is to effectively relink accessors based on fields
+     * discovered, and used to sort of correct otherwise missing linkage between
+     * fields and other accessors.
+     *
+     * @since 2.11
+     */
+    protected Map<PropertyName, PropertyName> _fieldRenameMappings;
     
     protected LinkedList<AnnotatedMember> _anyGetters;
 
@@ -305,7 +321,7 @@ public class POJOPropertiesCollector
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
         // First: gather basic data
-        _addFields(props);
+        _addFields(props); // note: populates _fieldRenameMappings
         _addMethods(props);
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]
@@ -314,9 +330,6 @@ public class POJOPropertiesCollector
         }
         _addInjectables(props);
 
-        // 27-Dec-2019, tatu: [databind#2527] initial re-linking by Field needs to
-        //    be applied before other processing
-        
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
@@ -397,15 +410,20 @@ public class POJOPropertiesCollector
             if (implName == null) {
                 implName = f.getName();
             }
+            final PropertyName implNameP = _propNameFromSimple(implName);
 
             // [databind#2527: Field-based renaming can be applied early (here),
             // or at a later point, but probably must be done before pruning
             // final fields. So let's do it early here
-            final PropertyName rename = ai.findRenameByField(_config, f, _propNameFromSimple(implName));
-            if (rename != null) {
+            final PropertyName rename = ai.findRenameByField(_config, f, implNameP);
+            if ((rename != null) && !rename.equals(implNameP)) {
+                if (_fieldRenameMappings == null) {
+                    _fieldRenameMappings = new HashMap<>();
+                }
+                _fieldRenameMappings.put(rename, implNameP);
                 // todo
             }
-            
+
             PropertyName pn;
 
             if (_forSerialization) {
@@ -511,9 +529,12 @@ public class POJOPropertiesCollector
             pn = PropertyName.construct(impl);
         }
 
+        // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
+        impl = _checkRenameByField(impl);
+
         // shouldn't need to worry about @JsonIgnore, since creators only added
         // if so annotated
-
+        
         /* 13-May-2015, tatu: We should try to start with implicit name, similar to how
          *   fields and methods work; but unlike those, we don't necessarily have
          *   implicit name to use (pre-Java8 at least). So:
@@ -531,11 +552,11 @@ public class POJOPropertiesCollector
     {
         final AnnotationIntrospector ai = _annotationIntrospector;
         for (AnnotatedMethod m : _classDef.memberMethods()) {
-            /* For methods, handling differs between getters and setters; and
-             * we will also only consider entries that either follow the bean
-             * naming convention or are explicitly marked: just being visible
-             * is not enough (unlike with fields)
-             */
+            // For methods, handling differs between getters and setters; and
+            // we will also only consider entries that either follow the bean
+            // naming convention or are explicitly marked: just being visible
+            // is not enough (unlike with fields)
+
             int argCount = m.getParameterCount();
             if (argCount == 0) { // getters (including 'any getter')
             	_addGetterMethod(props, m, ai);
@@ -616,6 +637,8 @@ public class POJOPropertiesCollector
             }
             visible = true;
         }
+        // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
+        implName = _checkRenameByField(implName);
         boolean ignore = ai.hasIgnoreMarker(m);
         _property(props, implName).addGetter(m, pn, nameExplicit, visible, ignore);
     }
@@ -653,6 +676,8 @@ public class POJOPropertiesCollector
             }
             visible = true;
         }
+        // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
+        implName = _checkRenameByField(implName);
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
         _property(props, implName).addSetter(m, pn, nameExplicit, visible, ignore);
     }
@@ -697,7 +722,20 @@ public class POJOPropertiesCollector
     private PropertyName _propNameFromSimple(String simpleName) {
         return PropertyName.construct(simpleName, null);
     }
-    
+
+    // @since 2.11
+    private String _checkRenameByField(String implName) {
+        if (_fieldRenameMappings != null) {
+            PropertyName p = _fieldRenameMappings.get(_propNameFromSimple(implName));
+            if (p != null) {
+                implName = p.getSimpleName();
+                return implName;
+
+            }
+        }
+        return implName;
+    }
+
     /*
     /**********************************************************
     /* Internal methods; removing ignored properties

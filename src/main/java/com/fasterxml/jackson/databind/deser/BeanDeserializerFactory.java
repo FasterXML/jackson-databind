@@ -547,7 +547,7 @@ public class BeanDeserializerFactory
                         PropertyMetadata md = propDef.getMetadata();
                         // 25-Oct-2016, tatu: If merging enabled, might not need setter.
                         //   We cannot quite support this with creator parameters; in theory
-                        //   possibly, but right not not due to complexities of routing, so
+                        //   possibly, but right not now due to complexities of routing, so
                         //   just prevent
                         if (md.getMergeInfo() != null) {
                             prop = constructSetterlessProperty(ctxt, beanDesc, propDef);

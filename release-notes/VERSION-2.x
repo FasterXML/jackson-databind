@@ -24,6 +24,8 @@ Project: jackson-databind
 #2522: `DeserializationContext.handleMissingInstantiator()` throws `MismatchedInputException`
   for non-static inner classes
 #2525: Incorrect `JsonStreamContext` for `TokenBuffer` and `TreeTraversingParser`
+#2527: Add `AnnotationIntrospector.findRenameByField()` to support Kotlin's "is-getter"
+  naming convention
 #2555: Use `@JsonProperty(index)` for sorting properties on serialization
 #2565: Java 8 `Optional` not working with `@JsonUnwrapped` on unwrappable type
  (reported by Haowei W)

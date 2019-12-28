@@ -2304,7 +2304,8 @@ public class ObjectMapper
                 GeneratorSettings.empty());
     }
 
-    protected DefaultSerializerProvider _serializerProvider() {
+    // NOTE: only public to allow for testing
+    public DefaultSerializerProvider _serializerProvider() {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(serializationConfig(),
                 GeneratorSettings.empty());
@@ -2474,7 +2475,8 @@ public class ObjectMapper
                 .assignParser(p);
     }
 
-    protected DefaultDeserializationContext _deserializationContext() {
+    // NOTE: only public to allow for testing
+    public DefaultDeserializationContext _deserializationContext() {
         return _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues);
     }

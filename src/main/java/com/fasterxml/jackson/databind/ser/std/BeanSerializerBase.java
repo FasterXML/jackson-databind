@@ -703,7 +703,7 @@ public abstract class BeanSerializerBase
      */
 
     /**
-     * Method called called when neither JSON Filter is to be applied, nor
+     * Method called when neither JSON Filter is to be applied, nor
      * view-filtering. This means that all property writers are non null
      * and can be called directly.
      *
@@ -758,7 +758,7 @@ public abstract class BeanSerializerBase
         }
     }    
     /**
-     * Method called called when no JSON Filter is to be applied, but
+     * Method called when no JSON Filter is to be applied, but
      * View filtering is in effect and so some of properties may be
      * nulls to check.
      *

@@ -911,7 +911,7 @@ public class ObjectReader
     }
 
     public boolean isEnabled(JsonParser.Feature f) {
-        return _parserFactory.isEnabled(f);
+        return _config.isEnabled(f, _parserFactory);
     }
 
     /**

@@ -101,6 +101,29 @@ public class ObjectReaderTest extends BaseMapTest
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE));
     }
 
+    public void testFeatureSettingsDeprecated() throws Exception
+    {
+        final ObjectReader r = MAPPER.reader();
+        assertFalse(r.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+
+        assertTrue(r.with(JsonParser.Feature.IGNORE_UNDEFINED)
+                .isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+        assertFalse(r.without(JsonParser.Feature.IGNORE_UNDEFINED)
+                .isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+
+        // and then variants
+        assertFalse(r.isEnabled(JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
+        ObjectReader r2 = r.withFeatures(JsonParser.Feature.IGNORE_UNDEFINED,
+                JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+        assertTrue(r2.isEnabled(JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
+        assertTrue(r2.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+
+        ObjectReader r3 = r2.withoutFeatures(JsonParser.Feature.IGNORE_UNDEFINED,
+                JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+        assertFalse(r3.isEnabled(JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
+        assertFalse(r3.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
+    }
+
     public void testMiscSettings() throws Exception
     {
         ObjectReader r = MAPPER.reader();

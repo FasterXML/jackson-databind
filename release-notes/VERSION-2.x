@@ -52,6 +52,7 @@ Project: jackson-databind
 #2576: Fail to serialize `Enum` instance which includes a method override
   as POJO (shape = Shape.OBJECT)
  (reported by ylhuang-veeva@github)
+- Fix an issue with `ObjectReader.with(JsonParser.Feature)` (and related) not working
 
 2.10.1 (09-Nov-2019)
 

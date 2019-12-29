@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
@@ -352,5 +353,16 @@ public class ProblemHandlerTest extends BaseMapTest
         ;
         Integer v = mapper.readValue("true", Integer.class);
         assertEquals(Integer.valueOf(13), v);
+
+        // Just for code coverage really...
+        mapper = newJsonMapper();
+        mapper.addHandler(new WeirdTokenHandler(Integer.valueOf(13)));
+        mapper.clearProblemHandlers();
+        try {
+            mapper.readValue("true", Integer.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "out of VALUE_TRUE token");
+        }
     }
 }

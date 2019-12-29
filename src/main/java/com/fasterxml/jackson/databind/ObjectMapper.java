@@ -43,7 +43,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * (producing instance with default configuration); or through one of two build
  * methods.
  * First build method is the static <code>builder()</code> on exact type
- * and second {@link #rebuild()} method method on an existing mapper.
+ * and second {@link #rebuild()} method on an existing mapper.
  * Former starts with default configuration (same as one that no-arguments constructor
  * created mapper has), and latter starts with configuration of the mapper it is called
  * on.

@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * Unit tests dealing with handling of "root element wrapping",
@@ -42,6 +44,43 @@ public class TestRootName extends BaseMapTest
         assertEquals(2, bean2.a);
     }
 
+    public void testRootViaMapperFails() throws Exception
+    {
+        final ObjectMapper mapper = rootMapper();
+        // First kind of fail, wrong name
+        try {
+            mapper.readValue(aposToQuotes("{'notRudy':{'a':3}}"), Bean.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Root name 'notRudy' does not match expected ('rudy')");
+        }
+
+        // second: non-Object
+        try {
+            mapper.readValue(aposToQuotes("[{'rudy':{'a':3}}]"), Bean.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected token (START_ARRAY");
+        }
+
+        // Third: empty Object
+        try {
+            mapper.readValue(aposToQuotes("{}]"), Bean.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Current token not FIELD_NAME");
+        }
+
+        // Fourth, stuff after wrapped
+        try {
+            mapper.readValue(aposToQuotes("{'rudy':{'a':3}, 'extra':3}"), Bean.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected token");
+            verifyException(e, "Current token not END_OBJECT (to match wrapper");
+        }
+    }
+    
     public void testRootViaWriterAndReader() throws Exception
     {
         ObjectMapper mapper = rootMapper();
@@ -121,12 +160,13 @@ public class TestRootName extends BaseMapTest
     /* Helper methods
     /**********************************************************
      */
-    
-    private ObjectMapper rootMapper()
-    {
-        return jsonMapperBuilder()
-                .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
-                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true)
-                .build();
+
+    private final ObjectMapper ROOT_MAPPER = JsonMapper.builder()
+            .enable(SerializationFeature.WRAP_ROOT_VALUE)
+            .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+            .build();
+
+    private ObjectMapper rootMapper() {
+        return ROOT_MAPPER;
     }
 }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -55,6 +56,15 @@ public class ObjectReaderTest extends BaseMapTest
                 .readValue(BYTES, 0, BYTES.length);
         assertTrue(ob instanceof List<?>);
         assertEquals(1, ((List<?>) ob).size());
+
+        // but also failure mode(s)
+        try {
+            MAPPER.readerFor(Object.class)
+                .readValue(new byte[0]);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "No content to map due to end-of-input");
+        }
     }
 
     public void testJsonReadFeatures() throws Exception
@@ -106,6 +116,9 @@ public class ObjectReaderTest extends BaseMapTest
         // alternative method too... can't recall why two
         assertSame(r, r.with(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE));
+
+        // and another one
+        assertSame(r, r.with(r.getConfig()));
     }
 
     public void testMiscSettings() throws Exception

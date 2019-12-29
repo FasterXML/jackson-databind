@@ -80,7 +80,44 @@ public class TestRootName extends BaseMapTest
             verifyException(e, "Current token not END_OBJECT (to match wrapper");
         }
     }
-    
+
+    public void testRootViaReaderFails() throws Exception
+    {
+        final ObjectReader reader = rootMapper().readerFor(Bean.class);
+        // First kind of fail, wrong name
+        try {
+            reader.readValue(aposToQuotes("{'notRudy':{'a':3}}"));
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Root name 'notRudy' does not match expected ('rudy')");
+        }
+
+        // second: non-Object
+        try {
+            reader.readValue(aposToQuotes("[{'rudy':{'a':3}}]"));
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected token (START_ARRAY");
+        }
+
+        // Third: empty Object
+        try {
+            reader.readValue(aposToQuotes("{}]"));
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Current token not FIELD_NAME");
+        }
+
+        // Fourth, stuff after wrapped
+        try {
+            reader.readValue(aposToQuotes("{'rudy':{'a':3}, 'extra':3}"));
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected token");
+            verifyException(e, "Current token not END_OBJECT (to match wrapper");
+        }
+    }
+
     public void testRootViaWriterAndReader() throws Exception
     {
         ObjectMapper mapper = rootMapper();

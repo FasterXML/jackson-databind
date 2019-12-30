@@ -1005,6 +1005,11 @@ Mark Schäfer (mark--@github)
   * Reported #2520: Sub-optimal exception message when failing to deserialize non-static inner classes
   (2.10.1)
 
+Ruud Welling (WellingR@github)
+  * Contributed fix for #2102: `FAIL_ON_NULL_FOR_PRIMITIVES` failure does not indicate
+    field name in exception message
+  (2.10.2)
+
 Fabian Lange (CodingFabian@github)
   * Reported #2556: Contention in `TypeNameIdResolver.idFromClass()`
   (2.10.2)

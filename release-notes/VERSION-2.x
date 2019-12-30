@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.10.2 (not yet released)
 
+#2101: `FAIL_ON_NULL_FOR_PRIMITIVES` failure does not indicate field name in exception message
+ (reported by raderio@github)
 #2544: java.lang.NoClassDefFoundError Thrown for compact profile1
   (reported by Jon A)
 #2553: JsonDeserialize(contentAs=...) broken with raw collections

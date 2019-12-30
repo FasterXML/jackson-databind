@@ -1,8 +1,12 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -49,6 +53,15 @@ public class ClassUtilTest extends BaseMapTest
         public abstract void a();
         
         public void c() { }
+    }
+
+    static class MaybeGetters {
+        public static void staticMethod() { }
+
+        public void voidMethod() { }
+
+        public int getMethod() { return 1; }
+        public void setMethod(int x) { }
     }
 
     /*
@@ -208,5 +221,93 @@ public class ClassUtilTest extends BaseMapTest
                 new TypeReference<Map<String, Integer>>() { });
         assertEquals("`java.util.Map<java.lang.String,java.lang.Integer>`",
                 ClassUtil.getTypeDescription(mapType));
+    }
+
+    public void testSubtypes()
+    {
+        final JavaType stringType = TypeFactory.defaultInstance().constructType(String.class);
+        List<JavaType> supers = ClassUtil.findSuperTypes(stringType, Object.class, false);
+        assertEquals(Collections.emptyList(), supers);
+
+        supers = ClassUtil.findSuperTypes(stringType, Object.class, true);
+        assertEquals(Collections.singletonList(stringType), supers);
+    }
+
+    public void testGetDeclaringClass()
+    {
+        assertEquals(null, ClassUtil.getDeclaringClass(String.class));
+        assertEquals(getClass(), ClassUtil.getDeclaringClass(BaseClass.class));
+    }
+
+    public void testIsXxxType()
+    {
+        assertTrue(ClassUtil.isCollectionMapOrArray(String[].class));
+        assertTrue(ClassUtil.isCollectionMapOrArray(ArrayList.class));
+        assertTrue(ClassUtil.isCollectionMapOrArray(LinkedHashMap.class));
+        assertFalse(ClassUtil.isCollectionMapOrArray(java.net.URL.class));
+
+        assertTrue(ClassUtil.isBogusClass(Void.class));
+        assertTrue(ClassUtil.isBogusClass(Void.TYPE));
+        assertFalse(ClassUtil.isBogusClass(String.class));
+    }
+
+    public void testEnforceSubtype()
+    {
+        try {
+            ClassUtil.verifyMustOverride(Number.class, Boolean.TRUE, "Test");
+        } catch (IllegalStateException e) {
+            verifyException(e, "must override method 'Test'");
+        }
+    }
+
+    public void testCloseEtc() throws Exception
+    {
+        final Exception testExc1 = new IllegalArgumentException("test");
+        // First: without any actual stuff, with an RTE
+        try {
+            ClassUtil.closeOnFailAndThrowAsIOE(null, null, testExc1);
+            fail("Should not pass");
+        } catch (Exception e) {
+            assertSame(testExc1, e);
+        }
+
+        // then with bogus Closeable and with non-RTE:
+        JsonFactory f = new JsonFactory();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        JsonGenerator gen = f.createGenerator(bytes);
+        final Exception testExc2 = new Exception("test");
+        try {
+            ClassUtil.closeOnFailAndThrowAsIOE(gen, bytes, testExc2);
+            fail("Should not pass");
+        } catch (Exception e) {
+            assertEquals(RuntimeException.class, e.getClass());
+            assertSame(testExc2, e.getCause());
+            assertEquals("test", e.getCause().getMessage());
+            assertTrue(gen.isClosed());
+        }
+        gen.close();
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, deprecated
+    /**********************************************************
+     */
+
+    @SuppressWarnings("deprecation")
+    public void testSubtypesDeprecated()
+    {
+        // just for code coverage
+        List<Class<?>> supers = ClassUtil.findSuperTypes(String.class, Object.class);
+        assertFalse(supers.isEmpty()); // serializable/comparable/char-seq
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testHasGetterSignature() throws Exception
+    {
+        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("staticMethod")));
+        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("voidMethod")));
+        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("setMethod", Integer.TYPE)));
+        assertTrue(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("getMethod")));
     }
 }

@@ -341,9 +341,9 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
 
     private AnnotationMap collectAnnotations(ClassUtil.Ctor main, ClassUtil.Ctor mixin) {
         if (_collectAnnotations) {
-            AnnotationCollector c = collectAnnotations(main.getConstructor().getDeclaredAnnotations());
+            AnnotationCollector c = collectAnnotations(main.getDeclaredAnnotations());
             if (mixin != null) {
-                c = collectAnnotations(c, mixin.getConstructor().getDeclaredAnnotations());
+                c = collectAnnotations(c, mixin.getDeclaredAnnotations());
             }
             return c.asAnnotationMap();
         }

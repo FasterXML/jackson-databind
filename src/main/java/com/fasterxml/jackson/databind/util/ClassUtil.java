@@ -1090,9 +1090,9 @@ public final class ClassUtil
     {
         public final Constructor<?> _ctor;
 
-        private Annotation[] _annotations;
+        private transient Annotation[] _annotations;
 
-        private  Annotation[][] _paramAnnotations;
+        private transient Annotation[][] _paramAnnotations;
         
         private int _paramCount = -1;
         

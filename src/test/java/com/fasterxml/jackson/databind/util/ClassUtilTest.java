@@ -3,8 +3,9 @@ package com.fasterxml.jackson.databind.util;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.ObjectWriteContext;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -223,16 +224,6 @@ public class ClassUtilTest extends BaseMapTest
                 ClassUtil.getTypeDescription(mapType));
     }
 
-    public void testSubtypes()
-    {
-        final JavaType stringType = TypeFactory.defaultInstance().constructType(String.class);
-        List<JavaType> supers = ClassUtil.findSuperTypes(stringType, Object.class, false);
-        assertEquals(Collections.emptyList(), supers);
-
-        supers = ClassUtil.findSuperTypes(stringType, Object.class, true);
-        assertEquals(Collections.singletonList(stringType), supers);
-    }
-
     public void testGetDeclaringClass()
     {
         assertEquals(null, ClassUtil.getDeclaringClass(String.class));
@@ -274,7 +265,7 @@ public class ClassUtilTest extends BaseMapTest
         // then with bogus Closeable and with non-RTE:
         JsonFactory f = new JsonFactory();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        JsonGenerator gen = f.createGenerator(bytes);
+        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
         final Exception testExc2 = new Exception("test");
         try {
             ClassUtil.closeOnFailAndThrowAsIOE(gen, bytes, testExc2);
@@ -293,21 +284,4 @@ public class ClassUtilTest extends BaseMapTest
     /* Test methods, deprecated
     /**********************************************************
      */
-
-    @SuppressWarnings("deprecation")
-    public void testSubtypesDeprecated()
-    {
-        // just for code coverage
-        List<Class<?>> supers = ClassUtil.findSuperTypes(String.class, Object.class);
-        assertFalse(supers.isEmpty()); // serializable/comparable/char-seq
-    }
-
-    @SuppressWarnings("deprecation")
-    public void testHasGetterSignature() throws Exception
-    {
-        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("staticMethod")));
-        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("voidMethod")));
-        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("setMethod", Integer.TYPE)));
-        assertTrue(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("getMethod")));
-    }
 }

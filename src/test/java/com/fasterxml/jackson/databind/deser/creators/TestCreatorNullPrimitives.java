@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 import java.io.IOException;
 
@@ -38,12 +39,15 @@ public class TestCreatorNullPrimitives extends BaseMapTest {
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = sharedMapper();
+
     // [databind#2101]: ensure that the property is included in the path
     public void testCreatorNullPrimitive() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+        final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
+            .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         String json = aposToQuotes("{'x': 2}");
         try {
-            objectMapper.readValue(json, JsonEntity.class);
+            r.readValue(json);
             fail("Should not have succeeded");
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot map `null` into type int");
@@ -53,10 +57,11 @@ public class TestCreatorNullPrimitives extends BaseMapTest {
     }
 
     public void testCreatorNullPrimitiveInNestedObject() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper().enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+        final ObjectReader r = MAPPER.readerFor(NestedJsonEntity.class)
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         String json = aposToQuotes("{ 'entity': {'x': 2}}");
         try {
-            objectMapper.readValue(json, NestedJsonEntity.class);
+            r.readValue(json);
             fail("Should not have succeeded");
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot map `null` into type int");

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
  * Simple container used for temporarily buffering a set of
@@ -194,15 +195,24 @@ public class PropertyValueBuffer
                     "Missing creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES` enabled",
                     prop.getName(), prop.getCreatorIndex());
         }
-        // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
-        Object nullValue = prop.getNullValueProvider().getNullValue(_context);
-        if (nullValue != null) {
-            return nullValue;
-        }
+        try {
+            // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
+            Object nullValue = prop.getNullValueProvider().getNullValue(_context);
+            if (nullValue != null) {
+                return nullValue;
+            }
 
-        // Fourth: default value
-        JsonDeserializer<Object> deser = prop.getValueDeserializer();
-        return deser.getNullValue(_context);
+            // Fourth: default value
+            JsonDeserializer<Object> deser = prop.getValueDeserializer();
+            return deser.getNullValue(_context);
+        } catch (JsonMappingException e) {
+            // [databind#2101]: Include property name, if we have it
+            AnnotatedMember member = prop.getMember();
+            if (member != null) {
+                e.prependPath(member.getDeclaringClass(), prop.getName());
+            }
+            throw e;
+        }
     }
 
     /*

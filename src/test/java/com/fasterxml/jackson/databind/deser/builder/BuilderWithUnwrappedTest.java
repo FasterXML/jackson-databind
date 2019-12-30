@@ -155,6 +155,59 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
         }
     }
 
+    @JsonDeserialize(builder = AnimalNoCreator.Builder.class)
+    final static class AnimalNoCreator {
+        private final long id;
+        private final Name name;
+        private final String age;
+
+        private AnimalNoCreator(Builder builder) {
+            id = builder.id;
+            name = builder.name;
+            age = builder.age;
+        }
+
+        long getId() {
+            return id;
+        }
+
+        Name getName() {
+            return name;
+        }
+
+        String getAge() {
+            return age;
+        }
+
+        @JsonPOJOBuilder(withPrefix = "set")
+        final static class Builder {
+            private long id;
+            private Name name;
+            private String age;
+
+            Builder() { }
+
+            @JsonProperty("animal_id") 
+            public void setId(long i) {
+                id = i;
+            }
+            
+            @JsonUnwrapped
+            void setName(Name name) {
+                this.name = name;
+            }
+
+            @JsonProperty("years_old")
+            void setAge(String age) {
+                this.age = age;
+            }
+
+            AnimalNoCreator build() {
+                return new AnimalNoCreator(this);
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -237,5 +290,17 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
         assertEquals("Doe", animal.getName().getLast());
         assertEquals(30, animal.getAge());
         assertEquals(true, animal.isAlive());
+    }
+
+    public void testWithUnwrappedNoCreator() throws Exception {
+        final String json = aposToQuotes("{'first_name':'John','last_name':'Doe','years_old':'30','animal_id':1234}");
+
+        final ObjectMapper mapper = new ObjectMapper();
+        AnimalNoCreator animal = mapper.readValue(json, AnimalNoCreator.class);
+        assertEquals(1234, animal.getId());
+        assertNotNull(animal.getName());
+        assertEquals("John", animal.getName().getFirst());
+        assertEquals("Doe", animal.getName().getLast());
+        assertEquals("30", animal.getAge());
     }
 }

@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -42,12 +43,51 @@ public class BuilderAdvancedTest extends BaseMapTest
         }
     }
 
+    @JsonDeserialize(builder=ExternalBuilder.class)
+    static class ExternalBean
+    {
+        @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType")
+        public Object value;
+
+        public ExternalBean(Object v) {
+            value = v;
+        }
+    }
+
+    @JsonSubTypes({ @JsonSubTypes.Type(ValueBean.class) })
+    static class BaseBean {
+    }
+    
+    @JsonTypeName("vbean")
+    static class ValueBean extends BaseBean
+    {
+        public int value;
+
+        public ValueBean() { }
+        public ValueBean(int v) { value = v; }
+    }
+
+    static class ExternalBuilder
+    {
+        BaseBean value;
+
+        @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType")
+        public ExternalBuilder withValue(BaseBean b) {
+            value = b;
+            return this;
+        }
+
+        public ExternalBean build() {
+              return new ExternalBean(value);
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testWithInjectable() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -59,5 +99,16 @@ public class BuilderAdvancedTest extends BaseMapTest
         assertEquals(8, bean._x);
         assertEquals(4, bean._y);
         assertEquals("stuffValue", bean._stuff);
+    }
+
+    public void testWithExternalTypeId() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper();
+        final ExternalBean input = new ExternalBean(new ValueBean(13));
+        String json = mapper.writeValueAsString(input);
+        ExternalBean result = mapper.readValue(json, ExternalBean.class);
+        assertNotNull(result.value);
+        assertEquals(ValueBean.class, result.value.getClass());
+        assertEquals(13, ((ValueBean) result.value).value);
     }
 }

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.10.2 (not yet released)
+2.9.10.2 (03-Jan-2020)
 
 #2526: Block two more gadget types (ehcache/JNDI - CVEs to be allocated)
   (repoerted by UltramanGaia)

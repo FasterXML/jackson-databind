@@ -165,6 +165,12 @@ public abstract class TypeDeserializerBase
                     deser = ctxt.findContextualValueDeserializer(actual, _property);
                 }
             } else {
+                // support nested TypeDeserializer
+                if ((_baseType != null)
+                        && !_baseType.getTypeName().equals(type.getTypeName())) {
+                    return ctxt.findRootValueDeserializer(type);
+                }
+                
                 /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
                  *   we actually now need to explicitly narrow from base type (which may have parameterization)
                  *   using raw type.

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.10.2 (not yet released)
+2.10.2 (05-Jan-2020)
 
 #2101: `FAIL_ON_NULL_FOR_PRIMITIVES` failure does not indicate field name in exception message
  (reported by raderio@github)

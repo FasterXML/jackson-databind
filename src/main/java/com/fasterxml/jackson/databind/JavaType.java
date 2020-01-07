@@ -254,8 +254,6 @@ public abstract class JavaType
     /**
      * Similar to {@link #isEnumType} except does NOT return {@code true}
      * for {@link java.lang.Enum} (since that is not Enum implementation type).
-     *
-     * @since 2.11
      */
     public final boolean isEnumImplType() {
         return ClassUtil.isEnumType(_class) && (_class != Enum.class);

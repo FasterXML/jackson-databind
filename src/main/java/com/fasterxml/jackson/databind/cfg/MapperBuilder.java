@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.introspect.MixInResolver;
 import com.fasterxml.jackson.databind.introspect.MixInHandler;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.NoneShallPassValidator;
+import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -55,7 +55,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
 
-    protected final static PolymorphicTypeValidator DEFAULT_TYPE_VALIDATOR = new NoneShallPassValidator();    
+    protected final static PolymorphicTypeValidator DEFAULT_TYPE_VALIDATOR = new DefaultBaseTypeLimitingValidator();
 
     protected final static BaseSettings DEFAULT_BASE_SETTINGS = new BaseSettings(
             DEFAULT_ANNOTATION_INTROSPECTOR,

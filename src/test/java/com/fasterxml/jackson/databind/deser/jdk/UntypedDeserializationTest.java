@@ -111,6 +111,7 @@ public class UntypedDeserializationTest
         public WrappedPolymorphicUntyped(Object o) { value = o; }
     }
 
+    // [databind#1460]
     static class WrappedUntyped1460 {
         public Object value;
     }
@@ -127,7 +128,7 @@ public class UntypedDeserializationTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     @SuppressWarnings("unchecked")
     public void testSampleDoc() throws Exception
     {
@@ -463,7 +464,10 @@ public class UntypedDeserializationTest
 
     public void testPolymorphicUntypedVanilla() throws IOException
     {
-        ObjectReader rDefault = MAPPER.readerFor(WrappedPolymorphicUntyped.class);
+        ObjectReader rDefault = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build()
+                .readerFor(WrappedPolymorphicUntyped.class);
         ObjectReader rAlt = rDefault
                 .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,
                         DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
@@ -504,6 +508,7 @@ public class UntypedDeserializationTest
                 .addDeserializer(String.class, new UCStringDeserializer());
         final ObjectMapper customMapper = jsonMapperBuilder()
                 .addModule(m)
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
                 .build();
         ObjectReader rDefault = customMapper.readerFor(WrappedPolymorphicUntyped.class);
 

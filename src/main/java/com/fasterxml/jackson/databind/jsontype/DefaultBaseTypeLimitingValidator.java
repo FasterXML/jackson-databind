@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import javax.naming.Referenceable;
-import javax.sql.DataSource;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * implementation (or subtype with override) is needed. Most commonly subclasses would
  * override both {@link #isUnsafeBaseType} and {@link #isSafeSubType}: former to allow
  * all (or just more) base types, and latter to add actual validation of subtype.
+ *
+ * @since 2.11
  */
 public class DefaultBaseTypeLimitingValidator
     extends PolymorphicTypeValidator
@@ -74,16 +76,7 @@ public class DefaultBaseTypeLimitingValidator
      */
     protected boolean isUnsafeBaseType(MapperConfig<?> config, JavaType baseType)
     {
-        final Class<?> rawBase = baseType.getRawClass();
-        return (rawBase == Object.class)
-                || (rawBase == java.io.Closeable.class)
-                || (rawBase == java.io.Serializable.class)
-                || (rawBase == AutoCloseable.class)
-                || (rawBase == Cloneable.class)
-                || (rawBase == java.util.logging.Handler.class)
-                || (rawBase == Referenceable.class)
-                || (rawBase == DataSource.class) 
-            ;
+        return UnsafeBaseTypes.instance.isUnsafeBaseType(baseType.getRawClass());
     }
 
     /**
@@ -101,5 +94,30 @@ public class DefaultBaseTypeLimitingValidator
             JavaType baseType, JavaType subType)
     {
         return true;
+    }
+
+    private final static class UnsafeBaseTypes {
+        public final static UnsafeBaseTypes instance = new UnsafeBaseTypes();
+
+        private final Set<String> UNSAFE = new HashSet<>();
+        {
+            // first add names of types in `java.base`
+            UNSAFE.add(Object.class.getName());
+            UNSAFE.add(java.io.Closeable.class.getName());
+            UNSAFE.add(java.io.Serializable.class.getName());
+            UNSAFE.add(AutoCloseable.class.getName());
+            UNSAFE.add(Cloneable.class.getName());
+
+            // and then couple others typically included in JDK, but that we
+            // prefer not adding direct reference to
+            UNSAFE.add("java.util.logging.Handler");
+            UNSAFE.add("javax.naming.Referenceable");
+            UNSAFE.add("javax.sql.DataSource");
+        }
+        
+        public boolean isUnsafeBaseType(Class<?> rawBaseType)
+        {
+            return UNSAFE.contains(rawBaseType.getName());
+        }
     }
 }

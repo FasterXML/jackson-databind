@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * implementation (or subtype with override) is needed. Most commonly subclasses would
  * override both {@link #isUnsafeBaseType} and {@link #isSafeSubType}: former to allow
  * all (or just more) base types, and latter to add actual validation of subtype.
- *
- * @since 2.11
  */
 public class DefaultBaseTypeLimitingValidator
     extends PolymorphicTypeValidator

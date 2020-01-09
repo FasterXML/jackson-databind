@@ -200,7 +200,7 @@ Project: jackson-databind
 
 2.9.10.2 (03-Jan-2020)
 
-#2526: Block two more gadget types (ehcache/JNDI - CVEs to be allocated)
+#2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)
   (repoerted by UltramanGaia)
 
 2.9.10.1 (20-Oct-2019)

@@ -12,6 +12,9 @@ Project: jackson-databind
  (reported by Antonio P)
 #2352: Support use of `@JsonAlias` for enum values
  (contributed by Robert D)
+#2365: `declaringClass` of "enum-as-POJO" not removed for `ObjectMapper` with
+  a naming strategy
+ (reported by Tynakuh@github)
 #2480: Fix `JavaType.isEnumType()` to support sub-classes
 #2487: BeanDeserializerBuilder Protected Factory Method for Extension
  (contributed by Ville K)

@@ -18,17 +18,19 @@ Project: jackson-databind
 #2503: Support `@JsonSerialize(keyUsing)` and `@JsonDeserialize(keyUsing)` on Key class
 #2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
  (contributed by Joongsoo P)
-#2515: `ObjectMapper.registerSubtypes(NamedType...)` doesn't allow registering the same POJO
-  for two different type ids
+#2515: `ObjectMapper.registerSubtypes(NamedType...)` doesn't allow registering
+  same POJO for two different type ids
  (contributed by Joseph K)
-#2522: `DeserializationContext.handleMissingInstantiator()` throws `MismatchedInputException`
-  for non-static inner classes
+#2522: `DeserializationContext.handleMissingInstantiator()` throws
+  `MismatchedInputException` for non-static inner classes
 #2525: Incorrect `JsonStreamContext` for `TokenBuffer` and `TreeTraversingParser`
-#2527: Add `AnnotationIntrospector.findRenameByField()` to support Kotlin's "is-getter"
-  naming convention
+#2527: Add `AnnotationIntrospector.findRenameByField()` to support Kotlin's
+  "is-getter" naming convention
 #2555: Use `@JsonProperty(index)` for sorting properties on serialization
 #2565: Java 8 `Optional` not working with `@JsonUnwrapped` on unwrappable type
  (reported by Haowei W)
+#2573: Add `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` to allow blocking
+  use of unsafe base type for polymorphic deserialization
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.2 (05-Jan-2020)

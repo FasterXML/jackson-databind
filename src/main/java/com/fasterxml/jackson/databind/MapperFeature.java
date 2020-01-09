@@ -501,8 +501,26 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.9
      */
-    IGNORE_MERGE_FOR_UNMERGEABLE(true)
+    IGNORE_MERGE_FOR_UNMERGEABLE(true),
 
+    /**
+     * Setting that may be enabled to reconfigure <b>default</b>
+     * {@link com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator}
+     * used by legacy {@code ObjectMapper.enableDefaultTyping()} methods as well as default used
+     * for annotation-based polymorphic handling so that it uses
+     * {@link com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator}.
+     * This will block use of a set of "unsafe" base types such as {@link java.lang.Object}
+     * through methods that do not require passing of explicit {@link com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator}.
+     * It is still possible to override one used; this only affects default settings.
+     *<p>
+     * Enabling of this setting is <b>strongly recommended</b>.
+     *<p>
+     * Feature is disabled by default in 2.x for backwards compatibility reasons: it will become
+     * default setting (and feature likely removed) in 3.0.
+     * 
+     * @since 2.11
+     */
+    BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES(false)
     ;
 
     private final boolean _defaultState;

@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
- * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed.
+ * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed
+ * (and, in 2.11, {@link com.fasterxml.jackson.databind.MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES}
+ * not enabled).
  * Does not do any validation, allows all subtypes. Only used for backwards-compatibility
- * reasons: users should not usually use such a permissive implementation but use
+ * reasons: users should usually NOT use such a permissive implementation but use
  * allow-list/criteria - based implementation.
  *
  * @since 2.10

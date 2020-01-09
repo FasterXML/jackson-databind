@@ -15,10 +15,12 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -139,7 +141,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * serialization, deserialization)
      */
     public final boolean isEnabled(MapperFeature f) {
-        return (_mapperFeatures & f.getMask()) != 0;
+        return f.enabledIn(_mapperFeatures);
     }
 
     /**
@@ -267,10 +269,25 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract SubtypeResolver getSubtypeResolver();
 
     /**
+     * Simple accessor for default {@link PolymorphicTypeValidator} to use for
+     * legacy Default Typing methods ({@code ObjectMapper.enableDefaultTyping()})
+     * and annotation based enabling.
+     *<p>
+     * Since 2.11 will also check {@link MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES}
+     * to possibly override default to more restrictive implementation, see
+     * {@link com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator}).
+     *
      * @since 2.10
      */
     public PolymorphicTypeValidator getPolymorphicTypeValidator() {
-        return _base.getPolymorphicTypeValidator();
+        PolymorphicTypeValidator ptv = _base.getPolymorphicTypeValidator();
+        // [databind#2587]: allow stricter default settings:
+        if (ptv == LaissezFaireSubTypeValidator.instance) {
+            if (isEnabled(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)) {
+                ptv = new DefaultBaseTypeLimitingValidator();
+            }
+        }
+        return ptv;
     }
 
     public final TypeFactory getTypeFactory() {

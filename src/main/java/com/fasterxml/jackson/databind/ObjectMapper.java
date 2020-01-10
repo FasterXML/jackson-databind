@@ -2068,8 +2068,8 @@ public class ObjectMapper
 
     /**
      * Convenience method for doing two-step conversion from given value, into
-     * instance of given value type, if (but only if!) conversion is needed.
-     * If given value is already of requested type, value is returned as is.
+     * instance of given value type, by writing value into temporary buffer
+     * and reading from the buffer into specified target type.
      *<p>
      * This method is functionally similar to first
      * serializing given value into JSON, and then binding JSON data into value
@@ -2078,11 +2078,18 @@ public class ObjectMapper
      * However, same converters (serializers, deserializers) will be used as for
      * data binding, meaning same object mapper configuration works.
      *<p>
-     * Note that it is possible that in some cases behavior does differ from
-     * full serialize-then-deserialize cycle: in most case differences are
-     * unintentional (that is, flaws to fix) and should be reported.
-     * It is not guaranteed, however, that the behavior is 100% the same:
-     * the goal is just to allow efficient value conversions for structurally
+     * Note that behavior changed slightly between Jackson 2.9 and 2.10 so that
+     * whereas earlier some optimizations were used to avoid write/read cycle
+     * in case input was of target type, from 2.10 onwards full processing is
+     * always performed. See
+     * <a href="https://github.com/FasterXML/jackson-databind/issues/2220">databind#2220</a>
+     * for full details of the change.
+     *<p>
+     * Further note that it is possible that in some cases behavior does differ
+     * from full serialize-then-deserialize cycle: in most case differences are
+     * unintentional (that is, flaws to fix) and should be reported, but
+     * the behavior is not guaranteed to be 100% the same:
+     * the goal is to allow efficient value conversions for structurally
      * compatible Objects, according to standard Jackson configuration.
      *<p>
      * Further note that this functionality is not designed to support "advanced" use

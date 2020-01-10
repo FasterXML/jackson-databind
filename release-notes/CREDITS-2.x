@@ -1051,3 +1051,8 @@ Joseph Koshakow (jkosh44@github)
 Haowei Wen (yushijinhun@github)
   * Reported #2565: Java 8 `Optional` not working with `@JsonUnwrapped` on unwrappable type
  (2.11.0)
+
+Bartosz Baranowski (baranowb@github)
+  * Reported #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
+   external entity expansion in all cases
+ (2.11.0)

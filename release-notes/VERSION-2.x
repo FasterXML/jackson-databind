@@ -34,6 +34,9 @@ Project: jackson-databind
  (reported by Haowei W)
 #2573: Add `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` to allow blocking
   use of unsafe base type for polymorphic deserialization
+#2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
+  external entity expansion in all cases
+ (reported by Bartosz B)
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.2 (05-Jan-2020)

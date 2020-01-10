@@ -73,6 +73,14 @@ public class EnumFormatShapeTest
         }
     }
 
+    // [databind#2365]
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    public enum Enum2365 {
+        A, B, C;
+
+        public String getMainValue() { return name()+"-x"; }
+    }
+
     // [databind#2576]
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     public enum Enum2576 {
@@ -133,6 +141,15 @@ public class EnumFormatShapeTest
     public void testEnumPropertyAsNumber() throws Exception {
         assertEquals(String.format(aposToQuotes("{'color':%s}"), Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(new ColorWrapper(Color.GREEN)));
+    }
+
+    // [databind#2365]
+    public void testEnumWithNamingStrategy() throws Exception {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .build();
+        String json = mapper.writeValueAsString(Enum2365.B);
+        assertEquals(aposToQuotes("{'main_value':'B-x'}"), json);
     }
 
     // [databind#2576]

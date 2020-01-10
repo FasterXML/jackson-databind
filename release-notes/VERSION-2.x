@@ -12,6 +12,9 @@ Project: jackson-databind
  (reported by Antonio P)
 #2352: Support use of `@JsonAlias` for enum values
  (contributed by Robert D)
+#2365: `declaringClass` of "enum-as-POJO" not removed for `ObjectMapper` with
+  a naming strategy
+ (reported by Tynakuh@github)
 #2480: Fix `JavaType.isEnumType()` to support sub-classes
 #2487: BeanDeserializerBuilder Protected Factory Method for Extension
  (contributed by Ville K)
@@ -31,6 +34,9 @@ Project: jackson-databind
  (reported by Haowei W)
 #2573: Add `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` to allow blocking
   use of unsafe base type for polymorphic deserialization
+#2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
+  external entity expansion in all cases
+ (reported by Bartosz B)
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.2 (05-Jan-2020)
@@ -197,7 +203,7 @@ Project: jackson-databind
 
 2.9.10.2 (03-Jan-2020)
 
-#2526: Block two more gadget types (ehcache/JNDI - CVEs to be allocated)
+#2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)
   (repoerted by UltramanGaia)
 
 2.9.10.1 (20-Oct-2019)

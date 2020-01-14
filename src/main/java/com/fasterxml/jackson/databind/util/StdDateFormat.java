@@ -257,7 +257,7 @@ public class StdDateFormat
     
     @Override
     public StdDateFormat clone() {
-        // Although there is that much state to share, we do need to
+        // Although there isn't that much state to share, we do need to
         // orchestrate a bit, mostly since timezones may be changed
         return new StdDateFormat(_timezone, _locale, _lenient, _tzSerializedWithColon);
     }

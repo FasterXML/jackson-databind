@@ -1023,6 +1023,11 @@ Greg Arakelian (arakelian@github)
     of empty string
   (2.10.2)
 
+Tobias Preuss (johnjohndoe@github)
+  * Reported #2599: NoClassDefFoundError at DeserializationContext.<init> on Android 4.1.2
+    and Jackson 2.10.0
+  (2.10.3)
+
 Máté Rédecsi (rmatesz@github)
   * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
  (2.11.0)

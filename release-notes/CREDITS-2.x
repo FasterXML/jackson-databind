@@ -1022,3 +1022,8 @@ Greg Arakelian (arakelian@github)
   * Reported #2566: `MissingNode.toString()` returns `null` (4 character token) instead
     of empty string
   (2.10.2)
+
+Tobias Preuss (johnjohndoe@github)
+  * Reported #2599: NoClassDefFoundError at DeserializationContext.<init> on Android 4.1.2
+    and Jackson 2.10.0
+  (2.10.3)

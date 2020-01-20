@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.3 (not yet released)
+
+#2599: NoClassDefFoundError at DeserializationContext.<init> on Android 4.1.2 and Jackson 2.10.0
+ (reported by Tobias P)
+
 2.10.2 (05-Jan-2020)
 
 #2101: `FAIL_ON_NULL_FOR_PRIMITIVES` failure does not indicate field name in exception message

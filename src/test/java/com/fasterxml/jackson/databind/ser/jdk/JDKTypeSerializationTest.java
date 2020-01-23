@@ -159,6 +159,19 @@ public class JDKTypeSerializationTest
         assertEquals(exp, MAPPER.writeValueAsString(slicedBuf));
     }
 
+    public void testDuplicatedByteBufferWithCustomPosition() throws IOException
+    {
+        final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
+        String exp = MAPPER.writeValueAsString(new byte[] { 3, 4, 5 });
+
+        ByteBuffer bbuf = ByteBuffer.wrap(INPUT_BYTES);
+
+        bbuf.position(2);
+        ByteBuffer duplicated = bbuf.duplicate();
+
+        assertEquals(exp, MAPPER.writeValueAsString(duplicated));
+    }
+
     // Verify that efficient UUID codec won't mess things up:
     public void testUUIDs() throws IOException
     {

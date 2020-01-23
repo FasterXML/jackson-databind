@@ -19,8 +19,16 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
     public void serialize(ByteBuffer bbuf, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
         // first, simple case when wrapping an array...
-        if (bbuf.hasArray()) {
-            gen.writeBinary(bbuf.array(), bbuf.arrayOffset(), bbuf.limit());
+        if (bbuf.hasArray())
+        {
+            if (bbuf.position() > 0)
+            {
+                gen.writeBinary(bbuf.array(), bbuf.position(), bbuf.limit() - bbuf.position());
+            }
+            else
+            {
+                gen.writeBinary(bbuf.array(), bbuf.arrayOffset(), bbuf.limit());
+            }
             return;
         }
         // the other case is more complicated however. Best to handle with InputStream wrapper.

@@ -145,7 +145,7 @@ public class StdDateFormat
      * @since 2.9.1
      */
     private transient Calendar _calendar;
-    
+
     private transient DateFormat _formatRFC1123;
 
     /** 
@@ -179,7 +179,7 @@ public class StdDateFormat
         _lenient = lenient;
         _tzSerializedWithColon = formatTzOffsetWithColon;
     }
-    
+
     public static TimeZone getDefaultTimeZone() {
         return DEFAULT_TIMEZONE;
     }
@@ -441,7 +441,7 @@ public class StdDateFormat
             buffer.append(offset < 0 ? '-' : '+');
             pad2(buffer, hours);
             if( _tzSerializedWithColon ) {
-            		buffer.append(':');
+                buffer.append(':');
             }
             pad2(buffer, minutes);
         } else {

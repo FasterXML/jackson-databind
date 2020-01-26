@@ -62,7 +62,7 @@ public class BeanPropertyMap
     
     /**
      * Lazily instantiated array of properties mapped from lookup index, in which
-     * first entries are ame as in <code>_propsInOrder</code> followed by alias
+     * first entries are same as in <code>_propsInOrder</code> followed by alias
      * mappings.
      */
     private transient SettableBeanProperty[] _propsWithAliases;

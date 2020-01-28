@@ -1027,3 +1027,8 @@ Tobias Preuss (johnjohndoe@github)
   * Reported #2599: NoClassDefFoundError at DeserializationContext.<init> on Android 4.1.2
     and Jackson 2.10.0
   (2.10.3)
+
+Eduard Tudenhöfner (nastra@github)
+  * Reported #2602, contributed fix for: ByteBufferSerializer produces unexpected results with
+    a duplicated ByteBuffer and a position > 0
+  (2.10.3)

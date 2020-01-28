@@ -150,13 +150,36 @@ public class JDKTypeSerializationTest
     public void testSlicedByteBuffer() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
-        String exp = MAPPER.writeValueAsString(new byte[] { 3, 4, 5 });
         ByteBuffer bbuf = ByteBuffer.wrap(INPUT_BYTES);
 
         bbuf.position(2);
         ByteBuffer slicedBuf = bbuf.slice();
 
-        assertEquals(exp, MAPPER.writeValueAsString(slicedBuf));
+        assertEquals(MAPPER.writeValueAsString(new byte[] { 3, 4, 5 }),
+                MAPPER.writeValueAsString(slicedBuf));
+
+        // but how about offset within?
+        slicedBuf.position(1);
+        assertEquals(MAPPER.writeValueAsString(new byte[] { 4, 5 }),
+                MAPPER.writeValueAsString(slicedBuf));
+    }
+
+    // [databind#2602]: Need to consider position()
+    public void testDuplicatedByteBufferWithCustomPosition() throws IOException
+    {
+        final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
+
+        String exp = MAPPER.writeValueAsString(new byte[] { 3, 4, 5 });
+        ByteBuffer bbuf = ByteBuffer.wrap(INPUT_BYTES);
+        bbuf.position(2);
+        ByteBuffer duplicated = bbuf.duplicate();
+        assertEquals(exp, MAPPER.writeValueAsString(duplicated));
+
+        // also check differently constructed bytebuffer (noting that
+        // offset given is the _position_ to use, NOT array offset
+        exp = MAPPER.writeValueAsString(new byte[] { 2, 3, 4 });
+        bbuf = ByteBuffer.wrap(INPUT_BYTES, 1, 3);
+        assertEquals(exp, MAPPER.writeValueAsString(bbuf.duplicate()));
     }
 
     // Verify that efficient UUID codec won't mess things up:

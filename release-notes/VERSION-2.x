@@ -41,8 +41,12 @@ Project: jackson-databind
 
 2.10.3 (not yet released)
 
-#2599: NoClassDefFoundError at DeserializationContext.<init> on Android 4.1.2 and Jackson 2.10.0
+#2599: NoClassDefFoundError at DeserializationContext.<init> on Android 4.1.2
+  and Jackson 2.10.0
  (reported by Tobias P)
+#2602: ByteBufferSerializer produces unexpected results with a duplicated ByteBuffer
+  and a position > 0
+ (reported by Eduard T)
 
 2.10.2 (05-Jan-2020)
 

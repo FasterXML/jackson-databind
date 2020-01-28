@@ -32,7 +32,7 @@ Project: jackson-databind
 #2555: Use `@JsonProperty(index)` for sorting properties on serialization
 #2565: Java 8 `Optional` not working with `@JsonUnwrapped` on unwrappable type
  (reported by Haowei W)
-#2573: Add `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` to allow blocking
+#2587: Add `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` to allow blocking
   use of unsafe base type for polymorphic deserialization
 #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
   external entity expansion in all cases

@@ -1165,6 +1165,8 @@ public class BeanDeserializer
                 buffer.bufferAnyProperty(_anySetter, propName,
                         _anySetter.deserialize(p, ctxt));
             }
+            // Unknown: let's call handler method
+            handleUnknownProperty(p, ctxt, _valueClass, propName);
         }
         tokens.writeEndObject();
 

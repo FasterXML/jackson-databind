@@ -251,7 +251,9 @@ public class JsonMappingException
     public JsonMappingException(Closeable processor, String msg, Throwable problem) {
         super(msg, problem);
         _processor = processor;
-        if (processor instanceof JsonParser) {
+        if (problem instanceof JsonProcessingException) {
+            _location = ((JsonProcessingException) problem).getLocation();
+        } else if (processor instanceof JsonParser) {
             _location = ((JsonParser) processor).getTokenLocation();
         }
     }

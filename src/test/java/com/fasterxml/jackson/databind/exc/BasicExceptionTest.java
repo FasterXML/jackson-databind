@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.exc;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -114,18 +113,43 @@ public class BasicExceptionTest extends BaseMapTest
     }
 
     // [databind#2128]: ensure Location added once and only once
+    // [databind#2482]: ensure Location is the original one
     public void testLocationAddition() throws Exception
     {
+        String problemJson = "{\n\t\"userList\" : [\n\t{\n\t user : \"1\"\n\t},\n\t{\n\t \"user\" : \"2\"\n\t}\n\t]\n}";
+        String expectedLocation = "line: 4, column: 4";
         try {
-            /*Map<?,?> map =*/ MAPPER.readValue("{\"value\":\"foo\"}",
-                    new TypeReference<Map<ABC, Integer>>() { });
+            MAPPER.readValue(problemJson, Users.class);
             fail("Should not pass");
-        } catch (MismatchedInputException e) {
+        } catch (JsonMappingException e) {
             String msg = e.getMessage();
             String[] str = msg.split(" at \\[");
             if (str.length != 2) {
                 fail("Should only get one 'at [' marker, got "+(str.length-1)+", source: "+msg);
             }
+            if (! str[1].contains(expectedLocation)) {
+                fail("Reported location should be \"" + expectedLocation + "\", but was: " + str[1]);
+            }
+        }
+    }
+
+    private static class User {
+        public String user = null;
+    }
+
+    private static class Users {
+        private ArrayList<User> users = new ArrayList<User>();
+
+        public ArrayList<User> getUser() {
+            return users;
+        }
+
+        public void addUser(User user) {
+            this.users.add(user);
+        }
+
+        public void setUserList(ArrayList<User> user) {
+            this.users = user;
         }
     }
 }

@@ -1,20 +1,19 @@
 package com.fasterxml.jackson.databind.exc;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class BasicExceptionTest extends BaseMapTest
 {
-    final ObjectMapper MAPPER = new ObjectMapper();
-    final JsonFactory JSON_F = MAPPER.getFactory();
+    private final ObjectMapper MAPPER = newJsonMapper();
+    private final JsonFactory JSON_F = MAPPER.getFactory();
 
     public void testBadDefinition() throws Exception
     {
@@ -114,18 +113,30 @@ public class BasicExceptionTest extends BaseMapTest
     }
 
     // [databind#2128]: ensure Location added once and only once
+    // [databind#2482]: ensure Location is the original one
     public void testLocationAddition() throws Exception
     {
+        String problemJson = "{\n\t\"userList\" : [\n\t{\n\t user : \"1\"\n\t},\n\t{\n\t \"user\" : \"2\"\n\t}\n\t]\n}";
         try {
-            /*Map<?,?> map =*/ MAPPER.readValue("{\"value\":\"foo\"}",
-                    new TypeReference<Map<ABC, Integer>>() { });
+            MAPPER.readValue(problemJson, Users.class);
             fail("Should not pass");
-        } catch (MismatchedInputException e) {
+        } catch (JsonMappingException e) { // becomes "generic" due to wrapping for passing path info
             String msg = e.getMessage();
             String[] str = msg.split(" at \\[");
             if (str.length != 2) {
                 fail("Should only get one 'at [' marker, got "+(str.length-1)+", source: "+msg);
             }
+            JsonLocation loc = e.getLocation();
+//          String expectedLocation = "line: 4, column: 4";
+            assertEquals(4, loc.getLineNr());
+            assertEquals(4, loc.getColumnNr());
         }
+    }
+    static class User {
+        public String user;
+    }
+
+    static class Users {
+        public ArrayList<User> userList;
     }
 }

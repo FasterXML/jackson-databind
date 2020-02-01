@@ -7,10 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 @SuppressWarnings("hiding")
@@ -103,7 +103,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             FormOfPayment(final Class<? extends PaymentDetails> clazz) {
                 this.clazz = clazz;
             }
-            
+
             @SuppressWarnings ("unchecked")
             public <T extends PaymentDetails> Class<T> getDetailsClass() {
                 return (Class<T>) this.clazz;
@@ -121,7 +121,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
         
         public interface PaymentDetails {
             public interface Builder {
-                PaymentDetails build ();
+                PaymentDetails build();
             }
         }
         
@@ -140,7 +140,6 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             public void setPaymentDetails(PaymentDetails paymentDetails) {
                 this.paymentDetails = paymentDetails;
             }
-            
         }
         
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
@@ -497,27 +496,34 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
         }
     }
 
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+            .build();
+
     // [databind#1288]
-    public void testVisibleExternalTypeIdCustomResolver() throws Exception
+    public void testExternalWithCustomResolver() throws Exception
     {
         // given
         final String asJson1 = aposToQuotes(
-"{'form_of_payment':'INDIVIDUAL_CREDIT_CARD', 'payment_details':{'card_holder_first_name':'John',"
-+"'card_holder_last_name':'Doe',  'number':'XXXXXXXXXXXXXXXX', 'expiry_date':'MM/YY',"
-+ "'csc':666,'address':'10 boulevard de Sebastopol','zip_code':'75001','city':'Paris',"
+"{'form_of_payment':'INDIVIDUAL_CREDIT_CARD', 'payment_details':{'card_holder_first_name':'John',\n"
++"'card_holder_last_name':'Doe',  'number':'XXXXXXXXXXXXXXXX', 'expiry_date':'MM/YY',\n"
++ "'csc':666,'address':'10 boulevard de Sebastopol','zip_code':'75001','city':'Paris',\n"
 +"'province':'Ile-de-France','country_code':'FR','description':'John Doe personal credit card'}}"
         );
-        final String asJson2 = aposToQuotes(
-"{'form_of_payment':'INSTRUMENTED_CREDIT_CARD','payment_details':{'payment_instrument_id':"
-+"'00000000-0000-0000-0000-000000000000', 'name':'Mr John Doe encrypted credit card'}}"
-        );
-        final ObjectMapper objectMapper = jsonMapperBuilder()
-                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
-                .build();
-
-        ClassesWithoutBuilder.PaymentMean ob1 = objectMapper.readValue(asJson1, ClassesWithoutBuilder.PaymentMean.class);
+        ClassesWithoutBuilder.PaymentMean ob1 = MAPPER.readValue(asJson1, ClassesWithoutBuilder.PaymentMean.class);
         assertNotNull(ob1);
-        ClassesWithBuilder.PaymentMean ob2 = objectMapper.readValue(asJson2, ClassesWithBuilder.PaymentMean.class);
+    }
+
+    // [databind#1288]
+    public void testExternalWithCustomResolverAndBuilder() throws Exception
+    {
+        final String asJson2 = aposToQuotes(
+"{'form_of_payment':'INSTRUMENTED_CREDIT_CARD',\n"
++"'payment_details':{\n"
++"'payment_instrument_id':'00000000-0000-0000-0000-000000000000',\n"
++" 'name':'Mr John Doe encrypted credit card'}}"
+        );
+        ClassesWithBuilder.PaymentMean ob2 = MAPPER.readValue(asJson2, ClassesWithBuilder.PaymentMean.class);
         assertNotNull(ob2);
     }
 }

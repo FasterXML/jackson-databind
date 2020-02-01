@@ -221,7 +221,10 @@ public class JsonMappingException
     public JsonMappingException(Closeable processor, String msg, Throwable problem) {
         super(msg, problem);
         _processor = processor;
-        if (processor instanceof JsonParser) {
+        // 31-Jan-2020: [databind#2482] Retain original location
+        if (problem instanceof JsonProcessingException) {
+            _location = ((JsonProcessingException) problem).getLocation();
+        } else if (processor instanceof JsonParser) {
             _location = ((JsonParser) processor).getTokenLocation();
         }
     }

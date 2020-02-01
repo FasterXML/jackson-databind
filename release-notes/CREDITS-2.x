@@ -611,6 +611,9 @@ Ivo Studens (istudens@redhat.com)
   * Contributed #1585: Invoke ServiceLoader.load() inside of a privileged block
     when loading modules using `ObjectMapper.findModules()`
    (2.8.9)
+  * Contributed fix for #2482: `JSONMappingException` `Location` column number
+    is one line Behind the actual location
+   (2.10.3)
 
 Javy Luo (AnywnYu@github)
   * Reported #1595: `JsonIgnoreProperties.allowSetters` is not working in Jackson 2.8
@@ -1022,6 +1025,11 @@ Greg Arakelian (arakelian@github)
   * Reported #2566: `MissingNode.toString()` returns `null` (4 character token) instead
     of empty string
   (2.10.2)
+
+Kamal Aslam (aslamkam@github)
+  * Reported #2482: `JSONMappingException` `Location` column number is one line
+    Behind the actual location
+  (2.10.3)
 
 Tobias Preuss (johnjohndoe@github)
   * Reported #2599: NoClassDefFoundError at DeserializationContext.<init> on Android 4.1.2

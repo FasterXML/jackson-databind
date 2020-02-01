@@ -182,28 +182,17 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
         
         @JsonDeserialize (builder = CreditCardDetails.IndividualCreditCardDetailsBuilder.class)
         public static class CreditCardDetails implements PaymentDetails {
-            @JsonPOJOBuilder (withPrefix = "")
+            @JsonPOJOBuilder(withPrefix = "")
             public static class CompanyCreditCardDetailsBuilder implements Builder {
                 private String cardHolderFirstName;
                 private String cardHolderLastName;
                 private String number;
-                private String expiryDate;
                 private int csc;
-                private String address;
-                private String zipCode;
-                private String city;
-                private String province;
-                private String countryCode;
-                
-                public CompanyCreditCardDetailsBuilder address (final String a) {
-                    address = a;
-                    return this;
-                }
                 
                 @Override
                 public CreditCardDetails build() {
-                    return new CreditCardDetails (this.cardHolderFirstName, this.cardHolderLastName, this.number, this.expiryDate, this.csc, this.address, this.zipCode, this.city,
-                            this.province, this.countryCode, "COMPANY CREDIT CARD");
+                    return new CreditCardDetails (cardHolderFirstName, cardHolderLastName, number, csc,
+                            "COMPANY CREDIT CARD");
                 }
                 
                 public CompanyCreditCardDetailsBuilder cardHolderFirstName(final String cardHolderFirstName) {
@@ -211,43 +200,18 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder cardHolderLastName (final String cardHolderLastName) {
+                public CompanyCreditCardDetailsBuilder cardHolderLastName(final String cardHolderLastName) {
                     this.cardHolderLastName = cardHolderLastName;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder city (final String city) {
-                    this.city = city;
-                    return this;
-                }
-                
-                public CompanyCreditCardDetailsBuilder countryCode (final String countryCode) {
-                    this.countryCode = countryCode;
-                    return this;
-                }
-                
-                public CompanyCreditCardDetailsBuilder csc (final int csc) {
+                public CompanyCreditCardDetailsBuilder csc(final int csc) {
                     this.csc = csc;
                     return this;
                 }
                 
-                public CompanyCreditCardDetailsBuilder expiryDate (final String expiryDate) {
-                    this.expiryDate = expiryDate;
-                    return this;
-                }
-                
-                public CompanyCreditCardDetailsBuilder number (final String number) {
+                public CompanyCreditCardDetailsBuilder number(final String number) {
                     this.number = number;
-                    return this;
-                }
-                
-                public CompanyCreditCardDetailsBuilder province (final String province) {
-                    this.province = province;
-                    return this;
-                }
-                
-                public CompanyCreditCardDetailsBuilder zipCode (final String zipCode) {
-                    this.zipCode = zipCode;
                     return this;
                 }
             }
@@ -257,46 +221,25 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 private String cardHolderFirstName;
                 private String cardHolderLastName;
                 private String number;
-                private String expiryDate;
                 private int    csc;
-                private String address;
-                private String zipCode;
-                private String city;
-                private String province;
-                private String countryCode;
                 private String description;
-                
-                public IndividualCreditCardDetailsBuilder address (final String address) {
-                    this.address = address;
-                    return this;
-                }
-                
+
                 @Override
                 public CreditCardDetails build () {
-                    return new CreditCardDetails (this.cardHolderFirstName, this.cardHolderLastName, this.number, this.expiryDate, this.csc, this.address, this.zipCode, this.city,
-                            this.province, this.countryCode, this.description);
+                    return new CreditCardDetails(cardHolderFirstName, cardHolderLastName, number, csc,
+                            description);
                 }
                 
-                public IndividualCreditCardDetailsBuilder cardHolderFirstName (final String cardHolderFirstName) {
+                public IndividualCreditCardDetailsBuilder cardHolderFirstName(final String cardHolderFirstName) {
                     this.cardHolderFirstName = cardHolderFirstName;
                     return this;
                 }
                 
-                public IndividualCreditCardDetailsBuilder cardHolderLastName (final String cardHolderLastName) {
+                public IndividualCreditCardDetailsBuilder cardHolderLastName(final String cardHolderLastName) {
                     this.cardHolderLastName = cardHolderLastName;
                     return this;
                 }
-                
-                public IndividualCreditCardDetailsBuilder city (final String city) {
-                    this.city = city;
-                    return this;
-                }
-                
-                public IndividualCreditCardDetailsBuilder countryCode (final String countryCode) {
-                    this.countryCode = countryCode;
-                    return this;
-                }
-                
+
                 public IndividualCreditCardDetailsBuilder csc (final int csc) {
                     this.csc = csc;
                     return this;
@@ -306,56 +249,28 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                     this.description = description;
                     return this;
                 }
-                
-                public IndividualCreditCardDetailsBuilder expiryDate (final String expiryDate) {
-                    this.expiryDate = expiryDate;
-                    return this;
-                }
-                
+
                 public IndividualCreditCardDetailsBuilder number (final String number) {
                     this.number = number;
                     return this;
                 }
-                
-                public IndividualCreditCardDetailsBuilder province (final String p) {
-                    province = p;
-                    return this;
-                }
-                
-                public IndividualCreditCardDetailsBuilder zipCode (final String z) {
-                    zipCode = z;
-                    return this;
-                }
-                
             }
             
             protected final String cardHolderFirstName;
             protected final String cardHolderLastName;
             protected final String number;
-            protected final String expiryDate;
             protected final int    csc;
-            protected final String address;
-            protected final String zipCode;
-            protected final String city;
-            protected final String province;
-            
-            protected final String countryCode;
             
             protected final String description;
             
-            public CreditCardDetails (final String cardHolderFirstName, final String cardHolderLastName, final String number, final String expiryDate, final int csc,
-                    final String address, final String zipCode, final String city, final String province, final String countryCode, final String description) {
-                super ();
+            public CreditCardDetails (final String cardHolderFirstName, final String cardHolderLastName,
+                    final String number, final int csc,
+                    final String description) {
+                super();
                 this.cardHolderFirstName = cardHolderFirstName;
                 this.cardHolderLastName = cardHolderLastName;
                 this.number = number;
-                this.expiryDate = expiryDate;
                 this.csc = csc;
-                this.address = address;
-                this.zipCode = zipCode;
-                this.city = city;
-                this.province = province;
-                this.countryCode = countryCode;
                 this.description = description;
             }
         }
@@ -399,36 +314,35 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             
             private final Class<? extends PaymentDetails.Builder> builderClass;
             
-            FormOfPayment (final Class<? extends PaymentDetails.Builder> builderClass) {
+            FormOfPayment(final Class<? extends PaymentDetails.Builder> builderClass) {
                 this.builderClass = builderClass;
             }
             
             @SuppressWarnings ("unchecked")
-            public <T extends PaymentDetails> Class<T> getDetailsClass () {
-                return (Class<T>) this.builderClass.getEnclosingClass ();
+            public <T extends PaymentDetails> Class<T> getDetailsClass() {
+                return (Class<T>) this.builderClass.getEnclosingClass();
             }
             
-            public static FormOfPayment fromDetailsClass (Class<PaymentDetails> detailsClass) {
-                for (FormOfPayment fop : FormOfPayment.values ()) {
-                    if (fop.builderClass.getEnclosingClass () == detailsClass) {
+            public static FormOfPayment fromDetailsClass(Class<PaymentDetails> detailsClass) {
+                for (FormOfPayment fop : FormOfPayment.values()) {
+                    if (fop.builderClass.getEnclosingClass() == detailsClass) {
                         return fop;
                     }
                 }
-                throw new IllegalArgumentException ("not found");
+                throw new IllegalArgumentException("not found");
             }
         }
         
         public interface PaymentDetails {
             public interface Builder {
-                PaymentDetails build ();
+                PaymentDetails build();
             }
         }
         
-        @JsonDeserialize (builder = PaymentMean.Builder.class)
+        @JsonDeserialize(builder = PaymentMean.Builder.class)
         public static class PaymentMean {
-            
-            @JsonPOJOBuilder (withPrefix = "")
-            @JsonPropertyOrder ({ "form_of_payment", "payment_details" })
+            @JsonPOJOBuilder(withPrefix = "")
+            @JsonPropertyOrder({ "form_of_payment", "payment_details" })
             public static class Builder {
                 private FormOfPayment  formOfPayment;
                 private PaymentDetails paymentDetails;

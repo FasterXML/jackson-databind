@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.10.3 (not yet released)
 
+#2482: `JSONMappingException` `Location` column number is one line Behind the actual
+  location
+ (reported by Kamal A, fixed by Ivo S)
 #2599: NoClassDefFoundError at DeserializationContext.<init> on Android 4.1.2
   and Jackson 2.10.0
  (reported by Tobias P)

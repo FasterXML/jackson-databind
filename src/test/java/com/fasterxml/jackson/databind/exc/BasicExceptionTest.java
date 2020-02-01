@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class BasicExceptionTest extends BaseMapTest
 {
-    final ObjectMapper MAPPER = new ObjectMapper();
-    final JsonFactory JSON_F = MAPPER.getFactory();
+    private final ObjectMapper MAPPER = newJsonMapper();
+    private final JsonFactory JSON_F = MAPPER.getFactory();
 
     public void testBadDefinition() throws Exception
     {
@@ -117,39 +117,26 @@ public class BasicExceptionTest extends BaseMapTest
     public void testLocationAddition() throws Exception
     {
         String problemJson = "{\n\t\"userList\" : [\n\t{\n\t user : \"1\"\n\t},\n\t{\n\t \"user\" : \"2\"\n\t}\n\t]\n}";
-        String expectedLocation = "line: 4, column: 4";
         try {
             MAPPER.readValue(problemJson, Users.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (JsonMappingException e) { // becomes "generic" due to wrapping for passing path info
             String msg = e.getMessage();
             String[] str = msg.split(" at \\[");
             if (str.length != 2) {
                 fail("Should only get one 'at [' marker, got "+(str.length-1)+", source: "+msg);
             }
-            if (! str[1].contains(expectedLocation)) {
-                fail("Reported location should be \"" + expectedLocation + "\", but was: " + str[1]);
-            }
+            JsonLocation loc = e.getLocation();
+//          String expectedLocation = "line: 4, column: 4";
+            assertEquals(4, loc.getLineNr());
+            assertEquals(4, loc.getColumnNr());
         }
     }
-
-    private static class User {
-        public String user = null;
+    static class User {
+        public String user;
     }
 
-    private static class Users {
-        private ArrayList<User> users = new ArrayList<User>();
-
-        public ArrayList<User> getUser() {
-            return users;
-        }
-
-        public void addUser(User user) {
-            this.users.add(user);
-        }
-
-        public void setUserList(ArrayList<User> user) {
-            this.users = user;
-        }
+    static class Users {
+        public ArrayList<User> userList;
     }
 }

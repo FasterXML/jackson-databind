@@ -13,8 +13,9 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 @SuppressWarnings("hiding")
-public class ExternalTypeIdTest1288 extends BaseMapTest
+public class ExternalTypeCustomResolverTest extends BaseMapTest
 {
+    // [databind#1288]
     public static class ClassesWithoutBuilder {
         
         public static class CreditCardDetails implements PaymentDetails {
@@ -497,7 +498,8 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
         }
     }
 
-    public void testVisibleExternalTypeId1288() throws Exception
+    // [databind#1288]
+    public void testVisibleExternalTypeIdCustomResolver() throws Exception
     {
         // given
         final String asJson1 = "{\"form_of_payment\":\"INDIVIDUAL_CREDIT_CARD\", \"payment_details\":{\"card_holder_first_name\":\"John\", \"card_holder_last_name\":\"Doe\",  \"number\":\"XXXXXXXXXXXXXXXX\", \"expiry_date\":\"MM/YY\","

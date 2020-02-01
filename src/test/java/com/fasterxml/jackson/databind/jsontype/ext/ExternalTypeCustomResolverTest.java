@@ -13,8 +13,9 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 @SuppressWarnings("hiding")
-public class ExternalTypeIdTest1288 extends BaseMapTest
+public class ExternalTypeCustomResolverTest extends BaseMapTest
 {
+    // [databind#1288]
     public static class ClassesWithoutBuilder {
         public static class CreditCardDetails implements PaymentDetails {
             protected String cardHolderFirstName;
@@ -495,18 +496,19 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
         }
     }
 
-    public void testVisibleExternalTypeId1288() throws Exception
+    // [databind#1288]
+    public void testVisibleExternalTypeIdCustomResolver() throws Exception
     {
         // given
         final String asJson1 = "{\"form_of_payment\":\"INDIVIDUAL_CREDIT_CARD\", \"payment_details\":{\"card_holder_first_name\":\"John\", \"card_holder_last_name\":\"Doe\",  \"number\":\"XXXXXXXXXXXXXXXX\", \"expiry_date\":\"MM/YY\","
                 + "\"csc\":666,\"address\":\"10 boulevard de Sebastopol\",\"zip_code\":\"75001\",\"city\":\"Paris\",\"province\":\"Ile-de-France\",\"country_code\":\"FR\",\"description\":\"John Doe personal credit card\"}}";
         final String asJson2 = "{\"form_of_payment\":\"INSTRUMENTED_CREDIT_CARD\",\"payment_details\":{\"payment_instrument_id\":\"00000000-0000-0000-0000-000000000000\", \"name\":\"Mr John Doe encrypted credit card\"}}";
         final ObjectMapper objectMapper = jsonMapperBuilder()
-                .propertyNamingStrategy (PropertyNamingStrategy.SNAKE_CASE)
+                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
                 .build();
-        ClassesWithoutBuilder.PaymentMean ob1 = objectMapper.readValue (asJson1, ClassesWithoutBuilder.PaymentMean.class);
+        ClassesWithoutBuilder.PaymentMean ob1 = objectMapper.readValue(asJson1, ClassesWithoutBuilder.PaymentMean.class);
         assertNotNull(ob1);
-        ClassesWithBuilder.PaymentMean ob2 = objectMapper.readValue (asJson2, ClassesWithBuilder.PaymentMean.class);
+        ClassesWithBuilder.PaymentMean ob2 = objectMapper.readValue(asJson2, ClassesWithBuilder.PaymentMean.class);
         assertNotNull(ob2);
     }
 }

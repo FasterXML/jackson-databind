@@ -1032,3 +1032,8 @@ Eduard Tudenhöfner (nastra@github)
   * Reported #2602, contributed fix for: ByteBufferSerializer produces unexpected results with
     a duplicated ByteBuffer and a position > 0
   (2.10.3)
+
+Alexander Shilov (ashlanderr@github)
+  * Reported, suggested fix for #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
+  (2.10.3)
+

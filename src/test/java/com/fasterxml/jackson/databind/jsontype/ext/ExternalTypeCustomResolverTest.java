@@ -7,10 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 @SuppressWarnings("hiding")
@@ -35,47 +35,47 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             
             protected String description;
 
-            public void setCardHolderFirstName (String cardHolderFirstName) {
+            public void setCardHolderFirstName(String cardHolderFirstName) {
                 this.cardHolderFirstName = cardHolderFirstName;
             }
 
-            public void setCardHolderLastName (String cardHolderLastName) {
+            public void setCardHolderLastName(String cardHolderLastName) {
                 this.cardHolderLastName = cardHolderLastName;
             }
 
-            public void setNumber (String number) {
+            public void setNumber(String number) {
                 this.number = number;
             }
 
-            public void setExpiryDate (String expiryDate) {
+            public void setExpiryDate(String expiryDate) {
                 this.expiryDate = expiryDate;
             }
 
-            public void setCsc (int csc) {
+            public void setCsc(int csc) {
                 this.csc = csc;
             }
 
-            public void setAddress (String address) {
+            public void setAddress(String address) {
                 this.address = address;
             }
 
-            public void setZipCode (String zipCode) {
+            public void setZipCode(String zipCode) {
                 this.zipCode = zipCode;
             }
 
-            public void setCity (String city) {
+            public void setCity(String city) {
                 this.city = city;
             }
 
-            public void setProvince (String province) {
+            public void setProvince(String province) {
                 this.province = province;
             }
 
-            public void setCountryCode (String countryCode) {
+            public void setCountryCode(String countryCode) {
                 this.countryCode = countryCode;
             }
 
-            public void setDescription (String description) {
+            public void setDescription(String description) {
                 this.description = description;
             }
             
@@ -88,7 +88,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             
             protected String name;
 
-            public void setPaymentInstrumentID (UUID paymentInstrumentID) {
+            public void setPaymentInstrumentID(UUID paymentInstrumentID) {
                 this.paymentInstrumentID = paymentInstrumentID;
             }
 
@@ -104,28 +104,28 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             
             private final Class<? extends PaymentDetails> clazz;
             
-            FormOfPayment (final Class<? extends PaymentDetails> clazz) {
+            FormOfPayment(final Class<? extends PaymentDetails> clazz) {
                 this.clazz = clazz;
             }
             
-            @SuppressWarnings ("unchecked")
+            @SuppressWarnings("unchecked")
             public <T extends PaymentDetails> Class<T> getDetailsClass () {
                 return (Class<T>) this.clazz;
             }
             
-            public static FormOfPayment fromDetailsClass (Class<PaymentDetails> detailsClass) {
+            public static FormOfPayment fromDetailsClass(Class<PaymentDetails> detailsClass) {
                 for (FormOfPayment fop : FormOfPayment.values ()) {
                     if (fop.clazz == detailsClass) {
                         return fop;
                     }
                 }
-                throw new IllegalArgumentException ("not found");
+                throw new IllegalArgumentException("not found");
             }
         }
         
         public interface PaymentDetails {
             public interface Builder {
-                PaymentDetails build ();
+                PaymentDetails build();
             }
         }
         
@@ -135,20 +135,19 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             
             PaymentDetails paymentDetails;
 
-            public void setFormOfPayment (FormOfPayment formOfPayment) {
+            public void setFormOfPayment(FormOfPayment formOfPayment) {
                 this.formOfPayment = formOfPayment;
             }
 
-            @JsonTypeInfo (use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "form_of_payment", visible = true)
-            @JsonTypeIdResolver (PaymentDetailsTypeIdResolver.class)
-            public void setPaymentDetails (PaymentDetails paymentDetails) {
+            @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "form_of_payment", visible = true)
+            @JsonTypeIdResolver(PaymentDetailsTypeIdResolver.class)
+            public void setPaymentDetails(PaymentDetails paymentDetails) {
                 this.paymentDetails = paymentDetails;
             }
-            
         }
         
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
-            @SuppressWarnings ("unchecked")
+            @SuppressWarnings("unchecked")
             @Override
             public String idFromValue (Object value) {
                 if (! (value instanceof PaymentDetails)) {
@@ -483,43 +482,51 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             }
 
             @Override
-            public JavaType typeFromId (DatabindContext context, String id) {
+            public JavaType typeFromId(DatabindContext context, String id) {
                 return context.getTypeFactory().constructType(FormOfPayment.valueOf (id).getDetailsClass ());
             }
             
             @Override
-            public String getDescForKnownTypeIds () {
+            public String getDescForKnownTypeIds() {
                 return "PaymentDetails";
             }
             
             @Override
-            public Id getMechanism () {
+            public Id getMechanism() {
                 return JsonTypeInfo.Id.CUSTOM;
             }
         }
     }
 
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+            .build();
+
     // [databind#1288]
-    public void testVisibleExternalTypeIdCustomResolver() throws Exception
+    public void testExternalWithCustomResolver() throws Exception
     {
         // given
         final String asJson1 = aposToQuotes(
-"{'form_of_payment':'INDIVIDUAL_CREDIT_CARD', 'payment_details':{'card_holder_first_name':'John',"
-+"'card_holder_last_name':'Doe',  'number':'XXXXXXXXXXXXXXXX', 'expiry_date':'MM/YY',"
-+ "'csc':666,'address':'10 boulevard de Sebastopol','zip_code':'75001','city':'Paris',"
+"{'form_of_payment':'INDIVIDUAL_CREDIT_CARD', 'payment_details':{'card_holder_first_name':'John',\n"
++"'card_holder_last_name':'Doe',  'number':'XXXXXXXXXXXXXXXX', 'expiry_date':'MM/YY',\n"
++ "'csc':666,'address':'10 boulevard de Sebastopol','zip_code':'75001','city':'Paris',\n"
 +"'province':'Ile-de-France','country_code':'FR','description':'John Doe personal credit card'}}"
         );
-        final String asJson2 = aposToQuotes(
-"{'form_of_payment':'INSTRUMENTED_CREDIT_CARD','payment_details':{'payment_instrument_id':"
-+"'00000000-0000-0000-0000-000000000000', 'name':'Mr John Doe encrypted credit card'}}"
-        );
-        final ObjectMapper objectMapper = JsonMapper.builder()
-                .propertyNamingStrategy (PropertyNamingStrategy.SNAKE_CASE)
-                .build();
-
-        ClassesWithoutBuilder.PaymentMean ob1 = objectMapper.readValue (asJson1, ClassesWithoutBuilder.PaymentMean.class);
+        ClassesWithoutBuilder.PaymentMean ob1 = MAPPER.readValue(asJson1, ClassesWithoutBuilder.PaymentMean.class);
         assertNotNull(ob1);
-        ClassesWithBuilder.PaymentMean ob2 = objectMapper.readValue (asJson2, ClassesWithBuilder.PaymentMean.class);
+    }
+
+    // [databind#1288]
+    public void testExternalWithCustomResolverAndBuilder() throws Exception
+    {
+        final String asJson2 = aposToQuotes(
+"{'form_of_payment':'INSTRUMENTED_CREDIT_CARD',\n"
++"'payment_details':{\n"
++"'payment_instrument_id':'00000000-0000-0000-0000-000000000000',\n"
++" 'name':'Mr John Doe encrypted credit card'}}"
+        );
+
+        ClassesWithBuilder.PaymentMean ob2 = MAPPER.readValue(asJson2, ClassesWithBuilder.PaymentMean.class);
         assertNotNull(ob2);
     }
 }

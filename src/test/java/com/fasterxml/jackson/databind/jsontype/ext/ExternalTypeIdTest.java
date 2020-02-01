@@ -516,7 +516,6 @@ public class ExternalTypeIdTest extends BaseMapTest
     // for [databind#965]
     public void testBigDecimal965() throws Exception
     {
-
         Wrapper965 w = new Wrapper965();
         w.typeEnum = Type965.BIG_DECIMAL;
         final String NUM_STR = "-10000000000.0000000001";

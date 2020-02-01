@@ -47,6 +47,8 @@ Project: jackson-databind
 #2602: ByteBufferSerializer produces unexpected results with a duplicated ByteBuffer
   and a position > 0
  (reported by Eduard T)
+#2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
+ (reported, fix suggested by Alexander S)
 
 2.10.2 (05-Jan-2020)
 

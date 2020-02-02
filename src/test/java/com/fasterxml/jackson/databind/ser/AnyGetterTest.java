@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -131,6 +132,37 @@ public class AnyGetterTest extends BaseMapTest
         }
     }
 
+    static class Bean2592NoAnnotations
+    {
+        protected Map<String, String> properties = new HashMap<>();
+
+        @JsonAnyGetter
+        public Map<String, String> getProperties() {
+            return properties;
+        }
+
+        public void setProperties(Map<String, String> properties) {
+            this.properties = properties;
+        }
+
+        public void add(String key, String value) {
+            properties.put(key, value);
+        }
+    }
+
+    static class Bean2592PropertyIncludeNonEmpty extends Bean2592NoAnnotations
+    {
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        @JsonAnyGetter
+        @Override
+        public Map<String, String> getProperties() {
+            return properties;
+        }
+    }
+
+    @JsonFilter("Bean2592")
+    static class Bean2592WithFilter extends Bean2592NoAnnotations {}
+
     /*
     /**********************************************************
     /* Test methods
@@ -195,5 +227,63 @@ public class AnyGetterTest extends BaseMapTest
         input.addAdditionalProperty("key", "value");
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"key\":\"VALUE\"}", json);
+    }
+
+    // [databind#2592]
+    public void testAnyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        Bean2592NoAnnotations input = new Bean2592NoAnnotations();
+        input.add("non-empty", "property");
+        input.add("empty", "");
+        input.add("null", null);
+        String json = mapper.writeValueAsString(input);
+        assertEquals("{\"non-empty\":\"property\"}", json);
+    }
+
+    // [databind#2592]
+    public void testAnyGetterWithMapperDefaultIncludeNonEmptyAndFilterOnBean() throws Exception
+    {
+        FilterProvider filters = new SimpleFilterProvider()
+                .addFilter("Bean2592", SimpleBeanPropertyFilter.serializeAllExcept("something"));
+        ObjectMapper mapper = new ObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                .setFilterProvider(filters);
+        Bean2592WithFilter input = new Bean2592WithFilter();
+        input.add("non-empty", "property");
+        input.add("empty", "");
+        input.add("null", null);
+        String json = mapper.writeValueAsString(input);
+        // Unfortunately path for bean with filter is different. It still skips nulls.
+        assertEquals("{\"non-empty\":\"property\",\"empty\":\"\"}", json);
+    }
+
+    // [databind#2592]
+    public void testAnyGetterWithPropertyIncludeNonEmpty() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        Bean2592PropertyIncludeNonEmpty input = new Bean2592PropertyIncludeNonEmpty();
+        input.add("non-empty", "property");
+        input.add("empty", "");
+        input.add("null", null);
+        String json = mapper.writeValueAsString(input);
+        assertEquals("{\"non-empty\":\"property\"}", json);
+    }
+
+    // [databind#2592]
+    public void testAnyGetterConfigIncludeNonEmpty() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(Map.class).setInclude(JsonInclude.Value.construct(
+                JsonInclude.Include.USE_DEFAULTS,
+                JsonInclude.Include.NON_EMPTY
+        ));
+        Bean2592NoAnnotations input = new Bean2592NoAnnotations();
+        input.add("non-empty", "property");
+        input.add("empty", "");
+        input.add("null", null);
+        String json = mapper.writeValueAsString(input);
+        assertEquals("{\"non-empty\":\"property\"}", json);
     }
 }

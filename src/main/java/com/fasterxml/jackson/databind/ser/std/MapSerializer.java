@@ -517,21 +517,7 @@ public class MapSerializer
         throws IOException
     {
         gen.writeStartObject(value);
-        if (!value.isEmpty()) {
-            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _orderEntries(value, gen, provider);
-            }
-            PropertyFilter pf;
-            if ((_filterId != null) && (pf = findPropertyFilter(provider, _filterId, value)) != null) {
-                serializeFilteredFields(value, gen, provider, pf, _suppressableValue);
-            } else if ((_suppressableValue != null) || _suppressNulls) {
-                serializeOptionalFields(value, gen, provider, _suppressableValue);
-            } else if (_valueSerializer != null) {
-                serializeFieldsUsing(value, gen, provider, _valueSerializer);
-            } else {
-                serializeFields(value, gen, provider);
-            }
-        }
+        serializeWithoutTypeInfo(value, gen, provider);
         gen.writeEndObject();
     }
 
@@ -544,6 +530,23 @@ public class MapSerializer
         gen.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
+        serializeWithoutTypeInfo(value, gen, ctxt);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
+    }
+
+    /*
+    /**********************************************************************
+    /* Secondary serialization methods
+    /**********************************************************************
+     */
+
+    /**
+     * General-purpose serialization for contents without writing object type. Will suppress, filter and
+     * use custom serializers.
+     *<p>
+     * Public since it also is called by {@code AnyGetterWriter}.
+     */
+    public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializerProvider ctxt) throws IOException {
         if (!value.isEmpty()) {
             if (_sortKeys || ctxt.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value, gen, ctxt);
@@ -559,7 +562,6 @@ public class MapSerializer
                 serializeFields(value, gen, ctxt);
             }
         }
-        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     /*
@@ -567,7 +569,7 @@ public class MapSerializer
     /* Secondary serialization methods
     /**********************************************************************
      */
-    
+
     /**
      * General-purpose serialization for contents, where we do not necessarily know
      * the value serialization, but 

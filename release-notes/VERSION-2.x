@@ -37,6 +37,8 @@ Project: jackson-databind
 #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
   external entity expansion in all cases
  (reported by Bartosz B)
+#2592: `ObjectMapper.setSerializationInclusion()` is ignored for `JsonAnyGetter`
+ (reported by Oleksii K)
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.3 (not yet released)

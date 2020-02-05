@@ -1078,3 +1078,8 @@ Bartosz Baranowski (baranowb@github)
   * Reported #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
    external entity expansion in all cases
  (2.11.0)
+
+Oleksii Khomchenko (gagoman@github)
+  * Reported, contributed fix for #2592: `ObjectMapper.setSerializationInclusion()` is
+   ignored for `JsonAnyGetter`
+ (2.11.0)

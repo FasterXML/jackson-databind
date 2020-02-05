@@ -654,6 +654,10 @@ public class MapSerializer
     /**
      * General-purpose serialization for contents without writing object type. Will suppress, filter and
      * use custom serializers.
+     *<p>
+     * Public since it also is called by {@code AnyGetterWriter}.
+     *
+     * @since 2.11
      */
     public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         if (!value.isEmpty()) {

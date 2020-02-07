@@ -90,8 +90,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
 
+        boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String name = p.getCurrentName();
+            if (ignoreCase) {
+                name = name.toLowerCase();
+            }
             p.nextToken(); // to point to the value
             if (name.equals(_typePropertyName)) { // gotcha!
                 return _deserializeTypedForId(p, ctxt, tb);

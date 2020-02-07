@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
@@ -138,6 +139,9 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     }
     
     protected JavaType _typeFromId(String id) {
+        if(_config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)) {
+            id = id.toLowerCase();
+        }
         // Now: if no type is found, should we try to locate it by
         // some other means? (specifically, if in same package as base type,
         // could just try Class.forName)

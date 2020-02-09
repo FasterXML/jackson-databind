@@ -123,6 +123,9 @@ public class SubTypeValidator
         s.add("net.sf.ehcache.transaction.manager.selector.GenericJndiSelector");
         s.add("net.sf.ehcache.transaction.manager.selector.GlassfishSelector");
 
+        // [databind#2620]: xbean-reflect
+        s.add("org.apache.xbean.propertyeditor.JndiConverter");
+        
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

@@ -11,9 +11,11 @@ Project: jackson-databind
 #2449: Block one more gadget type (HikariCP, CVE-2019-14439 / CVE-2019-16335)
 #2462: Block two more gadget types (commons-configuration/-2)
 #2478: Block two more gadget types (commons-dbcp, p6spy, CVE-2019-16942 / CVE-2019-16943)
-#2498: Block one more gadget type (apache-log4j-extras/1.2, CVE-2019-17531)
-#2526: Block two more gadget types (ehcache/JNDI - CVEs to be allocated)
-  (repoerted by UltramanGaia)
+#2498: Block one more gadget type (log4j-extras/1.2, CVE-2019-17531)
+#2526: Block two more gadget types (ehcache/JNDI, CVE-2019-20330)
+  (reported by UltramanGaia)
+#2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-xxxxx)
+  (reported by threedr3am)
 
 2.7.9.6 (26-Jul-2019)
 

@@ -16,8 +16,10 @@ Unreleased but backported
 #2469: Block one more gadget type (xalan2)
 #2478: Block two more gadget types (commons-dbcp, p6spy, CVE-2019-16942 / CVE-2019-16943)
 #2498: Block one more gadget type (log4j-extras/1.2, CVE-2019-17531)
-#2526: Block two more gadget types (ehcache/JNDI - CVEs to be allocated)
-  (repoerted by UltramanGaia)
+#2526: Block two more gadget types (ehcache/JNDI, CVE-2019-20330)
+  (reported by UltramanGaia)
+#2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-xxxxx)
+  (reported by threedr3am)
 
 2.8.11.4 (25-Jul-2019)
 

@@ -128,7 +128,6 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
-
     // for [databind#761]
 
     @JsonDeserialize(builder=ValueInterfaceBuilder.class)
@@ -269,13 +268,39 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
+    // (related to) [databind#2354]: should be ok to have private inner class:
+
+    @JsonDeserialize(builder=Value2354.Value2354Builder.class)
+    static class Value2354
+    {
+        private final int value;
+
+        protected Value2354(int v) { value = v; }
+
+        public int value() { return value; }
+        
+        @SuppressWarnings("unused")
+        private static class Value2354Builder {
+            private int value;
+            
+            public Value2354Builder withValue(int v) {
+                value = v;
+                return this;
+            }
+    
+            public Value2354 build() {
+                return new Value2354(value);
+            }
+        }
+    }
+
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSimple() throws Exception
     {
@@ -395,5 +420,13 @@ public class BuilderSimpleTest extends BaseMapTest
         MAPPER.registerModule(new NopModule1557());
         ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
         assertEquals(1, value.value);
+    }
+
+    // related to [databind#2354] (ensure private inner builder classes are ok)
+    public void testPrivateInnerBuilder() throws Exception
+    {
+        String json = aposToQuotes("{'value':13}");
+        Value2354 result = MAPPER.readValue(json, Value2354.class);
+        assertEquals(13, result.value());
     }
 }

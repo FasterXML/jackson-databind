@@ -287,8 +287,9 @@ public class BuilderSimpleTest extends BaseMapTest
                 value = v;
                 return this;
             }
-    
-            public Value2354 build() {
+
+            // should be ok for this to be private, too, since name is (pre)configured
+            private Value2354 build() {
                 return new Value2354(value);
             }
         }

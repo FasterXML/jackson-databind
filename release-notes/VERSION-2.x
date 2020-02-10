@@ -180,6 +180,11 @@ Project: jackson-databind
   deserialize as "null value"
  (contributed by Martin C)
 
+2.9.10.3 (not released yet)
+
+#2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)
+ (reported by threedr3am@github)
+
 2.9.10.2 (03-Jan-2020)
 
 #2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)

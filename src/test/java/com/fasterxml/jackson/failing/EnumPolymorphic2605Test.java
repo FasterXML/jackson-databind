@@ -13,19 +13,11 @@ public class EnumPolymorphic2605Test extends BaseMapTest
             include = JsonTypeInfo.As.PROPERTY,
             property = "@class"
         )
-         private ENUM_TYPE selected;
+        public ENUM_TYPE selected;
 
         protected EnumContaintingClass() { }
 
         public EnumContaintingClass(ENUM_TYPE selected) {
-          this.selected = selected;
-        }
-
-        public ENUM_TYPE getSelected() {
-          return selected;
-        }
-
-        public void setSelected(ENUM_TYPE selected) {
           this.selected = selected;
         }
     }
@@ -33,13 +25,14 @@ public class EnumPolymorphic2605Test extends BaseMapTest
     static enum TestEnum { FIRST, SECOND, THIRD; }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     // for [databind#2605]
     public void testRoundtrip() throws Exception
     {
-      EnumContaintingClass<TestEnum> gui = new EnumContaintingClass<TestEnum>(TestEnum.SECOND);
-      String str = MAPPER.writeValueAsString(gui);
-      Object o = MAPPER.readerFor(EnumContaintingClass.class).readValue(str);
-      assertNotNull(o);
+        EnumContaintingClass<TestEnum> gui = new EnumContaintingClass<TestEnum>(TestEnum.SECOND);
+        String json = MAPPER.writeValueAsString(gui);
+//      Object o = MAPPER.readerFor(EnumContaintingClass.class).readValue(json);
+        Object o = MAPPER.readValue(json, EnumContaintingClass.class);
+        assertNotNull(o);
     }
 }

@@ -367,7 +367,7 @@ public final class DeserializerCache
 
         // 12-Feb-20202, tatu: Need to ensure that not only all Enum implementations get
         //    there, but also `Enum` -- latter wrt [databind#2605], polymorphic usage
-        if (ClassUtil.isEnumType(type.getRawClass())) { // type.isEnumType()) {
+        if (type.isEnumType()) {
             return factory.createEnumDeserializer(ctxt, type, beanDesc);
         }
         if (type.isContainerType()) {

@@ -372,7 +372,10 @@ public final class DeserializerCache
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
-        // If not, let's see which factory method to use:
+        // If not, let's see which factory method to use
+
+        // 12-Feb-20202, tatu: Need to ensure that not only all Enum implementations get
+        //    there, but also `Enum` -- latter wrt [databind#2605], polymorphic usage
         if (type.isEnumType()) {
             return factory.createEnumDeserializer(ctxt, type, beanDesc);
         }

@@ -245,6 +245,14 @@ public abstract class JavaType
     @Override
     public boolean isArrayType() { return false; }
 
+    /**
+     * Method that basically does equivalent of:
+     *<pre>
+     *  Enum.class.isAssignableFrom(getRawClass())
+     *</pre>
+     * that is, return {@code true} if the underlying type erased class is {@code Enum}
+     * or one its subtypes (Enum implementations).
+     */
     @Override
     public final boolean isEnumType() {
         // 29-Sep-2019, tatu: `Class.isEnum()` not enough to detect custom subtypes.

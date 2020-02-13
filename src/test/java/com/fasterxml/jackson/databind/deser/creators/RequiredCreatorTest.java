@@ -18,8 +18,45 @@ public class RequiredCreatorTest extends BaseMapTest
         }
     }
 
-    private final ObjectReader POINT_READER = objectMapper().readerFor(FascistPoint.class);
-    
+    // [databind#2591]
+    static class LoginUserResponse {
+        private String otp;
+
+        private String userType;
+
+        @JsonCreator
+        public LoginUserResponse(@JsonProperty(value = "otp", required = true) String otp,
+                @JsonProperty(value = "userType", required = true) String userType) {
+            this.otp = otp;
+            this.userType = userType;
+        }
+
+        public String getOtp() {
+            return otp;
+        }
+
+        public void setOtp(String otp) {
+            this.otp = otp;
+        }
+
+        public String getUserType() {
+            return userType;
+        }
+
+        public void setUserType(String userType) {
+            this.userType = userType;
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectReader POINT_READER = MAPPER.readerFor(FascistPoint.class);
+
     public void testRequiredAnnotatedParam() throws Exception
     {
         FascistPoint p;
@@ -62,6 +99,18 @@ public class RequiredCreatorTest extends BaseMapTest
             fail("Should not pass");
         } catch (JsonMappingException e) {
             verifyException(e, "Missing creator property 'y' (index 1)");
+        }
+    }
+
+    // [databind#2591]
+    public void testRequiredViaParameter2591() throws Exception
+    {
+        final String input = aposToQuotes("{'status':'OK', 'message':'Sent Successfully!'}");
+        try {
+            /*LoginUserResponse resp =*/ MAPPER.readValue(input, LoginUserResponse.class);
+            fail("Shoud not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Missing required creator property 'otp'");
         }
     }
 }

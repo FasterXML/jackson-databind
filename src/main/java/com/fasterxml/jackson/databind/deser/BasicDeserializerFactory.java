@@ -1461,6 +1461,15 @@ nonAnnotatedParamIndex, ctor);
         JsonDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDesc);
 
         if (deser == null) {
+            // 12-Feb-2020, tatu: while we can't really create real deserializer for `Enum.class`,
+            //    it is necessary to allow it in one specific case: see [databind#2605] for details
+            //    but basically it can be used as polymorphic base.
+            //    We could check `type.getTypeHandler()` to look for that case but seems like we
+            //    may as well simply create placeholder (AbstractDeserializer) regardless
+            if (enumClass == Enum.class) {
+                return AbstractDeserializer.constructForNonPOJO(beanDesc);
+            }
+
             ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
             SettableBeanProperty[] creatorProps = (valueInstantiator == null) ? null
                     : valueInstantiator.getFromObjectArguments(ctxt.getConfig());

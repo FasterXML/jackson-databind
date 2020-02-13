@@ -15,6 +15,8 @@ Project: jackson-databind
 #2602: ByteBufferSerializer produces unexpected results with a duplicated ByteBuffer
   and a position > 0
  (reported by Eduard T)
+#2605: Failure to deserializer polymorphic subtypes of base type `Enum`
+ (reported by uewle@github)
 #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
  (reported, fix suggested by Alexander S)
 

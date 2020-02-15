@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 
 public class TestEmptyArrayBlockingQueueDeser extends BaseMapTest

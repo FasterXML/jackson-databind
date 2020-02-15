@@ -267,13 +267,6 @@ public class POJOPropertiesCollector
         return info;
     }
 
-    /**
-     * Method for finding Class to use as POJO builder, if any.
-     */
-    public Class<?> findPOJOBuilderClass() {
-        return _annotationIntrospector.findPOJOBuilder(_config, _classDef);
-    }
-    
     // for unit tests:
     protected Map<String, POJOPropertyBuilder> getPropertyMap() {
         if (!_collected) {

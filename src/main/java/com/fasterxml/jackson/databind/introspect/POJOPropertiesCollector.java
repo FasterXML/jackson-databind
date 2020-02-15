@@ -194,15 +194,6 @@ public class POJOPropertiesCollector
         return _injectables;
     }
 
-    @Deprecated // since 2.9
-    public AnnotatedMethod getJsonValueMethod() {
-        AnnotatedMember m = getJsonValueAccessor();
-        if (m instanceof AnnotatedMethod) {
-            return (AnnotatedMethod) m;
-        }
-        return null;
-    }
-
     /**
      * @since 2.9
      */
@@ -290,19 +281,26 @@ public class POJOPropertiesCollector
         return info;
     }
 
-    /**
-     * Method for finding Class to use as POJO builder, if any.
-     */
-    public Class<?> findPOJOBuilderClass() {
-        return _annotationIntrospector.findPOJOBuilder(_classDef);
-    }
-    
     // for unit tests:
     protected Map<String, POJOPropertyBuilder> getPropertyMap() {
         if (!_collected) {
             collectAll();
         }
         return _properties;
+    }
+
+    @Deprecated // since 2.9
+    public AnnotatedMethod getJsonValueMethod() {
+        AnnotatedMember m = getJsonValueAccessor();
+        if (m instanceof AnnotatedMethod) {
+            return (AnnotatedMethod) m;
+        }
+        return null;
+    }
+
+    @Deprecated // since 2.11 (not used by anything at this point)
+    public Class<?> findPOJOBuilderClass() {
+        return _annotationIntrospector.findPOJOBuilder(_classDef);
     }
 
     /*

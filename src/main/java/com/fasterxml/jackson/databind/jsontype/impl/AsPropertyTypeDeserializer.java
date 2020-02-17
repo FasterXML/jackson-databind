@@ -55,6 +55,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      */
     @Override
     @SuppressWarnings("resource")
+    
     public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
@@ -81,11 +82,13 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         }
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
+        final boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String name = p.currentName();
+            final String name = p.currentName();
             p.nextToken(); // to point to the value
-            if (name.equals(_typePropertyName)) { // gotcha!
+            if (name.equals(_typePropertyName)
+                    || (ignoreCase && name.equalsIgnoreCase(_typePropertyName))) { // gotcha!
                 return _deserializeTypedForId(p, ctxt, tb);
             }
             if (tb == null) {

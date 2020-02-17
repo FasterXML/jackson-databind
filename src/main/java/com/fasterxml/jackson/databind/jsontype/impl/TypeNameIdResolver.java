@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
@@ -27,13 +28,17 @@ public class TypeNameIdResolver extends TypeIdResolverBase
      */
     protected final Map<String, JavaType> _idToType;
 
+    protected final boolean _caseInsensitive;
+
     protected TypeNameIdResolver(JavaType baseType,
             ConcurrentHashMap<String, String> typeToId,
-            HashMap<String, JavaType> idToType)
+            HashMap<String, JavaType> idToType,
+            boolean caseInsensitive)
     {
         super(baseType);
         _typeToId = typeToId;
         _idToType = idToType;
+        _caseInsensitive = caseInsensitive;
     }
 
     public static TypeNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
@@ -57,6 +62,8 @@ public class TypeNameIdResolver extends TypeIdResolverBase
             //    for a single value.
             typeToId = new ConcurrentHashMap<>(4);
         }
+        final boolean caseInsensitive = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES);
+
         if (subtypes != null) {
             for (NamedType t : subtypes) {
                 // no name? Need to figure out default; for now, let's just
@@ -67,6 +74,10 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                     typeToId.put(cls.getName(), id);
                 }
                 if (forDeser) {
+                    // [databind#1983]: for case-insensitive lookups must canonicalize:
+                    if (caseInsensitive) {
+                        id = id.toLowerCase();
+                    }
                     // One more problem; sometimes we have same name for multiple types;
                     // if so, use most specific
                     JavaType prev = idToType.get(id);
@@ -79,7 +90,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 }
             }
         }
-        return new TypeNameIdResolver(baseType, typeToId, idToType);
+        return new TypeNameIdResolver(baseType, typeToId, idToType, caseInsensitive);
     }
 
     @Override
@@ -142,6 +153,10 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     }
     
     protected JavaType _typeFromId(String id) {
+        // [databind#1983]: for case-insensitive lookups must canonicalize:
+        if (_caseInsensitive) {
+            id = id.toLowerCase();
+        }
         // Now: if no type is found, should we try to locate it by
         // some other means? (specifically, if in same package as base type,
         // could just try Class.forName)
@@ -154,10 +169,12 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         return new TreeSet<String>(_idToType.keySet()).toString();
     }
 
+    /*
     @Override
     public String toString() {
         return String.format("[%s; id-to-type=%s]", getClass().getName(), _idToType);
     }
+    */
 
     /*
     /**********************************************************************

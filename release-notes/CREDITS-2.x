@@ -1083,3 +1083,8 @@ Oleksii Khomchenko (gagoman@github)
   * Reported, contributed fix for #2592: `ObjectMapper.setSerializationInclusion()` is
    ignored for `JsonAnyGetter`
  (2.11.0)
+
+Oleksandr Poslavskyi (alevskyi@github)
+  * Contributed fix for #1983: Polymorphic deserialization should handle case-insensitive Type Id
+    property name if `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES` is enabled
+ (2.11.0)

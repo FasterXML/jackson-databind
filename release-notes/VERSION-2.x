@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.10.3 (not released yet)
+2.9.10.3 (23-Feb-2020)
 
 #2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)
  (reported by threedr3am@github)

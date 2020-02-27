@@ -238,6 +238,14 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
     
     /**
+     * Feature that determines whether time values are serialized with a
+     * fraction part or not.
+     *<p>
+     * Feature is disabled by default.
+     */
+    WRITE_TIMESTAMPS_WITHOUT_FRACTION(false),
+
+    /**
      * Feature that determines how type <code>char[]</code> is serialized:
      * when enabled, will be serialized as an explict JSON array (with
      * single-character Strings as values); when disabled, defaults to

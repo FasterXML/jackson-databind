@@ -3,10 +3,13 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.*;
 
 /**
- * Test for [databind#1964], wherein slightly incompatible type hierarchy,
+ * Originally test for [databind#1964], wherein slightly incompatible type hierarchy,
  * where `Map` key is downcast from `String` to `Object` (via use of "raw"
  * types to force compiler to ignore incompatibility) causes exception
  * during serialization. Although ideally code would not force round peg
@@ -14,7 +17,7 @@ import com.fasterxml.jackson.databind.*;
  * such downcast just for Map key types (for now at least).
  */
 @SuppressWarnings("serial")
-public class SubTypeResolution1964Test extends BaseMapTest
+public class SubTypeResolutionTest extends BaseMapTest
 {
     // [databind#1964]
     static class AccessModel {
@@ -65,7 +68,26 @@ public class SubTypeResolution1964Test extends BaseMapTest
     static class MetaAttribute<M, V, B> extends AbstractMetaValue<M, V, B> {
         public MetaAttribute() { }
       }
-    
+
+    // [databind#2632]: fail to specialize type-erased
+    @SuppressWarnings("rawtypes")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    @JsonSubTypes(value = {
+                    @JsonSubTypes.Type(value = Either.Left.class, name = "left"),
+                    @JsonSubTypes.Type(value = Either.Right.class, name = "right")
+    })
+    static class Either<L, R> {
+        static class Left<T> extends Either {   }
+        static class Right<T> extends Either {  }
+    }
+
+    static class Foo {
+        @SuppressWarnings("unchecked")
+        public Either<String, String> getEither() {
+            return new Either.Right<String>();
+        }
+    }
+
     /*
     /**********************************************************************
     /* Unit tests
@@ -102,5 +124,22 @@ public class SubTypeResolution1964Test extends BaseMapTest
         String jsonStr = MAPPER.writeValueAsString(metaModel);
         // ... could/should verify more, perhaps, but for now let it be.
         assertNotNull(jsonStr);
+    }
+
+    // [databind#2632]: fail to specialize type-erased
+    public void testSpecializeIncompatibleRawType() throws Exception
+    {
+        // 27-Feb-2020, tatu: First things first; incompatible typing should
+        //     cause reasonable exception
+        //  ... although since it's writing, perhaps should NOT fail at all?
+        String json;
+
+        try {
+            json = MAPPER.writeValueAsString(new Foo());
+            assertNotNull(json);
+            fail("Should not (yet?) pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Failed to specialize base type ");
+        }
     }
 }

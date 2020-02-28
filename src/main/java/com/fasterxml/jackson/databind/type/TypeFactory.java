@@ -471,9 +471,12 @@ public final class TypeFactory
     {
         List<JavaType> expectedTypes = sourceType.getBindings().getTypeParameters();
         List<JavaType> actualTypes = actualType.getBindings().getTypeParameters();
-        for (int i = 0, len = expectedTypes.size(); i < len; ++i) {
+
+        final int actCount = actualTypes.size();
+
+        for (int i = 0, expCount = expectedTypes.size(); i < expCount; ++i) {
             JavaType exp = expectedTypes.get(i);
-            JavaType act = actualTypes.get(i);
+            JavaType act = (i < actCount) ? actualTypes.get(i) : unknownType();
 
             if (!_verifyAndResolvePlaceholders(exp, act)) {
                 // 14-May-2018, tatu: As per [databind#2034] it seems we better relax assignment
@@ -502,7 +505,7 @@ public final class TypeFactory
                     }
                 }
                 return String.format("Type parameter #%d/%d differs; can not specialize %s with %s",
-                        (i+1), len, exp.toCanonical(), act.toCanonical());
+                        (i+1), expCount, exp.toCanonical(), act.toCanonical());
             }
         }
         return null;

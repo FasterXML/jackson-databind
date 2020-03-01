@@ -125,7 +125,14 @@ public class SubTypeValidator
 
         // [databind#2620]: xbean-reflect
         s.add("org.apache.xbean.propertyeditor.JndiConverter");
-        
+
+        // [databind#2631]: shaded hikari-config
+        s.add("org.apache.hadoop.shaded.com.zaxxer.hikari.HikariConfig");
+
+        // [databind#2634]: ibatis-sqlmap, anteros-core
+        s.add("com.ibatis.sqlmap.engine.transaction.jta.JtaTransactionConfig");
+        s.add("br.com.anteros.dbcp.AnterosDBCPConfig");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

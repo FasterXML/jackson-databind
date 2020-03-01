@@ -4,6 +4,13 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.10.4 (not yet released)
+
+#2631: Block one more gadget type (shaded-hikari-config, CVE-to-be-allocated)
+ (reported by threedr3am & LFY)
+#2634: Block two more gadget types (ibatis-sqlmap, anteros-core; CVE-to-be-allocated)
+ (reported by threedr3am & V1ZkRA)
+
 2.9.10.3 (23-Feb-2020)
 
 #2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)

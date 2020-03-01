@@ -6,6 +6,10 @@ Project: jackson-databind
 
 2.7.9.7 (not yet released)
 
+#2631: Block one more gadget type (shaded-hikari-config, CVE-to-be-allocated)
+ (reported by threedr3am & LFY)
+#2634: Block two more gadget types (ibatis-sqlmap, anteros-core; CVE-to-be-allocated)
+ (reported by threedr3am & V1ZkRA)
 #2410: Block one more gadget type (HikariCP, CVE-2019-14540)
 #2420: Block one more gadget type (cxf-jax-rs, no CVE allocated yet)
 #2449: Block one more gadget type (HikariCP, CVE-2019-14439 / CVE-2019-16335)

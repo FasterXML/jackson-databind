@@ -190,6 +190,24 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(1234, pojo.name.get("value"));
     }
 
+
+    public void testCanPassResultToOverloadedMethod() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+
+        process(reader.readValue(source, POJO.class));
+    }
+
+    void process(POJO pojo) {
+        // do nothing - just used to show that the compiler can choose the correct method overloading to invoke
+    }
+
+    void process(String pojo) {
+        // do nothing - just used to show that the compiler can choose the correct method overloading to invoke
+    }
+
+
     public void testPointerLoadingAsJsonNode() throws Exception {
         final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
 

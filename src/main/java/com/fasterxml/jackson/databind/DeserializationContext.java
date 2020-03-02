@@ -1003,7 +1003,7 @@ public abstract class DeserializationContext
      * on configured handlers, if any, to allow for recovery; if recovery does not
      * succeed, will throw {@link InvalidFormatException} with given message.
      *
-     * @param targetClass Type of property into which incoming number should be converted
+     * @param targetClass Type of property into which incoming String should be converted
      * @param value String value from which to deserialize property value
      * @param msg Error message template caller wants to use if exception is to be thrown
      * @param msgArgs Optional arguments to use for message, if any

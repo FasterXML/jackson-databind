@@ -1149,6 +1149,14 @@ public class ObjectReader
     }
 
     /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(InputStream src, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(src);
+    }
+
+    /**
      * Method that binds content read from given input source,
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
@@ -1161,6 +1169,14 @@ public class ObjectReader
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, r), false));
+    }
+
+    /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(Reader src, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(src);
     }
 
     /**
@@ -1179,6 +1195,14 @@ public class ObjectReader
     }
 
     /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(String src, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(src);
+    }
+
+    /**
      * Method that binds content read from given byte array,
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
@@ -1191,6 +1215,14 @@ public class ObjectReader
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content), false));
+    }
+
+    /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(byte[] content, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(content);
     }
 
     /**
@@ -1207,7 +1239,15 @@ public class ObjectReader
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content, offset, length), false));
     }
-    
+
+    /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(byte[] content, int offset, int length, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(content, offset, length);
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T readValue(File f) throws IOException
     {
@@ -1215,6 +1255,14 @@ public class ObjectReader
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, f), false));
+    }
+
+    /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(File src, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(src);
     }
 
     /**
@@ -1240,6 +1288,14 @@ public class ObjectReader
     }
 
     /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(URL src, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(src);
+    }
+
+    /**
      * Convenience method for converting results from given JSON tree into given
      * value type. Basically short-cut for:
      *<pre>
@@ -1255,6 +1311,14 @@ public class ObjectReader
                 _considerFilter(treeAsTokens(node, ctxt), false));
     }
 
+    /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(JsonNode src, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(src);
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T readValue(DataInput input) throws IOException
     {
@@ -1262,6 +1326,14 @@ public class ObjectReader
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, input), false));
+    }
+
+    /**
+     * Overloading to alert compiler as to the valueType
+     */
+    public <T> T readValue(DataInput content, Class<T> valueType) throws IOException
+    {
+        return (T) forType(valueType).readValue(content);
     }
 
     /*

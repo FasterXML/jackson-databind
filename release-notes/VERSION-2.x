@@ -44,7 +44,7 @@ Project: jackson-databind
  (reported by Oleksii K)
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
-2.10.3 (not yet released)
+2.10.3 (03-Mar-2020)
 
 #2482: `JSONMappingException` `Location` column number is one line Behind the actual
   location

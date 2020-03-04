@@ -133,6 +133,9 @@ public class SubTypeValidator
         s.add("com.ibatis.sqlmap.engine.transaction.jta.JtaTransactionConfig");
         s.add("br.com.anteros.dbcp.AnterosDBCPConfig");
 
+        // [databind#2642]: javax.swing (jdk)
+        s.add("javax.swing.JEditorPane");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

@@ -74,6 +74,9 @@ public class TestCoreXMLTypes
         if (dateStr.endsWith("+0000")) {
             return dateStr.substring(0, dateStr.length()-5);
         }
+        if (dateStr.endsWith("+00:00")) {
+            return dateStr.substring(0, dateStr.length()-6);
+        }
         return dateStr;
     }
     

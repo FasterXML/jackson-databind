@@ -176,21 +176,22 @@ public class DateSerializationTest
     /**
      * Configure the StdDateFormat to serialize TZ offset with a colon between hours and minutes
      *
-     * See [databind#1744]
+     * See [databind#1744], [databind#2643]
      */
     public void testDateISO8601_colonInTZ() throws IOException
     {
+        // with [databind#2643], default now is to include
         StdDateFormat dateFormat = new StdDateFormat();
-        assertFalse(dateFormat.isColonIncludedInTimeZone());
-        dateFormat = dateFormat.withColonInTimeZone(true);
         assertTrue(dateFormat.isColonIncludedInTimeZone());
+        // but we can disable it
+        dateFormat = dateFormat.withColonInTimeZone(false);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.setDateFormat(dateFormat);
         
-        serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+00:00");
-        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+00:00");
+        serialize(mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+0000");
+        serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+0000");
     }
 
     public void testDateOther() throws IOException
@@ -384,7 +385,7 @@ public class DateSerializationTest
 
     private String zoneOffset(String raw) {
         // Add colon or not -- difference between 2.10 and earlier, 2.11 and later
-//        return raw.substring(0, 2) + ":" + raw.substring(2); // 2.11 and later
-        return raw; // 2.10 and earlier
+        return raw.substring(0, 2) + ":" + raw.substring(2); // 2.11 and later
+//        return raw; // 2.10 and earlier
     }
 }

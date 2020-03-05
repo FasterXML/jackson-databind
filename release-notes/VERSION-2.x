@@ -42,7 +42,13 @@ Project: jackson-databind
  (reported by Bartosz B)
 #2592: `ObjectMapper.setSerializationInclusion()` is ignored for `JsonAnyGetter`
  (reported by Oleksii K)
+#2643: Change default textual serialization of `java.util.Date`/`Calendar`
+  to include colon in timezone offset
 - Add `SerializerProvider.findContentValueSerializer()` methods
+
+2.10.4 (not yet released)
+
+-
 
 2.10.3 (03-Mar-2020)
 

@@ -17,22 +17,17 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * an ISO-8601 compliant format (format String "yyyy-MM-dd'T'HH:mm:ss.SSSX")
  * and for deserialization, both ISO-8601 and RFC-1123.
  *<br>
- * Note that `X` in format String refers to ISO-8601 timezone notation which produces
+ * Note that `X` in format String refers to ISO-8601 timezone offset notation which produces
  * values like "-08:00" -- that is, full minute/hour combo without colon, not using `Z`
- * as alias for "+0000".
+ * as alias for "+00:00".
  *<p>
- * Note also that to enable use of colon in timezone is possible by using method
+ * Note also that to enable use of colon in timezone offset is possible by using method
  * {@link #withColonInTimeZone} for creating new differently configured format instance.
  */
 @SuppressWarnings("serial")
 public class StdDateFormat
     extends DateFormat
 {
-    /* 24-Jun-2017, tatu: Finally rewrote deserialization to use basic Regex
-     *   instead of SimpleDateFormat; partly for better concurrency, partly
-     *   for easier enforcing of specific rules. Heavy lifting done by Calendar,
-     *   anyway.
-     */
     protected final static String PATTERN_PLAIN_STR = "\\d\\d\\d\\d[-]\\d\\d[-]\\d\\d";
 
     protected final static Pattern PATTERN_PLAIN = Pattern.compile(PATTERN_PLAIN_STR);
@@ -82,12 +77,11 @@ public class StdDateFormat
     };
 
     /**
-     * By default we use UTC for everything, with Jackson 2.7 and later
-     * (2.6 and earlier relied on GMT)
+     * By default we use UTC for everything
      */
     protected final static TimeZone DEFAULT_TIMEZONE;
     static {
-        DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC"); // since 2.7
+        DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC");
     }
 
     protected final static Locale DEFAULT_LOCALE = Locale.US;
@@ -118,8 +112,6 @@ public class StdDateFormat
      * Blueprint "Calendar" instance for use during formatting. Cannot be used as is,
      * due to thread-safety issues, but can be used for constructing actual instances 
      * more cheaply by cloning.
-     *
-     * @since 2.9.1
      */
     protected static final Calendar CALENDAR = new GregorianCalendar(DEFAULT_TIMEZONE, DEFAULT_LOCALE);
 
@@ -141,8 +133,6 @@ public class StdDateFormat
 
     /**
      * Lazily instantiated calendar used by this instance for serialization ({@link #format(Date)}).
-     *
-     * @since 2.9.1
      */
     private transient Calendar _calendar;
 
@@ -156,22 +146,15 @@ public class StdDateFormat
     protected boolean _tzSerializedWithColon = true;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle, accessing singleton "standard" formats
-    /**********************************************************
+    /**********************************************************************
      */
 
     public StdDateFormat() {
         _locale = DEFAULT_LOCALE;
     }
 
-    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient) {
-        this(tz, loc, lenient, false);
-    }
-
-    /**
-     * @since 2.9.1
-     */
     protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient,
             boolean formatTzOffsetWithColon) {
         _timezone = tz;

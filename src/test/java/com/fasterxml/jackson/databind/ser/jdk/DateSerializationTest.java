@@ -3,15 +3,7 @@ package com.fasterxml.jackson.databind.ser.jdk;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-
-import org.junit.Assert;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -170,12 +162,14 @@ public class DateSerializationTest
     /**
      * Configure the StdDateFormat to serialize TZ offset with a colon between hours and minutes
      *
-     * See [databind#1744]
+     * See [databind#1744], [databind#2643]
      */
     public void testDateISO8601_colonInTZ() throws IOException
     {
+        // with [databind#2643], default now is to include
         StdDateFormat dateFormat = new StdDateFormat();
         assertTrue(dateFormat.isColonIncludedInTimeZone());
+        // but we can disable it
         dateFormat = dateFormat.withColonInTimeZone(false);
         assertFalse(dateFormat.isColonIncludedInTimeZone());
 
@@ -387,10 +381,10 @@ public class DateSerializationTest
     }
 
     private void serialize(ObjectMapper mapper, Object date, String expected) throws IOException {
-        Assert.assertEquals(quote(expected), mapper.writeValueAsString(date));
+        assertEquals(quote(expected), mapper.writeValueAsString(date));
     }
 
     private void serialize(ObjectWriter w, Object date, String expected) throws IOException {
-        Assert.assertEquals(quote(expected), w.writeValueAsString(date));
+        assertEquals(quote(expected), w.writeValueAsString(date));
     }
 }

@@ -169,32 +169,33 @@ public enum SerializationFeature implements ConfigFeature
     /**
      * Feature that determines whether Date (and date/time) values
      * (and Date-based things like {@link java.util.Calendar}s) are to be
-     * serialized as numeric timestamps (true; the default),
+     * serialized as numeric time stamps (true; the default),
      * or as something else (usually textual representation).
-     * If textual representation is used, the actual format is
-     * one returned by a call to
-     * {@link com.fasterxml.jackson.databind.SerializationConfig#getDateFormat}:
-     * the default setting being {@link com.fasterxml.jackson.databind.util.StdDateFormat},
-     * which corresponds to format String of "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-     * (see {@link java.text.DateFormat} for details of format Strings).
+     * If textual representation is used, the actual format depends on configuration
+     * settings including possible per-property use of {@code @JsonFormat} annotation,
+     * globally configured {@link java.text.DateFormat}.
      *<p>
-     * Note: whether this feature affects handling of other date-related
+     * For "classic" JDK date types ({@link java.util.Date}, {@link java.util.Calendar})
+     * the default formatting is provided by {@link com.fasterxml.jackson.databind.util.StdDateFormat},
+     * and corresponds to format String of "yyyy-MM-dd'T'HH:mm:ss.SSSX"
+     * (see {@link java.text.DateFormat} for details of format Strings).
+     * Whether this feature affects handling of other date-related
      * types depend on handlers of those types, although ideally they
      * should use this feature
      *<p>
      * Note: whether {@link java.util.Map} keys are serialized as Strings
-     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
+     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS} instead of
+     * this feature.
      *<p>
      * Feature is enabled by default, so that date/time are by default
-     * serialized as timestamps.
+     * serialized as time stamps.
      */
     WRITE_DATES_AS_TIMESTAMPS(true),
 
     /**
      * Feature that determines whether {@link java.util.Date}s
      * (and sub-types) used as {@link java.util.Map} keys are serialized
-     * as timestamps or not (if not, will be serialized as textual
-     * values).
+     * as time stamps or not (if not, will be serialized as textual values).
      *<p>
      * Default value is 'false', meaning that Date-valued Map keys are serialized
      * as textual (ISO-8601) values.

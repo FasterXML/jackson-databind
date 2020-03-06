@@ -59,7 +59,7 @@ public class StdDateFormat
      * to ISO-8601 date formatting standard, when it includes basic undecorated
      * timezone definition.
      */
-    public final static String DATE_FORMAT_STR_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public final static String DATE_FORMAT_STR_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
 
     /**
      * ISO-8601 with just the Date part, no time: needed for error messages
@@ -490,12 +490,11 @@ public class StdDateFormat
             // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
             //   mandate use of full `+0000`
 //            formatted.append('Z');
-	        	if( _tzSerializedWithColon ) {
-	            buffer.append("+00:00");
-	        	}
-	        	else {
-	        		buffer.append("+0000");
-	        	}
+            if( _tzSerializedWithColon ) {
+                buffer.append("+00:00");
+            } else {
+                buffer.append("+0000");
+            }
         }
     }
 

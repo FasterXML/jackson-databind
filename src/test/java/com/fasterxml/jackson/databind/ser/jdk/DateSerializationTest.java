@@ -167,9 +167,9 @@ public class DateSerializationTest
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.setTimeZone(TimeZone.getTimeZone("GMT+2"));
 
-        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "GMT+2"),
+        serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "GMT+2"),
                 "1970-01-01T00:00:00.000+"+zoneOffset("0200"));
-        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),
+        serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),
                 "1970-01-01T02:00:00.000+"+zoneOffset("0200"));
     }
 
@@ -296,10 +296,12 @@ public class DateSerializationTest
         serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
 
         // Also: should be able to dynamically change timezone:
-        ObjectWriter w = mapper.writer();
-        w = w.with(TimeZone.getTimeZone("EST"));
-        String json = w.writeValueAsString(new Date(0));
-        assertEquals(quote("1969-12-31/19:00 EST"), json);
+        ObjectWriter w = mapper.writer().with(TimeZone.getTimeZone("EST"));
+        assertEquals(quote("1969-12-31/"+zoneOffset("1900")+" EST"), w.writeValueAsString(new Date(0)));
+
+        // wrt [databind#2643]
+        w = mapper.writer().with(TimeZone.getTimeZone("Asia/Tehran"));
+        assertEquals(quote("1970-01-01/"+zoneOffset("0330")+" IRST"), w.writeValueAsString(new Date(0)));
     }
 
     /**

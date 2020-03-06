@@ -417,16 +417,9 @@ public class StdDateFormat
             }
             pad2(buffer, minutes);
         } else {
-            // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
-            //   mandate use of full `+0000`
-            // 06-Mar-2020, tatu: Actually statement should read "for compatibility reasons"
-            //   and not standards (unless it is wrt RFC-1123). This will change in 3.0 at latest
-//            formatted.append('Z');
-            if (_tzSerializedWithColon) {
-                buffer.append("+00:00");
-            } else {
-                buffer.append("+0000");
-            }
+            // 06-Mar-2020, tatu: Jackson versions 2.x forced use of numeric offset even
+            //    for Zulu; for 3.0 `Z` is used.
+            buffer.append('Z');
         }
     }
 

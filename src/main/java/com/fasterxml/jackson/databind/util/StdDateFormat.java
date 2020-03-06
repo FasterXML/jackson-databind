@@ -88,8 +88,6 @@ public class StdDateFormat
 
     protected final static DateFormat DATE_FORMAT_RFC1123;
 
-    protected final static DateFormat DATE_FORMAT_ISO8601;
-
     /* Let's construct "blueprint" date format instances: cannot be used
      * as is, due to thread-safety issues, but can be used for constructing
      * actual instances more cheaply (avoids re-parsing).
@@ -99,8 +97,6 @@ public class StdDateFormat
         // baseline DataFormat objects
         DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, DEFAULT_LOCALE);
         DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
-        DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601, DEFAULT_LOCALE);
-        DATE_FORMAT_ISO8601.setTimeZone(DEFAULT_TIMEZONE);
     }
 
     /**
@@ -198,8 +194,6 @@ public class StdDateFormat
      * "Mutant factory" method that will return an instance that has specified leniency
      * setting: either {@code this} instance (if setting would not change), or newly
      * constructed instance.
-     *
-     * @since 2.9
      */
     public StdDateFormat withLenient(Boolean b) {
         if (_equals(b, _lenient)) {
@@ -218,8 +212,6 @@ public class StdDateFormat
      * NOTE: does NOT affect deserialization as colon is optional accepted
      * but not required -- put another way, either serialization is accepted
      * by this class.
-     *
-     * @since 2.9.1
      */
     public StdDateFormat withColonInTimeZone(boolean b) {
         if (_tzSerializedWithColon == b) {
@@ -241,7 +233,7 @@ public class StdDateFormat
     /**********************************************************************
      */
 
-    @Override // since 2.6
+    @Override
     public TimeZone getTimeZone() {
         return _timezone;
     }
@@ -249,9 +241,8 @@ public class StdDateFormat
     @Override
     public void setTimeZone(TimeZone tz)
     {
-        /* DateFormats are timezone-specific (via Calendar contained),
-         * so need to reset instances if timezone changes:
-         */
+        // DateFormats are timezone-specific (via Calendar contained),
+        // so need to reset instances if timezone changes:
         if (!tz.equals(_timezone)) {
             _clearFormats();
             _timezone = tz;
@@ -273,7 +264,7 @@ public class StdDateFormat
         }
     }
 
-    @Override // since 2.7
+    @Override
     public boolean isLenient() {
         // default is, I believe, true
         return (_lenient == null) || _lenient.booleanValue();
@@ -290,8 +281,6 @@ public class StdDateFormat
      *
      * @return {@code true} if a colon is to be inserted between the hours and minutes 
      * of the TZ offset when serializing as String; otherwise {@code false}
-     *
-     * @since 2.9.1
      */
     public boolean isColonIncludedInTimeZone() {
         return _tzSerializedWithColon;

@@ -52,7 +52,7 @@ public class StdDateFormat
      * to ISO-8601 date formatting standard, when it includes basic undecorated
      * timezone definition.
      */
-    public final static String DATE_FORMAT_STR_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public final static String DATE_FORMAT_STR_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
 
     /**
      * ISO-8601 with just the Date part, no time: needed for error messages
@@ -236,9 +236,9 @@ public class StdDateFormat
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override // since 2.6
@@ -263,7 +263,7 @@ public class StdDateFormat
      * and not via underlying {@link Calendar} instance like base class
      * does.
      */
-    @Override // since 2.7
+    @Override
     public void setLenient(boolean enabled) {
         Boolean newValue = Boolean.valueOf(enabled);
         if (!_equals(newValue, _lenient)) {
@@ -298,9 +298,9 @@ public class StdDateFormat
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -365,9 +365,9 @@ public class StdDateFormat
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, writing
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -431,7 +431,7 @@ public class StdDateFormat
             // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
             //   mandate use of full `+0000`
 //            formatted.append('Z');
-            if (_tzSerializedWithColon ) {
+            if (_tzSerializedWithColon) {
                 buffer.append("+00:00");
             } else {
                 buffer.append("+0000");
@@ -490,11 +490,11 @@ public class StdDateFormat
         }
         pad2(buffer, value);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Std overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -528,9 +528,9 @@ public class StdDateFormat
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -707,9 +707,9 @@ public class StdDateFormat
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static DateFormat _cloneFormat(DateFormat df, String format,

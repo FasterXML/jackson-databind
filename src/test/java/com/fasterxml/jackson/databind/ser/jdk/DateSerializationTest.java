@@ -291,10 +291,12 @@ public class DateSerializationTest
         serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
 
         // Also: should be able to dynamically change timezone:
-        ObjectWriter w = mapper.writer();
-        w = w.with(TimeZone.getTimeZone("EST"));
-        String json = w.writeValueAsString(new Date(0));
-        assertEquals(quote("1969-12-31/19:00 EST"), json);
+        ObjectWriter w = mapper.writer().with(TimeZone.getTimeZone("EST"));
+        assertEquals(quote("1969-12-31/19:00 EST"), w.writeValueAsString(new Date(0)));
+
+        // wrt [databind#2643]
+        w = mapper.writer().with(TimeZone.getTimeZone("Asia/Tehran"));
+        assertEquals(quote("1970-01-01/03:30 IRST"), w.writeValueAsString(new Date(0)));
     }
 
     /**

@@ -96,8 +96,6 @@ public class StdDateFormat
 
     protected final static DateFormat DATE_FORMAT_RFC1123;
 
-    protected final static DateFormat DATE_FORMAT_ISO8601;
-
     /* Let's construct "blueprint" date format instances: cannot be used
      * as is, due to thread-safety issues, but can be used for constructing
      * actual instances more cheaply (avoids re-parsing).
@@ -107,8 +105,6 @@ public class StdDateFormat
         // baseline DataFormat objects
         DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, DEFAULT_LOCALE);
         DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
-        DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601, DEFAULT_LOCALE);
-        DATE_FORMAT_ISO8601.setTimeZone(DEFAULT_TIMEZONE);
     }
 
     /**
@@ -276,7 +272,9 @@ public class StdDateFormat
      */
     @Deprecated // since 2.9
     public static DateFormat getISO8601Format(TimeZone tz, Locale loc) {
-        return _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, tz, loc, null);
+        DateFormat df = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601, loc);
+        df.setTimeZone(DEFAULT_TIMEZONE);
+        return df;
     }
 
     /**

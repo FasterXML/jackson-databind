@@ -113,7 +113,7 @@ public class TestJacksonTypes
     // [databind#2398]
     public void testDeeplyNestedArrays() throws Exception
     {
-        try (JsonParser p = MAPPER.tokenStreamFactory().createParser(_createNested(RECURSION_2398 * 2,
+        try (JsonParser p = MAPPER.createParser(_createNested(RECURSION_2398 * 2,
                 "[", " 123 ", "]"))) {
             p.nextToken();
             TokenBuffer b = new TokenBuffer(p);
@@ -124,7 +124,7 @@ public class TestJacksonTypes
 
     public void testDeeplyNestedObjects() throws Exception
     {
-        try (JsonParser p = MAPPER.tokenStreamFactory().createParser(_createNested(RECURSION_2398,
+        try (JsonParser p = MAPPER.createParser(_createNested(RECURSION_2398,
                 "{\"a\":", "42", "}"))) {
             p.nextToken();
             TokenBuffer b = new TokenBuffer(p);

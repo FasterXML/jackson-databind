@@ -30,7 +30,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void testSimpleViaParser() throws Exception
     {
         final String JSON = "[1]";
-        JsonParser p = MAPPER.getFactory().createParser(JSON);
+        JsonParser p = MAPPER.createParser(JSON);
         Object ob = MAPPER.readerFor(Object.class)
                 .readValue(p);
         p.close();

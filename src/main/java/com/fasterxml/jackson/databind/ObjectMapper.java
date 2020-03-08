@@ -1175,8 +1175,148 @@ public class ObjectMapper
     /**********************************************************
      */
 
-    // TODO
-    
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified {@link File}.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(File src) throws IOException {
+        _assertNotNull("src", src);
+        return _jsonFactory.createParser(src);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified {@link File}.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(URL src) throws IOException {
+        _assertNotNull("src", src);
+        return _jsonFactory.createParser(src);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content using specified {@link InputStream}.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(InputStream in) throws IOException {
+        _assertNotNull("in", in);
+        return _jsonFactory.createParser(in);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content using specified {@link Reader}.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(Reader r) throws IOException {
+        _assertNotNull("r", r);
+        return _jsonFactory.createParser(r);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified byte array.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(byte[] content) throws IOException {
+        _assertNotNull("content", content);
+        return _jsonFactory.createParser(content);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified byte array.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
+        _assertNotNull("content", content);
+        return _jsonFactory.createParser(content, offset, len);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified String.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(String content) throws IOException {
+        _assertNotNull("content", content);
+        return _jsonFactory.createParser(content);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified character array
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(char[] content) throws IOException {
+        _assertNotNull("content", content);
+        return _jsonFactory.createParser(content);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified character array.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+        _assertNotNull("content", content);
+        return _jsonFactory.createParser(content, offset, len);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content using specified {@link DataInput}.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(DataInput content) throws IOException {
+        _assertNotNull("content", content);
+        return _jsonFactory.createParser(content);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content using non-blocking (asynchronous) mode.
+     * Parser is not managed (or "owned") by ObjectMapper: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createNonBlockingByteArrayParser() throws IOException {
+        return _jsonFactory.createNonBlockingByteArrayParser();
+    }
+
     /*
     /**********************************************************
     /* Configuration: main config object access

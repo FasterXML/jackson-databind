@@ -18,7 +18,7 @@ public class TestArraySerialization
         }
         String str = sb.toString();
         byte[] data = MAPPER.writeValueAsBytes(new String[] { "abc", str, null, str });
-        JsonParser jp = MAPPER.getFactory().createParser(data);
+        JsonParser jp = MAPPER.createParser(data);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("abc", jp.getText());
@@ -51,10 +51,9 @@ public class TestArraySerialization
         // Let's try couple of times, to ensure that state is handled
         // correctly by ObjectMapper (wrt buffer recycling used
         // with 'writeAsBytes()')
-        JsonFactory f = MAPPER.getFactory();
         for (int round = 0; round < 3; ++round) {
             byte[] data = MAPPER.writeValueAsBytes(ints);
-            JsonParser jp = f.createParser(data);
+            JsonParser jp = MAPPER.createParser(data);
             assertToken(JsonToken.START_ARRAY, jp.nextToken());
             for (int i = 0; i < SIZE; ++i) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());

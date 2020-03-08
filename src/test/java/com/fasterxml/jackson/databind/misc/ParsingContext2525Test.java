@@ -28,13 +28,13 @@ public class ParsingContext2525Test extends BaseMapTest
 
     public void testAllWithRegularParser() throws Exception
     {
-        try (JsonParser p = MAPPER.getFactory().createParser(MINIMAL_ARRAY_DOC)) {
+        try (JsonParser p = MAPPER.createParser(MINIMAL_ARRAY_DOC)) {
             _testSimpleArrayUsingPathAsPointer(p);
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(MINIMAL_OBJECT_DOC)) {
+        try (JsonParser p = MAPPER.createParser(MINIMAL_OBJECT_DOC)) {
             _testSimpleObjectUsingPathAsPointer(p);
         }
-        try (JsonParser p = MAPPER.getFactory().createParser(FULL_DOC)) {
+        try (JsonParser p = MAPPER.createParser(FULL_DOC)) {
             _testFullDocUsingPathAsPointer(p);
         }
     }
@@ -68,7 +68,7 @@ public class ParsingContext2525Test extends BaseMapTest
 
     private TokenBuffer _readAsTokenBuffer(String doc) throws IOException
     {
-        try (JsonParser p = MAPPER.getFactory().createParser(doc)) {
+        try (JsonParser p = MAPPER.createParser(doc)) {
             p.nextToken();
             return TokenBuffer.asCopyOfValue(p)
                     .overrideParentContext(null);

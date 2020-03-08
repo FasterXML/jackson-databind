@@ -202,11 +202,11 @@ public class ScalarCoercionTest extends BaseMapTest
         // Test failure for root value: for both byte- and char-backed sources:
 
         final String input = quote(unquotedValue);
-        try (JsonParser p = NOT_COERCING_MAPPER.getFactory().createParser(new StringReader(input))) {
+        try (JsonParser p = NOT_COERCING_MAPPER.createParser(new StringReader(input))) {
             _verifyStringCoerceFail(p, unquotedValue, type);
         }
         final byte[] inputBytes = utf8Bytes(input);
-        try (JsonParser p = NOT_COERCING_MAPPER.getFactory().createParser(new ByteArrayInputStream(inputBytes))) {
+        try (JsonParser p = NOT_COERCING_MAPPER.createParser(new ByteArrayInputStream(inputBytes))) {
             _verifyStringCoerceFail(p, unquotedValue, type);
         }
     }

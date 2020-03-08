@@ -1100,6 +1100,85 @@ public class ObjectMapper
 
     /*
     /**********************************************************
+    /* Factory methods for creating JsonGenerators (added in 2.11)
+    /**********************************************************
+     */
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonGenerator}
+     * to write content using specified {@link OutputStream}.
+     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * for properly closing it once content generation is complete.
+     *
+     * @since 2.11
+     */
+    public JsonGenerator createGenerator(OutputStream out) throws IOException {
+        _assertNotNull("out", out);
+        return _jsonFactory.createGenerator(out, JsonEncoding.UTF8);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonGenerator}
+     * to write content using specified {@link OutputStream} and encoding.
+     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * for properly closing it once content generation is complete.
+     *
+     * @since 2.11
+     */
+    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
+        _assertNotNull("out", out);
+        return _jsonFactory.createGenerator(out, enc);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonGenerator}
+     * to write content using specified {@link Writer}.
+     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * for properly closing it once content generation is complete.
+     *
+     * @since 2.11
+     */
+    public JsonGenerator createGenerator(Writer w) throws IOException {
+        _assertNotNull("w", w);
+        return _jsonFactory.createGenerator(w);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonGenerator}
+     * to write content to specified {@link File}, using specified encoding.
+     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * for properly closing it once content generation is complete.
+     *
+     * @since 2.11
+     */
+    public JsonGenerator createGenerator(File outputFile, JsonEncoding enc) throws IOException {
+        _assertNotNull("outputFile", outputFile);
+        return _jsonFactory.createGenerator(outputFile, enc);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonGenerator}
+     * to write content using specified {@link DataOutput}.
+     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * for properly closing it once content generation is complete.
+     *
+     * @since 2.11
+     */
+    public JsonGenerator createGenerator(DataOutput out) throws IOException {
+        _assertNotNull("out", out);
+        return _jsonFactory.createGenerator(out);
+    }
+
+    /*
+    /**********************************************************
+    /* Factory methods for creating JsonParsers (added in 2.11)
+    /**********************************************************
+     */
+
+    // TODO
+    
+    /*
+    /**********************************************************
     /* Configuration: main config object access
     /**********************************************************
      */
@@ -3348,8 +3427,7 @@ public class ObjectMapper
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _assertNotNull("resultFile", resultFile);
-        _configAndWriteValue(_jsonFactory.createGenerator(resultFile, JsonEncoding.UTF8), value);
+        _configAndWriteValue(createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -3366,8 +3444,7 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _assertNotNull("out", out);
-        _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
+        _configAndWriteValue(createGenerator(out, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -3375,8 +3452,7 @@ public class ObjectMapper
      */
     public void writeValue(DataOutput out, Object value) throws IOException
     {
-        _assertNotNull("out", out);
-        _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
+        _configAndWriteValue(createGenerator(out), value);
     }
 
     /**
@@ -3392,8 +3468,7 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _assertNotNull("w", w);
-        _configAndWriteValue(_jsonFactory.createGenerator(w), value);
+        _configAndWriteValue(createGenerator(w), value);
     }
 
     /**
@@ -3411,7 +3486,7 @@ public class ObjectMapper
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createGenerator(sw), value);
+            _configAndWriteValue(createGenerator(sw), value);
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -3435,7 +3510,7 @@ public class ObjectMapper
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createGenerator(bb, JsonEncoding.UTF8), value);
+            _configAndWriteValue(createGenerator(bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:

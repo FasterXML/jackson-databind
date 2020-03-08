@@ -109,7 +109,7 @@ public class SequenceWriterTest extends BaseMapTest
                 strw.toString());
 
         strw = new StringWriter();
-        JsonGenerator gen = WRITER.getFactory().createGenerator(strw);
+        JsonGenerator gen = WRITER.createGenerator(strw);
         w = WRITER
                 .withRootValueSeparator(new SerializedString("/"))
                 .writeValues(gen);
@@ -133,7 +133,7 @@ public class SequenceWriterTest extends BaseMapTest
                 strw.toString());
 
         strw = new StringWriter();
-        JsonGenerator gen = WRITER.getFactory().createGenerator(strw);
+        JsonGenerator gen = WRITER.createGenerator(strw);
         w = WRITER.writeValuesAsArray(gen);
         Collection<Bean> bean = Collections.singleton(new Bean(3));
         w.write(new Bean(1))

@@ -321,7 +321,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void testCodecUnsupportedWrites() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(String.class);
-        JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
+        JsonGenerator g = MAPPER.createGenerator(new StringWriter());
         ObjectNode n = MAPPER.createObjectNode();
         try {
             r.writeTree(g, n);
@@ -335,8 +335,6 @@ public class ObjectReaderTest extends BaseMapTest
         } catch (UnsupportedOperationException e) {
             ;
         }
-        g.close();
-
         g.close();
     }
 

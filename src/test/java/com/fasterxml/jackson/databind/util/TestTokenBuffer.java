@@ -403,7 +403,7 @@ public class TestTokenBuffer extends BaseMapTest
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
         StringWriter w = new StringWriter();
-        JsonGenerator gen = MAPPER.getFactory().createGenerator(w);
+        JsonGenerator gen = MAPPER.createGenerator(w);
  
         // test content: [{"a":1,"b":{"c":2}},{"a":2,"b":{"c":3}}]
 

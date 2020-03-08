@@ -250,7 +250,7 @@ public class TestArrayDeserialization
             "a", "b", "abcd", "", "???", "\"quoted\"", "lf: \n",
         };
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = MAPPER.getFactory().createGenerator(sw);
+        JsonGenerator jg = MAPPER.createGenerator(sw);
         jg.writeStartArray();
         for (String str : STRS) {
             jg.writeString(str);

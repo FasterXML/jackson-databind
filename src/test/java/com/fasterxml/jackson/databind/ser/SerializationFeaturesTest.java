@@ -81,14 +81,14 @@ public class SerializationFeaturesTest
         assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE));
         // default is to flush after writeValue()
         StringWriter sw = new StringWriter();
-        JsonGenerator g = mapper.getFactory().createGenerator(sw);
+        JsonGenerator g = mapper.createGenerator(sw);
         mapper.writeValue(g, Integer.valueOf(13));
         assertEquals("13", sw.toString());
         g.close();
 
         // ditto with ObjectWriter
         sw = new StringWriter();
-        g = mapper.getFactory().createGenerator(sw);
+        g = mapper.createGenerator(sw);
         ObjectWriter ow = mapper.writer();
         ow.writeValue(g, Integer.valueOf(99));
         assertEquals("99", sw.toString());
@@ -101,7 +101,7 @@ public class SerializationFeaturesTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, false);
         StringWriter sw = new StringWriter();
-        JsonGenerator g = mapper.getFactory().createGenerator(sw);
+        JsonGenerator g = mapper.createGenerator(sw);
 
         mapper.writeValue(g, Integer.valueOf(13));
         // no flushing now:
@@ -112,7 +112,7 @@ public class SerializationFeaturesTest
         g.close();
         // Also, same should happen with ObjectWriter
         sw = new StringWriter();
-        g = mapper.getFactory().createGenerator(sw);
+        g = mapper.createGenerator(sw);
         ObjectWriter ow = mapper.writer();
         ow.writeValue(g, Integer.valueOf(99));
         assertEquals("", sw.toString());

@@ -171,7 +171,7 @@ public class TestConfig
 
         // [Issue#12]
         StringWriter sw = new StringWriter();
-        JsonGenerator jgen = MAPPER.getFactory().createGenerator(sw);
+        JsonGenerator jgen = MAPPER.createGenerator(sw);
         indentWriter.writeValue(jgen, input);
         jgen.close();
         assertEquals(INDENTED, sw.toString());
@@ -180,7 +180,7 @@ public class TestConfig
         sw = new StringWriter();
         ObjectMapper m2 = new ObjectMapper();
         m2.enable(SerializationFeature.INDENT_OUTPUT);
-        jgen = m2.getFactory().createGenerator(sw);
+        jgen = m2.createGenerator(sw);
         m2.writeValue(jgen, input);
         jgen.close();
         assertEquals(INDENTED, sw.toString());

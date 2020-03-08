@@ -648,7 +648,7 @@ public class ObjectWriter
     /**
      * Factory method for constructing properly initialized {@link JsonGenerator}
      * to write content using specified {@link OutputStream}.
-     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * Generator is not managed (or "owned") by ObjectWriter: caller is responsible
      * for properly closing it once content generation is complete.
      *
      * @since 2.11
@@ -661,7 +661,7 @@ public class ObjectWriter
     /**
      * Factory method for constructing properly initialized {@link JsonGenerator}
      * to write content using specified {@link OutputStream} and encoding.
-     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * Generator is not managed (or "owned") by ObjectWriter: caller is responsible
      * for properly closing it once content generation is complete.
      *
      * @since 2.11
@@ -674,7 +674,7 @@ public class ObjectWriter
     /**
      * Factory method for constructing properly initialized {@link JsonGenerator}
      * to write content using specified {@link Writer}.
-     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * Generator is not managed (or "owned") by ObjectWriter: caller is responsible
      * for properly closing it once content generation is complete.
      *
      * @since 2.11
@@ -687,7 +687,7 @@ public class ObjectWriter
     /**
      * Factory method for constructing properly initialized {@link JsonGenerator}
      * to write content to specified {@link File}, using specified encoding.
-     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * Generator is not managed (or "owned") by ObjectWriter: caller is responsible
      * for properly closing it once content generation is complete.
      *
      * @since 2.11
@@ -700,7 +700,7 @@ public class ObjectWriter
     /**
      * Factory method for constructing properly initialized {@link JsonGenerator}
      * to write content using specified {@link DataOutput}.
-     * Generator is not managed (or "owned") by mapper: caller is responsible
+     * Generator is not managed (or "owned") by ObjectWriter: caller is responsible
      * for properly closing it once content generation is complete.
      *
      * @since 2.11

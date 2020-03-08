@@ -956,6 +956,154 @@ public class ObjectReader
 
     /*
     /**********************************************************
+    /* Factory methods for creating JsonParsers (added in 2.11)
+    /**********************************************************
+     */
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified {@link File}.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(File src) throws IOException {
+        _assertNotNull("src", src);
+        return _parserFactory.createParser(src);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified {@link File}.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(URL src) throws IOException {
+        _assertNotNull("src", src);
+        return _parserFactory.createParser(src);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content using specified {@link InputStream}.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(InputStream in) throws IOException {
+        _assertNotNull("in", in);
+        return _parserFactory.createParser(in);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content using specified {@link Reader}.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(Reader r) throws IOException {
+        _assertNotNull("r", r);
+        return _parserFactory.createParser(r);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified byte array.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(byte[] content) throws IOException {
+        _assertNotNull("content", content);
+        return _parserFactory.createParser(content);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified byte array.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
+        _assertNotNull("content", content);
+        return _parserFactory.createParser(content, offset, len);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified String.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(String content) throws IOException {
+        _assertNotNull("content", content);
+        return _parserFactory.createParser(content);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified character array
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(char[] content) throws IOException {
+        _assertNotNull("content", content);
+        return _parserFactory.createParser(content);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content from specified character array.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+        _assertNotNull("content", content);
+        return _parserFactory.createParser(content, offset, len);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content using specified {@link DataInput}.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createParser(DataInput content) throws IOException {
+        _assertNotNull("content", content);
+        return _parserFactory.createParser(content);
+    }
+
+    /**
+     * Factory method for constructing properly initialized {@link JsonParser}
+     * to read content using non-blocking (asynchronous) mode.
+     * Parser is not managed (or "owned") by ObjectReader: caller is responsible
+     * for properly closing it once content reading is complete.
+     *
+     * @since 2.11
+     */
+    public JsonParser createNonBlockingByteArrayParser() throws IOException {
+        return _parserFactory.createNonBlockingByteArrayParser();
+    }
+
+    /*
+    /**********************************************************
     /* Deserialization methods; basic ones to support ObjectCodec first
     /* (ones that take JsonParser)
     /**********************************************************
@@ -1221,11 +1369,10 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
         }
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+        return (T) _bindAndClose(_considerFilter(createParser(src), false));
     }
 
     /**
@@ -1237,11 +1384,10 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(Reader src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+        return (T) _bindAndClose(_considerFilter(createParser(src), false));
     }
 
     /**
@@ -1253,12 +1399,11 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(String src) throws JsonProcessingException, JsonMappingException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
         try { // since 2.10 remove "impossible" IOException as per [databind#1675]
-            return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+            return (T) _bindAndClose(_considerFilter(createParser(src), false));
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen but being declared need to
@@ -1275,11 +1420,10 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, 0, src.length);
         }
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+        return (T) _bindAndClose(_considerFilter(createParser(src), false));
     }
 
     /**
@@ -1291,23 +1435,21 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, int offset, int length) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, offset, length);
         }
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src, offset, length),
+        return (T) _bindAndClose(_considerFilter(createParser(src, offset, length),
                 false));
     }
     
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
 
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+        return (T) _bindAndClose(_considerFilter(createParser(src), false));
     }
 
     /**
@@ -1326,11 +1468,10 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+        return (T) _bindAndClose(_considerFilter(createParser(src), false));
     }
 
     /**
@@ -1356,11 +1497,10 @@ public class ObjectReader
     @SuppressWarnings("unchecked")
     public <T> T readValue(DataInput src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+        return (T) _bindAndClose(_considerFilter(createParser(src), false));
     }
 
     /*
@@ -1388,11 +1528,10 @@ public class ObjectReader
      */
     public JsonNode readTree(InputStream src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndCloseAsTree(src);
         }
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(src), false));
+        return _bindAndCloseAsTree(_considerFilter(createParser(src), false));
     }
     
     /**
@@ -1401,11 +1540,10 @@ public class ObjectReader
      */
     public JsonNode readTree(Reader src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(src), false));
+        return _bindAndCloseAsTree(_considerFilter(createParser(src), false));
     }
 
     /**
@@ -1414,12 +1552,11 @@ public class ObjectReader
      */
     public JsonNode readTree(String json) throws JsonProcessingException, JsonMappingException
     {
-        _assertNotNull("json", json);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
         try { // since 2.10 remove "impossible" IOException as per [databind#1675]
-            return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json), false));
+            return _bindAndCloseAsTree(_considerFilter(createParser(json), false));
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen but being declared need to
@@ -1437,7 +1574,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json), false));
+        return _bindAndCloseAsTree(_considerFilter(createParser(json), false));
     }
     
     /**
@@ -1446,11 +1583,10 @@ public class ObjectReader
      */
     public JsonNode readTree(byte[] json, int offset, int len) throws IOException
     {
-        _assertNotNull("json", json);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json, offset, len), false));
+        return _bindAndCloseAsTree(_considerFilter(createParser(json, offset, len), false));
     }
 
     /**
@@ -1459,11 +1595,10 @@ public class ObjectReader
      */
     public JsonNode readTree(DataInput src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(src), false));
+        return _bindAndCloseAsTree(_considerFilter(createParser(src), false));
     }
 
     /*
@@ -1513,12 +1648,11 @@ public class ObjectReader
      */
     public <T> MappingIterator<T> readValues(InputStream src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
         }
         
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
+        return _bindAndReadValues(_considerFilter(createParser(src), true));
     }
     
     /**
@@ -1527,11 +1661,10 @@ public class ObjectReader
     @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(Reader src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        JsonParser p = _considerFilter(_parserFactory.createParser(src), true);
+        JsonParser p = _considerFilter(createParser(src), true);
         DeserializationContext ctxt = createDeserializationContext(p);
         _initForMultiRead(ctxt, p);
         p.nextToken();
@@ -1546,11 +1679,10 @@ public class ObjectReader
     @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(String json) throws IOException
     {
-        _assertNotNull("json", json);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        JsonParser p = _considerFilter(_parserFactory.createParser(json), true);
+        JsonParser p = _considerFilter(createParser(json), true);
         DeserializationContext ctxt = createDeserializationContext(p);
         _initForMultiRead(ctxt, p);
         p.nextToken();
@@ -1562,11 +1694,10 @@ public class ObjectReader
      */
     public <T> MappingIterator<T> readValues(byte[] src, int offset, int length) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
         }
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src, offset, length),
+        return _bindAndReadValues(_considerFilter(createParser(src, offset, length),
                 true));
     }
 
@@ -1583,12 +1714,11 @@ public class ObjectReader
      */
     public <T> MappingIterator<T> readValues(File src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), false);
         }
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
+        return _bindAndReadValues(_considerFilter(createParser(src), true));
     }
 
     /**
@@ -1604,12 +1734,11 @@ public class ObjectReader
      */
     public <T> MappingIterator<T> readValues(URL src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
+        return _bindAndReadValues(_considerFilter(createParser(src), true));
     }
 
     /**
@@ -1617,11 +1746,10 @@ public class ObjectReader
      */
     public <T> MappingIterator<T> readValues(DataInput src) throws IOException
     {
-        _assertNotNull("src", src);
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
+        return _bindAndReadValues(_considerFilter(createParser(src), true));
     }
 
     /*

@@ -44,6 +44,7 @@ Project: jackson-databind
  (reported by Oleksii K)
 #2643: Change default textual serialization of `java.util.Date`/`Calendar`
   to include colon in timezone offset
+#2647: Add `ObjectMapper.createParser()` and `createGenerator()` methods
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.4 (not yet released)

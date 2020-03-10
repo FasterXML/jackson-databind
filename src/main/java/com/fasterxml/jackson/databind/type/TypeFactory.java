@@ -865,7 +865,7 @@ public final class TypeFactory
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type <code>List&lt;Set&lt;Integer>></code>, you could
+     * type {@code List<Set<Integer>>}, you could
      * call
      *<pre>
      *  JavaType inner = TypeFactory.constructParametrizedType(Set.class, Set.class, Integer.class);
@@ -874,7 +874,7 @@ public final class TypeFactory
      *<p>
      * The reason for first two arguments to be separate is that parameterization may
      * apply to a super-type. For example, if generic type was instead to be
-     * constructed for <code>ArrayList&lt;Integer></code>, the usual call would be:
+     * constructed for {@code ArrayList<Integer>}, the usual call would be:
      *<pre>
      *  TypeFactory.constructParametrizedType(ArrayList.class, List.class, Integer.class);
      *</pre>
@@ -901,7 +901,7 @@ public final class TypeFactory
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type <code>List&lt;Set&lt;Integer>></code>, you could
+     * type {@code List<Set<Integer>>}, you could
      * call
      *<pre>
      *  JavaType inner = TypeFactory.constructParametrizedType(Set.class, Set.class, Integer.class);
@@ -910,7 +910,7 @@ public final class TypeFactory
      *<p>
      * The reason for first two arguments to be separate is that parameterization may
      * apply to a super-type. For example, if generic type was instead to be
-     * constructed for <code>ArrayList&lt;Integer></code>, the usual call would be:
+     * constructed for {@code ArrayList<Integer>}, the usual call would be:
      *<pre>
      *  TypeFactory.constructParametrizedType(ArrayList.class, List.class, Integer.class);
      *</pre>

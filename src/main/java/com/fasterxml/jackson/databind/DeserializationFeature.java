@@ -84,9 +84,9 @@ public enum DeserializationFeature implements ConfigFeature
     
     /**
      * Feature that determines whether JSON Array is mapped to
-     * <code>Object[]</code> or <code>List&lt;Object></code> when binding
+     * <code>Object[]</code> or {@code List<Object>} when binding
      * "untyped" objects (ones with nominal type of <code>java.lang.Object</code>).
-     * If true, binds as <code>Object[]</code>; if false, as <code>List&lt;Object></code>.
+     * If true, binds as <code>Object[]</code>; if false, as {@code List<Object>}.
      *<p>
      * Feature is disabled by default, meaning that JSON arrays are bound as
      * {@link java.util.List}s.
@@ -97,7 +97,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature that determines standard deserialization mechanism used for
      * Enum values: if enabled, Enums are assumed to have been serialized  using
      * return value of <code>Enum.toString()</code>;
-     * if disabled, return value of <code>Enum.name()</code> is assumed to have been used.
+     * if disabled, return value of {@code Enum.name()} is assumed to have been used.
      *<p>
      * Note: this feature should usually have same value
      * as {@link SerializationFeature#WRITE_ENUMS_USING_TO_STRING}.

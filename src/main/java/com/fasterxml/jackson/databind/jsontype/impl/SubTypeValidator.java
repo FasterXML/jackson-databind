@@ -66,9 +66,6 @@ public class SubTypeValidator
         // [databind#2058]: Oracle JDBC driver, with jndi/ldap lookup
         s.add("oracle.jdbc.connector.OracleManagedConnectionFactory");
         s.add("oracle.jdbc.rowset.OracleJDBCRowSet");
-        // [databind#1899]: more 3rd party
-        s.add("org.hibernate.jmx.StatisticsService");
-        s.add("org.apache.ibatis.datasource.jndi.JndiDataSourceFactory");
 
         // [databind#2097]: some 3rd party, one JDK-bundled
         s.add("org.slf4j.ext.EventData");
@@ -129,7 +126,20 @@ public class SubTypeValidator
 
         // [databind#2620]: xbean-reflect
         s.add("org.apache.xbean.propertyeditor.JndiConverter");
-        
+
+        // [databind#2631]: shaded hikari-config
+        s.add("org.apache.hadoop.shaded.com.zaxxer.hikari.HikariConfig");
+
+        // [databind#2634]: ibatis-sqlmap, anteros-core
+        s.add("com.ibatis.sqlmap.engine.transaction.jta.JtaTransactionConfig");
+        s.add("br.com.anteros.dbcp.AnterosDBCPConfig");
+
+        // [databind#2642]: javax.swing (jdk)
+        s.add("javax.swing.JEditorPane");
+
+        // [databind#2648]: shire-core
+        s.add("org.apache.shiro.realm.jndi.JndiRealmFactory");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

@@ -10,8 +10,9 @@ Project: jackson-databind
  (reported by threedr3am & LFY)
 #2634: Block two more gadget types (ibatis-sqlmap, anteros-core; CVE-2020-9547 / CVE-2020-9548)
  (reported by threedr3am & V1ZkRA)
-#2642: Block one more gadget type (javax.swing, CVE-to-be-allocated) #2642
- (reported by threedr3am) 
+#2642: Block one more gadget type (javax.swing, CVE-to-be-allocated)
+ (reported by threedr3am)
+#2648: Block one more gadget type (shiro-core, CVE-to-be-allocated)
 
 2.9.10.3 (23-Feb-2020)
 

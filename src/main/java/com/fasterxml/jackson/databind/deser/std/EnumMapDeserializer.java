@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Deserializer for {@link EnumMap} values.
  * <p>
  * Note: casting within this class is all messed up -- just could not figure out a way
- * to properly deal with recursive definition of "EnumMap&lt;K extends Enum&lt;K&gt;, V&gt;
+ * to properly deal with recursive definition of {@code EnumMap<K extends Enum<K>, V>}
  */
 @SuppressWarnings({ "unchecked", "rawtypes" }) 
 public class EnumMapDeserializer

@@ -203,13 +203,12 @@ public abstract class DeserializationProblemHandler
 
     /**
      * Deprecated variant of
-     * {@link #handleUnexpectedToken(DeserializationContext, JavaType, JsonToken, JsonParser, String)
+     * {@link #handleUnexpectedToken(DeserializationContext, JavaType, JsonToken, JsonParser, String)}
      *
      * @since 2.8
      *
      * @deprecated Since 2.10
      */
-    @SuppressWarnings("javadoc")
     @Deprecated
     public Object handleUnexpectedToken(DeserializationContext ctxt,
             Class<?> targetType, JsonToken t, JsonParser p,

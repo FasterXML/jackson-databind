@@ -1634,13 +1634,13 @@ public class ObjectMapper
      * Accessor for getting a mutable configuration override object for
      * given type, needed to add or change per-type overrides applied
      * to properties of given type.
-     * Usage is through returned object by colling "setter" methods, which
+     * Usage is through returned object by calling "setter" methods, which
      * directly modify override object and take effect directly.
      * For example you can do
      *<pre>
      *   mapper.configOverride(java.util.Date.class)
      *       .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd"));
-     *<pre>
+     *</pre>
      * to change the default format to use for properties of type
      * {@link java.util.Date} (possibly further overridden by per-property
      * annotations)

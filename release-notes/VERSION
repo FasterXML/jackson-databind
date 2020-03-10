@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.9.7 (not yet released)
+2.7.9.7 (10-Mar-2020)
 
 #2410: Block one more gadget type (HikariCP, CVE-2019-14540)
 #2420: Block one more gadget type (cxf-jax-rs, no CVE allocated yet)

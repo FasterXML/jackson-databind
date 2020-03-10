@@ -546,7 +546,7 @@ public abstract class AnnotationIntrospector
     /**
      * Method for getting a serializer definition on specified method
      * or field. Type of definition is either instance (of type {@link JsonSerializer})
-     * or Class (of {@code Class&lt;JsonSerializer} implementation subtype);
+     * or Class (of {@code Class<JsonSerializer>} implementation subtype);
      * if value of different type is returned, a runtime exception may be thrown by caller.
      */
     public Object findSerializer(MapperConfig<?> config, Annotated am) {
@@ -556,7 +556,7 @@ public abstract class AnnotationIntrospector
     /**
      * Method for getting a serializer definition for keys of associated {@code java.util.Map} property.
      * Type of definition is either instance (of type {@link JsonSerializer})
-     * or Class (of type  {@code Class&lt;JsonSerializer>});
+     * or Class (of type  {@code Class<JsonSerializer>});
      * if value of different type is returned, a runtime exception may be thrown by caller.
      */
     public Object findKeySerializer(MapperConfig<?> config, Annotated am) {
@@ -567,7 +567,7 @@ public abstract class AnnotationIntrospector
      * Method for getting a serializer definition for content (values) of
      * associated <code>Collection</code>, <code>array</code> or {@code Map} property.
      * Type of definition is either instance (of type {@link JsonSerializer})
-     * or Class (of type  {@code Class&lt;JsonSerializer>});
+     * or Class (of type  {@code Class<JsonSerializer>});
      * if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
@@ -789,7 +789,7 @@ public abstract class AnnotationIntrospector
      * Method for getting a deserializer definition on specified method
      * or field.
      * Type of definition is either instance (of type {@link JsonDeserializer})
-     * or Class (of type  {@code Class&lt;JsonDeserializer>});
+     * or Class (of type  {@code Class&<JsonDeserializer>});
      * type is returned, a runtime exception may be thrown by caller.
      */
     public Object findDeserializer(MapperConfig<?> config, Annotated am) {
@@ -800,7 +800,7 @@ public abstract class AnnotationIntrospector
      * Method for getting a deserializer definition for keys of
      * associated <code>Map</code> property.
      * Type of definition is either instance (of type {@link JsonDeserializer})
-     * or Class (of type  {@code Class&lt;JsonDeserializer>});
+     * or Class (of type  {@code Class<JsonDeserializer>});
      * if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
@@ -813,7 +813,7 @@ public abstract class AnnotationIntrospector
      * associated <code>Collection</code>, <code>array</code> or
      * <code>Map</code> property.
      * Type of definition is either instance (of type {@link JsonDeserializer})
-     * or Class (of type  {@code Class&lt;JsonDeserializer>});
+     * or Class (of type  {@code Class<JsonDeserializer>});
      * if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */

@@ -915,7 +915,7 @@ s     */
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type {@code List<Set<Integer>>}, you could call
+     * type {@code List<Set<Integer>>}, you could
      *<pre>
      *  JavaType inner = TypeFactory.constructParametricType(Set.class, Set.class, Integer.class);
      *  return TypeFactory.constructParametricType(ArrayList.class, List.class, inner);

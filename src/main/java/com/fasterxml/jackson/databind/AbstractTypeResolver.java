@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-
 /**
  * Defines interface for resolvers that can resolve abstract types into concrete
  * ones; either by using static mappings, or possibly by materializing
@@ -22,9 +21,11 @@ public abstract class AbstractTypeResolver
      * of bindings; that is, it is legal to return type that could be further
      * resolved: caller is expected to keep calling this method on registered
      * resolvers, until a concrete type is located.
-     * 
-     * @param config Configuration in use; should always be of type
-     *    {@code DeserializationConfig}
+     *
+     * @param config Configuration in use
+     * @param type Type to find mapping for
+     *
+     * @return Type to map given input type (if mapping found) or {@code null} (if not).
      */
     public JavaType findTypeMapping(DeserializationConfig config, JavaType type) {
         return null;
@@ -37,8 +38,7 @@ public abstract class AbstractTypeResolver
      * It will be called after checking all other possibilities,
      * including defaulting.
      *
-     * @param config Configuration in use; should always be of type
-     *    <code>DeserializationConfig</code>
+     * @param config Configuration in use
      * @param typeDesc Description of the POJO type to resolve
      * 
      * @return Resolved concrete type (which should retain generic

@@ -373,7 +373,7 @@ public class ObjectReader
 
     /*
     /**********************************************************************
-    /* Life-cycle, fluent factory methods for JsonParser.Features
+    /* Life-cycle, fluent factory methods for StreamReadFeatures
     /**********************************************************************
      */
 

@@ -1140,12 +1140,12 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(InputStream src) throws IOException
+    public <T> T readValue(InputStream in) throws IOException
     {
-        _assertNotNull("src", src);
+        _assertNotNull("in", in);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), false));
+                _considerFilter(_parserFactory.createParser(ctxt, in), false));
     }
 
     /**
@@ -1155,12 +1155,12 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(Reader src) throws IOException
+    public <T> T readValue(Reader r) throws IOException
     {
-        _assertNotNull("src", src);
+        _assertNotNull("r", r);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), false));
+                _considerFilter(_parserFactory.createParser(ctxt, r), false));
     }
 
     /**
@@ -1170,12 +1170,12 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(String src) throws IOException
+    public <T> T readValue(String content) throws IOException
     {
-        _assertNotNull("src", src);
+        _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), false));
+                _considerFilter(_parserFactory.createParser(ctxt, content), false));
     }
 
     /**
@@ -1209,12 +1209,12 @@ public class ObjectReader
     }
     
     @SuppressWarnings("unchecked")
-    public <T> T readValue(File src) throws IOException
+    public <T> T readValue(File f) throws IOException
     {
-        _assertNotNull("src", src);
+        _assertNotNull("f", f);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), false));
+                _considerFilter(_parserFactory.createParser(ctxt, f), false));
     }
 
     /**
@@ -1231,12 +1231,12 @@ public class ObjectReader
      * to create {@link java.io.InputStream} separately.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(URL src) throws IOException
+    public <T> T readValue(URL url) throws IOException
     {
-        _assertNotNull("src", src);
+        _assertNotNull("src", url);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, src), false));
+                _considerFilter(_parserFactory.createParser(ctxt, url), false));
     }
 
     /**
@@ -1247,21 +1247,21 @@ public class ObjectReader
      *</pre>
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonNode content) throws IOException
+    public <T> T readValue(JsonNode node) throws IOException
     {
-        _assertNotNull("content", content);
+        _assertNotNull("node", node);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(treeAsTokens(content, ctxt), false));
+                _considerFilter(treeAsTokens(node, ctxt), false));
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(DataInput content) throws IOException
+    public <T> T readValue(DataInput input) throws IOException
     {
-        _assertNotNull("content", content);
+        _assertNotNull("input", input);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, content), false));
+                _considerFilter(_parserFactory.createParser(ctxt, input), false));
     }
 
     /*

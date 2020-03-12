@@ -495,6 +495,36 @@ public class ObjectReader
     }
 
     /*
+    /**********************************************************************
+    /* Life-cycle, fluent factory methods for StreamReadFeatures (added in 2.11)
+    /**********************************************************************
+     */
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature enabled.
+     *
+     * @return Reader instance with specified feature enabled
+     *
+     * @since 2.11
+     */
+    public ObjectReader with(StreamReadFeature feature) {
+        return _with(_config.with(feature.mappedFeature()));
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature disabled.
+     *
+     * @return Reader instance with specified feature enabled
+     *
+     * @since 2.11
+     */
+    public ObjectReader without(StreamReadFeature feature) {
+        return _with(_config.without(feature.mappedFeature()));
+    }
+
+    /*
     /**********************************************************
     /* Life-cycle, fluent factory methods for FormatFeature (2.7)
     /**********************************************************

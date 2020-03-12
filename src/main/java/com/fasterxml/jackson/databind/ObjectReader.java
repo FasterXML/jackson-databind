@@ -962,6 +962,13 @@ public class ObjectReader
     }
 
     /**
+     * @since 2.11
+     */
+    public boolean isEnabled(StreamReadFeature f) {
+        return _config.isEnabled(f.mappedFeature(), _parserFactory);
+    }
+
+    /**
      * @since 2.2
      */
     public DeserializationConfig getConfig() {

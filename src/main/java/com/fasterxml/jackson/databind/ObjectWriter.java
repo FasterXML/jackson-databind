@@ -351,6 +351,26 @@ public class ObjectWriter
 
     /*
     /**********************************************************
+    /* Life-cycle, fluent factories for StreamWriteFeature (2.11)
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.11
+     */
+    public ObjectWriter with(StreamWriteFeature feature)  {
+        return _new(this, _config.with(feature.mappedFeature()));
+    }
+
+    /**
+     * @since 2.11
+     */
+    public ObjectWriter without(StreamWriteFeature feature) {
+        return _new(this, _config.without(feature.mappedFeature()));
+    }
+
+    /*
+    /**********************************************************
     /* Life-cycle, fluent factories for FormatFeature (2.7)
     /**********************************************************
      */
@@ -908,7 +928,14 @@ public class ObjectWriter
     public boolean isEnabled(JsonGenerator.Feature f) {
         return _generatorFactory.isEnabled(f);
     }
-    
+
+    /**
+     * @since 2.11
+     */
+    public boolean isEnabled(StreamWriteFeature f) {
+        return _generatorFactory.isEnabled(f);
+    }
+
     /**
      * @since 2.2
      */

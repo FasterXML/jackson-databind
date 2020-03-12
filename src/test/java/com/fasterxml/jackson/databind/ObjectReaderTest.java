@@ -112,6 +112,14 @@ public class ObjectReaderTest extends BaseMapTest
 
         // and another one
         assertSame(r, r.with(r.getConfig()));
+
+        // and with StreamReadFeatures
+        r = MAPPER.reader();
+        assertFalse(r.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
+        ObjectReader r2 = r.with(StreamReadFeature.IGNORE_UNDEFINED);
+        assertTrue(r2.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
+        ObjectReader r3 = r2.without(StreamReadFeature.IGNORE_UNDEFINED);
+        assertFalse(r3.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
     }
 
     public void testFeatureSettingsDeprecated() throws Exception

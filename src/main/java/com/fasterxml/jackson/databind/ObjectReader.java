@@ -442,12 +442,17 @@ public class ObjectReader
     /*
     /**********************************************************
     /* Life-cycle, fluent factory methods for JsonParser.Features
+    /* (to be deprecated in 2.12?)
     /**********************************************************
      */
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
+     *
+     * @param feature Feature to enable
+     *
+     * @return Reader instance with specified feature enabled
      */
     public ObjectReader with(JsonParser.Feature feature) {
         return _with(_config.with(feature));
@@ -456,6 +461,10 @@ public class ObjectReader
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
+     *
+     * @param features Features to enable
+     *
+     * @return Reader instance with specified features enabled
      */
     public ObjectReader withFeatures(JsonParser.Feature... features) {
         return _with(_config.withFeatures(features));
@@ -464,6 +473,10 @@ public class ObjectReader
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
+     *
+     * @param feature Feature to disable
+     *
+     * @return Reader instance with specified feature disabled
      */
     public ObjectReader without(JsonParser.Feature feature) {
         return _with(_config.without(feature)); 
@@ -472,6 +485,10 @@ public class ObjectReader
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
+     *
+     * @param features Features to disable
+     *
+     * @return Reader instance with specified features disabled
      */
     public ObjectReader withoutFeatures(JsonParser.Feature... features) {
         return _with(_config.withoutFeatures(features));
@@ -1481,7 +1498,7 @@ public class ObjectReader
      *   objectReader.readValue(src.traverse())
      *</pre>
      */
-    @SuppressWarnings({ "unchecked", "resource" })
+    @SuppressWarnings({ "unchecked" })
     public <T> T readValue(JsonNode src) throws IOException
     {
         _assertNotNull("src", src);

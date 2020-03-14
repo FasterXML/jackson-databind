@@ -1349,7 +1349,10 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             }
             // And then check what flavor of type we got. Start by asking resolved
             // super-type if refinement is all that is needed?
-            else if (superClass != null) {
+
+            // fix Properties put, such as <non-string, non-string>
+            //else
+            if (superClass != null) {
                 result = superClass.refine(rawType, bindings, superClass, superInterfaces);
             }
             // if not, perhaps we are now resolving a well-known class or interface?

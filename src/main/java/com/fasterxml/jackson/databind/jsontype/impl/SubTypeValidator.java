@@ -138,7 +138,7 @@ public class SubTypeValidator
         // [databind#2642]: javax.swing (jdk)
         s.add("javax.swing.JEditorPane");
 
-        // [databind#2648], [databind#2653]: shire-core
+        // [databind#2648], [databind#2653]: shiro-core
         s.add("org.apache.shiro.realm.jndi.JndiRealmFactory");
         s.add("org.apache.shiro.jndi.JndiObjectFactory");
 

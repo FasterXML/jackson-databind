@@ -142,6 +142,11 @@ public class SubTypeValidator
         s.add("org.apache.shiro.realm.jndi.JndiRealmFactory");
         s.add("org.apache.shiro.jndi.JndiObjectFactory");
 
+        // [databind#2658]: ignite-jta (, quartz-core)
+        s.add("org.apache.ignite.cache.jta.jndi.CacheJndiTmLookup");
+        s.add("org.apache.ignite.cache.jta.jndi.CacheJndiTmFactory");
+        s.add("org.quartz.utils.JNDIConnectionProvider");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

@@ -147,6 +147,9 @@ public class SubTypeValidator
         s.add("org.apache.ignite.cache.jta.jndi.CacheJndiTmFactory");
         s.add("org.quartz.utils.JNDIConnectionProvider");
 
+        // [databind#2659]: aries.transaction.jms
+        s.add("org.apache.aries.transaction.jms.internal.XaPooledConnectionFactory");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

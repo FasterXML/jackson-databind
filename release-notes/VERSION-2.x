@@ -14,11 +14,12 @@ Project: jackson-databind
  (reported by threedr3am)
 #2648: Block one more gadget type (shiro-core)
 #2653: Block one more gadget type (shiro-core)
-#2658: Block one more gadget type (ignite-jta)
+#2658: Block one more gadget type (ignite-jta, CVE-2020-10650)
+ (reported by Srikanth Ramu, threedr3am'follower)
 #2659: Block one more gadget type (aries.transaction.jms)
  (reported by Srikanth Ramu)
-#2660: Block one more gadget type (caucho-quercus)
- (reported by threedr3am)
+#2660: Block one more gadget type (caucho-quercus, CVE-2020-10673)
+ (reported by threedr3am'follower)
 
 2.9.10.3 (23-Feb-2020)
 

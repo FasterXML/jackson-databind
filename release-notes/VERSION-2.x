@@ -199,6 +199,8 @@ Project: jackson-databind
 #2658: Block one more gadget type (ignite-jta)
 #2659: Block one more gadget type (aries.transaction.jms)
  (reported by Srikanth Ramu)
+#2660: Block one more gadget type (caucho-quercus)
+ (reported by threedr3am)
 
 2.9.10.3 (23-Feb-2020)
 

@@ -149,7 +149,11 @@ public class SubTypeValidator
 
         // [databind#2659]: aries.transaction.jms
         s.add("org.apache.aries.transaction.jms.internal.XaPooledConnectionFactory");
+        s.add("org.apache.aries.transaction.jms.RecoverablePooledConnectionFactory");
 
+        // [databind#2660]: caucho-quercus
+        s.add("com.caucho.config.types.ResourceRef");
+        
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

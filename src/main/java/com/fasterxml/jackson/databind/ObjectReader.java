@@ -1149,8 +1149,15 @@ public class ObjectReader
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(InputStream)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param src Source to read content from
+     * @param valueType Target type to bind content to
+     *
+     * @since 2.11
      */
+    @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
@@ -1161,6 +1168,8 @@ public class ObjectReader
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
+     *
+     * @param r Source to read content from
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(Reader r) throws IOException
@@ -1172,8 +1181,15 @@ public class ObjectReader
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(Reader)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param src Source to read content from
+     * @param valueType Target type to bind content to
+     *
+     * @since 2.11
      */
+    @SuppressWarnings("unchecked")
     public <T> T readValue(Reader src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
@@ -1184,6 +1200,8 @@ public class ObjectReader
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
+     *
+     * @param content String that contains content to read
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(String content) throws IOException
@@ -1195,8 +1213,13 @@ public class ObjectReader
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(String)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param src String that contains content to read
+     * @param valueType Target type to bind content to
      */
+    @SuppressWarnings("unchecked")
     public <T> T readValue(String src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
@@ -1207,6 +1230,8 @@ public class ObjectReader
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
+     *
+     * @param content Byte array that contains encoded content to read
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] content) throws IOException
@@ -1218,8 +1243,13 @@ public class ObjectReader
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(byte[])} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param content Byte array that contains encoded content to read
+     * @param valueType Target type to bind content to
      */
+    @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] content, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(content);
@@ -1230,24 +1260,43 @@ public class ObjectReader
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
+     *
+     * @param buffer Byte array that contains encoded content to read
+     * @param offset Offset of the first content byte in {@code buffer}
+     * @param length Length of content in {@code buffer}, in bytes
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] content, int offset, int length) throws IOException
+    public <T> T readValue(byte[] buffer, int offset, int length) throws IOException
     {
-        _assertNotNull("content", content);
+        _assertNotNull("buffer", buffer);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, content, offset, length), false));
+                _considerFilter(_parserFactory.createParser(ctxt, buffer, offset, length), false));
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(byte[],int,int)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param buffer Byte array that contains encoded content to read
+     * @param offset Offset of the first content byte in {@code buffer}
+     * @param length Length of content in {@code buffer}, in bytes
+     * @param valueType Target type to bind content to
      */
-    public <T> T readValue(byte[] content, int offset, int length, Class<T> valueType) throws IOException
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(byte[] buffer, int offset, int length, Class<T> valueType) throws IOException
     {
-        return (T) forType(valueType).readValue(content, offset, length);
+        return (T) forType(valueType).readValue(buffer, offset, length);
     }
 
+    /**
+     * Method that binds content read from given {@link File}
+     * using configuration of this reader.
+     * Value return is either newly constructed, or root value that
+     * was specified with {@link #withValueToUpdate(Object)}.
+     *
+     * @param f File that contains content to read
+     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(File f) throws IOException
     {
@@ -1258,8 +1307,13 @@ public class ObjectReader
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(File)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param src File that contains content to read
+     * @param valueType Target type to bind content to
      */
+    @SuppressWarnings("unchecked")
     public <T> T readValue(File src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
@@ -1288,8 +1342,13 @@ public class ObjectReader
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(URL)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param src URL pointing to resource that contains content to read
+     * @param valueType Target type to bind content to
      */
+    @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(src);
@@ -1301,6 +1360,8 @@ public class ObjectReader
      *<pre>
      *   objectReader.readValue(src.traverse())
      *</pre>
+     *
+     * @param node Tree that contains content to convert
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonNode node) throws IOException
@@ -1312,11 +1373,16 @@ public class ObjectReader
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(JsonNode)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param content Tree that contains content to convert
+     * @param valueType Target type to convert content to
      */
-    public <T> T readValue(JsonNode src, Class<T> valueType) throws IOException
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(JsonNode content, Class<T> valueType) throws IOException
     {
-        return (T) forType(valueType).readValue(src);
+        return (T) forType(valueType).readValue(content);
     }
 
     @SuppressWarnings("unchecked")
@@ -1329,17 +1395,22 @@ public class ObjectReader
     }
 
     /**
-     * Overloading to alert compiler as to the valueType
+     * Same as {@link #readValue(DataInput)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param content DataInput that contains content to read
+     * @param valueType Target type to bind content to
      */
+    @SuppressWarnings("unchecked")
     public <T> T readValue(DataInput content, Class<T> valueType) throws IOException
     {
         return (T) forType(valueType).readValue(content);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization methods; JsonNode ("tree")
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**

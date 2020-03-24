@@ -1,0 +1,31 @@
+-classpath
+'/opt/java/jackson-databind/target/classes:/Users/tatu/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.6.0/jackson-annotations-2.6.0.jar:/Users/tatu/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.6.0/jackson-core-2.6.0.jar'
+-encoding
+'UTF-8'
+-protected
+-quiet
+-sourcepath
+'/opt/java/jackson-databind/src/main/java:/opt/java/jackson-databind/target/generated-sources:/opt/java/jackson-databind/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2014&#x2013;2015 <a href="http://fasterxml.com/">FasterXML</a>. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/opt/java/jackson-databind/target/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'jackson-databind 2.6.0 API'
+-link
+'http://docs.oracle.com/javase/7/docs/api'
+-link
+'http://fasterxml.github.com/jackson-annotations/javadoc/2.6'
+-link
+'http://fasterxml.github.com/jackson-core/javadoc/2.6'
+-linkoffline
+'http://docs.oracle.com/javase/6/docs/api' '/opt/java/jackson-databind/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'jackson-databind 2.6.0 API'

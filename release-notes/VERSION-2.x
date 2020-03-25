@@ -20,6 +20,12 @@ Project: jackson-databind
  (reported by Srikanth Ramu)
 #2660: Block one more gadget type (caucho-quercus, CVE-2020-10673)
  (reported by threedr3am'follower)
+#2662: Block one more gadget type (bus-proxy)
+ (reported by XuYuanzhen)
+#2664: Block one more gadget type (activemq)
+ (reported by Srikanth Ramu)
+#2666: Block one more gadget type (apache/commons-proxy)
+ (reported by Yiting Fan)
 
 2.9.10.3 (23-Feb-2020)
 

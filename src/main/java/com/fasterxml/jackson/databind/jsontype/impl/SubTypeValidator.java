@@ -153,7 +153,17 @@ public class SubTypeValidator
 
         // [databind#2660]: caucho-quercus
         s.add("com.caucho.config.types.ResourceRef");
-        
+
+        // [databind#2662]: aoju/bus-proxy
+        s.add("org.aoju.bus.proxy.provider.RmiProvider");
+        s.add("org.aoju.bus.proxy.provider.remoting.RmiProvider");
+
+        // [databind#2664]: activemq-jms
+        s.add("org.apache.activemq.jms.pool.XaPooledConnectionFactory");
+
+        // [databind#2666]: apache/commons-jms
+        s.add("org.apache.commons.proxy.provider.remoting.RmiProvider");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

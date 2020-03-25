@@ -28,8 +28,9 @@ public class GenericNestedType2331Test extends BaseMapTest
         public List<? extends SuperNode<Node<T>>> getChildren() {
             return children;
         }
-    }    
-    
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testGeneric2331() throws Exception {
         Node root = new Node();
         root.children.add(new Node());

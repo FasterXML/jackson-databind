@@ -22,7 +22,7 @@ Project: jackson-databind
  (reported by threedr3am'follower)
 #2662: Block one more gadget type (bus-proxy)
  (reported by XuYuanzhen)
-#2664: Block one more gadget type (activemq)
+#2664: Block one more gadget type (activemq-jms)
  (reported by Srikanth Ramu)
 #2666: Block one more gadget type (apache/commons-proxy)
  (reported by Yiting Fan)

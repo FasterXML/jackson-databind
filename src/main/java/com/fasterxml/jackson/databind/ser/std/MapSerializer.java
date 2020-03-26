@@ -304,12 +304,18 @@ public class MapSerializer
             Object filterId)
     {
         JavaType keyType, valueType;
-        
+
         if (mapType == null) {
             keyType = valueType = UNSPECIFIED_TYPE;
         } else { 
             keyType = mapType.getKeyType();
-            valueType = mapType.getContentType();
+            if (mapType.hasRawClass(java.util.Properties.class)) {
+                // 25-Mar-2020, tatu: [databind#2657] Since non-standard Properties may actually
+                //     contain non-Strings, demote value type to raw `Object`
+                valueType = TypeFactory.unknownType();
+            } else {
+                valueType = mapType.getContentType();
+            }
         }
         // If value type is final, it's same as forcing static value typing:
         if (!staticValueType) {

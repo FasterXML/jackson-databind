@@ -225,4 +225,15 @@ public class JDKTypeSerializationTest
         assertEquals(aposToQuotes("{'value':null}"),
                 MAPPER.writeValueAsString(new VoidBean()));
     }
+
+    // [databind#2657]
+    public void testNonStandardProperties() throws Exception
+    {
+        Properties properties = new Properties();
+        // Bad usage: Properties should NOT contain non-Strings. But
+        // some do that regardless and compiler won't stop it so.
+        properties.put("key", 1);
+        String json = MAPPER.writeValueAsString(properties);
+        assertEquals("{\"key\":1}", json);
+    }
 }

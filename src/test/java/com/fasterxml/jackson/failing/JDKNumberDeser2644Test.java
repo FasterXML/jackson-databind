@@ -40,7 +40,8 @@ public class JDKNumberDeser2644Test extends BaseMapTest
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(NodeParent2644.class)
-                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+// NOTE: uncommenting this does work around the issue:
+//                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .build();
 
         NodeRoot2644 root = mapper.readValue(
@@ -49,7 +50,5 @@ public class JDKNumberDeser2644Test extends BaseMapTest
         );
 
         assertEquals(new BigDecimal("9999999999999999.99"), root.node.getVal());
-
     }
-
 }

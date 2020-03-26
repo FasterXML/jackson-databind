@@ -158,9 +158,18 @@ public class SubTypeValidator
         s.add("org.aoju.bus.proxy.provider.RmiProvider");
         s.add("org.aoju.bus.proxy.provider.remoting.RmiProvider");
 
-        // [databind#2664]: activemq-jms
-        s.add("org.apache.activemq.jms.pool.XaPooledConnectionFactory");
+        // [databind#2664]: activemq-core, activemq-pool, activemq-pool-jms
 
+        s.add("org.apache.activemq.ActiveMQConnectionFactory"); // core
+        s.add("org.apache.activemq.ActiveMQXAConnectionFactory");
+        s.add("org.apache.activemq.spring.ActiveMQConnectionFactory");
+        s.add("org.apache.activemq.spring.ActiveMQXAConnectionFactory");
+        s.add("org.apache.activemq.pool.JcaPooledConnectionFactory"); // pool
+        s.add("org.apache.activemq.pool.PooledConnectionFactory");
+        s.add("org.apache.activemq.pool.XaPooledConnectionFactory");
+        s.add("org.apache.activemq.jms.pool.XaPooledConnectionFactory"); // pool-jms
+        s.add("org.apache.activemq.jms.pool.JcaPooledConnectionFactory");
+        
         // [databind#2666]: apache/commons-jms
         s.add("org.apache.commons.proxy.provider.remoting.RmiProvider");
 

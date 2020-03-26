@@ -39,7 +39,9 @@ public class JDKNumberDeser2644Test extends BaseMapTest
     public void testBigDecimalSubtypes() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
-        mapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+
+        // NOTE: uncommenting this does work around the issue:
+//        mapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         mapper.registerSubtypes(NodeParent2644.class);
 
         NodeRoot2644 root = mapper.readValue(

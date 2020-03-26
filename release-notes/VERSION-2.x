@@ -47,6 +47,8 @@ Project: jackson-databind
 #2643: Change default textual serialization of `java.util.Date`/`Calendar`
   to include colon in timezone offset
 #2647: Add `ObjectMapper.createParser()` and `createGenerator()` methods
+#2663: Add new factory method for creating custom `EnumValues` to pass to `EnumDeserializer
+ (requested by Rafal K)
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.4 (not yet released)

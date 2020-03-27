@@ -313,8 +313,7 @@ public abstract class SerializerProvider
         
     /*
     /**********************************************************
-    /* DatabindContext implementation (and closely related
-    /* but ser-specific)
+    /* DatabindContext implementation (and closely related but ser-specific)
     /**********************************************************
      */
 
@@ -332,6 +331,13 @@ public abstract class SerializerProvider
     @Override
     public final TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
+    }
+
+    @Override // since 2.11
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
+        // Need little bit different handling due to [databind#2632]
+        return baseType.hasRawClass(subclass) ? baseType
+                : getConfig().constructSpecializedType(baseType, subclass);
     }
 
     @Override

@@ -139,7 +139,7 @@ public class SubTypeResolutionTest extends BaseMapTest
             assertNotNull(json);
             fail("Should not (yet?) pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Failed to specialize base type ");
+                verifyException(e, "Failed to specialize base type ");
         }
     }
 }

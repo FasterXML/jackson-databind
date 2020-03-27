@@ -153,15 +153,11 @@ public abstract class DatabindContext
 
     /**
      * Convenience method for constructing subtypes, retaining generic
-     * type parameter (if any)
+     * type parameter (if any).
+     *<p>
+     * Note: since 2.11 handling has varied a bit across serialization, deserialization.
      */
-    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
-        // simple optimization to avoid costly introspection if type-erased type does NOT differ
-        if (baseType.getRawClass() == subclass) {
-            return baseType;
-        }
-        return getConfig().constructSpecializedType(baseType, subclass);
-    }
+    public abstract JavaType constructSpecializedType(JavaType baseType, Class<?> subclass);
 
     /**
      * Lookup method called when code needs to resolve class name from input;

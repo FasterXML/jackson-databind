@@ -252,6 +252,13 @@ public abstract class DeserializationContext
         return _config.getTypeFactory();
     }
 
+    @Override // since 2.11
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
+        // No specialized handling for deserialization, but needs to be implemented
+        return baseType.hasRawClass(subclass) ? baseType
+                : getConfig().constructSpecializedType(baseType, subclass);
+    }
+
     /**
      * Method for accessing default Locale to use: convenience method for
      *<pre>

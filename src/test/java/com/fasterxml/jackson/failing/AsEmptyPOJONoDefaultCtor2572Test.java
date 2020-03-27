@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 // [databind#2572]: "empty" setter, POJO with no 0-arg constructor
-public class Issue2572Test extends BaseMapTest
+public class AsEmptyPOJONoDefaultCtor2572Test extends BaseMapTest
 {
     static class Outer {
         @JsonProperty("inner")

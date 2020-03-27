@@ -306,6 +306,13 @@ public abstract class SerializerProvider
     }
 
     @Override
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
+        // Need little bit different handling due to [databind#2632]
+        return baseType.hasRawClass(subclass) ? baseType
+                : getConfig().constructSpecializedType(baseType, subclass);
+    }
+
+    @Override
     public final Class<?> getActiveView() { return _activeView; }
 
     @Override

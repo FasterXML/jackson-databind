@@ -1227,7 +1227,8 @@ nonAnnotatedParamIndex, ctor);
     {
         final Class<?> collectionClass = ContainerDefaultMappings.findCollectionFallback(type);
         if (collectionClass != null) {
-            return (CollectionType) config.constructSpecializedType(type, collectionClass);
+            return (CollectionType) config.getTypeFactory()
+                    .constructSpecializedType(type, collectionClass, true);
         }
         return null;
     }
@@ -1381,7 +1382,8 @@ nonAnnotatedParamIndex, ctor);
     {
         final Class<?> mapClass = ContainerDefaultMappings.findMapFallback(type);
         if (mapClass != null) {
-            return (MapType) config.constructSpecializedType(type, mapClass);
+            return (MapType) config.getTypeFactory()
+                    .constructSpecializedType(type, mapClass, true);
         }
         return null;
     }

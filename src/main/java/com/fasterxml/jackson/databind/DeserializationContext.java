@@ -208,9 +208,12 @@ public abstract class DeserializationContext
 
     @Override // since 2.11
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
-        // No specialized handling for deserialization, but needs to be implemented
-        return baseType.hasRawClass(subclass) ? baseType
-                : getConfig().constructSpecializedType(baseType, subclass);
+        if (baseType.hasRawClass(subclass)) {
+            return baseType;
+        }
+        // On deserialization side, still uses "strict" type-compatibility checking;
+        // see [databind#2632] about serialization side
+        return getConfig().getTypeFactory().constructSpecializedType(baseType, subclass, false);
     }
 
     /**

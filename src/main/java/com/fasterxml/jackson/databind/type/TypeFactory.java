@@ -356,8 +356,36 @@ public final class TypeFactory
      * Can be used, for example, to get equivalent of "HashMap&lt;String,Integer&gt;"
      * from "Map&lt;String,Integer&gt;" by giving <code>HashMap.class</code>
      * as subclass.
+     * Short-cut for:
+     *<pre>
+     * constructSpecializedType(baseType, subclass, class);
+     *</pre>
+     * that is, will use "strict" compatibility checking, usually used for
+     * deserialization purposes (but often not for serialization).
      */
-    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
+        return constructSpecializedType(baseType, subclass, false);
+    }
+
+    /**
+     * Factory method for creating a subtype of given base type, as defined
+     * by specified subclass; but retaining generic type information if any.
+     * Can be used, for example, to get equivalent of "HashMap&lt;String,Integer&gt;"
+     * from "Map&lt;String,Integer&gt;" by giving <code>HashMap.class</code>
+     * as subclass.
+     * 
+     * @param baseType Declared base type with resolved type parameters
+     * @param subclass Runtime subtype to use for resolving
+     * @param relaxedCompatibilityCheck Whether checking for type-assignment compatibility
+     *    should be "relaxed" ({@code true}) or "strict" ({@code false}): typically
+     *    serialization uses relaxed, deserialization strict checking.
+     *
+     * @return Resolved sub-type
+     *
+     * @since 2.11
+     */
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass,
+            boolean relaxedCompatibilityCheck)
     {
         // simple optimization to avoid costly introspection if type-erased type does NOT differ
         final Class<?> rawBase = baseType.getRawClass();

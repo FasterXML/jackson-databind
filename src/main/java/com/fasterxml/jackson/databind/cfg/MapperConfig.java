@@ -242,8 +242,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public abstract JavaType constructType(TypeReference<?> valueTypeRef);
 
-    public abstract JavaType constructSpecializedType(JavaType baseType, Class<?> subclass);
-
     /*
     /**********************************************************************
     /* Configuration: introspection support

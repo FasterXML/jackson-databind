@@ -319,7 +319,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
-        return getTypeFactory().constructSpecializedType(baseType, subclass);
+        // note: since 2.11 specify "strict" resolution
+        return getTypeFactory().constructSpecializedType(baseType, subclass, true);
     }
 
     /*

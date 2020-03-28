@@ -335,9 +335,12 @@ public abstract class SerializerProvider
 
     @Override // since 2.11
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
-        // Need little bit different handling due to [databind#2632]
-        return baseType.hasRawClass(subclass) ? baseType
-                : getConfig().constructSpecializedType(baseType, subclass);
+        if (baseType.hasRawClass(subclass)) {
+            return baseType;
+        }
+        // Need little bit different handling due to [databind#2632]; pass `true` for
+        // "relaxed" type assingment checks.
+        return getConfig().getTypeFactory().constructSpecializedType(baseType, subclass, true);
     }
 
     @Override

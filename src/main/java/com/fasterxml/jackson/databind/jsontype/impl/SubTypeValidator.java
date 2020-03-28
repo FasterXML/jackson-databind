@@ -74,10 +74,11 @@ public class SubTypeValidator
         s.add("com.sun.deploy.security.ruleset.DRSHelper");
         s.add("org.apache.axis2.jaxws.spi.handler.HandlerResolverImpl");
 
-        // [databind#2186]: yet more 3rd party gadgets
+        // [databind#2186], [databind#2670]: yet more 3rd party gadgets
         s.add("org.jboss.util.propertyeditor.DocumentEditor");
         s.add("org.apache.openjpa.ee.RegistryManagedRuntime");
         s.add("org.apache.openjpa.ee.JNDIManagedRuntime");
+        s.add("org.apache.openjpa.ee.WASRegistryManagedRuntime"); // [#2670] addition
         s.add("org.apache.axis2.transport.jms.JMSOutTransportInfo");
 
         // [databind#2326] (2.9.9)

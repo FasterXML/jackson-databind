@@ -446,7 +446,8 @@ public final class TypeFactory
                 break;
             }
             // (4) If all else fails, do the full traversal using placeholders
-            TypeBindings tb = _bindingsForSubtype(baseType, typeParamCount, subclass);
+            TypeBindings tb = _bindingsForSubtype(baseType, typeParamCount,
+                    subclass, relaxedCompatibilityCheck);
             newType = _fromClass(null, subclass, tb);
 
         } while (false);
@@ -457,7 +458,8 @@ public final class TypeFactory
         return newType;
     }
 
-    private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount, Class<?> subclass)
+    private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount,
+            Class<?> subclass, boolean relaxedCompatibilityCheck)
     {
         PlaceholderForType[] placeholders = new PlaceholderForType[typeParamCount];
         for (int i = 0; i < typeParamCount; ++i) {
@@ -476,8 +478,12 @@ public final class TypeFactory
         // and traverse type hierarchies to both verify and to resolve placeholders
         String error = _resolveTypePlaceholders(baseType, baseWithPlaceholders);
         if (error != null) {
-            throw new IllegalArgumentException("Failed to specialize base type "+baseType.toCanonical()+" as "
-                    +subclass.getName()+", problem: "+error);
+            // 28-Mar-2020, tatu: As per [databind#2632], need to ignore the issue in
+            //   some cases. For now, just fully ignore; may need to refine in future
+            if (!relaxedCompatibilityCheck) {
+                throw new IllegalArgumentException("Failed to specialize base type "+baseType.toCanonical()+" as "
+                        +subclass.getName()+", problem: "+error);
+            }
         }
 
         final JavaType[] typeParams = new JavaType[typeParamCount];

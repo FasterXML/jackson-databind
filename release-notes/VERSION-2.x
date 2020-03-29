@@ -42,6 +42,8 @@ Project: jackson-databind
  (reported by Bartosz B)
 #2592: `ObjectMapper.setSerializationInclusion()` is ignored for `JsonAnyGetter`
  (reported by Oleksii K)
+#2632: Failure to resolve generic type parameters on serialization
+ (reported by Simone D)
 #2636: ObjectReader readValue lacks Class<T> argument
  (contributed by Robin R)
 #2643: Change default textual serialization of `java.util.Date`/`Calendar`

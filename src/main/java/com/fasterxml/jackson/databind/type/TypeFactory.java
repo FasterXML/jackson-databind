@@ -366,7 +366,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * that is, will use "strict" compatibility checking, usually used for
      * deserialization purposes (but often not for serialization).
      */
-    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
+        throws IllegalArgumentException
+    {
         return constructSpecializedType(baseType, subclass, false);
     }
 
@@ -389,6 +391,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass,
             boolean relaxedCompatibilityCheck)
+        throws IllegalArgumentException
     {
         // simple optimization to avoid costly introspection if type-erased type does NOT differ
         final Class<?> rawBase = baseType.getRawClass();
@@ -404,8 +407,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                 break;
             }
             if (!rawBase.isAssignableFrom(subclass)) {
-                throw new IllegalArgumentException(String.format(
-                        "Class %s not subtype of %s", subclass.getName(), baseType));
+                throw new IllegalArgumentException(String.format("Class %s not subtype of %s",
+                        ClassUtil.nameOf(subclass), ClassUtil.getTypeDescription(baseType)
+                ));
             }
             // A few special cases where we can simplify handling:
 

@@ -334,7 +334,9 @@ public abstract class SerializerProvider
     }
 
     @Override // since 2.11
-    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
+        throws IllegalArgumentException
+    {
         if (baseType.hasRawClass(subclass)) {
             return baseType;
         }

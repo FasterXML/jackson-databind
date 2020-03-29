@@ -5,12 +5,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -188,7 +186,13 @@ public abstract class TypeDeserializerBase
                     //  Whether this is sufficient to avoid problems remains to be seen, but for
                     //  now it should improve things.
                     if (!type.hasGenericTypes()) {
-                        type = ctxt.getTypeFactory().constructSpecializedType(_baseType, type.getRawClass());
+                        try { // [databind#2668]: Should not expose generic RTEs
+                            type = ctxt.constructSpecializedType(_baseType, type.getRawClass());
+                        } catch (IllegalArgumentException e) {
+                            // 29-Mar-2020, tatu: I hope this is not misleading for other cases, but
+                            //   for [databind#2668] seems reasonable
+                            throw ctxt.invalidTypeIdException(_baseType, typeId, e.getMessage());
+                        }
                     }
                 }
                 deser = ctxt.findContextualValueDeserializer(type, _property);

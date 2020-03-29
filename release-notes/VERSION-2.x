@@ -52,6 +52,8 @@ Project: jackson-databind
 #2657: Allow serialization of `Properties` with non-String values
 #2663: Add new factory method for creating custom `EnumValues` to pass to `EnumDeserializer
  (requested by Rafal K)
+#2668: `IllegalArgumentException` thrown for mismatched subclass deserialization
+ (reported by nbruno@github)
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.4 (not yet released)

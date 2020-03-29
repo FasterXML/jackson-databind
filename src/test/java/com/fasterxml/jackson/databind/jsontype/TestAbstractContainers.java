@@ -44,14 +44,14 @@ public class TestAbstractContainers extends BaseMapTest
     public interface IDataValueList extends List<String> { }
 
     static class DataValueList extends LinkedList<String> implements IDataValueList { }
-   
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testAbstractLists() throws Exception
     {

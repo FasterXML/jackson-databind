@@ -100,8 +100,6 @@ class FactoryBasedEnumDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-System.err.println("FactoryBasedEnumDeserializer.deserialize... deser == "+_deser);
-
         Object value;
         if (_deser != null) {
             value = _deser.deserialize(p, ctxt);

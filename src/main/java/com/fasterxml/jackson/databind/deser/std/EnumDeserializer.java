@@ -168,7 +168,7 @@ public class EnumDeserializer
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         JsonToken curr = p.currentToken();
-        
+
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
             CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)

@@ -129,8 +129,8 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
                 return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
             }
 
-            //There can be a JSON object passed for deserializing an Enum,
-            //the below case handles it.
+            // 30-Mar-2020, tatu: Single-arg delegating creators may go through
+            //    here; although not 100% sure why they do not take the first branch
             if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
                 value = p.getText();
             } else if (curr == JsonToken.VALUE_NUMBER_INT) {

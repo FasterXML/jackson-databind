@@ -637,7 +637,7 @@ nonAnnotatedParamIndex, ctor);
     }
 
     /**
-     * Helper method called when there is the explicit "is-creator", but no mode declaration.
+     * Helper method called when there is explicit "is-creator" marker, but no mode declaration.
      *
      * @since 2.9.2
      */

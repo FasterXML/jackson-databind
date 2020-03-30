@@ -100,22 +100,37 @@ class FactoryBasedEnumDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        Object value = null;
+System.err.println("FactoryBasedEnumDeserializer.deserialize... deser == "+_deser);
+
+        Object value;
         if (_deser != null) {
             value = _deser.deserialize(p, ctxt);
         } else if (_hasArgs) {
             JsonToken curr = p.currentToken();
-            //There can be a JSON object passed for deserializing an Enum,
-            //the below case handles it.
-            if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
-                value = p.getText();
-            } else if ((_creatorProps != null) && p.isExpectedStartObjectToken()) {
+
+            // 30-Mar-2020, tatu: For properties-based one, MUST get JSON Object (before
+            //   2.11, was just assuming match)
+            if (_creatorProps != null) {
+                if (!p.isExpectedStartObjectToken()) {
+                    final JavaType targetType = getValueType(ctxt);
+                    ctxt.reportInputMismatch(targetType,
+"Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
+ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
+                }
                 if (_propCreator == null) {
                     _propCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
                             ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
                 }
                 p.nextToken();
                 return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
+            }
+
+            //There can be a JSON object passed for deserializing an Enum,
+            //the below case handles it.
+            if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
+                value = p.getText();
+            } else if (curr == JsonToken.VALUE_NUMBER_INT) {
+                value = p.getNumberValue();
             } else {
                 value = p.getValueAsString();
             }

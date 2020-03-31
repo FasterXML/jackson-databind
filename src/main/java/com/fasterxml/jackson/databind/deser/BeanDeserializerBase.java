@@ -388,6 +388,18 @@ public abstract class BeanDeserializerBase
 
     public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps);
 
+    // NOTE! To be made `abstract` in 2.12 or later
+    /**
+     * @since 2.11
+     */
+    public BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown) {
+        // Only to prevent some backwards-compatibility issues
+        if (ignoreUnknown == _ignoreAllUnknown) {
+            return this;
+        }
+        return withIgnorableProperties(_ignorableProps);
+    }
+
     /**
      * Mutant factory method that custom sub-classes must override; not left as
      * abstract to prevent more drastic backwards compatibility problems.
@@ -723,6 +735,13 @@ public abstract class BeanDeserializerBase
                         ignored.addAll(prev);
                     }
                     contextual = contextual.withIgnorableProperties(ignored);
+                }
+                // 30-Mar-2020, tatu: As per [databind#2627], need to also allow
+                //    per-property override to "ignore all unknown".
+                //  NOTE: there is no way to override with `false` because annotation
+                //  defaults to `false` (i.e. can not know if `false` is explicit value)
+                if (ignorals.getIgnoreUnknown() && !_ignoreAllUnknown) {
+                    contextual = contextual.withIgnoreAllUnknown(true);
                 }
             }
         }

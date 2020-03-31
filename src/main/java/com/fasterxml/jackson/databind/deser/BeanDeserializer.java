@@ -139,6 +139,11 @@ public class BeanDeserializer
     }
 
     @Override
+    public BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown) {
+        return new BeanDeserializer(this, ignoreUnknown);
+    }
+
+    @Override
     public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
         return new BeanDeserializer(this, props);
     }

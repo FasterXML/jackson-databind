@@ -67,6 +67,12 @@ public class BeanAsArrayDeserializer
     }
 
     @Override
+    public BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown) {
+        return new BeanAsArrayDeserializer(_delegate.withIgnoreAllUnknown(ignoreUnknown),
+                _orderedProperties);
+    }
+
+    @Override
     public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
         return new BeanAsArrayDeserializer(_delegate.withBeanProperties(props),
                 _orderedProperties);

@@ -97,9 +97,10 @@ public class BeanPropertyMap
         _caseInsensitive = caseInsensitive;
         _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
         _aliasDefs = aliasDefs;
-        _aliasMapping = _buildAliasMapping(aliasDefs);
         _locale = locale;
+        _aliasMapping = _buildAliasMapping(aliasDefs, caseInsensitive, locale);
         init(props);
+
     }
 
     /**
@@ -121,6 +122,8 @@ public class BeanPropertyMap
         // First, copy most fields as is:
         _caseInsensitive = src._caseInsensitive;
         _locale = src._locale;
+if (_locale == null) throw new Error();
+
         _hashMask = src._hashMask;
         _size = src._size;
         _spillCount = src._spillCount;
@@ -144,6 +147,7 @@ public class BeanPropertyMap
         // First, copy most fields as is:
         _caseInsensitive = src._caseInsensitive;
         _locale = src._locale;
+if (_locale == null) throw new Error();
         _hashMask = src._hashMask;
         _size = src._size;
         _spillCount = src._spillCount;
@@ -193,6 +197,7 @@ public class BeanPropertyMap
         _locale = base._locale;
         _aliasDefs = base._aliasDefs;
         _aliasMapping = base._aliasMapping;
+if (_locale == null) throw new Error();
 
         // 16-May-2016, tatu: Alas, not enough to just change flag, need to re-init as well.
         _propsInOrder = Arrays.copyOf(base._propsInOrder, base._propsInOrder.length);
@@ -808,7 +813,8 @@ public class BeanPropertyMap
     }
 
     // @since 2.9
-    private Map<String,String> _buildAliasMapping(Map<String,List<PropertyName>> defs)
+    private Map<String,String> _buildAliasMapping(Map<String,List<PropertyName>> defs,
+            boolean caseInsensitive, Locale loc)
     {
         if ((defs == null) || defs.isEmpty()) {
             return Collections.emptyMap();
@@ -816,13 +822,13 @@ public class BeanPropertyMap
         Map<String,String> aliases = new HashMap<>();
         for (Map.Entry<String,List<PropertyName>> entry : defs.entrySet()) {
             String key = entry.getKey();
-            if (_caseInsensitive) {
-                key = key.toLowerCase(_locale);
+            if (caseInsensitive) {
+                key = key.toLowerCase(loc);
             }
             for (PropertyName pn : entry.getValue()) {
                 String mapped = pn.getSimpleName();
-                if (_caseInsensitive) {
-                    mapped = mapped.toLowerCase();
+                if (caseInsensitive) {
+                    mapped = mapped.toLowerCase(loc);
                 }
                 aliases.put(mapped, key);
             }

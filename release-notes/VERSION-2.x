@@ -42,6 +42,8 @@ Project: jackson-databind
  (reported by Bartosz B)
 #2592: `ObjectMapper.setSerializationInclusion()` is ignored for `JsonAnyGetter`
  (reported by Oleksii K)
+#2627: JsonIgnoreProperties(ignoreUnknown = true) does not work on field and method level
+ (reported by robotmrv@github)
 #2632: Failure to resolve generic type parameters on serialization
  (reported by Simone D)
 #2636: ObjectReader readValue lacks Class<T> argument

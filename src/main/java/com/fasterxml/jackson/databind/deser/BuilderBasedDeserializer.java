@@ -137,6 +137,11 @@ public class BuilderBasedDeserializer
     }
 
     @Override
+    public BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown) {
+        return new BuilderBasedDeserializer(this, ignoreUnknown);
+    }
+
+    @Override
     public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
         return new BuilderBasedDeserializer(this, props);
     }

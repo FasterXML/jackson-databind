@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,6 +36,22 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
 
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
+    }
+
+    // [databind#2627]
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class MyPojoValue {
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        MyPojo2627 value;
+
+        public MyPojo2627 getValue() {
+            return value;
+        }
+    }
+
+    static class MyPojo2627 {
+        public String name;
     }
 
     /*
@@ -88,4 +107,16 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
         Simple1595 des = mapper.readValue(aposToQuotes("{'id':123,'name':'jack'}"), Simple1595.class);
         assertEquals("jack", des.getName());
     }
+
+    // [databind#2627]
+    public void testIgnoreUnknownOnField() throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"value\": {\"name\": \"my_name\", \"extra\": \"val\"}, \"type\":\"Json\"}";
+        MyPojoValue value = objectMapper.readValue(json, MyPojoValue.class);
+        assertNotNull(value);
+        assertNotNull(value.getValue());
+        assertEquals("my_name", value.getValue().name);
+    }
 }
+

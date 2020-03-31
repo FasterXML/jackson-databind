@@ -122,8 +122,6 @@ public class BeanPropertyMap
         // First, copy most fields as is:
         _caseInsensitive = src._caseInsensitive;
         _locale = src._locale;
-if (_locale == null) throw new Error();
-
         _hashMask = src._hashMask;
         _size = src._size;
         _spillCount = src._spillCount;
@@ -147,7 +145,6 @@ if (_locale == null) throw new Error();
         // First, copy most fields as is:
         _caseInsensitive = src._caseInsensitive;
         _locale = src._locale;
-if (_locale == null) throw new Error();
         _hashMask = src._hashMask;
         _size = src._size;
         _spillCount = src._spillCount;
@@ -197,7 +194,6 @@ if (_locale == null) throw new Error();
         _locale = base._locale;
         _aliasDefs = base._aliasDefs;
         _aliasMapping = base._aliasMapping;
-if (_locale == null) throw new Error();
 
         // 16-May-2016, tatu: Alas, not enough to just change flag, need to re-init as well.
         _propsInOrder = Arrays.copyOf(base._propsInOrder, base._propsInOrder.length);

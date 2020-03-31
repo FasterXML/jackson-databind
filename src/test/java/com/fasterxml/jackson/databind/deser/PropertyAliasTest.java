@@ -6,7 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class PropertyAliasTest extends BaseMapTest
 {
@@ -58,6 +60,26 @@ public class PropertyAliasTest extends BaseMapTest
         public PolyWrapperForAlias(Object v) { value = v; }
     }
 
+    // [databind#2669]
+    static class Pojo2669 {
+        @JsonAlias({"nick", "name"})
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1029]
@@ -106,5 +128,18 @@ public class PropertyAliasTest extends BaseMapTest
                 ), AliasBean2378.class);
         assertEquals("a", bean.partitionId);
         assertEquals("123", bean._id);
+    }
+
+    // [databind#2669]
+    public void testCaseInsensitiveAliases() throws Exception {
+
+        ObjectMapper mapper = JsonMapper.builder()
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                .build();
+
+        String text = "{\"name\":\"test\"}";
+        Pojo2669 pojo = mapper.readValue(text, Pojo2669.class);
+        assertNotNull(pojo);
+        assertEquals("test", pojo.getName());
     }
 }

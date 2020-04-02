@@ -60,7 +60,7 @@ public class StdJdkSerializers
         } catch (NoClassDefFoundError e) {
             // nothing much we can do here; could log, but probably not useful for now.
         }
-        
+
         return sers.entrySet();
     }
 

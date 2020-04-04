@@ -32,6 +32,7 @@ public class RequireSetterForGetter736Test extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc
                         .withVisibility(PropertyAccessor.ALL, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.FIELD, Visibility.NONE)
                         .withVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY)
                         .withVisibility(PropertyAccessor.SETTER, Visibility.PUBLIC_ONLY)
                 )
@@ -41,6 +42,5 @@ public class RequireSetterForGetter736Test extends BaseMapTest
 
         String json = mapper.writeValueAsString(dataB);
         assertEquals(aposToQuotes("{'readwrite':2}"), json);
-        
     }
 }

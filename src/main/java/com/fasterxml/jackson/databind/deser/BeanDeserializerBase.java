@@ -388,17 +388,7 @@ public abstract class BeanDeserializerBase
 
     public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps);
 
-    // NOTE! To be made `abstract` in 2.12 or later
-    /**
-     * @since 2.11
-     */
-    public BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown) {
-        // Only to prevent some backwards-compatibility issues
-        if (ignoreUnknown == _ignoreAllUnknown) {
-            return this;
-        }
-        return withIgnorableProperties(_ignorableProps);
-    }
+    public abstract BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown);
 
     /**
      * Mutant factory method that custom sub-classes must override; not left as
@@ -888,7 +878,6 @@ public abstract class BeanDeserializerBase
         return prop;
     }
 
-    // @since 2.9
     protected SettableBeanProperty _resolveMergeAndNullSettings(DeserializationContext ctxt,
             SettableBeanProperty prop, PropertyMetadata propMetadata)
         throws JsonMappingException
@@ -1398,40 +1387,6 @@ public abstract class BeanDeserializerBase
         }
         boolean value = p.hasToken(JsonToken.VALUE_TRUE);
         return _valueInstantiator.createFromBoolean(ctxt, value);
-    }
-
-    public Object deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
-        // note: cannot call `_delegateDeserializer()` since order reversed here:
-        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
-        // fallback to non-array delegate
-        if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
-            Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt,
-                    delegateDeser.deserialize(p, ctxt));
-            if (_injectables != null) {
-                injectValues(ctxt, bean);
-            }
-            return bean;
-        }
-        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                return null;
-            }
-            final Object value = deserialize(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return value;
-        }
-        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY) {
-                return null;
-            }
-            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
-        }
-        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     public Object deserializeFromEmbedded(JsonParser p, DeserializationContext ctxt)

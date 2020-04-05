@@ -866,14 +866,24 @@ public class JDKScalarsTest
         }
     }
 
-    // [databind#2197]
+    // [databind#2197], [databind#2679]
     public void testVoidDeser() throws Exception
     {
+        // First, `Void` as bean property
         VoidBean bean = MAPPER.readValue(aposToQuotes("{'value' : 123 }"),
                 VoidBean.class);
         assertNull(bean.value);
+
+        // Then `Void` and `void` (Void.TYPE) as root values
+        assertNull(MAPPER.readValue("{}", Void.class));
+        assertNull(MAPPER.readValue("1234", Void.class));
+        assertNull(MAPPER.readValue("[ 1, true ]", Void.class));
+
+        assertNull(MAPPER.readValue("{}", Void.TYPE));
+        assertNull(MAPPER.readValue("1234", Void.TYPE));
+        assertNull(MAPPER.readValue("[ 1, true ]", Void.TYPE));
     }
-    
+
     /*
     /**********************************************************
     /* Test for invalid String values

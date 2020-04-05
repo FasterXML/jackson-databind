@@ -1045,6 +1045,10 @@ Alexander Shilov (ashlanderr@github)
   * Reported, suggested fix for #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
   (2.10.3)
 
+Endre Stølsvik (stolsvik@github)
+  * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
+  (2.10.4)
+
 Máté Rédecsi (rmatesz@github)
   * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
  (2.11.0)
@@ -1096,4 +1100,3 @@ Simone D'Avico (simonedavico@github)
 Robin Roos (robinroos@github)
   * Contributed #2636: ObjectReader readValue lacks Class<T> argument
  (2.11.0)
-

@@ -1445,38 +1445,15 @@ public abstract class BeanDeserializerBase
         return _valueInstantiator.createFromBoolean(ctxt, value);
     }
 
-    public Object deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
-        // note: cannot call `_delegateDeserializer()` since order reversed here:
-        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
-        // fallback to non-array delegate
-        if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
-            Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt,
-                    delegateDeser.deserialize(p, ctxt));
-            if (_injectables != null) {
-                injectValues(ctxt, bean);
-            }
-            return bean;
-        }
-        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                return null;
-            }
-            final Object value = deserialize(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return value;
-        }
-        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY) {
-                return null;
-            }
-            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
-        }
-        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+    /**
+     * @deprecated Since 2.11 Should not be used: was never meant to be called by
+     *    code other than sub-classes (implementations), and implementations details
+     *    differ
+     */
+    @Deprecated
+    public Object deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException {
+        // should work as subtypes ought to override this method:
+        return _deserializeFromArray(p, ctxt);
     }
 
     public Object deserializeFromEmbedded(JsonParser p, DeserializationContext ctxt)

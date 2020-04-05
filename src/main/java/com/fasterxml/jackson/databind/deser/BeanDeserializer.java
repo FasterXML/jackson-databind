@@ -186,8 +186,8 @@ public class BeanDeserializer
             case VALUE_NULL:
                 return deserializeFromNull(p, ctxt);
             case START_ARRAY:
-                // these only work if there's a (delegating) creator...
-                return deserializeFromArray(p, ctxt);
+                // these only work if there's a (delegating) creator, or UNWRAP_SINGLE_ARRAY
+                return _deserializeFromArray(p, ctxt);
             case FIELD_NAME:
             case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
                 if (_vanillaProcessing) {
@@ -563,6 +563,41 @@ public class BeanDeserializer
                     : deserializeFromObject(p2, ctxt);
             p2.close();
             return ob;
+        }
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+    }
+
+    @Override
+    protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        // note: cannot call `_delegateDeserializer()` since order reversed here:
+        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
+        // fallback to non-array delegate
+        if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
+            Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt,
+                    delegateDeser.deserialize(p, ctxt));
+            if (_injectables != null) {
+                injectValues(ctxt, bean);
+            }
+            return bean;
+        }
+        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            JsonToken t = p.nextToken();
+            if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                return null;
+            }
+            final Object value = deserialize(p, ctxt);
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                handleMissingEndArrayForSingle(p, ctxt);
+            }
+            return value;
+        }
+        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+            JsonToken t = p.nextToken();
+            if (t == JsonToken.END_ARRAY) {
+                return null;
+            }
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
         }
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

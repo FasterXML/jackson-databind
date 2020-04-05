@@ -197,8 +197,7 @@ public class BuilderBasedDeserializer
             if (_vanillaProcessing) {
                 return finishBuild(ctxt, vanillaDeserialize(p, ctxt, t));
             }
-            Object builder = deserializeFromObject(p, ctxt);
-            return finishBuild(ctxt, builder);
+            return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         }
         // and then others, generally requiring use of @JsonCreator
         switch (p.getCurrentTokenId()) {
@@ -214,8 +213,9 @@ public class BuilderBasedDeserializer
         case JsonTokenId.ID_FALSE:
             return finishBuild(ctxt, deserializeFromBoolean(p, ctxt));
         case JsonTokenId.ID_START_ARRAY:
-            // these only work if there's a (delegating) creator...
-            return finishBuild(ctxt, deserializeFromArray(p, ctxt));
+            // these only work if there's a (delegating) creator, or UNWRAP_SINGLE_ARRAY
+            // [databind#2608]: Do NOT call `finishBuild()` as method implements it
+            return _deserializeFromArray(p, ctxt);
         case JsonTokenId.ID_FIELD_NAME:
         case JsonTokenId.ID_END_OBJECT:
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
@@ -476,6 +476,41 @@ public class BuilderBasedDeserializer
             handleUnknownVanilla(p, ctxt, builder, propName);
         }
         return builder;
+    }
+
+    @Override // since 2.11, custom implementation
+    protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        // note: cannot call `_delegateDeserializer()` since order reversed here:
+        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
+        // fallback to non-array delegate
+        if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
+            Object builder = _valueInstantiator.createUsingArrayDelegate(ctxt,
+                    delegateDeser.deserialize(p, ctxt));
+            if (_injectables != null) {
+                injectValues(ctxt, builder);
+            }
+            return finishBuild(ctxt, builder);
+        }
+        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            JsonToken t = p.nextToken();
+            if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                return null;
+            }
+            final Object value = deserialize(p, ctxt);
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                handleMissingEndArrayForSingle(p, ctxt);
+            }
+            return value;
+        }
+        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+            JsonToken t = p.nextToken();
+            if (t == JsonToken.END_ARRAY) {
+                return null;
+            }
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
+        }
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /*

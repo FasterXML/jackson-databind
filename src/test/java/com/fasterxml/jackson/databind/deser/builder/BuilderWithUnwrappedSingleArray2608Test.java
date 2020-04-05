@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.builder;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -70,8 +70,8 @@ public class BuilderWithUnwrappedSingleArray2608Test extends BaseMapTest
                 .build();
 
 // Regular POJO would work:
-//        final String serialized = "{\"id\": 1, \"value\": {\"subValue\": \"123\"}}";
-        final String serialized = "{\"id\": 1, \"value\": [ {\"subValue\": \"123\"} ]}";
+//        final String serialized = "{\"value\": {\"subValue\": \"123\"}}";
+        final String serialized = "{\"value\": [ {\"subValue\": \"123\"} ]}";
         final ExamplePOJO2608 result = mapper.readValue(serialized, ExamplePOJO2608.class);
         assertNotNull(result);
     }

@@ -1045,3 +1045,6 @@ Alexander Shilov (ashlanderr@github)
   * Reported, suggested fix for #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
   (2.10.3)
 
+Endre Stølsvik (stolsvik@github)
+  * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
+  (2.10.4)

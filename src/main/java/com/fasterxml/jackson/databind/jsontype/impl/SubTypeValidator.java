@@ -49,6 +49,9 @@ public class SubTypeValidator
         // [databind#1737]; 3rd party
 //s.add("org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor"); // deprecated by [databind#1855]
         s.add("org.springframework.beans.factory.config.PropertyPathFactoryBean");
+        // [databind#2680]
+        s.add("org.springframework.aop.config.MethodLocatingFactoryBean");
+        s.add("org.springframework.beans.factory.config.BeanReferenceFactoryBean");
 
 // s.add("com.mchange.v2.c3p0.JndiRefForwardingDataSource"); // deprecated by [databind#1931]
 // s.add("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource"); // - "" -

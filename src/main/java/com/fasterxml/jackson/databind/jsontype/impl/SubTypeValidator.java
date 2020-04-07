@@ -177,6 +177,9 @@ public class SubTypeValidator
         // [databind#2666]: apache/commons-jms
         s.add("org.apache.commons.proxy.provider.remoting.RmiProvider");
 
+        // [databind#2682]: commons-jelly
+        s.add("org.apache.commons.jelly.impl.Embedded");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

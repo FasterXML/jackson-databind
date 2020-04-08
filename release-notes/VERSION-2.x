@@ -28,8 +28,8 @@ Project: jackson-databind
  (reported by Yiting Fan)
 #2670: Block one more gadget type (openjpa, CVE-2020-11113)
  (reported by XuYuanzhen)
-#2680: Block one more gadget type (spring-aop)
-#2680: Block one more gadget type (commons-jelly)
+#2680: Block one more gadget type (SSRF, spring-aop, CVE-2020-11619)
+#2680: Block one more gadget type (commons-jelly, CVE-2020-11620)
 
 2.9.10.3 (23-Feb-2020)
 

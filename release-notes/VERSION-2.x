@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.10.4 (not yet released)
+2.9.10.4 (11-Apr-2020)
 
 #2631: Block one more gadget type (shaded-hikari-config, CVE-2020-9546)
  (reported by threedr3am & LFY)

@@ -187,49 +187,7 @@ Project: jackson-databind
   deserialize as "null value"
  (contributed by Martin C)
 
-2.9.10.4 (not yet released)
-
-#2631: Block one more gadget type (shaded-hikari-config, CVE-2020-9546)
- (reported by threedr3am & LFY)
-#2634: Block two more gadget types (ibatis-sqlmap, anteros-core; CVE-2020-9547 / CVE-2020-9548)
- (reported by threedr3am & V1ZkRA)
-#2642: Block one more gadget type (javax.swing, CVE-2020-10969)
- (reported by threedr3am)
-#2648: Block one more gadget type (shiro-core)
-#2653: Block one more gadget type (shiro-core)
-#2658: Block one more gadget type (ignite-jta, CVE-2020-10650)
- (reported by Srikanth Ramu, threedr3am'follower)
-#2659: Block one more gadget type (aries.transaction.jms, CVE-2020-10672)
- (reported by Srikanth Ramu)
-#2660: Block one more gadget type (caucho-quercus, CVE-2020-10673)
- (reported by threedr3am'follower)
-#2662: Block one more gadget type (bus-proxy, CVE-2020-10968)
- (reported by XuYuanzhen)
-#2664: Block one more gadget type (activemq-pool[-jms], CVE-2020-11111)
- (reported by Srikanth Ramu)
-#2666: Block one more gadget type (apache/commons-proxy, CVE-2020-11112)
- (reported by Yiting Fan)
-#2670: Block one more gadget type (openjpa, CVE-2020-11113)
- (reported by XuYuanzhen)
-#2680: Block one more gadget type (SSRF, spring-aop, CVE-2020-11619)
-#2682: Block one more gadget type (commons-jelly, CVE-2020-11620)
-
-2.9.10.3 (23-Feb-2020)
-
-#2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)
- (reported by threedr3am@github)
-
-2.9.10.2 (03-Jan-2020)
-
-#2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)
-  (repoerted by UltramanGaia)
-
-2.9.10.1 (20-Oct-2019)
-
-#2478: Block two more gadget types (commons-dbcp, p6spy,
-  CVE-2019-16942 / CVE-2019-16943)
- (reported by b5mali4 / root@codersec.net)
-#2498: Block one more gadget type (log4j-extras/1.2, CVE-2019-17531)
+[2.9.10.x micro-patches omitted]
 
 2.9.10 (21-Sep-2019)
 

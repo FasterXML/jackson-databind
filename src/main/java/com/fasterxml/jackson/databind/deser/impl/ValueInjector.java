@@ -44,7 +44,7 @@ public class ValueInjector
     {
         return context.findInjectableValue(_valueId, this, beanInstance);
     }
-    
+
     public void inject(DeserializationContext context, Object beanInstance)
         throws IOException
     {

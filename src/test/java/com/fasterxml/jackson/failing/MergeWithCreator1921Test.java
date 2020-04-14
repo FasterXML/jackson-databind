@@ -7,6 +7,11 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
+// For [databind#1921]: Creator method not used when merging even if there is
+// no feasible alternative. Unclear whether this can even theoretically be
+// improved since combination of Creator + Setter(s)/field is legit; but use
+// of Creator always means that operation is not true merge.
+// But added test just in case future brings us a good idea of way forward.
 public class MergeWithCreator1921Test extends BaseMapTest
 {
     static class Account {

@@ -470,9 +470,6 @@ public class BeanDeserializer
                 return deserializeWithExternalTypeId(p, ctxt);
             }
             Object bean = deserializeFromObjectUsingNonDefault(p, ctxt);
-            if (_injectables != null) {
-                injectValues(ctxt, bean);
-            }
             // 27-May-2014, tatu: I don't think view processing would work
             //   at this point, so commenting it out; but leaving in place
             //   just in case I forgot something fundamental...
@@ -644,11 +641,16 @@ public class BeanDeserializer
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            bean =  creator.build(ctxt, buffer);
+            bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
             bean = null; // never gets here
         }
+        // 13-Apr-2020, tatu: [databind#2678] need to handle injection here
+        if (_injectables != null) {
+            injectValues(ctxt, bean);
+        }
+
         if (referrings != null) {
             for (BeanReferring referring : referrings) {
                referring.setBean(bean);

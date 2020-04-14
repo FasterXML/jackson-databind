@@ -1243,8 +1243,12 @@ public abstract class BeanDeserializerBase
     {
         final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt,
+            final Object bean = _valueInstantiator.createUsingDelegate(ctxt,
                     delegateDeser.deserialize(p, ctxt));
+            if (_injectables != null) {
+                injectValues(ctxt, bean);
+            }
+            return bean;
         }
         if (_propertyBasedCreator != null) {
             return _deserializeUsingPropertyBased(p, ctxt);

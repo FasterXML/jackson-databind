@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #953: i-I case conversion problem in Turkish locale with case-insensitive deserialization
  (reported by Máté R)
+#962: `@JsonInject` fails on trying to find deserializer even if inject-only
+ (reported by David B)
 #1983: Polymorphic deserialization should handle case-insensitive Type Id property name
   if `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES` is enabled
  (reported by soundvibe@github, fix contributed by Oleksandr P)

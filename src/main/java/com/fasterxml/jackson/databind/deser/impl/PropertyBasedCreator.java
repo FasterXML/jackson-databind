@@ -108,7 +108,11 @@ public final class PropertyBasedCreator
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = srcCreatorProps[i];
             if (!prop.hasValueDeserializer()) {
-                prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
+                // 15-Apr-2020, tatu: [databind#962] Avoid getting deserializer for Inject-only
+                //     cases
+                if (!prop.isInjectionOnly()) {
+                    prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
+                }
             }
             creatorProps[i] = prop;
         }

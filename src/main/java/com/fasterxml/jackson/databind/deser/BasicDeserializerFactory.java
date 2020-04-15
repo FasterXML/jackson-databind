@@ -1013,9 +1013,8 @@ nonAnnotatedParamIndex, ctor);
 
         // Note: contextualization of typeDeser _should_ occur in constructor of CreatorProperty
         // so it is not called directly here
-        Object injectableValueId = (injectable == null) ? null : injectable.getId();
-        SettableBeanProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
-                typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
+        SettableBeanProperty prop = CreatorProperty.construct(name, type, property.getWrapperName(),
+                typeDeser, beanDesc.getClassAnnotations(), param, index, injectable,
                 metadata);
         JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {

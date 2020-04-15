@@ -456,7 +456,19 @@ public abstract class SettableBeanProperty
      * value injection.
      */
     public Object getInjectableValueId() { return null; }
-    
+
+    /**
+     * Accessor for checking whether this property is injectable, and if so,
+     * ONLY injectable (will not bind from input).
+     * Currently (2.11) can only return {@code true} for Creator-backed properties.
+     *
+     * @return True if (and only if) property has injector that is also defined NOT
+     *    to bind from input.
+     *
+     * @since 2.11
+     */
+    public boolean isInjectionOnly() { return false; } // overridden by CreatorProperty
+
     /*
     /**********************************************************
     /* Public API
@@ -729,6 +741,9 @@ public abstract class SettableBeanProperty
 
         @Override
         public Object getInjectableValueId() { return delegate.getInjectableValueId(); }
+
+        @Override
+        public boolean isInjectionOnly() { return delegate.isInjectionOnly(); }
 
         @Override
         public AnnotatedMember getMember() {

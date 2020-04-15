@@ -452,16 +452,18 @@ public abstract class BeanDeserializerBase
         //   only happen for props in `creatorProps`
 
         for (SettableBeanProperty prop : _beanProperties) {
-            if (!prop.hasValueDeserializer()) {
-                // [databind#125]: allow use of converters
-                JsonDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
-                if (deser == null) {
-                    deser = ctxt.findNonContextualValueDeserializer(prop.getType());
-                }
-                SettableBeanProperty newProp = prop.withValueDeserializer(deser);
-                if (prop != newProp) {
-                    _replaceProperty(_beanProperties, creatorProps, prop, newProp);
-                }
+            // [databind#962]: no eager lookup for inject-only [creator] properties
+            if (prop.hasValueDeserializer() || prop.isInjectionOnly()) {
+                continue;
+            }
+            // [databind#125]: allow use of converters
+            JsonDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
+            if (deser == null) {
+                deser = ctxt.findNonContextualValueDeserializer(prop.getType());
+            }
+            SettableBeanProperty newProp = prop.withValueDeserializer(deser);
+            if (prop != newProp) {
+                _replaceProperty(_beanProperties, creatorProps, prop, newProp);
             }
         }
 

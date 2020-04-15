@@ -65,10 +65,10 @@ public class TestUpdateViaObjectReader extends BaseMapTest
 
         @Override
         public DataA deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            if (p.getCurrentToken() != JsonToken.START_OBJECT) {
+            if (p.currentToken() != JsonToken.START_OBJECT) {
                 ctxt.reportInputMismatch(DataA.class,
                         "Wrong current token, expected START_OBJECT, got: "
-                        +p.getCurrentToken());
+                        +p.currentToken());
                 // never gets here
             }
             /*JsonNode node =*/ p.readValueAsTree();

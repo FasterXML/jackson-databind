@@ -48,58 +48,58 @@ public class TestTreeTraversingParser
         JsonNode tree = MAPPER.readTree(JSON);
         JsonParser p = tree.traverse();
 
-        assertNull(p.getCurrentToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentToken());
+        assertNull(p.currentName());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
         assertEquals("Expected START_OBJECT", JsonToken.START_OBJECT.asString(), p.getText());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.currentName());
         assertEquals("a", p.getText());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.currentName());
         assertEquals(123, p.getIntValue());
         assertEquals("123", p.getText());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("list", p.getCurrentName());
+        assertEquals("list", p.currentName());
         assertEquals("list", p.getText());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals("list", p.getCurrentName());
+        assertEquals("list", p.currentName());
         assertEquals(JsonToken.START_ARRAY.asString(), p.getText());
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
         assertEquals(12.25, p.getDoubleValue(), 0);
         assertEquals("12.25", p.getText());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
         assertEquals(JsonToken.VALUE_NULL.asString(), p.getText());
 
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
         assertTrue(p.getBooleanValue());
         assertEquals(JsonToken.VALUE_TRUE.asString(), p.getText());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
 
         assertNull(p.nextToken());
 
@@ -180,7 +180,7 @@ public class TestTreeTraversingParser
         POJONode n = new POJONode(inputBinary);
         JsonParser p = n.traverse();
 
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
         assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
         byte[] data = p.getBinaryValue();
         assertNotNull(data);
@@ -196,7 +196,7 @@ public class TestTreeTraversingParser
         BinaryNode n = new BinaryNode(inputBinary);
         JsonParser p = n.traverse();
 
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
         // exposed as POJO... not as VALUE_STRING
         assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
         byte[] data = p.getBinaryValue();
@@ -214,7 +214,7 @@ public class TestTreeTraversingParser
     {
         TextNode n = new TextNode("   APs=\n");
         JsonParser p = n.traverse();
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         byte[] data = p.getBinaryValue();
         assertNotNull(data);

@@ -147,7 +147,7 @@ public abstract class BaseTest
         if (!jp.hasCurrentToken()) {
             jp.nextToken();
         }
-        assertToken(JsonToken.START_OBJECT, jp.getCurrentToken()); // main object
+        assertToken(JsonToken.START_OBJECT, jp.currentToken()); // main object
 
         assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Image'
         if (verifyContents) {
@@ -253,18 +253,18 @@ public abstract class BaseTest
         }
     }
     
-    protected void verifyFieldName(JsonParser jp, String expName)
+    protected void verifyFieldName(JsonParser p, String expName)
         throws IOException
     {
-        assertEquals(expName, jp.getText());
-        assertEquals(expName, jp.getCurrentName());
+        assertEquals(expName, p.getText());
+        assertEquals(expName, p.currentName());
     }
 
-    protected void verifyIntValue(JsonParser jp, long expValue)
+    protected void verifyIntValue(JsonParser p, long expValue)
         throws IOException
     {
         // First, via textual
-        assertEquals(String.valueOf(expValue), jp.getText());
+        assertEquals(String.valueOf(expValue), p.getText());
     }
 
     /*
@@ -325,7 +325,7 @@ public abstract class BaseTest
 
     protected void assertToken(JsonToken expToken, JsonParser jp)
     {
-        assertToken(expToken, jp.getCurrentToken());
+        assertToken(expToken, jp.currentToken());
     }
 
     protected void assertType(Object ob, Class<?> expType)
@@ -374,7 +374,7 @@ public abstract class BaseTest
         String str = jp.getText();
 
         if (str.length() !=  actLen) {
-            fail("Internal problem (jp.token == "+jp.getCurrentToken()+"): jp.getText().length() ['"+str+"'] == "+str.length()+"; jp.getTextLength() == "+actLen);
+            fail("Internal problem (jp.token == "+jp.currentToken()+"): jp.getText().length() ['"+str+"'] == "+str.length()+"; jp.getTextLength() == "+actLen);
         }
         assertEquals("String access via getText(), getTextXxx() must be the same", str, str2);
 

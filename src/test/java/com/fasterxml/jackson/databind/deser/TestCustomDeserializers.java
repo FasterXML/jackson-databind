@@ -65,14 +65,14 @@ public class TestCustomDeserializers
         public CustomBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             int a = 0, b = 0;
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.START_OBJECT) {
                 t = p.nextToken();
             } else if (t != JsonToken.FIELD_NAME) {
                 throw new Error();
             }
             while(t == JsonToken.FIELD_NAME) {
-                final String fieldName = p.getCurrentName();
+                final String fieldName = p.currentName();
                 t = p.nextToken();
                 if (t != JsonToken.VALUE_NUMBER_INT) {
                     throw new JsonParseException(p, "expecting number got "+ t);

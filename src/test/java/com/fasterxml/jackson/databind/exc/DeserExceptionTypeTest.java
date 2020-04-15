@@ -103,7 +103,7 @@ public class DeserExceptionTypeTest
             verifyException(e, MismatchedInputException.class, "No content");
         }
         // also: should have no current token after end-of-input
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != null) {
             fail("Expected current token to be null after end-of-stream, was: "+t);
         }

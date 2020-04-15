@@ -52,7 +52,7 @@ public class TestUnknownPropertyDeserialization
             throws IOException, JsonProcessingException
         {
             // very simple, just to verify that we do see correct token type
-            ((TestBean) bean).markUnknown(propertyName+":"+jp.getCurrentToken().toString());
+            ((TestBean) bean).markUnknown(propertyName+":"+jp.currentToken().toString());
             // Yup, we are good to go; must skip whatever value we'd have:
             jp.skipChildren();
             return true;

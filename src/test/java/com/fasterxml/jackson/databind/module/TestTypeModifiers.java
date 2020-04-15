@@ -157,12 +157,12 @@ public class TestTypeModifiers extends BaseMapTest
     {
         @Override
         public MapMarker<?,?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            if (jp.getCurrentToken() != JsonToken.START_OBJECT) throw new IOException("Wrong token: "+jp.getCurrentToken());
-            if (jp.nextToken() != JsonToken.FIELD_NAME) throw new IOException("Wrong token: "+jp.getCurrentToken());
-            String key = jp.getCurrentName();
-            if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+jp.getCurrentToken());
+            if (jp.currentToken() != JsonToken.START_OBJECT) throw new IOException("Wrong token: "+jp.currentToken());
+            if (jp.nextToken() != JsonToken.FIELD_NAME) throw new IOException("Wrong token: "+jp.currentToken());
+            String key = jp.currentName();
+            if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+jp.currentToken());
             int value = jp.getIntValue();
-            if (jp.nextToken() != JsonToken.END_OBJECT) throw new IOException("Wrong token: "+jp.getCurrentToken());
+            if (jp.nextToken() != JsonToken.END_OBJECT) throw new IOException("Wrong token: "+jp.currentToken());
             return new MyMapLikeType(key, value);
         }        
     }
@@ -180,10 +180,10 @@ public class TestTypeModifiers extends BaseMapTest
     {
         @Override
         public MyCollectionLikeType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            if (jp.getCurrentToken() != JsonToken.START_ARRAY) throw new IOException("Wrong token: "+jp.getCurrentToken());
-            if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+jp.getCurrentToken());
+            if (jp.currentToken() != JsonToken.START_ARRAY) throw new IOException("Wrong token: "+jp.currentToken());
+            if (jp.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+jp.currentToken());
             int value = jp.getIntValue();
-            if (jp.nextToken() != JsonToken.END_ARRAY) throw new IOException("Wrong token: "+jp.getCurrentToken());
+            if (jp.nextToken() != JsonToken.END_ARRAY) throw new IOException("Wrong token: "+jp.currentToken());
             return new MyCollectionLikeType(value);
         }        
     }

@@ -172,11 +172,11 @@ public class TestCreatorsDelegating extends BaseMapTest
         JsonParser jp = ((TokenBuffer) ob).asParser();
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("a", jp.getCurrentName());
+        assertEquals("a", jp.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(1, jp.getIntValue());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("b", jp.getCurrentName());
+        assertEquals("b", jp.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(2, jp.getIntValue());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());

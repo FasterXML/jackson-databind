@@ -92,7 +92,7 @@ public class UntypedDeserializationTest
         {
             Map<String,Object> map = new LinkedHashMap<String,Object>();
             while (p.nextValue() != JsonToken.END_OBJECT) {
-                map.put(p.getCurrentName(), "Y"+p.getText());
+                map.put(p.currentName(), "Y"+p.getText());
             }
             return map;
         }

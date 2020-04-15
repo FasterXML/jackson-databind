@@ -272,7 +272,7 @@ public class ArrayNodeTest
         assertNotNull(p.getParsingContext());
         assertTrue(p.getParsingContext().inArray());
         p.skipChildren();
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
         p.close();
 
         p = new TreeTraversingParser(n, null);

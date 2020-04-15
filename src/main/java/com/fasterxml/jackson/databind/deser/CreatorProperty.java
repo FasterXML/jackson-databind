@@ -174,10 +174,12 @@ public class CreatorProperty
     /**********************************************************
      */
 
-    /**
-     * Method that can be called to locate value to be injected for this
-     * property, if it is configured for this.
-     */
+    // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,
+    //    to be removed from 2.12.0
+
+    // Method that can be called to locate value to be injected for this
+    // property, if it is configured for this.
+    @Deprecated // remove from 2.12
     public Object findInjectableValue(DeserializationContext context, Object beanInstance)
         throws JsonMappingException
     {
@@ -189,11 +191,12 @@ public class CreatorProperty
         return context.findInjectableValue(_injectableValueId, this, beanInstance);
     }
 
-    /**
-     * Method to find value to inject, and inject it to this property.
-     */
-    public void inject(DeserializationContext context, Object beanInstance)
-        throws IOException
+    // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,
+    //    to be removed from 2.12.0
+
+    // Method to find value to inject, and inject it to this property.
+    @Deprecated // remove from 2.12
+    public void inject(DeserializationContext context, Object beanInstance) throws IOException
     {
         set(beanInstance, findInjectableValue(context, beanInstance));
     }
@@ -268,6 +271,7 @@ public class CreatorProperty
         return md;
     }
 
+    // Perhaps counter-intuitively, ONLY creator properties return non-null id
     @Override
     public Object getInjectableValueId() {
         return _injectableValueId;

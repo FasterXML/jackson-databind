@@ -119,7 +119,7 @@ public class TestValueInstantiator extends BaseMapTest
         @Override
         public CreatorProperty[] getFromObjectArguments(DeserializationContext ctxt) {
             return  new CreatorProperty[] {
-                    new CreatorProperty(new PropertyName("type"), ctxt.constructType(Class.class), null,
+                    CreatorProperty.construct(new PropertyName("type"), ctxt.constructType(Class.class), null,
                             null, null, null, 0, null,
                             PropertyMetadata.STD_REQUIRED)
             };
@@ -149,7 +149,7 @@ public class TestValueInstantiator extends BaseMapTest
         @Override
         public CreatorProperty[] getFromObjectArguments(DeserializationContext ctxt) {
             return  new CreatorProperty[] {
-                    new CreatorProperty(new PropertyName("name"), ctxt.constructType(String.class), null,
+                    CreatorProperty.construct(new PropertyName("name"), ctxt.constructType(String.class), null,
                             null, null, null, 0, null,
                             PropertyMetadata.STD_REQUIRED)
             };
@@ -435,12 +435,12 @@ public class TestValueInstantiator extends BaseMapTest
                     @Override
                     public CreatorProperty[] getFromObjectArguments(DeserializationContext ctxt) {
                         return  new CreatorProperty[] {
-                                new CreatorProperty(new PropertyName("secret"), ctxt.constructType(String.class), null,
+                                CreatorProperty.construct(new PropertyName("secret"), ctxt.constructType(String.class), null,
                                         null, null, null, 0, null,
                                         PropertyMetadata.STD_REQUIRED)
                         };
                     }
-        
+
                     @Override
                     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                         return new CreatorBean((String) args[0]);

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -41,7 +42,7 @@ public class CreatorProperty
      * Id of value to inject, if value injection should be used for this parameter
      * (in addition to, or instead of, regular deserialization).
      */
-    protected final Object _injectableValueId;
+    protected final JacksonInject.Value _injectableValue;
 
     /**
      * In special cases, when implementing "updateValue", we cannot use
@@ -51,14 +52,9 @@ public class CreatorProperty
      *<p>
      * Mutable only to allow setting after construction, but must be strictly
      * set before any use.
-     * 
-     * @since 2.3
      */
     protected SettableBeanProperty _fallbackSetter;
 
-    /**
-     * @since 2.1
-     */
     protected final int _creatorIndex;
 
     /**
@@ -67,14 +63,28 @@ public class CreatorProperty
      * it represents something that should be ignored during deserialization.
      * This mostly concerns Creator properties which may not be easily deleted
      * during processing.
-     *
-     * @since 2.9.4
      */
     protected boolean _ignorable;
 
+    protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
+            TypeDeserializer typeDeser,
+            Annotations contextAnnotations, AnnotatedParameter param,
+            int index, JacksonInject.Value injectable,
+            PropertyMetadata metadata)
+    {
+        super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
+        _annotated = param;
+        _creatorIndex = index;
+        _injectableValue = injectable;
+        _fallbackSetter = null;
+    }
+
     /**
+     * Factory method for creating {@link CreatorProperty} instances
+     *
      * @param name Name of the logical property
      * @param type Type of the property, used to find deserializer
+     * @param wrapperName Possible wrapper to use for logical property, if any
      * @param typeDeser Type deserializer to use for handling polymorphic type
      *    information, if one is needed
      * @param contextAnnotations Contextual annotations (usually by class that
@@ -82,30 +92,23 @@ public class CreatorProperty
      *    this property)
      * @param param Representation of property, constructor or factory
      *    method parameter; used for accessing annotations of the property
+     * @param injectable Information about injectable value, if any
      * @param index Index of this property within creator invocation
-     * 
-     * @since 2.3
      */
-    public CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
+    public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
-            int index, Object injectableValueId,
+            int index, JacksonInject.Value injectable,
             PropertyMetadata metadata)
     {
-        super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
-        _annotated = param;
-        _creatorIndex = index;
-        _injectableValueId = injectableValueId;
-        _fallbackSetter = null;
+        return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
+                param, index, injectable, metadata);
     }
 
-    /**
-     * @since 2.3
-     */
     protected CreatorProperty(CreatorProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
-        _injectableValueId = src._injectableValueId;
+        _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
@@ -115,7 +118,7 @@ public class CreatorProperty
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
-        _injectableValueId = src._injectableValueId;
+        _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
@@ -151,8 +154,6 @@ public class CreatorProperty
     /**
      * NOTE: one exception to immutability, due to problems with CreatorProperty instances
      * being shared between Bean, separate PropertyBasedCreator
-     * 
-     * @since 2.6
      */
     public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
         _fallbackSetter = fallbackSetter;
@@ -166,39 +167,6 @@ public class CreatorProperty
     @Override
     public boolean isIgnorable() {
         return _ignorable;
-    }
-
-    /*
-    /**********************************************************
-    /* Injection support
-    /**********************************************************
-     */
-
-    // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,
-    //    to be removed from 2.12.0
-
-    // Method that can be called to locate value to be injected for this
-    // property, if it is configured for this.
-    @Deprecated // remove from 2.12
-    public Object findInjectableValue(DeserializationContext context, Object beanInstance)
-        throws JsonMappingException
-    {
-        if (_injectableValueId == null) {
-            context.reportBadDefinition(ClassUtil.classOf(beanInstance),
-                    String.format("Property '%s' (type %s) has no injectable value id configured",
-                    getName(), getClass().getName()));
-        }
-        return context.findInjectableValue(_injectableValueId, this, beanInstance);
-    }
-
-    // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,
-    //    to be removed from 2.12.0
-
-    // Method to find value to inject, and inject it to this property.
-    @Deprecated // remove from 2.12
-    public void inject(DeserializationContext context, Object beanInstance) throws IOException
-    {
-        set(beanInstance, findInjectableValue(context, beanInstance));
     }
 
     /*
@@ -220,10 +188,10 @@ public class CreatorProperty
     @Override public int getCreatorIndex() {
         return _creatorIndex;
     }
-    
+
     /*
     /**********************************************************
-    /* Overridden methods
+    /* Overridden methods, SettableBeanProperty
     /**********************************************************
      */
 
@@ -274,20 +242,37 @@ public class CreatorProperty
     // Perhaps counter-intuitively, ONLY creator properties return non-null id
     @Override
     public Object getInjectableValueId() {
-        return _injectableValueId;
+        return (_injectableValue == null) ? null : _injectableValue.getId();
     }
 
     @Override
-    public String toString() { return "[creator property, name '"+getName()+"'; inject id '"+_injectableValueId+"']"; }
+    public boolean isInjectionOnly() {
+        return (_injectableValue != null) && !_injectableValue.willUseInput(true);
+    }
 
-    // since 2.9
+    //  public boolean isInjectionOnly() { return false; }
+
+    /*
+    /**********************************************************
+    /* Overridden methods, other
+    /**********************************************************
+     */
+    
+    @Override
+    public String toString() { return "[creator property, name '"+getName()+"'; inject id '"+getInjectableValueId()+"']"; }
+
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
+
     private final void _verifySetter() throws IOException {
         if (_fallbackSetter == null) {
             _reportMissingSetter(null, null);
         }
     }
 
-    // since 2.9
     private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         final String msg = "No fallback setter/field defined for creator property '"+getName()+"'";

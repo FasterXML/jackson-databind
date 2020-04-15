@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.inject;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.*;
 
-public class SkipInjectableIntrospection962Test extends BaseMapTest
+// [databind#962]: "pure" Injectable that could not be deserialized
+public class InjectableWithoutDeser962Test extends BaseMapTest
 {
+    // [databind#962]
     static class InjectMe
     {
         private String a;
@@ -43,8 +45,7 @@ public class SkipInjectableIntrospection962Test extends BaseMapTest
         }
     }
 
-    // 14-Jun-2016, tatu: For some odd reason, this test sometimes fails, other times not...
-    //    possibly related to unstable ordering of properties?
+    // [databind#962]
     public void testInjected() throws Exception
     {
         InjectMe im = new InjectMe(true);

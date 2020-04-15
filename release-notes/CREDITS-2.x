@@ -378,10 +378,12 @@ Jayson Minard (apatrida@github)
    (2.8.5)
 
 David Bakin (david-bakin@github)
-  * Reported #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`
+* Reported #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`
    (2.6.4)
   * Suggested #1011: Change ObjectWriter::withAttributes() to take a Map with some kind of wildcard types
    (2.7.0)
+  * Reported #962: `@JsonInject` fails on trying to find deserializer even if inject-only
+   (2.11.0)
 
 Dmitry Romantsov (DmRomantsov@github)
   * Reported #1036: Problem with case-insensitive deserialization

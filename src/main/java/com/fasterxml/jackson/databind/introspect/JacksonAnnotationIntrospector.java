@@ -434,7 +434,9 @@ public class JacksonAnnotationIntrospector
     @Override
     public JsonFormat.Value findFormat(Annotated ann) {
         JsonFormat f = _findAnnotation(ann, JsonFormat.class);
-        return (f == null)  ? null : new JsonFormat.Value(f);
+        // NOTE: could also just call `JsonFormat.Value.from()` with `null`
+        // too, but that returns "empty" instance
+        return (f == null)  ? null : JsonFormat.Value.from(f);
     }
 
     @Override        

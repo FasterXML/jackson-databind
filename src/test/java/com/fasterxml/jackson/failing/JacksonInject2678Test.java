@@ -9,19 +9,21 @@ import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+// [databind#2678]: constructor-passed data overridden via field/setter injection
 public class JacksonInject2678Test extends BaseMapTest
 {
+    // [databind#2678]
     protected static class Some {
-        private final String field1;
+        private String field1;
 
-        @JacksonInject(value = "defaultValueForField2", useInput = OptBoolean.TRUE)
-        private final String field2;
+        private String field2;
 
         public Some(@JsonProperty("field1") final String field1,
                 @JsonProperty("field2")
                 @JacksonInject(value = "defaultValueForField2", useInput = OptBoolean.TRUE)
                 final String field2) {
-             this.field1 = Objects.requireNonNull(field1);
+//System.err.println("CTOR: setField2 as ["+field2+"]");            
+            this.field1 = Objects.requireNonNull(field1);
              this.field2 = Objects.requireNonNull(field2);
         }
 
@@ -32,8 +34,15 @@ public class JacksonInject2678Test extends BaseMapTest
         public String getField2() {
              return field2;
         }
+
+        @JacksonInject(value = "defaultValueForField2", useInput = OptBoolean.TRUE)
+        public void setField2(String v) {
+//System.err.println("DEBUG: setField2, was ["+field2+"], set to ["+v+"]");            
+            field2 = v;
+        }
     }
 
+    // [databind#2678]
     public void testReadValueInjectables() throws Exception {
         final InjectableValues injectableValues =
                   new InjectableValues.Std().addValue("defaultValueForField2", "somedefaultValue");

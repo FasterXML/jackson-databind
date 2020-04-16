@@ -10,8 +10,10 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import com.fasterxml.jackson.databind.*;
 
+// [databind#2465]
 public class JacksonInject2465Test extends BaseMapTest
 {
+    // [databind#2465]
     public static final class TestCase2465 {
         private final Internal2465 str;
         private final int id;

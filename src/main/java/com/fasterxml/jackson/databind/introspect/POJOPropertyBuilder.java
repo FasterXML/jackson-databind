@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -28,6 +29,13 @@ public class POJOPropertyBuilder
      */
     private final static AnnotationIntrospector.ReferenceProperty NOT_REFEFERENCE_PROP =
             AnnotationIntrospector.ReferenceProperty.managed("");
+
+    /**
+     * Marker value for case of "no value injection found"
+     *
+     * @since 2.11
+     */
+    private final static JacksonInject.Value NO_VALUE_INJECTION = JacksonInject.Value.empty();
 
     /**
      * Whether property is being composed for serialization
@@ -69,6 +77,13 @@ public class POJOPropertyBuilder
      * @since 2.9
      */
     protected transient AnnotationIntrospector.ReferenceProperty _referenceInfo;
+
+    /**
+     * Lazily accessed information about value injection information.
+     *
+     * @since 2.11
+     */
+    protected transient JacksonInject.Value _injectedValue;
 
     public POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
             boolean forSerialization, PropertyName internalName) {
@@ -634,6 +649,25 @@ public class POJOPropertyBuilder
             }
         });
         _referenceInfo = (result == null) ? NOT_REFEFERENCE_PROP : result;
+        return result;
+    }
+
+    @Override
+    public JacksonInject.Value findValueInjection() {
+//        protected transient  ;
+        JacksonInject.Value result = _injectedValue;
+        if (result != null) {
+            if (result == NO_VALUE_INJECTION) {
+                return null;
+            }
+        }
+        result = fromMemberAnnotations(new WithMember<JacksonInject.Value>() {
+            @Override
+            public JacksonInject.Value withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findInjectableValue(member);
+            }
+        });
+        _injectedValue = (result == null) ? NO_VALUE_INJECTION : result;
         return result;
     }
 

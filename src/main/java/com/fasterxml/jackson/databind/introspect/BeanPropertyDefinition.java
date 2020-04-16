@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.Iterator;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.databind.*;
@@ -256,6 +257,13 @@ public abstract class BeanPropertyDefinition
     public String findReferenceName() {
         AnnotationIntrospector.ReferenceProperty ref = findReferenceType();
         return (ref == null) ? null : ref.getName();
+    }
+
+    /**
+     * @since 2.11
+     */
+    public JacksonInject.Value findValueInjection() {
+        return null;
     }
 
     /**

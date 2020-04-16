@@ -326,7 +326,6 @@ public class POJOPropertiesCollector
         if (!_classDef.isNonStaticInnerClass()) {
             _addCreators(props);
         }
-        _addInjectables(props);
 
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
@@ -336,6 +335,10 @@ public class POJOPropertiesCollector
 
         // Rename remaining properties
         _renameProperties(props);
+
+        // and now add injectables, but taking care to avoid overlapping ones
+        // via creator and regular properties
+        _addInjectables(props);
 
         // then merge annotations, to simplify further processing
         // 26-Sep-2017, tatu: Before 2.9.2 was done earlier but that prevented some of

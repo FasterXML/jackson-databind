@@ -461,17 +461,17 @@ index, owner, defs[index], propDef);
             for (int i = 0; i < argCount; ++i) {
                 final AnnotatedParameter param = ctor.getParameter(i);
                 BeanPropertyDefinition propDef = candidate.propertyDef(i);
-                JacksonInject.Value injectId = intr.findInjectableValue(param);
+                JacksonInject.Value injectable = intr.findInjectableValue(param);
                 final PropertyName name = (propDef == null) ? null : propDef.getFullName();
 
                 if (propDef != null && propDef.isExplicitlyNamed()) {
                     ++explicitNameCount;
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                     continue;
                 }
-                if (injectId != null) {
+                if (injectable != null) {
                     ++injectCount;
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                     continue;
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);

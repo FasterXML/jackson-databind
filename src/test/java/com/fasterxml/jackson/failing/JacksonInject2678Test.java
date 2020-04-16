@@ -16,6 +16,7 @@ public class JacksonInject2678Test extends BaseMapTest
     protected static class Some {
         private String field1;
 
+        @JacksonInject(value = "defaultValueForField2", useInput = OptBoolean.TRUE)
         private String field2;
 
         public Some(@JsonProperty("field1") final String field1,
@@ -33,12 +34,6 @@ public class JacksonInject2678Test extends BaseMapTest
 
         public String getField2() {
              return field2;
-        }
-
-        @JacksonInject(value = "defaultValueForField2", useInput = OptBoolean.TRUE)
-        public void setField2(String v) {
-//System.err.println("DEBUG: setField2, was ["+field2+"], set to ["+v+"]");            
-            field2 = v;
         }
     }
 

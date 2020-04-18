@@ -1,12 +1,6 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
@@ -15,11 +9,15 @@ public class JacksonInject2465Test extends BaseMapTest
 {
     // [databind#2465]
     public static final class TestCase2465 {
+        // 17-Apr-2020, tatu: Forcing this to be ignored will work around the
+        //   problem, but this really should not be necessary.
+//        @JsonIgnore
         private final Internal2465 str;
         private final int id;
 
         @JsonCreator
-        public TestCase2465(@JacksonInject Internal2465 str, @JsonProperty("id") int id) {
+        public TestCase2465(@JacksonInject(useInput = OptBoolean.FALSE) Internal2465 str,
+                @JsonProperty("id") int id) {
             this.str = str;
             this.id = id;
         }

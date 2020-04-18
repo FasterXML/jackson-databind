@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.builder;
+package com.fasterxml.jackson.failing;
 
 import java.beans.ConstructorProperties;
 

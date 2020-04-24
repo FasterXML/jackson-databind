@@ -5,6 +5,8 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -2001,6 +2003,54 @@ public class ObjectMapper
      */
     public ObjectReader readerFor(TypeReference<?> type) {
         return _newReader(deserializationConfig(), _typeFactory.constructType(type), null,
+                null, _injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * read values of a type {@code List<type>}.
+     * Functionally same as:
+     *<pre>
+     *    readerFor(type[].class);
+     *</pre>
+     *
+     * @since 2.11
+     */
+    public ObjectReader readerForArrayOf(Class<?> type) {
+        return _newReader(deserializationConfig(),
+                _typeFactory.constructArrayType(type), null,
+                null, _injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * read or update instances of a type {@code List<type>}.
+     * Functionally same as:
+     *<pre>
+     *    readerFor(new TypeReference&lt;List&lt;type>>() { });
+     *</pre>
+     *
+     * @since 2.11
+     */
+    public ObjectReader readerForListOf(Class<?> type) {
+        return _newReader(deserializationConfig(),
+                _typeFactory.constructCollectionType(List.class, type), null,
+                null, _injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * read or update instances of a type {@code Map<String, type>}
+     * Functionally same as:
+     *<pre>
+     *    readerFor(new TypeReference&lt;Map&lt;String, type>>() { });
+     *</pre>
+     *
+     * @since 2.11
+     */
+    public ObjectReader readerForMapOf(Class<?> type) {
+        return _newReader(deserializationConfig(),
+                _typeFactory.constructMapType(Map.class, String.class, type), null,
                 null, _injectableValues);
     }
 

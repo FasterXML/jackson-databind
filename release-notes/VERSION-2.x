@@ -61,6 +61,8 @@ Project: jackson-databind
  (requested by Rafal K)
 #2668: `IllegalArgumentException` thrown for mismatched subclass deserialization
  (reported by nbruno@github)
+#2693: Add convenience methods for creating `List`, `Map` valued `ObjectReader`s
+  (ObjectMapper.readerForListOf())
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
 2.10.4 (not yet released)

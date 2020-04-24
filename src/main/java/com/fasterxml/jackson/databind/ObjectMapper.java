@@ -3953,6 +3953,54 @@ public class ObjectMapper
 
     /**
      * Factory method for constructing {@link ObjectReader} that will
+     * read values of a type {@code List<type>}.
+     * Functionally same as:
+     *<pre>
+     *    readerFor(type[].class);
+     *</pre>
+     *
+     * @since 2.11
+     */
+    public ObjectReader readerForArrayOf(Class<?> type) {
+        return _newReader(getDeserializationConfig(),
+                _typeFactory.constructArrayType(type), null,
+                null, _injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * read or update instances of a type {@code List<type>}.
+     * Functionally same as:
+     *<pre>
+     *    readerFor(new TypeReference&lt;List&lt;type>>() { });
+     *</pre>
+     *
+     * @since 2.11
+     */
+    public ObjectReader readerForListOf(Class<?> type) {
+        return _newReader(getDeserializationConfig(),
+                _typeFactory.constructCollectionType(List.class, type), null,
+                null, _injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * read or update instances of a type {@code Map<String, type>}
+     * Functionally same as:
+     *<pre>
+     *    readerFor(new TypeReference&lt;Map&lt;String, type>>() { });
+     *</pre>
+     *
+     * @since 2.11
+     */
+    public ObjectReader readerForMapOf(Class<?> type) {
+        return _newReader(getDeserializationConfig(),
+                _typeFactory.constructMapType(Map.class, String.class, type), null,
+                null, _injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
      * use specified {@link JsonNodeFactory} for constructing JSON trees.
      */
     public ObjectReader reader(JsonNodeFactory f) {

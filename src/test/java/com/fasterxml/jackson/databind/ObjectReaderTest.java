@@ -2,15 +2,14 @@ package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -58,6 +57,36 @@ public class ObjectReaderTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "No content to map due to end-of-input");
         }
+    }
+
+    // [databind#2693]: convenience read methods:
+    public void testReaderForArrayOf() throws Exception
+    {
+        Object value = MAPPER.readerForArrayOf(ABC.class)
+                .readValue("[ \"A\", \"C\" ]");
+        assertEquals(ABC[].class, value.getClass());
+        ABC[] abcs = (ABC[]) value;
+        assertEquals(2, abcs.length);
+        assertEquals(ABC.A, abcs[0]);
+        assertEquals(ABC.C, abcs[1]);
+    }
+
+    // [databind#2693]: convenience read methods:
+    public void testReaderForListOf() throws Exception
+    {
+        Object value = MAPPER.readerForListOf(ABC.class)
+                .readValue("[ \"B\", \"C\" ]");
+        assertEquals(ArrayList.class, value.getClass());
+        assertEquals(Arrays.asList(ABC.B, ABC.C), value);
+    }
+
+    // [databind#2693]: convenience read methods:
+    public void testReaderForMapOf() throws Exception
+    {
+        Object value = MAPPER.readerForMapOf(ABC.class)
+                .readValue("{\"key\" : \"B\" }");
+        assertEquals(LinkedHashMap.class, value.getClass());
+        assertEquals(Collections.singletonMap("key", ABC.B), value);
     }
 
     public void testParserFeatures() throws Exception

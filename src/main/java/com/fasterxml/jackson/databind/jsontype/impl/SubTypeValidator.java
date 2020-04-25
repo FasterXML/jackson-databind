@@ -183,6 +183,15 @@ public class SubTypeValidator
         // [databind#2688]: apache/drill
         s.add("oadd.org.apache.xalan.lib.sql.JNDIConnectionPool");
 
+        // [databind#2698]: weblogic w/ oracle/aq-jms
+        // (note: dependency not available via Maven Central, but as part of
+        // weblogic installation, possibly fairly old version(s))
+        s.add("oracle.jms.AQjmsQueueConnectionFactory");
+        s.add("oracle.jms.AQjmsXATopicConnectionFactory");
+        s.add("oracle.jms.AQjmsTopicConnectionFactory");
+        s.add("oracle.jms.AQjmsXAQueueConnectionFactory");
+        s.add("oracle.jms.AQjmsXAConnectionFactory");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

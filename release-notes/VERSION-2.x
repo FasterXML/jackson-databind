@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.10.5 (not yet released)
+
+#2688: Block one more gadget type (apache-drill)
+ (reported by Topsec(tcc))
+
 2.9.10.4 (11-Apr-2020)
 
 #2631: Block one more gadget type (shaded-hikari-config, CVE-2020-9546)

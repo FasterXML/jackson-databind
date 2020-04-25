@@ -29,6 +29,48 @@ Project: jackson-databind
 
 #2101: `FAIL_ON_NULL_FOR_PRIMITIVES` failure does not indicate field name in exception message
  (reported by raderio@github)
+
+2.9.10.5 (not yet released)
+
+#2688: Block one more gadget type (apache-drill)
+ (reported by Topsec(tcc))
+
+2.9.10.4 (11-Apr-2020)
+
+#2631: Block one more gadget type (shaded-hikari-config, CVE-2020-9546)
+ (reported by threedr3am & LFY)
+#2634: Block two more gadget types (ibatis-sqlmap, anteros-core; CVE-2020-9547 / CVE-2020-9548)
+ (reported by threedr3am & V1ZkRA)
+#2642: Block one more gadget type (javax.swing, CVE-2020-10969)
+ (reported by threedr3am)
+#2648: Block one more gadget type (shiro-core)
+#2653: Block one more gadget type (shiro-core)
+#2658: Block one more gadget type (ignite-jta, CVE-2020-10650)
+ (reported by Srikanth Ramu, threedr3am'follower)
+#2659: Block one more gadget type (aries.transaction.jms, CVE-2020-10672)
+ (reported by Srikanth Ramu)
+#2660: Block one more gadget type (caucho-quercus, CVE-2020-10673)
+ (reported by threedr3am'follower)
+#2662: Block one more gadget type (bus-proxy, CVE-2020-10968)
+ (reported by XuYuanzhen)
+#2664: Block one more gadget type (activemq-pool[-jms], CVE-2020-11111)
+ (reported by Srikanth Ramu)
+#2666: Block one more gadget type (apache/commons-proxy, CVE-2020-11112)
+ (reported by Yiting Fan)
+#2670: Block one more gadget type (openjpa, CVE-2020-11113)
+ (reported by XuYuanzhen)
+#2680: Block one more gadget type (SSRF, spring-aop, CVE-2020-11619)
+#2682: Block one more gadget type (commons-jelly, CVE-2020-11620)
+
+2.9.10.3 (23-Feb-2020)
+
+#2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)
+ (reported by threedr3am@github)
+
+2.9.10.2 (03-Jan-2020)
+
+#2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)
+  (repoerted by UltramanGaia)
 #2544: java.lang.NoClassDefFoundError Thrown for compact profile1
   (reported by Jon A)
 #2553: JsonDeserialize(contentAs=...) broken with raw collections

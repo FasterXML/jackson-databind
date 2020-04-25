@@ -180,6 +180,9 @@ public class SubTypeValidator
         // [databind#2682]: commons-jelly
         s.add("org.apache.commons.jelly.impl.Embedded");
 
+        // [databind#2688]: apache/drill
+        s.add("oadd.org.apache.xalan.lib.sql.JNDIConnectionPool");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

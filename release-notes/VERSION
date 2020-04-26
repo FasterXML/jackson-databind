@@ -61,9 +61,9 @@ Project: jackson-databind
 #1872: `NullPointerException` in `SubTypeValidator.validateSubType` when
   validating Spring interface
  (reported by Rob W)
-#1899: Another two gadgets to exploit default typing issue in jackson-databind
+#1899: Another two gadgets to exploit default typing issue (CVE-2018-5968)
  (reported by OneSourceCat@github)
-#1931: Two more `c3p0` gadgets to exploit default typing issue
+#1931: Two more `c3p0` gadgets to exploit default typing issue (c3p0, CVE-2018-7489)
 
 2.8.11 (24-Dec-2017)
 

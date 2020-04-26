@@ -3972,7 +3972,7 @@ public class ObjectMapper
      * read or update instances of a type {@code List<type>}.
      * Functionally same as:
      *<pre>
-     *    readerFor(new TypeReference&lt;List&lt;type>>() { });
+     *    readerFor(new TypeReference&lt;List&lt;type&gt;&gt;() { });
      *</pre>
      *
      * @since 2.11
@@ -3988,7 +3988,7 @@ public class ObjectMapper
      * read or update instances of a type {@code Map<String, type>}
      * Functionally same as:
      *<pre>
-     *    readerFor(new TypeReference&lt;Map&lt;String, type>>() { });
+     *    readerFor(new TypeReference&lt;Map&lt;String, type&gt;&gt;() { });
      *</pre>
      *
      * @since 2.11

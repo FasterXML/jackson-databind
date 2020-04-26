@@ -497,7 +497,7 @@ Project: jackson-databind
 #1585: Invoke ServiceLoader.load() inside of a privileged block when loading
   modules using `ObjectMapper.findModules()`
  (contributed by Ivo S)
-#1599: Jackson Deserializer security vulnerability
+#1599: Jackson Deserializer security vulnerability (CVE-2017-7525)
  (reported by ayound@github)
 #1607: @JsonIdentityReference not used when setup on class only
  (reported by vboulaye@github)

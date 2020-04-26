@@ -229,7 +229,7 @@ Project: jackson-databind
  (reported by Alexander S)
 #1854: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (reported by rue-jw@github)
-#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring, CVE-2017-17485)
 #1859: Issue handling unknown/unmapped Enum keys
  (reported by remya11@github)
 #1868: Class name handling for JDK unmodifiable Collection types changed

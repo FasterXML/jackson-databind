@@ -456,7 +456,7 @@ Project: jackson-databind
  (reported by henryptung@github)
 #1807: Jackson-databind caches plain map deserializer and use it even map has `@JsonDeserializer`
  (reported by lexas2509@github)
-#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring / CVE-2017-17485)
 
 2.8.10 (24-Aug-2017)
 
@@ -472,7 +472,7 @@ Project: jackson-databind
  binary formats (CBOR, Smile)
 #1735: Missing type checks when using polymorphic type ids
  (reported by Lukas Euler)
-#1737: Block more JDK types from polymorphic deserialization
+#1737: Block more JDK types from polymorphic deserialization (CVE 2017-15095)
 
 2.8.9 (12-Jun-2017)
 

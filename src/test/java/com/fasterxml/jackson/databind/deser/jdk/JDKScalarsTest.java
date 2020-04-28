@@ -883,7 +883,7 @@ public class JDKScalarsTest
 
     public void testInvalidStringCoercionFail() throws IOException
     {
-        _testInvalidStringCoercionFail(boolean[].class);
+        _testInvalidStringCoercionFail(boolean[].class, "boolean");
         _testInvalidStringCoercionFail(byte[].class);
 
         // char[] is special, cannot use generalized test here
@@ -897,14 +897,19 @@ public class JDKScalarsTest
 
     private void _testInvalidStringCoercionFail(Class<?> cls) throws IOException
     {
+        _testInvalidStringCoercionFail(cls, cls.getSimpleName());
+    }
+
+    private void _testInvalidStringCoercionFail(Class<?> cls, String targetTypeName)
+            throws IOException
+    {
         final String JSON = "[ \"foobar\" ]";
-        final String SIMPLE_NAME = cls.getSimpleName();
 
         try {
             MAPPER.readerFor(cls).readValue(JSON);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Cannot deserialize value of type `"+SIMPLE_NAME+"` from String \"foobar\"");
+            verifyException(e, "Cannot deserialize value of type `"+targetTypeName+"` from String \"foobar\"");
         }
     }
 }

@@ -76,6 +76,7 @@ public class AnnotatedPolymorphicValidationTest
 
         // but may with proper validator
         ObjectMapper customMapper = JsonMapper.builder()
+                .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
                 .polymorphicTypeValidator(new NumbersAreOkValidator())
                 .build();
         

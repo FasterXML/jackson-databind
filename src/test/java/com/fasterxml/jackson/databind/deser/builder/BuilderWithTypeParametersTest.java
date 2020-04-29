@@ -37,6 +37,12 @@ public class BuilderWithTypeParametersTest
         return data;
       }
 
+      // 28-Apr-2020, tatu: Note that as per [databind#921] the NAME of
+      //   type variable here MUST match that of enclosing class. This has
+      //   no semantic meaning to JDK or javac, but internally 
+      //   `MapperFeature.INFER_BUILDER_TYPE_BINDINGS` relies on this -- but
+      //   can not really validate it. So user just has to rely on bit of
+      //    black magic to use generic types with builders.
       public static class Builder<T> {
         private List<T> data;
 

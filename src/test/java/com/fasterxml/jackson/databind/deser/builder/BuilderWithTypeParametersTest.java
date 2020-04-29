@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+// [databind#921]: support infering type parameters from Builder
 public class BuilderWithTypeParametersTest
     extends BaseMapTest
 {
@@ -36,6 +37,12 @@ public class BuilderWithTypeParametersTest
         return data;
       }
 
+      // 28-Apr-2020, tatu: Note that as per [databind#921] the NAME of
+      //   type variable here MUST match that of enclosing class. This has
+      //   no semantic meaning to JDK or javac, but internally 
+      //   `MapperFeature.INFER_BUILDER_TYPE_BINDINGS` relies on this -- but
+      //   can not really validate it. So user just has to rely on bit of
+      //    black magic to use generic types with builders.
       public static class Builder<T> {
         private List<T> data;
 
@@ -94,7 +101,9 @@ public class BuilderWithTypeParametersTest
     }
 
     public void testWithBuilderWithoutInferringBindings() throws Exception {
-      final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
+                .build();
       final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
       final MyGenericPOJO<MyPOJO> deserialized =
           mapper.readValue(json, new TypeReference<MyGenericPOJO<MyPOJO>>() {});

@@ -4,6 +4,15 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.12.0 (not yet released)
+
+#792: Deserialization Not Working Right with Generic Types and Builders
+ (reported by Mike G; fix contributed by Ville K)
+
+2.11.1 (not yet released)
+
+-
+
 2.11.0 (26-Apr-2020)
 
 #953: i-I case conversion problem in Turkish locale with case-insensitive deserialization

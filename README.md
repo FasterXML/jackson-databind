@@ -405,8 +405,8 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.10` is the current stable minor 2.x version
-* `2.9` is for selected backported fixes 
+* `2.11` is the current stable minor 2.x version
+* `2.10` is for selected backported fixes 
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,

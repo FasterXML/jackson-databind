@@ -388,11 +388,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _typeFactory.constructType(valueTypeRef.getType());
     }
 
-    @Override
-    public final JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
-        return _typeFactory.constructSpecializedType(baseType, subclass);
-    }
-
     /*
     /**********************************************************************
     /* Simple config property access

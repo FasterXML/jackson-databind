@@ -306,6 +306,18 @@ public abstract class SerializerProvider
     }
 
     @Override
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
+        throws IllegalArgumentException
+    {
+        if (baseType.hasRawClass(subclass)) {
+            return baseType;
+        }
+        // Need little bit different handling due to [databind#2632]; pass `true` for
+        // "relaxed" type assingment checks.
+        return getConfig().getTypeFactory().constructSpecializedType(baseType, subclass, true);
+    }
+
+    @Override
     public final Class<?> getActiveView() { return _activeView; }
 
     @Override

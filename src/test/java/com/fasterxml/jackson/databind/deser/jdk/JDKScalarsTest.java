@@ -866,14 +866,24 @@ public class JDKScalarsTest
         }
     }
 
-    // [databind#2197]
+    // [databind#2197], [databind#2679]
     public void testVoidDeser() throws Exception
     {
+        // First, `Void` as bean property
         VoidBean bean = MAPPER.readValue(aposToQuotes("{'value' : 123 }"),
                 VoidBean.class);
         assertNull(bean.value);
+
+        // Then `Void` and `void` (Void.TYPE) as root values
+        assertNull(MAPPER.readValue("{}", Void.class));
+        assertNull(MAPPER.readValue("1234", Void.class));
+        assertNull(MAPPER.readValue("[ 1, true ]", Void.class));
+
+        assertNull(MAPPER.readValue("{}", Void.TYPE));
+        assertNull(MAPPER.readValue("1234", Void.TYPE));
+        assertNull(MAPPER.readValue("[ 1, true ]", Void.TYPE));
     }
-    
+
     /*
     /**********************************************************
     /* Test for invalid String values
@@ -882,7 +892,7 @@ public class JDKScalarsTest
 
     public void testInvalidStringCoercionFail() throws IOException
     {
-        _testInvalidStringCoercionFail(boolean[].class);
+        _testInvalidStringCoercionFail(boolean[].class, "boolean");
         _testInvalidStringCoercionFail(byte[].class);
 
         // char[] is special, cannot use generalized test here
@@ -896,14 +906,19 @@ public class JDKScalarsTest
 
     private void _testInvalidStringCoercionFail(Class<?> cls) throws IOException
     {
+        _testInvalidStringCoercionFail(cls, cls.getSimpleName());
+    }
+
+    private void _testInvalidStringCoercionFail(Class<?> cls, String targetTypeName)
+            throws IOException
+    {
         final String JSON = "[ \"foobar\" ]";
-        final String SIMPLE_NAME = cls.getSimpleName();
 
         try {
             MAPPER.readerFor(cls).readValue(JSON);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Cannot deserialize value of type `"+SIMPLE_NAME+"` from String \"foobar\"");
+            verifyException(e, "Cannot deserialize value of type `"+targetTypeName+"` from String \"foobar\"");
         }
     }
 }

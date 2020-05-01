@@ -84,8 +84,6 @@ ClassUtil.classNameOf(getClass()), ClassUtil.classNameOf(baseType.getRawClass())
      *
      * @param ctxt Processing context (to give access to configuration)
      * @param baseType Base type to test
-     *
-     * @param True if base type is considered unsafe
      */
     protected boolean isUnsafeBaseType(DatabindContext ctxt, JavaType baseType)
     {
@@ -100,8 +98,6 @@ ClassUtil.classNameOf(getClass()), ClassUtil.classNameOf(baseType.getRawClass())
      * @param ctxt Processing context (to give access to configuration)
      * @param baseType Base type of sub type (validated earlier)
      * @param subType Sub type to test
-     *
-     * @param True if sub type is considered safe for processing; false if not
      */
     protected boolean isSafeSubType(DatabindContext ctxt,
             JavaType baseType, JavaType subType)

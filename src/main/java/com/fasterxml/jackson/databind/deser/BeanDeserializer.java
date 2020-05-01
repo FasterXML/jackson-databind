@@ -139,6 +139,11 @@ public class BeanDeserializer
     }
 
     @Override
+    public BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown) {
+        return new BeanDeserializer(this, ignoreUnknown);
+    }
+
+    @Override
     public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
         return new BeanDeserializer(this, props);
     }
@@ -209,8 +214,8 @@ public class BeanDeserializer
             case VALUE_NULL:
                 return deserializeFromNull(p, ctxt);
             case START_ARRAY:
-                // these only work if there's a (delegating) creator...
-                return deserializeFromArray(p, ctxt);
+                // these only work if there's a (delegating) creator, or UNWRAP_SINGLE_ARRAY
+                return _deserializeFromArray(p, ctxt);
             case FIELD_NAME:
             case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
                 if (_vanillaProcessing) {
@@ -465,9 +470,6 @@ public class BeanDeserializer
                 return deserializeWithExternalTypeId(p, ctxt);
             }
             Object bean = deserializeFromObjectUsingNonDefault(p, ctxt);
-            if (_injectables != null) {
-                injectValues(ctxt, bean);
-            }
             // 27-May-2014, tatu: I don't think view processing would work
             //   at this point, so commenting it out; but leaving in place
             //   just in case I forgot something fundamental...
@@ -639,11 +641,16 @@ public class BeanDeserializer
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            bean =  creator.build(ctxt, buffer);
+            bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
             bean = null; // never gets here
         }
+        // 13-Apr-2020, tatu: [databind#2678] need to handle injection here
+        if (_injectables != null) {
+            injectValues(ctxt, bean);
+        }
+
         if (referrings != null) {
             for (BeanReferring referring : referrings) {
                referring.setBean(bean);
@@ -660,9 +667,6 @@ public class BeanDeserializer
         return bean;
     }
 
-    /**
-     * @since 2.8
-     */
     private BeanReferring handleUnresolvedReference(DeserializationContext ctxt,
             SettableBeanProperty prop, PropertyValueBuffer buffer,
             UnresolvedForwardReference reference)
@@ -708,6 +712,41 @@ public class BeanDeserializer
             p2.close();
             tb.close();
             return ob;
+        }
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+    }
+
+    @Override
+    protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        // note: cannot call `_delegateDeserializer()` since order reversed here:
+        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
+        // fallback to non-array delegate
+        if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
+            Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt,
+                    delegateDeser.deserialize(p, ctxt));
+            if (_injectables != null) {
+                injectValues(ctxt, bean);
+            }
+            return bean;
+        }
+        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            JsonToken t = p.nextToken();
+            if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                return null;
+            }
+            final Object value = deserialize(p, ctxt);
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                handleMissingEndArrayForSingle(p, ctxt);
+            }
+            return value;
+        }
+        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+            JsonToken t = p.nextToken();
+            if (t == JsonToken.END_ARRAY) {
+                return null;
+            }
+            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
         }
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

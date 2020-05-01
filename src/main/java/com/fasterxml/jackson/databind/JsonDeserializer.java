@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * {@link #createContextual} which allows specialization of deserializers:
  * it is passed information on property, and can create a newly configured
  * deserializer for handling that particular property.
- *<br />
+ *<br>
  * Resolution of deserializers occurs before contextualization.
  */
 public abstract class JsonDeserializer<T>

@@ -181,26 +181,6 @@ public final class DeserializerCache
         return kd;
     }
 
-    // as per [databind#1917], not needed any more:
-    /**
-     * Method called to find out whether provider would be able to find
-     * a deserializer for given type, using a root reference (i.e. not
-     * through fields or membership in an array or collection)
-    public boolean hasValueDeserializerFor(DeserializationContext ctxt,
-            DeserializerFactory factory, JavaType type)
-        throws JsonMappingException
-    {
-        // Note: mostly copied from findValueDeserializer, except for
-        // handling of unknown types
-        JsonDeserializer<Object> deser = _findCachedDeserializer(type);
-        if (deser == null) {
-            deser = _createAndCacheValueDeserializer(ctxt, factory, type);
-        }
-        return (deser != null);
-    }
-*/
-
-
     /*
     /**********************************************************************
     /* Helper methods that handle cache lookups

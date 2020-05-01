@@ -30,7 +30,7 @@ public class SimpleAbstractTypeResolver
     extends AbstractTypeResolver
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 8635483102371490919L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Mappings from super types to subtypes

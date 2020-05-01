@@ -10,7 +10,10 @@ public class NumberNodes1770Test extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // Related to [databind#1770]
+    // For to [databind#1770] (broken due to fix for #1028): `JsonNodeDeserializer`
+    // would coerce ok but does `parser.isNaN()` check which ends up parsing
+    // as Double, gets `POSITIVE_INFINITY` and returns `true`: this results in
+    // `DoubleNode` being used even tho `BigDecimal` could fit the number.
     public void testBigDecimalCoercion() throws Exception
     {
         final JsonNode jsonNode = MAPPER.reader()

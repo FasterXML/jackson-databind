@@ -67,6 +67,11 @@ public class NumberDeserializers
             if (rawType == Float.TYPE) {
                 return FloatDeserializer.primitiveInstance;
             }
+            // [databind#2679]: bit odd place for this (Void.class handled in
+            // `JdkDeserializers`), due to `void` being primitive type
+            if (rawType == Void.TYPE) {
+                return NullifyingDeserializer.instance;
+            }
         } else if (_classNames.contains(rawType.getName())) {
             // Start with most common types; int, boolean, long, double
             if (rawType == Integer.class) {

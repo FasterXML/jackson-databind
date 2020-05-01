@@ -378,10 +378,12 @@ Jayson Minard (apatrida@github)
    (2.8.5)
 
 David Bakin (david-bakin@github)
-  * Reported #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`
+* Reported #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`
    (2.6.4)
   * Suggested #1011: Change ObjectWriter::withAttributes() to take a Map with some kind of wildcard types
    (2.7.0)
+  * Reported #962: `@JsonInject` fails on trying to find deserializer even if inject-only
+   (2.11.0)
 
 Dmitry Romantsov (DmRomantsov@github)
   * Reported #1036: Problem with case-insensitive deserialization
@@ -1045,6 +1047,10 @@ Alexander Shilov (ashlanderr@github)
   * Reported, suggested fix for #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
   (2.10.3)
 
+Endre Stølsvik (stolsvik@github)
+  * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
+  (2.10.4)
+
 Máté Rédecsi (rmatesz@github)
   * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
  (2.11.0)
@@ -1052,6 +1058,8 @@ Máté Rédecsi (rmatesz@github)
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)
+  * Contributed fix for #792: Deserialization Not Working Right with Generic Types and Builders
+  (2.12.0)
 
 Fitz (Joongsoo.Park) (joongsoo@github)
   * Contributed #2511: Add `SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL`
@@ -1088,3 +1096,15 @@ Oleksandr Poslavskyi (alevskyi@github)
   * Contributed fix for #1983: Polymorphic deserialization should handle case-insensitive Type Id
     property name if `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES` is enabled
  (2.11.0)
+
+Simone D'Avico (simonedavico@github)
+  * Reported #2632: Failure to resolve generic type parameters on serialization
+ (2.11.0)
+ 
+Robin Roos (robinroos@github)
+  * Contributed #2636: ObjectReader readValue lacks Class<T> argument
+ (2.11.0)
+
+Mike Gilbode (gilbode@github)
+  * Reported #792: Deserialization Not Working Right with Generic Types and Builders
+  (2.12.0)

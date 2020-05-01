@@ -235,6 +235,9 @@ public class TestJavaType
         JavaType t  = tf.constructType(AtomicStringReference.class);
         assertTrue(t.isReferenceType());
         assertTrue(t.hasContentType());
+        JavaType ct = t.getContentType();
+        assertEquals(String.class, ct.getRawClass());
+        assertSame(ct, t.containedType(0));
         ReferenceType rt = (ReferenceType) t;
         assertFalse(rt.isAnchorType());
         assertEquals(AtomicReference.class, rt.getAnchorType().getRawClass());
@@ -250,5 +253,20 @@ public class TestJavaType
         JavaType sub = tf.constructSpecializedType(base, AtomicReference.class);
         assertEquals(AtomicReference.class, sub.getRawClass());
         assertTrue(sub.isReferenceType());
+    }
+
+    // for [databind#2091]
+    public void testConstructReferenceType() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        // do AtomicReference<Long>
+        final JavaType refdType = tf.constructType(Long.class);
+        JavaType t  = tf.constructReferenceType(AtomicReference.class, refdType);
+        assertTrue(t.isReferenceType());
+        assertTrue(t.hasContentType());
+        assertEquals(Long.class, t.getContentType().getRawClass());
+
+        // 26-Mar-2020, tatu: [databind#2019] suggest this should be 1...
+//        assertEquals(1, t.containedTypeCount());
     }
 }

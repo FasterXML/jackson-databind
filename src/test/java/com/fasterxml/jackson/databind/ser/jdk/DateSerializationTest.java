@@ -3,15 +3,7 @@ package com.fasterxml.jackson.databind.ser.jdk;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-
-import org.junit.Assert;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -118,15 +110,15 @@ public class DateSerializationTest
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .build();
 
-        serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+00:00");
-        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+00:00");
-        serialize(mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+00:00");
-        serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+00:00");
+        serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000Z");
+        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"), "1970-01-01T00:00:00.000Z");
+        serialize(mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000Z");
+        serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"), "1970-01-01T00:00:00.000Z");
 
         // 22-Nov-2018, tatu: Also ensure we use padding...
-        serialize(mapper, judate(911, 1, 1,  00, 00, 00, 0, "UTC"),   "0911-01-01T00:00:00.000+00:00");
-        serialize(mapper, judate(87, 1, 1,  00, 00, 00, 0, "UTC"),   "0087-01-01T00:00:00.000+00:00");
-        serialize(mapper, judate(1, 1, 1,  00, 00, 00, 0, "UTC"),   "0001-01-01T00:00:00.000+00:00");
+        serialize(mapper, judate(911, 1, 1,  00, 00, 00, 0, "UTC"), "0911-01-01T00:00:00.000Z");
+        serialize(mapper, judate(87, 1, 1,  00, 00, 00, 0, "UTC"), "0087-01-01T00:00:00.000Z");
+        serialize(mapper, judate(1, 1, 1,  00, 00, 00, 0, "UTC"), "0001-01-01T00:00:00.000Z");
     }
 
     // [databind#2167]: beyond year 9999 needs special handling
@@ -134,9 +126,9 @@ public class DateSerializationTest
     {
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        serialize(w, judate(10204, 1, 1,  00, 00, 00, 0, "UTC"),   "+10204-01-01T00:00:00.000+00:00");
+        serialize(w, judate(10204, 1, 1,  00, 00, 00, 0, "UTC"),   "+10204-01-01T00:00:00.000Z");
         // and although specification lacks for beyond 5 digits (well, actually even 5...), let's do our best:
-        serialize(w, judate(123456, 1, 1,  00, 00, 00, 0, "UTC"),   "+123456-01-01T00:00:00.000+00:00");
+        serialize(w, judate(123456, 1, 1,  00, 00, 00, 0, "UTC"),   "+123456-01-01T00:00:00.000Z");
     }
 
     // [databind#2167]: dates before Common Era (CE), that is, BCE, need special care:
@@ -148,10 +140,10 @@ public class DateSerializationTest
         // First: I _think_ BCE-1 is what you get with year 0, and should become "+0000"
         // and from further back in time, it'll be "-0001" (BCE-2) etc)
 
-        serialize(w, judate(0, 1, 1,  00, 00, 00, 0, "UTC"),   "+0000-01-01T00:00:00.000+00:00");
-        serialize(w, judate(-1, 1, 1,  00, 00, 00, 0, "UTC"),   "-0001-01-01T00:00:00.000+00:00");
-        serialize(w, judate(-49, 1, 1,  00, 00, 00, 0, "UTC"),   "-0049-01-01T00:00:00.000+00:00"); // All hail Caesar
-        serialize(w, judate(-264, 1, 1,  00, 00, 00, 0, "UTC"),   "-0264-01-01T00:00:00.000+00:00"); // Carthage FTW?
+        serialize(w, judate(0, 1, 1,  00, 00, 00, 0, "UTC"),   "+0000-01-01T00:00:00.000Z");
+        serialize(w, judate(-1, 1, 1,  00, 00, 00, 0, "UTC"),   "-0001-01-01T00:00:00.000Z");
+        serialize(w, judate(-49, 1, 1,  00, 00, 00, 0, "UTC"),   "-0049-01-01T00:00:00.000Z"); // All hail Caesar
+        serialize(w, judate(-264, 1, 1,  00, 00, 00, 0, "UTC"),   "-0264-01-01T00:00:00.000Z"); // Carthage FTW?
     }
 
     /**
@@ -170,12 +162,14 @@ public class DateSerializationTest
     /**
      * Configure the StdDateFormat to serialize TZ offset with a colon between hours and minutes
      *
-     * See [databind#1744]
+     * See [databind#1744], [databind#2643]
      */
     public void testDateISO8601_colonInTZ() throws IOException
     {
+        // with [databind#2643], default now is to include
         StdDateFormat dateFormat = new StdDateFormat();
         assertTrue(dateFormat.isColonIncludedInTimeZone());
+        // but we can disable it
         dateFormat = dateFormat.withColonInTimeZone(false);
         assertFalse(dateFormat.isColonIncludedInTimeZone());
 
@@ -183,8 +177,8 @@ public class DateSerializationTest
                 .defaultDateFormat(dateFormat)
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .build();
-        serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+0000");
-        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+0000");
+        serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000Z");
+        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000Z");
     }
 
     public void testDateOther() throws IOException
@@ -236,7 +230,7 @@ public class DateSerializationTest
         assertFalse(mapper.isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS));
         map.put(new Date(0L), Integer.valueOf(1));
         // by default will serialize as ISO-8601 values...
-        assertEquals("{\"1970-01-01T00:00:00.000+00:00\":1}", mapper.writeValueAsString(map));
+        assertEquals("{\"1970-01-01T00:00:00.000Z\":1}", mapper.writeValueAsString(map));
         
         // but can change to use timestamps too
         mapper = jsonMapperBuilder()
@@ -270,7 +264,7 @@ public class DateSerializationTest
 
         // and with default (ISO8601) format (databind#1109)
         json = MAPPER.writeValueAsString(new DateAsDefaultStringBean(0L));
-        assertEquals("{\"date\":\"1970-01-01T00:00:00.000+00:00\"}", json);
+        assertEquals("{\"date\":\"1970-01-01T00:00:00.000Z\"}", json);
     }
 
     /**
@@ -297,10 +291,12 @@ public class DateSerializationTest
         serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
 
         // Also: should be able to dynamically change timezone:
-        ObjectWriter w = mapper.writer();
-        w = w.with(TimeZone.getTimeZone("EST"));
-        String json = w.writeValueAsString(new Date(0));
-        assertEquals(quote("1969-12-31/19:00 EST"), json);
+        ObjectWriter w = mapper.writer().with(TimeZone.getTimeZone("EST"));
+        assertEquals(quote("1969-12-31/19:00 EST"), w.writeValueAsString(new Date(0)));
+
+        // wrt [databind#2643]
+        w = mapper.writer().with(TimeZone.getTimeZone("Asia/Tehran"));
+        assertEquals(quote("1970-01-01/03:30 IRST"), w.writeValueAsString(new Date(0)));
     }
 
     /**
@@ -317,7 +313,7 @@ public class DateSerializationTest
         json = MAPPER.writer()
                 .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(new DateAsDefaultBean(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+00:00'}"), json);
+        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000Z'}"), json);
 
         // Empty @JsonFormat => default to user config
         json = MAPPER.writer()
@@ -327,7 +323,7 @@ public class DateSerializationTest
         json = MAPPER.writer()
                 .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(new DateAsDefaultBeanWithEmptyJsonFormat(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+00:00'}"), json);
+        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000Z'}"), json);
 
         // @JsonFormat with Shape.ANY and pattern => STRING shape, regardless of user config
         json = MAPPER.writer()
@@ -343,11 +339,11 @@ public class DateSerializationTest
         json = MAPPER.writer()
                 .with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(new DateAsDefaultBeanWithLocale(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+00:00'}"), json);
+        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000Z'}"), json);
         json = MAPPER.writer()
                 .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .writeValueAsString(new DateAsDefaultBeanWithLocale(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+00:00'}"), json);
+        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000Z'}"), json);
 
         // @JsonFormat with Shape.ANY and timezone => STRING shape, regardless of user config
         json = MAPPER.writer()
@@ -387,10 +383,10 @@ public class DateSerializationTest
     }
 
     private void serialize(ObjectMapper mapper, Object date, String expected) throws IOException {
-        Assert.assertEquals(quote(expected), mapper.writeValueAsString(date));
+        assertEquals(quote(expected), mapper.writeValueAsString(date));
     }
 
     private void serialize(ObjectWriter w, Object date, String expected) throws IOException {
-        Assert.assertEquals(quote(expected), w.writeValueAsString(date));
+        assertEquals(quote(expected), w.writeValueAsString(date));
     }
 }

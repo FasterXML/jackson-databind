@@ -4,10 +4,21 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.11.0 (not yet released)
+2.12.0 (not yet released)
+
+#792: Deserialization Not Working Right with Generic Types and Builders
+ (reported by Mike G; fix contributed by Ville K)
+
+2.11.1 (not yet released)
+
+-
+
+2.11.0 (26-Apr-2020)
 
 #953: i-I case conversion problem in Turkish locale with case-insensitive deserialization
  (reported by Máté R)
+#962: `@JsonInject` fails on trying to find deserializer even if inject-only
+ (reported by David B)
 #1983: Polymorphic deserialization should handle case-insensitive Type Id property name
   if `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES` is enabled
  (reported by soundvibe@github, fix contributed by Oleksandr P)
@@ -42,9 +53,33 @@ Project: jackson-databind
  (reported by Bartosz B)
 #2592: `ObjectMapper.setSerializationInclusion()` is ignored for `JsonAnyGetter`
  (reported by Oleksii K)
+#2608: `ValueInstantiationException` when deserializing using a builder and
+  `UNWRAP_SINGLE_VALUE_ARRAYS`
+ (reported by cadrake@github)
+#2627: JsonIgnoreProperties(ignoreUnknown = true) does not work on field and method level
+ (reported by robotmrv@github)
+#2632: Failure to resolve generic type parameters on serialization
+ (reported by Simone D)
+#2636: ObjectReader readValue lacks Class<T> argument
+ (contributed by Robin R)
+#2643: Change default textual serialization of `java.util.Date`/`Calendar`
+  to include colon in timezone offset
+#2647: Add `ObjectMapper.createParser()` and `createGenerator()` methods
+#2657: Allow serialization of `Properties` with non-String values
+#2663: Add new factory method for creating custom `EnumValues` to pass to `EnumDeserializer
+ (requested by Rafal K)
+#2668: `IllegalArgumentException` thrown for mismatched subclass deserialization
+ (reported by nbruno@github)
+#2693: Add convenience methods for creating `List`, `Map` valued `ObjectReader`s
+  (ObjectMapper.readerForListOf())
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
-2.10.3 (not yet released)
+2.10.4 (not yet released)
+
+#2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
+ (reported by Endre S)
+
+2.10.3 (03-Mar-2020)
 
 #2482: `JSONMappingException` `Location` column number is one line Behind the actual
   location
@@ -64,6 +99,50 @@ Project: jackson-databind
 
 #2101: `FAIL_ON_NULL_FOR_PRIMITIVES` failure does not indicate field name in exception message
  (reported by raderio@github)
+
+2.9.10.5 (not yet released)
+
+#2688: Block one more gadget type (apache-drill)
+ (reported by Topsec(tcc))
+#2698: Block one more gadget type (weblogic/oracle-aqjms)
+ (reported by Fangrun Li)
+
+2.9.10.4 (11-Apr-2020)
+
+#2631: Block one more gadget type (shaded-hikari-config, CVE-2020-9546)
+ (reported by threedr3am & LFY)
+#2634: Block two more gadget types (ibatis-sqlmap, anteros-core; CVE-2020-9547 / CVE-2020-9548)
+ (reported by threedr3am & V1ZkRA)
+#2642: Block one more gadget type (javax.swing, CVE-2020-10969)
+ (reported by threedr3am)
+#2648: Block one more gadget type (shiro-core)
+#2653: Block one more gadget type (shiro-core)
+#2658: Block one more gadget type (ignite-jta, CVE-2020-10650)
+ (reported by Srikanth Ramu, threedr3am'follower)
+#2659: Block one more gadget type (aries.transaction.jms, CVE-2020-10672)
+ (reported by Srikanth Ramu)
+#2660: Block one more gadget type (caucho-quercus, CVE-2020-10673)
+ (reported by threedr3am'follower)
+#2662: Block one more gadget type (bus-proxy, CVE-2020-10968)
+ (reported by XuYuanzhen)
+#2664: Block one more gadget type (activemq-pool[-jms], CVE-2020-11111)
+ (reported by Srikanth Ramu)
+#2666: Block one more gadget type (apache/commons-proxy, CVE-2020-11112)
+ (reported by Yiting Fan)
+#2670: Block one more gadget type (openjpa, CVE-2020-11113)
+ (reported by XuYuanzhen)
+#2680: Block one more gadget type (SSRF, spring-aop, CVE-2020-11619)
+#2682: Block one more gadget type (commons-jelly, CVE-2020-11620)
+
+2.9.10.3 (23-Feb-2020)
+
+#2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)
+ (reported by threedr3am@github)
+
+2.9.10.2 (03-Jan-2020)
+
+#2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)
+  (repoerted by UltramanGaia)
 #2544: java.lang.NoClassDefFoundError Thrown for compact profile1
   (reported by Jon A)
 #2553: JsonDeserialize(contentAs=...) broken with raw collections
@@ -222,22 +301,7 @@ Project: jackson-databind
   deserialize as "null value"
  (contributed by Martin C)
 
-2.9.10.3 (not released yet)
-
-#2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)
- (reported by threedr3am@github)
-
-2.9.10.2 (03-Jan-2020)
-
-#2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)
-  (repoerted by UltramanGaia)
-
-2.9.10.1 (20-Oct-2019)
-
-#2478: Block two more gadget types (commons-dbcp, p6spy,
-  CVE-2019-16942 / CVE-2019-16943)
- (reported by b5mali4 / root@codersec.net)
-#2498: Block one more gadget type (log4j-extras/1.2, CVE-2019-17531)
+[2.9.10.x micro-patches omitted]
 
 2.9.10 (21-Sep-2019)
 
@@ -411,7 +475,7 @@ Project: jackson-databind
  (reported by Alexander S)
 #1854: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (reported by rue-jw@github)
-#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring, CVE-2017-17485)
 #1859: Issue handling unknown/unmapped Enum keys
  (reported by remya11@github)
 #1868: Class name handling for JDK unmodifiable Collection types changed
@@ -622,9 +686,9 @@ Project: jackson-databind
 #1872: `NullPointerException` in `SubTypeValidator.validateSubType` when
   validating Spring interface
  (reported by Rob W)
-#1899: Another two gadgets to exploit default typing issue in jackson-databind
+#1899: Another two gadgets to exploit default typing issue (CVE-2018-5968)
  (reported by OneSourceCat@github)
-#1931: Two more `c3p0` gadgets to exploit default typing issue
+#1931: Two more `c3p0` gadgets to exploit default typing issue (c3p0, CVE-2018-7489)
 
 2.8.11 (24-Dec-2017)
 
@@ -638,7 +702,7 @@ Project: jackson-databind
  (reported by henryptung@github)
 #1807: Jackson-databind caches plain map deserializer and use it even map has `@JsonDeserializer`
  (reported by lexas2509@github)
-#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring / CVE-2017-17485)
 
 2.8.10 (24-Aug-2017)
 
@@ -654,7 +718,7 @@ Project: jackson-databind
  binary formats (CBOR, Smile)
 #1735: Missing type checks when using polymorphic type ids
  (reported by Lukas Euler)
-#1737: Block more JDK types from polymorphic deserialization
+#1737: Block more JDK types from polymorphic deserialization (CVE 2017-15095)
 
 2.8.9 (12-Jun-2017)
 
@@ -679,7 +743,7 @@ Project: jackson-databind
 #1585: Invoke ServiceLoader.load() inside of a privileged block when loading
   modules using `ObjectMapper.findModules()`
  (contributed by Ivo S)
-#1599: Jackson Deserializer security vulnerability
+#1599: Jackson Deserializer security vulnerability (CVE-2017-7525)
  (reported by ayound@github)
 #1607: @JsonIdentityReference not used when setup on class only
  (reported by vboulaye@github)

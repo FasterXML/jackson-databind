@@ -1,15 +1,14 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -67,6 +66,36 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
+    // [databind#2693]: convenience read methods:
+    public void testReaderForArrayOf() throws Exception
+    {
+        Object value = MAPPER.readerForArrayOf(ABC.class)
+                .readValue("[ \"A\", \"C\" ]");
+        assertEquals(ABC[].class, value.getClass());
+        ABC[] abcs = (ABC[]) value;
+        assertEquals(2, abcs.length);
+        assertEquals(ABC.A, abcs[0]);
+        assertEquals(ABC.C, abcs[1]);
+    }
+
+    // [databind#2693]: convenience read methods:
+    public void testReaderForListOf() throws Exception
+    {
+        Object value = MAPPER.readerForListOf(ABC.class)
+                .readValue("[ \"B\", \"C\" ]");
+        assertEquals(ArrayList.class, value.getClass());
+        assertEquals(Arrays.asList(ABC.B, ABC.C), value);
+    }
+
+    // [databind#2693]: convenience read methods:
+    public void testReaderForMapOf() throws Exception
+    {
+        Object value = MAPPER.readerForMapOf(ABC.class)
+                .readValue("{\"key\" : \"B\" }");
+        assertEquals(LinkedHashMap.class, value.getClass());
+        assertEquals(Collections.singletonMap("key", ABC.B), value);
+    }
+
     public void testJsonReadFeatures() throws Exception
     {
         final String JSON = "[ /* foo */ 7 ]";
@@ -119,6 +148,14 @@ public class ObjectReaderTest extends BaseMapTest
 
         // and another one
         assertSame(r, r.with(r.getConfig()));
+
+        // and with StreamReadFeatures
+        r = MAPPER.reader();
+        assertFalse(r.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
+        ObjectReader r2 = r.with(StreamReadFeature.IGNORE_UNDEFINED);
+        assertTrue(r2.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
+        ObjectReader r3 = r2.without(StreamReadFeature.IGNORE_UNDEFINED);
+        assertFalse(r3.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
     }
 
     public void testMiscSettings() throws Exception
@@ -269,6 +306,24 @@ public class ObjectReaderTest extends BaseMapTest
         public Set<String> set2;
     }    
 
+    // [databind#2636]
+    public void testCanPassResultToOverloadedMethod() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+
+        process(reader.readValue(source, POJO.class));
+    }
+
+    void process(POJO pojo) {
+        // do nothing - just used to show that the compiler can choose the correct method overloading to invoke
+    }
+
+    void process(String pojo) {
+        // do nothing - just used to show that the compiler can choose the correct method overloading to invoke
+        throw new Error();
+    }
+    
     /*
     /**********************************************************************
     /* Test methods, ObjectCodec

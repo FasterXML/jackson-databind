@@ -579,7 +579,7 @@ public class UntypedObjectDeserializer
      */
 
     /**
-     * Streamlined version of {@UntypedObjectDeserializer} that has fewer checks and
+     * Streamlined version of {@link UntypedObjectDeserializer} that has fewer checks and
      * is only used when no custom deserializer overrides are applied.
      */
     @JacksonStdImpl

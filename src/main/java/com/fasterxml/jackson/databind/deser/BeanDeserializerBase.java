@@ -388,6 +388,8 @@ public abstract class BeanDeserializerBase
 
     public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps);
 
+    public abstract BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown);
+
     /**
      * Mutant factory method that custom sub-classes must override; not left as
      * abstract to prevent more drastic backwards compatibility problems.
@@ -450,16 +452,18 @@ public abstract class BeanDeserializerBase
         //   only happen for props in `creatorProps`
 
         for (SettableBeanProperty prop : _beanProperties) {
-            if (!prop.hasValueDeserializer()) {
-                // [databind#125]: allow use of converters
-                JsonDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
-                if (deser == null) {
-                    deser = ctxt.findNonContextualValueDeserializer(prop.getType());
-                }
-                SettableBeanProperty newProp = prop.withValueDeserializer(deser);
-                if (prop != newProp) {
-                    _replaceProperty(_beanProperties, creatorProps, prop, newProp);
-                }
+            // [databind#962]: no eager lookup for inject-only [creator] properties
+            if (prop.hasValueDeserializer() || prop.isInjectionOnly()) {
+                continue;
+            }
+            // [databind#125]: allow use of converters
+            JsonDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
+            if (deser == null) {
+                deser = ctxt.findNonContextualValueDeserializer(prop.getType());
+            }
+            SettableBeanProperty newProp = prop.withValueDeserializer(deser);
+            if (prop != newProp) {
+                _replaceProperty(_beanProperties, creatorProps, prop, newProp);
             }
         }
 
@@ -724,6 +728,13 @@ public abstract class BeanDeserializerBase
                     }
                     contextual = contextual.withIgnorableProperties(ignored);
                 }
+                // 30-Mar-2020, tatu: As per [databind#2627], need to also allow
+                //    per-property override to "ignore all unknown".
+                //  NOTE: there is no way to override with `false` because annotation
+                //  defaults to `false` (i.e. can not know if `false` is explicit value)
+                if (ignorals.getIgnoreUnknown() && !_ignoreAllUnknown) {
+                    contextual = contextual.withIgnoreAllUnknown(true);
+                }
             }
         }
 
@@ -869,7 +880,6 @@ public abstract class BeanDeserializerBase
         return prop;
     }
 
-    // @since 2.9
     protected SettableBeanProperty _resolveMergeAndNullSettings(DeserializationContext ctxt,
             SettableBeanProperty prop, PropertyMetadata propMetadata)
         throws JsonMappingException
@@ -1235,8 +1245,12 @@ public abstract class BeanDeserializerBase
     {
         final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt,
+            final Object bean = _valueInstantiator.createUsingDelegate(ctxt,
                     delegateDeser.deserialize(p, ctxt));
+            if (_injectables != null) {
+                injectValues(ctxt, bean);
+            }
+            return bean;
         }
         if (_propertyBasedCreator != null) {
             return _deserializeUsingPropertyBased(p, ctxt);
@@ -1379,40 +1393,6 @@ public abstract class BeanDeserializerBase
         }
         boolean value = p.hasToken(JsonToken.VALUE_TRUE);
         return _valueInstantiator.createFromBoolean(ctxt, value);
-    }
-
-    public Object deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
-        // note: cannot call `_delegateDeserializer()` since order reversed here:
-        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
-        // fallback to non-array delegate
-        if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
-            Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt,
-                    delegateDeser.deserialize(p, ctxt));
-            if (_injectables != null) {
-                injectValues(ctxt, bean);
-            }
-            return bean;
-        }
-        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                return null;
-            }
-            final Object value = deserialize(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return value;
-        }
-        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY) {
-                return null;
-            }
-            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
-        }
-        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     public Object deserializeFromEmbedded(JsonParser p, DeserializationContext ctxt)

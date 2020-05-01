@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -434,7 +435,7 @@ public class POJOPropertyBuilder
     @Override
     public AnnotatedMethod getSetter()
     {
-        // Easy with zero or one getters...
+        // Easy with zero or one setters...
         Linked<AnnotatedMethod> curr = _setters;
         if (curr == null) {
             return null;

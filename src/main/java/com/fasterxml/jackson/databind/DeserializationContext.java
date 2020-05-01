@@ -144,14 +144,14 @@ public abstract class DeserializationContext
      * Lazily constructed {@link ClassIntrospector} instance: created from "blueprint"
      */
     protected transient ClassIntrospector _classIntrospector;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
 
-    protected DeserializationContext(TokenStreamFactory streamFactory, 
+    protected DeserializationContext(TokenStreamFactory streamFactory,
             DeserializerFactory df, DeserializerCache cache,
             DeserializationConfig config, FormatSchema schema,
             InjectableValues injectableValues)
@@ -204,6 +204,18 @@ public abstract class DeserializationContext
     @Override
     public final TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
+    }
+
+    @Override // since 2.11
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
+        throws IllegalArgumentException
+    {
+        if (baseType.hasRawClass(subclass)) {
+            return baseType;
+        }
+        // On deserialization side, still uses "strict" type-compatibility checking;
+        // see [databind#2632] about serialization side
+        return getConfig().getTypeFactory().constructSpecializedType(baseType, subclass, false);
     }
 
     /**
@@ -292,7 +304,7 @@ public abstract class DeserializationContext
     /* ObjectReadContext impl, Tree creation
     /**********************************************************************
      */
-    
+
     @Override
     public ArrayTreeNode createArrayNode() {
         return getNodeFactory().arrayNode();
@@ -301,7 +313,7 @@ public abstract class DeserializationContext
     @Override
     public ObjectTreeNode createObjectNode() {
         return getNodeFactory().objectNode();
-    }        
+    }
 
     /*
     /**********************************************************************
@@ -345,7 +357,7 @@ public abstract class DeserializationContext
     public <T> T readValue(JsonParser p, TypeReference<T> refType) throws IOException {
         return readValue(p, getTypeFactory().constructType(refType));
     }
-    
+
     @Override
     public <T> T readValue(JsonParser p, ResolvedType type) throws IOException {
         if (!(type instanceof JavaType)) {
@@ -354,7 +366,7 @@ public abstract class DeserializationContext
         }
         return readValue(p, (JavaType) type);
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findRootValueDeserializer(type);
@@ -377,7 +389,7 @@ public abstract class DeserializationContext
     public DeserializerFactory getFactory() {
         return _factory;
     }
-    
+
     /**
      * Convenience method for checking whether specified on/off
      * feature is enabled
@@ -396,7 +408,7 @@ public abstract class DeserializationContext
     public final int getDeserializationFeatures() {
         return _featureFlags;
     }
-    
+
     /**
      * Bulk access method for checking that all features specified by
      * mask are enabled.
@@ -412,7 +424,7 @@ public abstract class DeserializationContext
     public final boolean hasSomeOfFeatures(int featureMask) {
         return (_featureFlags & featureMask) != 0;
     }
-    
+
     /**
      * Method for accessing the currently active parser.
      * May be different from the outermost parser
@@ -555,7 +567,7 @@ public abstract class DeserializationContext
     {
         return _cache.findValueDeserializer(this, _factory, type);
     }
-    
+
     /**
      * Method for finding a deserializer for root-level value.
      */
@@ -594,7 +606,7 @@ public abstract class DeserializationContext
      *
      * @param baseType Declared base type of the value to deserializer (actual
      *    deserializer type will be this type or its subtype)
-     * 
+     *
      * @return Type deserializer to use for given base type, if one is needed; null if not.
      */
     public TypeDeserializer findTypeDeserializer(JavaType baseType)
@@ -621,7 +633,7 @@ public abstract class DeserializationContext
      *
      * @param baseType Declared base type of the value to deserializer (actual
      *    deserializer type will be this type or its subtype)
-     * 
+     *
      * @return Type deserializer to use for given base type, if one is needed; null if not.
      *
      * @since 3.0
@@ -641,12 +653,12 @@ public abstract class DeserializationContext
      *<p>
      * Note that this method is only called for container bean properties,
      * and not for values in container types or root values (or non-container properties)
-     * 
+     *
      * @param containerType Type of property; must be a container type
      * @param accessor Field or method that contains container property
      *
      * @since 3.0
-     */    
+     */
     public TypeDeserializer findPropertyContentTypeDeserializer(JavaType containerType,
             AnnotatedMember accessor)
         throws JsonMappingException
@@ -688,7 +700,7 @@ public abstract class DeserializationContext
     /**
      * Method called to ensure that every object id encounter during processing
      * are resolved.
-     * 
+     *
      * @throws UnresolvedForwardReference
      */
     public abstract void checkUnresolvedObjectId()
@@ -699,7 +711,7 @@ public abstract class DeserializationContext
     /* Public API, type handling
     /**********************************************************************
      */
-    
+
     /**
      * Convenience method, functionally equivalent to:
      *<pre>
@@ -748,7 +760,7 @@ public abstract class DeserializationContext
     /**
      * Method to call to return object buffer previously leased with
      * {@link #leaseObjectBuffer}.
-     * 
+     *
      * @param buf Returned object buffer
      */
     public final void returnObjectBuffer(ObjectBuffer buf)
@@ -800,7 +812,7 @@ public abstract class DeserializationContext
      * directly created to deserialize values of a POJO property),
      * to handle details of calling
      * {@link JsonDeserializer#createContextual} with given property context.
-     * 
+     *
      * @param prop Property for which the given primary deserializer is used; never null.
      */
     public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
@@ -828,7 +840,7 @@ public abstract class DeserializationContext
      * Given that these deserializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
-     * 
+     *
      * @param prop Property for which deserializer is used, if any; null
      *    when deserializing root values
      */
@@ -924,7 +936,7 @@ public abstract class DeserializationContext
      * property (and once that is not explicitly designed as ignorable), to
      * inform possibly configured {@link DeserializationProblemHandler}s and
      * let it handle the problem.
-     * 
+     *
      * @return True if there was a configured problem handler that was able to handle the
      *   problem
      */
@@ -1003,7 +1015,7 @@ public abstract class DeserializationContext
      * on configured handlers, if any, to allow for recovery; if recovery does not
      * succeed, will throw {@link InvalidFormatException} with given message.
      *
-     * @param targetClass Type of property into which incoming number should be converted
+     * @param targetClass Type of property into which incoming String should be converted
      * @param value String value from which to deserialize property value
      * @param msg Error message template caller wants to use if exception is to be thrown
      * @param msgArgs Optional arguments to use for message, if any
@@ -1213,8 +1225,8 @@ public abstract class DeserializationContext
         throw instantiationException(instClass, t);
     }
 
-// 15-Sep-2019, tatu: Remove from 3.0 due to [databind#2133] adding `JavaType` overloads    
-/*    
+// 15-Sep-2019, tatu: Remove from 3.0 due to [databind#2133] adding `JavaType` overloads
+/*
     public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
         throws IOException
     {
@@ -1406,7 +1418,7 @@ public abstract class DeserializationContext
      */
 
     /**
-     * Method for deserializers to call 
+     * Method for deserializers to call
      * when the token encountered was of type different than what <b>should</b>
      * be seen at that position, usually within a sequence of expected tokens.
      * Note that this method will throw a {@link JsonMappingException} and no
@@ -1420,9 +1432,9 @@ public abstract class DeserializationContext
         msg = _format(msg, msgArgs);
         throw wrongTokenException(getParser(), deser.handledType(), expToken, msg);
     }
-    
+
     /**
-     * Method for deserializers to call 
+     * Method for deserializers to call
      * when the token encountered was of type different than what <b>should</b>
      * be seen at that position, usually within a sequence of expected tokens.
      * Note that this method will throw a {@link JsonMappingException} and no
@@ -1438,7 +1450,7 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Method for deserializers to call 
+     * Method for deserializers to call
      * when the token encountered was of type different than what <b>should</b>
      * be seen at that position, usually within a sequence of expected tokens.
      * Note that this method will throw a {@link JsonMappingException} and no
@@ -1537,7 +1549,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs) throws JsonMappingException
     {
         return reportPropertyInputMismatch(targetType.getRawClass(), propertyName, msg, msgArgs);
-    }    
+    }
 
     public <T> T reportTrailingTokens(Class<?> targetType,
             JsonParser p, JsonToken trailingToken) throws JsonMappingException
@@ -1554,7 +1566,7 @@ trailingToken, ClassUtil.nameOf(targetType)
     /* is not considered possible: POJO definition problems
     /**********************************************************
      */
-    
+
     /**
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
@@ -1643,7 +1655,7 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleWeirdStringValue} should be called which will call this method
      * if necessary.
-     * 
+     *
      * @param value String value from input being deserialized
      * @param instClass Type that String should be deserialized into
      * @param msgBase Message that describes specific problem
@@ -1762,7 +1774,7 @@ trailingToken, ClassUtil.nameOf(targetType)
             return _dateFormat;
         }
         // 24-Feb-2012, tatu: At this point, all timezone configuration should have
-        // occurred, with respect to default date format and time zone configuration. 
+        // occurred, with respect to default date format and time zone configuration.
         // But we still better clone an instance as formatters may be stateful.
         DateFormat df = _config.getDateFormat();
         _dateFormat = df = (DateFormat) df.clone();

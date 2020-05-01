@@ -29,8 +29,8 @@ public class GenericNestedType2331Test extends BaseMapTest
             return children;
         }
     }    
-    
-    @SuppressWarnings("rawtypes")
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testGeneric2331() throws Exception {
         Node root = new Node();
         root.children.add(new Node());

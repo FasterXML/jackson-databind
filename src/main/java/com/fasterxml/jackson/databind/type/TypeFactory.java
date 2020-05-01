@@ -356,8 +356,39 @@ public final class TypeFactory
      * Can be used, for example, to get equivalent of "HashMap&lt;String,Integer&gt;"
      * from "Map&lt;String,Integer&gt;" by giving <code>HashMap.class</code>
      * as subclass.
+     * Short-cut for:
+     *<pre>
+     * constructSpecializedType(baseType, subclass, class);
+     *</pre>
+     * that is, will use "strict" compatibility checking, usually used for
+     * deserialization purposes (but often not for serialization).
      */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
+        throws IllegalArgumentException
+    {
+        return constructSpecializedType(baseType, subclass, false);
+    }
+
+    /**
+     * Factory method for creating a subtype of given base type, as defined
+     * by specified subclass; but retaining generic type information if any.
+     * Can be used, for example, to get equivalent of "HashMap&lt;String,Integer&gt;"
+     * from "Map&lt;String,Integer&gt;" by giving <code>HashMap.class</code>
+     * as subclass.
+     * 
+     * @param baseType Declared base type with resolved type parameters
+     * @param subclass Runtime subtype to use for resolving
+     * @param relaxedCompatibilityCheck Whether checking for type-assignment compatibility
+     *    should be "relaxed" ({@code true}) or "strict" ({@code false}): typically
+     *    serialization uses relaxed, deserialization strict checking.
+     *
+     * @return Resolved sub-type
+     *
+     * @since 2.11
+     */
+    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass,
+            boolean relaxedCompatibilityCheck)
+        throws IllegalArgumentException
     {
         // simple optimization to avoid costly introspection if type-erased type does NOT differ
         final Class<?> rawBase = baseType.getRawClass();
@@ -373,8 +404,9 @@ public final class TypeFactory
                 break;
             }
             if (!rawBase.isAssignableFrom(subclass)) {
-                throw new IllegalArgumentException(String.format(
-                        "Class %s not subtype of %s", subclass.getName(), baseType));
+                throw new IllegalArgumentException(String.format("Class %s not subtype of %s",
+                        ClassUtil.nameOf(subclass), ClassUtil.getTypeDescription(baseType)
+                ));
             }
             // A few special cases where we can simplify handling:
 
@@ -418,7 +450,8 @@ public final class TypeFactory
                 break;
             }
             // (4) If all else fails, do the full traversal using placeholders
-            TypeBindings tb = _bindingsForSubtype(baseType, typeParamCount, subclass);
+            TypeBindings tb = _bindingsForSubtype(baseType, typeParamCount,
+                    subclass, relaxedCompatibilityCheck);
             newType = _fromClass(null, subclass, tb);
 
         } while (false);
@@ -429,7 +462,8 @@ public final class TypeFactory
         return newType;
     }
 
-    private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount, Class<?> subclass)
+    private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount,
+            Class<?> subclass, boolean relaxedCompatibilityCheck)
     {
         PlaceholderForType[] placeholders = new PlaceholderForType[typeParamCount];
         for (int i = 0; i < typeParamCount; ++i) {
@@ -448,8 +482,12 @@ public final class TypeFactory
         // and traverse type hierarchies to both verify and to resolve placeholders
         String error = _resolveTypePlaceholders(baseType, baseWithPlaceholders);
         if (error != null) {
-            throw new IllegalArgumentException("Failed to specialize base type "+baseType.toCanonical()+" as "
-                    +subclass.getName()+", problem: "+error);
+            // 28-Mar-2020, tatu: As per [databind#2632], need to ignore the issue in
+            //   some cases. For now, just fully ignore; may need to refine in future
+            if (!relaxedCompatibilityCheck) {
+                throw new IllegalArgumentException("Failed to specialize base type "+baseType.toCanonical()+" as "
+                        +subclass.getName()+", problem: "+error);
+            }
         }
 
         final JavaType[] typeParams = new JavaType[typeParamCount];
@@ -471,9 +509,12 @@ public final class TypeFactory
     {
         List<JavaType> expectedTypes = sourceType.getBindings().getTypeParameters();
         List<JavaType> actualTypes = actualType.getBindings().getTypeParameters();
-        for (int i = 0, len = expectedTypes.size(); i < len; ++i) {
+
+        final int actCount = actualTypes.size();
+
+        for (int i = 0, expCount = expectedTypes.size(); i < expCount; ++i) {
             JavaType exp = expectedTypes.get(i);
-            JavaType act = actualTypes.get(i);
+            JavaType act = (i < actCount) ? actualTypes.get(i) : unknownType();
 
             if (!_verifyAndResolvePlaceholders(exp, act)) {
                 // 14-May-2018, tatu: As per [databind#2034] it seems we better relax assignment
@@ -502,7 +543,7 @@ public final class TypeFactory
                     }
                 }
                 return String.format("Type parameter #%d/%d differs; can not specialize %s with %s",
-                        (i+1), len, exp.toCanonical(), act.toCanonical());
+                        (i+1), expCount, exp.toCanonical(), act.toCanonical());
             }
         }
         return null;
@@ -912,7 +953,7 @@ s     */
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type {@code List<Set<Integer>>}, you could call
+     * type {@code List<Set<Integer>>}, you could
      *<pre>
      *  JavaType inner = TypeFactory.constructParametricType(Set.class, Set.class, Integer.class);
      *  return TypeFactory.constructParametricType(ArrayList.class, List.class, inner);

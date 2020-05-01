@@ -466,7 +466,7 @@ Project: jackson-databind
  (reported by Alexander S)
 #1854: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (reported by rue-jw@github)
-#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring, CVE-2017-17485)
 #1859: Issue handling unknown/unmapped Enum keys
  (reported by remya11@github)
 #1868: Class name handling for JDK unmodifiable Collection types changed
@@ -677,9 +677,9 @@ Project: jackson-databind
 #1872: `NullPointerException` in `SubTypeValidator.validateSubType` when
   validating Spring interface
  (reported by Rob W)
-#1899: Another two gadgets to exploit default typing issue in jackson-databind
+#1899: Another two gadgets to exploit default typing issue (CVE-2018-5968)
  (reported by OneSourceCat@github)
-#1931: Two more `c3p0` gadgets to exploit default typing issue
+#1931: Two more `c3p0` gadgets to exploit default typing issue (c3p0, CVE-2018-7489)
 
 2.8.11 (24-Dec-2017)
 
@@ -693,7 +693,7 @@ Project: jackson-databind
  (reported by henryptung@github)
 #1807: Jackson-databind caches plain map deserializer and use it even map has `@JsonDeserializer`
  (reported by lexas2509@github)
-#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring / CVE-2017-17485)
 
 2.8.10 (24-Aug-2017)
 
@@ -709,7 +709,7 @@ Project: jackson-databind
  binary formats (CBOR, Smile)
 #1735: Missing type checks when using polymorphic type ids
  (reported by Lukas Euler)
-#1737: Block more JDK types from polymorphic deserialization
+#1737: Block more JDK types from polymorphic deserialization (CVE 2017-15095)
 
 2.8.9 (12-Jun-2017)
 
@@ -734,7 +734,7 @@ Project: jackson-databind
 #1585: Invoke ServiceLoader.load() inside of a privileged block when loading
   modules using `ObjectMapper.findModules()`
  (contributed by Ivo S)
-#1599: Jackson Deserializer security vulnerability
+#1599: Jackson Deserializer security vulnerability (CVE-2017-7525)
  (reported by ayound@github)
 #1607: @JsonIdentityReference not used when setup on class only
  (reported by vboulaye@github)

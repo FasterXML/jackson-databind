@@ -459,8 +459,8 @@ public abstract class ValueInstantiator
         public boolean canCreateFromObjectWith() { return delegate().canCreateFromObjectWith(); }
 
         @Override
-        public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
-            return delegate().getFromObjectArguments(config);
+        public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
+            return delegate().getFromObjectArguments(ctxt);
         }
 
         @Override
@@ -548,9 +548,5 @@ public abstract class ValueInstantiator
 
         @Override
         public AnnotatedWithParams getWithArgsCreator() { return delegate().getWithArgsCreator(); }
-
-        @Override
-        public AnnotatedParameter getIncompleteParameter() { return delegate().getIncompleteParameter(); }
-    
     }
 }

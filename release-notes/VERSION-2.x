@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.10.4 (not yet released)
+2.10.4 (03-May-2020)
 
 #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
  (reported by Endre S)

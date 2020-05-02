@@ -212,7 +212,25 @@ public abstract class BeanDeserializerBase
         _injectables = (injectables == null || injectables.isEmpty()) ? null
                 : injectables.toArray(new ValueInjector[injectables.size()]);
         _objectIdReader = builder.getObjectIdReader();
+
+        // If you check for canCreateFromInt() below which appears to be the equivalent
+        // of the existing canCreateUsingArrayDelegate() it also causes the included
+        // test testPOJOWithPrimitiveCreatorFromObjectRepresentation() to break in the
+        // same way as the test testPOJOWithArrayCreatorFromObjectRepresentation() which
+        // I assert is failing because of the call to canCreateUsingArrayDelegate() below.
+        //
+        // Removing the call to canCreateUsingArrayDelegate() below allows the test
+        // testPOJOWithArrayCreatorFromObjectRepresentation() to pass and interestingly
+        // all existing tests continue to pass. I somehow doubt that it's that simple.
+        //
+        // Specifically, it seems to me that the vanilla-ness of the deserialization can
+        // only be determined once the structure of the incoming JSON can be compared to
+        // what creator methods exist. For example, if there is an array delegate and we
+        // are asked to deserialize from an array then it's not vanilla. However, if we
+        // are asked to deserialize from an object then it's vanilla (subject to no other
+        // non-vanilla-ness being present).
         _nonStandardCreation = (_unwrappedPropertyHandler != null)
+            //|| _valueInstantiator.canCreateFromInt()
             || _valueInstantiator.canCreateUsingDelegate()
             || _valueInstantiator.canCreateUsingArrayDelegate() // new in 2.7
             || _valueInstantiator.canCreateFromObjectWith()

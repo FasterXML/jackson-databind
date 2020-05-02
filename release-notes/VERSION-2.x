@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #792: Deserialization Not Working Right with Generic Types and Builders
  (reported by Mike G; fix contributed by Ville K)
+#2707: Improve description included in by `DeserializationContext.handleUnexpectedToken()`
 
 2.11.1 (not yet released)
 

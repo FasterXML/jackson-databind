@@ -362,7 +362,7 @@ public class ProblemHandlerTest extends BaseMapTest
             mapper.readValue("true", Integer.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "out of VALUE_TRUE token");
+            verifyException(e, "from Boolean value (token `JsonToken.VALUE_TRUE`)");
         }
     }
 }

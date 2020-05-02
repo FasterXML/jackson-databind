@@ -463,7 +463,7 @@ public class ObjectNodeTest
             mapper.readValue("[ 1, 2, 3 ]", ObjectNode.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "out of START_ARRAY token");
+            verifyException(e, "from Array value (token `JsonToken.START_ARRAY`)");
         }
     }
 }

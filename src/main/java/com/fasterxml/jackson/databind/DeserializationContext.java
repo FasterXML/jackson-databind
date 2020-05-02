@@ -1231,8 +1231,16 @@ public abstract class DeserializationContext
                 msg = String.format("Unexpected end-of-input when binding data into %s",
                         ClassUtil.getTypeDescription(targetType));
             } else {
-                msg = String.format("Cannot deserialize instance of %s out of %s token",
-                        ClassUtil.getTypeDescription(targetType), t);
+                final String targetDesc = ClassUtil.getTypeDescription(targetType);
+                final String valueDesc = _shapeForToken(t);
+                if (valueDesc == null) { // no specific description
+                    msg = String.format("Cannot deserialize instance of %s out of %s token",
+                            targetDesc, t);
+                } else {
+                    msg = String.format(
+"Cannot deserialize instance of %s from %s (token `JsonToken.%s`)",
+targetDesc, valueDesc, t);
+                }
             }
         }
         reportInputMismatch(targetType, msg);
@@ -1918,5 +1926,48 @@ trailingToken, ClassUtil.nameOf(targetType)
         DateFormat df = _config.getDateFormat();
         _dateFormat = df = (DateFormat) df.clone();
         return df;
+    }
+
+    // @since 2.12
+    /**
+     * Helper method for constructing description like "Object value" given
+     * {@link JsonToken} encountered.
+     */
+    protected String _shapeForToken(JsonToken t) {
+        if (t != null) {
+            switch (t) {
+            // Likely Object values
+            case START_OBJECT:
+            case END_OBJECT:
+            case FIELD_NAME:
+                return "Object value";
+
+            // Likely Array values
+            case START_ARRAY:
+            case END_ARRAY:
+                return "Array value";
+
+            case VALUE_FALSE:
+            case VALUE_TRUE:
+                return "Boolean value";
+
+            case VALUE_EMBEDDED_OBJECT:
+                return "Embedded Object";
+
+            case VALUE_NUMBER_FLOAT:
+            case VALUE_NUMBER_INT:
+                return "Number value";
+            case VALUE_STRING:
+                return "String value";
+
+            case VALUE_NULL:
+                return "Null value";
+
+            case NOT_AVAILABLE:
+            default:
+                return "[Unavailable value]";
+            }
+        }
+        return "<end of input>";
     }
 }

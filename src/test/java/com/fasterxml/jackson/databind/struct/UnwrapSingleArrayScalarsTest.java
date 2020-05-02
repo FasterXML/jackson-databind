@@ -248,7 +248,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         String result = MAPPER.readValue("\""+value+"\"", String.class);
         assertEquals(value, result);
     }
-    
+
     public void testSingleStringWrapped() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -260,8 +260,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             mapper.readValue("[\""+value+"\"]", String.class);
             fail("Exception not thrown when attempting to unwrap a single value 'String' array into a simple String");
         } catch (MismatchedInputException exp) {
-            verifyException(exp, "Cannot deserialize");
-            verifyException(exp, "out of START_ARRAY");
+            _verifyNoDeserFromArray(exp);
         }
         
         mapper = jsonMapperBuilder()
@@ -291,8 +290,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             mapper.readValue("[" + value.toString() + "]", BigDecimal.class);
             fail("Exception was not thrown when attempting to read a single value array of BigDecimal when UNWRAP_SINGLE_VALUE_ARRAYS feature is disabled");
         } catch (MismatchedInputException exp) {
-            verifyException(exp, "Cannot deserialize");
-            verifyException(exp, "out of START_ARRAY");
+            _verifyNoDeserFromArray(exp);
         }
 
         mapper = jsonMapperBuilder()
@@ -323,8 +321,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             mapper.readValue("[" + value.toString() + "]", BigInteger.class);
             fail("Exception was not thrown when attempting to read a single value array of BigInteger when UNWRAP_SINGLE_VALUE_ARRAYS feature is disabled");
         } catch (MismatchedInputException exp) {
-            verifyException(exp, "Cannot deserialize");
-            verifyException(exp, "out of START_ARRAY");
+            _verifyNoDeserFromArray(exp);
         }
         
         mapper = jsonMapperBuilder()
@@ -355,7 +352,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
                 .readValue("[" + quote(String.class.getName()) + "]");
             fail("Did not throw exception when UNWRAP_SINGLE_VALUE_ARRAYS feature was disabled and attempted to read a Class array containing one element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "out of START_ARRAY token");
+            _verifyNoDeserFromArray(e);
         }
 
         _verifyMultiValueArrayFail("[" + quote(Object.class.getName()) + "," + quote(Object.class.getName()) +"]",
@@ -375,7 +372,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
                 .readValue("[\""+value.toString()+"\"]");
             fail("Did not throw exception for single value array when UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (MismatchedInputException e) {
-            verifyException(e, "out of START_ARRAY token");
+            _verifyNoDeserFromArray(e);
         }
         
         _verifyMultiValueArrayFail("[\""+value.toString()+"\",\""+value.toString()+"\"]", URI.class);
@@ -391,7 +388,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
                 .readValue("[" + quote(uuidStr) + "]");
             fail("Exception was not thrown when UNWRAP_SINGLE_VALUE_ARRAYS is disabled and attempted to read a single value array as a single element");
         } catch (MismatchedInputException e) {
-            verifyException(e, "out of START_ARRAY token");
+            _verifyNoDeserFromArray(e);
         }
         assertEquals(uuid,
                 reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
@@ -404,6 +401,12 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /* Helper methods
     /**********************************************************
      */
+
+    private void _verifyNoDeserFromArray(Exception e) {
+        verifyException(e, "Cannot deserialize");
+        verifyException(e, "from Array value");
+        verifyException(e, "JsonToken.START_ARRAY");
+    }
 
     private void _verifyMultiValueArrayFail(String input, Class<?> type) throws IOException {
         try {

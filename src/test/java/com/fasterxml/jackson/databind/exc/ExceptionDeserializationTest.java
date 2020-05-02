@@ -160,7 +160,7 @@ public class ExceptionDeserializationTest
             mapper.readValue(value, IOException.class);
             fail("Exception not thrown when attempting to deserialize an IOException wrapped in a single value array with UNWRAP_SINGLE_VALUE_ARRAYS disabled");
         } catch (JsonMappingException exp2) {
-            verifyException(exp2, "out of START_ARRAY");
+            verifyException(exp2, "from Array value (token `JsonToken.START_ARRAY`)");
         }
     }
 

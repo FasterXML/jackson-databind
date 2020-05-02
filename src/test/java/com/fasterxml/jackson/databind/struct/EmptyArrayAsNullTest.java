@@ -54,7 +54,7 @@ public class EmptyArrayAsNullTest extends BaseMapTest
                 .readValue(EMPTY_ARRAY);
             fail("Should not accept Empty Array for POJO by default");
         } catch (JsonMappingException e) {
-            verifyException(e, "START_ARRAY token");
+            verifyException(e, "from Array value (token `JsonToken.START_ARRAY`)");
             assertValidLocation(e.getLocation());
         }
 
@@ -78,7 +78,7 @@ public class EmptyArrayAsNullTest extends BaseMapTest
                 .readValue(EMPTY_ARRAY);
             fail("Should not accept Empty Array for Map by default");
         } catch (JsonMappingException e) {
-            verifyException(e, "START_ARRAY token");
+            verifyException(e, "from Array value (token `JsonToken.START_ARRAY`)");
         }
         // should be ok to enable dynamically:
         Map<?,?> result = READER_WITH_ARRAYS.forType(Map.class)

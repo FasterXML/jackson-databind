@@ -704,7 +704,7 @@ public class DateDeserializationTest
             fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
         } catch (MismatchedInputException exp) {
             verifyException(exp, "Cannot deserialize");
-            verifyException(exp, "out of START_ARRAY");
+            verifyException(exp, "from Array value (token `JsonToken.START_ARRAY`)");
         }
 
         reader = reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);

@@ -1294,20 +1294,13 @@ public abstract class DeserializationContext
             h = h.next();
         }
         if (msg == null) {
+            final String targetDesc = ClassUtil.getTypeDescription(targetType);
             if (t == null) {
-                msg = String.format("Unexpected end-of-input when binding data into %s",
-                        ClassUtil.getTypeDescription(targetType));
+                msg = String.format("Unexpected end-of-input when trying read value of type %s",
+                        targetDesc);
             } else {
-                final String targetDesc = ClassUtil.getTypeDescription(targetType);
-                final String valueDesc = _shapeForToken(t);
-                if (valueDesc == null) { // no specific description
-                    msg = String.format("Cannot deserialize value of type %s out of %s token",
-                            targetDesc, t);
-                } else {
-                    msg = String.format(
-"Cannot deserialize value of type %s from %s (token `JsonToken.%s`)",
-targetDesc, valueDesc, t);
-                }
+                msg = String.format("Cannot deserialize value of type %s from %s (token `JsonToken.%s`)",
+                        targetDesc, _shapeForToken(t), t);
             }
         }
         reportInputMismatch(targetType, msg);

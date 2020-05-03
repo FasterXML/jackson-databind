@@ -29,7 +29,8 @@ public class CreatorCollector {
 
     protected final static String[] TYPE_DESCS = new String[] { "default",
             "from-String", "from-int", "from-long", "from-double",
-            "from-boolean", "delegate", "property-based" };
+            "from-boolean", "delegate", "property-based", "array-delegate"
+    };
 
     /// Type of bean being created
     final protected BeanDescription _beanDesc;
@@ -296,31 +297,31 @@ public class CreatorCollector {
                 Class<?> newType = newOne.getRawParameterType(0);
 
                 if (oldType == newType) {
-                    // 13-Jul-2016, tatu: One more thing to check; since Enum
-                    // classes always have
-                    // implicitly created `valueOf()`, let's resolve in favor of
-                    // other implicit
-                    // creator (`fromString()`)
+                    // 13-Jul-2016, tatu: One more thing to check; since Enum classes
+                    //   always have implicitly created `valueOf()`, let's resolve in
+                    //   favor of other implicit creator (`fromString()`)
                     if (_isEnumValueOf(newOne)) {
                         return false; // ignore
                     }
                     if (_isEnumValueOf(oldOne)) {
                         ;
                     } else {
-                        throw new IllegalArgumentException(String.format(
-                                "Conflicting %s creators: already had %s creator %s, encountered another: %s",
-                                TYPE_DESCS[typeIndex],
-                                explicit ? "explicitly marked"
-                                        : "implicitly discovered",
-                                oldOne, newOne));
+                        _reportDuplicateCreator(typeIndex, explicit, oldOne, newOne);
                     }
                 }
                 // otherwise, which one to choose?
                 else if (newType.isAssignableFrom(oldType)) {
                     // new type more generic, use old
                     return false;
+                } else if (oldType.isAssignableFrom(newType)) {
+                    // new type more specific, use it
+                    ;
+                } else {
+                    // 02-May-2020, tatu: Should this only result in exception if both
+                    //   explicit? Doing so could lead to arbitrary choice between
+                    //   multiple implicit creators tho?
+                    _reportDuplicateCreator(typeIndex, explicit, oldOne, newOne);
                 }
-                // new type more specific, use it
             }
         }
         if (explicit) {
@@ -330,6 +331,17 @@ public class CreatorCollector {
         return true;
     }
 
+    // @since 2.12
+    protected void _reportDuplicateCreator(int typeIndex, boolean explicit,
+            AnnotatedWithParams oldOne, AnnotatedWithParams newOne) {
+        throw new IllegalArgumentException(String.format(
+                "Conflicting %s creators: already had %s creator %s, encountered another: %s",
+                TYPE_DESCS[typeIndex],
+                explicit ? "explicitly marked"
+                        : "implicitly discovered",
+                oldOne, newOne));
+    }
+    
     /**
      * Helper method for recognizing `Enum.valueOf()` factory method
      *

@@ -29,12 +29,20 @@ public class BuilderDeserializationTest2486
                 // Default constructor
             }
 
-            @JsonCreator
+            // NOTE: no change with or without mode
+            @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
             public Builder(final List<Object> jsonArray) {
                 withIndex((int) jsonArray.get(0));
             }
 
+            // When deserialized via builder
             public Builder withIndex(int i) {
+                index = i;
+                return this;
+            }
+
+            // When deserialized into a builder
+            public Builder setIndex(int i) {
                 index = i;
                 return this;
             }
@@ -64,12 +72,20 @@ public class BuilderDeserializationTest2486
                 // Default constructor
             }
 
-            @JsonCreator
+            // NOTE: no change with or without mode
+            @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
             public Builder(final int i) {
                 withIndex(i);
             }
 
+            // When deserialized via builder
             public Builder withIndex(int i) {
+                index = i;
+                return this;
+            }
+
+            // When deserialized into a builder
+            public Builder setIndex(int i) {
                 index = i;
                 return this;
             }
@@ -88,31 +104,65 @@ public class BuilderDeserializationTest2486
     // pass in both cases.
     //
     // I left some notes in BeanDeserializerBase as to behavior.
-    public void testPOJOWithArrayCreatorFromObjectRepresentation() throws Exception {
+    public void testPOJOFromBuilderWithArrayCreatorFromObjectRepresentation() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final String json = aposToQuotes("{ 'index': 123 }");
         final MyPOJOWithArrayCreator deserialized = mapper.readValue(json, MyPOJOWithArrayCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
-    public void testPOJOWithArrayCreatorFromArrayRepresentation() throws Exception {
+    public void testPOJOFromBuilderWithArrayCreatorFromArrayRepresentation() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final String json = aposToQuotes("[123]");
         final MyPOJOWithArrayCreator deserialized = mapper.readValue(json, MyPOJOWithArrayCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
-    public void testPOJOWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
+    public void testPOJOFromBuilderWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final String json = aposToQuotes("{ 'index': 123 }");
         final MyPOJOWithPrimitiveCreator deserialized = mapper.readValue(json, MyPOJOWithPrimitiveCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
 
-    public void testPOJOWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
+    public void testPOJOFromBuilderWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final String json = aposToQuotes("123");
         final MyPOJOWithPrimitiveCreator deserialized = mapper.readValue(json, MyPOJOWithPrimitiveCreator.class);
         assertEquals(123, deserialized.getIndex());
+    }
+
+    // Now let's try it without the builder by deserializing directly into an
+    // instance of the POJO Builder class instead of via it into the POJO.
+
+    // This fails the same as above. So the failure of default deserialization
+    // from an object shape in the presence of a @JsonCreator accepting an array
+    // is not specific to the use of Builders as an intermediary.
+    public void testPOJOBuilderWithArrayCreatorFromObjectRepresentation() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final String json = aposToQuotes("{ 'index': 123 }");
+        final MyPOJOWithArrayCreator.Builder deserialized = mapper.readValue(json, MyPOJOWithArrayCreator.Builder.class);
+        assertEquals(123, deserialized.index);
+    }
+
+    public void testPOJOBuilderWithArrayCreatorFromArrayRepresentation() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final String json = aposToQuotes("[123]");
+        final MyPOJOWithArrayCreator.Builder deserialized = mapper.readValue(json, MyPOJOWithArrayCreator.Builder.class);
+        assertEquals(123, deserialized.index);
+    }
+
+    public void testPOJOBuilderWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final String json = aposToQuotes("{ 'index': 123 }");
+        final MyPOJOWithPrimitiveCreator.Builder deserialized = mapper.readValue(json, MyPOJOWithPrimitiveCreator.Builder.class);
+        assertEquals(123, deserialized.index);
+    }
+
+    public void testPOJOBuilderWithPrimitiveCreatorFromPrimitiveRepresentation() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        final String json = aposToQuotes("123");
+        final MyPOJOWithPrimitiveCreator.Builder deserialized = mapper.readValue(json, MyPOJOWithPrimitiveCreator.Builder.class);
+        assertEquals(123, deserialized.index);
     }
 }

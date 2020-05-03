@@ -218,7 +218,6 @@ public abstract class BeanDeserializerBase
         //     "default creator + POJO" -- is not available. But this is not actually
         //     known before seeing Array value (unlike with more general "any" delegate).
         _nonStandardCreation = (_unwrappedPropertyHandler != null)
-            //|| _valueInstantiator.canCreateFromInt()
             || _valueInstantiator.canCreateUsingDelegate()
             || _valueInstantiator.canCreateUsingArrayDelegate()
             || _valueInstantiator.canCreateFromObjectWith()

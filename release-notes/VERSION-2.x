@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.11.1 (not yet released)
+
+#2486: Builder Deserialization with JsonCreator Value vs Array
+ (reported by Ville K)
+
 2.11.0 (26-Apr-2020)
 
 #953: i-I case conversion problem in Turkish locale with case-insensitive deserialization

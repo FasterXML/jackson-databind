@@ -84,9 +84,13 @@ public abstract class BeanDeserializerBase
     protected PropertyBasedCreator _propertyBasedCreator;
 
     /**
-     * Flag that is set to mark "non-standard" cases; where either
-     * we use one of non-default creators, or there are unwrapped
-     * values to consider.
+     * Flag that is set to mark cases where deserialization from Object value
+     * using otherwise "standard" property binding will need to use non-default
+     * creation method: namely, either "full" delegation (array-delegation does
+     * not apply), or properties-based Creator method is used.
+     *<p>
+     * Note that flag is somewhat mis-named as it is not affected by scalar-delegating
+     * creators; it only has effect on Object Value binding.
      */
     protected boolean _nonStandardCreation;
 
@@ -213,13 +217,16 @@ public abstract class BeanDeserializerBase
                 : injectables.toArray(new ValueInjector[injectables.size()]);
         _objectIdReader = builder.getObjectIdReader();
 
-        // 02-May-2020, tatu (from @vjkoskela's comment): [databind#2486] is due to
-        //     determination that existence of array-delegate alone means that use of
-        //     "default creator + POJO" -- is not available. But this is not actually
-        //     known before seeing Array value (unlike with more general "any" delegate).
+        // 02-May-2020, tatu: This boolean setting is only used when binding from
+        //    Object value, and hence does not consider "array-delegating" or various
+        //    scalar-delegation cases. It is set when default (0-argument) constructor
+        //    is NOT to be used when binding an Object value (or in case of
+        //    POJO-as-array, Array value).
         _nonStandardCreation = (_unwrappedPropertyHandler != null)
             || _valueInstantiator.canCreateUsingDelegate()
-            || _valueInstantiator.canCreateUsingArrayDelegate()
+        // [databind#2486]: as per above, array-delegating creator should not be considered
+        //   as doing so will prevent use of Array-or-standard-Object deserialization
+        //            || _valueInstantiator.canCreateUsingArrayDelegate()
             || _valueInstantiator.canCreateFromObjectWith()
             || !_valueInstantiator.canCreateUsingDefault()
             ;

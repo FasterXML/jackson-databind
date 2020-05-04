@@ -50,7 +50,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(1, ((List<?>) ob).size());
     }
 
-    public void testParserFeatures() throws Exception
+    public void testParserFeaturesComments() throws Exception
     {
         final String JSON = "[ /* foo */ 7 ]";
         // default won't accept comments, let's change that:
@@ -69,6 +69,36 @@ public class ObjectReaderTest extends BaseMapTest
         } catch (JsonProcessingException e) {
             verifyException(e, "foo");
         }
+    }
+
+    public void testParserFeaturesCtrlChars() throws Exception
+    {
+        String FIELD = "a\tb";
+        String VALUE = "\t";
+        String JSON = "{ "+quote(FIELD)+" : "+quote(VALUE)+"}";
+        Map<?, ?> result;
+
+        // First: by default, unescaped control characters should not work
+        try {
+            result = MAPPER.readValue(JSON, Map.class);
+            fail("Should not pass with defaylt settings");
+        } catch (JsonParseException e) {
+            verifyException(e, "Illegal unquoted character");
+        }
+
+        // But both ObjectReader:
+        result = MAPPER.readerFor(Map.class)
+                .with(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .readValue(JSON);
+        assertEquals(1, result.size());
+
+        // and new mapper should work
+        ObjectMapper mapper2 = JsonMapper.builder()
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .build();
+        result = mapper2.readerFor(Map.class)
+                .readValue(JSON);
+        assertEquals(1, result.size());
     }
 
     public void testNodeHandling() throws Exception

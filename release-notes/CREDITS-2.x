@@ -1053,11 +1053,13 @@ Endre Stølsvik (stolsvik@github)
 
 Máté Rédecsi (rmatesz@github)
   * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
- (2.11.0)
+  (2.11.0)
 
 Ville Koskela (vjkoskela@github)
   * Contributed #2487: BeanDeserializerBuilder Protected Factory Method for Extension
   (2.11.0)
+  * Reported #2486: Builder Deserialization with JsonCreator Value vs Array
+  (2.11.1)
   * Contributed fix for #792: Deserialization Not Working Right with Generic Types and Builders
   (2.12.0)
 

@@ -21,7 +21,7 @@ public abstract class TypeDeserializerBase
     extends TypeDeserializer
 {
     protected final TypeIdResolver _idResolver;
-    
+
     protected final JavaType _baseType;
 
     /**
@@ -44,9 +44,9 @@ public abstract class TypeDeserializerBase
      * in cases where type id is to be exposed as part of JSON.
      */
     protected final String _typePropertyName;
-    
+
     protected final boolean _typeIdVisible;
-    
+
     /**
      * For efficient operation we will lazily build mappings from type ids
      * to actual deserializers, once needed.

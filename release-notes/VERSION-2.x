@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #792: Deserialization Not Working Right with Generic Types and Builders
  (reported by Mike G; fix contributed by Ville K)
+#1919: Abstract class included as part of known type ids for error message
+  when using JsonSubTypes
+ (reported by Incara@github)
 #2091: `ReferenceType` does not expose valid containedType
  (reported by Nate B)
 #2683: Explicitly fail (de)serialization of `java.time.*` types in absence of

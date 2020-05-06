@@ -164,7 +164,15 @@ public class TypeNameIdResolver extends TypeIdResolverBase
 
     @Override
     public String getDescForKnownTypeIds() {
-        return new TreeSet<String>(_idToType.keySet()).toString();
+        // 05-May-2020, tatu: As per [databind#1919], only include ids for
+        //    non-abstract types
+        final TreeSet<String> ids = new TreeSet<>();
+        for (Map.Entry<String, JavaType> entry : _idToType.entrySet()) {
+            if (entry.getValue().isConcrete()) {
+                ids.add(entry.getKey());
+            }
+        }
+        return ids.toString();
     }
 
     @Override

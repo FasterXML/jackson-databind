@@ -280,7 +280,12 @@ public class TestJavaType
         assertTrue(t.hasContentType());
         assertEquals(Long.class, t.getContentType().getRawClass());
 
-        // 26-Mar-2020, tatu: [databind#2019] suggest this should be 1...
-//        assertEquals(1, t.containedTypeCount());
+        // 26-Mar-2020, tatu: [databind#2019] made this work
+        assertEquals(1, t.containedTypeCount());
+        TypeBindings bindings = t.getBindings();
+        assertEquals(1, bindings.size());
+        assertEquals(refdType, bindings.getBoundType(0));
+        // Should we even verify this or not?
+        assertEquals("V", bindings.getBoundName(0));
     }
 }

@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #792: Deserialization Not Working Right with Generic Types and Builders
  (reported by Mike G; fix contributed by Ville K)
+#2091: `ReferenceType` does not expose valid containedType
+ (reported by Nate B)
 #2683: Explicitly fail (de)serialization of `java.time.*` types in absence of
   registered custom (de)serializers
 #2707: Improve description included in by `DeserializationContext.handleUnexpectedToken()`

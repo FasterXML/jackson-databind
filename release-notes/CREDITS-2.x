@@ -1110,3 +1110,7 @@ Robin Roos (robinroos@github)
 Mike Gilbode (gilbode@github)
   * Reported #792: Deserialization Not Working Right with Generic Types and Builders
   (2.12.0)
+
+Nate Bauernfeind (nbauernfeind@github)
+  * Reported #2091: `ReferenceType` does not expose valid containedType
+  (2.12.0)

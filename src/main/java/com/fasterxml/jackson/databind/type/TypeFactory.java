@@ -911,7 +911,8 @@ s     */
 
     public JavaType constructReferenceType(Class<?> rawType, JavaType referredType)
     {
-        return ReferenceType.construct(rawType, null, // no bindings
+        return ReferenceType.construct(rawType,
+                TypeBindings.create(rawType, referredType), // [databind#2091]
                 null, null, // or super-class, interfaces?
                 referredType);
     }

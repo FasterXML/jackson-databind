@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -92,7 +93,7 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
-        // We may also have custom overrides:
+        // First: we may also have custom overrides:
         JsonDeserializer<?> deser = _findCustomBeanDeserializer(type, config, beanDesc);
         if (deser != null) {
             // [databind#2392]
@@ -103,10 +104,8 @@ public class BeanDeserializerFactory
             }
             return (JsonDeserializer<Object>) deser;
         }
-        /* One more thing to check: do we have an exception type
-         * (Throwable or its sub-classes)? If so, need slightly
-         * different handling.
-         */
+        // One more thing to check: do we have an exception type (Throwable or its
+        // sub-classes)? If so, need slightly different handling.
         if (type.isThrowable()) {
             return buildThrowableDeserializer(ctxt, type, beanDesc);
         }
@@ -137,6 +136,14 @@ public class BeanDeserializerFactory
         }
         // For checks like [databind#1599]
         _validateSubType(ctxt, type, beanDesc);
+
+        // 05-May-2020, tatu: [databind#2683] Let's actually pre-emptively catch
+        //   certain types (for now, java.time.*) to give better error messages
+        deser = _findUnsupportedTypeDeserializer(ctxt, type, beanDesc);
+        if (deser != null) {
+            return (JsonDeserializer<Object>)deser;
+        }
+
         // Use generic bean introspection to build deserializer
         return buildBeanDeserializer(ctxt, type, beanDesc);
     }
@@ -178,6 +185,27 @@ public class BeanDeserializerFactory
             }
         }
         return deser;
+    }
+
+    /**
+     * Helper method called to see if given type, otherwise to be taken as POJO type,
+     * is "known but not supported" JDK type, and if so, return alternate handler
+     * (deserializer).
+     * Initially added to support more meaningful error messages when "Java 8 date/time"
+     * support module not registered.
+     */
+    protected JsonDeserializer<Object> _findUnsupportedTypeDeserializer(DeserializationContext ctxt,
+            JavaType type, BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        if (ClassUtil.isJava8TimeClass(type.getRawClass())) {
+            // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
+            //   (to let users force 'serialize-as-POJO'?
+            return new UnsupportedTypeDeserializer(type,
+"Java 8 date/time type "+ClassUtil.getTypeDescription(type)
++" not supported by default: please register module `jackson-datatype-jsr310` to add handling");
+        }
+        return null;
     }
 
     protected JavaType materializeAbstractType(DeserializationContext ctxt,
@@ -433,8 +461,7 @@ public class BeanDeserializerFactory
 
     /*
     /**********************************************************
-    /* Helper methods for Bean deserializer construction,
-    /* overridable by sub-classes
+    /* Helper methods for Bean deserializer construction
     /**********************************************************
      */
 

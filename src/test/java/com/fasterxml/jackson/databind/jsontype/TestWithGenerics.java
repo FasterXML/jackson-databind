@@ -105,7 +105,7 @@ public class TestWithGenerics extends BaseMapTest
               otherAnimal = a2;
          }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests

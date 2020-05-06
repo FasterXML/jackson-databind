@@ -63,4 +63,16 @@ public class BuilderErrorHandling extends BaseMapTest
         assertEquals(2, result._x);
         assertEquals(5, result._y);
     }
+
+    public void testWrongShape() throws Exception
+    {
+        try {
+            MAPPER.readValue("123", ValueClassXY.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot construct instance of ");
+            // should report Builder class, not value here, right?
+            verifyException(e, "$SimpleBuilderXY");
+        }
+    }
 }

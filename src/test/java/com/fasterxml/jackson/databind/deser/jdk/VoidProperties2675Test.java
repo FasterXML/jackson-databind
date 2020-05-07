@@ -50,7 +50,7 @@ public class VoidProperties2675Test extends BaseMapTest
             result = NO_VOID_MAPPER.readValue(DOC, VoidBean.class);
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized field \"value\"");
+            verifyException(e, "Unrecognized property \"value\"");
         }
     }
 }

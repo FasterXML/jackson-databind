@@ -271,7 +271,7 @@ public class AnySetterTest
                     MapImitatorDisabled.class);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Unrecognized field \"value\"");
+            verifyException(e, "Unrecognized property \"value\"");
         }
 
     }

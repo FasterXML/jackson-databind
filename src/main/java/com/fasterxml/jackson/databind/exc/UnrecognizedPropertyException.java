@@ -44,7 +44,9 @@ public class UnrecognizedPropertyException
         } else {
             ref = fromObjectOrClass.getClass();
         }
-        String msg = String.format("Unrecognized field \"%s\" (class %s), not marked as ignorable",
+        // 06-May-2020, tatu: 2.x said "Unrecognized field" but we call them "properties"
+        //    everywhere else so...
+        String msg = String.format("Unrecognized property \"%s\" (class %s), not marked as ignorable",
                 propertyName, ref.getName());
         UnrecognizedPropertyException e = new UnrecognizedPropertyException(p, msg,
                 p.getCurrentLocation(), ref, propertyName, propertyIds);

@@ -5,10 +5,10 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 /**
- * Unit tests for verifying that feature requested
- * via [JACKSON-88] ("setterless collections") work as
+ * Unit tests for verifying that ("setterless collections") work as
  * expected, similar to how Collections and Maps work
  * with JAXB.
  */
@@ -74,10 +74,10 @@ public class TestSetterlessProperties
             m.readValue
                 ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
+        } catch (UnrecognizedPropertyException e) {
             // Not a good exception, ideally could suggest a need for
             // a setter...?
-            verifyException(e, "Unrecognized field");
+            verifyException(e, "Unrecognized property");
         }
     }
 
@@ -104,8 +104,8 @@ public class TestSetterlessProperties
             m.readValue
                 ("{\"values\":{ \"a\":3 }}", MapBean.class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Unrecognized field");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property");
         }
     }
 

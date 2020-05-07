@@ -327,7 +327,7 @@ public class BuilderSimpleTest extends BaseMapTest
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             assertEquals("z", e.getPropertyName());
-            verifyException(e, "Unrecognized field \"z\"");
+            verifyException(e, "Unrecognized property \"z\"");
         }
 
         // but with config overrides should pass

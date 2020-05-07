@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 /**
  * Unit tests for checking handling of unknown properties
@@ -135,8 +136,8 @@ public class UnknownPropertyDeserTest
     {
         try {
             MAPPER.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
-        } catch (JsonMappingException jex) {
-            verifyException(jex, "Unrecognized field \"foo\"");
+        } catch (UnrecognizedPropertyException jex) {
+            verifyException(jex, "Unrecognized property \"foo\"");
         }
     }
 
@@ -242,8 +243,8 @@ public class UnknownPropertyDeserTest
         // but "d" is not defined, so should still error
         try {
             MAPPER.readValue("{\"a\":1,\"b\":2,\"c\":3,\"d\":4 }", ImplicitIgnores.class);            
-        } catch (JsonMappingException e) {
-            verifyException(e, "Unrecognized field \"d\"");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property \"d\"");
         }
     }
 

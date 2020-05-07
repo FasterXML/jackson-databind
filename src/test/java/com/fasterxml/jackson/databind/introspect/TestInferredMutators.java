@@ -36,7 +36,7 @@ public class TestInferredMutators extends BaseMapTest
             /*p =*/ mapper.readValue("{\"x\":2}", FixedPoint.class);
             fail("Should not try to use final field");
         } catch (JsonMappingException e) {
-            verifyException(e, "unrecognized field \"x\"");
+            verifyException(e, "Unrecognized property \"x\"");
         }
     }
     
@@ -58,7 +58,7 @@ public class TestInferredMutators extends BaseMapTest
             p = mapper.readValue(JSON,  Point.class);
             fail("Should not succeeed");
         } catch (JsonMappingException e) {
-            verifyException(e, "unrecognized field \"x\"");
+            verifyException(e, "Unrecognized property \"x\"");
         }
     }
 }

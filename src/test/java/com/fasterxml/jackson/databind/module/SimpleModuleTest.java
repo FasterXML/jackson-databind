@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
@@ -170,7 +171,7 @@ public class SimpleModuleTest extends BaseMapTest
      * Basic test to ensure we do not have functioning default
      * serializers for custom types used in tests.
      */
-    public void testWithoutModule()
+    public void testWithoutModule() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // first: serialization failure:
@@ -185,9 +186,9 @@ public class SimpleModuleTest extends BaseMapTest
         try {
             mapper.readValue("{\"str\":\"ab\",\"num\":2}", CustomBean.class);
             fail("Should have caused an exception");
-        } catch (IOException e) {
+        } catch (UnrecognizedPropertyException e) {
             // 20-Sep-2017, tatu: Jackson 2.x had different exception; 3.x finds implicits too
-            verifyException(e, "Unrecognized field \"str\"");
+            verifyException(e, "Unrecognized property \"str\"");
 
             /*
             verifyException(e, "Cannot construct");

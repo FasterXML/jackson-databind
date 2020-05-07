@@ -215,10 +215,14 @@ public final class AnnotatedMethod
      * false, otherwise true
      * 
      * @since 2.4
+     *
+     * @deprecated Since 2.12 (related to [databind#2675]), needs to be configurable
      */
+    @Deprecated
     public boolean hasReturnType() {
         Class<?> rt = getRawReturnType();
-        return (rt != Void.TYPE && rt != Void.class);
+        // also, as per [databind#2675], only consider `void` to be real "No return type"
+        return (rt != Void.TYPE);
     }
 
     /*

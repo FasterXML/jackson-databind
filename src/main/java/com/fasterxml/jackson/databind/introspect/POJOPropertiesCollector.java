@@ -580,10 +580,15 @@ public class POJOPropertiesCollector
             AnnotatedMethod m, AnnotationIntrospector ai)
     {
         // Very first thing: skip if not returning any value
-        if (!m.hasReturnType()) {
-            return;
+        // 06-May-2020, tatu: [databind#2675] changes handling slightly...
+        {
+            final Class<?> rt = m.getRawReturnType();
+            if ((rt == Void.TYPE) ||
+                    ((rt == Void.class) && !_config.isEnabled(MapperFeature.ALLOW_VOID_VALUED_PROPERTIES))) {
+                return;
+            }
         }
-        
+
         // any getter?
         // @JsonAnyGetter?
         if (Boolean.TRUE.equals(ai.hasAnyGetter(m))) {

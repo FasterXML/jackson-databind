@@ -117,6 +117,17 @@ public enum MapperFeature implements ConfigFeature
      */
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 
+    /**
+     * Feature that determines whether nominal property type of {@link Void} is
+     * allowed for Getter methods to indicate {@code null} valued pseudo-property
+     * or not. If enabled, such properties are recognized (see [databind#2675] for
+     * reasons -- mostly things related to frameworks, code generation); if disabled,
+     * such property accessors (or at least getters) are ignored.
+     *<p>
+     * Feature is enabled by default.
+     */
+    ALLOW_VOID_VALUED_PROPERTIES(true),
+
     /*
     /**********************************************************************
     /* Access modifier handling

@@ -13,6 +13,7 @@ Project: jackson-databind
  (reported by Incara@github)
 #2091: `ReferenceType` does not expose valid containedType
  (reported by Nate B)
+#2675: Support use of `Void` valued properties (`MapperFeature.ALLOW_VOID_VALUED_PROPERTIES`)
 #2683: Explicitly fail (de)serialization of `java.time.*` types in absence of
   registered custom (de)serializers
 #2707: Improve description included in by `DeserializationContext.handleUnexpectedToken()`

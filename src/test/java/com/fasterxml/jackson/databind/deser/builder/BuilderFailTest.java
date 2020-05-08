@@ -70,7 +70,8 @@ public class BuilderFailTest extends BaseMapTest
             MAPPER.readValue(json, ValueClassWrongBuildType.class);
             fail("Missing expected InvalidDefinitionException exception");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "Build method");
+            verifyException(e, "Build method ");
+            verifyException(e, "#build(0 params)");
             verifyException(e, "has wrong return type");
         }
     }

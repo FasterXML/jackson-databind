@@ -303,9 +303,9 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     public void testUUID() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
-        
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
+        final ObjectReader r = MAPPER.readerFor(UUID.class);
+
         // first, couple of generated UUIDs:
         for (String value : new String[] {
                 "76e6d183-5f68-4afa-b94a-922c1fdb83f8",
@@ -315,12 +315,10 @@ public class JDKStringLikeTypesTest extends BaseMapTest
                 "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
                 "00000007-0000-0000-0000-000000000000"
         }) {
-            
-            mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-            
             UUID uuid = UUID.fromString(value);
             assertEquals(uuid,
-                    mapper.readValue(quote(value), UUID.class));
+                    r.without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                        .readValue(quote(value)));
         }
         // then use templating; note that these are not exactly valid UUIDs
         // wrt spec (type bits etc), but JDK UUID should deal ok
@@ -330,13 +328,13 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         for (int i = 0; i < chars.length(); ++i) {
             String value = TEMPL.replace('0', chars.charAt(i));
             assertEquals(UUID.fromString(value).toString(),
-                    mapper.readValue(quote(value), UUID.class).toString());
+                    r.readValue(quote(value)).toString());
         }
 
         // also: see if base64 encoding works as expected
         String base64 = Base64Variants.getDefaultVariant().encode(new byte[16]);
         assertEquals(UUID.fromString(NULL_UUID),
-                mapper.readValue(quote(base64), UUID.class));
+                r.readValue(quote(base64)));
     }
 
     public void testUUIDInvalid() throws Exception

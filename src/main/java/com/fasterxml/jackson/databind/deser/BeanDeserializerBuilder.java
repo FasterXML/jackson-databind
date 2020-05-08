@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
@@ -353,25 +354,9 @@ public class BeanDeserializerBuilder
             props = _addIdProp(_properties,
                     new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
         }
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
-                _collectAliases(props));
-
-        // view processing must be enabled if:
-        // (a) fields are not included by default (when deserializing with view), OR
-        // (b) one of properties has view(s) to included in defined
-        boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        if (!anyViews) {
-            for (SettableBeanProperty prop : props) {
-                if (prop.hasViews()) {
-                    anyViews = true;
-                    break;
-                }
-            }
-        }
-
-        return new BeanDeserializer(this,
-                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
-                anyViews);
+        return new BeanDeserializer(this, _beanDesc,
+                _constructPropMap(props), _backRefProperties, _ignorableProps, _ignoreAllUnknown,
+                _anyViews(props));
     }
 
     /**
@@ -424,21 +409,8 @@ public class BeanDeserializerBuilder
         } else {
             props = _properties.values();
         }
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
-                _collectAliases(props));
-
-        boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
-
-        if (!anyViews) {
-            for (SettableBeanProperty prop : props) {
-                if (prop.hasViews()) {
-                    anyViews = true;
-                    break;
-                }
-            }
-        }
-
-        return createBuilderBasedDeserializer(valueType, propertyMap, anyViews);
+        return createBuilderBasedDeserializer(valueType, _constructPropMap(props),
+                _anyViews(props));
     }
 
     /**
@@ -516,7 +488,37 @@ public class BeanDeserializerBuilder
         }
         return result;
     }
-    
+
+    protected boolean _anyViews(Collection<SettableBeanProperty> props)
+    {
+        // view processing must be enabled if:
+        // (a) fields are not included by default (when deserializing with view), OR
+        // (b) one of properties has view(s) to included in defined
+        if (!_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)) {
+            return true;
+        }
+        for (SettableBeanProperty prop : props) {
+            if (prop.hasViews()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected BeanPropertyMap _constructPropMap(Collection<SettableBeanProperty> props)
+    {
+        // 07-May-2020, tatu: First find combination of per-type config overrides (higher
+        //   precedence) and per-type annotations (lower):
+        JsonFormat.Value format = _beanDesc.findExpectedFormat(null);
+        // and see if any of those has explicit definition; if not, use global baseline default
+        Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        boolean caseInsensitive = (B == null)
+                ? _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                : B.booleanValue();
+
+        return BeanPropertyMap.construct(_config, props, _collectAliases(props), caseInsensitive);
+    }
+
     protected PropertyName[][] _collectAliases(Collection<SettableBeanProperty> props)
     {
         PropertyName[][] result = null;

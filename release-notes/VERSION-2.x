@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #792: Deserialization Not Working Right with Generic Types and Builders
  (reported by Mike G; fix contributed by Ville K)
+#1886: Allow use of `@JsonFormat(with=JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)`
+  on Class
 #1919: Abstract class included as part of known type ids for error message
   when using JsonSubTypes
  (reported by Incara@github)

@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -111,12 +111,11 @@ public class BeanPropertyMap
 
     public static BeanPropertyMap construct(MapperConfig<?> config,
             Collection<SettableBeanProperty> props,
-            PropertyName[][] aliases)
+            PropertyName[][] aliases,
+            boolean caseInsensitive)
     {
         return new BeanPropertyMap(props, aliases,
-                config.getLocale(),
-                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
-                true);
+                config.getLocale(), caseInsensitive, true);
     }
 
     /*

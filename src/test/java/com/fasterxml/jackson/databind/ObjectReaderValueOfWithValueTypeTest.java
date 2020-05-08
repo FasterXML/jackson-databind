@@ -124,9 +124,9 @@ public class ObjectReaderValueOfWithValueTypeTest
 
     @Test
     public void testValueOfReaderWithValueType() throws IOException {
-        when(objectReader.forType((Class) any())).thenReturn(objectReader);
+        when(objectReader.forType((Class<?>) any())).thenReturn(objectReader);
         when(objectReader.readValue((Reader) any())).thenReturn(pojo);
-        when(objectReader.readValue((Reader) any(), (Class) any())).thenCallRealMethod();
+        when(objectReader.readValue((Reader) any(), (Class<?>) any())).thenCallRealMethod();
 
         Reader source = new StringReader("{}");
         POJO result = objectReader.readValue(source, POJO.class);

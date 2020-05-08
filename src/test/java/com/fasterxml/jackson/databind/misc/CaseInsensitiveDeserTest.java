@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
@@ -94,13 +92,31 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         }
     }
 
+    // [databind#1886]: allow case-insensitivity by default on a class
+    @JsonFormat(with={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES })
+    static class CaseInsensitiveRole {
+        public String ID;
+        public String Name;
+    }
+
+    // [databind#1886]: allow case-insensitivity by default on a class
+    static class CaseInsensitiveRoleContainer {
+        public CaseInsensitiveRole role;
+    }
+
+    // [databind#1886]: ... but also overrides
+    static class CaseSensitiveRoleContainer {
+        @JsonFormat(without={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES })
+        public CaseInsensitiveRole role;
+    }
+
     /*
     /********************************************************
     /* Test methods
     /********************************************************
      */
+    private final ObjectMapper MAPPER = newJsonMapper();
 
-    private final ObjectMapper MAPPER = objectMapper();
     private final ObjectMapper INSENSITIVE_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
             .build();
@@ -159,7 +175,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     }
 
     // And allow config overrides too
-    public void testCaseInsensitiveWithClassFormat() throws Exception
+    public void testCaseInsensitiveViaConfigOverride() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Role.class,
@@ -182,5 +198,35 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         assertEquals(1, result.getId());
         assertNotNull(result.getItems());
         assertEquals(1, result.getItems().size());
+    }
+
+
+    // [databind#1886]: allow case-insensitivity by default on a class
+    public void testCaseInsensitiveViaClassAnnotation() throws Exception
+    {
+        final String CONTAINED = aposToQuotes("{'role': {'id':'3','name':'Bob'}}");
+
+        // First: via wrapper/container:
+        CaseInsensitiveRoleContainer cont = MAPPER.readValue(CONTAINED,
+                        CaseInsensitiveRoleContainer.class);
+        assertEquals("3", cont.role.ID);
+        assertEquals("Bob", cont.role.Name);
+
+        // second: directly as root value
+        CaseInsensitiveRole role = MAPPER.readValue
+                (aposToQuotes("{'id':'12','name':'Billy'}"),
+                        CaseInsensitiveRole.class);
+        assertEquals("12", role.ID);
+        assertEquals("Billy", role.Name);
+
+        // and finally, more complicated; should be possible to force sensitivity:
+        try {
+            /*CaseSensitiveRoleContainer r =*/ MAPPER.readValue(CONTAINED,
+                    CaseSensitiveRoleContainer.class);
+            fail("Should not pass");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized ");
+            verifyException(e, "\"id\"");
+        }
     }
 }

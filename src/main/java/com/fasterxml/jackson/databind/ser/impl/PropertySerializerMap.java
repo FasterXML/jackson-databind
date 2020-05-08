@@ -165,14 +165,6 @@ public abstract class PropertySerializerMap
     public abstract PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer);
 
     /**
-     * @deprecated Since 2.5 Use {@link #emptyForProperties} instead
-     */
-    @Deprecated
-    public static PropertySerializerMap emptyMap() {
-        return emptyForProperties();
-    }
-
-    /**
      * @since 2.5
      */
     public static PropertySerializerMap emptyForProperties() {

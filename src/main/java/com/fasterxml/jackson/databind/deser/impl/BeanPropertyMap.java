@@ -178,13 +178,6 @@ public class BeanPropertyMap
         _hashArea[ix+1] = newProp;
     }
 
-    @Deprecated // since 2.8
-    public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props)
-    {
-        this(caseInsensitive, props, Collections.<String,List<PropertyName>>emptyMap(),
-                Locale.getDefault());
-    }
-
     /**
      * @since 2.8
      */
@@ -293,12 +286,6 @@ public class BeanPropertyMap
     public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
             boolean caseInsensitive, Map<String,List<PropertyName>> aliasMapping) {
         return new BeanPropertyMap(caseInsensitive, props, aliasMapping);
-    }
-
-    @Deprecated // since 2.9
-    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props, boolean caseInsensitive) {
-        return construct(props, caseInsensitive,
-                Collections.<String,List<PropertyName>>emptyMap());
     }
 
     /**

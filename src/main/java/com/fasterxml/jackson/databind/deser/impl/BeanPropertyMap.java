@@ -350,7 +350,7 @@ public class BeanPropertyMap
         }
         // should we try to re-index? Ordering probably changed but caller probably doesn't want changes...
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
-        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs);
+        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, _locale);
     }
 
     /*
@@ -386,7 +386,7 @@ public class BeanPropertyMap
             }
         }
         // should we try to re-index? Apparently no need
-        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs);
+        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, _locale);
     }
 
     @Deprecated // in 2.9.4 -- must call method that takes old and new property to avoid mismatch

@@ -142,6 +142,9 @@ public class EnumSetDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
+        // 07-May-2020, tatu: Is the argument `EnumSet.class` correct here?
+        //    In a way seems like it should rather refer to value class... ?
+        //    (as it's individual value of element type, not Container)...
         final Boolean unwrapSingle = findFormatFeature(ctxt, property, EnumSet.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         JsonDeserializer<?> deser = _enumDeserializer;

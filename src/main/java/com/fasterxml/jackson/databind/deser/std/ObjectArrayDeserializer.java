@@ -116,6 +116,9 @@ public class ObjectArrayDeserializer
             BeanProperty property) throws JsonMappingException
     {
         JsonDeserializer<?> valueDeser = _elementDeserializer;
+        // 07-May-2020, tatu: Is the argument `containerType.getRawClass()` right here?
+        //    In a way seems like it should rather refer to value class... ?
+        //    (as it's individual value of element type, not Container)...
         Boolean unwrapSingle = findFormatFeature(ctxt, property, _containerType.getRawClass(),
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // May have a content converter

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Builder class used for aggregating deserialization information about
@@ -395,7 +396,7 @@ public class BeanDeserializerBuilder
             if (!expBuildMethodName.isEmpty()) {
                 _context.reportBadDefinition(_beanDesc.getType(),
                         String.format("Builder class %s does not have build method (name: '%s')",
-                        _beanDesc.getBeanClass().getName(),
+                        ClassUtil.getTypeDescription(_beanDesc.getType()),
                         expBuildMethodName));
             }
         } else {
@@ -406,10 +407,10 @@ public class BeanDeserializerBuilder
                     && !rawBuildType.isAssignableFrom(rawValueType)
                     && !rawValueType.isAssignableFrom(rawBuildType)) {
                 _context.reportBadDefinition(_beanDesc.getType(),
-                        String.format("Build method '%s' has wrong return type (%s), not compatible with POJO type (%s)",
+                        String.format("Build method `%s` has wrong return type (%s), not compatible with POJO type (%s)",
                         _buildMethod.getFullName(),
-                        rawBuildType.getName(),
-                        valueType.getRawClass().getName()));
+                        ClassUtil.getClassDescription(rawBuildType),
+                        ClassUtil.getTypeDescription(valueType)));
             }
         }
         _fixAccess(_properties.values());

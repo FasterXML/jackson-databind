@@ -1145,7 +1145,7 @@ public abstract class DeserializationContext
     public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
         throws IOException
     {
-        return handleUnexpectedToken(constructType(instClass), p.getCurrentToken(), p, null);
+        return handleUnexpectedToken(constructType(instClass), p.currentToken(), p, null);
     }
 
     /**
@@ -1187,7 +1187,7 @@ public abstract class DeserializationContext
     public Object handleUnexpectedToken(JavaType targetType, JsonParser p)
         throws IOException
     {
-        return handleUnexpectedToken(targetType, p.getCurrentToken(), p, null);
+        return handleUnexpectedToken(targetType, p.currentToken(), p, null);
     }
 
     /**
@@ -1642,7 +1642,7 @@ trailingToken, ClassUtil.nameOf(targetType)
             JsonToken expToken, String extra)
     {
         String msg = String.format("Unexpected token (%s), expected %s",
-                p.getCurrentToken(), expToken);
+                p.currentToken(), expToken);
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
     }
@@ -1651,7 +1651,7 @@ trailingToken, ClassUtil.nameOf(targetType)
             JsonToken expToken, String extra)
     {
         String msg = String.format("Unexpected token (%s), expected %s",
-                p.getCurrentToken(), expToken);
+                p.currentToken(), expToken);
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
     }
@@ -1887,7 +1887,7 @@ trailingToken, ClassUtil.nameOf(targetType)
      */
     @Deprecated
     public JsonMappingException mappingException(Class<?> targetClass) {
-        return mappingException(targetClass, _parser.getCurrentToken());
+        return mappingException(targetClass, _parser.currentToken());
     }
 
     /**

@@ -231,7 +231,7 @@ public class UntypedObjectDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_FIELD_NAME:
             // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
@@ -298,7 +298,7 @@ public class UntypedObjectDeserializer
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         // First: does it look like we had type id wrapping of some kind?
         case JsonTokenId.ID_START_ARRAY:
         case JsonTokenId.ID_START_OBJECT:
@@ -357,7 +357,7 @@ public class UntypedObjectDeserializer
             return deserialize(p, ctxt);
         }
 
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_FIELD_NAME:
             // We may also be given END_OBJECT (similar to FIELD_NAME),
@@ -487,7 +487,7 @@ public class UntypedObjectDeserializer
     {
         String key1;
 
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         
         if (t == JsonToken.START_OBJECT) {
             key1 = p.nextFieldName();
@@ -565,7 +565,7 @@ public class UntypedObjectDeserializer
     protected Object mapObject(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> m) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         }
@@ -640,7 +640,7 @@ public class UntypedObjectDeserializer
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_START_OBJECT:
                 {
                     JsonToken t = p.nextToken();
@@ -703,7 +703,7 @@ public class UntypedObjectDeserializer
         @Override
         public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_START_ARRAY:
             case JsonTokenId.ID_START_OBJECT:
             case JsonTokenId.ID_FIELD_NAME:
@@ -747,7 +747,7 @@ public class UntypedObjectDeserializer
                 return deserialize(p, ctxt);
             }
 
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_END_OBJECT:
             case JsonTokenId.ID_END_ARRAY:
                 return intoValue;

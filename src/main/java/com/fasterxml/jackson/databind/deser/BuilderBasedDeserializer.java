@@ -200,7 +200,7 @@ public class BuilderBasedDeserializer
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         }
         // and then others, generally requiring use of @JsonCreator
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             return finishBuild(ctxt, deserializeFromString(p, ctxt));
         case JsonTokenId.ID_NUMBER_INT:
@@ -264,7 +264,7 @@ public class BuilderBasedDeserializer
         throws IOException
     {
         Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
+        for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             String propName = p.getCurrentName();
             // Skip field name:
             p.nextToken();
@@ -309,7 +309,7 @@ public class BuilderBasedDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
+        for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             String propName = p.getCurrentName();
             // Skip field name:
             p.nextToken();
@@ -350,7 +350,7 @@ public class BuilderBasedDeserializer
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
 
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
@@ -454,7 +454,7 @@ public class BuilderBasedDeserializer
                 return deserializeWithView(p, ctxt, builder, view);
             }
         }
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
@@ -523,7 +523,7 @@ public class BuilderBasedDeserializer
             Object bean, Class<?> activeView)
         throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             // Skip field name:
@@ -575,7 +575,7 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
+        for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
@@ -625,7 +625,7 @@ public class BuilderBasedDeserializer
         tokens.writeStartObject();
         Object builder = null;
 
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
@@ -687,7 +687,7 @@ public class BuilderBasedDeserializer
         throws IOException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (JsonToken t = p.getCurrentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             SettableBeanProperty prop = _beanProperties.find(propName);
             p.nextToken();
@@ -742,7 +742,7 @@ public class BuilderBasedDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
-        for (JsonToken t = p.getCurrentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             t = p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);

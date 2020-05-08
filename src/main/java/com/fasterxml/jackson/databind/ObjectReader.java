@@ -352,7 +352,7 @@ public class ObjectReader
          * This occurs before first read from JsonParser, as well as
          * after clearing of current token.
          */
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == null) { // and then we must get something...
             t = p.nextToken();
             if (t == null) {
@@ -2082,7 +2082,7 @@ public class ObjectReader
             p.setSchema(_schema);
         }
 
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == null) {
             t = p.nextToken();
             if (t == null) {
@@ -2124,7 +2124,7 @@ public class ObjectReader
         if (_schema != null) {
             p.setSchema(_schema);
         }
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == null) {
             t = p.nextToken();
             if (t == null) {
@@ -2173,15 +2173,15 @@ public class ObjectReader
         // 12-Jun-2015, tatu: Should try to support namespaces etc but...
         String expSimpleName = expRootName.getSimpleName();
 
-        if (p.getCurrentToken() != JsonToken.START_OBJECT) {
+        if (p.currentToken() != JsonToken.START_OBJECT) {
             ctxt.reportWrongTokenException(rootType, JsonToken.START_OBJECT,
                     "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
-                    expSimpleName, p.getCurrentToken());
+                    expSimpleName, p.currentToken());
         }
         if (p.nextToken() != JsonToken.FIELD_NAME) {
             ctxt.reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
                     "Current token not FIELD_NAME (to contain expected root name '%s'), but %s", 
-                    expSimpleName, p.getCurrentToken());
+                    expSimpleName, p.currentToken());
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
@@ -2202,7 +2202,7 @@ public class ObjectReader
         if (p.nextToken() != JsonToken.END_OBJECT) {
             ctxt.reportWrongTokenException(rootType, JsonToken.END_OBJECT,
                     "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
-                    expSimpleName, p.getCurrentToken());
+                    expSimpleName, p.currentToken());
         }
         if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
             _verifyNoTrailingTokens(p, ctxt, _valueType);

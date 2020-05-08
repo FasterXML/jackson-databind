@@ -177,7 +177,7 @@ public abstract class StdDeserializer<T>
     protected final boolean _parseBooleanPrimitive(DeserializationContext ctxt,
             JsonParser p, Class<?> targetType) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         if (t == JsonToken.VALUE_NULL) {
@@ -263,7 +263,7 @@ public abstract class StdDeserializer<T>
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             return p.getIntValue();
         }
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
@@ -323,7 +323,7 @@ public abstract class StdDeserializer<T>
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             return p.getLongValue();
         }
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
@@ -372,7 +372,7 @@ public abstract class StdDeserializer<T>
         if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
             return p.getFloatValue();
         }
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
@@ -433,7 +433,7 @@ public abstract class StdDeserializer<T>
         if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
             return p.getDoubleValue();
         }
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
@@ -493,7 +493,7 @@ public abstract class StdDeserializer<T>
     protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        switch (p.getCurrentTokenId()) {
+        switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
             return _parseDate(p.getText().trim(), ctxt);
         case JsonTokenId.ID_NUMBER_INT:
@@ -536,7 +536,7 @@ public abstract class StdDeserializer<T>
                 return parsed;
             }
         } else {
-            t = p.getCurrentToken();
+            t = p.currentToken();
         }
         return (java.util.Date) ctxt.handleUnexpectedToken(_valueClass, t, p, null);
     }
@@ -581,7 +581,7 @@ public abstract class StdDeserializer<T>
      */
     protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_STRING) {
             return p.getText();
         }
@@ -626,7 +626,7 @@ public abstract class StdDeserializer<T>
     protected T _deserializeFromEmpty(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_ARRAY) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
                 t = p.nextToken();
@@ -715,10 +715,10 @@ public abstract class StdDeserializer<T>
                 return parsed;
             }
         } else {
-            t = p.getCurrentToken();
+            t = p.currentToken();
         }
         @SuppressWarnings("unchecked")
-        T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.getCurrentToken(), p, null);
+        T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, null);
         return result;
     }
 
@@ -740,7 +740,7 @@ public abstract class StdDeserializer<T>
                     ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
                     "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
             @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.getCurrentToken(), p, msg);
+            T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
             return result;
         }
         return (T) deserialize(p, ctxt);

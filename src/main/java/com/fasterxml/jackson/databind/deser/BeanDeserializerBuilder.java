@@ -351,7 +351,8 @@ public class BeanDeserializerBuilder
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
-                _collectAliases(props));
+                _collectAliases(props),
+                _findCaseInsensitivity());
         propertyMap.assignIndexes();
 
         // view processing must be enabled if:
@@ -427,7 +428,8 @@ public class BeanDeserializerBuilder
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
-                _collectAliases(props));
+                _collectAliases(props),
+                _findCaseInsensitivity());
         propertyMap.assignIndexes();
 
         boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
@@ -530,5 +532,16 @@ public class BeanDeserializerBuilder
             return Collections.emptyMap();
         }
         return mapping;
+    }
+
+    // @since 2.12
+    protected boolean _findCaseInsensitivity() {
+        // 07-May-2020, tatu: First find combination of per-type config overrides (higher
+        //   precedence) and per-type annotations (lower):
+        JsonFormat.Value format = _beanDesc.findExpectedFormat(null);
+        // and see if any of those has explicit definition; if not, use global baseline default
+        Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        return (B == null) ? _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+                : B.booleanValue();
     }
 }

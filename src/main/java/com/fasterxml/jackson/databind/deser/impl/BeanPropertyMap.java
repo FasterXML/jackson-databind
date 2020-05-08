@@ -269,8 +269,22 @@ public class BeanPropertyMap
     }
 
     /**
-     * @since 2.11
+     * @since 2.12
      */
+    public static BeanPropertyMap construct(MapperConfig<?> config,
+            Collection<SettableBeanProperty> props,
+            Map<String,List<PropertyName>> aliasMapping,
+            boolean caseInsensitive) {
+        return new BeanPropertyMap(caseInsensitive,
+                props, aliasMapping,
+                config.getLocale());
+    }
+
+    /**
+     * @since 2.11
+     * @deprecated since 2.12
+     */
+    @Deprecated
     public static BeanPropertyMap construct(MapperConfig<?> config,
             Collection<SettableBeanProperty> props,
             Map<String,List<PropertyName>> aliasMapping) {

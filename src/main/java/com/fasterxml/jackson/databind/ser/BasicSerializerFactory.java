@@ -462,15 +462,13 @@ public abstract class BasicSerializerFactory
         if (Number.class.isAssignableFrom(raw)) {
             // 21-May-2014, tatu: Couple of alternatives actually
             JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-            if (format != null) {
-                switch (format.getShape()) {
-                case STRING:
-                    return ToStringSerializer.instance;
-                case OBJECT: // need to bail out to let it be serialized as POJO
-                case ARRAY: // or, I guess ARRAY; otherwise no point in speculating
-                    return null;
-                default:
-                }
+            switch (format.getShape()) {
+            case STRING:
+                return ToStringSerializer.instance;
+            case OBJECT: // need to bail out to let it be serialized as POJO
+            case ARRAY: // or, I guess ARRAY; otherwise no point in speculating
+                return null;
+            default:
             }
             return NumberSerializer.instance;
         }
@@ -706,7 +704,7 @@ public abstract class BasicSerializerFactory
                 // We may also want to use serialize Collections "as beans", if (and only if)
                 // this is specified with `@JsonFormat(shape=Object)`
                 JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-                if ((format != null) && format.getShape() == JsonFormat.Shape.OBJECT) {
+                if (format.getShape() == JsonFormat.Shape.OBJECT) {
                     return null;
                 }
                 Class<?> raw = type.getRawClass();
@@ -796,7 +794,7 @@ public abstract class BasicSerializerFactory
         // [databind#467]: This is where we could allow serialization "as POJO": But! It's
         // nasty to undo, and does not apply on per-property basis. So, hardly optimal
         JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-        if ((format != null) && format.getShape() == JsonFormat.Shape.OBJECT) {
+        if (format.getShape() == JsonFormat.Shape.OBJECT) {
             return null;
         }
 
@@ -1195,7 +1193,7 @@ public abstract class BasicSerializerFactory
          * otherwise pass it to EnumSerializer.
          */
         JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-        if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
+        if (format.getShape() == JsonFormat.Shape.OBJECT) {
             // one special case: suppress serialization of "getDeclaringClass()"...
             ((BasicBeanDescription) beanDesc).removeProperty("declaringClass");
             // returning null will mean that eventually BeanSerializer gets constructed

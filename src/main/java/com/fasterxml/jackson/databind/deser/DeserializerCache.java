@@ -381,7 +381,7 @@ public final class DeserializerCache
                 // but that won't work for other reasons. So do it here.
                 // (read: rewrite for 3.0)
                 JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-                if ((format == null) || format.getShape() != JsonFormat.Shape.OBJECT) {
+                if (format.getShape() != JsonFormat.Shape.OBJECT) {
                     MapLikeType mlt = (MapLikeType) type;
                     if (mlt.isTrueMapType()) {
                         return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDesc);
@@ -396,7 +396,7 @@ public final class DeserializerCache
                  *   reasons. So do it here.
                  */
                 JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-                if ((format == null) || format.getShape() != JsonFormat.Shape.OBJECT) {
+                if (format.getShape() != JsonFormat.Shape.OBJECT) {
                     CollectionLikeType clt = (CollectionLikeType) type;
                     if (clt.isTrueCollectionType()) {
                         return factory.createCollectionDeserializer(ctxt, (CollectionType) clt, beanDesc);

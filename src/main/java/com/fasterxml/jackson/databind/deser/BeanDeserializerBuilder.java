@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -7,6 +8,7 @@ import java.util.GregorianCalendar;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+
 
 /**
  * Helper class that contains functionality needed by both serialization
@@ -31,11 +33,17 @@ public class BeanUtil
 
     public static String okNameForRegularGetter(AnnotatedMember am, String name)
     {
+        if (RecordUtil.isRecord(am.getDeclaringClass()) &&
+                Arrays.asList(RecordUtil.getRecordComponents(am.getDeclaringClass())).contains(name)) {
+            // record getters are not prefixed
+            return name;
+        }
+
         if (name.startsWith("get")) {
             /* 16-Feb-2009, tatu: To handle [JACKSON-53], need to block
              *   CGLib-provided method "getCallbacks". Not sure of exact
              *   safe criteria to get decent coverage without false matches;
-             *   but for now let's assume there's no reason to use any 
+             *   but for now let's assume there's no reason to use any
              *   such getter from CGLib.
              *   But let's try this approach...
              */
@@ -79,7 +87,7 @@ public class BeanUtil
     /* Value defaulting helpers
     /**********************************************************
      */
-    
+
     /**
      * Accessor used to find out "default value" to use for comparing values to
      * serialize, to determine whether to exclude value from serialization with
@@ -130,7 +138,7 @@ public class BeanUtil
 
     /**
      * This method was added to address the need to weed out
-     * CGLib-injected "getCallbacks" method. 
+     * CGLib-injected "getCallbacks" method.
      * At this point caller has detected a potential getter method
      * with name "getCallbacks" and we need to determine if it is
      * indeed injectect by Cglib. We do this by verifying that the

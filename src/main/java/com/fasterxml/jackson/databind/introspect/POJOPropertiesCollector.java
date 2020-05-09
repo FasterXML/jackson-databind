@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.RecordUtil;
 
 /**
  * Helper class used for aggregating information about all possible
@@ -447,6 +448,24 @@ public class POJOPropertiesCollector
      */
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
+        // collect record's canonical constructor
+        if (RecordUtil.isRecord(_classDef.getAnnotated())) {
+            if (_creatorProperties == null) {
+                _creatorProperties = new LinkedList<>();
+            }
+            AnnotatedConstructor constructor = RecordUtil.getCanonicalConstructor(_classDef);
+            if (constructor != null) {
+                String[] recordComponents = RecordUtil.getRecordComponents(_classDef.getAnnotated());
+                for (int i = 0; i < constructor.getParameterCount(); i++) {
+                    AnnotatedParameter parameter = constructor.getParameter(i);
+                    POJOPropertyBuilder prop = _property(props, recordComponents[i]);
+                    prop.addCtor(parameter,
+                            PropertyName.construct(recordComponents[i]), false, true, false);
+                    _creatorProperties.add(prop);
+                }
+            }
+        }
+
         // can be null if annotation processing is disabled...
         if (!_useAnnotations) {
             return;

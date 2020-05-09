@@ -410,7 +410,6 @@ public abstract class ValueInstantiator
         }
     }
 
-
     /**
      * Delegating {@link ValueInstantiator} implementation meant as a base type
      * that by default delegates methods to specified fallback instantiator.
@@ -529,7 +528,7 @@ public abstract class ValueInstantiator
         @Override
         public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException {
             return delegate().createFromBoolean(ctxt, value);
-        }    
+        }
 
         /*
         /**********************************************************

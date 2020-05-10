@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
@@ -83,5 +84,22 @@ public class RecordTest extends BaseMapTest {
         RecordWithConstructor value = jsonMapper.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithConstructor.class);
 
         assertEquals(new RecordWithConstructor(123, "Bob"), value);
+    }
+
+    record JsonPropertyRenameRecord(int id, @JsonProperty("rename")String name) {
+    }
+
+    public void testSerializeJsonRenameRecord() throws JsonProcessingException {
+        JsonPropertyRenameRecord record = new JsonPropertyRenameRecord(123, "Bob");
+
+        String json = jsonMapper.writeValueAsString(record);
+
+        assertEquals("{\"id\":123,\"rename\":\"Bob\"}", json);
+    }
+
+    public void testDeserializeJsonRenameRecord() throws IOException {
+        JsonPropertyRenameRecord value = jsonMapper.readValue("{\"id\":123,\"rename\":\"Bob\"}", JsonPropertyRenameRecord.class);
+
+        assertEquals(new JsonPropertyRenameRecord(123, "Bob"), value);
     }
 }

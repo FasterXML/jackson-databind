@@ -448,24 +448,6 @@ public class POJOPropertiesCollector
      */
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
-        // collect record's canonical constructor
-        if (RecordUtil.isRecord(_classDef.getAnnotated())) {
-            if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<>();
-            }
-            AnnotatedConstructor constructor = RecordUtil.getCanonicalConstructor(_classDef);
-            if (constructor != null) {
-                String[] recordComponents = RecordUtil.getRecordComponents(_classDef.getAnnotated());
-                for (int i = 0; i < constructor.getParameterCount(); i++) {
-                    AnnotatedParameter parameter = constructor.getParameter(i);
-                    POJOPropertyBuilder prop = _property(props, recordComponents[i]);
-                    prop.addCtor(parameter,
-                            PropertyName.construct(recordComponents[i]), false, true, false);
-                    _creatorProperties.add(prop);
-                }
-            }
-        }
-
         // can be null if annotation processing is disabled...
         if (!_useAnnotations) {
             return;
@@ -507,7 +489,10 @@ public class POJOPropertiesCollector
             // Also: if this occurs, there MUST be explicit annotation on creator itself
             JsonCreator.Mode creatorMode = _annotationIntrospector.findCreatorAnnotation(_config,
                     param.getOwner());
-            if ((creatorMode == null) || (creatorMode == JsonCreator.Mode.DISABLED)) {
+            // record canonical constructor does not require annotation to be used
+            boolean isRecordCanonicalConstructor = RecordUtil.getCanonicalConstructor(_classDef) == param.getOwner();
+            if (!isRecordCanonicalConstructor
+                    && (creatorMode == null) || (creatorMode == JsonCreator.Mode.DISABLED)) {
                 return;
             }
             pn = PropertyName.construct(impl);

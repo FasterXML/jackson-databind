@@ -973,14 +973,6 @@ nonAnnotatedParamIndex, ctor);
     private PropertyName _findParamName(DeserializationContext ctxt,
             AnnotatedParameter param, AnnotationIntrospector intr)
     {
-        if (param != null) {
-            Class<?> ownerClass = param.getOwner().getType().getRawClass();
-            if (RecordUtil.isRecord(ownerClass)) {
-                String recordComponentName = RecordUtil.getRecordComponents(ownerClass)[param.getIndex()];
-                return PropertyName.construct(recordComponentName);
-            }
-        }
-
         if (param != null && intr != null) {
             final DeserializationConfig config = ctxt.getConfig();
             PropertyName name = intr.findNameForDeserialization(config, param);
@@ -993,6 +985,14 @@ nonAnnotatedParamIndex, ctor);
             String str = intr.findImplicitPropertyName(config, param);
             if (str != null && !str.isEmpty()) {
                 return PropertyName.construct(str);
+            }
+        }
+
+        if (param != null) {
+            Class<?> ownerClass = param.getOwner().getType().getRawClass();
+            if (RecordUtil.isRecord(ownerClass)) {
+                String recordComponentName = RecordUtil.getRecordComponents(ownerClass)[param.getIndex()];
+                return PropertyName.construct(recordComponentName);
             }
         }
         return null;

@@ -19,6 +19,7 @@ Project: jackson-databind
 #2683: Explicitly fail (de)serialization of `java.time.*` types in absence of
   registered custom (de)serializers
 #2707: Improve description included in by `DeserializationContext.handleUnexpectedToken()`
+- Add `BeanDeserializerBase.isCaseInsensitive()`
 
 2.11.1 (not yet released)
 

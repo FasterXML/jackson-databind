@@ -968,6 +968,19 @@ public abstract class BeanDeserializerBase
     @Override
     public boolean isCachable() { return true; }
 
+    /**
+     * Accessor for checking whether this deserializer is operating
+     * in case-insensitive manner.
+     * 
+     * @return True if this deserializer should match property names without
+     *    considering casing; false if case has to match exactly.
+     *
+     * @since 2.12
+     */
+    public boolean isCaseInsensitive() {
+        return _beanProperties.isCaseInsensitive();
+    }
+
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         // although with possible caveats, yes, values can be updated

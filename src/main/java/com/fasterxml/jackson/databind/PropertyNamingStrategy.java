@@ -299,7 +299,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * <li>&quot;user__name&quot; is translated to &quot;user__name&quot;
      * (unchanged, with two underscores)</li></ul>
      *
-     * @since 2.7 (was previously called }
+     * @since 2.7 (was previously called {@link LowerCaseWithUnderscoresStrategy})
      */
     public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
     {

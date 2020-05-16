@@ -182,7 +182,7 @@ _containerType,
             valueTypeDeser = valueTypeDeser.forProperty(property);
         }
         NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
-        if ( (unwrapSingle != _unwrapSingle)
+        if ((unwrapSingle != _unwrapSingle)
                 || (nuller != _nullProvider)
                 || (delegateDeser != _delegateDeserializer)
                 || (valueDeser != _valueDeserializer)
@@ -229,9 +229,15 @@ _containerType,
         // there is also possibility of "auto-wrapping" of single-element arrays.
         // Hence we only accept empty String here.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            String str = p.getText();
-            if (str.length() == 0) {
-                return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
+            // 16-May-2020, tatu: As [dataformats-text#199] need to avoid blocking
+            //    check to `isExpectedStartArrayToken()` (needed for CSV in-field array/list logic)
+            // ... alas, trying to do this here leads to 2 unit test regressions so will
+            //   need to figure out safer mechanism.
+//            if (_valueInstantiator.canCreateFromString()) {
+                String str = p.getText();
+                if (str.length() == 0) {
+                    return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
+//                }
             }
         }
         return deserialize(p, ctxt, createDefaultInstance(ctxt));

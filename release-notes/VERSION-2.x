@@ -8,7 +8,6 @@ Project: jackson-databind
 
 #2486: Builder Deserialization with JsonCreator Value vs Array
  (reported by Ville K)
-- Minor fix to `CollectionDeserializer` to help with [dataformats-text#199] (CSV)
 
 2.11.0 (26-Apr-2020)
 

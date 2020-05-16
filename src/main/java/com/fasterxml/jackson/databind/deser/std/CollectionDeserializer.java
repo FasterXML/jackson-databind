@@ -259,7 +259,7 @@ _containerType,
     {
         return (Collection<Object>) _valueInstantiator.createUsingDefault(ctxt);
     }
-    
+
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)

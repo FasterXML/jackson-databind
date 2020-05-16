@@ -20,6 +20,7 @@ Project: jackson-databind
   registered custom (de)serializers
 #2707: Improve description included in by `DeserializationContext.handleUnexpectedToken()`
 - Add `BeanDeserializerBase.isCaseInsensitive()`
+- Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 
 2.11.1 (not yet released)
 

@@ -236,9 +236,13 @@ _containerType,
         // there is also possibility of "auto-wrapping" of single-element arrays.
         // Hence we only accept empty String here.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            String str = p.getText();
-            if (str.length() == 0) {
-                return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
+            // 16-May-2020, tatu: As [dataformats-text#199] need to avoid blocking
+            //    check to `isExpectedStartArrayToken()` (needed for CSV in-field array/list logic)
+            if (_valueInstantiator.canCreateFromString()) {
+                String str = p.getText();
+                if (str.length() == 0) {
+                    return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
+                }
             }
         }
         return deserialize(p, ctxt, createDefaultInstance(ctxt));

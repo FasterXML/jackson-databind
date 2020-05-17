@@ -792,18 +792,10 @@ public class POJOPropertiesCollector
 
         while (it.hasNext()) {
             POJOPropertyBuilder prop = it.next();
-            // [databind#2719]: ignore the explicit names when they are available
-            Collection<PropertyName> names = prop.findExplicitNames();
-            if (names.isEmpty()) {
-                names = Collections.singleton(prop.getFullName());
-            }
             // 26-Jan-2017, tatu: [databind#935]: need to denote removal of
-            JsonProperty.Access acc = prop.removeNonVisible(inferMutators);
-            if (acc == JsonProperty.Access.READ_ONLY) {
-                for (PropertyName explicitName : names) {
-                    _collectIgnorals(explicitName.getSimpleName());
-                }
-            }
+            // 16-May-2020, tatu: [databind#2719]: need to pass `this` to allow
+            //    addition of ignorals wrt explicit name
+            prop.removeNonVisible(inferMutators, _forSerialization ? null : this);
         }
     }
 
@@ -812,9 +804,9 @@ public class POJOPropertiesCollector
      * of known ignored properties; this helps in proper reporting of
      * errors.
      */
-    private void _collectIgnorals(String name)
+    protected void _collectIgnorals(String name)
     {
-        if (!_forSerialization) {
+        if (!_forSerialization && (name != null)) {
             if (_ignoredPropertyNames == null) {
                 _ignoredPropertyNames = new HashSet<String>();
             }

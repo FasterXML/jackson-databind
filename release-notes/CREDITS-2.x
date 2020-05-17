@@ -1114,3 +1114,8 @@ Mike Gilbode (gilbode@github)
 Nate Bauernfeind (nbauernfeind@github)
   * Reported #2091: `ReferenceType` does not expose valid containedType
   (2.12.0)
+
+David Bidorff (bidorffOL@github)
+  * Reported, contributed fix for #2719: `FAIL_ON_IGNORED_PROPERTIES` does not throw
+    on `READONLY` properties with an explicit name
+  (2.12.0)

@@ -19,6 +19,9 @@ Project: jackson-databind
 #2683: Explicitly fail (de)serialization of `java.time.*` types in absence of
   registered custom (de)serializers
 #2707: Improve description included in by `DeserializationContext.handleUnexpectedToken()`
+#2719: `FAIL_ON_IGNORED_PROPERTIES` does not throw on `READONLY` properties with
+  an explicit name
+ (reported, fix contributed by David B)
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 

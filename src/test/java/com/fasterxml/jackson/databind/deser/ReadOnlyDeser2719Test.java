@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.*;
 
 public class ReadOnlyDeser2719Test extends BaseMapTest
 {
-
     // [databind#2719]
     static class UserWithReadOnly {
         @JsonProperty(value = "username", access = JsonProperty.Access.READ_ONLY)
@@ -49,7 +48,5 @@ public class ReadOnlyDeser2719Test extends BaseMapTest
         } catch (JsonMappingException e) {
             verifyException(e, "Ignored field");
         }
-
     }
-
 }

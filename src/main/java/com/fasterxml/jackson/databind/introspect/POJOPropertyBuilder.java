@@ -756,11 +756,19 @@ public class POJOPropertyBuilder
         _ctorParameters = _removeIgnored(_ctorParameters);
     }
 
+    @Deprecated // since 2.12
+    public JsonProperty.Access removeNonVisible(boolean inferMutators) {
+        return removeNonVisible(inferMutators, null);
+    }
+    
     /**
      * @param inferMutators Whether mutators can be "pulled in" by visible
      *    accessors or not. 
+     *
+     * @since 2.12 (earlier had different signature)
      */
-    public JsonProperty.Access removeNonVisible(boolean inferMutators)
+    public JsonProperty.Access removeNonVisible(boolean inferMutators,
+            POJOPropertiesCollector parent)
     {
         /* 07-Jun-2015, tatu: With 2.6, we will allow optional definition
          *  of explicit access type for property; if not "AUTO", it will
@@ -772,6 +780,15 @@ public class POJOPropertyBuilder
         }
         switch (acc) {
         case READ_ONLY:
+            // [databind#2719]: Need to add ignorals, first, keeping in mind
+            // we have not yet resolved explicit names, so include implicit
+            // and possible explicit names
+            if (parent != null) {
+                parent._collectIgnorals(getName());
+                for (PropertyName pn : findExplicitNames()) {
+                    parent._collectIgnorals(pn.getSimpleName());
+                }
+            }
             // Remove setters, creators for sure, but fields too if deserializing
             _setters = null;
             _ctorParameters = null;

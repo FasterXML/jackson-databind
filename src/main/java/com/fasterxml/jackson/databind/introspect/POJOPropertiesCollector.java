@@ -792,10 +792,17 @@ public class POJOPropertiesCollector
 
         while (it.hasNext()) {
             POJOPropertyBuilder prop = it.next();
+            // [databind#2719]: ignore the explicit names when they are available
+            Collection<PropertyName> names = prop.findExplicitNames();
+            if (names.isEmpty()) {
+                names = Collections.singleton(prop.getFullName());
+            }
             // 26-Jan-2017, tatu: [databind#935]: need to denote removal of
             JsonProperty.Access acc = prop.removeNonVisible(inferMutators);
             if (acc == JsonProperty.Access.READ_ONLY) {
-                _collectIgnorals(prop.getName());
+                for (PropertyName explicitName : names) {
+                    _collectIgnorals(explicitName.getSimpleName());
+                }
             }
         }
     }

@@ -334,23 +334,29 @@ public abstract class ValueInstantiator
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
             throws IOException
     {
-        /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
-         *   systems that expect conversions in some cases, let's just add a minimal
-         *   patch (note: same could conceivably be used for numbers too).
-         */
-        if (canCreateFromBoolean()) {
-            String str = value.trim();
-            if ("true".equals(str)) {
-                return createFromBoolean(ctxt, true);
-            }
-            if ("false".equals(str)) {
-                return createFromBoolean(ctxt, false);
-            }
-        }
         // also, empty Strings might be accepted as null Object...
         if (value.length() == 0) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return null;
+            }
+        }
+
+        /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
+         *   systems that expect conversions in some cases, let's just add a minimal
+         *   patch (note: same could conceivably be used for numbers too).
+         */
+        // 16-May-2020, tatu: Needs to obey `MapperFeature.ALLOW_COERCION_OF_SCALARS`; actually
+        //   not even quite sure we should accept this at all because "String-to-Number" does NOT
+        //   work...
+        if (ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            if (canCreateFromBoolean()) {
+                String str = value.trim();
+                if ("true".equals(str)) {
+                    return createFromBoolean(ctxt, true);
+                }
+                if ("false".equals(str)) {
+                    return createFromBoolean(ctxt, false);
+                }
             }
         }
         return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),

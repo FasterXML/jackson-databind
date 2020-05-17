@@ -15,6 +15,10 @@ Project: jackson-databind
  (reported by Incara@github)
 #2091: `ReferenceType` does not expose valid containedType
  (reported by Nate B)
+#2118: `JsonProperty.Access.READ_ONLY` does not work with "getter-as-setter" `Collection`s
+ (reported by Xiang Z)
+#2283: `JsonProperty.Access.READ_ONLY` fails with collections when a property name is specified
+ (reported by Yona A)
 #2675: Support use of `Void` valued properties (`MapperFeature.ALLOW_VOID_VALUED_PROPERTIES`)
 #2683: Explicitly fail (de)serialization of `java.time.*` types in absence of
   registered custom (de)serializers

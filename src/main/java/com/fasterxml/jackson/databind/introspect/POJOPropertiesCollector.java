@@ -5,7 +5,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 
@@ -835,12 +834,20 @@ public class POJOPropertiesCollector
                     old.addAll(prop);
                 }
                 // replace the creatorProperty too, if there is one
-                _updateCreatorProperty(prop, _creatorProperties);
-                // [databind#2001]: New name of property was ignored previously? Remove from ignored
-                // 01-May-2018, tatu: I have a feeling this will need to be revisited at some point,
-                //   to avoid removing some types of removals, possibly. But will do for now.
-                if (_ignoredPropertyNames != null) {
-                    _ignoredPropertyNames.remove(name);
+                if (_updateCreatorProperty(prop, _creatorProperties)) {
+                    // [databind#2001]: New name of property was ignored previously? Remove from ignored
+                    // 01-May-2018, tatu: I have a feeling this will need to be revisited at some point,
+                    //   to avoid removing some types of removals, possibly. But will do for now.
+
+                    // 16-May-2020, tatu: ... and so the day came, [databind#2118] failed
+                    //    when explicit rename added to ignorals (for READ_ONLY) was suddenly
+                    //    removed from ignoral list. So, added a guard statement above so that
+                    //    ignoral is ONLY removed if there was matching creator property.
+                    //
+                    //    Chances are this is not the last tweak we need but... that bridge then etc
+                    if (_ignoredPropertyNames != null) {
+                        _ignoredPropertyNames.remove(name);
+                    }
                 }
             }
         }
@@ -1136,16 +1143,17 @@ public class POJOPropertiesCollector
                     _config.canOverrideAccessModifiers());
     }
 
-    protected void _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
+    protected boolean _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
 
         if (creatorProperties != null) {
             final String intName = prop.getInternalName();
             for (int i = 0, len = creatorProperties.size(); i < len; ++i) {
                 if (creatorProperties.get(i).getInternalName().equals(intName)) {
                     creatorProperties.set(i, prop);
-                    break;
+                    return true;
                 }
             }
         }
+        return false;
     }
 }

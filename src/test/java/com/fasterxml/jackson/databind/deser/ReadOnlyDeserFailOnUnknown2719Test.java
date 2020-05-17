@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class ReadOnlyDeser2719Test extends BaseMapTest
+public class ReadOnlyDeserFailOnUnknown2719Test extends BaseMapTest
 {
     // [databind#2719]
     static class UserWithReadOnly {

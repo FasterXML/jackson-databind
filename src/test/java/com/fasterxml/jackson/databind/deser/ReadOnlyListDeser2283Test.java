@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
 // [databind#2283]: ignore read-only Lists even if "getter-as-setter" enabled
-public class ReadOnlyList2283Test
+public class ReadOnlyListDeser2283Test
     extends BaseMapTest
 {
     static class RenamedToSameOnGetter {

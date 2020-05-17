@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.beans.ConstructorProperties;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
@@ -66,6 +70,41 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
         protected Foo1345() { }
     }
 
+    // [databind#1382]
+    static class Foo1382 {
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        private List<Long> list = new ArrayList<>();
+
+        List<Long> getList() {
+            return list;
+        }
+
+        public Foo1382 setList(List<Long> list) {
+            this.list = list;
+            return this;
+        }
+    }
+
+    // [databind#1805]
+    static class UserWithReadOnly1805 {
+        public String name;
+
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        public List<String> getRoles() {
+            return Arrays.asList("admin", "monitor");
+        }
+    }
+
+    // [databind#1805]
+    @JsonIgnoreProperties(value={ "roles" }, allowGetters=true)
+    static class UserAllowGetters1805 {
+        public String name;
+
+        public List<String> getRoles() {
+            return Arrays.asList("admin", "monitor");
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -93,11 +132,39 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
         assertNotNull(result);
     }
 
+    // [databind#1345]
     public void testReadOnly1345() throws Exception
     {
         Foo1345 result = MAPPER.readValue("{\"name\":\"test\"}", Foo1345.class);
         assertNotNull(result);
         assertEquals("test", result.name);
         assertNull(result.id);
+    }
+
+    // [databind#1382]
+    public void testReadOnly1382() throws Exception
+    {
+        String payload = "{\"list\":[1,2,3,4]}";
+        Foo1382 foo = MAPPER.readValue(payload, Foo1382.class);
+        assertTrue("List should be empty", foo.getList().isEmpty());
+    }
+
+    // [databind#1805]
+    public void testViaReadOnly() throws Exception {
+        UserWithReadOnly1805 user = new UserWithReadOnly1805();
+        user.name = "foo";
+        String json = MAPPER.writeValueAsString(user);
+        UserWithReadOnly1805 result = MAPPER.readValue(json, UserWithReadOnly1805.class);
+        assertNotNull(result);
+    }
+
+    // [databind#1805]
+    public void testUsingAllowGetters() throws Exception {
+        UserAllowGetters1805 user = new UserAllowGetters1805();
+        user.name = "foo";
+        String json = MAPPER.writeValueAsString(user);
+        assertTrue(json.contains("roles"));
+        UserAllowGetters1805 result = MAPPER.readValue(json, UserAllowGetters1805.class);
+        assertNotNull(result);
     }
 }

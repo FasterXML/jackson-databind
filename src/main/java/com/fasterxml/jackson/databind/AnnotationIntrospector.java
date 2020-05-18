@@ -101,6 +101,8 @@ public abstract class AnnotationIntrospector
      * Factory method for accessing "no operation" implementation
      * of introspector: instance that will never find any annotation-based
      * configuration.
+     *
+     * @return "no operation" instance
      */
     public static AnnotationIntrospector nopInstance() {
         return NopAnnotationIntrospector.instance;
@@ -126,6 +128,9 @@ public abstract class AnnotationIntrospector
      * as contents.
      * This usually works for sub-classes, except for proxy or delegating "container
      * introspectors" which need to override implementation.
+     *
+     * @return Collection of all introspectors starting with this one, in case
+     *    multiple introspectors are chained
      */
     public Collection<AnnotationIntrospector> allIntrospectors() {
         return Collections.singletonList(this);
@@ -140,6 +145,11 @@ public abstract class AnnotationIntrospector
      * Default implementation adds this introspector in result; this usually
      * works for sub-classes, except for proxy or delegating "container
      * introspectors" which need to override implementation.
+     *
+     * @param result Container to add introspectors to
+     *
+     * @return Passed in {@code Collection} filled with introspectors as explained
+     *    above
      */
     public Collection<AnnotationIntrospector> allIntrospectors(Collection<AnnotationIntrospector> result) {
         result.add(this);
@@ -165,8 +175,11 @@ public abstract class AnnotationIntrospector
      * Method for checking whether given annotation is considered an
      * annotation bundle: if so, all meta-annotations it has will
      * be used instead of annotation ("bundle") itself.
-     * 
-     * @since 2.0
+     *
+     * @param ann Annotated entity to introspect
+     *
+     * @return True if given annotation is considered an annotation
+     *    bundle; false if not
      */
     public boolean isAnnotationBundle(Annotation ann) {
         return false;
@@ -185,8 +198,11 @@ public abstract class AnnotationIntrospector
      * values referenced by annotated property; latter
      * having precedence) should include Object Identifier,
      * and if so, specify details of Object Identity used.
+     *
+     * @param ann Annotated entity to introspect
      * 
-     * @since 2.0
+     * @return Details of Object Id as explained above, if Object Id
+     *    handling to be applied; {@code null} otherwise.
      */
     public ObjectIdInfo findObjectIdInfo(Annotated ann) {
         return null;
@@ -194,6 +210,11 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for figuring out additional properties of an Object Identity reference
+     *
+     * @param ann Annotated entity to introspect
+     * @param objectIdInfo (optional) Base Object Id information, if any; {@code null} if none
+     *
+     * @return {@link ObjectIdInfo} augmented with possible additional information
      * 
      * @since 2.1
      */
@@ -216,6 +237,10 @@ public abstract class AnnotationIntrospector
      *<p> 
      * NOTE: method signature changed in 2.1, to return {@link PropertyName}
      * instead of String.
+     *
+     * @param ac Annotated class to introspect
+     *
+     * @return Root name to use, if any; {@code null} if not
      */
     public PropertyName findRootName(AnnotatedClass ac) {
         return null;
@@ -228,6 +253,8 @@ public abstract class AnnotationIntrospector
      * earlier methods such as
      * {@link #findPropertiesToIgnore(Annotated, boolean)} and
      * {@link #findIgnoreUnknownProperties(AnnotatedClass)}.
+     *
+     * @param ac Annotated class to introspect
      *
      * @since 2.8
      */
@@ -243,7 +270,7 @@ public abstract class AnnotationIntrospector
      * (class, not generics aware) should be completely ignored for
      * serialization and deserialization purposes.
      * 
-     * @param ac Type to check
+     * @param ac Annotated class to introspect
      * 
      * @return Boolean.TRUE if properties of type should be ignored;
      *   Boolean.FALSE if they are not to be ignored, null for default
@@ -254,6 +281,8 @@ public abstract class AnnotationIntrospector
     /**
      * Method for finding if annotated class has associated filter; and if so,
      * to return id that is used to locate filter.
+     *
+     * @param ann Annotated entity to introspect
      * 
      * @return Id of the filter to use for filtering properties of annotated
      *    class, if any; or null if none found.
@@ -265,7 +294,9 @@ public abstract class AnnotationIntrospector
      * class, if any specified by annotations; and if so, either return
      * a {@link PropertyNamingStrategy} instance, or Class to use for
      * creating instance
-     * 
+     *
+     * @param ac Annotated class to introspect
+     *
      * @return Sub-class or instance of {@link PropertyNamingStrategy}, if one
      *   is specified for given class; null if not.
      * 
@@ -279,6 +310,8 @@ public abstract class AnnotationIntrospector
      * There are no further definitions for contents; for example, whether
      * these may be marked up using HTML (or something like wiki format like Markup)
      * is not defined.
+     *
+     * @param ac Annotated class to introspect
      * 
      * @return Human-readable description, if any.
      * 
@@ -289,7 +322,10 @@ public abstract class AnnotationIntrospector
     /**
      * @param forSerialization True if requesting properties to ignore for serialization;
      *   false if for deserialization
-     * 
+     * @param ac Annotated class to introspect
+     *
+     * @return Array of names of properties to ignore
+     *
      * @since 2.6
      *
      * @deprecated Since 2.8, use {@link #findPropertyIgnorals} instead
@@ -300,6 +336,10 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * @param ac Annotated class to introspect
+     *
+     * @return Array of names of properties to ignore
+     *
      * @deprecated Since 2.6, use variant that takes second argument.
      */
     @Deprecated // since 2.6
@@ -309,6 +349,11 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for checking whether an annotation indicates that all unknown properties
+     * should be ignored.
+     *
+     * @param ac Annotated class to introspect
+     *
+     * @return True if class has something indicating "ignore [all] unknown properties"
      *
      * @deprecated Since 2.8, use {@link #findPropertyIgnorals} instead
      */
@@ -941,16 +986,18 @@ public abstract class AnnotationIntrospector
      * method to be used for accessing set of miscellaneous "extra"
      * properties, often bound with matching "any setter" method.
      *
+     * @param ann Annotated entity to check
+     * 
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
      *
      * @since 2.9
      */
-    public Boolean hasAnyGetter(Annotated a) {
+    public Boolean hasAnyGetter(Annotated ann) {
 
         // 21-Nov-2016, tatu: Delegate in 2.9; remove redirect from later versions
-        if (a instanceof AnnotatedMethod) {
-            if (hasAnyGetterAnnotation((AnnotatedMethod) a)) {
+        if (ann instanceof AnnotatedMethod) {
+            if (hasAnyGetterAnnotation((AnnotatedMethod) ann)) {
                 return true;
             }
         }
@@ -961,6 +1008,13 @@ public abstract class AnnotationIntrospector
      * Method for efficiently figuring out which if given set of <code>Enum</code> values
      * have explicitly defined name. Method will overwrite entries in incoming <code>names</code>
      * array with explicit names found, if any, leaving other entries unmodified.
+     *
+     * @param enumType Type of Enumeration
+     * @param enumValues Values of enumeration
+     * @param names Matching declared names of enumeration values (with indexes
+     *     matching {@code enumValues} entries)
+     *
+     * @return Array of names to use (possible {@code names} passed as argument)
      *
      * @since 2.7
      */
@@ -976,6 +1030,11 @@ public abstract class AnnotationIntrospector
      * If so, these aliases should be returned in {@code aliases} {@link List} passed
      * as argument (and initialized for proper size by caller).
      *
+     * @param enumType Type of Enumeration
+     * @param enumValues Values of enumeration
+     * @param aliases (in/out) Pre-allocated array where aliases found, if any, may be
+     *     added (in indexes matching those of {@code enumValues})
+     *
      * @since 2.11
      */
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
@@ -985,8 +1044,9 @@ public abstract class AnnotationIntrospector
     /**
      * Finds the Enum value that should be considered the default value, if possible.
      *
-     * @param enumCls The Enum class to scan for the default value.
-     * @return null if none found or it's not possible to determine one.
+     * @param enumCls The Enum class to scan for the default value
+     *
+     * @return null if none found or it's not possible to determine one
      *
      * @since 2.8
      */
@@ -998,6 +1058,8 @@ public abstract class AnnotationIntrospector
      * Method for determining the String value to use for serializing
      * given enumeration entry; used when serializing enumerations
      * as Strings (the standard method).
+     *
+     * @param value Enum value to introspect
      *
      * @return Serialized enum value.
      *
@@ -1012,6 +1074,8 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * @param am Annotated method to check
+     * 
      * @deprecated Since 2.9 Use {@link #hasAsValue(Annotated)} instead.
      */
     @Deprecated // since 2.9
@@ -1020,6 +1084,8 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * @param am Annotated method to check
+     * 
      * @deprecated Since 2.9 Use {@link #hasAnyGetter} instead
      */
     @Deprecated
@@ -1142,6 +1208,7 @@ public abstract class AnnotationIntrospector
      * Type is usually narrowing conversion (i.e.subtype of declared type).
      * Declared return type of the method is also considered acceptable.
      *
+     * @param ann Annotated entity to introspect
      * @param baseType Assumed type before considering annotations
      *
      * @return Class to use for deserialization instead of declared type
@@ -1149,7 +1216,7 @@ public abstract class AnnotationIntrospector
      * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
      */
     @Deprecated
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
+    public Class<?> findDeserializationType(Annotated ann, JavaType baseType) {
         return null;
     }
     
@@ -1158,6 +1225,7 @@ public abstract class AnnotationIntrospector
      * method can have, to define more specific key type to use.
      * It should be only be used with {@link java.util.Map} types.
      * 
+     * @param ann Annotated entity to introspect
      * @param baseKeyType Assumed key type before considering annotations
      *
      * @return Class specifying more specific type to use instead of
@@ -1166,7 +1234,7 @@ public abstract class AnnotationIntrospector
      * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
      */
     @Deprecated
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
+    public Class<?> findDeserializationKeyType(Annotated ann, JavaType baseKeyType) {
         return null;
     }
 
@@ -1176,6 +1244,7 @@ public abstract class AnnotationIntrospector
      * content refers to Map values and Collection/array elements.
      * It should be only be used with Map, Collection and array types.
      * 
+     * @param ann Annotated entity to introspect
      * @param baseContentType Assumed content (value) type before considering annotations
      *
      * @return Class specifying more specific type to use instead of
@@ -1184,7 +1253,7 @@ public abstract class AnnotationIntrospector
      * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
      */
     @Deprecated
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
+    public Class<?> findDeserializationContentType(Annotated ann, JavaType baseContentType) {
         return null;
     }
 
@@ -1198,6 +1267,8 @@ public abstract class AnnotationIntrospector
      * Method getting {@link ValueInstantiator} to use for given
      * type (class): return value can either be an instance of
      * instantiator, or class of instantiator to create.
+     *
+     * @param ac Annotated class to introspect
      */
     public Object findValueInstantiator(AnnotatedClass ac) {
         return null;
@@ -1213,6 +1284,8 @@ public abstract class AnnotationIntrospector
      * method does not allow returning instances: the reason is
      * that builders have state, and a separate instance needs
      * to be created for each deserialization call.
+     *
+     * @param ac Annotated class to introspect
      * 
      * @since 2.0
      */
@@ -1221,6 +1294,8 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * @param ac Annotated class to introspect
+     *
      * @since 2.0
      */
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac) {
@@ -1241,13 +1316,13 @@ public abstract class AnnotationIntrospector
      * is found; otherwise a non-null name (possibly
      * {@link PropertyName#USE_DEFAULT}, which means "use default heuristics").
      * 
-     * @param a Property accessor to check
-     * 
+     * @param ann Annotated entity to check
+     *
      * @return Name to use if found; null if not.
-     * 
+     *
      * @since 2.1
      */
-    public PropertyName findNameForDeserialization(Annotated a) {
+    public PropertyName findNameForDeserialization(Annotated ann) {
         return null;
     }
     
@@ -1256,32 +1331,38 @@ public abstract class AnnotationIntrospector
      * that suggests that the method is to serve as "any setter";
      * method to be used for setting values of any properties for
      * which no dedicated setter method is found.
+     * 
+     * @param ann Annotated entity to check
      *
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
-     *   
+     *
      * @since 2.9
      */
-    public Boolean hasAnySetter(Annotated a) {
+    public Boolean hasAnySetter(Annotated ann) {
         return null;
     }
 
     /**
      * Method for finding possible settings for property, given annotations
      * on an accessor.
+     * 
+     * @param ann Annotated entity to check
      *
      * @since 2.9
      */
-    public JsonSetter.Value findSetterInfo(Annotated a) {
+    public JsonSetter.Value findSetterInfo(Annotated ann) {
         return JsonSetter.Value.empty();
     }
 
     /**
      * Method for finding merge settings for property, if any.
+     * 
+     * @param ann Annotated entity to check
      *
      * @since 2.9
      */
-    public Boolean findMergeInfo(Annotated a) {
+    public Boolean findMergeInfo(Annotated ann) {
         return null;
     }
 
@@ -1296,15 +1377,15 @@ public abstract class AnnotationIntrospector
      * as well as possibly as when using mix-in annotations.
      *
      * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param a Annotated accessor (usually constructor or static method) to check
+     * @param ann Annotated accessor (usually constructor or static method) to check
      *
      * @since 2.9
      */
-    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
+    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated ann) {
         // 13-Sep-2016, tatu: for backwards compatibility, implement using delegation
         ///   (remove from version AFTER 2.9)
-        if (hasCreatorAnnotation(a)) {
-            JsonCreator.Mode mode = findCreatorBinding(a);
+        if (hasCreatorAnnotation(ann)) {
+            JsonCreator.Mode mode = findCreatorBinding(ann);
             if (mode == null) {
                 mode = JsonCreator.Mode.DEFAULT;
             }
@@ -1319,6 +1400,8 @@ public abstract class AnnotationIntrospector
      * that suggests that the method is a "creator" (aka factory)
      * method to be used for construct new instances of deserialized
      * values.
+     * 
+     * @param ann Annotated entity to check
      *
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
@@ -1326,7 +1409,7 @@ public abstract class AnnotationIntrospector
      * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
      */
     @Deprecated
-    public boolean hasCreatorAnnotation(Annotated a) {
+    public boolean hasCreatorAnnotation(Annotated ann) {
         return false;
     }
 
@@ -1336,16 +1419,22 @@ public abstract class AnnotationIntrospector
      * true), for cases where there may be ambiguity (currently: single-argument
      * creator with implicit but no explicit name for the argument).
      * 
+     * @param ann Annotated entity to check
+     * 
      * @since 2.5
      * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
      */
     @Deprecated
-    public JsonCreator.Mode findCreatorBinding(Annotated a) {
+    public JsonCreator.Mode findCreatorBinding(Annotated ann) {
         return null;
     }
 
     /**
+     * @param am Annotated method to check
+     *
      * @deprecated Since 2.9 use {@link #hasAnySetter} instead.
+     *
+     * @return {@code true} if "any-setter" annotation was found; {@code false} otherwise
      */
     @Deprecated // since 2.9
     public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
@@ -1370,12 +1459,18 @@ public abstract class AnnotationIntrospector
      *<code>
      *  return annotated.getAnnotation(annoClass);
      *</code>
-     * 
+     *
+     * @param ann Annotated entity to check for specified annotation
+     * @param annoClass Type of annotation to find
+     *
+     * @return Value of given annotation (as per {@code annoClass}), if entity
+     *    has one; {@code null} otherwise
+     *
      * @since 2.5
      */
-    protected <A extends Annotation> A _findAnnotation(Annotated annotated,
+    protected <A extends Annotation> A _findAnnotation(Annotated ann,
             Class<A> annoClass) {
-        return annotated.getAnnotation(annoClass);
+        return ann.getAnnotation(annoClass);
     }
 
     /**
@@ -1388,20 +1483,31 @@ public abstract class AnnotationIntrospector
      *<code>
      *  return annotated.hasAnnotation(annoClass);
      *</code>
+     *
+     * @param ann Annotated entity to check for specified annotation
+     * @param annoClass Type of annotation to find
+     *
+     * @return {@code true} if specified annotation exists in given entity; {@code false} if not
      * 
      * @since 2.5
      */
-    protected boolean _hasAnnotation(Annotated annotated, Class<? extends Annotation> annoClass) {
-        return annotated.hasAnnotation(annoClass);
+    protected boolean _hasAnnotation(Annotated ann, Class<? extends Annotation> annoClass) {
+        return ann.hasAnnotation(annoClass);
     }
 
     /**
      * Alternative lookup method that is used to see if annotation has at least one of
      * annotations of types listed in second argument.
      *
+     * @param ann Annotated entity to check for specified annotation
+     * @param annoClasses Types of annotation to find
+     *
+     * @return {@code true} if at least one of specified annotation exists in given entity;
+     *    {@code false} otherwise
+     *
      * @since 2.7
      */
-    protected boolean _hasOneOf(Annotated annotated, Class<? extends Annotation>[] annoClasses) {
-        return annotated.hasOneOf(annoClasses);
+    protected boolean _hasOneOf(Annotated ann, Class<? extends Annotation>[] annoClasses) {
+        return ann.hasOneOf(annoClasses);
     }
 }

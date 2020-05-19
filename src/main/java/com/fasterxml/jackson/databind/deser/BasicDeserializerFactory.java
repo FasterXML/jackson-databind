@@ -1702,7 +1702,8 @@ factory.toString()));
             }
         }
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueAccessor());
-        // May have @JsonCreator for static factory method:
+
+        // May have @JsonCreator for static factory method
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
             if (_hasCreatorAnnotation(ctxt, factory)) {
                 int argCount = factory.getParameterCount();
@@ -1712,7 +1713,11 @@ factory.toString()));
                     if (returnType.isAssignableFrom(enumClass)) {
                         // note: mostly copied from 'EnumDeserializer.deserializerForCreator(...)'
                         if (factory.getRawParameterType(0) != String.class) {
-                            throw new IllegalArgumentException("Parameter #0 type for factory method ("+factory+") not suitable, must be java.lang.String");
+                            // [databind#2725]: Should not error out because (1) there may be good creator
+                            //   method and (2) this method may be valid for "regular" enum value deserialization
+                            // (leaving aside potential for multiple conflicting creators)
+//                            throw new IllegalArgumentException("Parameter #0 type for factory method ("+factory+") not suitable, must be java.lang.String");
+                            continue;
                         }
                         if (config.canOverrideAccessModifiers()) {
                             ClassUtil.checkAndFixAccess(factory.getMember(),

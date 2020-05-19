@@ -163,6 +163,20 @@ public enum MapperFeature implements ConfigFeature
     REQUIRE_SETTERS_FOR_GETTERS(false),
 
     /**
+     * Feature that determines whether property accessors are required to be
+     * capitalized, i.e. whether "getx()" should be regarded a valid getter for
+     * property x when the feature is disabled. Whereas when enabled only
+     * "getX()" represents a proper getter for property x.
+     * Disabling it might produce issues with scala property accessors for
+     * properties that start with "is", "get" or "set", e.g. the setter method
+     * "settlement(string)" might be confused with a setter for the property
+     * "tlement" rather than the property "settlement".
+     * *<p>
+     * Feature is enabled by default.
+     */
+    REQUIRE_CAPITALIZED_PROPERTY_ACCESSOR_NAME(true),
+
+    /**
      * Feature that determines whether member fields declared as 'final' may
      * be auto-detected to be used mutators (used to change value of the logical
      * property) or not. If enabled, 'final' access modifier has no effect, and

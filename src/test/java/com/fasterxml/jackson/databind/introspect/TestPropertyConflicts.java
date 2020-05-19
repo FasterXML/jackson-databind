@@ -88,16 +88,23 @@ public class TestPropertyConflicts extends BaseMapTest
     /**********************************************************
      */
 
-    public void testFailWithDupProps() throws Exception
+    public void testFailWithDupPropsWhenAccessCapitalizationIsTurnedOff() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
         try {
-            String json = objectWriter().writeValueAsString(bean);
+            String json = jsonMapperBuilder().configure(MapperFeature.REQUIRE_CAPITALIZED_PROPERTY_ACCESSOR_NAME, false).build().writeValueAsString(bean);
             fail("Should have failed due to conflicting accessor definitions; got JSON = "+json);
         } catch (JsonProcessingException e) {
             verifyException(e, "Conflicting getter definitions");
         }
-    }        
+    }
+
+    public void testDoesNotFailWithDupPropsWhenAccessCapitalizationIsTurnedOn() throws Exception
+    {
+        BeanWithConflict bean = new BeanWithConflict();
+        String json = jsonMapperBuilder().configure(MapperFeature.REQUIRE_CAPITALIZED_PROPERTY_ACCESSOR_NAME, true).build().writeValueAsString(bean);
+        assertEquals(aposToQuotes("{'x':3}"), json);
+    }
 
     // [databind#238]: ok to have getter, "isGetter"
     public void testRegularAndIsGetter() throws Exception

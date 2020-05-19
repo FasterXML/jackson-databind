@@ -580,11 +580,10 @@ public class POJOPropertyBuilder
     {
         final String name = m.getName();
         // [databind#238]: Also, regular getters have precedence over "is-getters"
-        if (name.startsWith("get") && name.length() > 3) {
-            // should we check capitalization?
+        if (validateAccessorPrefix(name, "get")) {
             return 1;
         }
-        if (name.startsWith("is") && name.length() > 2) {
+        if (validateAccessorPrefix(name, "is")) {
             return 2;
         }
         return 3;
@@ -593,11 +592,17 @@ public class POJOPropertyBuilder
     protected int _setterPriority(AnnotatedMethod m)
     {
         final String name = m.getName();
-        if (name.startsWith("set") && name.length() > 3) {
-            // should we check capitalization?
+        if (validateAccessorPrefix(name, "set")) {
             return 1;
         }
         return 2;
+    }
+
+    private boolean validateAccessorPrefix(String name, String prefix)
+    {
+        final int prefixLength = prefix.length();
+        return name.startsWith(prefix) && name.length() > prefixLength
+            && (!_config.isEnabled(MapperFeature.REQUIRE_CAPITALIZED_PROPERTY_ACCESSOR_NAME) || Character.isUpperCase(name.charAt(prefixLength)));
     }
 
     /*

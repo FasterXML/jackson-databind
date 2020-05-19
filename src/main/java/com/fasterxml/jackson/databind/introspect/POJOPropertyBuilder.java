@@ -580,11 +580,10 @@ public class POJOPropertyBuilder
     {
         final String name = m.getName();
         // [databind#238]: Also, regular getters have precedence over "is-getters"
-        if (name.startsWith("get") && name.length() > 3) {
-            // should we check capitalization?
+        if (name.startsWith("get") && name.length() > 3 && Character.isUpperCase(name.charAt(3))) {
             return 1;
         }
-        if (name.startsWith("is") && name.length() > 2) {
+        if (name.startsWith("is") && name.length() > 2 && Character.isUpperCase(name.charAt(2))) {
             return 2;
         }
         return 3;
@@ -593,8 +592,7 @@ public class POJOPropertyBuilder
     protected int _setterPriority(AnnotatedMethod m)
     {
         final String name = m.getName();
-        if (name.startsWith("set") && name.length() > 3) {
-            // should we check capitalization?
+        if (name.startsWith("set") && name.length() > 3 && Character.isUpperCase(name.charAt(3))) {
             return 1;
         }
         return 2;

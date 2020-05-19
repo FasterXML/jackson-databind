@@ -12,13 +12,6 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestPropertyConflicts extends BaseMapTest
 {
-    // error message for conflicting getters sub-optimal
-    static class BeanWithConflict
-    {
-        public int getX() { return 3; }
-        public boolean getx() { return false; }
-    }
-
     // [databind#238]
     protected static class Getters1A
     {
@@ -87,17 +80,6 @@ public class TestPropertyConflicts extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-
-    public void testFailWithDupProps() throws Exception
-    {
-        BeanWithConflict bean = new BeanWithConflict();
-        try {
-            String json = objectWriter().writeValueAsString(bean);
-            fail("Should have failed due to conflicting accessor definitions; got JSON = "+json);
-        } catch (JsonProcessingException e) {
-            verifyException(e, "Conflicting getter definitions");
-        }
-    }        
 
     // [databind#238]: ok to have getter, "isGetter"
     public void testRegularAndIsGetter() throws Exception

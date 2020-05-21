@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -1505,16 +1506,31 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public void setLocation(JsonLocation l) {
             _location = l;
         }
-        
+
         @Override
         public ObjectCodec getCodec() { return _codec; }
 
         @Override
         public void setCodec(ObjectCodec c) { _codec = c; }
 
+        /*
+        /**********************************************************
+        /* Public API, config access, capability introspection
+        /**********************************************************
+         */
+
         @Override
         public Version version() {
             return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
+        }
+
+        // 20-May-2020, tatu: This may or may not be enough -- ideally access is
+        //    via `DeserializationContext`, not parser, but if latter is needed
+        //    then we'll need to pass this from parser contents if which were
+        //    buffered.
+        @Override
+        public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+            return DEFAULT_READ_CAPABILITIES;
         }
 
         /*

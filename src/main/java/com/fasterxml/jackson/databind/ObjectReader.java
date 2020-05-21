@@ -2342,6 +2342,11 @@ public class ObjectReader
         return _context.createInstance(_config, p, _injectableValues);
     }
 
+    // @since 2.12 -- needed for Deserializer pre-fetch
+    protected DefaultDeserializationContext createDummyDeserializationContext() {
+        return _context.createDummyInstance(_config);
+    }
+
     protected InputStream _inputStream(URL src) throws IOException {
         return src.openStream();
     }
@@ -2428,7 +2433,7 @@ public class ObjectReader
         if (deser == null) {
             try {
                 // If not, need to resolve; for which we need a temporary context as well:
-                DeserializationContext ctxt = createDeserializationContext(null);
+                DeserializationContext ctxt = createDummyDeserializationContext();
                 deser = ctxt.findRootValueDeserializer(valueType);
                 if (deser != null) {
                     _rootDeserializers.put(valueType, deser);

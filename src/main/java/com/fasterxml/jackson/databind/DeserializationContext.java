@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
@@ -97,6 +97,13 @@ public abstract class DeserializationContext
     protected final int _featureFlags;
 
     /**
+     * Capabilities of the input format.
+     *
+     * @since 2.12
+     */
+    protected final JacksonFeatureSet<StreamReadCapability> _readCapabilities;
+
+    /**
      * Currently active view, if any.
      */
     protected final Class<?> _view;
@@ -164,6 +171,7 @@ public abstract class DeserializationContext
         }
         _cache = cache;
         _featureFlags = 0;
+        _readCapabilities = null;
         _config = null;
         _injectableValues = null;
         _view = null;
@@ -178,6 +186,7 @@ public abstract class DeserializationContext
         
         _config = src._config;
         _featureFlags = src._featureFlags;
+        _readCapabilities = src._readCapabilities;
         _view = src._view;
         _parser = src._parser;
         _injectableValues = src._injectableValues;
@@ -193,6 +202,7 @@ public abstract class DeserializationContext
     {
         _cache = src._cache;
         _factory = src._factory;
+        _readCapabilities = p.getReadCapabilities();
         
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
@@ -200,6 +210,27 @@ public abstract class DeserializationContext
         _parser = p;
         _injectableValues = injectableValues;
         _attributes = config.getAttributes();
+    }
+
+    /**
+     * Constructor used for creating bogus per-call style instance, but
+     * without underlying parser: needed for deserializer pre-fetching
+     *
+     * @since 2.12
+     */
+    protected DeserializationContext(DeserializationContext src,
+            DeserializationConfig config)
+    {
+        _cache = src._cache;
+        _factory = src._factory;
+        _readCapabilities = null;
+        
+        _config = config;
+        _featureFlags = config.getDeserializationFeatures();
+        _view = null;
+        _parser = null;
+        _injectableValues = null;
+        _attributes = null;
     }
 
     /**
@@ -211,6 +242,7 @@ public abstract class DeserializationContext
 
         _config = src._config;
         _featureFlags = src._featureFlags;
+        _readCapabilities = src._readCapabilities;
         _view = src._view;
         _injectableValues = null;
     }
@@ -323,7 +355,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************
-    /* Public API, config setting accessors
+    /* Public API, config accessors
     /**********************************************************
      */
 
@@ -343,6 +375,18 @@ public abstract class DeserializationContext
          *   let's use a local copy of feature settings:
          */
         return (_featureFlags & feat.getMask()) != 0;
+    }
+
+    /**
+     * Accessor for checking whether input format has specified capability
+     * or not.
+     *
+     * @return True if input format has specified capability; false if not
+     *
+     * @since 2.12
+     */
+    public final boolean isEnabled(StreamReadCapability cap) {
+        return _readCapabilities.isEnabled(cap);
     }
 
     /**

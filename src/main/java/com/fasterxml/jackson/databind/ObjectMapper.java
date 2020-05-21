@@ -744,7 +744,7 @@ public class ObjectMapper
     protected ObjectWriter _newWriter(SerializationConfig config, FormatSchema schema) {
         return new ObjectWriter(this, config, schema);
     }
-    
+
     /**
      * Factory method sub-classes must override, to produce {@link ObjectWriter}
      * instances of proper sub-type
@@ -761,7 +761,7 @@ public class ObjectMapper
     /* Versioned impl
     /**********************************************************
      */
-    
+
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.

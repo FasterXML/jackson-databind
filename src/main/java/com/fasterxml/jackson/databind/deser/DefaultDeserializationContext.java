@@ -43,10 +43,16 @@ public abstract class DefaultDeserializationContext
     protected DefaultDeserializationContext(DeserializerFactory df, DeserializerCache cache) {
         super(df, cache);
     }
-    
+
     protected DefaultDeserializationContext(DefaultDeserializationContext src,
-            DeserializationConfig config, JsonParser jp, InjectableValues values) {
-        super(src, config, jp, values);
+            DeserializationConfig config, JsonParser p, InjectableValues values) {
+        super(src, config, p, values);
+    }
+
+    // @since 2.12
+    protected DefaultDeserializationContext(DefaultDeserializationContext src,
+            DeserializationConfig config) {
+        super(src, config);
     }
 
     protected DefaultDeserializationContext(DefaultDeserializationContext src,
@@ -60,7 +66,7 @@ public abstract class DefaultDeserializationContext
     protected DefaultDeserializationContext(DefaultDeserializationContext src) {
         super(src);
     }
-    
+
     /**
      * Method needed to ensure that {@link ObjectMapper#copy} will work
      * properly; specifically, that caches are cleared, but settings
@@ -295,7 +301,10 @@ public abstract class DefaultDeserializationContext
      * context instance.
      */
     public abstract DefaultDeserializationContext createInstance(
-            DeserializationConfig config, JsonParser jp, InjectableValues values);
+            DeserializationConfig config, JsonParser p, InjectableValues values);
+
+    public abstract DefaultDeserializationContext createDummyInstance(
+            DeserializationConfig config);
     
     /*
     /**********************************************************
@@ -318,27 +327,37 @@ public abstract class DefaultDeserializationContext
             super(df, null);
         }
 
-        protected Impl(Impl src,
-                DeserializationConfig config, JsonParser jp, InjectableValues values) {
-            super(src, config, jp, values);
+        private Impl(Impl src,
+                DeserializationConfig config, JsonParser p, InjectableValues values) {
+            super(src, config, p, values);
         }
 
-        protected Impl(Impl src) { super(src); }
+        private Impl(Impl src) { super(src); }
         
-        protected Impl(Impl src, DeserializerFactory factory) {
+        private Impl(Impl src, DeserializerFactory factory) {
             super(src, factory);
+        }
+
+        private Impl(Impl src, DeserializationConfig config) {
+            super(src, config);
         }
 
         @Override
         public DefaultDeserializationContext copy() {
             ClassUtil.verifyMustOverride(Impl.class, this, "copy");
-           return new Impl(this);
+            return new Impl(this);
         }
-        
+
         @Override
         public DefaultDeserializationContext createInstance(DeserializationConfig config,
                 JsonParser p, InjectableValues values) {
             return new Impl(this, config, p, values);
+        }
+
+        @Override
+        public DefaultDeserializationContext createDummyInstance(DeserializationConfig config) {
+            // need to be careful to create "real", not blue-print, instance
+            return new Impl(this, config);
         }
 
         @Override

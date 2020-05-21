@@ -375,12 +375,7 @@ public class ObjectWriter
      * pretty printer for serialization.
      */
     public ObjectWriter withDefaultPrettyPrinter() {
-//        return with(_config.getDefaultPrettyPrinter());
-
-System.err.println(" withDefaultPrettyPrinter: default == "+_config.getDefaultPrettyPrinter());
-ObjectWriter w = with(_config.getDefaultPrettyPrinter());
-System.err.println(" PP now: "+_config.getDefaultPrettyPrinter());
-return w;
+        return with(_config.getDefaultPrettyPrinter());
     }
 
     /**

@@ -26,6 +26,7 @@ Project: jackson-databind
 #2719: `FAIL_ON_IGNORED_PROPERTIES` does not throw on `READONLY` properties with
   an explicit name
  (reported, fix contributed by David B)
+#2732: Allow `JsonNode` auto-convert into `ArrayNode` if duplicates found (for XML)
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 

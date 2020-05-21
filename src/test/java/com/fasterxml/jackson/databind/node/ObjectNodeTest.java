@@ -377,6 +377,10 @@ public class ObjectNodeTest
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
         ObjectNode root = (ObjectNode) MAPPER.readTree(DUP_JSON);
         assertEquals(2, root.path("a").asInt());
+
+        // and via ObjectReader, too:
+        root = (ObjectNode) MAPPER.reader().readTree(DUP_JSON);
+        assertEquals(2, root.path("a").asInt());
         
         // and then enable checks:
         try {

@@ -1741,7 +1741,7 @@ public class ObjectReader
 
     protected final JsonNode _bindAndCloseAsTree(DefaultDeserializationContext ctxt,
             JsonParser p0) throws IOException {
-        try (JsonParser p = p0) {
+        try (JsonParser p = ctxt.assignAndReturnParser(p0)) {
             return _bindAsTree(ctxt, p);
         }
     }
@@ -1782,6 +1782,7 @@ public class ObjectReader
     protected final JsonNode _bindAsTreeOrNull(DefaultDeserializationContext ctxt,
             JsonParser p) throws IOException
     {
+        ctxt.assignParser(p);
         JsonToken t = p.currentToken();
         if (t == null) {
             t = p.nextToken();

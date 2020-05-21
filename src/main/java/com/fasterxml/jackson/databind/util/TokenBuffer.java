@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.SimpleTokenWriteContext;
 import com.fasterxml.jackson.databind.*;
 
@@ -1467,9 +1468,29 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _location = l;
         }
 
+        /*
+        /**********************************************************
+        /* Public API, config access, capability introspection
+        /**********************************************************
+         */
+
         @Override
         public Version version() {
             return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
+        }
+
+        @Override
+        public int formatReadFeatures() {
+            return 0;
+        }
+
+        // 20-May-2020, tatu: This may or may not be enough -- ideally access is
+        //    via `DeserializationContext`, not parser, but if latter is needed
+        //    then we'll need to pass this from parser contents if which were
+        //    buffered.
+        @Override
+        public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+            return DEFAULT_READ_CAPABILITIES;
         }
 
         @Override

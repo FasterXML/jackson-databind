@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.tree.ArrayTreeNode;
 import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
@@ -116,6 +117,11 @@ public abstract class DeserializationContext
      * when content is buffered.
      */
     protected transient JsonParser _parser;
+
+    /**
+     * Capabilities of the input format.
+     */
+    protected transient JacksonFeatureSet<StreamReadCapability> _readCapabilities;
 
     /*
     /**********************************************************************
@@ -395,9 +401,8 @@ public abstract class DeserializationContext
      * feature is enabled
      */
     public final boolean isEnabled(DeserializationFeature feat) {
-        /* 03-Dec-2010, tatu: minor shortcut; since this is called quite often,
-         *   let's use a local copy of feature settings:
-         */
+        // 03-Dec-2010, tatu: minor shortcut; since this is called quite often,
+        //   let's use a local copy of feature settings:
         return (_featureFlags & feat.getMask()) != 0;
     }
 
@@ -434,6 +439,18 @@ public abstract class DeserializationContext
      * to the active parser, that should be used instead.
      */
     public final JsonParser getParser() { return _parser; }
+
+    /**
+     * Accessor for checking whether input format has specified capability
+     * or not.
+     *
+     * @return True if input format has specified capability; false if not
+     *
+     * @since 2.12
+     */
+    public final boolean isEnabled(StreamReadCapability cap) {
+        return _readCapabilities.isEnabled(cap);
+    }
 
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance)

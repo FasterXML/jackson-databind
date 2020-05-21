@@ -7,6 +7,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -64,6 +65,17 @@ public class TreeTraversingParser extends ParserMinimalBase
     @Override
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
+    }
+
+    @Override
+    public int formatReadFeatures() {
+        return 0;
+    }
+
+    @Override
+    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        // Defaults are fine
+        return DEFAULT_READ_CAPABILITIES;
     }
 
     @Override

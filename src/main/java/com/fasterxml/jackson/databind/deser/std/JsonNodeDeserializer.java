@@ -230,6 +230,20 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 "Duplicate field '%s' for `ObjectNode`: not allowed when `DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY` enabled",
                     fieldName);
         }
+        // [databind#2732]: Special case for XML; automatically coerce into `ArrayNode`
+        if (ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+            // Note that ideally we wouldn't have to shuffle things but... Map.putIfAbsent()
+            // only added in JDK 8, to efficiently check for add. So...
+            if (oldValue.isArray()) { // already was array, to append
+                ((ArrayNode) oldValue).add(newValue);
+                objectNode.replace(fieldName, oldValue);
+            } else { // was not array, convert
+                ArrayNode arr = nodeFactory.arrayNode();
+                arr.add(oldValue);
+                arr.add(newValue);
+                objectNode.replace(fieldName, arr);
+            }
+        }
     }
 
     /*

@@ -27,6 +27,7 @@ Project: jackson-databind
   an explicit name
  (reported, fix contributed by David B)
 #2732: Allow `JsonNode` auto-convert into `ArrayNode` if duplicates found (for XML)
+#2733: Allow values of "untyped" auto-convert into `List` if duplicates found (for XML)
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 

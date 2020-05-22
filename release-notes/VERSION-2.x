@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.12.0 (not yet released)
 
-#792: Deserialization Not Working Right with Generic Types and Builders
+#921: Deserialization Not Working Right with Generic Types and Builders
  (reported by Mike G; fix contributed by Ville K)
 #1886: Allow use of `@JsonFormat(with=JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)`
   on Class

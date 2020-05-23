@@ -1129,3 +1129,7 @@ David Bidorff (bidorffOL@github)
   * Reported, contributed fix for #2719: `FAIL_ON_IGNORED_PROPERTIES` does not throw
     on `READONLY` properties with an explicit name
   (2.12.0)
+
+Jendrik Johannes (jjohannes@github)
+  * Contributed #2726: Add Gradle Module Metadata for version alignment with Gradle 6
+  (2.12.0)

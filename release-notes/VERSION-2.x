@@ -26,6 +26,8 @@ Project: jackson-databind
 #2719: `FAIL_ON_IGNORED_PROPERTIES` does not throw on `READONLY` properties with
   an explicit name
  (reported, fix contributed by David B)
+#2726: Add Gradle Module Metadata for version alignment with Gradle 6
+ (contributed by Jendrik J)
 #2732: Allow `JsonNode` auto-convert into `ArrayNode` if duplicates found (for XML)
 #2733: Allow values of "untyped" auto-convert into `List` if duplicates found (for XML)
 - Add `BeanDeserializerBase.isCaseInsensitive()`

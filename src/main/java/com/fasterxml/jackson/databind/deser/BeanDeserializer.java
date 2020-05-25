@@ -701,6 +701,7 @@ public class BeanDeserializer
         // 17-Dec-2015, tatu: Highly specialized case, mainly to support polymorphic
         //   "empty" POJOs deserialized from XML, where empty XML tag synthesizes a
         //   `VALUE_NULL` tokens
+        /*
         if (p.canSynthesizeNulls()) {
             TokenBuffer tb = TokenBuffer.forGeneration();
             tb.writeEndObject();
@@ -713,6 +714,7 @@ public class BeanDeserializer
             tb.close();
             return ob;
         }
+        */
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 

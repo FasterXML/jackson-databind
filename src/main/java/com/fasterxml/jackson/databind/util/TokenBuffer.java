@@ -1476,11 +1476,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
         }
 
-        @Override
-        public int formatReadFeatures() {
-            return 0;
-        }
-
         // 20-May-2020, tatu: This may or may not be enough -- ideally access is
         //    via `DeserializationContext`, not parser, but if latter is needed
         //    then we'll need to pass this from parser contents if which were

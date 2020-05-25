@@ -362,7 +362,7 @@ public final class ClassUtil
     {
         // 04-Mar-2014, tatu: Let's try to prevent auto-closing of
         //    structures, which typically causes more damage.
-        g.disable(StreamWriteFeature.AUTO_CLOSE_CONTENT);
+        g.configure(StreamWriteFeature.AUTO_CLOSE_CONTENT, false);
         try {
             g.close();
         } catch (Exception e) {
@@ -385,7 +385,7 @@ public final class ClassUtil
         throws IOException
     {
         if (g != null) {
-            g.disable(StreamWriteFeature.AUTO_CLOSE_CONTENT);
+            g.configure(StreamWriteFeature.AUTO_CLOSE_CONTENT, false);
             try {
                 g.close();
             } catch (Exception e) {

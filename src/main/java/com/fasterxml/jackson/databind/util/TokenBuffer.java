@@ -628,14 +628,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public JsonGenerator enable(StreamWriteFeature f) {
-        _streamWriteFeatures |= f.getMask();
-        return this;
-    }
-
-    @Override
-    public JsonGenerator disable(StreamWriteFeature f) {
-        _streamWriteFeatures &= ~f.getMask();
+    public JsonGenerator configure(StreamWriteFeature f, boolean state) {
+        if (state) {
+            _streamWriteFeatures |= f.getMask();
+        } else {
+            _streamWriteFeatures &= ~f.getMask();
+        }
         return this;
     }
 
@@ -649,13 +647,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override
     public int streamWriteFeatures() {
         return _streamWriteFeatures;
-    }
-
-    @Override // since 3.0
-    public int formatWriteFeatures() {
-        // 26-Oct-2018, tatu: Should not have anything format-specific... however,
-        // not all features  default to "false" so this may not be right choice?
-        return 0;
     }
 
     /*
@@ -688,6 +679,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     @Override
     public boolean isClosed() { return _closed; }
+
+    @Override
+    public Object getOutputTarget() { return null; }
+
+    @Override
+    public int getOutputBuffered() { return -1; }
 
     /*
     /**********************************************************************

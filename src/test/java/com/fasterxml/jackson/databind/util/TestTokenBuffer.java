@@ -37,9 +37,9 @@ public class TestTokenBuffer extends BaseMapTest
         assertFalse(buf.isClosed());
 
         assertFalse(buf.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
-        buf.enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+        buf.configure(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN, true);
         assertTrue(buf.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
-        buf.disable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+        buf.configure(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN, false);
         assertFalse(buf.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
         buf.close();
         assertTrue(buf.isClosed());

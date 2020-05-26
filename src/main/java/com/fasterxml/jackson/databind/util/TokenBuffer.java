@@ -672,19 +672,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _writeContext = _writeContext.createChildArrayContext();
     }
 
-    @Override // since 2.10 (method added in 2.4)
-    public final void writeStartArray(int size) throws IOException
-    {
-        _writeContext.writeValue();
-        _appendStartMarker(JsonToken.START_ARRAY);
-        _writeContext = _writeContext.createChildArrayContext();
-    }
-
     @Override // since 2.10.1
     public void writeStartArray(Object forValue) throws IOException {
         _writeContext.writeValue();
         _appendStartMarker(JsonToken.START_ARRAY);
-        _writeContext = _writeContext.createChildArrayContext();
+        _writeContext = _writeContext.createChildArrayContext(forValue);
     }
 
     @Override // since 2.10.1

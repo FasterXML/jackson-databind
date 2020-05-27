@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
 /**
@@ -331,12 +330,6 @@ public abstract class ValueInstantiator
      */
     public AnnotatedWithParams getWithArgsCreator() { return null; }
 
-    /**
-     * If an incomplete creator was found, this is the first parameter that
-     * needs further annotation to help make the creator complete.
-     */
-    public AnnotatedParameter getIncompleteParameter() { return null; }
-
     /*
     /**********************************************************
     /* Helper methods
@@ -565,9 +558,5 @@ public abstract class ValueInstantiator
 
         @Override
         public AnnotatedWithParams getWithArgsCreator() { return delegate().getWithArgsCreator(); }
-
-        @Override
-        public AnnotatedParameter getIncompleteParameter() { return delegate().getIncompleteParameter(); }
-    
     }
 }

@@ -238,14 +238,6 @@ public abstract class BasicDeserializerFactory
             }
         }
 
-        // Sanity check: does the chosen ValueInstantiator have incomplete creators?
-        if (instantiator.getIncompleteParameter() != null) {
-            final AnnotatedParameter nonAnnotatedParam = instantiator.getIncompleteParameter();
-            final AnnotatedWithParams ctor = nonAnnotatedParam.getOwner();
-            throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
-                +" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
-        }
-
         return instantiator;
     }
 

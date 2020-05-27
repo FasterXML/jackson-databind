@@ -6,7 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -66,9 +65,6 @@ public class StdValueInstantiator
     protected AnnotatedWithParams _fromDoubleCreator;
     protected AnnotatedWithParams _fromBooleanCreator;
 
-    // // // Incomplete creator
-    protected AnnotatedParameter  _incompleteParameter;
-    
     /*
     /**********************************************************
     /* Life-cycle
@@ -165,10 +161,6 @@ public class StdValueInstantiator
         _fromBooleanCreator = creator;
     }
 
-    public void configureIncompleteParameter(AnnotatedParameter parameter) {
-        _incompleteParameter = parameter;
-    }
-    
     /*
     /**********************************************************
     /* Public API implementation; metadata
@@ -425,11 +417,6 @@ public class StdValueInstantiator
     @Override
     public AnnotatedWithParams getWithArgsCreator() {
         return _withArgsCreator;
-    }
-
-    @Override
-    public AnnotatedParameter getIncompleteParameter() {
-        return _incompleteParameter;
     }
 
     /*

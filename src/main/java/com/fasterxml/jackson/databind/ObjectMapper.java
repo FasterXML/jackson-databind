@@ -584,7 +584,8 @@ public class ObjectMapper
         _serializationConfig = new SerializationConfig(src._serializationConfig,
                 _mixIns, rootNames, _configOverrides);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig,
-                _mixIns, rootNames,  _configOverrides);
+                _mixIns, rootNames,  _configOverrides,
+                _coercionConfigs);
         _serializerProvider = src._serializerProvider.copy();
         _deserializationContext = src._deserializationContext.copy();
 
@@ -615,10 +616,8 @@ public class ObjectMapper
     public ObjectMapper(JsonFactory jf,
             DefaultSerializerProvider sp, DefaultDeserializationContext dc)
     {
-        /* 02-Mar-2009, tatu: Important: we MUST default to using
-         *   the mapping factory, otherwise tree serialization will
-         *   have problems with POJONodes.
-         */
+        // 02-Mar-2009, tatu: Important: we MUST default to using the mapping factory,
+        //  otherwise tree serialization will have problems with POJONodes.
         if (jf == null) {
             _jsonFactory = new MappingJsonFactory(this);
         } else {
@@ -640,7 +639,8 @@ public class ObjectMapper
         _serializationConfig = new SerializationConfig(base,
                     _subtypeResolver, mixins, rootNames, _configOverrides);
         _deserializationConfig = new DeserializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, _configOverrides);
+                    _subtypeResolver, mixins, rootNames, _configOverrides,
+                    _coercionConfigs);
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();

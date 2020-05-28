@@ -49,6 +49,11 @@ public final class DeserializationConfig
      */
     protected final JsonNodeFactory _nodeFactory;
 
+    /**
+     * @since 2.12
+     */
+    protected final CoercionConfigs _coercionConfigs;
+
     /*
     /**********************************************************
     /* Deserialization features 
@@ -98,15 +103,19 @@ public final class DeserializationConfig
 
     /**
      * Constructor used by ObjectMapper to create default configuration object instance.
+     *
+     * @since 2.12
      */
     public DeserializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+            ConfigOverrides configOverrides,
+            CoercionConfigs coercionConfigs)
     {
         super(base, str, mixins, rootNames, configOverrides);
         _deserFeatures = DESER_FEATURE_DEFAULTS;
-        _nodeFactory = JsonNodeFactory.instance;
         _problemHandlers = null;
+        _nodeFactory = JsonNodeFactory.instance;
+        _coercionConfigs = coercionConfigs;
         _parserFeatures = 0;
         _parserFeaturesToChange = 0;
         _formatReadFeatures = 0;
@@ -116,20 +125,36 @@ public final class DeserializationConfig
     /**
      * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
      *
-     * @since 2.9
+     * @since 2.12
      */
     protected DeserializationConfig(DeserializationConfig src,
             SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+            ConfigOverrides configOverrides,
+            CoercionConfigs coercionConfigs)
     {
         super(src, mixins, rootNames, configOverrides);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
+        _coercionConfigs = coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+    }
+
+    @Deprecated // since 2.12, remove from 2.13 or later
+    public DeserializationConfig(BaseSettings base,
+            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides) {
+        this(base, str, mixins, rootNames, configOverrides, new CoercionConfigs());
+    }
+
+    @Deprecated // since 2.12, remove from 2.13 or later
+    protected DeserializationConfig(DeserializationConfig src,
+            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides) {
+        this(src, mixins, rootNames, configOverrides, new CoercionConfigs());
     }
 
     /*
@@ -146,14 +171,15 @@ public final class DeserializationConfig
     {
         super(src, mapperFeatures);
         _deserFeatures = deserFeatures;
-        _nodeFactory = src._nodeFactory;
         _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = parserFeatures;
         _parserFeaturesToChange = parserFeatureMask;
         _formatReadFeatures = formatFeatures;
         _formatReadFeaturesToChange = formatFeatureMask;
     }
-    
+
     /**
      * Copy constructor used to create a non-shared instance with given mix-in
      * annotation definitions and subtype resolver.
@@ -162,8 +188,9 @@ public final class DeserializationConfig
     {
         super(src, str);
         _deserFeatures = src._deserFeatures;
-        _nodeFactory = src._nodeFactory;
         _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -174,8 +201,9 @@ public final class DeserializationConfig
     {
         super(src, base);
         _deserFeatures = src._deserFeatures;
-        _nodeFactory = src._nodeFactory;
         _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -188,6 +216,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = f;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -201,6 +230,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = problemHandlers;
         _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -213,6 +243,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -225,6 +256,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -237,6 +269,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -249,6 +282,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;

@@ -236,7 +236,7 @@ public class ConfigOverrides
     /* Helper methods
     /**********************************************************************
      */
-    
+
     protected Map<Class<?>, MutableConfigOverride> _newMap() {
         return new HashMap<Class<?>, MutableConfigOverride>();
     }

@@ -409,6 +409,14 @@ public class ObjectMapper
      */
     protected final ConfigOverrides _configOverrides;
 
+    /**
+     * Current set of coercion configuration definitions that define allowed
+     * (and not allowed) coercions from secondary shapes.
+     *
+     * @since 2.12
+     */
+    protected final CoercionConfigs _coercionConfigs;
+
     /*
     /**********************************************************
     /* Configuration settings: mix-in annotations
@@ -569,6 +577,7 @@ public class ObjectMapper
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
         _configOverrides = src._configOverrides.copy();
+        _coercionConfigs = src._coercionConfigs.copy();
         _mixIns = src._mixIns.copy();
 
         RootNameLookup rootNames = new RootNameLookup();
@@ -609,8 +618,6 @@ public class ObjectMapper
         /* 02-Mar-2009, tatu: Important: we MUST default to using
          *   the mapping factory, otherwise tree serialization will
          *   have problems with POJONodes.
-         * 03-Jan-2010, tatu: and obviously we also must pass 'this',
-         *    to create actual linking.
          */
         if (jf == null) {
             _jsonFactory = new MappingJsonFactory(this);
@@ -629,6 +636,7 @@ public class ObjectMapper
         _mixIns = mixins;
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
         _configOverrides = new ConfigOverrides();
+        _coercionConfigs = new CoercionConfigs();
         _serializationConfig = new SerializationConfig(base,
                     _subtypeResolver, mixins, rootNames, _configOverrides);
         _deserializationConfig = new DeserializationConfig(base,

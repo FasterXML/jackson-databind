@@ -18,7 +18,7 @@ public class ConfigOverrides
     implements java.io.Serializable,
         Snapshottable<ConfigOverrides>
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Convenience value used as the default root setting.

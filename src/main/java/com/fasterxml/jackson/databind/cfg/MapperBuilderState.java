@@ -43,6 +43,7 @@ public abstract class MapperBuilderState
     protected final BaseSettings _baseSettings;
     protected final TokenStreamFactory _streamFactory;
     protected final ConfigOverrides _configOverrides;
+    protected final CoercionConfigs _coercionConfigs;
 
     /*
     /**********************************************************************
@@ -122,6 +123,7 @@ public abstract class MapperBuilderState
         _baseSettings = src._baseSettings; // immutable
         _streamFactory = src._streamFactory; // immutable
         _configOverrides = Snapshottable.takeSnapshot(src._configOverrides);
+        _coercionConfigs = Snapshottable.takeSnapshot(src._coercionConfigs);
 
         // Feature flags (simple ints, no copy needed)
         _mapperFeatures = src._mapperFeatures;

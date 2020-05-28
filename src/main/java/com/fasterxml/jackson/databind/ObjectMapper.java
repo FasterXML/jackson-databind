@@ -310,12 +310,19 @@ public class ObjectMapper
         
         // General framework factories
         _streamFactory = builder.streamFactory();
+
         final ConfigOverrides configOverrides;
         {
             // bit tricky as we do NOT want to expose simple accessors (to a mutable thing)
             final AtomicReference<ConfigOverrides> ref = new AtomicReference<>();
             builder.withAllConfigOverrides(overrides -> ref.set(overrides));
             configOverrides = Snapshottable.takeSnapshot(ref.get());
+        }
+        final CoercionConfigs coercionConfigs;
+        {
+            final AtomicReference<CoercionConfigs> ref = new AtomicReference<>();
+            builder.withAllCoercionConfigs(overrides -> ref.set(overrides));
+            coercionConfigs = Snapshottable.takeSnapshot(ref.get());
         }
 
         // Handlers, introspection
@@ -342,7 +349,7 @@ public class ObjectMapper
         FilterProvider filterProvider = Snapshottable.takeSnapshot(builder.filterProvider());
         _deserializationConfig = builder.buildDeserializationConfig(configOverrides,
                 mixIns, _typeFactory, classIntr, subtypeResolver,
-                rootNames);
+                rootNames, coercionConfigs);
         _serializationConfig = builder.buildSerializationConfig(configOverrides,
                 mixIns, _typeFactory, classIntr, subtypeResolver,
                 rootNames, filterProvider);

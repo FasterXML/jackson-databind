@@ -92,6 +92,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     protected final ConfigOverrides _configOverrides;
 
+    /**
+     * Coercion settings (global, per-type overrides)
+     */
+    protected final CoercionConfigs _coercionConfigs;
+
     /*
     /**********************************************************************
     /* Modules
@@ -252,6 +257,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _streamFactory = streamFactory;
         _baseSettings = DEFAULT_BASE_SETTINGS;
         _configOverrides = new ConfigOverrides();
+        _coercionConfigs = new CoercionConfigs();
         _modules = null;
 
         _streamReadFeatures = streamFactory.getStreamReadFeatures();
@@ -295,6 +301,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _streamFactory = state._streamFactory;
         _baseSettings = state._baseSettings;
         _configOverrides = Snapshottable.takeSnapshot(state._configOverrides);
+        _coercionConfigs = Snapshottable.takeSnapshot(state._coercionConfigs);
 
         _streamReadFeatures = state._streamReadFeatures;
         _streamWriteFeatures = state._streamWriteFeatures;
@@ -342,6 +349,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _streamFactory = base._streamFactory;
         _baseSettings = base._baseSettings;
         _configOverrides = base._configOverrides;
+        _coercionConfigs = base._coercionConfigs;
 
         _mapperFeatures = base._mapperFeatures;
         _serFeatures = base._serFeatures;
@@ -430,11 +438,12 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public DeserializationConfig buildDeserializationConfig(ConfigOverrides configOverrides,
             MixInHandler mixins, TypeFactory tf, ClassIntrospector classIntr, SubtypeResolver str,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames,
+            CoercionConfigs coercionConfigs)
     {
         return new DeserializationConfig(this,
                 _mapperFeatures, _deserFeatures, _streamReadFeatures, _formatReadFeatures,
-                configOverrides,
+                configOverrides, coercionConfigs,
                 tf, classIntr, mixins, str, rootNames,
                 _abstractTypeResolvers);
     }
@@ -868,6 +877,40 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B defaultLeniency(Boolean b) {
         _configOverrides.setDefaultLeniency(b);
+        return _this();
+    }
+
+    /*
+    /**********************************************************************
+    /* Changing settings, coercion config
+    /**********************************************************************
+     */
+
+    /**
+     * Method for changing coercion config for specific logical types, through
+     * callback to specific handler.
+     */
+    public B withCoercionConfig(CoercionTargetType forType,
+            Consumer<MutableCoercionConfig> handler) {
+        handler.accept(_coercionConfigs.findOrCreateCoercion(forType));
+        return _this();
+    }
+
+    /**
+     * Method for changing coercion config for specific physical type, through
+     * callback to specific handler.
+     */
+    public B withCoercionConfig(Class<?> forType,
+            Consumer<MutableCoercionConfig> handler) {
+        handler.accept(_coercionConfigs.findOrCreateCoercion(forType));
+        return _this();
+    }
+
+    /**
+     * Method for changing various aspects of configuration overrides.
+     */
+    public B withAllCoercionConfigs(Consumer<CoercionConfigs> handler) {
+        handler.accept(_coercionConfigs);
         return _this();
     }
 

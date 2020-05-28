@@ -65,10 +65,14 @@ public final class DeserializationConfig
      * concrete types. Used by functionality like "mr Bean" to materialize
      * types as needed, although may be used for other kinds of defaulting
      * as well.
-     *
-     * @since 3.0
      */
     protected final AbstractTypeResolver[] _abstractTypeResolvers;
+
+    /**
+     * Configured coercion rules for coercions from secondary input
+     * shapes.
+     */
+    protected final CoercionConfigs _coercionConfigs;
 
     /*
     /**********************************************************************
@@ -81,7 +85,7 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
             int deserFeatures, int streamReadFeatures, int formatReadFeatures,
-            ConfigOverrides configOverrides,
+            ConfigOverrides configOverrides, CoercionConfigs coercionConfigs,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
             RootNameLookup rootNames,
             AbstractTypeResolver[] atrs)
@@ -91,6 +95,7 @@ public final class DeserializationConfig
         _streamReadFeatures = streamReadFeatures;
         _formatReadFeatures = formatReadFeatures;
         _problemHandlers = b.deserializationProblemHandlers();
+        _coercionConfigs = coercionConfigs;
         _abstractTypeResolvers = atrs;
     }
 
@@ -108,6 +113,7 @@ public final class DeserializationConfig
         _deserFeatures = deserFeatures;
         _streamReadFeatures = streamReadFeatures;
         _formatReadFeatures = formatReadFeatures;
+        _coercionConfigs = src._coercionConfigs;
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
@@ -118,6 +124,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
+        _coercionConfigs = src._coercionConfigs;
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
@@ -130,6 +137,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
+        _coercionConfigs = src._coercionConfigs;
         _problemHandlers = problemHandlers;
         _abstractTypeResolvers = atr;
     }
@@ -140,6 +148,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _streamReadFeatures = src._streamReadFeatures;
+        _coercionConfigs = src._coercionConfigs;
         _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
@@ -150,6 +159,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _streamReadFeatures = src._streamReadFeatures;
+        _coercionConfigs = src._coercionConfigs;
         _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;
     }
@@ -159,6 +169,7 @@ public final class DeserializationConfig
         super(src, attrs);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
+        _coercionConfigs = src._coercionConfigs;
         _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;

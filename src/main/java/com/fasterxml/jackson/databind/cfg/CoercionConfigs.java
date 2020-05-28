@@ -91,4 +91,50 @@ public class CoercionConfigs
         }
         return src.copy();
     }
+
+    /*
+    /**********************************************************************
+    /* Mutators: global defaults
+    /**********************************************************************
+     */
+
+    public void setAcceptBlankAsEmpty(boolean state) {
+        _acceptBlankAsEmpty = state;
+    }
+
+    /*
+    /**********************************************************************
+    /* Mutators: per type
+    /**********************************************************************
+     */
+
+    public MutableCoercionConfig findOrCreateCoercion(CoercionTargetType type) {
+        if (_perTypeCoercions == null) {
+            _perTypeCoercions = new MutableCoercionConfig[TARGET_TYPE_COUNT];
+        }
+        MutableCoercionConfig config = _perTypeCoercions[type.ordinal()];
+        if (config == null) {
+            _perTypeCoercions[type.ordinal()] = config = new MutableCoercionConfig();
+        }
+        return config;
+    }
+
+    public MutableCoercionConfig findOrCreateCoercion(Class<?> type) {
+        if (_perClassCoercions == null) {
+            _perClassCoercions = new HashMap<>();
+        }
+        MutableCoercionConfig config = _perClassCoercions.get(type);
+        if (config == null) {
+            config = new MutableCoercionConfig();
+            _perClassCoercions.put(type, config);
+        }
+        return config;
+    }
+
+    /*
+    /**********************************************************************
+    /* Access
+    /**********************************************************************
+     */
+
 }

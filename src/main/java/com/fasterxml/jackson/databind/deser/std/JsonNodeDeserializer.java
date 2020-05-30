@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
@@ -174,10 +175,14 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 
-    /* 07-Nov-2014, tatu: When investigating [databind#604], realized that it makes
-     *   sense to also mark this is cachable, since lookup not exactly free, and
-     *   since it's not uncommon to "read anything"
-     */
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Untyped;
+    }
+
+    // 07-Nov-2014, tatu: When investigating [databind#604], realized that it makes
+    //   sense to also mark this is cachable, since lookup not exactly free, and
+    //   since it's not uncommon to "read anything"
     @Override
     public boolean isCachable() { return true; }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 @JacksonStdImpl
 public class StringDeserializer extends StdScalarDeserializer<String> // non-final since 2.9
@@ -13,6 +14,11 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     public final static StringDeserializer instance = new StringDeserializer();
 
     public StringDeserializer() { super(String.class); }
+
+    @Override
+    public LogicalType logicalType() {
+        return LogicalType.Textual;
+    }
 
     @Override
     public boolean isCachable() { return true; }

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
@@ -143,6 +144,11 @@ public abstract class PrimitiveArrayDeserializers<T>
     /* Default implementations
     /********************************************************
      */
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Array;
+    }
     
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
@@ -429,6 +435,13 @@ public abstract class PrimitiveArrayDeserializers<T>
             return new byte[0];
         }
 
+        @Override // since 2.12
+        public LogicalType logicalType() {
+            // 30-May-2020, tatu: while technically an array, logically contains
+            //    binary data so...
+            return LogicalType.Binary;
+        }
+        
         @Override
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {

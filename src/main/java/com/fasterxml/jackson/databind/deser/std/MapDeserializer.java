@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
 /**
@@ -328,6 +329,11 @@ public class MapDeserializer
                 && (_keyDeserializer == null)
                 && (_valueTypeDeserializer == null)
                 && (_ignorableProperties == null);
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Map;
     }
 
     @Override

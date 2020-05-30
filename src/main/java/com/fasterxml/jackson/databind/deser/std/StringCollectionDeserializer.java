@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Specifically optimized version for {@link java.util.Collection}s
@@ -86,7 +87,12 @@ public final class StringCollectionDeserializer
         //    are involved
         return (_valueDeserializer == null) && (_delegateDeserializer == null);
     }
-    
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Collection;
+    }
+
     /*
     /**********************************************************
     /* Validation, post-processing

@@ -10,7 +10,7 @@ package com.fasterxml.jackson.databind.type;
  */
 public enum LogicalType
 {
-    // // // General structured types
+    // // // General container types
 
     /**
      * Array types of other values.
@@ -31,7 +31,7 @@ public enum LogicalType
      */
     Map,
 
-    // // // Good old Beans / Plain-Old-Java-Objects
+    // // // Other structured java types
 
     /**
      * Types that are handled by default "set of key/value pairs" serialization,
@@ -44,6 +44,13 @@ public enum LogicalType
      * </ul>
      */
     POJO,
+
+    /**
+     * "Non-type", Type used to contained untyped, free-form content: maybe
+     * a "Tree" (sometimes called "AST"), or buffer of some kind,
+     * or even just nominal type of {@link java.lang.Object}
+     */
+    Untyped,
 
     // // // Basic scalar types
 

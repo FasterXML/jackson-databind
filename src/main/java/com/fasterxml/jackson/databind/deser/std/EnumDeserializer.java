@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -121,6 +122,11 @@ public class EnumDeserializer
      */
     @Override
     public boolean isCachable() { return true; }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Enum;
+    }
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException

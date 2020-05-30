@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
@@ -70,6 +71,11 @@ public final class StringArrayDeserializer
         _nullProvider = nuller;
         _unwrapSingle = unwrapSingle;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Array;
     }
 
     @Override // since 2.9

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -246,7 +247,7 @@ public abstract class JsonDeserializer<T>
      */
 
     /**
-     * Method for accessing type of values this deserializer produces.
+     * Method for accessing concrete physical type of values this deserializer produces.
      * Note that this information is not guaranteed to be exact -- it
      * may be a more generic (super-type) -- but it should not be
      * incorrect (return a non-related type).
@@ -254,8 +255,21 @@ public abstract class JsonDeserializer<T>
      * Default implementation will return null, which means almost same
      * same as returning <code>Object.class</code> would; that is, that
      * nothing is known about handled type.
+     *
+     * @return Physical type of values this deserializer produces, if known;
+     *    {@code null} if not
      */
     public Class<?> handledType() { return null; }
+
+    /**
+     * Method for accessing logical type of values this deserializer produces.
+     * Typically used for further configuring handling of values, for example,
+     * to find which coercions are legal.
+     *
+     * @return Logical type of values this deserializer produces, if known;
+     *    {@code null} if not
+     */
+    public LogicalType logicalType() { return null; }
 
     /**
      * Method called to see if deserializer instance is cachable and

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -149,6 +150,11 @@ public class StdConvertingDeserializer<T>
         return (_delegateDeserializer != null) && _delegateDeserializer.isCachable();
     }
 
+    @Override
+    public LogicalType logicalType() {
+        return _delegateDeserializer.logicalType();
+    }
+    
     @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return _delegateDeserializer.supportsUpdate(config);

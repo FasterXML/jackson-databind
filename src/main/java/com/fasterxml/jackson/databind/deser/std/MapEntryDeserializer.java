@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Basic serializer that can take JSON "Object" structure and
@@ -98,6 +99,12 @@ public class MapEntryDeserializer
         }
         return new MapEntryDeserializer(this,
                 keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser);
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        // Slightly tricky, could consider POJO too?
+        return LogicalType.Map;
     }
 
     /*

@@ -889,4 +889,28 @@ public final class DeserializationConfig
         }
         return b.buildTypeDeserializer(this, baseType, subtypes);
     }
+
+    /*
+    /**********************************************************************
+    /* CoercionConfig access
+    /**********************************************************************
+     */
+
+    /**
+     * General-purpose accessor for finding what to do when specified coercion
+     * from shape that is now always allowed to be coerced from is requested.
+     *
+     * @param targetType Logical target type of coercion
+     * @param targetClass Physical target type of coercion
+     * @param inputShape Input shape to coerce from
+     *
+     * @return CoercionAction configured for specific coercion
+     *
+     * @since 2.12
+     */
+    public CoercionAction findCoercionAction(CoercionTargetType targetType,
+            Class<?> targetClass, CoercionInputShape inputShape)
+    {
+        return null;
+    }
 }

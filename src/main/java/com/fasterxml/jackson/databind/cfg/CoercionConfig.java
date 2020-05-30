@@ -4,7 +4,10 @@ package com.fasterxml.jackson.databind.cfg;
  * @since 2.12
  */
 public class CoercionConfig
+    implements java.io.Serializable // needed in 3.0 too, still
 {
+    private static final long serialVersionUID = 3L;
+
     private final static int INPUT_SHAPE_COUNT = CoercionInputShape.values().length;
 
     protected Boolean _acceptBlankAsEmpty;
@@ -19,5 +22,13 @@ public class CoercionConfig
 
     protected CoercionConfig(CoercionConfig src) {
         _acceptBlankAsEmpty = src._acceptBlankAsEmpty;
+    }
+
+    public CoercionAction findAction(CoercionInputShape shape) {
+        return _coercionsByShape[shape.ordinal()];
+    }
+
+    public Boolean getAcceptBlankAsEmpty() {
+        return _acceptBlankAsEmpty;
     }
 }

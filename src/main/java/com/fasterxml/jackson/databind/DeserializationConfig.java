@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.*;
+import com.fasterxml.jackson.databind.type.CoercionTargetType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayIterator;
 import com.fasterxml.jackson.databind.util.LinkedNode;

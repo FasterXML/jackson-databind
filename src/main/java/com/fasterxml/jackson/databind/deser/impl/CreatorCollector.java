@@ -4,12 +4,12 @@ import java.lang.reflect.Member;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.CoercionTargetType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.type.CoercionTargetType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**

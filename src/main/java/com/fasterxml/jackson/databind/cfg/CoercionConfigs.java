@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.type.CoercionTargetType;
 
 /**
  * @since 2.12

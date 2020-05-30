@@ -5,9 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.cfg.CoercionTargetType;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
+import com.fasterxml.jackson.databind.type.CoercionTargetType;
 
 /**
  * Default {@link ValueInstantiator} implementation, which supports

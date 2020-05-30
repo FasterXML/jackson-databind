@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoolean>
 {
@@ -16,4 +17,7 @@ public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoole
     public AtomicBoolean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         return new AtomicBoolean(_parseBooleanPrimitive(ctxt, p, AtomicBoolean.class));
     }
+
+    @Override
+    public LogicalType logicalType() { return LogicalType.Boolean; }
 }

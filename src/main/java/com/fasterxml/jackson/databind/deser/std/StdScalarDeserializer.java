@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
@@ -36,6 +37,11 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
         ctxt.handleBadMerge(this);
         // if that does not report an exception we can just delegate
         return deserialize(p, ctxt);
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.OtherScalar;
     }
 
     /**

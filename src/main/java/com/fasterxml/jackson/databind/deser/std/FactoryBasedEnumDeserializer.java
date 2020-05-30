@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -97,6 +98,11 @@ class FactoryBasedEnumDeserializer
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.FALSE;
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Enum;
     }
 
     // since 2.9.7: should have been the case earlier but

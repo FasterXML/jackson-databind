@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ByteBufferBackedOutputStream;
 
 public class ByteBufferDeserializer extends StdScalarDeserializer<ByteBuffer>
@@ -12,6 +13,11 @@ public class ByteBufferDeserializer extends StdScalarDeserializer<ByteBuffer>
     private static final long serialVersionUID = 1L;
     
     protected ByteBufferDeserializer() { super(ByteBuffer.class); }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Binary;
+    }
 
     @Override
     public ByteBuffer deserialize(JsonParser parser, DeserializationContext cx) throws IOException {

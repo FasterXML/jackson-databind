@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Deserializer only used for abstract types used as placeholders during polymorphic
@@ -186,6 +187,13 @@ handledType().getName()));
     
     @Override
     public boolean isCachable() { return true; }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        // 30-May-2020, tatu: Not sure if our choice here matters, but let's
+        //     guess "POJO" is most likely. If need be, could get more creative
+        return LogicalType.POJO;
+    }
 
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {

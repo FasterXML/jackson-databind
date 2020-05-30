@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
@@ -112,6 +113,11 @@ public class ObjectArrayDeserializer
         // Important: do NOT cache if polymorphic values, or if there are annotation-based
         // custom deserializers
         return (_elementDeserializer == null) && (_elementTypeDeserializer == null);
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Array;
     }
 
     @Override

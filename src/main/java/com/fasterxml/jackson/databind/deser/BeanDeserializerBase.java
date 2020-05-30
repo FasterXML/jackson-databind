@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.*;
 
 /**
@@ -1057,6 +1058,11 @@ public abstract class BeanDeserializerBase
 
     @Override
     public JavaType getValueType() { return _beanType; }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.POJO;
+    }
 
     /**
      * Accessor for iterating over properties this deserializer uses; with

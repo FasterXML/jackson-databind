@@ -6,6 +6,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Simple deserializer that will call configured type deserializer, passing
@@ -30,6 +31,11 @@ public final class TypeWrappedDeserializer
         super();
         _typeDeserializer = typeDeser;
         _deserializer = (JsonDeserializer<Object>) deser;
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return _deserializer.logicalType();
     }
 
     @Override

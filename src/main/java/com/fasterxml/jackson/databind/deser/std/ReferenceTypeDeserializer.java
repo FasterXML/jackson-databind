@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 
@@ -145,7 +146,7 @@ public abstract class ReferenceTypeDeserializer<T>
      * @since 2.9
      */
     public abstract Object getReferenced(T reference);
-    
+
     /*
     /**********************************************************
     /* Overridden accessors
@@ -154,6 +155,14 @@ public abstract class ReferenceTypeDeserializer<T>
 
     @Override
     public JavaType getValueType() { return _fullType; }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        if (_valueDeserializer != null) {
+            return _valueDeserializer.logicalType();
+        }
+        return super.logicalType();
+    }
 
     /**
      * By default we assume that updateability mostly relies on value

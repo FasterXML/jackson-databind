@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -152,6 +153,11 @@ public class StdDelegatingDeserializer<T>
         return _delegateDeserializer.handledType();
     }
 
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return _delegateDeserializer.logicalType();
+    }
+    
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         return _delegateDeserializer.supportsUpdate(config);

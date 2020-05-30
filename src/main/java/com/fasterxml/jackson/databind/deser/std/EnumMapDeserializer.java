@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -198,6 +199,11 @@ public class EnumMapDeserializer
         return (_valueDeserializer == null)
                 && (_keyDeserializer == null)
                 && (_valueTypeDeserializer == null);
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Map;
     }
 
     /*

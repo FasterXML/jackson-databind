@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import com.fasterxml.jackson.databind.type.CoercionTargetType;
+
 /**
  * Set of possible actions for requested coercion from an
  * input shape {@link CoercionInputShape}

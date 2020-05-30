@@ -6,6 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.type.CoercionTargetType;
 
 /**
  * @since 2.12

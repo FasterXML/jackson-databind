@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.cfg;
+package com.fasterxml.jackson.databind.type;
 
 /**
  * Set of logical "type classes" for which coercion actions can be defined:

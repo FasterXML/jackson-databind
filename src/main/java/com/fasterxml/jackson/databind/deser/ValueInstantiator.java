@@ -3,6 +3,9 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.databind.cfg.CoercionTargetType;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
@@ -62,7 +65,7 @@ public abstract class ValueInstantiator
     }
 
     /**
-     * Method that will return true if any of <code>canCreateXxx</code> method
+     * Method that will return true if any of {@code canCreateXxx} method
      * returns true: that is, if there is any way that an instance could
      * be created.
      */
@@ -76,7 +79,10 @@ public abstract class ValueInstantiator
 
     /**
      * Method that can be called to check whether a String-based creator
-     * is available for this instantiator
+     * is available for this instantiator.
+     *<p>
+     * NOTE: does NOT include possible case of fallbacks, or coercion; only
+     * considers explicit creator.
      */
     public boolean canCreateFromString() { return false; }
 
@@ -342,6 +348,7 @@ public abstract class ValueInstantiator
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
             throws IOException
     {
+
         // also, empty Strings might be accepted as null Object...
         if (value.length() == 0) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
@@ -353,11 +360,10 @@ public abstract class ValueInstantiator
          *   systems that expect conversions in some cases, let's just add a minimal
          *   patch (note: same could conceivably be used for numbers too).
          */
-        // 16-May-2020, tatu: Needs to obey `MapperFeature.ALLOW_COERCION_OF_SCALARS`; actually
-        //   not even quite sure we should accept this at all because "String-to-Number" does NOT
-        //   work...
-        if (ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            if (canCreateFromBoolean()) {
+        // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
+        if (canCreateFromBoolean()) {
+            if (ctxt.findCoercionAction(CoercionTargetType.Boolean, Boolean.class,
+                    CoercionInputShape.String) == CoercionAction.TryConvert) {
                 String str = value.trim();
                 if ("true".equals(str)) {
                     return createFromBoolean(ctxt, true);
@@ -370,6 +376,36 @@ public abstract class ValueInstantiator
         return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),
                 "no String-argument constructor/factory method to deserialize from String value ('%s')",
                 value);
+    }
+
+    // @since 2.12
+    protected CoercionAction _findCoercionFromEmptyString(DeserializationContext ctxt) {
+        // Since 2.12 we have checked CoercionConfigs for possibly allowing coercions
+        final Class<?> targetClass = getValueClass();
+        final CoercionTargetType targetType = _coercionTargetType();
+
+        return ctxt.findCoercionAction(targetType, targetClass, CoercionInputShape.EmptyString);
+    }
+
+    // @since 2.12
+    protected CoercionAction _findCoercionFromBlankString(DeserializationContext ctxt) {
+        // Since 2.12 we have checked CoercionConfigs for possibly allowing coercions
+        final Class<?> targetClass = getValueClass();
+        final CoercionTargetType targetType = _coercionTargetType();
+
+        return ctxt.findCoercionFromBlankString(targetType, targetClass, CoercionAction.Fail);
+    }
+
+    /**
+     * Overridable method for accessing logical target type of values this instantiator creates.
+     *
+     * @return Logical value type of values this instantiator creates, if known
+     *    ({@code null} otherwise)
+     *
+     * @since 2.12
+     */
+    protected CoercionTargetType _coercionTargetType() {
+        return null;
     }
 
     /*

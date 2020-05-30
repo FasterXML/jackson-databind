@@ -57,6 +57,11 @@ public enum CoercionTargetType
     Boolean,
 
     /**
+     * Various {@link java.lang.Enum} types.
+     */
+    Enum,
+
+    /**
      * Purely textual types, {@link java.lang.String} and similar (but not types that
      * are generally expressed as Strings in input).
      */
@@ -78,4 +83,39 @@ public enum CoercionTargetType
      */
     OtherScalar
     ;
+
+    /**
+     * Helper method to use for figuring out logical type from physical type,
+     * in cases where caller wants a guess. Note that introspection is
+     * not exhaustive and mostly covers basic {@link java.util.Collection},
+     * {@link java.util.Map} and {@link java.lang.Enum} cases; but not
+     * more specific types (for example datatype-provided extension types).
+     *
+     * @param raw Type-erased class to classify
+     * @param defaultIfNotRecognized if no type recognized, value to return
+     *    (for example, {@code null})
+     */
+    public static CoercionTargetType fromClass(Class<?> raw,
+            CoercionTargetType defaultIfNotRecognized)
+    {
+        if (raw.isEnum()) {
+            return Enum;
+        }
+        if (raw.isArray()) {
+            if (raw == byte[].class) {
+                return Binary;
+            }
+            return Array;
+        }
+        if (java.util.Collection.class.isAssignableFrom(raw)) {
+            return Collection;
+        }
+        if (java.util.Map.class.isAssignableFrom(raw)) {
+            return Map;
+        }
+        if (raw == String.class) {
+            return Textual;
+        }
+        return defaultIfNotRecognized;
+    }
 }

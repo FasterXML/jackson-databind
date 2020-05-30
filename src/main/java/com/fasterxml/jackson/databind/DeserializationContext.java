@@ -12,6 +12,9 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.databind.cfg.CoercionTargetType;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
@@ -463,6 +466,53 @@ public abstract class DeserializationContext
     }
 
     /*
+    /**********************************************************************
+    /* Public API, CoercionConfig access (2.12+)
+    /**********************************************************************
+     */
+
+    /**
+     * General-purpose accessor for finding what to do when specified coercion
+     * from shape that is now always allowed to be coerced from is requested.
+     *
+     * @param targetType Logical target type of coercion
+     * @param targetClass Physical target type of coercion
+     * @param inputShape Input shape to coerce from
+     *
+     * @return CoercionAction configured for specific coercion
+     *
+     * @since 2.12
+     */
+    public CoercionAction findCoercionAction(CoercionTargetType targetType,
+            Class<?> targetClass, CoercionInputShape inputShape)
+    {
+        return _config.findCoercionAction(targetType, targetClass, inputShape);
+    }
+
+    /**
+     * More specialized accessor called in case of input being a blank
+     * String (one consisting of only white space characters with length of at least one).
+     * Will basically first determine if "blank as empty" is allowed: if not,
+     * returns {@code actionIfBlankNotAllowed}, otherwise returns action for
+     * {@link CoercionInputShape#EmptyString}.
+     *
+     * @param targetType Logical target type of coercion
+     * @param targetClass Physical target type of coercion
+     * @param actionIfBlankNotAllowed Return value to use in case "blanks as empty"
+     *    is not allowed
+     *
+     * @return CoercionAction configured for specified coercion from blank string
+     *
+     * @since 2.12
+     */
+    public CoercionAction findCoercionFromBlankString(CoercionTargetType targetType,
+            Class<?> targetClass,
+            CoercionAction actionIfBlankNotAllowed)
+    {
+        return _config.findCoercionFromBlankString(targetType, targetClass, actionIfBlankNotAllowed);
+    }
+
+    /*
     /**********************************************************
     /* Public API, pass-through to DeserializerCache
     /**********************************************************
@@ -472,7 +522,10 @@ public abstract class DeserializationContext
      * Method for checking whether we could find a deserializer
      * for given type.
      *
-     * @param type
+     * @param type Type to check
+     * @param cause (optional) Reference set to root cause if no deserializer
+     *    could be found due to exception (to find the reason for failure)
+     *
      * @since 2.3
      */
     public boolean hasValueDeserializerFor(JavaType type, AtomicReference<Throwable> cause) {

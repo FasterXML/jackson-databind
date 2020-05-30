@@ -4,6 +4,7 @@ import java.lang.reflect.Member;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CoercionTargetType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -32,7 +33,7 @@ public class CreatorCollector
             "from-boolean", "delegate", "property-based", "array-delegate"
     };
 
-    /// Type of bean being created
+    // Type of bean being created
     final protected BeanDescription _beanDesc;
 
     final protected boolean _canFixAccess;
@@ -42,7 +43,7 @@ public class CreatorCollector
     /**
      * Set of creators we have collected so far
      */
-    protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[9];
+    final protected AnnotatedWithParams[] _creators = new AnnotatedWithParams[9];
 
     /**
      * Bitmask of creators that were explicitly marked as creators; false for

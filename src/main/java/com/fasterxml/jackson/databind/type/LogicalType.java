@@ -1,12 +1,14 @@
 package com.fasterxml.jackson.databind.type;
 
 /**
- * Set of logical "type classes" for which coercion actions can be defined:
- * this is a more general option for targeting specific concrete types.
+ * Set of logical types (or type categories, classes of classes), used
+ * for defining applicability of configuration like coercion configuration.
+ * Used instead to allow easier targeting of types than having to enumerate
+ * physical types ({@link java.lang.Class} or {@link com.fasterxml.jackson.databind.JavaType}).
  *
  * @since 2.12
  */
-public enum CoercionTargetType
+public enum LogicalType
 {
     // // // General structured types
 
@@ -34,6 +36,12 @@ public enum CoercionTargetType
     /**
      * Types that are handled by default "set of key/value pairs" serialization,
      * also known as "Beans".
+     *<p>
+     * In addition to user-defined types, also includes JDK types like:
+     *<ul>
+     *  <li>{@link java.lang.Throwable}
+     *   </li>
+     * </ul>
      */
     POJO,
 
@@ -95,8 +103,8 @@ public enum CoercionTargetType
      * @param defaultIfNotRecognized if no type recognized, value to return
      *    (for example, {@code null})
      */
-    public static CoercionTargetType fromClass(Class<?> raw,
-            CoercionTargetType defaultIfNotRecognized)
+    public static LogicalType fromClass(Class<?> raw,
+            LogicalType defaultIfNotRecognized)
     {
         if (raw.isEnum()) {
             return Enum;

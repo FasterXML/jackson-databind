@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
-import com.fasterxml.jackson.databind.type.CoercionTargetType;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -891,7 +891,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Method for changing coercion config for specific logical types, through
      * callback to specific handler.
      */
-    public B withCoercionConfig(CoercionTargetType forType,
+    public B withCoercionConfig(LogicalType forType,
             Consumer<MutableCoercionConfig> handler) {
         handler.accept(_coercionConfigs.findOrCreateCoercion(forType));
         return _this();

@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.databind.type.CoercionTargetType;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Set of possible actions for requested coercion from an
  * input shape {@link CoercionInputShape}
  * that does not directly or naturally match target type
- * ({@link CoercionTargetType}).
+ * ({@link LogicalType}).
  * This action is suggestion for deserializers to use in cases
  * where alternate actions could be appropriate: it is up to deserializer
  * to check configured action and take it into consideration.

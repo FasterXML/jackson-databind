@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
@@ -100,6 +101,11 @@ public class DateDeserializers
         }
 
         protected abstract DateBasedDeserializer<T> withDateFormat(DateFormat df, String formatStr);
+
+        @Override // since 2.12
+        public LogicalType logicalType() {
+            return LogicalType.DateTime;
+        }
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
-import com.fasterxml.jackson.databind.type.CoercionTargetType;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Class that defines simple API implemented by objects that create value
@@ -361,7 +361,7 @@ public abstract class ValueInstantiator
          */
         if (canCreateFromBoolean()) {
             // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
-            if (ctxt.findCoercionAction(CoercionTargetType.Boolean, Boolean.class,
+            if (ctxt.findCoercionAction(LogicalType.Boolean, Boolean.class,
                     CoercionInputShape.String) == CoercionAction.TryConvert) {
                 String str = value.trim();
                 if ("true".equals(str)) {
@@ -381,7 +381,7 @@ public abstract class ValueInstantiator
     protected CoercionAction _findCoercionFromEmptyString(DeserializationContext ctxt) {
         // Since 2.12 we have checked CoercionConfigs for possibly allowing coercions
         final Class<?> targetClass = getValueClass();
-        final CoercionTargetType targetType = _coercionTargetType();
+        final LogicalType targetType = _coercionTargetType();
 
         return ctxt.findCoercionAction(targetType, targetClass, CoercionInputShape.EmptyString);
     }
@@ -390,7 +390,7 @@ public abstract class ValueInstantiator
     protected CoercionAction _findCoercionFromBlankString(DeserializationContext ctxt) {
         // Since 2.12 we have checked CoercionConfigs for possibly allowing coercions
         final Class<?> targetClass = getValueClass();
-        final CoercionTargetType targetType = _coercionTargetType();
+        final LogicalType targetType = _coercionTargetType();
 
         return ctxt.findCoercionFromBlankString(targetType, targetClass, CoercionAction.Fail);
     }
@@ -403,7 +403,7 @@ public abstract class ValueInstantiator
      *
      * @since 2.12
      */
-    protected CoercionTargetType _coercionTargetType() {
+    protected LogicalType _coercionTargetType() {
         return null;
     }
 

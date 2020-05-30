@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.type.CoercionTargetType;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.*;
 
@@ -483,7 +483,7 @@ public abstract class DeserializationContext
      *
      * @since 2.12
      */
-    public CoercionAction findCoercionAction(CoercionTargetType targetType,
+    public CoercionAction findCoercionAction(LogicalType targetType,
             Class<?> targetClass, CoercionInputShape inputShape)
     {
         return _config.findCoercionAction(targetType, targetClass, inputShape);
@@ -505,7 +505,7 @@ public abstract class DeserializationContext
      *
      * @since 2.12
      */
-    public CoercionAction findCoercionFromBlankString(CoercionTargetType targetType,
+    public CoercionAction findCoercionFromBlankString(LogicalType targetType,
             Class<?> targetClass,
             CoercionAction actionIfBlankNotAllowed)
     {

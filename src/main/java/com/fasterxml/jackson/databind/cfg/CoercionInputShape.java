@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.databind.type.CoercionTargetType;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Set of input types (which mostly match one of
  * {@link com.fasterxml.jackson.core.JsonToken} types) used for
  * configuring {@link CoercionAction}s to take when reading
- * input into target types (specific type or {@link CoercionTargetType}).
+ * input into target types (specific type or {@link LogicalType}).
  * Contains both physical input shapes (which match one of
  * {@link com.fasterxml.jackson.core.JsonToken} types) and a few
  * logical input shapes ("empty" variants).

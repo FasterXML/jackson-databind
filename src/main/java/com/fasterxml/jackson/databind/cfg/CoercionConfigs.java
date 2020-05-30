@@ -6,7 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.type.CoercionTargetType;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * @since 2.12
@@ -16,7 +16,7 @@ public class CoercionConfigs
 {
     private static final long serialVersionUID = 1L;
 
-    private final static int TARGET_TYPE_COUNT = CoercionTargetType.values().length;
+    private final static int TARGET_TYPE_COUNT = LogicalType.values().length;
 
     /**
      * Global default for cases not explicitly covered
@@ -33,7 +33,7 @@ public class CoercionConfigs
     protected boolean _acceptBlankAsEmpty;
 
     /**
-     * Coercion definitions by logical type ({@link CoercionTargetType})
+     * Coercion definitions by logical type ({@link LogicalType})
      */
     protected MutableCoercionConfig[] _perTypeCoercions;
 
@@ -117,7 +117,7 @@ public class CoercionConfigs
     /**********************************************************************
      */
 
-    public MutableCoercionConfig findOrCreateCoercion(CoercionTargetType type) {
+    public MutableCoercionConfig findOrCreateCoercion(LogicalType type) {
         if (_perTypeCoercions == null) {
             _perTypeCoercions = new MutableCoercionConfig[TARGET_TYPE_COUNT];
         }
@@ -160,7 +160,7 @@ public class CoercionConfigs
      * @since 2.12
      */
     public CoercionAction findCoercion(DeserializationConfig config,
-            CoercionTargetType targetType,
+            LogicalType targetType,
             Class<?> targetClass, CoercionInputShape inputShape)
     {
         // First, see if there is exact match for physical type
@@ -197,15 +197,15 @@ public class CoercionConfigs
                     CoercionAction.AsNull : CoercionAction.Fail;
         }
         if ((inputShape == CoercionInputShape.Float)
-                && (targetType == CoercionTargetType.Integer)) {
+                && (targetType == LogicalType.Integer)) {
             // Default for setting is true
             return config.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT) ?
                     CoercionAction.TryConvert : CoercionAction.Fail;
         }
 
-        if ((targetType == CoercionTargetType.Float)
-                || (targetType == CoercionTargetType.Integer)
-                || (targetType == CoercionTargetType.Boolean)) {
+        if ((targetType == LogicalType.Float)
+                || (targetType == LogicalType.Integer)
+                || (targetType == LogicalType.Boolean)) {
             if (!config.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
                 return CoercionAction.Fail;
             }
@@ -231,7 +231,7 @@ public class CoercionConfigs
      * @return CoercionAction configured for specified coercion from blank string
      */
     public CoercionAction findCoercionFromBlankString(DeserializationConfig config,
-            CoercionTargetType targetType,
+            LogicalType targetType,
             Class<?> targetClass,
             CoercionAction actionIfBlankNotAllowed)
     {

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<OptionalLong>
 {
@@ -16,6 +17,9 @@ public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<Opt
     public OptionalLongDeserializer() {
         super(OptionalLong.class, OptionalLong.empty());
     }
+
+    @Override
+    public LogicalType logicalType() { return LogicalType.Integer; }
 
     @Override
     public OptionalLong deserialize(JsonParser p, DeserializationContext ctxt) throws IOException

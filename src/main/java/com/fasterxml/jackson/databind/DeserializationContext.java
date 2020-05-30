@@ -15,6 +15,9 @@ import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.databind.cfg.CoercionTargetType;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
@@ -545,6 +548,49 @@ public abstract class DeserializationContext
      */
     public boolean hasExplicitDeserializerFor(Class<?> valueType) {
         return _factory.hasExplicitDeserializerFor(this, valueType);
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, CoercionConfig access (2.12+)
+    /**********************************************************************
+     */
+
+    /**
+     * General-purpose accessor for finding what to do when specified coercion
+     * from shape that is now always allowed to be coerced from is requested.
+     *
+     * @param targetType Logical target type of coercion
+     * @param targetClass Physical target type of coercion
+     * @param inputShape Input shape to coerce from
+     *
+     * @return CoercionAction configured for specific coercion
+     */
+    public CoercionAction findCoercionAction(CoercionTargetType targetType,
+            Class<?> targetClass, CoercionInputShape inputShape)
+    {
+        return _config.findCoercionAction(targetType, targetClass, inputShape);
+    }
+
+    /**
+     * More specialized accessor called in case of input being a blank
+     * String (one consisting of only white space characters with length of at least one).
+     * Will basically first determine if "blank as empty" is allowed: if not,
+     * returns {@code actionIfBlankNotAllowed}, otherwise returns action for
+     * {@link CoercionInputShape#EmptyString}.
+     *
+     * @param targetType Logical target type of coercion
+     * @param targetClass Physical target type of coercion
+     * @param actionIfBlankNotAllowed Return value to use in case "blanks as empty"
+     *    is not allowed
+     *
+     * @return CoercionAction configured for specified coercion from blank string
+     */
+    public CoercionAction findCoercionFromBlankString(CoercionTargetType targetType,
+            Class<?> targetClass,
+            CoercionAction actionIfBlankNotAllowed)
+    {
+        return _config.findCoercionFromBlankString(targetType, targetClass, actionIfBlankNotAllowed);
     }
 
     /*

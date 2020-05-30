@@ -632,6 +632,31 @@ public final class DeserializationConfig
     public CoercionAction findCoercionAction(CoercionTargetType targetType,
             Class<?> targetClass, CoercionInputShape inputShape)
     {
-        return null;
+        return _coercionConfigs.findCoercion(this,
+                targetType, targetClass, inputShape);
+    }
+
+    /**
+     * More specialized accessor called in case of input being a blank
+     * String (one consisting of only white space characters with length of at least one).
+     * Will basically first determine if "blank as empty" is allowed: if not,
+     * returns {@code actionIfBlankNotAllowed}, otherwise returns action for
+     * {@link CoercionInputShape#EmptyString}.
+     *
+     * @param targetType Logical target type of coercion
+     * @param targetClass Physical target type of coercion
+     * @param actionIfBlankNotAllowed Return value to use in case "blanks as empty"
+     *    is not allowed
+     *
+     * @return CoercionAction configured for specified coercion from blank string
+     *
+     * @since 2.12
+     */
+    public CoercionAction findCoercionFromBlankString(CoercionTargetType targetType,
+            Class<?> targetClass,
+            CoercionAction actionIfBlankNotAllowed)
+    {
+        return _coercionConfigs.findCoercionFromBlankString(this,
+                targetType, targetClass, actionIfBlankNotAllowed);
     }
 }

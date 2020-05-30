@@ -166,7 +166,7 @@ public class CoercionConfigs
             Class<?> targetClass, CoercionInputShape inputShape)
     {
         // First, see if there is exact match for physical type
-        if (_perClassCoercions != null) {
+        if ((_perClassCoercions != null) && (targetClass != null)) {
             MutableCoercionConfig cc = _perClassCoercions.get(targetClass);
             if (cc != null) {
                 CoercionAction act = cc.findAction(inputShape);
@@ -177,7 +177,7 @@ public class CoercionConfigs
         }
 
         // If not, maybe by logical type
-        if (_perTypeCoercions != null) {
+        if ((_perTypeCoercions != null) && (targetType != null)) {
             MutableCoercionConfig cc = _perTypeCoercions[targetType.ordinal()];
             if (cc != null) {
                 CoercionAction act = cc.findAction(inputShape);
@@ -241,7 +241,7 @@ public class CoercionConfigs
         CoercionAction action = null;
 
         // First, see if there is exact match for physical type
-        if (_perClassCoercions != null) {
+        if ((_perClassCoercions != null) && (targetClass != null)) {
             MutableCoercionConfig cc = _perClassCoercions.get(targetClass);
             if (cc != null) {
                 acceptBlankAsEmpty = cc.getAcceptBlankAsEmpty();
@@ -250,7 +250,7 @@ public class CoercionConfigs
         }
 
         // If not, maybe by logical type
-        if (_perTypeCoercions != null) {
+        if ((_perTypeCoercions != null) && (targetType != null)) {
             MutableCoercionConfig cc = _perTypeCoercions[targetType.ordinal()];
             if (cc != null) {
                 if (acceptBlankAsEmpty == null) {

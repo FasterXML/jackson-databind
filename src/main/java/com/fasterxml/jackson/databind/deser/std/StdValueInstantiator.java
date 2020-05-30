@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionTargetType;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
@@ -240,7 +241,7 @@ public class StdValueInstantiator
     /* Public API implementation; instantiation from JSON Object
     /**********************************************************************
      */
-    
+
     @Override
     public Object createUsingDefault(DeserializationContext ctxt) throws IOException
     {
@@ -310,7 +311,7 @@ public class StdValueInstantiator
                     value, rewrapCtorProblem(ctxt, t));
         }
     }
-    
+
     @Override
     public Object createFromInt(DeserializationContext ctxt, int value) throws IOException
     {
@@ -381,7 +382,7 @@ public class StdValueInstantiator
                     arg, rewrapCtorProblem(ctxt, t0));
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Extended API: configuration mutators, accessors
@@ -406,6 +407,17 @@ public class StdValueInstantiator
     @Override
     public AnnotatedWithParams getWithArgsCreator() {
         return _withArgsCreator;
+    }
+
+    /*
+    /**********************************************************************
+    /* Overrides
+    /**********************************************************************
+     */
+
+    @Override
+    protected CoercionTargetType _coercionTargetType() {
+        return null;
     }
 
     /*

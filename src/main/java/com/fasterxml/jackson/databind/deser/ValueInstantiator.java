@@ -348,7 +348,6 @@ public abstract class ValueInstantiator
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
             throws IOException
     {
-
         // also, empty Strings might be accepted as null Object...
         if (value.length() == 0) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
@@ -360,8 +359,8 @@ public abstract class ValueInstantiator
          *   systems that expect conversions in some cases, let's just add a minimal
          *   patch (note: same could conceivably be used for numbers too).
          */
-        // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
         if (canCreateFromBoolean()) {
+            // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
             if (ctxt.findCoercionAction(CoercionTargetType.Boolean, Boolean.class,
                     CoercionInputShape.String) == CoercionAction.TryConvert) {
                 String str = value.trim();

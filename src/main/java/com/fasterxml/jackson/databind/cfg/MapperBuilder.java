@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.type.CoercionTargetType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;

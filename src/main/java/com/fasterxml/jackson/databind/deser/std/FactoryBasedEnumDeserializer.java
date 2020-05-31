@@ -110,6 +110,9 @@ class FactoryBasedEnumDeserializer
     public boolean isCachable() { return true; }
 
     @Override
+    public ValueInstantiator getValueInstantiator() { return _valueInstantiator; }
+
+    @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         Object value;

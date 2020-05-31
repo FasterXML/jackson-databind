@@ -5,9 +5,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.NumberInput;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBase;
@@ -30,7 +32,8 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class StdDeserializer<T>
     extends JsonDeserializer<T>
-    implements java.io.Serializable
+    implements java.io.Serializable,
+        ValueInstantiator.Gettable // since 2.12
 {
     private static final long serialVersionUID = 1L;
 
@@ -91,7 +94,7 @@ public abstract class StdDeserializer<T>
 
     @Override
     public Class<?> handledType() { return _valueClass; }
-    
+
     /*
     /**********************************************************
     /* Extended API
@@ -128,6 +131,12 @@ public abstract class StdDeserializer<T>
         }
         return ctxt.constructType(_valueClass);
     }
+
+    /**
+     * @since 2.12
+     */
+    @Override // for ValueInstantiator.Gettable
+    public ValueInstantiator getValueInstantiator() { return null; }
 
     /**
      * Method that can be called to determine if given deserializer is the default

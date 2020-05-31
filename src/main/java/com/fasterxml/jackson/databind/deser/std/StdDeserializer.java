@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class StdDeserializer<T>
     extends JsonDeserializer<T>
+    implements ValueInstantiator.Gettable
 {
     /**
      * Bitmask that covers {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}
@@ -80,7 +81,7 @@ public abstract class StdDeserializer<T>
 
     @Override
     public Class<?> handledType() { return _valueClass; }
-    
+
     /*
     /**********************************************************************
     /* Extended API
@@ -111,6 +112,12 @@ public abstract class StdDeserializer<T>
         }
         return ctxt.constructType(_valueClass);
     }
+
+    /**
+     * @since 2.12
+     */
+    @Override // for ValueInstantiator.Gettable
+    public ValueInstantiator getValueInstantiator() { return null; }
 
     /**
      * Method that can be called to determine if given deserializer is the default

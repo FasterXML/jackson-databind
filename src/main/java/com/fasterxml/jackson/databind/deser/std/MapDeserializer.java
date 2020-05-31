@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
 /**
- * Basic serializer that can take JSON "Object" structure and
+ * Basic deserializer that can take JSON "Object" structure and
  * construct a {@link java.util.Map} instance, with typed contents.
  *<p>
  * Note: for untyped content (one indicated by passing Object.class

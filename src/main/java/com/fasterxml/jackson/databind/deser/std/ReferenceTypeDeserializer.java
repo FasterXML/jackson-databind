@@ -141,6 +141,9 @@ public abstract class ReferenceTypeDeserializer<T>
      */
 
     @Override
+    public ValueInstantiator getValueInstantiator() { return _valueInstantiator; }
+
+    @Override
     public JavaType getValueType() { return _fullType; }
 
     @Override // since 2.12

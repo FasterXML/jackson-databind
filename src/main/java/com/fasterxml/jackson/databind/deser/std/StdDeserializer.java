@@ -1233,6 +1233,22 @@ public abstract class StdDeserializer<T>
         return null;
     }
 
+    // @since 2.12
+    protected CoercionAction _findCoercionFromEmptyString(DeserializationContext ctxt) {
+        final Class<?> targetClass = handledType();
+        final LogicalType targetType = logicalType();
+
+        return ctxt.findCoercionAction(targetType, targetClass, CoercionInputShape.EmptyString);
+    }
+
+    // @since 2.12
+    protected CoercionAction _findCoercionFromBlankString(DeserializationContext ctxt) {
+        final Class<?> targetClass = handledType();
+        final LogicalType targetType = logicalType();
+
+        return ctxt.findCoercionFromBlankString(targetType, targetClass, CoercionAction.Fail);
+    }
+
     /*
     /**********************************************************
     /* Helper methods for sub-classes, problem reporting

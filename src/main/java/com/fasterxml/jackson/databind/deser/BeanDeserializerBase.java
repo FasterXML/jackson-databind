@@ -1370,7 +1370,7 @@ public abstract class BeanDeserializerBase
                 return bean;
             }
         }
-        return _valueInstantiator.createFromString(ctxt, p.getText());
+        return _deserializeFromString(p, ctxt);
     }
 
     /**

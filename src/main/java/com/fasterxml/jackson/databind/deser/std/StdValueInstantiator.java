@@ -301,15 +301,15 @@ public class StdValueInstantiator
     @Override
     public Object createFromString(DeserializationContext ctxt, String value) throws IOException
     {
-        if (_fromStringCreator == null) {
-            return _createFromStringFallbacks(ctxt, value);
+        if (_fromStringCreator != null) {
+            try {
+                return _fromStringCreator.call1(value);
+            } catch (Throwable t) {
+                return ctxt.handleInstantiationProblem(_fromStringCreator.getDeclaringClass(),
+                        value, rewrapCtorProblem(ctxt, t));
+            }
         }
-        try {
-            return _fromStringCreator.call1(value);
-        } catch (Throwable t) {
-            return ctxt.handleInstantiationProblem(_fromStringCreator.getDeclaringClass(),
-                    value, rewrapCtorProblem(ctxt, t));
-        }
+        return super.createFromString(ctxt, value);
     }
 
     @Override

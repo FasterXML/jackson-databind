@@ -253,9 +253,12 @@ public abstract class ValueInstantiator
     /* Instantiation methods for JSON scalar types (String, Number, Boolean)
     /**********************************************************************
      */
-    
+
     public Object createFromString(DeserializationContext ctxt, String value) throws IOException {
-        return _createFromStringFallbacks(ctxt, value);
+        return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),
+                "no String-argument constructor/factory method to deserialize from String value ('%s')",
+                value);
+
     }
 
     public Object createFromInt(DeserializationContext ctxt, int value) throws IOException {
@@ -336,37 +339,6 @@ public abstract class ValueInstantiator
     /* Helper methods
     /**********************************************************************
      */
-
-    protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
-            throws IOException
-    {
-        // also, empty Strings might be accepted as null Object...
-        if (value.length() == 0) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                return null;
-            }
-        }
-
-        // 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
-        //   systems that expect conversions in some cases, let's just add a minimal
-        //   patch (note: same could conceivably be used for numbers too).
-        if (canCreateFromBoolean()) {
-            // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
-            if (ctxt.findCoercionAction(LogicalType.Boolean, Boolean.class,
-                    CoercionInputShape.String) == CoercionAction.TryConvert) {
-                String str = value.trim();
-                if ("true".equals(str)) {
-                    return createFromBoolean(ctxt, true);
-                }
-                if ("false".equals(str)) {
-                    return createFromBoolean(ctxt, false);
-                }
-            }
-        }
-        return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),
-                "no String-argument constructor/factory method to deserialize from String value ('%s')",
-                value);
-    }
 
     // @since 2.12
     protected CoercionAction _findCoercionFromEmptyString(DeserializationContext ctxt) {

@@ -159,7 +159,10 @@ public class MapEntryDeserializer
     public JsonDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
-    
+
+    // 31-May-2020, tatu: Should probably define but we don't have it yet
+//    public ValueInstantiator getValueInstantiator() { }
+
     /*
     /**********************************************************
     /* JsonDeserializer API

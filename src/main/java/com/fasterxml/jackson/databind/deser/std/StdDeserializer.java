@@ -145,16 +145,109 @@ public abstract class StdDeserializer<T>
 
     /*
     /**********************************************************************
+    /* High-level handling of secondary input shapes (with
+    /* possible coercion)
+    /**********************************************************************
+     */
+
+    /**
+     * Helper method that allows easy support for array-related {@link DeserializationFeature}s
+     * `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT` and `UNWRAP_SINGLE_VALUE_ARRAYS`: checks for either
+     * empty array, or single-value array-wrapped value (respectively), and either reports
+     * an exception (if no match, or feature(s) not enabled), or returns appropriate
+     * result value.
+     *<p>
+     * This method should NOT be called if Array representation is explicitly supported
+     * for type: it should only be called in case it is otherwise unrecognized.
+     *<p>
+     * NOTE: in case of unwrapped single element, will handle actual decoding
+     * by calling {@link #_deserializeWrappedValue}, which by default calls
+     * {@link #deserialize(JsonParser, DeserializationContext)}.
+     */
+    protected T _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        JsonToken t;
+        if (ctxt.hasSomeOfFeatures(F_MASK_ACCEPT_ARRAYS)) {
+            t = p.nextToken();
+            if (t == JsonToken.END_ARRAY) {
+                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                    @SuppressWarnings("unchecked")
+                    T result = (T) getNullValue(ctxt);
+                    return result;
+                }
+            }
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                final T parsed = deserialize(p, ctxt);
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }
+                return parsed;
+            }
+        } else {
+            t = p.currentToken();
+        }
+        @SuppressWarnings("unchecked")
+        T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, null);
+        return result;
+    }
+
+    /**
+     * Helper method that may be used to support fallback for Empty String / Empty Array
+     * non-standard representations; usually for things serialized as JSON Objects.
+     */
+    @SuppressWarnings("unchecked")
+    protected T _deserializeFromEmpty(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        JsonToken t = p.currentToken();
+        if (t == JsonToken.START_ARRAY) {
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                t = p.nextToken();
+                if (t == JsonToken.END_ARRAY) {
+                    return null;
+                }
+                return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+            }
+        } else if (t == JsonToken.VALUE_STRING) {
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                String str = p.getText().trim();
+                if (str.isEmpty()) {
+                    return null;
+                }
+            }
+        }
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+    }
+
+    /**
+     * Helper called to support {@link DeserializationFeature#UNWRAP_SINGLE_VALUE_ARRAYS}:
+     * default implementation simply calls
+     * {@link #deserialize(JsonParser, DeserializationContext)},
+     * but handling may be overridden.
+     */
+    protected T _deserializeWrappedValue(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        // 23-Mar-2017, tatu: Let's specifically block recursive resolution to avoid
+        //   either supporting nested arrays, or to cause infinite looping.
+        if (p.hasToken(JsonToken.START_ARRAY)) {
+            String msg = String.format(
+"Cannot deserialize value of type %s out of %s token: nested Arrays not allowed with %s",
+                    ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
+                    "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+            @SuppressWarnings("unchecked")
+            T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
+            return result;
+        }
+        return (T) deserialize(p, ctxt);
+    }
+    
+    /*
+    /**********************************************************************
     /* Helper methods for sub-classes, parsing: while mostly
     /* useful for numeric types, can be also useful for dealing
     /* with things serialized as numbers (such as Dates).
     /**********************************************************************
      */
-
-    @Deprecated // since 2.11, use overloaded variant
-    protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return _parseBooleanPrimitive(ctxt, p, Boolean.TYPE);
-    }
 
     // @since 2.11
     protected final boolean _parseBooleanPrimitive(DeserializationContext ctxt,
@@ -594,47 +687,14 @@ public abstract class StdDeserializer<T>
     }
 
     /**
-     * Helper method that may be used to support fallback for Empty String / Empty Array
-     * non-standard representations; usually for things serialized as JSON Objects.
-     */
-    @SuppressWarnings("unchecked")
-    protected T _deserializeFromEmpty(JsonParser p, DeserializationContext ctxt)
-        throws IOException
-    {
-        JsonToken t = p.currentToken();
-        if (t == JsonToken.START_ARRAY) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                t = p.nextToken();
-                if (t == JsonToken.END_ARRAY) {
-                    return null;
-                }
-                return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-            }
-        } else if (t == JsonToken.VALUE_STRING) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                String str = p.getText().trim();
-                if (str.isEmpty()) {
-                    return null;
-                }
-            }
-        }
-        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-    }
-
-    /**
      * Helper method called to determine if we are seeing String value of
      * "null", and, further, that it should be coerced to null just like
      * null token.
-     *
-     * @since 2.3
      */
     protected boolean _hasTextualNull(String value) {
         return "null".equals(value);
     }
 
-    /**
-     * @since 2.9
-     */
     protected boolean _isEmptyOrTextualNull(String value) {
         return value.isEmpty() || "null".equals(value);
     }
@@ -651,77 +711,9 @@ public abstract class StdDeserializer<T>
 
     /*
     /**********************************************************************
-    /* Helper methods for sub-classes regarding decoding from alternate representations
-    /**********************************************************************
-     */
-
-    /**
-     * Helper method that allows easy support for array-related {@link DeserializationFeature}s
-     * `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT` and `UNWRAP_SINGLE_VALUE_ARRAYS`: checks for either
-     * empty array, or single-value array-wrapped value (respectively), and either reports
-     * an exception (if no match, or feature(s) not enabled), or returns appropriate
-     * result value.
-     *<p>
-     * This method should NOT be called if Array representation is explicitly supported
-     * for type: it should only be called in case it is otherwise unrecognized.
-     *<p>
-     * NOTE: in case of unwrapped single element, will handle actual decoding
-     * by calling {@link #_deserializeWrappedValue}, which by default calls
-     * {@link #deserialize(JsonParser, DeserializationContext)}.
-     */
-    protected T _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
-        JsonToken t;
-        if (ctxt.hasSomeOfFeatures(F_MASK_ACCEPT_ARRAYS)) {
-            t = p.nextToken();
-            if (t == JsonToken.END_ARRAY) {
-                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                    @SuppressWarnings("unchecked")
-                    T result = (T) getNullValue(ctxt);
-                    return result;
-                }
-            }
-            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                final T parsed = deserialize(p, ctxt);
-                if (p.nextToken() != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }
-                return parsed;
-            }
-        } else {
-            t = p.currentToken();
-        }
-        @SuppressWarnings("unchecked")
-        T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, null);
-        return result;
-    }
-
-    /**
-     * Helper called to support {@link DeserializationFeature#UNWRAP_SINGLE_VALUE_ARRAYS}:
-     * default implementation simply calls
-     * {@link #deserialize(JsonParser, DeserializationContext)},
-     * but handling may be overridden.
-     *
-     * @since 2.9
-     */
-    protected T _deserializeWrappedValue(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
-        // 23-Mar-2017, tatu: Let's specifically block recursive resolution to avoid
-        //   either supporting nested arrays, or to cause infinite looping.
-        if (p.hasToken(JsonToken.START_ARRAY)) {
-            String msg = String.format(
-"Cannot deserialize value of type %s out of %s token: nested Arrays not allowed with %s",
-                    ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
-                    "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
-            @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
-            return result;
-        }
-        return (T) deserialize(p, ctxt);
-    }
-
-    /*
-    /**********************************************************************
+=======
+    /****************************************************
+>>>>>>> 2.12
     /* Helper methods for sub-classes, coercions
     /**********************************************************************
      */

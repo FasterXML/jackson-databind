@@ -1461,7 +1461,7 @@ public abstract class BeanDeserializerBase
         return value;
     }
 
-    private final JsonDeserializer<Object> _delegateDeserializer() {
+    protected final JsonDeserializer<Object> _delegateDeserializer() {
         JsonDeserializer<Object> deser = _delegateDeserializer;
         if (deser == null) {
             deser = _arrayDelegateDeserializer;

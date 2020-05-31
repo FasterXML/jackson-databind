@@ -172,13 +172,10 @@ public class MapEntryDeserializer
     {
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
         JsonToken t = p.currentToken();
-        if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            // String may be ok however:
-            // slightly redundant (since String was passed above), but
-            return _deserializeFromEmpty(p, ctxt);
-        }
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
+        } else if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
+            return _deserializeFromEmpty(p, ctxt);
         }
         if (t != JsonToken.FIELD_NAME) {
             if (t == JsonToken.END_OBJECT) {

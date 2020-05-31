@@ -217,7 +217,11 @@ public class EnumMapDeserializer
         return _valueDeserializer;
     }
 
-    // Must override since we do not expose ValueInstantiator
+    @Override
+    public ValueInstantiator getValueInstantiator() {
+        return _valueInstantiator;
+    }
+
     @Override // since 2.9
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         return constructMap(ctxt);
@@ -248,7 +252,7 @@ public class EnumMapDeserializer
         }
         // (empty) String may be ok however; or single-String-arg ctor
         if (t == JsonToken.VALUE_STRING) {
-            return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
+            return _deserializeFromString(p, ctxt);
         }
         // Empty array, or single-value wrapped in array?
         if (t == JsonToken.START_ARRAY) {

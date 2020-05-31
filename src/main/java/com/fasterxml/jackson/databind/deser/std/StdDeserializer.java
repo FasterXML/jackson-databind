@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBase;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -239,6 +242,51 @@ public abstract class StdDeserializer<T>
             }
         }
         return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+    }
+
+    /**
+     * Helper method to call in case deserializer does not support native automatic
+     * use of incoming String values, but there may be standard coercions to consider.
+     *
+     * @since 2.12
+     */
+    @SuppressWarnings("unchecked")
+    protected T _deserializeFromString(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        final ValueInstantiator inst = getValueInstantiator();
+        final String value = p.getValueAsString();
+
+        if ((inst != null) && inst.canCreateFromString()) {
+            return (T) inst.createFromString(ctxt, value);
+        }
+
+        if (value.length() == 0) {
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                return null;
+            }
+        }
+        
+        /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
+         *   systems that expect conversions in some cases, let's just add a minimal
+         *   patch (note: same could conceivably be used for numbers too).
+         */
+        if ((inst != null) && inst.canCreateFromBoolean()) {
+            // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
+            if (ctxt.findCoercionAction(LogicalType.Boolean, Boolean.class,
+                    CoercionInputShape.String) == CoercionAction.TryConvert) {
+                String str = value.trim();
+                if ("true".equals(str)) {
+                    return (T) inst.createFromBoolean(ctxt, true);
+                }
+                if ("false".equals(str)) {
+                    return (T) inst.createFromBoolean(ctxt, false);
+                }
+            }
+        }
+        return (T) ctxt.handleMissingInstantiator(handledType(), inst, ctxt.getParser(),
+                "no String-argument constructor/factory method to deserialize from String value ('%s')",
+                value);
     }
 
     /**

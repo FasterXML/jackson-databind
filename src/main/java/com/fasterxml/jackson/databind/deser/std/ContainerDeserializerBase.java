@@ -126,14 +126,6 @@ public abstract class ContainerDeserializerBase<T>
      */
     public abstract JsonDeserializer<Object> getContentDeserializer();
 
-    /**
-     * @since 2.9
-     */
-    @Override
-    public ValueInstantiator getValueInstantiator() {
-        return null;
-    }
-
     @Override // since 2.9
     public AccessPattern getEmptyAccessPattern() {
         // 02-Feb-2017, tatu: Empty containers are usually constructed as needed

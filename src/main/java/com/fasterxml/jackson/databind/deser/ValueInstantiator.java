@@ -258,9 +258,12 @@ public abstract class ValueInstantiator
     /* (String, Number, Boolean)
     /**********************************************************
      */
-    
+
     public Object createFromString(DeserializationContext ctxt, String value) throws IOException {
-        return _createFromStringFallbacks(ctxt, value);
+        return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),
+                "no String-argument constructor/factory method to deserialize from String value ('%s')",
+                value);
+
     }
 
     public Object createFromInt(DeserializationContext ctxt, int value) throws IOException {
@@ -344,7 +347,9 @@ public abstract class ValueInstantiator
 
     /**
      * @since 2.4 (demoted from <code>StdValueInstantiator</code>)
+     * @deprecated Since 2.12 should not handle coercions here
      */
+    @Deprecated // since 2.12
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
             throws IOException
     {

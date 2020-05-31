@@ -247,10 +247,7 @@ _containerType,
         // there is also possibility of "auto-wrapping" of single-element arrays.
         // Hence we only accept empty String here.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            String str = p.getText();
-            if (str.length() == 0) {
-                return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
-            }
+            return _deserializeFromString(p, ctxt);
         }
         return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }

@@ -370,7 +370,7 @@ public class MapDeserializer
 
         // (empty) String may be ok however; or single-String-arg ctor
         if (t == JsonToken.VALUE_STRING) {
-            return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, p.getText());
+            return _deserializeFromString(p, ctxt);
         }
         // Empty array, or single-value wrapped in array?
         if (t == JsonToken.START_ARRAY) {

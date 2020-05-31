@@ -233,8 +233,11 @@ public class EnumMapDeserializer
         if (t == JsonToken.VALUE_STRING) {
             return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
         }
-        // slightly redundant (since String was passed above), but also handles empty array case:
-        return _deserializeFromEmpty(p, ctxt);
+        // Empty array, or single-value wrapped in array?
+        if (t == JsonToken.START_ARRAY) {
+            return _deserializeFromArray(p, ctxt);
+        }
+        return (EnumMap<?,?>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     @Override

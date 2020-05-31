@@ -369,8 +369,11 @@ public class MapDeserializer
         if (t == JsonToken.VALUE_STRING) {
             return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, p.getText());
         }
-        // slightly redundant (since String was passed above), but also handles empty array case:
-        return _deserializeFromEmpty(p, ctxt);
+        // Empty array, or single-value wrapped in array?
+        if (t == JsonToken.START_ARRAY) {
+            return _deserializeFromArray(p, ctxt);
+        }
+        return (Map<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     @SuppressWarnings("unchecked")

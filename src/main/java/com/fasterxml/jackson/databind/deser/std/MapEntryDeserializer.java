@@ -175,7 +175,11 @@ public class MapEntryDeserializer
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         } else if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            return _deserializeFromEmpty(p, ctxt);
+            // Empty array, or single-value wrapped in array?
+            if (t == JsonToken.START_ARRAY) {
+                return _deserializeFromArray(p, ctxt);
+            }
+            return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
         if (t != JsonToken.FIELD_NAME) {
             if (t == JsonToken.END_OBJECT) {

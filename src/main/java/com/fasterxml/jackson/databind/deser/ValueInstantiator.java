@@ -340,36 +340,6 @@ public abstract class ValueInstantiator
     /**********************************************************************
      */
 
-    // @since 2.12
-    protected CoercionAction _findCoercionFromEmptyString(DeserializationContext ctxt) {
-        // Since 2.12 we have checked CoercionConfigs for possibly allowing coercions
-        final Class<?> targetClass = getValueClass();
-        final LogicalType targetType = _coercionTargetType();
-
-        return ctxt.findCoercionAction(targetType, targetClass, CoercionInputShape.EmptyString);
-    }
-
-    // @since 2.12
-    protected CoercionAction _findCoercionFromBlankString(DeserializationContext ctxt) {
-        // Since 2.12 we have checked CoercionConfigs for possibly allowing coercions
-        final Class<?> targetClass = getValueClass();
-        final LogicalType targetType = _coercionTargetType();
-
-        return ctxt.findCoercionFromBlankString(targetType, targetClass, CoercionAction.Fail);
-    }
-
-    /**
-     * Overridable method for accessing logical target type of values this instantiator creates.
-     *
-     * @return Logical value type of values this instantiator creates, if known
-     *    ({@code null} otherwise)
-     *
-     * @since 2.12
-     */
-    protected LogicalType _coercionTargetType() {
-        return null;
-    }
-
     /*
     /**********************************************************************
     /* Std method overrides for testing

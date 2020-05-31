@@ -170,10 +170,9 @@ public abstract class StdDeserializer<T>
     }
 
     /*
-    /**********************************************************
-    /* High-level handling of secondary input shapes (with
-    /* possible coercion)
-    /**********************************************************
+    /**********************************************************************
+    /* High-level handling of secondary input shapes (with possible coercion)
+    /**********************************************************************
      */
 
     /**
@@ -203,7 +202,7 @@ public abstract class StdDeserializer<T>
                 }
             }
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                final T parsed = deserialize(p, ctxt);
+                final T parsed = _deserializeWrappedValue(p, ctxt);
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
                 }
@@ -222,22 +221,24 @@ public abstract class StdDeserializer<T>
      * non-standard representations; usually for things serialized as JSON Objects.
      *
      * @since 2.5
+     *
+     * @deprecated Since 2.12
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     protected T _deserializeFromEmpty(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = p.currentToken();
-        if (t == JsonToken.START_ARRAY) {
+        if (p.hasToken(JsonToken.START_ARRAY)) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                t = p.nextToken();
+                JsonToken t = p.nextToken();
                 if (t == JsonToken.END_ARRAY) {
                     return null;
                 }
-                return (T) ctxt.handleUnexpectedToken(handledType(), p);
+                return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
         }
-        return (T) ctxt.handleUnexpectedToken(handledType(), p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /**

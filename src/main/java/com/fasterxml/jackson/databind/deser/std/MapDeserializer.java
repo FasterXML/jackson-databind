@@ -357,21 +357,23 @@ public class MapDeserializer
         }
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
         JsonToken t = p.currentToken();
-        if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            // (empty) String may be ok however; or single-String-arg ctor
-            if (t == JsonToken.VALUE_STRING) {
-                return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, p.getText());
+        if ((t == JsonToken.START_OBJECT) || (t == JsonToken.FIELD_NAME)
+                || (t == JsonToken.END_OBJECT)) {
+            final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
+            if (_standardStringKey) {
+                _readAndBindStringKeyMap(p, ctxt, result);
+                return result;
             }
-            // slightly redundant (since String was passed above), but also handles empty array case:
-            return _deserializeFromEmpty(p, ctxt);
-        }
-        final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
-        if (_standardStringKey) {
-            _readAndBindStringKeyMap(p, ctxt, result);
+            _readAndBind(p, ctxt, result);
             return result;
         }
-        _readAndBind(p, ctxt, result);
-        return result;
+
+        // (empty) String may be ok however; or single-String-arg ctor
+        if (t == JsonToken.VALUE_STRING) {
+            return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, p.getText());
+        }
+        // slightly redundant (since String was passed above), but also handles empty array case:
+        return _deserializeFromEmpty(p, ctxt);
     }
 
     @SuppressWarnings("unchecked")

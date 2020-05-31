@@ -242,16 +242,16 @@ public class EnumMapDeserializer
         }
         // Ok: must point to START_OBJECT
         JsonToken t = p.currentToken();
-        if ((t != JsonToken.START_OBJECT) && (t != JsonToken.FIELD_NAME) && (t != JsonToken.END_OBJECT)) {
-            // (empty) String may be ok however; or single-String-arg ctor
-            if (t == JsonToken.VALUE_STRING) {
-                return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
-            }
-            // slightly redundant (since String was passed above), but also handles empty array case:
-            return _deserializeFromEmpty(p, ctxt);
+        if ((t == JsonToken.START_OBJECT) || (t == JsonToken.FIELD_NAME)
+                || (t == JsonToken.END_OBJECT)) {
+            return deserialize(p, ctxt, constructMap(ctxt));
         }
-        EnumMap result = constructMap(ctxt);
-        return deserialize(p, ctxt, result);
+        // (empty) String may be ok however; or single-String-arg ctor
+        if (t == JsonToken.VALUE_STRING) {
+            return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
+        }
+        // slightly redundant (since String was passed above), but also handles empty array case:
+        return _deserializeFromEmpty(p, ctxt);
     }
 
     @Override

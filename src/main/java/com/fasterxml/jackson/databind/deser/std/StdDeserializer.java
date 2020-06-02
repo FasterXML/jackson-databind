@@ -245,7 +245,7 @@ public abstract class StdDeserializer<T>
                 return null;
             }
         }
-        
+
         /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
          *   systems that expect conversions in some cases, let's just add a minimal
          *   patch (note: same could conceivably be used for numbers too).
@@ -700,12 +700,11 @@ public abstract class StdDeserializer<T>
      */
     protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.currentToken();
-        if (t == JsonToken.VALUE_STRING) {
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
             return p.getText();
         }
         // 07-Nov-2019, tatu: [databind#2535] Need to support byte[]->Base64 same as `StringDeserializer`
-        if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
+        if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
             Object ob = p.getEmbeddedObject();
             if (ob instanceof byte[]) {
                 return ctxt.getBase64Variant().encode((byte[]) ob, false);
@@ -716,18 +715,6 @@ public abstract class StdDeserializer<T>
             // otherwise, try conversion using toString()...
             return ob.toString();
         }
-
-        // 07-Nov-2016, tatu: Caller should take care of unwrapping and there shouldn't
-        //    be need for extra pass here...
-        /*
-        // [databind#381]
-        if ((t == JsonToken.START_ARRAY) && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final String parsed = _parseString(p, ctxt);
-            _verifyEndArrayForSingle(p, ctxt);
-            return parsed;            
-        }
-        */
         String value = p.getValueAsString();
         if (value != null) {
             return value;
@@ -757,6 +744,18 @@ public abstract class StdDeserializer<T>
     }
 
     protected final boolean _isNaN(String text) { return "NaN".equals(text); }
+
+    // @since 2.12
+    protected final static boolean _isBlank(String text)
+    {
+        final int len = text.length();
+        for (int i = 0; i < len; ++i) {
+            if (text.charAt(i) > 0x0020) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /*
     /**********************************************************************

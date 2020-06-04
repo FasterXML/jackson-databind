@@ -908,6 +908,15 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
+     * Method for changing target-type-independent coercion configuration defaults.
+     */
+    public B withCoercionConfigDefaults(Consumer<MutableCoercionConfig> handler) {
+        handler.accept(_coercionConfigs.defaultCoercions());
+        return _this();
+    }
+
+    // 03-Jun-2020, tatu: Needed at least for snapshotting, if not for other usage...
+    /**
      * Method for changing various aspects of configuration overrides.
      */
     public B withAllCoercionConfigs(Consumer<CoercionConfigs> handler) {

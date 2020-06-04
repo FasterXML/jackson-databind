@@ -74,67 +74,72 @@ public class BeanCoercionTest extends BaseMapTest
 
     public void testPOJOFromEmptyLogicalTypeConfig() throws Exception
     {
+        _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY);
+    }
+    
+    private void _testPOJOFromEmptyLogicalTypeConfig(final CoercionInputShape shape, final String json)
+            throws Exception
+    {
         ObjectMapper mapper;
 
         // First, coerce to null
         mapper = jsonMapperBuilder()
                 .withCoercionConfig(LogicalType.POJO,
-                        cfg -> cfg.setCoercion(CoercionInputShape.EmptyString,
-                                CoercionAction.AsNull))
+                        cfg -> cfg.setCoercion(shape, CoercionAction.AsNull))
                 .build();
-        assertNull(_verifyFromEmptyPass(mapper, JSON_EMPTY));
+        assertNull(_verifyFromEmptyPass(mapper, json));
 
         // Then coerce as empty
         mapper = jsonMapperBuilder()
                 .withCoercionConfig(LogicalType.POJO,
-                        cfg -> cfg.setCoercion(CoercionInputShape.EmptyString,
-                                CoercionAction.AsEmpty))
+                        cfg -> cfg.setCoercion(shape, CoercionAction.AsEmpty))
                 .build();
-        Bean b = _verifyFromEmptyPass(mapper, JSON_EMPTY);
+        Bean b = _verifyFromEmptyPass(mapper, json);
         assertNotNull(b);
 
         // But also make fail again with 2-level settings
         mapper = jsonMapperBuilder()
-                .withCoercionConfigDefaults(h -> h.setCoercion(CoercionInputShape.EmptyString,
+                .withCoercionConfigDefaults(h -> h.setCoercion(shape,
                         CoercionAction.AsNull))
                 .withCoercionConfig(LogicalType.POJO,
-                        cfg -> cfg.setCoercion(CoercionInputShape.EmptyString,
-                                CoercionAction.Fail))
+                        cfg -> cfg.setCoercion(shape, CoercionAction.Fail))
                 .build();
-        _verifyFromEmptyFail(mapper, JSON_EMPTY);
+        _verifyFromEmptyFail(mapper, json);
     }
 
     public void testPOJOFromEmptyPhysicalTypeConfig() throws Exception
+    {
+        _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY);
+    }
+
+    private void _testPOJOFromEmptyPhysicalTypeConfig(final CoercionInputShape shape, final String json)
+            throws Exception
     {
         ObjectMapper mapper;
 
         // First, coerce to null
         mapper = jsonMapperBuilder()
                 .withCoercionConfig(Bean.class,
-                        cfg -> cfg.setCoercion(CoercionInputShape.EmptyString,
-                                CoercionAction.AsNull))
+                        cfg -> cfg.setCoercion(shape, CoercionAction.AsNull))
                 .build();
-        assertNull(_verifyFromEmptyPass(mapper, JSON_EMPTY));
+        assertNull(_verifyFromEmptyPass(mapper, json));
 
         // Then coerce as empty
         mapper = jsonMapperBuilder()
                 .withCoercionConfig(Bean.class,
-                        cfg -> cfg.setCoercion(CoercionInputShape.EmptyString,
-                                CoercionAction.AsEmpty))
+                        cfg -> cfg.setCoercion(shape, CoercionAction.AsEmpty))
                 .build();
-        Bean b = _verifyFromEmptyPass(mapper, JSON_EMPTY);
+        Bean b = _verifyFromEmptyPass(mapper, json);
         assertNotNull(b);
 
         // But also make fail again with 2-level settings, with physical having precedence
         mapper = jsonMapperBuilder()
                 .withCoercionConfig(LogicalType.POJO,
-                        cfg -> cfg.setCoercion(CoercionInputShape.EmptyString,
-                                CoercionAction.AsEmpty))
+                        cfg -> cfg.setCoercion(shape, CoercionAction.AsEmpty))
                 .withCoercionConfig(Bean.class,
-                        cfg -> cfg.setCoercion(CoercionInputShape.EmptyString,
-                                CoercionAction.Fail))
+                        cfg -> cfg.setCoercion(shape, CoercionAction.Fail))
                 .build();
-        _verifyFromEmptyFail(mapper, JSON_EMPTY);
+        _verifyFromEmptyFail(mapper, json);
     }
 
     private Bean _verifyFromEmptyPass(ObjectMapper m, String json) throws Exception {

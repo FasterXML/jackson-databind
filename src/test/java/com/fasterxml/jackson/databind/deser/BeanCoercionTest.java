@@ -14,7 +14,7 @@ public class BeanCoercionTest extends BaseMapTest
 
     /*
     /********************************************************
-    /* Test methods
+    /* Test methods, from empty String
     /********************************************************
      */
 
@@ -40,6 +40,45 @@ public class BeanCoercionTest extends BaseMapTest
     {
         _testPOJOFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_EMPTY);
     }
+    
+    public void testPOJOFromEmptyLogicalTypeConfig() throws Exception
+    {
+        _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY);
+    }
+
+    public void testPOJOFromEmptyPhysicalTypeConfig() throws Exception
+    {
+        _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY);
+    }
+
+    /*
+    /********************************************************
+    /* Test methods, from blank String
+    /********************************************************
+     */
+
+    /*
+    public void testPOJOFromBlankGlobalConfig() throws Exception
+    {
+        _testPOJOFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_BLANK);
+    }
+    
+    public void testPOJOFromBlankLogicalTypeConfig() throws Exception
+    {
+        _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK);
+    }
+
+    public void testPOJOFromBlankPhysicalTypeConfig() throws Exception
+    {
+        _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK);
+    }
+    */
+
+    /*
+    /********************************************************
+    /* Second-level helper methods
+    /********************************************************
+     */
 
     private void _testPOJOFromEmptyGlobalConfig(final CoercionInputShape shape, final String json)
             throws Exception
@@ -72,11 +111,6 @@ public class BeanCoercionTest extends BaseMapTest
         assertNull(_verifyFromEmptyPass(mapper, JSON_EMPTY));
     }
 
-    public void testPOJOFromEmptyLogicalTypeConfig() throws Exception
-    {
-        _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY);
-    }
-    
     private void _testPOJOFromEmptyLogicalTypeConfig(final CoercionInputShape shape, final String json)
             throws Exception
     {
@@ -105,11 +139,6 @@ public class BeanCoercionTest extends BaseMapTest
                         cfg -> cfg.setCoercion(shape, CoercionAction.Fail))
                 .build();
         _verifyFromEmptyFail(mapper, json);
-    }
-
-    public void testPOJOFromEmptyPhysicalTypeConfig() throws Exception
-    {
-        _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY);
     }
 
     private void _testPOJOFromEmptyPhysicalTypeConfig(final CoercionInputShape shape, final String json)

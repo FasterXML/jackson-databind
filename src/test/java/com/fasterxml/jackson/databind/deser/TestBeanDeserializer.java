@@ -378,7 +378,8 @@ public class TestBeanDeserializer extends BaseMapTest
             MAPPER.readValue(quote(""), Bean.class);
             fail("Should not accept Empty String for POJO");
         } catch (JsonProcessingException e) {
-            verifyException(e, "from String value");
+            verifyException(e, "Cannot deserialize value of type ");
+            verifyException(e, " from empty String ");
             assertValidLocation(e.getLocation());
         }
         // should be ok to enable dynamically

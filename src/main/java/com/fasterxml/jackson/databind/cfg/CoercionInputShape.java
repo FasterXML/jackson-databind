@@ -10,6 +10,9 @@ import com.fasterxml.jackson.databind.type.LogicalType;
  * Contains both physical input shapes (which match one of
  * {@link com.fasterxml.jackson.core.JsonToken} types) and a few
  * logical input shapes ("empty" variants).
+ *<p>
+ * Note that {@code null} input shape is explicitly not included as
+ * its configuration is distinct from other types.
  *
  * @since 2.12
  */

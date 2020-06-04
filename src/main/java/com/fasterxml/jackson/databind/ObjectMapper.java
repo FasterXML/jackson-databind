@@ -2034,7 +2034,7 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Configuration, basic type handling
+    /* Configuration, config, coercion overrides
     /**********************************************************
      */
 
@@ -2057,6 +2057,45 @@ public class ObjectMapper
      */
     public MutableConfigOverride configOverride(Class<?> type) {
         return _configOverrides.findOrCreateOverride(type);
+    }
+
+    /*
+    /**********************************************************
+    /* Configuration, coercion config (2.x only)
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for {@link MutableCoercionConfig} through which
+     * default (fallback) coercion configurations can be changed.
+     * Note that such settings are only applied if more specific
+     * (by logical and physical type) configuration have
+     * not been defined.
+     *
+     * @since 2.12
+     */
+    public MutableCoercionConfig coercionConfigDefaults() {
+        return _coercionConfigs.defaultCoercions();
+    }
+
+    /**
+     * Accessor for {@link MutableCoercionConfig} through which
+     * coercion configuration for specified logical target type can be set.
+     *
+     * @since 2.12
+     */
+    public MutableCoercionConfig coercionConfigFor(LogicalType logicalType) {
+        return _coercionConfigs.findOrCreateCoercion(logicalType);
+    }
+
+    /**
+     * Accessor for {@link MutableCoercionConfig} through which
+     * coercion configuration for specified physical target type can be set.
+     *
+     * @since 2.12
+     */
+    public MutableCoercionConfig coercionConfigFor(Class<?> physicalType) {
+        return _coercionConfigs.findOrCreateCoercion(physicalType);
     }
 
     /*

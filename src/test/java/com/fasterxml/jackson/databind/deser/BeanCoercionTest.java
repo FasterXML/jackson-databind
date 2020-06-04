@@ -20,39 +20,50 @@ public class BeanCoercionTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testPOJOFromEmptyString() throws Exception
+    private final String JSON_EMPTY = quote("");
+
+    private final String JSON_BLANK = quote("    ");
+
+    public void testPOJOFromEmptyStringLegacy() throws Exception
     {
         // first, verify default settings which do not accept empty String:
         assertFalse(MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT));
 
         // should be ok to enable dynamically
         _verifyFromEmptyPass(MAPPER.reader()
-                .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT));
+                .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT),
+                JSON_EMPTY);
 
     }
 
     public void testPOJOFromEmptyGlobalConfig() throws Exception
     {
+        _testPOJOFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_EMPTY);
+    }
+
+    private void _testPOJOFromEmptyGlobalConfig(final CoercionInputShape shape, final String json)
+            throws Exception
+    {
         ObjectMapper mapper;
 
         // First, coerce to null
         mapper = newJsonMapper();
-        mapper.coercionConfigDefaults().setCoercion(CoercionInputShape.EmptyString,
+        mapper.coercionConfigDefaults().setCoercion(shape,
                 CoercionAction.AsNull);
-        assertNull(_verifyFromEmptyPass(mapper));
+        assertNull(_verifyFromEmptyPass(mapper, JSON_EMPTY));
 
         // Then coerce as empty
         mapper = newJsonMapper();
-        mapper.coercionConfigDefaults().setCoercion(CoercionInputShape.EmptyString,
+        mapper.coercionConfigDefaults().setCoercion(shape,
                 CoercionAction.AsEmpty);
-        Bean b = _verifyFromEmptyPass(mapper);
+        Bean b = _verifyFromEmptyPass(mapper, JSON_EMPTY);
         assertNotNull(b);
 
         // and finally, "try convert", which aliases to 'null'
         mapper = newJsonMapper();
-        mapper.coercionConfigDefaults().setCoercion(CoercionInputShape.EmptyString,
+        mapper.coercionConfigDefaults().setCoercion(shape,
                 CoercionAction.TryConvert);
-        assertNull(_verifyFromEmptyPass(mapper));
+        assertNull(_verifyFromEmptyPass(mapper, JSON_EMPTY));
     }
 
     public void testPOJOFromEmptyLogicalTypeConfig() throws Exception
@@ -63,13 +74,13 @@ public class BeanCoercionTest extends BaseMapTest
         mapper = newJsonMapper();
         mapper.coercionConfigFor(LogicalType.POJO).setCoercion(CoercionInputShape.EmptyString,
                 CoercionAction.AsNull);
-        assertNull(_verifyFromEmptyPass(mapper));
+        assertNull(_verifyFromEmptyPass(mapper, JSON_EMPTY));
 
         // Then coerce as empty
         mapper = newJsonMapper();
         mapper.coercionConfigFor(LogicalType.POJO).setCoercion(CoercionInputShape.EmptyString,
                 CoercionAction.AsEmpty);
-        Bean b = _verifyFromEmptyPass(mapper);
+        Bean b = _verifyFromEmptyPass(mapper, JSON_EMPTY);
         assertNotNull(b);
 
         // But also make fail again with 2-level settings
@@ -78,7 +89,7 @@ public class BeanCoercionTest extends BaseMapTest
                 CoercionAction.AsNull);
         mapper.coercionConfigFor(LogicalType.POJO).setCoercion(CoercionInputShape.EmptyString,
                 CoercionAction.Fail);
-        _verifyFromEmptyFail(mapper);
+        _verifyFromEmptyFail(mapper, quote(""));
     }
 
     public void testPOJOFromEmptyPhysicalTypeConfig() throws Exception
@@ -89,13 +100,13 @@ public class BeanCoercionTest extends BaseMapTest
         mapper = newJsonMapper();
         mapper.coercionConfigFor(Bean.class).setCoercion(CoercionInputShape.EmptyString,
                 CoercionAction.AsNull);
-        assertNull(_verifyFromEmptyPass(mapper));
+        assertNull(_verifyFromEmptyPass(mapper, JSON_EMPTY));
 
         // Then coerce as empty
         mapper = newJsonMapper();
         mapper.coercionConfigFor(Bean.class).setCoercion(CoercionInputShape.EmptyString,
                 CoercionAction.AsEmpty);
-        Bean b = _verifyFromEmptyPass(mapper);
+        Bean b = _verifyFromEmptyPass(mapper, JSON_EMPTY);
         assertNotNull(b);
 
         // But also make fail again with 2-level settings, with physical having precedence
@@ -104,24 +115,24 @@ public class BeanCoercionTest extends BaseMapTest
                 CoercionAction.AsEmpty);
         mapper.coercionConfigFor(Bean.class).setCoercion(CoercionInputShape.EmptyString,
                 CoercionAction.Fail);
-        _verifyFromEmptyFail(mapper);
+        _verifyFromEmptyFail(mapper, quote(""));
     }
 
-    private Bean _verifyFromEmptyPass(ObjectMapper m) throws Exception {
-        return _verifyFromEmptyPass(m.reader());
+    private Bean _verifyFromEmptyPass(ObjectMapper m, String json) throws Exception {
+        return _verifyFromEmptyPass(m.reader(), json);
     }
 
-    private Bean _verifyFromEmptyPass(ObjectReader r) throws Exception
+    private Bean _verifyFromEmptyPass(ObjectReader r, String json) throws Exception
     {
         return r.forType(Bean.class)
-                .readValue(quote(""));
+                .readValue(json);
     }
 
-    private void _verifyFromEmptyFail(ObjectMapper m) throws Exception
+    private void _verifyFromEmptyFail(ObjectMapper m, String json) throws Exception
     {
         try {
-            m.readValue(quote(""), Bean.class);
-            fail("Should not accept Empty String for POJO with passed settings");
+            m.readValue(json, Bean.class);
+            fail("Should not accept Empty/Blank String for POJO with passed settings");
         } catch (JsonProcessingException e) {
             _verifyFailMessage(e);
         }

@@ -235,33 +235,30 @@ public abstract class StdDeserializer<T>
     {
         final ValueInstantiator inst = getValueInstantiator();
         final String value = p.getValueAsString();
+        final Class<?> rawTargetType = handledType();
 
         if ((inst != null) && inst.canCreateFromString()) {
             return (T) inst.createFromString(ctxt, value);
         }
 
         if (value.length() == 0) {
-            /*
-            final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+            final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
                     CoercionInputShape.EmptyString);
             switch (act) {
             case AsEmpty:
                 return (T) getEmptyValue(ctxt);
+            case TryConvert:
+                // hmmmh... empty or null, typically? Assume "as null" flor now
             case AsNull:
                 return null;
             case Fail:
                 break;
-            case TryConvert:
-                break;
-            default:
-                break;
-            
             }
-            */
-            
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                return null;
-            }
+            // 03-Jun-2020, tatu: Should ideally call `handleUnexpectedToken()` instead, but
+            //    since this call was already made, use it.
+            return (T) ctxt.handleMissingInstantiator(rawTargetType, inst, ctxt.getParser(),
+"Cannot deserialize value of type %s from empty String (\"\") (no String-argument constructor/factory method; coercion not enabled)",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)));
         }
 
         // 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
@@ -280,7 +277,7 @@ public abstract class StdDeserializer<T>
                 }
             }
         }
-        return (T) ctxt.handleMissingInstantiator(handledType(), inst, ctxt.getParser(),
+        return (T) ctxt.handleMissingInstantiator(rawTargetType, inst, ctxt.getParser(),
                 "no String-argument constructor/factory method to deserialize from String value ('%s')",
                 value);
     }

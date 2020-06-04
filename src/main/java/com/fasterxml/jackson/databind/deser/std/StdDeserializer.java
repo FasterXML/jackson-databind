@@ -244,21 +244,14 @@ public abstract class StdDeserializer<T>
         if (value.length() == 0) {
             final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
                     CoercionInputShape.EmptyString);
-            switch (act) {
-            case AsEmpty:
-                return (T) getEmptyValue(ctxt);
-            case TryConvert:
-                // hmmmh... empty or null, typically? Assume "as null" flor now
-            case AsNull:
-                return null;
-            case Fail:
-                break;
-            }
-            // 03-Jun-2020, tatu: Should ideally call `handleUnexpectedToken()` instead, but
-            //    since this call was already made, use it.
-            return (T) ctxt.handleMissingInstantiator(rawTargetType, inst, ctxt.getParser(),
-"Cannot deserialize value of type %s from empty String (\"\") (no String-argument constructor/factory method; coercion not enabled)",
-                    ClassUtil.getTypeDescription(getValueType(ctxt)));
+            return (T) _deserializeFromEmptyString(p, ctxt, act, rawTargetType,
+                    "empty String (\"\")");
+        }
+        if (_isBlank(value)) {
+            final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), rawTargetType,
+                    CoercionAction.Fail);
+            return (T) _deserializeFromEmptyString(p, ctxt, act, rawTargetType,
+                    "blank String (all whitespace)");
         }
 
         // 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
@@ -280,6 +273,28 @@ public abstract class StdDeserializer<T>
         return (T) ctxt.handleMissingInstantiator(rawTargetType, inst, ctxt.getParser(),
                 "no String-argument constructor/factory method to deserialize from String value ('%s')",
                 value);
+    }
+
+    protected Object _deserializeFromEmptyString(JsonParser p, DeserializationContext ctxt,
+            CoercionAction act, Class<?> rawTargetType, String desc) throws IOException
+    {
+        switch (act) {
+        case AsEmpty:
+            return getEmptyValue(ctxt);
+        case TryConvert:
+            // hmmmh... empty or null, typically? Assume "as null" for now
+        case AsNull:
+            return null;
+        case Fail:
+            break;
+        }
+        final ValueInstantiator inst = getValueInstantiator();
+
+        // 03-Jun-2020, tatu: Should ideally call `handleUnexpectedToken()` instead, but
+        //    since this call was already made, use it.
+        return ctxt.handleMissingInstantiator(rawTargetType, inst, p,
+"Cannot deserialize value of type %s from %s (no String-argument constructor/factory method; coercion not enabled)",
+                ClassUtil.getTypeDescription(getValueType(ctxt)), desc);
     }
 
     /**

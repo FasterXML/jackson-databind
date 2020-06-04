@@ -262,15 +262,32 @@ public abstract class StdDeserializer<T>
         }
 
         if (value.length() == 0) {
+            /*
+            final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                    CoercionInputShape.EmptyString);
+            switch (act) {
+            case AsEmpty:
+                return (T) getEmptyValue(ctxt);
+            case AsNull:
+                return null;
+            case Fail:
+                break;
+            case TryConvert:
+                break;
+            default:
+                break;
+            
+            }
+            */
+            
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return null;
             }
         }
 
-        /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
-         *   systems that expect conversions in some cases, let's just add a minimal
-         *   patch (note: same could conceivably be used for numbers too).
-         */
+        // 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
+        //   systems that expect conversions in some cases, let's just add a minimal
+        //   patch (note: same could conceivably be used for numbers too).
         if ((inst != null) && inst.canCreateFromBoolean()) {
             // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
             if (ctxt.findCoercionAction(LogicalType.Boolean, Boolean.class,

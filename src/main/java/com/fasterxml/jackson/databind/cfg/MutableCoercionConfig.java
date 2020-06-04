@@ -22,4 +22,15 @@ public class MutableCoercionConfig
     public MutableCoercionConfig copy() {
         return new MutableCoercionConfig(this);
     }
+
+    public MutableCoercionConfig setCoercion(CoercionInputShape shape,
+            CoercionAction action) {
+        _coercionsByShape[shape.ordinal()] = action;
+        return this;
+    }
+
+    public MutableCoercionConfig setAcceptBlankAsEmpty(Boolean state) {
+        _acceptBlankAsEmpty = state;
+        return this;
+    }
 }

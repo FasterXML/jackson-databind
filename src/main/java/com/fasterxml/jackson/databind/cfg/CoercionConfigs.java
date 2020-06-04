@@ -24,14 +24,11 @@ public class CoercionConfigs
     protected CoercionAction _defaultAction;
 
     /**
-     * Global default setting for whether blank (all-white space) String is
-     * accepted as "empty" (zero-length) for purposes of coercions.
-     *<p>
-     * Default value is {@code false}, meaning blank Strings are NOT considered
-     * "empty" for coercion purposes.
+     * Default coercion definitions used if no overrides found
+     * by logical or physical type.
      */
-    protected boolean _acceptBlankAsEmpty;
-
+    protected final MutableCoercionConfig _defaultCoercions;
+    
     /**
      * Coercion definitions by logical type ({@link LogicalType})
      */
@@ -49,15 +46,17 @@ public class CoercionConfigs
      */
 
     public CoercionConfigs() {
-        this(CoercionAction.TryConvert, false, null, null);
+        this(CoercionAction.TryConvert, new MutableCoercionConfig(),
+                null, null);
     }
 
     protected CoercionConfigs(CoercionAction defaultAction,
-            boolean acceptBlankAsEmpty,
+            MutableCoercionConfig defaultCoercions,
             MutableCoercionConfig[] perTypeCoercions,
-            Map<Class<?>, MutableCoercionConfig> perClassCoercions) {
+            Map<Class<?>, MutableCoercionConfig> perClassCoercions)
+    {
+        _defaultCoercions = defaultCoercions;
         _defaultAction = defaultAction;
-        _acceptBlankAsEmpty = acceptBlankAsEmpty;
         _perTypeCoercions = perTypeCoercions;
         _perClassCoercions = perClassCoercions;
     }
@@ -90,7 +89,7 @@ public class CoercionConfigs
                 newPerClass.put(entry.getKey(), entry.getValue().copy());
             }
         }
-        return new CoercionConfigs(_defaultAction, _acceptBlankAsEmpty,
+        return new CoercionConfigs(_defaultAction, _defaultCoercions.copy(),
                 newPerType, newPerClass);
     }
 
@@ -107,8 +106,8 @@ public class CoercionConfigs
     /**********************************************************************
      */
 
-    public void setAcceptBlankAsEmpty(boolean state) {
-        _acceptBlankAsEmpty = state;
+    public MutableCoercionConfig defaultCoercions() {
+        return _defaultCoercions;
     }
 
     /*
@@ -183,6 +182,12 @@ public class CoercionConfigs
                     return act;
                 }
             }
+        }
+
+        // Barring that, default coercion for input shape?
+        CoercionAction act = _defaultCoercions.findAction(inputShape);
+        if (act != null) {
+            return act;
         }
 
         // Otherwise there are some legacy features that can provide answer
@@ -260,12 +265,16 @@ public class CoercionConfigs
             }
         }
 
+        // Barring that, default coercion for input shape?
         if (acceptBlankAsEmpty == null) {
-            acceptBlankAsEmpty = _acceptBlankAsEmpty;
+            acceptBlankAsEmpty = _defaultCoercions.getAcceptBlankAsEmpty();
+        }
+        if (action == null) {
+            action = _defaultCoercions.findAction(CoercionInputShape.EmptyString);
         }
 
         // First: if using blank as empty is no-go, return what caller specified
-        if (!acceptBlankAsEmpty.booleanValue()) {
+        if (!Boolean.TRUE.equals(acceptBlankAsEmpty)) {
             return actionIfBlankNotAllowed;
         }
 

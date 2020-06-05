@@ -281,11 +281,10 @@ public class CoercionConfigs
             return actionIfBlankNotAllowed;
         }
 
-        // Otherwise, if specific action specified, return that
+        // Otherwise, if action found, return that
         if (action != null) {
-            return null;
+            return action;
         }
-
         // If not, one specific legacy setting to consider...
         return config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT) ?
                     CoercionAction.AsNull : CoercionAction.Fail;

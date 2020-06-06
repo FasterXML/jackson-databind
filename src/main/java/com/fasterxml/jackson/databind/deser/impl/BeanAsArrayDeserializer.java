@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -429,7 +430,8 @@ public class BeanAsArrayDeserializer
                         ctxt.reportBadDefinition(_beanType, String.format(
                                 "Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: "
                                 +"nominal type %s, actual type %s",
-                                _beanType.getRawClass().getName(), bean.getClass().getName()));
+                                ClassUtil.getTypeDescription(_beanType),
+                                ClassUtil.getClassDescription(bean)));
                     }
                 }
                 continue;
@@ -465,7 +467,7 @@ public class BeanAsArrayDeserializer
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p,
                 "Cannot deserialize a POJO (of type %s) from non-Array representation (token: %s): "
                 +"type/property designed to be serialized as JSON Array",
-                _beanType.getRawClass().getName(),
+                ClassUtil.getTypeDescription(_beanType),
                 p.currentToken());
         // in future, may allow use of "standard" POJO serialization as well; if so, do:
         //return _delegate.deserialize(p, ctxt);

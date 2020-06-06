@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 public class BeanAsArrayBuilderDeserializer
@@ -309,7 +310,8 @@ public class BeanAsArrayBuilderDeserializer
                          */
                         return ctxt.reportBadDefinition(_beanType, String.format(
 "Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
-                                _beanType.getRawClass().getName(), builder.getClass().getName()));
+                                ClassUtil.getTypeDescription(_beanType),
+                                builder.getClass().getName()));
                     }
                 }
                 continue;

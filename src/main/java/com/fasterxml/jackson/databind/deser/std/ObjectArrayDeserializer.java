@@ -335,7 +335,7 @@ public class ObjectArrayDeserializer
                     && _elementClass == Byte.class) {
                 return deserializeFromBase64(p, ctxt);
             }
-            return (Object[]) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
+            return (Object[]) ctxt.handleUnexpectedToken(_containerType, p);
         }
 
         Object value;

@@ -12,17 +12,17 @@ public class BeanCoercionTest extends BaseMapTest
         public String a;
     }
 
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final String JSON_EMPTY = quote("");
+    private final String JSON_BLANK = quote("    ");
+
     /*
     /********************************************************
     /* Test methods, from empty String
     /********************************************************
      */
-
-    private final ObjectMapper MAPPER = newJsonMapper();
-
-    private final String JSON_EMPTY = quote("");
-
-    private final String JSON_BLANK = quote("    ");
 
     public void testPOJOFromEmptyStringLegacy() throws Exception
     {

@@ -203,11 +203,8 @@ public abstract class PrimitiveArrayDeserializers<T>
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // Empty String can become null...
-        if (p.hasToken(JsonToken.VALUE_STRING)
-                && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-            if (p.getText().length() == 0) {
-                return null;
-            }
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
+            return _deserializeFromString(p, ctxt);
         }
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
                 ((_unwrapSingle == null) &&

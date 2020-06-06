@@ -306,12 +306,8 @@ public final class StringArrayDeserializer
                     : _parseString(p, ctxt);
             return new String[] { value };
         }
-        if (p.hasToken(JsonToken.VALUE_STRING)
-                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-            String str = p.getText();
-            if (str.length() == 0) {
-                return null;
-            }
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
+            return _deserializeFromString(p, ctxt);
         }
         return (String[]) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

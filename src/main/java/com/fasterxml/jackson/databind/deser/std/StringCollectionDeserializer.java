@@ -277,6 +277,9 @@ public final class StringCollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
+                return _deserializeFromString(p, ctxt);
+            }
             return (Collection<String>) ctxt.handleUnexpectedToken(_containerType, p);
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved

@@ -255,8 +255,7 @@ public class NumberDeserializers
             }
             // And finally, let's allow Strings to be converted too
             if (t == JsonToken.VALUE_STRING) {
-                final String text = p.getText();
-
+                String text = p.getText();
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (Boolean) getNullValue(ctxt);
@@ -264,6 +263,7 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Boolean) getEmptyValue(ctxt);
                 }
+                text = text.trim();
                 // [databind#422]: Allow aliases
                 if ("true".equals(text) || "True".equals(text)) {
                     return Boolean.TRUE;
@@ -316,7 +316,7 @@ public class NumberDeserializers
         {
             JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-                final String text = p.getText();
+                String text = p.getText();
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (Byte) getNullValue(ctxt);
@@ -324,6 +324,7 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Byte) getEmptyValue(ctxt);
                 }
+                text = text.trim();
                 if (_hasTextualNull(text)) {
                     return (Byte) _coerceTextualNull(ctxt, _primitive);
                 }
@@ -391,7 +392,7 @@ public class NumberDeserializers
                 return p.getShortValue();
             }
             if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-                final String text = p.getText();
+                String text = p.getText();
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (Short) getNullValue(ctxt);
@@ -399,6 +400,7 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Short) getEmptyValue(ctxt);
                 }
+                text = text.trim();
                 if (_hasTextualNull(text)) {
                     return (Short) _coerceTextualNull(ctxt, _primitive);
                 }
@@ -462,7 +464,7 @@ public class NumberDeserializers
                 break;
             case JsonTokenId.ID_STRING: // this is the usual type
 
-                final String text = p.getText();
+                String text = p.getText();
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (Character) getNullValue(ctxt);
@@ -470,6 +472,7 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Character) getEmptyValue(ctxt);
                 }
+                text = text.trim();
                 if (_hasTextualNull(text)) {
                     return (Character) _coerceTextualNull(ctxt, _primitive);
                 }
@@ -537,7 +540,7 @@ public class NumberDeserializers
                 }
                 return Integer.valueOf(p.getValueAsInt());
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
-                final String text = p.getText();
+                String text = p.getText();
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (Integer) getNullValue(ctxt);
@@ -545,6 +548,7 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Integer) getEmptyValue(ctxt);
                 }
+                text = text.trim();
                 if (_hasTextualNull(text)) {
                     return (Integer) _coerceTextualNull(ctxt, _primitive);
                 }
@@ -611,7 +615,7 @@ public class NumberDeserializers
                 }
                 return p.getValueAsLong();
             case JsonTokenId.ID_STRING:
-                final String text = p.getText();
+                String text = p.getText();
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (Long) getNullValue(ctxt);
@@ -619,6 +623,7 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Long) getEmptyValue(ctxt);
                 }
+                text = text.trim();
                 if (_hasTextualNull(text)) {
                     return (Long) _coerceTextualNull(ctxt, _primitive);
                 }
@@ -669,7 +674,7 @@ public class NumberDeserializers
             }
             // And finally, let's allow Strings to be converted too
             if (t == JsonToken.VALUE_STRING) {
-                final String text = p.getText();
+                String text = p.getText();
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (Float) getNullValue(ctxt);
@@ -677,6 +682,7 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Float) getEmptyValue(ctxt);
                 }
+                text = text.trim();
                 if (_hasTextualNull(text)) {
                     return (Float) _coerceTextualNull(ctxt, _primitive);
                 }
@@ -748,7 +754,7 @@ public class NumberDeserializers
                 return p.getDoubleValue();
             }
             if (t == JsonToken.VALUE_STRING) {
-                final String text = p.getText();
+                String text = p.getText();
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (Double) getNullValue(ctxt);
@@ -756,6 +762,7 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (Double) getEmptyValue(ctxt);
                 }
+                text = text.trim();
                 if (_hasTextualNull(text)) {
                     return (Double) _coerceTextualNull(ctxt, _primitive);
                 }
@@ -840,14 +847,18 @@ public class NumberDeserializers
                 return p.getNumberValue();
 
             case JsonTokenId.ID_STRING:
-                /* Textual values are more difficult... not parsing itself, but figuring
-                 * out 'minimal' type to use 
-                 */
-                String text = p.getText().trim();
-                if ((text.length() == 0)) {
-                    // note: no need to call `coerce` as this is never primitive
+                // Textual values are more difficult... not parsing itself, but figuring
+                // out 'minimal' type to use 
+
+                String text = p.getText();
+                CoercionAction act = _checkFromStringCoercion(ctxt, text);
+                if (act == CoercionAction.AsNull) {
                     return getNullValue(ctxt);
                 }
+                if (act == CoercionAction.AsEmpty) {
+                    return getEmptyValue(ctxt);
+                }
+                text = text.trim();
                 if (_hasTextualNull(text)) {
                     // note: no need to call `coerce` as this is never primitive
                     return getNullValue(ctxt);
@@ -861,7 +872,6 @@ public class NumberDeserializers
                 if (_isNaN(text)) {
                     return Double.NaN;
                 }
-                _verifyStringForScalarCoercion(ctxt, text);
                 try {
                     if (!_isIntNumber(text)) {
                         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -914,8 +924,7 @@ public class NumberDeserializers
 
     /*
     /**********************************************************
-    /* And then bit more complicated (but non-structured) number
-    /* types
+    /* And then bit more complicated (but non-structured) number types
     /**********************************************************
      */
 
@@ -963,13 +972,19 @@ public class NumberDeserializers
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
-                String text = p.getText().trim();
-                // note: no need to call `coerce` as this is never primitive
-                if (_isEmptyOrTextualNull(text)) {
-                    _verifyNullForScalarCoercion(ctxt, text);
+                String text = p.getText();
+                CoercionAction act = _checkFromStringCoercion(ctxt, text);
+                if (act == CoercionAction.AsNull) {
                     return getNullValue(ctxt);
                 }
-                _verifyStringForScalarCoercion(ctxt, text);
+                if (act == CoercionAction.AsEmpty) {
+                    return (BigInteger) getEmptyValue(ctxt);
+                }
+                text = text.trim();
+                if (_hasTextualNull(text)) {
+                    // note: no need to call `coerce` as this is never primitive
+                    return getNullValue(ctxt);
+                }
                 try {
                     return new BigInteger(text);
                 } catch (IllegalArgumentException iae) { }
@@ -1009,13 +1024,19 @@ public class NumberDeserializers
             case JsonTokenId.ID_NUMBER_FLOAT:
                 return p.getDecimalValue();
             case JsonTokenId.ID_STRING:
-                String text = p.getText().trim();
-                // note: no need to call `coerce` as this is never primitive
-                if (_isEmptyOrTextualNull(text)) {
-                    _verifyNullForScalarCoercion(ctxt, text);
+                String text = p.getText();
+                CoercionAction act = _checkFromStringCoercion(ctxt, text);
+                if (act == CoercionAction.AsNull) {
                     return getNullValue(ctxt);
                 }
-                _verifyStringForScalarCoercion(ctxt, text);
+                if (act == CoercionAction.AsEmpty) {
+                    return (BigDecimal) getEmptyValue(ctxt);
+                }
+                text = text.trim();
+                if (_hasTextualNull(text)) {
+                    // note: no need to call `coerce` as this is never primitive
+                    return getNullValue(ctxt);
+                }
                 try {
                     return new BigDecimal(text);
                 } catch (IllegalArgumentException iae) { }

@@ -199,24 +199,36 @@ public class CoercionConfigs
             return config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT) ?
                     CoercionAction.AsNull : CoercionAction.Fail;
         }
-        if (inputShape == CoercionInputShape.EmptyString) {
-            // Default for setting is false
-            return config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT) ?
-                    CoercionAction.AsNull : CoercionAction.Fail;
-        }
         if ((inputShape == CoercionInputShape.Float)
                 && (targetType == LogicalType.Integer)) {
-            // Default for setting is true
+            // Default for setting in 2.x is true
             return config.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT) ?
                     CoercionAction.TryConvert : CoercionAction.Fail;
         }
 
-        if ((targetType == LogicalType.Float)
+        final boolean classicScalar = (targetType == LogicalType.Float)
                 || (targetType == LogicalType.Integer)
-                || (targetType == LogicalType.Boolean)) {
+                || (targetType == LogicalType.Boolean);
+
+        if (classicScalar) {
+            // Default for setting in 2.x is true
             if (!config.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
                 return CoercionAction.Fail;
             }
+        }
+
+        if (inputShape == CoercionInputShape.EmptyString) {
+            // Since coercion of scalar must be enabled (see check above), allow empty-string
+            // coercions by default even without this setting
+            if (classicScalar
+                    // not sure if this should be included "classic scalar", but it not, applies here:
+                    || (targetType == LogicalType.OtherScalar)
+                    // Default for setting is false
+                    || config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                return CoercionAction.AsNull;
+            }
+            // But block from allowing structured types like POJOs, Maps etc
+            return CoercionAction.Fail;
         }
 
         // and all else failing, return default

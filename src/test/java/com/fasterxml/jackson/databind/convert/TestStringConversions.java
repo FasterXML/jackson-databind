@@ -33,7 +33,7 @@ public class TestStringConversions
     public void testSimple()
     {
         assertEquals(Boolean.TRUE, MAPPER.convertValue("true", Boolean.class));
-        assertEquals(Integer.valueOf(-3), MAPPER.convertValue("  -3 ", Integer.class));
+        assertEquals(Integer.valueOf(-3), MAPPER.convertValue("-3", Integer.class));
         assertEquals(Long.valueOf(77), MAPPER.convertValue("77", Long.class));
 
         int[] ints = { 1, 2, 3 };

@@ -788,9 +788,63 @@ public abstract class StdDeserializer<T>
 
     /*
     /**********************************************************************
-    /* Helper methods for sub-classes, coercions
+    /* Helper methods for sub-classes, new (2.12+)
     /**********************************************************************
      */
+
+    /**
+     * @since 2.12
+     */
+    protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value)
+        throws JsonMappingException
+    {
+        final Class<?> rawTargetType = handledType();
+        final CoercionAction act;
+
+        if (value.length() == 0) {
+            act = ctxt.findCoercionAction(logicalType(), rawTargetType,
+                    CoercionInputShape.EmptyString);
+            if (act == CoercionAction.Fail) {
+                ctxt.reportInputMismatch(this,
+"Cannot coerce empty String (\"\") %s (but could if enabling coercion using `CoercionConfig`)",
+_coercedTypeDesc());
+            }
+        } else if (_isBlank(value)) {
+            act = ctxt.findCoercionFromBlankString(logicalType(), rawTargetType, CoercionAction.Fail);
+            if (act == CoercionAction.Fail) {
+                ctxt.reportInputMismatch(this,
+"Cannot coerce blank String (all whitespace) %s (but could if enabling coercion using `CoercionConfig`)",
+_coercedTypeDesc());
+            }
+        } else {
+            act = ctxt.findCoercionAction(logicalType(), rawTargetType, CoercionInputShape.String);
+            if (act == CoercionAction.Fail) {
+                ctxt.reportInputMismatch(this,
+"Cannot coerce String value (\"%s\") %s (but might if enabling coercion using `CoercionConfig`)",
+value, _coercedTypeDesc());
+            }
+        }
+        return act;
+    }
+
+    /*
+    /****************************************************
+    /* Helper methods for sub-classes, coercions, older (pre-2.12)
+    /****************************************************
+     */
+
+    /**
+     * @deprecated Since 2.12 use {@link #_checkFromStringCoercion} instead
+     */
+    @Deprecated
+    protected void _verifyStringForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
+    {
+        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        if (!ctxt.isEnabled(feat)) {
+            ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" %s (enable `%s.%s` to allow)",
+                str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
+        }
+    }
 
     protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
             String type) throws IOException
@@ -922,16 +976,6 @@ public abstract class StdDeserializer<T>
     }
 
     // @since 2.9
-    protected void _verifyStringForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
-    {
-        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-        if (!ctxt.isEnabled(feat)) {
-            ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" %s (enable `%s.%s` to allow)",
-                str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
-        }
-    }
-
-    // @since 2.9
     protected void _verifyNumberForScalarCoercion(DeserializationContext ctxt, JsonParser p) throws IOException
     {
         MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
@@ -966,18 +1010,17 @@ public abstract class StdDeserializer<T>
         JavaType t = getValueType();
         if ((t != null) && !t.isPrimitive()) {
             structured = (t.isContainerType() || t.isReferenceType());
-            // 21-Jul-2017, tatu: Probably want to change this (JavaType.toString() not very good) but...
-            typeDesc = "'"+t.toString()+"'";
+            typeDesc = ClassUtil.getTypeDescription(t);
         } else {
             Class<?> cls = handledType();
             structured = cls.isArray() || Collection.class.isAssignableFrom(cls)
                 || Map.class.isAssignableFrom(cls);
-            typeDesc = ClassUtil.nameOf(cls);
+            typeDesc = ClassUtil.getClassDescription(cls);
         }
         if (structured) {
-            return "as content of type "+typeDesc;
+            return "to element of "+typeDesc;
         }
-        return "for type "+typeDesc;
+        return "to "+typeDesc+" value";
     }
 
     /*

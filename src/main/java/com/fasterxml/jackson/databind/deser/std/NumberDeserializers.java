@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 
@@ -233,18 +234,21 @@ public class NumberDeserializers
             }
             // And finally, let's allow Strings to be converted too
             if (t == JsonToken.VALUE_STRING) {
-                String text = p.getText().trim();
+                String text = p.getText();
+
+                CoercionAction act = _checkFromStringCoercion(ctxt, text);
+                if (act == CoercionAction.AsNull) {
+                    return (Boolean) getNullValue(ctxt);
+                }
+                if (act == CoercionAction.AsEmpty) {
+                    return (Boolean) getEmptyValue(ctxt);
+                }
                 // [databind#422]: Allow aliases
                 if ("true".equals(text) || "True".equals(text)) {
-                    _verifyStringForScalarCoercion(ctxt, text);
                     return Boolean.TRUE;
                 }
                 if ("false".equals(text) || "False".equals(text)) {
-                    _verifyStringForScalarCoercion(ctxt, text);
                     return Boolean.FALSE;
-                }
-                if (text.length() == 0) {
-                    return (Boolean) _coerceEmptyString(ctxt, _primitive);
                 }
                 if (_hasTextualNull(text)) {
                     return (Boolean) _coerceTextualNull(ctxt, _primitive);

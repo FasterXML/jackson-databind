@@ -683,10 +683,9 @@ public class JDKScalarsTest
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         try {
             reader.readValue(aposToQuotes("{'"+propName+"':''}"));
-            fail("Expected failure for boolean + empty String");
+            fail("Expected failure for '"+propName+"' + empty String");
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot coerce empty String (\"\")");
-            verifyException(e, "to Null value");
         }
     }
     
@@ -848,7 +847,7 @@ public class JDKScalarsTest
             fail("Should not pass");
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot coerce `null`");
-            verifyException(e, "as content of type "+SIMPLE_NAME);
+            verifyException(e, "to element of "+SIMPLE_NAME);
         }
         
         if (testEmptyString) {
@@ -861,7 +860,7 @@ public class JDKScalarsTest
                 fail("Should not pass");
             } catch (JsonMappingException e) {
                 verifyException(e, "Cannot coerce empty String (\"\")");
-                verifyException(e, "as content of type "+SIMPLE_NAME);
+                verifyException(e, "to element of "+SIMPLE_NAME);
             }
         }
     }

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  *<p>
  * NOTE: although it is not expected that sub-types should need to
  * override {@link #setupModule(SetupContext)} method, if they choose
- * to do so they MUST call <code>super.setupModule(context);</code>
+ * to do so they MUST call {@code super.setupModule(context);}
  * to ensure that registration works as expected.
  *<p>
  * WARNING: when registering {@link JsonSerializer}s and {@link JsonDeserializer}s,

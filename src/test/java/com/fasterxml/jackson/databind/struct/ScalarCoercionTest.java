@@ -100,7 +100,6 @@ public class ScalarCoercionTest extends BaseMapTest
             fail("Should have failed for "+type);
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce empty String");
-            verifyException(e, "Null value for");
         }
     }
 
@@ -143,10 +142,14 @@ public class ScalarCoercionTest extends BaseMapTest
         _verifyCoerceSuccess(quote("123.0"), BigDecimal.class, new BigDecimal("123.0"));
     }
 
-    public void testStringCoercionFail() throws Exception
+    public void testStringCoercionFailBoolean() throws Exception
     {
         _verifyRootStringCoerceFail("true", Boolean.TYPE);
         _verifyRootStringCoerceFail("true", Boolean.class);
+    }
+
+    public void testStringCoercionFailInteger() throws Exception
+    {
         _verifyRootStringCoerceFail("123", Byte.TYPE);
         _verifyRootStringCoerceFail("123", Byte.class);
         _verifyRootStringCoerceFail("123", Short.TYPE);
@@ -155,6 +158,10 @@ public class ScalarCoercionTest extends BaseMapTest
         _verifyRootStringCoerceFail("123", Integer.class);
         _verifyRootStringCoerceFail("123", Long.TYPE);
         _verifyRootStringCoerceFail("123", Long.class);
+    }
+
+    public void testStringCoercionFailFloat() throws Exception
+    {
         _verifyRootStringCoerceFail("123.5", Float.TYPE);
         _verifyRootStringCoerceFail("123.5", Float.class);
         _verifyRootStringCoerceFail("123.5", Double.TYPE);
@@ -209,7 +216,7 @@ public class ScalarCoercionTest extends BaseMapTest
             fail("Should not have allowed coercion");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce ");
-            verifyException(e, " for type `");
+            verifyException(e, " to `");
             verifyException(e, "enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow");
         }
     }
@@ -238,7 +245,6 @@ public class ScalarCoercionTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce ");
             verifyException(e, " for type `");
-            verifyException(e, "enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow");
 
             assertNotNull(e.getProcessor());
             assertSame(p, e.getProcessor());
@@ -274,8 +280,7 @@ public class ScalarCoercionTest extends BaseMapTest
             JsonToken tokenType, String tokenValue) throws IOException
     {
         verifyException(e, "Cannot coerce ");
-        verifyException(e, " for type `");
-        verifyException(e, "enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow");
+        verifyException(e, " to `");
 
         JsonParser p = (JsonParser) e.getProcessor();
 

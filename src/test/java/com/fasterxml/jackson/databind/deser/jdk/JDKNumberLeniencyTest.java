@@ -32,7 +32,7 @@ public class JDKNumberLeniencyTest extends BaseMapTest
             fail("Should not allow read in strict mode");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce");
-            verifyException(e, "for type `java.lang.Boolean`");
+            verifyException(e, "to `java.lang.Boolean` value");
         }
     }
 }

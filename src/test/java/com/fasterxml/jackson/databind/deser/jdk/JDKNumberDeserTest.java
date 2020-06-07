@@ -138,7 +138,7 @@ public class JDKNumberDeserTest extends BaseMapTest
             noCoerceMapper.readValue(NULL_JSON, Integer.TYPE);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot coerce String \"null\"");
+            verifyException(e, "Cannot coerce String value");
         }
     }
     

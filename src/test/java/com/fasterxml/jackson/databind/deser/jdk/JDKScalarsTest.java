@@ -557,7 +557,7 @@ public class JDKScalarsTest
                 .readValue("\"\"");
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot coerce empty String");
+            verifyException(e, "Cannot map `null` into type ");
         }
     }
 
@@ -715,7 +715,7 @@ public class JDKScalarsTest
             reader.readValue(aposToQuotes("{'"+propName+"':''}"));
             fail("Expected failure for '"+propName+"' + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Cannot coerce empty String");
+            verifyException(e, "Cannot map `null` into type");
             verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
         }
     }

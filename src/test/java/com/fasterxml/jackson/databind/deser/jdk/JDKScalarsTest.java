@@ -680,6 +680,32 @@ public class JDKScalarsTest
         assertEquals(0.0, bean.doubleValue);
     }
 
+    // for [databind#403]
+    public void testEmptyStringFailForBooleanPrimitive() throws IOException
+    {
+        final ObjectReader reader = MAPPER
+                .readerFor(PrimitivesBean.class)
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+        try {
+            reader.readValue(aposToQuotes("{'booleanValue':''}"));
+            fail("Expected failure for boolean + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Cannot map `null` into type");
+            verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
+        }
+    }
+
+    public void testEmptyStringFailForPrimitives() throws IOException
+    {
+        _verifyEmptyStringFailForPrimitives("byteValue");
+        _verifyEmptyStringFailForPrimitives("charValue");
+        _verifyEmptyStringFailForPrimitives("shortValue");
+        _verifyEmptyStringFailForPrimitives("intValue");
+        _verifyEmptyStringFailForPrimitives("longValue");
+        _verifyEmptyStringFailForPrimitives("floatValue");
+        _verifyEmptyStringFailForPrimitives("doubleValue");
+    }
+
     private void _verifyEmptyStringFailForPrimitives(String propName) throws IOException
     {
         final ObjectReader reader = MAPPER
@@ -689,21 +715,9 @@ public class JDKScalarsTest
             reader.readValue(aposToQuotes("{'"+propName+"':''}"));
             fail("Expected failure for '"+propName+"' + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Cannot coerce empty String (\"\")");
+            verifyException(e, "Cannot coerce empty String");
+            verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
         }
-    }
-    
-    // for [databind#403]
-    public void testEmptyStringFailForPrimitives() throws IOException
-    {
-        _verifyEmptyStringFailForPrimitives("booleanValue");
-        _verifyEmptyStringFailForPrimitives("byteValue");
-        _verifyEmptyStringFailForPrimitives("charValue");
-        _verifyEmptyStringFailForPrimitives("shortValue");
-        _verifyEmptyStringFailForPrimitives("intValue");
-        _verifyEmptyStringFailForPrimitives("longValue");
-        _verifyEmptyStringFailForPrimitives("floatValue");
-        _verifyEmptyStringFailForPrimitives("doubleValue");
     }
 
     /*

@@ -885,6 +885,30 @@ value, _coercedTypeDesc());
         }
     }
 
+    /**
+     * Method called when JSON String with value "" (that is, zero length) is encountered.
+     *
+     * @deprecated Since 2.12
+     */
+    @Deprecated
+    protected Object _coerceEmptyString(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
+    {
+        Enum<?> feat;
+        boolean enable;
+
+        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+            enable = true;
+        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
+            enable = false;
+        } else {
+            return getNullValue(ctxt);
+        }
+        _reportFailedNullCoerce(ctxt, enable, feat, "empty String (\"\")");
+        return null;
+    }
+
     protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
             String type) throws IOException
     {
@@ -950,29 +974,6 @@ value, _coercedTypeDesc());
             return getNullValue(ctxt);
         }
         _reportFailedNullCoerce(ctxt, enable, feat, "String \"null\"");
-        return null;
-    }
-
-    /**
-     * Method called when JSON String with value "" (that is, zero length) is encountered.
-     *
-     * @since 2.9
-     */
-    protected Object _coerceEmptyString(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
-    {
-        Enum<?> feat;
-        boolean enable;
-
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-            enable = true;
-        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
-            enable = false;
-        } else {
-            return getNullValue(ctxt);
-        }
-        _reportFailedNullCoerce(ctxt, enable, feat, "empty String (\"\")");
         return null;
     }
 

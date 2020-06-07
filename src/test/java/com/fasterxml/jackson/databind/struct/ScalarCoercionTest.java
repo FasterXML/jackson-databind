@@ -244,7 +244,8 @@ public class ScalarCoercionTest extends BaseMapTest
             fail("Should not have allowed coercion");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce ");
-            verifyException(e, " for type `");
+            verifyException(e, " to `");
+            verifyException(e, "` value");
 
             assertNotNull(e.getProcessor());
             assertSame(p, e.getProcessor());

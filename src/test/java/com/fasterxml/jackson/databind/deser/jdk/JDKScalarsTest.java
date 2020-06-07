@@ -621,13 +621,15 @@ public class JDKScalarsTest
      */
 
     // by default, should return nulls, n'est pas?
-    public void testEmptyStringForWrappers() throws IOException
+    public void testEmptyStringForBooleanWrapper() throws IOException
     {
-        WrappersBean bean;
-
-        bean = MAPPER.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
+        WrappersBean bean = MAPPER.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
         assertNull(bean.booleanValue);
-        bean = MAPPER.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
+    }
+
+    public void testEmptyStringForIntegerWrappers() throws IOException
+    {
+        WrappersBean bean = MAPPER.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
         assertNull(bean.byteValue);
 
         // char/Character is different... not sure if this should work or not:
@@ -640,18 +642,25 @@ public class JDKScalarsTest
         assertNull(bean.intValue);
         bean = MAPPER.readValue("{\"longValue\":\"\"}", WrappersBean.class);
         assertNull(bean.longValue);
-        bean = MAPPER.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
+    }
+
+    public void testEmptyStringForFloatWrappers() throws IOException
+    {
+        WrappersBean bean = MAPPER.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
         assertNull(bean.floatValue);
         bean = MAPPER.readValue("{\"doubleValue\":\"\"}", WrappersBean.class);
         assertNull(bean.doubleValue);
     }
 
-    public void testEmptyStringForPrimitives() throws IOException
+    public void testEmptyStringForBooleanPrimitive() throws IOException
     {
-        PrimitivesBean bean;
-        bean = MAPPER.readValue("{\"booleanValue\":\"\"}", PrimitivesBean.class);
+        PrimitivesBean bean = MAPPER.readValue("{\"booleanValue\":\"\"}", PrimitivesBean.class);
         assertFalse(bean.booleanValue);
-        bean = MAPPER.readValue("{\"byteValue\":\"\"}", PrimitivesBean.class);
+    }
+
+    public void testEmptyStringForIntegerPrimitives() throws IOException
+    {
+        PrimitivesBean bean = MAPPER.readValue("{\"byteValue\":\"\"}", PrimitivesBean.class);
         assertEquals((byte) 0, bean.byteValue);
         bean = MAPPER.readValue("{\"charValue\":\"\"}", PrimitivesBean.class);
         assertEquals((char) 0, bean.charValue);
@@ -661,7 +670,11 @@ public class JDKScalarsTest
         assertEquals(0, bean.intValue);
         bean = MAPPER.readValue("{\"longValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0L, bean.longValue);
-        bean = MAPPER.readValue("{\"floatValue\":\"\"}", PrimitivesBean.class);
+    }
+
+    public void testEmptyStringForFloatPrimitives() throws IOException
+    {
+        PrimitivesBean bean = MAPPER.readValue("{\"floatValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0.0f, bean.floatValue);
         bean = MAPPER.readValue("{\"doubleValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0.0, bean.doubleValue);

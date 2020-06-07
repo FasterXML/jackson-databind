@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
@@ -127,6 +128,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        // @since 2.12
+        protected final LogicalType _logicalType;
+
         protected final T _nullValue;
 
         // @since 2.9
@@ -134,11 +138,19 @@ public class NumberDeserializers
 
         protected final boolean _primitive;
 
-        protected PrimitiveOrWrapperDeserializer(Class<T> vc, T nvl, T empty) {
+        // @since 2.12
+        protected PrimitiveOrWrapperDeserializer(Class<T> vc, LogicalType logicalType,
+                T nvl, T empty) {
             super(vc);
+            _logicalType = logicalType;
             _nullValue = nvl;
             _emptyValue = empty;
             _primitive = vc.isPrimitive();
+        }
+
+        @Deprecated // since 2.12
+        protected PrimitiveOrWrapperDeserializer(Class<T> vc, T nvl, T empty) {
+            this(vc, LogicalType.OtherScalar, nvl, empty);
         }
 
         @Override
@@ -170,6 +182,11 @@ public class NumberDeserializers
         public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
             return _emptyValue;
         }
+
+        @Override // since 2.12
+        public final LogicalType logicalType() {
+            return _logicalType;
+        }
     }
 
     /*
@@ -189,7 +206,7 @@ public class NumberDeserializers
 
         public BooleanDeserializer(Class<Boolean> cls, Boolean nvl)
         {
-            super(cls, nvl, Boolean.FALSE);
+            super(cls, LogicalType.Boolean, nvl, Boolean.FALSE);
         }
 
         @Override
@@ -283,7 +300,7 @@ public class NumberDeserializers
         
         public ByteDeserializer(Class<Byte> cls, Byte nvl)
         {
-            super(cls, nvl, (byte) 0);
+            super(cls, LogicalType.Integer, nvl, (byte) 0);
         }
 
         @Override
@@ -355,7 +372,7 @@ public class NumberDeserializers
         
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
-            super(cls, nvl, (short)0);
+            super(cls, LogicalType.Integer, nvl, (short)0);
         }
 
         @Override
@@ -422,7 +439,9 @@ public class NumberDeserializers
         
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
-            super(cls, nvl, '\0');
+            super(cls,
+                    // 07-Jun-2020, tatu: Debatable if it should be "OtherScalar" or Integer but...
+                    LogicalType.Integer, nvl, '\0');
         }
 
         @Override
@@ -468,7 +487,7 @@ public class NumberDeserializers
         final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.class, null);
         
         public IntegerDeserializer(Class<Integer> cls, Integer nvl) {
-            super(cls, nvl, 0);
+            super(cls, LogicalType.Integer, nvl, 0);
         }
 
         // since 2.6, slightly faster lookups for this very common type
@@ -551,7 +570,7 @@ public class NumberDeserializers
         final static LongDeserializer wrapperInstance = new LongDeserializer(Long.class, null);
         
         public LongDeserializer(Class<Long> cls, Long nvl) {
-            super(cls, nvl, 0L);
+            super(cls, LogicalType.Integer, nvl, 0L);
         }
 
         // since 2.6, slightly faster lookups for this very common type
@@ -613,7 +632,7 @@ public class NumberDeserializers
         final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.class, null);
         
         public FloatDeserializer(Class<Float> cls, Float nvl) {
-            super(cls, nvl, 0.f);
+            super(cls, LogicalType.Float, nvl, 0.f);
         }
 
         @Override
@@ -685,7 +704,7 @@ public class NumberDeserializers
         final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
         
         public DoubleDeserializer(Class<Double> cls, Double nvl) {
-            super(cls, nvl, 0.d);
+            super(cls, LogicalType.Float, nvl, 0.d);
         }
 
         @Override
@@ -770,6 +789,12 @@ public class NumberDeserializers
         
         public NumberDeserializer() {
             super(Number.class);
+        }
+
+        @Override // since 2.12
+        public final LogicalType logicalType() {
+            // 07-Jun-2020, tatu: Hmmh... tricky choice. For now, use:
+            return LogicalType.Integer;
         }
 
         @Override
@@ -889,6 +914,11 @@ public class NumberDeserializers
             return BigInteger.ZERO;
         }
 
+        @Override // since 2.12
+        public final LogicalType logicalType() {
+            return LogicalType.Integer;
+        }
+
         @SuppressWarnings("incomplete-switch")
         @Override
         public BigInteger deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
@@ -941,7 +971,12 @@ public class NumberDeserializers
         public Object getEmptyValue(DeserializationContext ctxt) {
             return BigDecimal.ZERO;
         }
-        
+
+        @Override // since 2.12
+        public final LogicalType logicalType() {
+            return LogicalType.Float;
+        }
+
         @Override
         public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException

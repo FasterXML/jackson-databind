@@ -877,8 +877,9 @@ public class JDKScalarsTest
                 readerNoCoerce.readValue(EMPTY_STRING_JSON);
                 fail("Should not pass");
             } catch (JsonMappingException e) {
-                verifyException(e, "Cannot coerce empty String (\"\")");
-                verifyException(e, "to element of "+SIMPLE_NAME);
+                // 07-Jun-2020, tatu: during transition, two acceptable alternatives
+                verifyException(e, "Cannot coerce `null` to", "Cannot coerce empty String (\"\")");
+                verifyException(e, "element of "+SIMPLE_NAME);
             }
         }
     }

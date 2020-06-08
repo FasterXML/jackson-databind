@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.failing;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.*;
 

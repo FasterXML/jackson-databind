@@ -1458,7 +1458,7 @@ nonAnnotatedParamIndex, ctor);
 
             ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
             SettableBeanProperty[] creatorProps = (valueInstantiator == null) ? null
-                    : valueInstantiator.getFromObjectArguments(ctxt);
+                    : valueInstantiator.getFromObjectArguments(config);
             // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
                 if (_hasCreatorAnnotation(ctxt, factory)) {

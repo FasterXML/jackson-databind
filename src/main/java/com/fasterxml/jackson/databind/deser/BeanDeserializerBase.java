@@ -438,7 +438,7 @@ public abstract class BeanDeserializerBase
         SettableBeanProperty[] creatorProps;
 
         if (_valueInstantiator.canCreateFromObjectWith()) {
-            creatorProps = _valueInstantiator.getFromObjectArguments(ctxt);
+            creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
 
             // 22-Jan-2018, tatu: May need to propagate "ignorable" status (from `Access.READ_ONLY`
             //     or perhaps class-ignorables) into Creator properties too. Can not just delete,

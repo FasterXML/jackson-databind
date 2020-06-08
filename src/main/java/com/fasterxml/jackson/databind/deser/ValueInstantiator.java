@@ -3,11 +3,8 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.CoercionAction;
-import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
-import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Class that defines simple API implemented by objects that create value
@@ -146,11 +143,8 @@ public abstract class ValueInstantiator
      *<p>
      * NOTE: all properties will be of type
      * {@link com.fasterxml.jackson.databind.deser.CreatorProperty}.
-     *<p>
-     * NOTE: since 3.0, gets passed full {@link DeserializationContext},
-     * not just <code>DeserializationConfig</code>
      */
-    public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
         return null;
     }
 
@@ -440,8 +434,8 @@ public abstract class ValueInstantiator
         public boolean canCreateFromObjectWith() { return delegate().canCreateFromObjectWith(); }
 
         @Override
-        public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
-            return delegate().getFromObjectArguments(ctxt);
+        public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+            return delegate().getFromObjectArguments(config);
         }
 
         @Override

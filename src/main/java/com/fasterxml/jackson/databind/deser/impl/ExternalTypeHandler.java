@@ -350,9 +350,8 @@ public class ExternalTypeHandler
     protected final void _deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object bean, int index, String typeId) throws IOException
     {
-        /* Ok: time to mix type id, value; and we will actually use "wrapper-array"
-         * style to ensure we can handle all kinds of JSON constructs.
-         */
+        // Ok: time to mix type id, value; and we will actually use "wrapper-array"
+        // style to ensure we can handle all kinds of JSON constructs.
         JsonParser p2 = _tokens[index].asParser(p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support

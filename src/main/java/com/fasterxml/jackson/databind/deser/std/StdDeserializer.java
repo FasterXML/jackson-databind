@@ -327,9 +327,9 @@ public abstract class StdDeserializer<T>
     /**********************************************************************
      */
 
-    // @since 2.11
     protected final boolean _parseBooleanPrimitive(DeserializationContext ctxt,
-            JsonParser p, Class<?> targetType) throws IOException
+            JsonParser p, Class<?> targetType)
+        throws IOException
     {
         JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_TRUE) return true;
@@ -345,7 +345,17 @@ public abstract class StdDeserializer<T>
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
-            String text = p.getText().trim();
+            String text = p.getText();
+            CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                    LogicalType.Boolean, targetType);
+            if (act == CoercionAction.AsNull) {
+                _verifyNullForPrimitive(ctxt);
+                return false;
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (Boolean) getEmptyValue(ctxt);
+            }
+            text = text.trim();
             // [databind#422]: Allow aliases
             if ("true".equals(text) || "True".equals(text)) {
                 return true;
@@ -353,7 +363,7 @@ public abstract class StdDeserializer<T>
             if ("false".equals(text) || "False".equals(text)) {
                 return false;
             }
-            if (_isEmptyOrTextualNull(text)) {
+            if (_hasTextualNull(text)) {
                 _verifyNullForPrimitiveCoercion(ctxt, text);
                 return false;
             }
@@ -798,29 +808,38 @@ public abstract class StdDeserializer<T>
     protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value)
         throws JsonMappingException
     {
-        final Class<?> rawTargetType = handledType();
+        return _checkFromStringCoercion(ctxt, value, logicalType(), handledType());
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value,
+            LogicalType logicalType, Class<?> rawTargetType)
+        throws JsonMappingException
+    {
         final CoercionAction act;
 
         if (value.length() == 0) {
-            act = ctxt.findCoercionAction(logicalType(), rawTargetType,
+            act = ctxt.findCoercionAction(logicalType, rawTargetType,
                     CoercionInputShape.EmptyString);
             if (act == CoercionAction.Fail) {
                 ctxt.reportInputMismatch(this,
-"Cannot coerce empty String (\"\") %s (but could if enabling coercion using `CoercionConfig`)",
+"Cannot coerce empty String (\"\") to %s (but could if enabling coercion using `CoercionConfig`)",
 _coercedTypeDesc());
             }
         } else if (_isBlank(value)) {
-            act = ctxt.findCoercionFromBlankString(logicalType(), rawTargetType, CoercionAction.Fail);
+            act = ctxt.findCoercionFromBlankString(logicalType, rawTargetType, CoercionAction.Fail);
             if (act == CoercionAction.Fail) {
                 ctxt.reportInputMismatch(this,
-"Cannot coerce blank String (all whitespace) %s (but could if enabling coercion using `CoercionConfig`)",
+"Cannot coerce blank String (all whitespace) to %s (but could if enabling coercion using `CoercionConfig`)",
 _coercedTypeDesc());
             }
         } else {
-            act = ctxt.findCoercionAction(logicalType(), rawTargetType, CoercionInputShape.String);
+            act = ctxt.findCoercionAction(logicalType, rawTargetType, CoercionInputShape.String);
             if (act == CoercionAction.Fail) {
                 ctxt.reportInputMismatch(this,
-"Cannot coerce String value (\"%s\") %s (but might if enabling coercion using `CoercionConfig`)",
+"Cannot coerce String value (\"%s\") to %s (but might if enabling coercion using `CoercionConfig`)",
 value, _coercedTypeDesc());
             }
         }
@@ -841,9 +860,33 @@ value, _coercedTypeDesc());
     {
         MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
         if (!ctxt.isEnabled(feat)) {
-            ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" %s (enable `%s.%s` to allow)",
+            ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" to %s (enable `%s.%s` to allow)",
                 str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
         }
+    }
+
+    /**
+     * Method called when JSON String with value "" (that is, zero length) is encountered.
+     *
+     * @deprecated Since 2.12
+     */
+    @Deprecated
+    protected Object _coerceEmptyString(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
+    {
+        Enum<?> feat;
+        boolean enable;
+
+        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+            enable = true;
+        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
+            enable = false;
+        } else {
+            return getNullValue(ctxt);
+        }
+        _reportFailedNullCoerce(ctxt, enable, feat, "empty String (\"\")");
+        return null;
     }
 
     protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
@@ -912,35 +955,12 @@ value, _coercedTypeDesc());
         return null;
     }
 
-    /**
-     * Method called when JSON String with value "" (that is, zero length) is encountered.
-     *
-     * @since 2.9
-     */
-    protected Object _coerceEmptyString(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
-    {
-        Enum<?> feat;
-        boolean enable;
-
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-            enable = true;
-        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
-            enable = false;
-        } else {
-            return getNullValue(ctxt);
-        }
-        _reportFailedNullCoerce(ctxt, enable, feat, "empty String (\"\")");
-        return null;
-    }
-
     // @since 2.9
     protected final void _verifyNullForPrimitive(DeserializationContext ctxt) throws JsonMappingException
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
             ctxt.reportInputMismatch(this,
-"Cannot coerce `null` %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
+"Cannot coerce `null` to %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
                     _coercedTypeDesc());
         }
     }
@@ -983,7 +1003,7 @@ value, _coercedTypeDesc());
             // 31-Mar-2017, tatu: Since we don't know (or this deep, care) about exact type,
             //   access as a String: may require re-encoding by parser which should be fine
             String valueDesc = p.getText();
-            ctxt.reportInputMismatch(this, "Cannot coerce Number (%s) %s (enable `%s.%s` to allow)",
+            ctxt.reportInputMismatch(this, "Cannot coerce Number (%s) to %s (enable `%s.%s` to allow)",
                 valueDesc, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
         }
     }
@@ -992,7 +1012,7 @@ value, _coercedTypeDesc());
             String inputDesc) throws JsonMappingException
     {
         String enableDesc = state ? "enable" : "disable";
-        ctxt.reportInputMismatch(this, "Cannot coerce %s to Null value %s (%s `%s.%s` to allow)",
+        ctxt.reportInputMismatch(this, "Cannot coerce %s to Null value as %s (%s `%s.%s` to allow)",
             inputDesc, _coercedTypeDesc(), enableDesc, feature.getClass().getSimpleName(), feature.name());
     }
 
@@ -1018,9 +1038,9 @@ value, _coercedTypeDesc());
             typeDesc = ClassUtil.getClassDescription(cls);
         }
         if (structured) {
-            return "to element of "+typeDesc;
+            return "element of "+typeDesc;
         }
-        return "to "+typeDesc+" value";
+        return typeDesc+" value";
     }
 
     /*

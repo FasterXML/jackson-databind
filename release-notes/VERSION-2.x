@@ -15,6 +15,7 @@ Project: jackson-databind
  (reported by Incara@github)
 #2091: `ReferenceType` does not expose valid containedType
  (reported by Nate B)
+#2113: Add `CoercionConfig[s]` mechanism for configuring allowed coercions
 #2118: `JsonProperty.Access.READ_ONLY` does not work with "getter-as-setter" `Collection`s
  (reported by Xiang Z)
 #2283: `JsonProperty.Access.READ_ONLY` fails with collections when a property name is specified

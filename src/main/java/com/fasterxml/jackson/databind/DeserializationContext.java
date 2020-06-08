@@ -205,8 +205,11 @@ public abstract class DeserializationContext
     {
         _cache = src._cache;
         _factory = src._factory;
-        _readCapabilities = p.getReadCapabilities();
-        
+        // 08-Jun-2020. tatu: Called only for `ObjectMapper.canDeserialize()`
+        //    (see [databind#2749]), not sure what's the best work-around but
+        //    start with this:
+        _readCapabilities = (p == null) ? null : p.getReadCapabilities();
+
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
         _view = config.getActiveView();

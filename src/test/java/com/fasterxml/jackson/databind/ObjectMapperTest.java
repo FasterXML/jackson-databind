@@ -251,7 +251,6 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(dc.shouldSortPropertiesAlphabetically());
     }
 
-
     public void testJsonFactoryLinkage()
     {
         // first, implicit factory, giving implicit linkage
@@ -340,6 +339,13 @@ public class ObjectMapperTest extends BaseMapTest
         // but with changes
         assertTrue(MAPPER.writer().without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .canSerialize(EmptyBean.class));
+    }
+
+    // for [databind#2749]: just to check there's no NPE; method really not useful
+    public void testCanDeserialize()
+    {
+        assertTrue(MAPPER.canDeserialize(MAPPER.constructType(EmptyBean.class)));
+        assertTrue(MAPPER.canDeserialize(MAPPER.constructType(Object.class)));
     }
 
     // for [databind#898]

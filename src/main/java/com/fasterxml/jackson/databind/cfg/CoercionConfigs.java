@@ -221,11 +221,14 @@ public class CoercionConfigs
             // Since coercion of scalar must be enabled (see check above), allow empty-string
             // coercions by default even without this setting
             if (classicScalar
-                    // not sure if this should be included "classic scalar", but it not, applies here:
-                    || (targetType == LogicalType.OtherScalar)
                     // Default for setting is false
                     || config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return CoercionAction.AsNull;
+            }
+            // 09-Jun-2020, tatu: Seems necessary to support backwards-compatibility with
+            //     2.11, wrt "FromStringDeserializer" supported types
+            if (targetType == LogicalType.OtherScalar) {
+                return CoercionAction.TryConvert;
             }
             // But block from allowing structured types like POJOs, Maps etc
             return CoercionAction.Fail;

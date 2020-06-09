@@ -188,7 +188,11 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         }
         return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
-        
+
+    /**
+     * Main method from trying to deserialize actual value from non-empty
+     * String.
+     */
     protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;
 
     /**
@@ -212,10 +216,22 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 "Cannot coerce empty String (\"\") to %s (but could if enabling coercion using `CoercionConfig`)",
 _coercedTypeDesc());
         }
+        if (act == CoercionAction.AsNull) {
+            return getNullValue(ctxt);
+        }
         if (act == CoercionAction.AsEmpty) {
             return getEmptyValue(ctxt);
         }
-        // Otherwise should be `AsNull` or `TryConvert` so...
+        // 09-Jun-2020, tatu: semantics for `TryConvert` are bit interesting due to
+        //    historical reasons
+        return _deserializeFromEmptyStringDefault(ctxt);
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) throws IOException {
+        // by default, "as-null", but overridable by sub-classes
         return getNullValue(ctxt);
     }
 
@@ -347,6 +363,14 @@ _coercedTypeDesc());
                 return new StringBuilder();
             }
             return super.getEmptyValue(ctxt);
+        }
+
+        @Override
+        protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) throws IOException {
+            // 09-Jun-2020, tatu: For backwards compatibility deserialize "as-empty"
+            //    as URI and Locale did that in 2.11 (and StringBuilder probably ought to).
+            //   But doing this here instead of super-class lets UUID return "as-null" instead
+            return getEmptyValue(ctxt);
         }
 
         protected int _firstHyphenOrUnderscore(String str)

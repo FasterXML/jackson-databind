@@ -137,10 +137,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
                 MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
         assertEquals(new Locale("en", "US"),
                 MAPPER.readValue(quote("en-US"), Locale.class));
-
-        // [databind#1123]
-        Locale loc = MAPPER.readValue(quote(""), Locale.class);
-        assertSame(Locale.ROOT, loc);
     }
 
     public void testCharSequence() throws IOException
@@ -260,14 +256,9 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         final URI value = new URI("http://foo.com");
         assertEquals(value, reader.readValue("\""+value.toString()+"\""));
 
-        // Also: empty String should be handled properly
-        URI result = reader.readValue(quote(""));
-        assertNotNull(result);
-        assertEquals(URI.create(""), result);
-        
         // and finally: broken URI should give proper failure
         try {
-            result = reader.readValue(quote("a b"));
+            URI result = reader.readValue(quote("a b"));
             fail("Should not accept malformed URI, instead got: "+result);
         } catch (InvalidFormatException e) {
             verifyException(e, "not a valid textual representation");

@@ -34,6 +34,45 @@ public abstract class ValueInstantiator
 {
     /*
     /**********************************************************
+    /* Introspection
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.9
+     */
+    public interface Gettable {
+        public ValueInstantiator getValueInstantiator();
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+
+    /**
+     * "Contextualization" method that is called after construction but before first
+     * use, to allow instantiator access to context needed to possible resolve its
+     * dependencies.
+     *
+     * @param ctxt Currently active deserialization context: needed to (for example)
+     *    resolving {@link com.fasterxml.jackson.databind.jsontype.TypeDeserializer}s.
+     *
+     * @return This instance, if no change, or newly constructed instance
+     *
+     * @throws JsonMappingException If there are issues with contextualization
+     *
+     * @since 2.12
+     */
+    public ValueInstantiator createContextual(DeserializationContext ctxt, BeanDescription beanDesc)
+            throws JsonMappingException
+    {
+        return this;
+    }
+
+    /*
+    /**********************************************************
     /* Metadata accessors
     /**********************************************************
      */
@@ -254,8 +293,7 @@ public abstract class ValueInstantiator
 
     /*
     /**********************************************************
-    /* Instantiation methods for JSON scalar types
-    /* (String, Number, Boolean)
+    /* Instantiation methods for JSON scalar types (String, Number, Boolean)
     /**********************************************************
      */
 
@@ -384,19 +422,6 @@ public abstract class ValueInstantiator
 
     /*
     /**********************************************************
-    /* Introspection
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.9
-     */
-    public interface Gettable {
-        public ValueInstantiator getValueInstantiator();
-    }
-
-    /*
-    /**********************************************************
     /* Standard Base implementation (since 2.8)
     /**********************************************************
      */
@@ -446,6 +471,14 @@ public abstract class ValueInstantiator
         
         protected Delegating(ValueInstantiator delegate) {
             _delegate = delegate;
+        }
+
+        @Override
+        public ValueInstantiator createContextual(DeserializationContext ctxt,  BeanDescription beanDesc)
+                throws JsonMappingException
+        {
+            ValueInstantiator d = _delegate.createContextual(ctxt, beanDesc);
+            return (d == _delegate) ? this : new Delegating(d);
         }
 
         protected ValueInstantiator delegate() { return _delegate; }

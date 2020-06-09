@@ -237,6 +237,9 @@ public abstract class BasicDeserializerFactory
                 }
             }
         }
+        if (instantiator != null) {
+            instantiator = instantiator.createContextual(ctxt, beanDesc);
+        }
 
         return instantiator;
     }

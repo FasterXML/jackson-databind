@@ -24,6 +24,11 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
 
     public UUIDDeserializer() { super(UUID.class); }
 
+    @Override // since 2.12
+    public Object getEmptyValue(DeserializationContext ctxt) {
+        return new UUID(0L, 0L);
+    }
+
     @Override
     protected UUID _deserialize(String id, DeserializationContext ctxt) throws IOException
     {
@@ -59,15 +64,14 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
 
         return new UUID(hi, lo);
     }
-    
+
     @Override
     protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws IOException
     {
         if (ob instanceof byte[]) {
             return _fromBytes((byte[]) ob, ctxt);
         }
-        super._deserializeEmbedded(ob, ctxt);
-        return null; // never gets here
+        return super._deserializeEmbedded(ob, ctxt);
     }
 
     private UUID _badFormat(String uuidStr, DeserializationContext ctxt)

@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -144,8 +146,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         String text = p.getValueAsString();
         if (text != null) { // has String representation
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
-                // Usually should become null; but not always
-                return _deserializeFromEmptyString(ctxt);
+                // 09-Jun-2020, tatu: Commonly `null` but may coerce to "empty" as well
+                return (T) _deserializeFromEmptyString(ctxt);
             }
             Exception cause = null;
             try {
@@ -182,13 +184,18 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             if (_valueClass.isAssignableFrom(ob.getClass())) {
                 return (T) ob;
             }
-            return _deserializeEmbedded(ob, ctxt);
+            return (T) _deserializeEmbedded(ob, ctxt);
         }
         return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
         
     protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;
 
+    /**
+     * Overridable method to allow coercion from embedded value that is neither
+     * {@code null} nor directly assignable to target type.
+     * Used, for example, by {@link UUIDDeserializer} to coerce from {@code byte[]}.
+     */
     protected T _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws IOException {
         // default impl: error out
         ctxt.reportInputMismatch(this,
@@ -197,9 +204,19 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    protected T _deserializeFromEmptyString(DeserializationContext ctxt) throws IOException {
-        return (T) _coerceEmptyString(ctxt, false);
+    protected Object _deserializeFromEmptyString(DeserializationContext ctxt) throws IOException {
+        CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass,
+                CoercionInputShape.EmptyString);
+        if (act == CoercionAction.Fail) {
+            ctxt.reportInputMismatch(this,
+"Cannot coerce empty String (\"\") to %s (but could if enabling coercion using `CoercionConfig`)",
+_coercedTypeDesc());
+        }
+        if (act == CoercionAction.AsEmpty) {
+            return getEmptyValue(ctxt);
+        }
+        // Otherwise should be `AsNull` or `TryConvert` so...
+        return getNullValue(ctxt);
     }
 
     /*
@@ -315,20 +332,21 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             return null;
         }
 
-        @Override
-        protected Object _deserializeFromEmptyString(DeserializationContext ctxt) throws IOException {
-            // As per [databind#398], URI requires special handling
-            if (_kind == STD_URI) {
+        @Override // since 2.12
+        public Object getEmptyValue(DeserializationContext ctxt)
+            throws JsonMappingException
+        {
+            switch (_kind) {
+            case STD_URI:
+                // As per [databind#398], URI requires special handling
                 return URI.create("");
-            }
-            // As per [databind#1123], Locale too
-            if (_kind == STD_LOCALE) {
+            case STD_LOCALE:
+                // As per [databind#1123], Locale too
                 return Locale.ROOT;
-            }
-            if (_kind == STD_STRING_BUILDER) {
+            case STD_STRING_BUILDER:
                 return new StringBuilder();
             }
-            return super._deserializeFromEmptyString(ctxt);
+            return super.getEmptyValue(ctxt);
         }
 
         protected int _firstHyphenOrUnderscore(String str)

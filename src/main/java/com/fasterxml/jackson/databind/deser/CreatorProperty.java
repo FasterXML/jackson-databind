@@ -123,11 +123,21 @@ public class CreatorProperty
         _ignorable = src._ignorable;
     }
 
+    protected CreatorProperty(CreatorProperty src, TypeDeserializer typeDeser)
+    {
+        super(src, typeDeser);
+        _annotated = src._annotated;
+        _injectableValue = src._injectableValue;
+        _fallbackSetter = src._fallbackSetter;
+        _creatorIndex = src._creatorIndex;
+        _ignorable = src._ignorable;
+    }
+
     @Override
     public SettableBeanProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);
     }
-    
+
     @Override
     public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
@@ -142,7 +152,15 @@ public class CreatorProperty
     public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new CreatorProperty(this, _valueDeserializer, nva);
     }
-    
+
+    // @since 3.0
+    public SettableBeanProperty withValueTypeDeserializer(TypeDeserializer typeDeser) {
+        if (_valueTypeDeserializer == typeDeser) {
+            return this;
+        }
+        return new CreatorProperty(this, typeDeser);
+    }
+
     @Override
     public void fixAccess(DeserializationConfig config) {
         if (_fallbackSetter != null) {
@@ -256,7 +274,7 @@ public class CreatorProperty
     /* Overridden methods, other
     /**********************************************************
      */
-    
+
     @Override
     public String toString() { return "[creator property, name '"+getName()+"'; inject id '"+getInjectableValueId()+"']"; }
 

@@ -103,6 +103,13 @@ public class StdValueInstantiator
         _fromBooleanCreator = src._fromBooleanCreator;
     }
 
+    @Override
+    public ValueInstantiator createContextual(DeserializationContext ctxt)
+        throws JsonMappingException
+    {
+        return this;
+    }
+
     /**
      * Method for setting properties related to instantiating values
      * from JSON Object. We will choose basically only one approach (out of possible

@@ -182,6 +182,9 @@ public abstract class BasicDeserializerFactory
                 }
             }
         }
+        if (instantiator != null) {
+            instantiator = instantiator.createContextual(ctxt);
+        }
         return instantiator;
     }
 

@@ -246,6 +246,28 @@ public abstract class SettableBeanProperty
     }
 
     /**
+     * Copy-with-type-deserializer-change constructor for sub-classes to use.
+     */
+    protected SettableBeanProperty(SettableBeanProperty src, TypeDeserializer typeDeser)
+    {
+        super(src);
+        _propName = src._propName;
+        _type = src._type;
+        _wrapperName = src._wrapperName;
+        _contextAnnotations = src._contextAnnotations;
+        _valueDeserializer = src._valueDeserializer;
+        if (typeDeser != null) {
+            typeDeser = typeDeser.forProperty(this);
+        }
+
+        _valueTypeDeserializer = typeDeser;
+        _managedReferenceName = src._managedReferenceName;
+        _propertyIndex = src._propertyIndex;
+        _viewMatcher = src._viewMatcher;
+        _nullProvider = src._nullProvider;
+    }
+
+    /**
      * Fluent factory method for constructing and returning a new instance
      * with specified value deserializer.
      * Note that this method should NOT change configuration of this instance.

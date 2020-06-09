@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.convert;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
@@ -6,12 +6,11 @@ import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
-public class BeanCoercionTest extends BaseMapTest
+public class CoercePojosTest extends BaseMapTest
 {
     static class Bean {
         public String a;
     }
-
 
     private final ObjectMapper MAPPER = newJsonMapper();
 

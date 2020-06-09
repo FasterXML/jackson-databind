@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.convert;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 
-public class MiscCoercionTest extends BaseMapTest
+public class CoerceContainersTest extends BaseMapTest
 {
     private final String JSON_EMPTY = quote("");
 

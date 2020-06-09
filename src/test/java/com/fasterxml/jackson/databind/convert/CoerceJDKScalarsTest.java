@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+// Tests for "old" coercions (pre-2.12), with `MapperFeature.ALLOW_COERCION_OF_SCALARS`
 public class CoerceJDKScalarsTest extends BaseMapTest
 {
     static class BooleanPOJO {

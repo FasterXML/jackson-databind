@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
 public class CoercePojosTest extends BaseMapTest
@@ -173,7 +174,7 @@ public class CoercePojosTest extends BaseMapTest
         try {
             m.readValue(json, Bean.class);
             fail("Should not accept Empty/Blank String for POJO with passed settings");
-        } catch (JsonProcessingException e) {
+        } catch (MismatchedInputException e) {
             _verifyFailMessage(e);
         }
     }

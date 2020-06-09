@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class CoerceMiscScalarsTest extends BaseMapTest
 {
+    private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
+
     private final ObjectMapper MAPPER_EMPTY_TO_FAIL;
     {
         MAPPER_EMPTY_TO_FAIL = newJsonMapper();
@@ -53,10 +55,48 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 
     /*
     /********************************************************
+    /* Test methods, defaults (legacy)
+    /********************************************************
+     */
+
+    public void testScalarDefaultsFromEmpty() throws Exception
+    {
+        // mostly as null, with some exceptions
+
+        _testScalarEmptyToNull(DEFAULT_MAPPER, UUID.class);
+
+        _testScalarEmptyToNull(DEFAULT_MAPPER, File.class);
+        _testScalarEmptyToNull(DEFAULT_MAPPER, URL.class);
+
+        _testScalarEmptyToEmpty(DEFAULT_MAPPER, URI.class,
+                URI.create(""));
+
+        _testScalarEmptyToNull(DEFAULT_MAPPER, Class.class);
+        _testScalarEmptyToNull(DEFAULT_MAPPER, JavaType.class);
+        _testScalarEmptyToNull(DEFAULT_MAPPER, Currency.class);
+        _testScalarEmptyToNull(DEFAULT_MAPPER, Pattern.class);
+
+        _testScalarEmptyToEmpty(DEFAULT_MAPPER, Locale.class,
+                Locale.ROOT);
+
+        _testScalarEmptyToNull(DEFAULT_MAPPER, Charset.class);
+        _testScalarEmptyToNull(DEFAULT_MAPPER, TimeZone.class);
+        _testScalarEmptyToNull(DEFAULT_MAPPER, InetAddress.class);
+        _testScalarEmptyToNull(DEFAULT_MAPPER, InetSocketAddress.class);
+
+        {
+            StringBuilder result = DEFAULT_MAPPER.readValue(JSON_EMPTY, StringBuilder.class);
+            assertNotNull(result);
+            assertEquals(0, result.length());
+        }
+    }
+
+    /*
+    /********************************************************
     /* Test methods, successful coercions from empty String
     /********************************************************
      */
-    
+
     public void testScalarEmptyToNull() throws Exception
     {
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, UUID.class);
@@ -82,10 +122,24 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, UUID.class,
                 new UUID(0L, 0L));
 
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, File.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, URL.class);
+        
         _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, URI.class,
                 URI.create(""));
+
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, Class.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, JavaType.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, Currency.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, Pattern.class);
+
         _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, Locale.class,
                 Locale.ROOT);
+
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, Charset.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, TimeZone.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, InetAddress.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, InetSocketAddress.class);
 
         {
             StringBuilder result = MAPPER_EMPTY_TO_EMPTY.readValue(JSON_EMPTY, StringBuilder.class);
@@ -96,23 +150,33 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 
     public void testScalarEmptyToTryConvert() throws Exception
     {
-        // Should be same as `AsNull` for all
+        // Should be same as `AsNull` for most but not all
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, UUID.class);
 
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, URL.class);
-        _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, URI.class);
+
+        _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_TRY_CONVERT, URI.class,
+                URI.create(""));
+
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, Class.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, JavaType.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, Currency.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, Pattern.class);
-        _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, Locale.class);
+
+        _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_TRY_CONVERT, Locale.class,
+                Locale.ROOT);
+
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, Charset.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, TimeZone.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, InetAddress.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, InetSocketAddress.class);
 
-        _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, StringBuilder.class);
+        {
+            StringBuilder result = MAPPER_EMPTY_TO_TRY_CONVERT.readValue(JSON_EMPTY, StringBuilder.class);
+            assertNotNull(result);
+            assertEquals(0, result.length());
+        }
     }
 
     /*

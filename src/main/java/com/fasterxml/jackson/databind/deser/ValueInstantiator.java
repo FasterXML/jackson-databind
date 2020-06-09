@@ -63,16 +63,10 @@ public abstract class ValueInstantiator
      *
      * @since 3.0
      */
-    public abstract ValueInstantiator createContextual(DeserializationContext ctxt)
-            throws JsonMappingException;
+    public abstract ValueInstantiator createContextual(DeserializationContext ctxt,
+            BeanDescription beanDesc)
+        throws JsonMappingException;
 
-    /*
-    public ValueInstantiator createContextual(DeserializationContext ctxt)  throws JsonMappingException
-    {
-        return this;
-    }
-    */
-    
     /*
     /**********************************************************************
     /* Metadata accessors
@@ -360,31 +354,6 @@ public abstract class ValueInstantiator
 
     /*
     /**********************************************************************
-    /* Helper methods
-    /**********************************************************************
-     */
-
-    /*
-    /**********************************************************************
-    /* Std method overrides for testing
-    /**********************************************************************
-     */
-
-    /*
-    @Override
-    public String toString() {
-        return String.format(
-"(StdValueInstantiator: default=%s, delegate=%s, props=%s; str/int/long/double/boolean =  %s/%s/%s/%s/%s)",
-            canCreateUsingDefault(), canCreateUsingDelegate()
-            , canCreateFromObjectWith(), canCreateFromString()
-            , canCreateFromInt(), canCreateFromLong()
-            , canCreateFromDouble(), canCreateFromBoolean()
-            );
-    }
-*/
-
-    /*
-    /**********************************************************************
     /* Standard Base implementation
     /**********************************************************************
      */
@@ -406,7 +375,8 @@ public abstract class ValueInstantiator
         }
 
         @Override
-        public ValueInstantiator createContextual(DeserializationContext ctxt)
+        public ValueInstantiator createContextual(DeserializationContext ctxt,
+                BeanDescription beanDesc)
             throws JsonMappingException
         {
             return this;
@@ -441,10 +411,10 @@ public abstract class ValueInstantiator
         }
 
         @Override
-        public ValueInstantiator createContextual(DeserializationContext ctxt)
+        public ValueInstantiator createContextual(DeserializationContext ctxt,  BeanDescription beanDesc)
                 throws JsonMappingException
         {
-            ValueInstantiator d = _delegate.createContextual(ctxt);
+            ValueInstantiator d = _delegate.createContextual(ctxt, beanDesc);
             return (d == _delegate) ? this : new Delegating(d);
         }
 

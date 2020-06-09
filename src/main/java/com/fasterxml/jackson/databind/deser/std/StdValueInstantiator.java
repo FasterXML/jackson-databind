@@ -104,7 +104,8 @@ public class StdValueInstantiator
     }
 
     @Override
-    public ValueInstantiator createContextual(DeserializationContext ctxt)
+    public ValueInstantiator createContextual(DeserializationContext ctxt,
+            BeanDescription beanDesc)
         throws JsonMappingException
     {
         return this;

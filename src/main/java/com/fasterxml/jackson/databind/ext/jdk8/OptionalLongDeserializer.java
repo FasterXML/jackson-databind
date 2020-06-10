@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
 public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<OptionalLong>
@@ -30,16 +31,22 @@ public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<Opt
         }
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            String text = p.getText().trim();
-            if ((text.length() == 0)) {
-                _coerceEmptyString(ctxt, false);
-                return _empty;
+            {
+                String text = p.getText();
+                CoercionAction act = _checkFromStringCoercion(ctxt, text);
+                if (act == CoercionAction.AsNull) {
+                    return (OptionalLong) getNullValue(ctxt);
+                }
+                if (act == CoercionAction.AsEmpty) {
+                    return (OptionalLong) getEmptyValue(ctxt);
+                }
+                text = text.trim();
+                if (_hasTextualNull(text)) {
+                    _coerceTextualNull(ctxt, false);
+                    return _empty;
+                }
+                return OptionalLong.of(_parseLongPrimitive(ctxt, text));
             }
-            if (_hasTextualNull(text)) {
-                _coerceTextualNull(ctxt, false);
-                return _empty;
-            }
-            return OptionalLong.of(_parseLongPrimitive(ctxt, text));
         case JsonTokenId.ID_NUMBER_FLOAT:
             if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
                 _failDoubleToIntCoercion(p, ctxt, "long");

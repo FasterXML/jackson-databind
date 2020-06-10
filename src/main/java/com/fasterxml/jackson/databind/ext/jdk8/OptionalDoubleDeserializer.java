@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
 public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<OptionalDouble>
@@ -29,16 +30,22 @@ public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<O
         }
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            String text = p.getText().trim();
-            if ((text.length() == 0)) {
-                _coerceEmptyString(ctxt, false);
-                return _empty;
+            {
+                String text = p.getText();
+                CoercionAction act = _checkFromStringCoercion(ctxt, text);
+                if (act == CoercionAction.AsNull) {
+                    return (OptionalDouble) getNullValue(ctxt);
+                }
+                if (act == CoercionAction.AsEmpty) {
+                    return (OptionalDouble) getEmptyValue(ctxt);
+                }
+                text = text.trim();
+                if (_hasTextualNull(text)) {
+                    _coerceTextualNull(ctxt, false);
+                    return _empty;
+                }
+                return OptionalDouble.of(_parseDoublePrimitive(ctxt, text));
             }
-            if (_hasTextualNull(text)) {
-                _coerceTextualNull(ctxt, false);
-                return _empty;
-            }
-            return OptionalDouble.of(_parseDoublePrimitive(ctxt, text));
         case JsonTokenId.ID_NUMBER_INT: // coercion here should be fine
             return OptionalDouble.of(p.getDoubleValue());
         case JsonTokenId.ID_NULL:

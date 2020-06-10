@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -77,16 +78,18 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             TimeZone.class,
             InetAddress.class,
             InetSocketAddress.class,
+
+            // Special impl:
             StringBuilder.class,
         };
     }
 
     /*
     /**********************************************************************
-    /* Deserializer implementations
+    /* Life-cycle
     /**********************************************************************
      */
-    
+
     protected FromStringDeserializer(Class<?> vc) {
         super(vc);
     }
@@ -95,7 +98,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
      * Factory method for trying to find a deserializer for one of supported
      * types that have simple from-String serialization.
      */
-    public static Std findDeserializer(Class<?> rawType)
+    public static FromStringDeserializer<?> findDeserializer(Class<?> rawType)
     {
         int kind = 0;
         if (rawType == File.class) {
@@ -125,11 +128,16 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         } else if (rawType == InetSocketAddress.class) {
             kind = Std.STD_INET_SOCKET_ADDRESS;
         } else if (rawType == StringBuilder.class) {
-            kind = Std.STD_STRING_BUILDER;
+            return new StringBuilderDeserializer();
         } else {
             return null;
         }
         return new Std(rawType, kind);
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.OtherScalar;
     }
     
     /*
@@ -260,10 +268,11 @@ _coercedTypeDesc());
         public final static int STD_TIME_ZONE = 11;
         public final static int STD_INET_ADDRESS = 12;
         public final static int STD_INET_SOCKET_ADDRESS = 13;
-        public final static int STD_STRING_BUILDER = 14;
+// No longer implemented here since 2.12
+//        public final static int STD_STRING_BUILDER = 14;
 
         protected final int _kind;
-        
+
         protected Std(Class<?> valueType, int kind) {
             super(valueType);
             _kind = kind;
@@ -341,8 +350,6 @@ _coercedTypeDesc());
                 }
                 // host or unbracketed IPv6, without port number
                 return new InetSocketAddress(value, 0);
-            case STD_STRING_BUILDER:
-                return new StringBuilder(value);
             }
             VersionUtil.throwInternal();
             return null;
@@ -359,8 +366,6 @@ _coercedTypeDesc());
             case STD_LOCALE:
                 // As per [databind#1123], Locale too
                 return Locale.ROOT;
-            case STD_STRING_BUILDER:
-                return new StringBuilder();
             }
             return super.getEmptyValue(ctxt);
         }
@@ -382,6 +387,44 @@ _coercedTypeDesc());
                 }
             }
             return -1;
+        }
+    }
+
+    // @since 2.12 to simplify logic a bit: should not use coercions when reading
+    //   String Values
+    static class StringBuilderDeserializer extends FromStringDeserializer<Object>
+    {
+        public StringBuilderDeserializer() {
+            super(StringBuilder.class);
+        }
+
+        @Override
+        public LogicalType logicalType() {
+            return LogicalType.Textual;
+        }
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt)
+            throws JsonMappingException
+        {
+            return new StringBuilder();
+        }
+
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            String text = p.getValueAsString();
+            if (text != null) {
+                return _deserialize(text, ctxt);
+            }
+            return super.deserialize(p, ctxt);
+        }
+
+        @Override
+        protected Object _deserialize(String value, DeserializationContext ctxt)
+            throws IOException
+        {
+            return new StringBuilder(value);
         }
     }
 
@@ -437,6 +480,6 @@ _coercedTypeDesc());
             } catch (Throwable e) {
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
             }
-        }        
+        }
     }
 }

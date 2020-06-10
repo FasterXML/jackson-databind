@@ -43,11 +43,6 @@ public abstract class StdDeserializer<T>
             DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
             | DeserializationFeature.USE_LONG_FOR_INTS.getMask();
 
-    protected final static int F_MASK_ACCEPT_ARRAYS =
-            DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS.getMask() |
-            DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT.getMask();
-
-
     /**
      * Type of values this deserializer handles: sometimes exact types, other times
      * most specific supertype of types deserializer handles (which may be as generic
@@ -160,11 +155,11 @@ public abstract class StdDeserializer<T>
      */
 
     /**
-     * Helper method that allows easy support for array-related {@link DeserializationFeature}s
-     * `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT` and `UNWRAP_SINGLE_VALUE_ARRAYS`: checks for either
-     * empty array, or single-value array-wrapped value (respectively), and either reports
-     * an exception (if no match, or feature(s) not enabled), or returns appropriate
-     * result value.
+     * Helper method that allows easy support for array-related coercion features:
+     * checks for either empty array, or single-value array-wrapped value (if coercion
+     * enabled by {@code CoercionConfigs} (since 2.12), and either reports
+     * an exception (if no coercion allowed), or returns appropriate
+     * result value using coercion mechanism indicated.
      *<p>
      * This method should NOT be called if Array representation is explicitly supported
      * for type: it should only be called in case it is otherwise unrecognized.
@@ -173,54 +168,32 @@ public abstract class StdDeserializer<T>
      * by calling {@link #_deserializeWrappedValue}, which by default calls
      * {@link #deserialize(JsonParser, DeserializationContext)}.
      */
+    @SuppressWarnings("unchecked")
     protected T _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t;
-        if (ctxt.hasSomeOfFeatures(F_MASK_ACCEPT_ARRAYS)) {
-            t = p.nextToken();
+        final CoercionAction act = _findCoercionFromEmptyArray(ctxt);
+        final boolean unwrap = ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+
+        if (unwrap || (act != CoercionAction.Fail)) {
+            JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
-                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                    @SuppressWarnings("unchecked")
-                    T result = (T) getNullValue(ctxt);
-                    return result;
+                switch (act) {
+                case AsEmpty:
+                    return (T) getEmptyValue(ctxt);
+                case AsNull:
+                case TryConvert:
+                    return (T) getNullValue(ctxt);
+                default:
                 }
-            }
-            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            } else if (unwrap) {
                 final T parsed = _deserializeWrappedValue(p, ctxt);
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
                 }
                 return parsed;
             }
-        } else {
-            t = p.currentToken();
         }
-        @SuppressWarnings("unchecked")
-        T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, null);
-        return result;
-    }
-
-    /**
-     * Helper method that may be used to support fallback for Empty String / Empty Array
-     * non-standard representations; usually for things serialized as JSON Objects.
-     *
-     * @deprecated Since 2.12
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    protected T _deserializeFromEmpty(JsonParser p, DeserializationContext ctxt)
-        throws IOException
-    {
-        if (p.hasToken(JsonToken.START_ARRAY)) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                JsonToken t = p.nextToken();
-                if (t == JsonToken.END_ARRAY) {
-                    return null;
-                }
-                return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-            }
-        }
-        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
     }
 
     /**
@@ -680,23 +653,27 @@ public abstract class StdDeserializer<T>
     protected java.util.Date _parseDateFromArray(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
-        JsonToken t;
-        if (ctxt.hasSomeOfFeatures(F_MASK_ACCEPT_ARRAYS)) {
-            t = p.nextToken();
+        final CoercionAction act = _findCoercionFromEmptyArray(ctxt);
+        final boolean unwrap = ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+
+        if (unwrap || (act != CoercionAction.Fail)) {
+            JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
-                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                switch (act) {
+                case AsEmpty:
+                    return (java.util.Date) getEmptyValue(ctxt);
+                case AsNull:
+                case TryConvert:
                     return (java.util.Date) getNullValue(ctxt);
+                default:
                 }
-            }
-            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            } else if (unwrap) {
                 final Date parsed = _parseDate(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
-        } else {
-            t = p.currentToken();
         }
-        return (java.util.Date) ctxt.handleUnexpectedToken(getValueType(ctxt), t, p, null);
+        return (java.util.Date) ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
     }
 
     /**
@@ -851,20 +828,6 @@ value, _coercedTypeDesc());
     /* Helper methods for sub-classes, coercions, older (pre-2.12)
     /****************************************************
      */
-
-    /**
-     * @deprecated Since 2.12 use {@link #_checkFromStringCoercion} instead
-     */
-    @Deprecated
-    protected void _verifyStringForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
-    {
-        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-        if (!ctxt.isEnabled(feat)) {
-            ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" to %s (enable `%s.%s` to allow)",
-                str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
-        }
-    }
-
     /**
      * Method called when JSON String with value "" (that is, zero length) is encountered.
      *
@@ -1272,18 +1235,20 @@ value, _coercedTypeDesc());
 
     // @since 2.12
     protected CoercionAction _findCoercionFromEmptyString(DeserializationContext ctxt) {
-        final Class<?> targetClass = handledType();
-        final LogicalType targetType = logicalType();
+        return ctxt.findCoercionAction(logicalType(), handledType(),
+                CoercionInputShape.EmptyString);
+    }
 
-        return ctxt.findCoercionAction(targetType, targetClass, CoercionInputShape.EmptyString);
+    // @since 2.12
+    protected CoercionAction _findCoercionFromEmptyArray(DeserializationContext ctxt) {
+        return ctxt.findCoercionAction(logicalType(), handledType(),
+                CoercionInputShape.EmptyArray);
     }
 
     // @since 2.12
     protected CoercionAction _findCoercionFromBlankString(DeserializationContext ctxt) {
-        final Class<?> targetClass = handledType();
-        final LogicalType targetType = logicalType();
-
-        return ctxt.findCoercionFromBlankString(targetType, targetClass, CoercionAction.Fail);
+        return ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                CoercionAction.Fail);
     }
 
     /*

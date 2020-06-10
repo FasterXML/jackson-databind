@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -527,23 +528,29 @@ public class BuilderBasedDeserializer
             }
             return finishBuild(ctxt, builder);
         }
-        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                return null;
-            }
-            final Object value = deserialize(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return value;
-        }
-        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+        final CoercionAction act = _findCoercionFromEmptyArray(ctxt);
+        final boolean unwrap = ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+
+        if (unwrap || (act != CoercionAction.Fail)) {
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
-                return null;
+                switch (act) {
+                case AsEmpty:
+                    return getEmptyValue(ctxt);
+                case AsNull:
+                case TryConvert:
+                    return getNullValue(ctxt);
+                default:
+                }
+                return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
             }
-            return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
+            if (unwrap) {
+                final Object value = deserialize(p, ctxt);
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }
+                return value;
+            }
         }
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

@@ -83,12 +83,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _testScalarEmptyToNull(DEFAULT_MAPPER, TimeZone.class);
         _testScalarEmptyToNull(DEFAULT_MAPPER, InetAddress.class);
         _testScalarEmptyToNull(DEFAULT_MAPPER, InetSocketAddress.class);
-
-        {
-            StringBuilder result = DEFAULT_MAPPER.readValue(JSON_EMPTY, StringBuilder.class);
-            assertNotNull(result);
-            assertEquals(0, result.length());
-        }
     }
 
     /*
@@ -113,8 +107,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, TimeZone.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, InetAddress.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, InetSocketAddress.class);
-
-        _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, StringBuilder.class);
     }
 
     public void testScalarEmptyToEmpty() throws Exception
@@ -140,12 +132,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, TimeZone.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, InetAddress.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, InetSocketAddress.class);
-
-        {
-            StringBuilder result = MAPPER_EMPTY_TO_EMPTY.readValue(JSON_EMPTY, StringBuilder.class);
-            assertNotNull(result);
-            assertEquals(0, result.length());
-        }
     }
 
     public void testScalarEmptyToTryConvert() throws Exception
@@ -171,12 +157,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, TimeZone.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, InetAddress.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, InetSocketAddress.class);
-
-        {
-            StringBuilder result = MAPPER_EMPTY_TO_TRY_CONVERT.readValue(JSON_EMPTY, StringBuilder.class);
-            assertNotNull(result);
-            assertEquals(0, result.length());
-        }
     }
 
     /*
@@ -188,6 +168,43 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     public void testScalarsFailFromEmpty() throws Exception
     {
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, UUID.class);
+
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, File.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, URL.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, URI.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, Class.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, JavaType.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, Currency.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, Pattern.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, Locale.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, Charset.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, TimeZone.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, InetAddress.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, InetSocketAddress.class);
+    }
+
+    /*
+    /********************************************************
+    /* Test methods, special type(s)
+    /********************************************************
+     */
+
+    // StringBuilder is its own special type, since it naturally maps
+    // from String values, hence separate testing
+    public void testStringBuilderDeser() throws Exception
+    {
+        // should result in an "empty" StringBuilder for all valid settings
+        _checkEmptyStringBuilder(DEFAULT_MAPPER.readValue(JSON_EMPTY, StringBuilder.class));
+        _checkEmptyStringBuilder(MAPPER_EMPTY_TO_EMPTY.readValue(JSON_EMPTY, StringBuilder.class));
+        _checkEmptyStringBuilder(MAPPER_EMPTY_TO_TRY_CONVERT.readValue(JSON_EMPTY, StringBuilder.class));
+        _checkEmptyStringBuilder(MAPPER_EMPTY_TO_NULL.readValue(JSON_EMPTY, StringBuilder.class));
+        // and even alleged failure should not result in that since it's not coercion
+        _checkEmptyStringBuilder(MAPPER_EMPTY_TO_FAIL.readValue(JSON_EMPTY, StringBuilder.class));
+    }
+
+    private void _checkEmptyStringBuilder(StringBuilder sb) {
+        assertNotNull(sb);
+        assertEquals(0, sb.length());
     }
 
     /*
@@ -195,7 +212,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     /* Second-level test helper methods
     /********************************************************
      */
-    
+
     private void _testScalarEmptyToNull(ObjectMapper mapper, Class<?> target) throws Exception
     {
         assertNull(mapper.readerFor(target).readValue(JSON_EMPTY));

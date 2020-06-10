@@ -13,6 +13,8 @@ Project: jackson-databind
 #1919: Abstract class included as part of known type ids for error message
   when using JsonSubTypes
  (reported by Incara@github)
+#2066: Distinguish null from empty string for UUID deserialization
+ (requested by leonshaw@github)
 #2091: `ReferenceType` does not expose valid containedType
  (reported by Nate B)
 #2113: Add `CoercionConfig[s]` mechanism for configuring allowed coercions

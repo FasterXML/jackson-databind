@@ -23,13 +23,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 {
     private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
 
-    private final ObjectMapper MAPPER_EMPTY_TO_FAIL;
-    {
-        MAPPER_EMPTY_TO_FAIL = newJsonMapper();
-        MAPPER_EMPTY_TO_FAIL.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail);
-    }
-
     private final ObjectMapper MAPPER_EMPTY_TO_EMPTY;
     {
         MAPPER_EMPTY_TO_EMPTY = newJsonMapper();
@@ -51,6 +44,13 @@ public class CoerceMiscScalarsTest extends BaseMapTest
             .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull);
     }
 
+    private final ObjectMapper MAPPER_EMPTY_TO_FAIL;
+    {
+        MAPPER_EMPTY_TO_FAIL = newJsonMapper();
+        MAPPER_EMPTY_TO_FAIL.coercionConfigDefaults()
+            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail);
+    }
+
     private final String JSON_EMPTY = quote("");
 
     /*
@@ -62,8 +62,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     public void testScalarDefaultsFromEmpty() throws Exception
     {
         // mostly as null, with some exceptions
-
-        _testScalarEmptyToNull(DEFAULT_MAPPER, UUID.class);
 
         _testScalarEmptyToNull(DEFAULT_MAPPER, File.class);
         _testScalarEmptyToNull(DEFAULT_MAPPER, URL.class);
@@ -93,8 +91,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 
     public void testScalarEmptyToNull() throws Exception
     {
-        _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, UUID.class);
-
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, URL.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, URI.class);
@@ -111,9 +107,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 
     public void testScalarEmptyToEmpty() throws Exception
     {
-        _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, UUID.class,
-                new UUID(0L, 0L));
-
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, URL.class);
         
@@ -137,8 +130,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     public void testScalarEmptyToTryConvert() throws Exception
     {
         // Should be same as `AsNull` for most but not all
-        _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, UUID.class);
-
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, URL.class);
 
@@ -167,8 +158,6 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 
     public void testScalarsFailFromEmpty() throws Exception
     {
-        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, UUID.class);
-
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, File.class);
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, URL.class);
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, URI.class);
@@ -185,13 +174,37 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 
     /*
     /********************************************************
-    /* Test methods, special type(s)
+    /* Test methods, (more) special type(s)
     /********************************************************
      */
 
+    // UUID is quite compatible, but not exactly due to historical reasons;
+    // also uses custom subtype, so test separately
+
+    public void testUUIDCoercions() throws Exception
+    {
+        // Coerce to `null` both by default, "TryConvert" and explicit
+        _testScalarEmptyToNull(DEFAULT_MAPPER, UUID.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, UUID.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, UUID.class);
+
+        // but allow separate "empty" value is specifically requeted
+        _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, UUID.class,
+                new UUID(0L, 0L));
+
+        // allow forcing failure, too
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, UUID.class);
+
+        // and allow failure with specifically configured per-class override, too
+        ObjectMapper failMapper = newJsonMapper();
+        failMapper.coercionConfigFor(UUID.class)
+            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail);
+        _verifyScalarToFail(failMapper, UUID.class);
+    }
+
     // StringBuilder is its own special type, since it naturally maps
     // from String values, hence separate testing
-    public void testStringBuilderDeser() throws Exception
+    public void testStringBuilderCoercions() throws Exception
     {
         // should result in an "empty" StringBuilder for all valid settings
         _checkEmptyStringBuilder(DEFAULT_MAPPER.readValue(JSON_EMPTY, StringBuilder.class));

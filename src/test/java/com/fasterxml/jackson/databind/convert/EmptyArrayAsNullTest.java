@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Tests to verify implementation of [databind#540]; also for
@@ -16,7 +17,7 @@ import com.fasterxml.jackson.databind.*;
  */
 public class EmptyArrayAsNullTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
     private final ObjectReader DEFAULT_READER = MAPPER.reader();
     private final ObjectReader READER_WITH_ARRAYS = DEFAULT_READER
             .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
@@ -46,7 +47,7 @@ public class EmptyArrayAsNullTest extends BaseMapTest
      */
 
     // [databind#540]
-    public void testPOJOFromEmptyArray() throws Exception
+    public void testPOJOFromEmptyArrayLegacy() throws Exception
     {
         // first, verify default settings which do not accept empty Array
         try {
@@ -73,18 +74,14 @@ public class EmptyArrayAsNullTest extends BaseMapTest
     public void testMapFromEmptyArray() throws Exception
     {
         // first, verify default settings which do not accept empty Array
-        try {
-            DEFAULT_READER.forType(Map.class)
-                .readValue(EMPTY_ARRAY);
-            fail("Should not accept Empty Array for Map by default");
-        } catch (JsonMappingException e) {
-            verifyException(e, "from Array value (token `JsonToken.START_ARRAY`)");
-        }
+        _verifyFailForEmptyArray(Map.class);
+
         // should be ok to enable dynamically:
         Map<?,?> result = READER_WITH_ARRAYS.forType(Map.class)
                 .readValue(EMPTY_ARRAY);
         assertNull(result);
     }
+
 
     public void testEnumMapFromEmptyArray() throws Exception
     {
@@ -131,6 +128,7 @@ public class EmptyArrayAsNullTest extends BaseMapTest
         _testNullWrapper(BigInteger.class);
         _testNullWrapper(BigDecimal.class);
 
+        _testNullWrapper(String.class);
         _testNullWrapper(UUID.class);
 
         _testNullWrapper(Date.class);
@@ -147,5 +145,16 @@ public class EmptyArrayAsNullTest extends BaseMapTest
     {
         Object result = READER_WITH_ARRAYS.forType(cls).readValue(EMPTY_ARRAY);
         assertNull(result);
+    }
+
+    private void _verifyFailForEmptyArray(Class<?> targetType) throws Exception
+    {
+        try {
+            DEFAULT_READER.forType(targetType)
+                .readValue(EMPTY_ARRAY);
+            fail("Should not accept Empty Array for "+targetType.getName()+" by default");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "from Array value (token `JsonToken.START_ARRAY`)");
+        }
     }
 }

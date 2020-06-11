@@ -26,33 +26,25 @@ public class CoerceEmptyArrayTest extends BaseMapTest
     private final ObjectReader READER_WITH_ARRAYS = DEFAULT_READER
             .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
 
-    private final ObjectMapper MAPPER_TO_EMPTY;
-    {
-        MAPPER_TO_EMPTY = newJsonMapper();
-        MAPPER_TO_EMPTY.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyArray, CoercionAction.AsEmpty);
-    }
+    private final ObjectMapper MAPPER_TO_EMPTY = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+                cfg.setCoercion(CoercionInputShape.EmptyArray, CoercionAction.AsEmpty))
+            .build();
 
-    private final ObjectMapper MAPPER_TRY_CONVERT;
-    {
-        MAPPER_TRY_CONVERT = newJsonMapper();
-        MAPPER_TRY_CONVERT.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyArray, CoercionAction.TryConvert);
-    }
-    
-    private final ObjectMapper MAPPER_TO_NULL;
-    {
-        MAPPER_TO_NULL = newJsonMapper();
-        MAPPER_TO_NULL.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyArray, CoercionAction.AsNull);
-    }
+    private final ObjectMapper MAPPER_TRY_CONVERT = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+                cfg.setCoercion(CoercionInputShape.EmptyArray, CoercionAction.TryConvert))
+            .build();
 
-    private final ObjectMapper MAPPER_TO_FAIL;
-    {
-        MAPPER_TO_FAIL = newJsonMapper();
-        MAPPER_TO_FAIL.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyArray, CoercionAction.Fail);
-    }
+    private final ObjectMapper MAPPER_TO_NULL = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+            cfg.setCoercion(CoercionInputShape.EmptyArray, CoercionAction.AsNull))
+        .build();
+
+    private final ObjectMapper MAPPER_TO_FAIL = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+            cfg.setCoercion(CoercionInputShape.EmptyArray, CoercionAction.Fail))
+        .build();
 
     static class Bean {
         public String a = "foo";
@@ -101,17 +93,17 @@ public class CoerceEmptyArrayTest extends BaseMapTest
         // But let's also check precedence: legacy setting allow, but mask for type
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)
+                .withCoercionConfig(targetType, cfg ->
+                    cfg.setCoercion(CoercionInputShape.EmptyArray, CoercionAction.Fail))
                 .build();
-        mapper.coercionConfigFor(targetType)
-            .setCoercion(CoercionInputShape.EmptyArray, CoercionAction.Fail);
         _verifyFailForEmptyArray(mapper, targetType);
 
         // and conversely
         mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)
+                .withCoercionConfig(LogicalType.POJO, cfg ->
+                    cfg.setCoercion(CoercionInputShape.EmptyArray, CoercionAction.AsEmpty))
                 .build();
-        mapper.coercionConfigFor(LogicalType.POJO)
-            .setCoercion(CoercionInputShape.EmptyArray, CoercionAction.AsEmpty);
         _verifyToEmptyCoercion(MAPPER_TO_EMPTY, targetType, new Bean());
     }
 

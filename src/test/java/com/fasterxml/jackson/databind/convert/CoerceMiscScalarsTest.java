@@ -6,7 +6,10 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Calendar;
 import java.util.Currency;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -188,7 +191,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, UUID.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, UUID.class);
 
-        // but allow separate "empty" value is specifically requeted
+        // but allow separate "empty" value is specifically requested
         _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, UUID.class,
                 new UUID(0L, 0L));
 
@@ -220,6 +223,29 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         assertEquals(0, sb.length());
     }
 
+    // Date, Calendar also included here for convenience
+
+    public void testLegacyDateTimeCoercions() throws Exception
+    {
+        // Coerce to `null` both by default, "TryConvert" and explicit
+        _testScalarEmptyToNull(DEFAULT_MAPPER, Calendar.class);
+        _testScalarEmptyToNull(DEFAULT_MAPPER, Date.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, Calendar.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_NULL, Date.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, Calendar.class);
+        _testScalarEmptyToNull(MAPPER_EMPTY_TO_TRY_CONVERT, Date.class);
+
+        // but allow separate "empty" value is specifically requested
+        Calendar emptyCal = new GregorianCalendar();
+        emptyCal.setTimeInMillis(0L);
+//        _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, Calendar.class, emptyCal);
+        _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, Date.class, new Date(0L));
+
+        // allow forcing failure, too
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, Calendar.class);
+        _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, Date.class);
+    }
+
     /*
     /********************************************************
     /* Second-level test helper methods
@@ -235,6 +261,9 @@ public class CoerceMiscScalarsTest extends BaseMapTest
             Class<?> target, Object emptyValue) throws Exception
     {
         Object result = mapper.readerFor(target).readValue(JSON_EMPTY);
+        if (result == null) {
+            fail("Expected empty, non-null value for "+target.getName()+", got null");
+        }
         assertEquals(emptyValue, result);
     }
 

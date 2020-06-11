@@ -748,8 +748,20 @@ public abstract class StdDeserializer<T>
     {
         try {
             // Take empty Strings to mean 'empty' Value, usually 'null':
-            if (_isEmptyOrTextualNull(value)) {
-                return (java.util.Date) getNullValue(ctxt);
+            if (value.length() == 0) {
+                final CoercionAction act = _checkFromStringCoercion(ctxt, value);
+                switch (act) { // note: Fail handled above
+                case AsEmpty:
+                    return new java.util.Date(0L);
+                case AsNull:
+                case TryConvert:
+                default:
+                }
+                return null;
+            }
+            // 10-Jun-2020, tatu: Legacy handling from pre-2.12... should we still have it?
+            if (_hasTextualNull(value)) {
+                return null;
             }
             return ctxt.parseDate(value);
         } catch (IllegalArgumentException iae) {

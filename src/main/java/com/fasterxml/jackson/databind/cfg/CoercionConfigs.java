@@ -218,6 +218,7 @@ public class CoercionConfigs
             // Since coercion of scalar must be enabled (see check above), allow empty-string
             // coercions by default even without this setting
             if (classicScalar
+                    || (targetType == LogicalType.DateTime)
                     // Default for setting is false
                     || config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return CoercionAction.AsNull;

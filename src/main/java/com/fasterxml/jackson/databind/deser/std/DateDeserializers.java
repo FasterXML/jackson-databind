@@ -13,6 +13,9 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
@@ -187,7 +190,15 @@ public class DateDeserializers
                 if (p.hasToken(JsonToken.VALUE_STRING)) {
                     String str = p.getText().trim();
                     if (str.length() == 0) {
-                        return (Date) getEmptyValue(ctxt);
+                        final CoercionAction act = _checkFromStringCoercion(ctxt, str);
+                        switch (act) { // note: Fail handled above
+                        case AsEmpty:
+                            return new java.util.Date(0L);
+                        case AsNull:
+                        case TryConvert:
+                        default:
+                        }
+                        return null;
                     }
                     synchronized (_customFormat) {
                         try {
@@ -241,6 +252,13 @@ public class DateDeserializers
             return new CalendarDeserializer(this, df, formatString);
         }
 
+        @Override // since 2.12
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(0L);
+            return cal;
+        }
+
         @Override
         public Calendar deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
@@ -286,6 +304,11 @@ public class DateDeserializers
         protected DateDeserializer withDateFormat(DateFormat df, String formatString) {
             return new DateDeserializer(this, df, formatString);
         }
+
+        @Override // since 2.12
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return new Date(0L);
+        }
         
         @Override
         public java.util.Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -309,7 +332,12 @@ public class DateDeserializers
         protected SqlDateDeserializer withDateFormat(DateFormat df, String formatString) {
             return new SqlDateDeserializer(this, df, formatString);
         }
-        
+
+        @Override // since 2.12
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return new java.sql.Date(0L);
+        }
+
         @Override
         public java.sql.Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             Date d = _parseDate(p, ctxt);
@@ -335,7 +363,12 @@ public class DateDeserializers
         protected TimestampDeserializer withDateFormat(DateFormat df, String formatString) {
             return new TimestampDeserializer(this, df, formatString);
         }
-        
+
+        @Override // since 2.12
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return new Timestamp(0L);
+        }
+
         @Override
         public java.sql.Timestamp deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {

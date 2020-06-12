@@ -1,84 +1,89 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.math.BigInteger;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class CoerceFloatToIntTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = sharedMapper();
-    private final ObjectReader R = MAPPER.reader().without(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
+    private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
+    private final ObjectReader READER_LEGACY_FAIL = DEFAULT_MAPPER.reader()
+            .without(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
 
-    public void testDoubleToInt() throws Exception
+    /*
+    /********************************************************
+    /* Test methods, defaults (legacy)
+    /********************************************************
+     */
+    
+    public void testLegacyDoubleToIntCoercion() throws Exception
     {
         // by default, should be ok
-        Integer I = MAPPER.readValue(" 1.25 ", Integer.class);
+        Integer I = DEFAULT_MAPPER.readValue(" 1.25 ", Integer.class);
         assertEquals(1, I.intValue());
-        IntWrapper w = MAPPER.readValue("{\"i\":-2.25 }", IntWrapper.class);
-        assertEquals(-2, w.i);
-        int[] arr = MAPPER.readValue("[ 1.25 ]", int[].class);
-        assertEquals(1, arr[0]);
+        {
+            IntWrapper w = DEFAULT_MAPPER.readValue("{\"i\":-2.25 }", IntWrapper.class);
+            assertEquals(-2, w.i);
+            int[] arr = DEFAULT_MAPPER.readValue("[ 1.25 ]", int[].class);
+            assertEquals(1, arr[0]);
+        }
 
-        try {
-            R.forType(Integer.class).readValue("1.5");
-            fail("Should not pass");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Cannot coerce a floating-point");
+        Long L = DEFAULT_MAPPER.readValue(" 3.33 ", Long.class);
+        assertEquals(3L, L.longValue());
+        {
+            LongWrapper w = DEFAULT_MAPPER.readValue("{\"l\":-2.25 }", LongWrapper.class);
+            assertEquals(-2L, w.l);
+            long[] arr = DEFAULT_MAPPER.readValue("[ 1.25 ]", long[].class);
+            assertEquals(1, arr[0]);
         }
+
+        Short S = DEFAULT_MAPPER.readValue("42.33", Short.class);
+        assertEquals(42, S.intValue());
+
+        BigInteger biggie = DEFAULT_MAPPER.readValue("95.3", BigInteger.class);
+        assertEquals(95L, biggie.longValue());
+    }
+
+    public void testLegacyFailDoubleToInt() throws Exception
+    {
+        _verifyCoerceFail(READER_LEGACY_FAIL, Integer.class, "1.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, Integer.TYPE, "1.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, IntWrapper.class, "{\"i\":-2.25 }");
+        _verifyCoerceFail(READER_LEGACY_FAIL, int[].class, "[ 2.5 ]");
+
+        _verifyCoerceFail(READER_LEGACY_FAIL, Long.class, "0.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, Long.TYPE, "-2.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, LongWrapper.class, "{\"l\": 7.7 }");
+        _verifyCoerceFail(READER_LEGACY_FAIL, long[].class, "[ -1.35 ]");
+
+        _verifyCoerceFail(READER_LEGACY_FAIL, Short.class, "0.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, Short.TYPE, "-2.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, short[].class, "[ -1.35 ]");
+
+        _verifyCoerceFail(READER_LEGACY_FAIL, BigInteger.class, "25236.256");
+    }
+
+    private void _verifyCoerceFail(ObjectReader r, Class<?> targetType,
+            String doc) throws Exception
+    {
         try {
-            R.forType(Integer.TYPE).readValue("1.5");
+            r.forType(targetType).readValue(doc);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Cannot coerce a floating-point");
-        }
-        try {
-            R.forType(IntWrapper.class).readValue("{\"i\":-2.25 }");
-            fail("Should not pass");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Cannot coerce a floating-point");
-        }
-        try {
-            R.forType(int[].class).readValue("[ 2.5 ]");
-            fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce a floating-point");
         }
     }
-
+    
     public void testDoubleToLong() throws Exception
     {
-        // by default, should be ok
-        Long L = MAPPER.readValue(" 3.33 ", Long.class);
-        assertEquals(3L, L.longValue());
-        LongWrapper w = MAPPER.readValue("{\"l\":-2.25 }", LongWrapper.class);
-        assertEquals(-2L, w.l);
-        long[] arr = MAPPER.readValue("[ 1.25 ]", long[].class);
-        assertEquals(1, arr[0]);
 
-        try {
-            R.forType(Long.class).readValue("1.5");
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot coerce a floating-point");
-        }
-
-        try {
-            R.forType(Long.TYPE).readValue("1.5");
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot coerce a floating-point");
-        }
-        
-        try {
-            R.forType(LongWrapper.class).readValue("{\"l\": 7.7 }");
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot coerce a floating-point");
-        }
-        try {
-            R.forType(long[].class).readValue("[ 2.5 ]");
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot coerce a floating-point");
-        }
     }
+
+    /*
+    /********************************************************
+    /* Test methods, CoerceConfig
+    /********************************************************
+     */
+
 }

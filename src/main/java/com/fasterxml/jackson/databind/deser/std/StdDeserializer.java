@@ -370,7 +370,7 @@ public abstract class StdDeserializer<T>
             return false;
         }
 
-        // should accept ints too, (0 == false, otherwise true)
+        // may accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
             Boolean b = _coerceBooleanFromInt(ctxt, p, Boolean.TYPE);
             // may get `null`, Boolean.TRUE or Boolean.FALSE so:
@@ -413,6 +413,57 @@ public abstract class StdDeserializer<T>
         }
         // Otherwise, no can do:
         return ((Boolean) ctxt.handleUnexpectedToken(targetType, p)).booleanValue();
+    }
+
+    protected final Boolean _parseBoolean(DeserializationContext ctxt,
+            JsonParser p, Class<?> targetType)
+        throws IOException
+    {
+        JsonToken t = p.currentToken();
+        if (t == JsonToken.VALUE_NULL) {
+            return (Boolean) _coerceNullToken(ctxt, false);
+        }
+        // may accept ints too, (0 == false, otherwise true)
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            return _coerceBooleanFromInt(ctxt, p, Boolean.class);
+        }
+        // And finally, let's allow Strings to be converted too
+        if (t == JsonToken.VALUE_STRING) {
+            String text = p.getText();
+            CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                    LogicalType.Boolean, targetType);
+            if (act == CoercionAction.AsNull) {
+                return (Boolean) getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (Boolean) getEmptyValue(ctxt);
+            }
+            text = text.trim();
+            // [databind#422]: Allow aliases
+            if ("true".equals(text) || "True".equals(text)) {
+                return Boolean.TRUE;
+            }
+            if ("false".equals(text) || "False".equals(text)) {
+                return Boolean.FALSE;
+            }
+            if (_hasTextualNull(text)) {
+                return (Boolean) _coerceTextualNull(ctxt, false);
+            }
+            return (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
+                    "only \"true\" or \"false\" recognized");
+        }
+        // usually caller should have handled but:
+        if (t == JsonToken.VALUE_TRUE) {
+            return Boolean.TRUE;
+        }
+        if (t == JsonToken.VALUE_FALSE) {
+            return Boolean.FALSE;
+        }
+        if (t == JsonToken.START_ARRAY) { // unwrapping?
+            return (Boolean) _deserializeFromArray(p, ctxt);
+        }
+        // Otherwise, no can do:
+        return (Boolean) ctxt.handleUnexpectedToken(targetType, p);
     }
 
     @Deprecated // since 2.12

@@ -219,7 +219,10 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_FALSE) {
                 return Boolean.FALSE;
             }
-            return _parseBoolean(p, ctxt);
+            if (_primitive) {
+                return _parseBooleanPrimitive(ctxt, p, _valueClass);
+            }
+            return _parseBoolean(ctxt, p, _valueClass);
         }
 
         // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
@@ -236,56 +239,10 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_FALSE) {
                 return Boolean.FALSE;
             }
-            return _parseBoolean(p, ctxt);
-        }
-
-        protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt)
-            throws IOException
-        {
-            JsonToken t = p.currentToken();
-            if (t == JsonToken.VALUE_NULL) {
-                return (Boolean) _coerceNullToken(ctxt, _primitive);
+            if (_primitive) {
+                return _parseBooleanPrimitive(ctxt, p, _valueClass);
             }
-            if (t == JsonToken.START_ARRAY) { // unwrapping?
-                return _deserializeFromArray(p, ctxt);
-            }
-            // should accept ints too, (0 == false, otherwise true)
-            if (t == JsonToken.VALUE_NUMBER_INT) {
-                return _coerceBooleanFromInt(ctxt, p, Boolean.class);
-            }
-            // And finally, let's allow Strings to be converted too
-            if (t == JsonToken.VALUE_STRING) {
-                String text = p.getText();
-                CoercionAction act = _checkFromStringCoercion(ctxt, text);
-                if (act == CoercionAction.AsNull) {
-                    return (Boolean) getNullValue(ctxt);
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (Boolean) getEmptyValue(ctxt);
-                }
-                text = text.trim();
-                // [databind#422]: Allow aliases
-                if ("true".equals(text) || "True".equals(text)) {
-                    return Boolean.TRUE;
-                }
-                if ("false".equals(text) || "False".equals(text)) {
-                    return Boolean.FALSE;
-                }
-                if (_hasTextualNull(text)) {
-                    return (Boolean) _coerceTextualNull(ctxt, _primitive);
-                }
-                return (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "only \"true\" or \"false\" recognized");
-            }
-            // usually caller should have handled but:
-            if (t == JsonToken.VALUE_TRUE) {
-                return Boolean.TRUE;
-            }
-            if (t == JsonToken.VALUE_FALSE) {
-                return Boolean.FALSE;
-            }
-            // Otherwise, no can do:
-            return (Boolean) ctxt.handleUnexpectedToken(_valueClass, p);
+            return _parseBoolean(ctxt, p, _valueClass);
         }
     }
 

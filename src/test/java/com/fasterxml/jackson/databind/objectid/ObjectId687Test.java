@@ -63,7 +63,7 @@ public class ObjectId687Test extends BaseMapTest
     /*****************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#687]
     public void testSerializeDeserializeWithCreator() throws IOException {

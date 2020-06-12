@@ -251,7 +251,7 @@ public class NumberDeserializers
             }
             // should accept ints too, (0 == false, otherwise true)
             if (t == JsonToken.VALUE_NUMBER_INT) {
-                return Boolean.valueOf(_parseBooleanFromInt(p, ctxt));
+                return _coerceBooleanFromInt(ctxt, p, Boolean.class);
             }
             // And finally, let's allow Strings to be converted too
             if (t == JsonToken.VALUE_STRING) {
@@ -456,7 +456,11 @@ public class NumberDeserializers
         {
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT: // ok iff Unicode value
-                _verifyNumberForScalarCoercion(ctxt, p);
+                // 12-Jun-2020, tatu: inlined from `StdDeserializer`
+                if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+                    ctxt.reportInputMismatch(this,
+"Cannot coerce Integer value to `Character` (enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow)");
+                }
                 int value = p.getIntValue();
                 if (value >= 0 && value <= 0xFFFF) {
                     return Character.valueOf((char) value);

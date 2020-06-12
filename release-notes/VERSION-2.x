@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #2486: Builder Deserialization with JsonCreator Value vs Array
  (reported by Ville K)
+#2755: `StdSubtypeResolver` is not thread safe (possibly due to copy
+  not being made with `ObjectMapper.copy()`)
+ (reported by tjwilson90@github)
 
 2.11.0 (26-Apr-2020)
 

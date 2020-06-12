@@ -512,7 +512,7 @@ public class ObjectMapper
      * (should very quickly converge to zero after startup), let's
      * explicitly define a low concurrency setting.
      *<p>
-     * Since version 1.5, these may are either "raw" deserializers (when
+     * These may are either "raw" deserializers (when
      * no type information is needed for base type), or type-wrapped
      * deserializers (if it is needed)
      */
@@ -559,7 +559,7 @@ public class ObjectMapper
     {
         _jsonFactory = src._jsonFactory.copy();
         _jsonFactory.setCodec(this);
-        _subtypeResolver = src._subtypeResolver;
+        _subtypeResolver = src._subtypeResolver.copy();
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
         _configOverrides = src._configOverrides.copy();

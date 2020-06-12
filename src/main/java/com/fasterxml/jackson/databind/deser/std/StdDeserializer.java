@@ -314,7 +314,7 @@ public abstract class StdDeserializer<T>
 
         // may accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            Boolean b = _coerceBooleanFromInt(ctxt, p, Boolean.TYPE);
+            Boolean b = _coerceBooleanFromInt(ctxt, p, targetType);
             // may get `null`, Boolean.TRUE or Boolean.FALSE so:
             return (b == Boolean.TRUE);
         }
@@ -367,7 +367,7 @@ public abstract class StdDeserializer<T>
         }
         // may accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            return _coerceBooleanFromInt(ctxt, p, Boolean.class);
+            return _coerceBooleanFromInt(ctxt, p, targetType);
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {

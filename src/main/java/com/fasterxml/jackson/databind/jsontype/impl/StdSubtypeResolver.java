@@ -23,6 +23,19 @@ public class StdSubtypeResolver
 
     public StdSubtypeResolver() { }
 
+    // @since 2.12
+    protected StdSubtypeResolver(StdSubtypeResolver src) {
+        LinkedHashSet<NamedType> reg = src._registeredSubtypes;
+        _registeredSubtypes = (reg == null) ? null
+                : new LinkedHashSet<>(reg);
+    }
+
+    // @since 2.12
+    @Override
+    public SubtypeResolver copy() {
+        return new StdSubtypeResolver(this);
+    }
+
     /*
     /**********************************************************
     /* Subtype registration

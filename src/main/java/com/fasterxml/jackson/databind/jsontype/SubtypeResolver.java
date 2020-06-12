@@ -14,9 +14,25 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
  */
 public abstract class SubtypeResolver
 {
+    /**
+     * Method called by {@code ObjectMapper.copy()} to make sure that
+     * {@link SubtypeResolver} instances used by two independent mappers
+     * can not cause thread-safety issues: if resolver is immutable, it
+     * may return {@code this}, but if not, it should create a copy with
+     * same configuration and return that instead.
+     *
+     * @return Either new instance with same configuration as this one (if
+     *    instances are mutable), or this instance (if immutable)
+     *
+     * @since 2.12
+     */
+    public SubtypeResolver copy() {
+        return this;
+    }
+
     /*
     /**********************************************************
-    /* Methods for registering external subtype definitions
+    /* Methods for registering external subtype definitions (init/config)
     /**********************************************************
      */
 
@@ -36,7 +52,7 @@ public abstract class SubtypeResolver
     
     /*
     /**********************************************************
-    /* Subtype resolution
+    /* Subtype resolution (public API)
     /**********************************************************
      */
 

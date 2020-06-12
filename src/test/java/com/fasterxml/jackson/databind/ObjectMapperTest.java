@@ -133,8 +133,10 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
 
         // // Also, underlying JsonFactory instances should be distinct
-        
         assertNotSame(m.getFactory(), m2.getFactory());
+
+        // [databind#2755]: also need to copy this:
+        assertNotSame(m.getSubtypeResolver(), m2.getSubtypeResolver());
 
         // [databind#122]: Need to ensure mix-ins are not shared
         assertEquals(0, m.getSerializationConfig().mixInCount());

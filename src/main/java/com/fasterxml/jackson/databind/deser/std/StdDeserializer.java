@@ -314,7 +314,9 @@ public abstract class StdDeserializer<T>
 
         // should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            return _parseBooleanFromInt(p, ctxt);
+            Boolean b = _coerceBooleanFromInt(ctxt, p, Boolean.TYPE);
+            // may get `null`, Boolean.TRUE or Boolean.FALSE so:
+            return (b == Boolean.TRUE);
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
@@ -355,6 +357,7 @@ public abstract class StdDeserializer<T>
         return ((Boolean) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p)).booleanValue();
     }
 
+    @Deprecated // since 2.12
     protected boolean _parseBooleanFromInt(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
@@ -795,7 +798,7 @@ public abstract class StdDeserializer<T>
      * @since 2.12
      */
     protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value)
-        throws JsonMappingException
+        throws IOException
     {
         return _checkFromStringCoercion(ctxt, value, logicalType(), handledType());
     }
@@ -805,7 +808,7 @@ public abstract class StdDeserializer<T>
      */
     protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value,
             LogicalType logicalType, Class<?> rawTargetType)
-        throws JsonMappingException
+        throws IOException
     {
         final CoercionAction act;
 
@@ -833,6 +836,33 @@ value, _coercedTypeDesc());
             }
         }
         return act;
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected Boolean _coerceBooleanFromInt(DeserializationContext ctxt, JsonParser p,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+
+        final CoercionAction act = ctxt.findCoercionAction(LogicalType.Boolean, rawTargetType, CoercionInputShape.Integer);
+        switch (act) {
+        case Fail:
+            ctxt.reportInputMismatch(this,
+"Cannot coerce Integer value (%s) to %s (but might if enabling coercion using `CoercionConfig`)",
+p.getText(), _coercedTypeDesc());
+        case AsNull:
+            return null;
+        case AsEmpty:
+            return Boolean.FALSE;
+        default:
+        }
+        // 13-Oct-2016, tatu: As per [databind#1324], need to be careful wrt
+        //    degenerate case of huge integers, legal in JSON.
+        //    Also note that number tokens can not have WS to trim:
+        boolean b = !"0".equals(p.getText());
+        return b;
     }
 
     /*
@@ -947,7 +977,7 @@ value, _coercedTypeDesc());
         }
     }
 
-    // @since 2.9
+    @Deprecated // since 2.12
     protected void _verifyNumberForScalarCoercion(DeserializationContext ctxt, JsonParser p) throws IOException
     {
         MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;

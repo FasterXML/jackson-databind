@@ -699,7 +699,7 @@ public class JDKScalarsTest
             reader.readValue(aposToQuotes("{'booleanValue':''}"));
             fail("Expected failure for boolean + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Cannot map `null` into type");
+            verifyException(e, "Cannot coerce `null` to `boolean`");
             verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
         }
     }

@@ -551,7 +551,8 @@ public class JDKScalarsTest
      */
 
     public void testEmptyToNullCoercionForPrimitives() throws Exception {
-        _testEmptyToNullCoercion(int.class, Integer.valueOf(0));
+// 12-Jun-2020, tatu: Not valid any more, null <> empty String
+//        _testEmptyToNullCoercion(int.class, Integer.valueOf(0));
         _testEmptyToNullCoercion(long.class, Long.valueOf(0));
         _testEmptyToNullCoercion(double.class, Double.valueOf(0.0));
         _testEmptyToNullCoercion(float.class, Float.valueOf(0.0f));
@@ -710,10 +711,12 @@ public class JDKScalarsTest
 
     public void testEmptyStringFailForPrimitives() throws IOException
     {
-        _verifyEmptyStringFailForPrimitives("byteValue");
+        // 12-Jun-2020, tatu: Empty String coercion is not same as explicit
+        //    `null`, so some of these do not apply:
+//        _verifyEmptyStringFailForPrimitives("byteValue");
         _verifyEmptyStringFailForPrimitives("charValue");
-        _verifyEmptyStringFailForPrimitives("shortValue");
-        _verifyEmptyStringFailForPrimitives("intValue");
+//        _verifyEmptyStringFailForPrimitives("shortValue");
+//        _verifyEmptyStringFailForPrimitives("intValue");
         _verifyEmptyStringFailForPrimitives("longValue");
         _verifyEmptyStringFailForPrimitives("floatValue");
         _verifyEmptyStringFailForPrimitives("doubleValue");

@@ -42,7 +42,7 @@ public class StackTraceElementDeserializer
                     if (t.isNumeric()) {
                         lineNumber = p.getIntValue();
                     } else {
-                        lineNumber = _parseIntPrimitive(p, ctxt);
+                        lineNumber = _parseIntPrimitive(ctxt, p);
                     }
                     break;
                 case "methodName":

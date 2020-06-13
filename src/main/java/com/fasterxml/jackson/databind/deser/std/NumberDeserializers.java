@@ -209,7 +209,7 @@ public class NumberDeserializers
                 return Boolean.FALSE;
             }
             if (_primitive) {
-                return _parseBooleanPrimitive(ctxt, p, _valueClass);
+                return _parseBooleanPrimitive(ctxt, p);
             }
             return _parseBoolean(ctxt, p, _valueClass);
         }
@@ -229,7 +229,7 @@ public class NumberDeserializers
                 return Boolean.FALSE;
             }
             if (_primitive) {
-                return _parseBooleanPrimitive(ctxt, p, _valueClass);
+                return _parseBooleanPrimitive(ctxt, p);
             }
             return _parseBoolean(ctxt, p, _valueClass);
         }
@@ -253,9 +253,9 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getByteValue();
             }
-//            if (_primitive) {
-//                return _parseBytePrimitive(ctxt, p, _valueClass);
-//            }
+            if (_primitive) {
+                return _parseBytePrimitive(ctxt, p);
+            }
             return _parseByte(ctxt, p, _valueClass);
         }
     }
@@ -279,9 +279,9 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getShortValue();
             }
-//            if (_primitive) {
-//                return _parseShortPrimitive(ctxt, p, _valueClass);
-//            }
+            if (_primitive) {
+                return _parseShortPrimitive(ctxt, p);
+            }
             return _parseShort(ctxt, p, _valueClass);
         }
     }
@@ -365,7 +365,10 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getIntValue();
             }
-            return _parseInteger(p, ctxt);
+            if (_primitive) {
+                return _parseIntPrimitive(ctxt, p);
+            }
+            return _parseInteger(ctxt, p, _valueClass);
         }
 
         // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
@@ -377,56 +380,10 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getIntValue();
             }
-            return _parseInteger(p, ctxt);
-        }
-
-        protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt) throws IOException
-        {
-            switch (p.currentTokenId()) {
-            // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
-            case JsonTokenId.ID_NUMBER_INT:
-                return Integer.valueOf(p.getIntValue());
-            case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too
-                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
-                    _failDoubleToIntCoercion(p, ctxt, "Integer");
-                }
-                return Integer.valueOf(p.getValueAsInt());
-            case JsonTokenId.ID_STRING: // let's do implicit re-parse
-                String text = p.getText();
-                CoercionAction act = _checkFromStringCoercion(ctxt, text);
-                if (act == CoercionAction.AsNull) {
-                    return (Integer) getNullValue(ctxt);
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (Integer) getEmptyValue(ctxt);
-                }
-                text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Integer) _coerceTextualNull(ctxt, _primitive);
-                }
-                final int len = text.length();
-                try {
-                    if (len > 9) {
-                        long l = Long.parseLong(text);
-                        if (_intOverflow(l)) {
-                            return (Integer) ctxt.handleWeirdStringValue(_valueClass, text, String.format(
-                                "Overflow: numeric value (%s) out of range of Integer (%d - %d)",
-                                text, Integer.MIN_VALUE, Integer.MAX_VALUE));
-                        }
-                        return Integer.valueOf((int) l);
-                    }
-                    return Integer.valueOf(NumberInput.parseInt(text));
-                } catch (IllegalArgumentException iae) {
-                    return (Integer) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "not a valid Integer value");
-                }
-            case JsonTokenId.ID_NULL:
-                return (Integer) _coerceNullToken(ctxt, _primitive);
-            case JsonTokenId.ID_START_ARRAY:
-                return _deserializeFromArray(p, ctxt);
+            if (_primitive) {
+                return _parseIntPrimitive(ctxt, p);
             }
-            // Otherwise, no can do:
-            return (Integer) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+            return _parseInteger(ctxt, p, _valueClass);
         }
     }
 

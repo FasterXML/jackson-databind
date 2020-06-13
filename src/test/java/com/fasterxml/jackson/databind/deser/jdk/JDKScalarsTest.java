@@ -541,31 +541,6 @@ public class JDKScalarsTest
     /**********************************************************
      */
 
-    public void testEmptyToNullCoercionForPrimitives() throws Exception {
-// 12-Jun-2020, tatu: Not valid any more, null <> empty String
-//        _testEmptyToNullCoercion(int.class, Integer.valueOf(0));
-//        _testEmptyToNullCoercion(long.class, Long.valueOf(0));
-        _testEmptyToNullCoercion(double.class, Double.valueOf(0.0));
-        _testEmptyToNullCoercion(float.class, Float.valueOf(0.0f));
-    }
-
-    private void _testEmptyToNullCoercion(Class<?> primType, Object emptyValue) throws Exception
-    {
-        final String EMPTY = "\"\"";
-
-        // as per [databind#1095] should only allow coercion from empty String,
-        // if `null` is acceptable
-        ObjectReader intR = MAPPER.readerFor(primType);
-        assertEquals(emptyValue, intR.readValue(EMPTY));
-        try {
-            intR.with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                .readValue("\"\"");
-            fail("Should not have passed");
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot map `null` into type ");
-        }
-    }
-
     public void testBase64Variants() throws Exception
     {
         final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X".getBytes("UTF-8");
@@ -696,33 +671,6 @@ public class JDKScalarsTest
             fail("Expected failure for boolean + empty String");
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot coerce `null` to `boolean`");
-            verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
-        }
-    }
-
-    public void testEmptyStringFailForPrimitives() throws IOException
-    {
-        // 12-Jun-2020, tatu: Empty String coercion is not same as explicit
-        //    `null`, so some of these do not apply:
-//        _verifyEmptyStringFailForPrimitives("byteValue");
-        _verifyEmptyStringFailForPrimitives("charValue");
-//        _verifyEmptyStringFailForPrimitives("shortValue");
-//        _verifyEmptyStringFailForPrimitives("intValue");
-//        _verifyEmptyStringFailForPrimitives("longValue");
-        _verifyEmptyStringFailForPrimitives("floatValue");
-        _verifyEmptyStringFailForPrimitives("doubleValue");
-    }
-
-    private void _verifyEmptyStringFailForPrimitives(String propName) throws IOException
-    {
-        final ObjectReader reader = MAPPER
-                .readerFor(PrimitivesBean.class)
-                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        try {
-            reader.readValue(aposToQuotes("{'"+propName+"':''}"));
-            fail("Expected failure for '"+propName+"' + empty String");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Cannot map `null` into type");
             verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
         }
     }

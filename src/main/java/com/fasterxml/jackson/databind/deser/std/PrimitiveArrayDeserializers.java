@@ -830,7 +830,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                             continue;
                         }
                     }
-                    float value = _parseFloatPrimitive(p, ctxt);
+                    float value = _parseFloatPrimitive(ctxt, p);
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
                         ix = 0;
@@ -846,7 +846,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected float[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new float[] { _parseFloatPrimitive(p, ctxt) };
+            return new float[] { _parseFloatPrimitive(ctxt, p) };
         }
 
         @Override
@@ -900,7 +900,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                             continue;
                         }
                     }
-                    double value = _parseDoublePrimitive(p, ctxt);
+                    double value = _parseDoublePrimitive(ctxt, p);
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
                         ix = 0;
@@ -916,7 +916,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected double[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new double[] { _parseDoublePrimitive(p, ctxt) };
+            return new double[] { _parseDoublePrimitive(ctxt, p) };
         }
 
         @Override

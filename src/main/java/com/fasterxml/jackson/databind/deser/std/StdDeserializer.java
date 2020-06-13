@@ -978,29 +978,43 @@ public abstract class StdDeserializer<T>
         return (Long) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
+    @Deprecated // since 2.12, use overloaded variant
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)
+        throws IOException {
+        return _parseFloatPrimitive(ctxt, p);
+    }
+
+    protected final float _parseFloatPrimitive(DeserializationContext ctxt, JsonParser p)
         throws IOException
     {
-        if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
-            return p.getFloatValue();
-        }
+        CoercionAction act;
         switch (p.currentTokenId()) {
-        case JsonTokenId.ID_STRING:
-            String text = p.getText().trim();
-            if (_isEmptyOrTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return 0.0f;
-            }
-            return _parseFloatPrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_INT:
+        case JsonTokenId.ID_NUMBER_FLOAT:
             return p.getFloatValue();
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
-            return 0.0f;
+            return 0f;
+        case JsonTokenId.ID_STRING:
+            String text = p.getText();
+            act = _checkFromStringCoercion(ctxt, text,
+                    LogicalType.Integer, Float.TYPE);
+            if (act == CoercionAction.AsNull) {
+                return  0.0f; // no need to check as does not come from `null`, explicit coercion
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return  0.0f;
+            }
+            text = text.trim();
+            if (_hasTextualNull(text)) {
+                _verifyNullForPrimitiveCoercion(ctxt, text);
+                return  0.0f;
+            }
+            return _parseFloatPrimitive(ctxt, text);
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
-                final float parsed = _parseFloatPrimitive(p, ctxt);
+                final float parsed = _parseFloatPrimitive(ctxt, p);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -1039,29 +1053,43 @@ public abstract class StdDeserializer<T>
         return _nonNullNumber(v).floatValue();
     }
 
+    @Deprecated // since 2.12, use overloaded variant
     protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt)
+        throws IOException {
+        return _parseDoublePrimitive(ctxt, p);
+    }
+
+    protected final double _parseDoublePrimitive(DeserializationContext ctxt, JsonParser p)
         throws IOException
     {
-        if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
-            return p.getDoubleValue();
-        }
+        CoercionAction act;
         switch (p.currentTokenId()) {
-        case JsonTokenId.ID_STRING:
-            String text = p.getText().trim();
-            if (_isEmptyOrTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return 0.0;
-            }
-            return _parseDoublePrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_INT:
+        case JsonTokenId.ID_NUMBER_FLOAT:
             return p.getDoubleValue();
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return 0.0;
+        case JsonTokenId.ID_STRING:
+            String text = p.getText();
+            act = _checkFromStringCoercion(ctxt, text,
+                    LogicalType.Integer, Double.TYPE);
+            if (act == CoercionAction.AsNull) {
+                return  0.0; // no need to check as does not come from `null`, explicit coercion
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return  0.0;
+            }
+            text = text.trim();
+            if (_hasTextualNull(text)) {
+                _verifyNullForPrimitiveCoercion(ctxt, text);
+                return  0.0;
+            }
+            return _parseDoublePrimitive(ctxt, text);
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
-                final double parsed = _parseDoublePrimitive(p, ctxt);
+                final double parsed = _parseDoublePrimitive(ctxt, p);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }

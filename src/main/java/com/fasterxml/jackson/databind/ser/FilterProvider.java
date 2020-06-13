@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
- * Interface for objects that providers instances of {@link PropertyFilter}
+ * Interface for objects that provides instances of {@link PropertyFilter}
  * that match given ids. A provider is configured to be used during serialization,
  * to find filter to used based on id specified by {@link com.fasterxml.jackson.annotation.JsonFilter}
  * annotation on bean class.

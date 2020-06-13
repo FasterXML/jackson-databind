@@ -57,9 +57,9 @@ public class CoerceFloatToIntTest extends BaseMapTest
         _verifyCoerceFail(READER_LEGACY_FAIL, LongWrapper.class, "{\"l\": 7.7 }");
         _verifyCoerceFail(READER_LEGACY_FAIL, long[].class, "[ -1.35 ]");
 
-        _verifyCoerceFail(READER_LEGACY_FAIL, Short.class, "0.5");
-        _verifyCoerceFail(READER_LEGACY_FAIL, Short.TYPE, "-2.5");
-        _verifyCoerceFail(READER_LEGACY_FAIL, short[].class, "[ -1.35 ]");
+        _verifyCoerceFailShort(READER_LEGACY_FAIL, Short.class, "0.5");
+        _verifyCoerceFailShort(READER_LEGACY_FAIL, Short.TYPE, "-2.5");
+        _verifyCoerceFailShort(READER_LEGACY_FAIL, short[].class, "[ -1.35 ]");
 
         _verifyCoerceFail(READER_LEGACY_FAIL, BigInteger.class, "25236.256");
     }
@@ -72,6 +72,19 @@ public class CoerceFloatToIntTest extends BaseMapTest
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce a floating-point");
+        }
+    }
+
+    private void _verifyCoerceFailShort(ObjectReader r, Class<?> targetType,
+            String doc) throws Exception
+    {
+        try {
+            r.forType(targetType).readValue(doc);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e,
+                    "Cannot deserialize value of type `short` from Floating-point value",
+                    "Cannot coerce Floating-point");
         }
     }
     

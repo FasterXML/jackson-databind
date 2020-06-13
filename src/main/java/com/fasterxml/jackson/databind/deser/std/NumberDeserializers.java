@@ -266,7 +266,10 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getByteValue();
             }
-            return _parseByte(p, ctxt, _valueClass);
+//            if (_primitive) {
+//                return _parseBytePrimitive(ctxt, p, _valueClass);
+//            }
+            return _parseByte(ctxt, p, _valueClass);
         }
     }
 
@@ -288,55 +291,13 @@ public class NumberDeserializers
         public Short deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
-            return _parseShort(p, ctxt);
-        }
-
-        protected Short _parseShort(JsonParser p, DeserializationContext ctxt) throws IOException
-        {
-            JsonToken t = p.currentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT) {
+            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getShortValue();
             }
-            if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-                String text = p.getText();
-                CoercionAction act = _checkFromStringCoercion(ctxt, text);
-                if (act == CoercionAction.AsNull) {
-                    return (Short) getNullValue(ctxt);
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (Short) getEmptyValue(ctxt);
-                }
-                text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Short) _coerceTextualNull(ctxt, _primitive);
-                }
-                int value;
-                try {
-                    value = NumberInput.parseInt(text);
-                } catch (IllegalArgumentException iae) {
-                    return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "not a valid Short value");
-                }
-                // So far so good: but does it fit?
-                if (_shortOverflow(value)) {
-                    return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "overflow, value cannot be represented as 16-bit value");
-                }
-                return Short.valueOf((short) value);
-            }
-            if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
-                    _failDoubleToIntCoercion(p, ctxt, "Short");
-                }
-                return p.getShortValue();
-            }
-            if (t == JsonToken.VALUE_NULL) {
-                return (Short) _coerceNullToken(ctxt, _primitive);
-            }
-            if (t == JsonToken.START_ARRAY) {
-                return _deserializeFromArray(p, ctxt);
-            }
-            return (Short) ctxt.handleUnexpectedToken(_valueClass, p);
+//            if (_primitive) {
+//                return _parseShortPrimitive(ctxt, p, _valueClass);
+//            }
+            return _parseShort(ctxt, p, _valueClass);
         }
     }
 

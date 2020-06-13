@@ -727,10 +727,10 @@ public abstract class StdDeserializer<T>
         return (Short) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
-//    @Deprecated // since 2.12, use overloaded variant
-//    protected final short _parseIntPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException {
-//        return _parseIntPrimitive(ctxt, p);
-//    }
+    @Deprecated // since 2.12, use overloaded variant
+    protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return _parseIntPrimitive(ctxt, p);
+    }
 
     protected final int _parseIntPrimitive(DeserializationContext ctxt, JsonParser p)
         throws IOException
@@ -805,11 +805,6 @@ public abstract class StdDeserializer<T>
         }
     }
 
-    @Deprecated // since 2.12, use overloaded variant
-    protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return _parseInteger(ctxt, p, _valueClass);
-    }
-
     // @since 2.12
     protected final Integer _parseInteger(DeserializationContext ctxt, JsonParser p,
             Class<?> targetType) throws IOException
@@ -867,36 +862,56 @@ public abstract class StdDeserializer<T>
         return (Integer) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
+    @Deprecated // since 2.12, use overloaded variant
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws IOException {
+        return _parseLongPrimitive(ctxt, p);
+    }
+
+    protected final long _parseLongPrimitive(DeserializationContext ctxt, JsonParser p)
+            throws IOException
     {
-        if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-            return p.getLongValue();
-        }
+        CoercionAction act;
         switch (p.currentTokenId()) {
+        case JsonTokenId.ID_NUMBER_INT:
+            return p.getLongValue();
+        case JsonTokenId.ID_NULL:
+            _verifyNullForPrimitive(ctxt);
+            return 0L;
         case JsonTokenId.ID_STRING:
-            String text = p.getText().trim();
-            if (_isEmptyOrTextualNull(text)) {
+            String text = p.getText();
+            act = _checkFromStringCoercion(ctxt, text,
+                    LogicalType.Integer, Long.TYPE);
+            if (act == CoercionAction.AsNull) {
+                return 0L; // no need to check as does not come from `null`, explicit coercion
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return 0L;
+            }
+            text = text.trim();
+            if (_hasTextualNull(text)) {
                 _verifyNullForPrimitiveCoercion(ctxt, text);
                 return 0L;
             }
             return _parseLongPrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_FLOAT:
-            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
-                _failDoubleToIntCoercion(p, ctxt, "long");
+            act = _checkFloatToIntCoercion(ctxt, p, Integer.TYPE);
+            if (act == CoercionAction.AsNull) {
+                return 0L;
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return 0L;
             }
             return p.getValueAsLong();
-        case JsonTokenId.ID_NULL:
-            _verifyNullForPrimitive(ctxt);
-            return 0L;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
-                final long parsed = _parseLongPrimitive(p, ctxt);
+                final long parsed = _parseLongPrimitive(ctxt, p);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
             break;
+        default:
         }
         return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).longValue();
     }
@@ -914,6 +929,53 @@ public abstract class StdDeserializer<T>
                     "not a valid long value");
             return _nonNullNumber(v).longValue();
         }
+    }
+
+    // @since 2.12
+    protected final Long _parseLong(DeserializationContext ctxt, JsonParser p,
+            Class<?> targetType) throws IOException
+    {
+        CoercionAction act;
+        switch (p.currentTokenId()) {
+        // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
+        case JsonTokenId.ID_NUMBER_INT:
+            return p.getLongValue();
+        case JsonTokenId.ID_NULL:
+            return (Long) _coerceNullToken(ctxt, false);
+        case JsonTokenId.ID_STRING:
+            String text = p.getText();
+            act = _checkFromStringCoercion(ctxt, text,
+                    LogicalType.Integer, targetType);
+            if (act == CoercionAction.AsNull) {
+                return (Long) getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (Long) getEmptyValue(ctxt);
+            }
+            text = text.trim();
+            if (_hasTextualNull(text)) {
+                return (Long) _coerceTextualNull(ctxt, false);
+            }
+            // let's allow Strings to be converted too
+            try {
+                return Long.valueOf(NumberInput.parseLong(text));
+            } catch (IllegalArgumentException iae) { }
+            return (Long) ctxt.handleWeirdStringValue(targetType, text,
+                    "not a valid Long value");
+        case JsonTokenId.ID_NUMBER_FLOAT:
+            act = _checkFloatToIntCoercion(ctxt, p, targetType);
+            if (act == CoercionAction.AsNull) {
+                return (Long) getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (Long) getEmptyValue(ctxt);
+            }
+            return p.getValueAsLong();
+        case JsonTokenId.ID_START_ARRAY:
+            return (Long) _deserializeFromArray(p, ctxt);
+        }
+        // Otherwise, no can do:
+        return (Long) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)

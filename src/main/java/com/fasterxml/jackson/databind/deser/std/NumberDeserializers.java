@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.util.HashSet;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -428,47 +427,10 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getLongValue();
             }
-            return _parseLong(p, ctxt);
-        }
-
-        protected final Long _parseLong(JsonParser p, DeserializationContext ctxt) throws IOException
-        {
-            switch (p.currentTokenId()) {
-            // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
-            case JsonTokenId.ID_NUMBER_INT:
-                return p.getLongValue();
-            case JsonTokenId.ID_NUMBER_FLOAT:
-                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
-                    _failDoubleToIntCoercion(p, ctxt, "Long");
-                }
-                return p.getValueAsLong();
-            case JsonTokenId.ID_STRING:
-                String text = p.getText();
-                CoercionAction act = _checkFromStringCoercion(ctxt, text);
-                if (act == CoercionAction.AsNull) {
-                    return (Long) getNullValue(ctxt);
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (Long) getEmptyValue(ctxt);
-                }
-                text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Long) _coerceTextualNull(ctxt, _primitive);
-                }
-                // let's allow Strings to be converted too
-                try {
-                    return Long.valueOf(NumberInput.parseLong(text));
-                } catch (IllegalArgumentException iae) { }
-                return (Long) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "not a valid Long value");
-                // fall-through
-            case JsonTokenId.ID_NULL:
-                return (Long) _coerceNullToken(ctxt, _primitive);
-            case JsonTokenId.ID_START_ARRAY:
-                return _deserializeFromArray(p, ctxt);
+            if (_primitive) {
+                return _parseLongPrimitive(ctxt, p);
             }
-            // Otherwise, no can do:
-            return (Long) ctxt.handleUnexpectedToken(_valueClass, p);
+            return _parseLong(ctxt, p, _valueClass);
         }
     }
 

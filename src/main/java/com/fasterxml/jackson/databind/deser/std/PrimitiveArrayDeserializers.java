@@ -495,9 +495,8 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     // whether we should allow truncating conversions?
                     byte value;
-                    if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
-                        // should we catch overflow exceptions?
-                        value = p.getByteValue();
+                    if (t == JsonToken.VALUE_NUMBER_INT) {
+                        value = p.getByteValue(); // note: may throw due to overflow
                     } else {
                         // should probably accept nulls as 0
                         if (t == JsonToken.VALUE_NULL) {
@@ -529,9 +528,8 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         {
             byte value;
             JsonToken t = p.currentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
-                // should we catch overflow exceptions?
-                value = p.getByteValue();
+            if (t == JsonToken.VALUE_NUMBER_INT) {
+                value = p.getByteValue(); // note: may throw due to overflow
             } else {
                 // should probably accept nulls as 'false'
                 if (t == JsonToken.VALUE_NULL) {

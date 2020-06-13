@@ -3,13 +3,40 @@ package com.fasterxml.jackson.databind.convert;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 public class CoerceFloatToIntTest extends BaseMapTest
 {
     private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
     private final ObjectReader READER_LEGACY_FAIL = DEFAULT_MAPPER.reader()
             .without(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
+
+    private final ObjectMapper MAPPER_TO_EMPTY; {
+        MAPPER_TO_EMPTY = newJsonMapper();
+        MAPPER_TO_EMPTY.coercionConfigFor(LogicalType.Integer)
+            .setCoercion(CoercionInputShape.Float, CoercionAction.AsEmpty);
+    }
+
+    private final ObjectMapper MAPPER_TRY_CONVERT; {
+        MAPPER_TRY_CONVERT = newJsonMapper();
+        MAPPER_TRY_CONVERT.coercionConfigFor(LogicalType.Integer)
+            .setCoercion(CoercionInputShape.Float, CoercionAction.TryConvert);
+    }
+
+    private final ObjectMapper MAPPER_TO_NULL; {
+        MAPPER_TO_NULL = newJsonMapper();
+        MAPPER_TO_NULL.coercionConfigFor(LogicalType.Integer)
+            .setCoercion(CoercionInputShape.Float, CoercionAction.AsNull);
+    }
+
+    private final ObjectMapper MAPPER_TO_FAIL; {
+        MAPPER_TO_FAIL = newJsonMapper();
+        MAPPER_TO_FAIL.coercionConfigFor(LogicalType.Integer)
+            .setCoercion(CoercionInputShape.Float, CoercionAction.Fail);
+    }
 
     /*
     /********************************************************
@@ -57,9 +84,13 @@ public class CoerceFloatToIntTest extends BaseMapTest
         _verifyCoerceFail(READER_LEGACY_FAIL, LongWrapper.class, "{\"l\": 7.7 }");
         _verifyCoerceFail(READER_LEGACY_FAIL, long[].class, "[ -1.35 ]");
 
-        _verifyCoerceFailShort(READER_LEGACY_FAIL, Short.class, "0.5");
-        _verifyCoerceFailShort(READER_LEGACY_FAIL, Short.TYPE, "-2.5");
-        _verifyCoerceFailShort(READER_LEGACY_FAIL, short[].class, "[ -1.35 ]");
+        _verifyCoerceFail(READER_LEGACY_FAIL, Short.class, "0.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, Short.TYPE, "-2.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, short[].class, "[ -1.35 ]");
+
+        _verifyCoerceFail(READER_LEGACY_FAIL, Byte.class, "0.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, Byte.TYPE, "-2.5");
+        _verifyCoerceFail(READER_LEGACY_FAIL, byte[].class, "[ -1.35 ]");
 
         _verifyCoerceFail(READER_LEGACY_FAIL, BigInteger.class, "25236.256");
     }
@@ -71,24 +102,10 @@ public class CoerceFloatToIntTest extends BaseMapTest
             r.forType(targetType).readValue(doc);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot coerce a floating-point",
-                    "Cannot coerce Floating-point");
+            verifyException(e, "Cannot coerce Floating-point");
         }
     }
 
-    private void _verifyCoerceFailShort(ObjectReader r, Class<?> targetType,
-            String doc) throws Exception
-    {
-        try {
-            r.forType(targetType).readValue(doc);
-            fail("Should not pass");
-        } catch (MismatchedInputException e) {
-            verifyException(e,
-                    "Cannot deserialize value of type `short` from Floating-point value",
-                    "Cannot coerce Floating-point");
-        }
-    }
-    
     public void testDoubleToLong() throws Exception
     {
 
@@ -96,8 +113,19 @@ public class CoerceFloatToIntTest extends BaseMapTest
 
     /*
     /********************************************************
-    /* Test methods, CoerceConfig
+    /* Test methods, CoerceConfig, to empty/null
     /********************************************************
      */
 
+    /*
+    /********************************************************
+    /* Test methods, CoerceConfig, coerce
+    /********************************************************
+     */
+
+    /*
+    /********************************************************
+    /* Test methods, CoerceConfig, fail
+    /********************************************************
+     */
 }

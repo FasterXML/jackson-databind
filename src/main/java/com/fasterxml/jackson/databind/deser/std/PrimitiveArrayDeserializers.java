@@ -736,7 +736,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                         _verifyNullForPrimitive(ctxt);
                         value = 0L;
                     } else {
-                        value = _parseLongPrimitive(p, ctxt);
+                        value = _parseLongPrimitive(ctxt, p);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -753,7 +753,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected long[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new long[] { _parseLongPrimitive(p, ctxt) };
+            return new long[] { _parseLongPrimitive(ctxt, p) };
         }
 
         @Override

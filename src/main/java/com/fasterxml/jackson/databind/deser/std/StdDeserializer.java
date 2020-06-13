@@ -1211,58 +1211,6 @@ inputDesc, _coercedTypeDesc());
         return p.getNumberValue(); // should be optimal, whatever it is
     }
 
-    /*
-    /**********************************************************************
-    /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
-    /**********************************************************************
-     */
-    
-    /**
-     * @deprecated Since 2.12 use {@link #_checkFromStringCoercion} instead
-     */
-    @Deprecated
-    protected void _verifyStringForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
-    {
-        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-        if (!ctxt.isEnabled(feat)) {
-            ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" to %s (enable `%s.%s` to allow)",
-                str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
-        }
-    }
-
-    /**
-     * Method called when JSON String with value "" (that is, zero length) is encountered.
-     *
-     * @deprecated Since 2.12
-     */
-    @Deprecated
-    protected Object _coerceEmptyString(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
-    {
-        Enum<?> feat;
-        boolean enable;
-
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-            enable = true;
-        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
-            enable = false;
-        } else {
-            return getNullValue(ctxt);
-        }
-        _reportFailedNullCoerce(ctxt, enable, feat, "empty String (\"\")");
-        return null;
-    }
-
-    @Deprecated // since 2.12
-    protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
-            String type) throws IOException
-    {
-        ctxt.reportInputMismatch(handledType(),
-"Cannot coerce a floating-point value ('%s') into %s (enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow)",
-                p.getValueAsString(), type);
-    }
-
     /**
      * Method to call when JSON `null` token is encountered. Note: only called when
      * this deserializer encounters it but NOT when reached via property
@@ -1328,6 +1276,58 @@ inputDesc, _coercedTypeDesc());
         }
         String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
         _reportFailedNullCoerce(ctxt, enable, feat, strDesc);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
+    /**********************************************************************
+     */
+    
+    /**
+     * @deprecated Since 2.12 use {@link #_checkFromStringCoercion} instead
+     */
+    @Deprecated
+    protected void _verifyStringForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
+    {
+        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        if (!ctxt.isEnabled(feat)) {
+            ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" to %s (enable `%s.%s` to allow)",
+                str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
+        }
+    }
+
+    /**
+     * Method called when JSON String with value "" (that is, zero length) is encountered.
+     *
+     * @deprecated Since 2.12
+     */
+    @Deprecated
+    protected Object _coerceEmptyString(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
+    {
+        Enum<?> feat;
+        boolean enable;
+
+        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+            enable = true;
+        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
+            enable = false;
+        } else {
+            return getNullValue(ctxt);
+        }
+        _reportFailedNullCoerce(ctxt, enable, feat, "empty String (\"\")");
+        return null;
+    }
+
+    @Deprecated // since 2.12
+    protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
+            String type) throws IOException
+    {
+        ctxt.reportInputMismatch(handledType(),
+"Cannot coerce a floating-point value ('%s') into %s (enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow)",
+                p.getValueAsString(), type);
     }
 
     @Deprecated // since 2.12

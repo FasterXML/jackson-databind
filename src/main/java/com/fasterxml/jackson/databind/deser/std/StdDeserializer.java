@@ -1278,6 +1278,43 @@ inputDesc, _coercedTypeDesc());
         _reportFailedNullCoerce(ctxt, enable, feat, strDesc);
     }
 
+    protected void _reportFailedNullCoerce(DeserializationContext ctxt, boolean state, Enum<?> feature,
+            String inputDesc) throws JsonMappingException
+    {
+        String enableDesc = state ? "enable" : "disable";
+        ctxt.reportInputMismatch(this, "Cannot coerce %s to Null value as %s (%s `%s.%s` to allow)",
+            inputDesc, _coercedTypeDesc(), enableDesc, feature.getClass().getSimpleName(), feature.name());
+    }
+
+    /**
+     * Helper method called to get a description of type into which a scalar value coercion
+     * is (most likely) being applied, to be used for constructing exception messages
+     * on coerce failure.
+     *
+     * @return Message with backtick-enclosed name of type this deserializer supports
+     *
+     * @since 2.9
+     */
+    protected String _coercedTypeDesc() {
+        boolean structured;
+        String typeDesc;
+
+        JavaType t = getValueType();
+        if ((t != null) && !t.isPrimitive()) {
+            structured = (t.isContainerType() || t.isReferenceType());
+            typeDesc = ClassUtil.getTypeDescription(t);
+        } else {
+            Class<?> cls = handledType();
+            structured = cls.isArray() || Collection.class.isAssignableFrom(cls)
+                || Map.class.isAssignableFrom(cls);
+            typeDesc = ClassUtil.getClassDescription(cls);
+        }
+        if (structured) {
+            return "element of "+typeDesc;
+        }
+        return typeDesc+" value";
+    }
+
     /*
     /**********************************************************************
     /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
@@ -1350,43 +1387,6 @@ inputDesc, _coercedTypeDesc());
             ctxt.reportInputMismatch(this, "Cannot coerce Number (%s) to %s (enable `%s.%s` to allow)",
                 valueDesc, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
         }
-    }
-
-    protected void _reportFailedNullCoerce(DeserializationContext ctxt, boolean state, Enum<?> feature,
-            String inputDesc) throws JsonMappingException
-    {
-        String enableDesc = state ? "enable" : "disable";
-        ctxt.reportInputMismatch(this, "Cannot coerce %s to Null value as %s (%s `%s.%s` to allow)",
-            inputDesc, _coercedTypeDesc(), enableDesc, feature.getClass().getSimpleName(), feature.name());
-    }
-
-    /**
-     * Helper method called to get a description of type into which a scalar value coercion
-     * is (most likely) being applied, to be used for constructing exception messages
-     * on coerce failure.
-     *
-     * @return Message with backtick-enclosed name of type this deserializer supports
-     *
-     * @since 2.9
-     */
-    protected String _coercedTypeDesc() {
-        boolean structured;
-        String typeDesc;
-
-        JavaType t = getValueType();
-        if ((t != null) && !t.isPrimitive()) {
-            structured = (t.isContainerType() || t.isReferenceType());
-            typeDesc = ClassUtil.getTypeDescription(t);
-        } else {
-            Class<?> cls = handledType();
-            structured = cls.isArray() || Collection.class.isAssignableFrom(cls)
-                || Map.class.isAssignableFrom(cls);
-            typeDesc = ClassUtil.getClassDescription(cls);
-        }
-        if (structured) {
-            return "element of "+typeDesc;
-        }
-        return typeDesc+" value";
     }
 
     /*

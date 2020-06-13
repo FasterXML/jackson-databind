@@ -440,7 +440,7 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
                 value = NumberInput.parseInt(text);
             } catch (IllegalArgumentException iae) {
                 return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "not a valid Byte value");
+                        "not a valid `byte` value");
             }
             // So far so good: but does it fit?
             // as per [JACKSON-804], allow range up to 255, inclusive
@@ -500,7 +500,7 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
                 value = NumberInput.parseInt(text);
             } catch (IllegalArgumentException iae) {
                 return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
-                        "not a valid Short value");
+                        "not a valid `short` value");
             }
             if (_shortOverflow(value)) {
                 return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
@@ -588,7 +588,7 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             if (text.length() > 9) {
                 long l = Long.parseLong(text);
                 if (_intOverflow(l)) {
-                    Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
+                    Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
                         "Overflow: numeric value (%s) out of range of int (%d -%d)",
                         text, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     return _nonNullNumber(v).intValue();
@@ -597,8 +597,8 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             }
             return NumberInput.parseInt(text);
         } catch (IllegalArgumentException iae) {
-            Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid int value");
+            Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
+                    "not a valid `int` value");
             return _nonNullNumber(v).intValue();
         }
     }
@@ -636,7 +636,7 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             }
             return _parseLongPrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToIntCoercion(ctxt, p, Integer.TYPE);
+            act = _checkFloatToIntCoercion(ctxt, p, Long.TYPE);
             if (act == CoercionAction.AsNull) {
                 return 0L;
             }
@@ -654,7 +654,7 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             break;
         default:
         }
-        return ((Number) ctxt.handleUnexpectedToken(getValueType(ctxt), p)).longValue();
+        return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Long.TYPE), p)).longValue();
     }
 
     protected final long _parseLongPrimitive(DeserializationContext ctxt, String text) throws IOException
@@ -663,8 +663,8 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
         {
-            Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid long value");
+            Number v = (Number) ctxt.handleWeirdStringValue(Long.TYPE, text,
+                    "not a valid `long` value");
             return _nonNullNumber(v).longValue();
         }
     }
@@ -711,8 +711,7 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             }
             break;
         }
-        // Otherwise, no can do:
-        return ((Number) ctxt.handleUnexpectedToken(getValueType(ctxt), p)).floatValue();
+        return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Float.TYPE), p)).floatValue();
     }
 
     /**
@@ -739,8 +738,8 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
         try {
             return Float.parseFloat(text);
         } catch (IllegalArgumentException iae) { }
-        Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
-                "not a valid float value");
+        Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
+                "not a valid `float` value");
         return _nonNullNumber(v).floatValue();
     }
 
@@ -786,13 +785,9 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             }
             break;
         }
-        // Otherwise, no can do:
-        return ((Number) ctxt.handleUnexpectedToken(getValueType(ctxt), p)).doubleValue();
+        return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Double.TYPE), p)).doubleValue();
     }
 
-    /**
-     * @since 2.9
-     */
     protected final double _parseDoublePrimitive(DeserializationContext ctxt, String text)
         throws IOException
     {
@@ -816,8 +811,8 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
         try {
             return parseDouble(text);
         } catch (IllegalArgumentException iae) { }
-        Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
-                "not a valid double value (as String to convert)");
+        Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
+                "not a valid `double` value (as String to convert)");
         return _nonNullNumber(v).doubleValue();
     }
 
@@ -836,7 +831,7 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
                 //     (but leave both until 3.0)
                 } catch (JsonParseException | InputCoercionException e) {
                     Number v = (Number) ctxt.handleWeirdNumberValue(_valueClass, p.getNumberValue(),
-                            "not a valid 64-bit long for creating `java.util.Date`");
+                            "not a valid 64-bit `long` for creating `java.util.Date`");
                     ts = v.longValue();
                 }
                 return new java.util.Date(ts);

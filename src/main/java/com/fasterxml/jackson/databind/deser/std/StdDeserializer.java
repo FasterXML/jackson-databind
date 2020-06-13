@@ -1078,18 +1078,10 @@ inputDesc, _coercedTypeDesc());
     }
 
     /*
-    /****************************************************
-    /* Helper methods for sub-classes, coercions, older (pre-2.12)
-    /****************************************************
+    /**********************************************************************
+    /* Helper methods for sub-classes, coercions, older (pre-2.12), non-deprecated
+    /**********************************************************************
      */
-
-    protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
-            String type) throws IOException
-    {
-        ctxt.reportInputMismatch(handledType(),
-"Cannot coerce a floating-point value ('%s') into %s (enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow)",
-                p.getValueAsString(), type);
-    }
 
     /**
      * Helper method called in case where an integral number is encountered, but
@@ -1099,6 +1091,8 @@ inputDesc, _coercedTypeDesc());
      *
      * @see DeserializationFeature#USE_BIG_INTEGER_FOR_INTS
      * @see DeserializationFeature#USE_LONG_FOR_INTS
+     *
+     * @since 2.6
      */
     protected Object _coerceIntegral(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -1109,8 +1103,14 @@ inputDesc, _coercedTypeDesc());
         if (DeserializationFeature.USE_LONG_FOR_INTS.enabledIn(feats)) {
             return p.getLongValue();
         }
-        return p.getBigIntegerValue(); // should be optimal, whatever it is
+        return p.getNumberValue(); // should be optimal, whatever it is
     }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
+    /**********************************************************************
+     */
 
     /**
      * Method to call when JSON `null` token is encountered. Note: only called when
@@ -1179,8 +1179,7 @@ inputDesc, _coercedTypeDesc());
         _reportFailedNullCoerce(ctxt, enable, feat, strDesc);
     }
 
-    // NOTE: for non-primitive Scalars
-    // @since 2.9
+    @Deprecated // since 2.12
     protected final void _verifyNullForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
     {
         if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {

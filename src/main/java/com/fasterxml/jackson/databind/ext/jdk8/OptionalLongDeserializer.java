@@ -29,27 +29,30 @@ public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<Opt
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             return OptionalLong.of(p.getLongValue());
         }
+        CoercionAction act;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            {
-                String text = p.getText();
-                CoercionAction act = _checkFromStringCoercion(ctxt, text);
-                if (act == CoercionAction.AsNull) {
-                    return (OptionalLong) getNullValue(ctxt);
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (OptionalLong) getEmptyValue(ctxt);
-                }
-                text = text.trim();
-                if (_hasTextualNull(text)) {
-                    _coerceTextualNull(ctxt, false);
-                    return _empty;
-                }
-                return OptionalLong.of(_parseLongPrimitive(ctxt, text));
+            String text = p.getText();
+            act = _checkFromStringCoercion(ctxt, text);
+            if (act == CoercionAction.AsNull) {
+                return (OptionalLong) getNullValue(ctxt);
             }
+            if (act == CoercionAction.AsEmpty) {
+                return (OptionalLong) getEmptyValue(ctxt);
+            }
+            text = text.trim();
+            if (_hasTextualNull(text)) {
+                _coerceTextualNull(ctxt, false);
+                return _empty;
+            }
+            return OptionalLong.of(_parseLongPrimitive(ctxt, text));
         case JsonTokenId.ID_NUMBER_FLOAT:
-            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
-                _failDoubleToIntCoercion(p, ctxt, "long");
+            act = _checkFloatToIntCoercion(ctxt, p, _valueClass);
+            if (act == CoercionAction.AsNull) {
+                return (OptionalLong) getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (OptionalLong) getEmptyValue(ctxt);
             }
             return OptionalLong.of(p.getValueAsLong());
         case JsonTokenId.ID_NULL:

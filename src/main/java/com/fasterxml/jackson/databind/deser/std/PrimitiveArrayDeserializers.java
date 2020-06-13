@@ -492,7 +492,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _verifyNullForPrimitive(ctxt);
                             value = (byte) 0;
                         } else {
-                            value = _parseBytePrimitive(p, ctxt);
+                            value = _parseBytePrimitive(ctxt, p, handledType());
                         }
                     }
                     if (ix >= chunk.length) {

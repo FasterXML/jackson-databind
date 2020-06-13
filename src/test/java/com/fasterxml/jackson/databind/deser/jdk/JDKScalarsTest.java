@@ -118,7 +118,11 @@ public class JDKScalarsTest
         public Void value;
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    final ObjectMapper MAPPER_NO_COERCION =jsonMapperBuilder()
+            .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+            .build();
 
     /*
     /**********************************************************
@@ -863,14 +867,14 @@ public class JDKScalarsTest
         final String JSON_WITH_NULL = "[ null ]";
         final String SIMPLE_NAME = "`"+cls.getSimpleName()+"`";
         final ObjectReader readerCoerceOk = MAPPER.readerFor(cls);
-        final ObjectReader readerNoCoerce = readerCoerceOk
+        final ObjectReader readerNoNulls = readerCoerceOk
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
 
         Object ob = readerCoerceOk.forType(cls).readValue(JSON_WITH_NULL);
         assertEquals(1, Array.getLength(ob));
         assertEquals(defValue, Array.get(ob, 0));
         try {
-            readerNoCoerce.readValue(JSON_WITH_NULL);
+            readerNoNulls.readValue(JSON_WITH_NULL);
             fail("Should not pass");
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot coerce `null`");
@@ -882,8 +886,9 @@ public class JDKScalarsTest
             assertEquals(1, Array.getLength(ob));
             assertEquals(defValue, Array.get(ob, 0));
 
+            final ObjectReader readerNoEmpty = MAPPER_NO_COERCION.readerFor(cls);
             try {
-                readerNoCoerce.readValue(EMPTY_STRING_JSON);
+                readerNoEmpty.readValue(EMPTY_STRING_JSON);
                 fail("Should not pass");
             } catch (JsonMappingException e) {
                 // 07-Jun-2020, tatu: during transition, two acceptable alternatives

@@ -431,15 +431,6 @@ public abstract class StdDeserializer<T>
         throws IOException
     {
         switch (p.currentTokenId()) {
-        case JsonTokenId.ID_TRUE:
-            return true;
-        case JsonTokenId.ID_FALSE:
-            return false;
-        case JsonTokenId.ID_NULL:
-            return (Boolean) _coerceNullToken(ctxt, false);
-        case JsonTokenId.ID_NUMBER_INT:
-            // may accept ints too, (0 == false, otherwise true)
-            return _coerceBooleanFromInt(ctxt, p, targetType);
         case JsonTokenId.ID_STRING:
             String text = p.getText();
             CoercionAction act = _checkFromStringCoercion(ctxt, text,
@@ -463,6 +454,15 @@ public abstract class StdDeserializer<T>
             }
             return (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
                     "only \"true\" or \"false\" recognized");
+        case JsonTokenId.ID_TRUE:
+            return true;
+        case JsonTokenId.ID_FALSE:
+            return false;
+        case JsonTokenId.ID_NULL: // null fine for non-primitive
+            return (Boolean) getNullValue(ctxt);
+        case JsonTokenId.ID_NUMBER_INT:
+            // may accept ints too, (0 == false, otherwise true)
+            return _coerceBooleanFromInt(ctxt, p, targetType);
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             return (Boolean) _deserializeFromArray(p, ctxt);
         }
@@ -1212,20 +1212,6 @@ inputDesc, _coercedTypeDesc());
     }
 
     /**
-     * Method to call when JSON `null` token is encountered. Note: only called when
-     * this deserializer encounters it but NOT when reached via property
-     *
-     * @since 2.9
-     */
-    protected Object _coerceNullToken(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
-    {
-        if (isPrimitive) {
-            _verifyNullForPrimitive(ctxt);
-        }
-        return getNullValue(ctxt);
-    }
-
-    /**
      * Method called when JSON String with value "null" is encountered.
      *
      * @since 2.9
@@ -1387,6 +1373,15 @@ inputDesc, _coercedTypeDesc());
             ctxt.reportInputMismatch(this, "Cannot coerce Number (%s) to %s (enable `%s.%s` to allow)",
                 valueDesc, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
         }
+    }
+
+    @Deprecated // since 2.12
+    protected Object _coerceNullToken(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
+    {
+        if (isPrimitive) {
+            _verifyNullForPrimitive(ctxt);
+        }
+        return getNullValue(ctxt);
     }
 
     /*

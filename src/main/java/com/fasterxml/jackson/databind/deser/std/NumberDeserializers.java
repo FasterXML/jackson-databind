@@ -959,6 +959,7 @@ public class NumberDeserializers
         @Override
         public BigInteger deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
+            CoercionAction act;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
                 switch (p.getNumberType()) {
@@ -969,15 +970,19 @@ public class NumberDeserializers
                 }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
-                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
-                    _failDoubleToIntCoercion(p, ctxt, "java.math.BigInteger");
+                act = _checkFloatToIntCoercion(ctxt, p, _valueClass);
+                if (act == CoercionAction.AsNull) {
+                    return (BigInteger) getNullValue(ctxt);
+                }
+                if (act == CoercionAction.AsEmpty) {
+                    return (BigInteger) getEmptyValue(ctxt);
                 }
                 return p.getDecimalValue().toBigInteger();
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 String text = p.getText();
-                CoercionAction act = _checkFromStringCoercion(ctxt, text);
+                act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return getNullValue(ctxt);
                 }

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
- * Dummy container class to group standard homogenous array serializer implementations
+ * Dummy container class to group standard homogeneous array serializer implementations
  * (primitive arrays and String array).
  */
 public class StdArraySerializers

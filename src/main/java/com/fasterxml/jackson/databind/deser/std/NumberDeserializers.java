@@ -254,7 +254,7 @@ public class NumberDeserializers
 
         final static ByteDeserializer primitiveInstance = new ByteDeserializer(Byte.TYPE, (byte) 0);
         final static ByteDeserializer wrapperInstance = new ByteDeserializer(Byte.class, null);
-        
+
         public ByteDeserializer(Class<Byte> cls, Byte nvl)
         {
             super(cls, LogicalType.Integer, nvl, (byte) 0);
@@ -266,58 +266,7 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getByteValue();
             }
-            return _parseByte(p, ctxt);
-        }
-
-        protected Byte _parseByte(JsonParser p, DeserializationContext ctxt) throws IOException
-        {
-            JsonToken t = p.currentToken();
-            if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-                String text = p.getText();
-                CoercionAction act = _checkFromStringCoercion(ctxt, text);
-                if (act == CoercionAction.AsNull) {
-                    return (Byte) getNullValue(ctxt);
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (Byte) getEmptyValue(ctxt);
-                }
-                text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Byte) _coerceTextualNull(ctxt, _primitive);
-                }
-                int value;
-                try {
-                    value = NumberInput.parseInt(text);
-                } catch (IllegalArgumentException iae) {
-                    return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "not a valid Byte value");
-                }
-                // So far so good: but does it fit?
-                // as per [JACKSON-804], allow range up to 255, inclusive
-                if (_byteOverflow(value)) {
-                    return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "overflow, value cannot be represented as 8-bit value");
-                    // fall-through for deferred fails
-                }
-                return Byte.valueOf((byte) value);
-            }
-            if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
-                    _failDoubleToIntCoercion(p, ctxt, "Byte");
-                }
-                return p.getByteValue();
-            }
-            if (t == JsonToken.VALUE_NULL) {
-                return (Byte) _coerceNullToken(ctxt, _primitive);
-            }
-            // [databind#381]
-            if (t == JsonToken.START_ARRAY) {
-                return _deserializeFromArray(p, ctxt);
-            }
-            if (t == JsonToken.VALUE_NUMBER_INT) { // shouldn't usually be called with it but
-                return p.getByteValue();
-            }
-            return (Byte) ctxt.handleUnexpectedToken(_valueClass, p);
+            return _parseByte(p, ctxt, _valueClass);
         }
     }
 

@@ -521,7 +521,7 @@ public abstract class StdDeserializer<T>
                 value = NumberInput.parseInt(text);
             } catch (IllegalArgumentException iae) {
                 return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "not a valid Byte value");
+                        "not a valid `byte` value");
             }
             // So far so good: but does it fit?
             // as per [JACKSON-804], allow range up to 255, inclusive
@@ -589,7 +589,7 @@ public abstract class StdDeserializer<T>
                 value = NumberInput.parseInt(text);
             } catch (IllegalArgumentException iae) {
                 return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
-                        "not a valid Short value");
+                        "not a valid `short` value");
             }
             if (_shortOverflow(value)) {
                 return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
@@ -680,7 +680,7 @@ public abstract class StdDeserializer<T>
             if (text.length() > 9) {
                 long l = Long.parseLong(text);
                 if (_intOverflow(l)) {
-                    Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
+                    Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
                         "Overflow: numeric value (%s) out of range of int (%d -%d)",
                         text, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     return _nonNullNumber(v).intValue();
@@ -689,8 +689,8 @@ public abstract class StdDeserializer<T>
             }
             return NumberInput.parseInt(text);
         } catch (IllegalArgumentException iae) {
-            Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid int value");
+            Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
+                    "not a valid `int` value");
             return _nonNullNumber(v).intValue();
         }
     }
@@ -728,7 +728,7 @@ public abstract class StdDeserializer<T>
             }
             return _parseLongPrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToIntCoercion(ctxt, p, Integer.TYPE);
+            act = _checkFloatToIntCoercion(ctxt, p, Long.TYPE);
             if (act == CoercionAction.AsNull) {
                 return 0L;
             }
@@ -746,7 +746,7 @@ public abstract class StdDeserializer<T>
             break;
         default:
         }
-        return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).longValue();
+        return ((Number) ctxt.handleUnexpectedToken(Long.TYPE, p)).longValue();
     }
 
     /**
@@ -758,8 +758,8 @@ public abstract class StdDeserializer<T>
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
         {
-            Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid long value");
+            Number v = (Number) ctxt.handleWeirdStringValue(Long.TYPE, text,
+                    "not a valid `long` value");
             return _nonNullNumber(v).longValue();
         }
     }
@@ -807,7 +807,7 @@ public abstract class StdDeserializer<T>
             break;
         }
         // Otherwise, no can do:
-        return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).floatValue();
+        return ((Number) ctxt.handleUnexpectedToken(Float.TYPE, p)).floatValue();
     }
 
     /**
@@ -834,8 +834,8 @@ public abstract class StdDeserializer<T>
         try {
             return Float.parseFloat(text);
         } catch (IllegalArgumentException iae) { }
-        Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
-                "not a valid float value");
+        Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
+                "not a valid `float` value");
         return _nonNullNumber(v).floatValue();
     }
 
@@ -882,7 +882,7 @@ public abstract class StdDeserializer<T>
             break;
         }
         // Otherwise, no can do:
-        return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).doubleValue();
+        return ((Number) ctxt.handleUnexpectedToken(Double.TYPE, p)).doubleValue();
     }
 
     /**
@@ -911,8 +911,8 @@ public abstract class StdDeserializer<T>
         try {
             return parseDouble(text);
         } catch (IllegalArgumentException iae) { }
-        Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
-                "not a valid double value (as String to convert)");
+        Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
+                "not a valid `double` value (as String to convert)");
         return _nonNullNumber(v).doubleValue();
     }
 
@@ -931,7 +931,7 @@ public abstract class StdDeserializer<T>
                 //     (but leave both until 3.0)
                 } catch (JsonParseException | InputCoercionException e) {
                     Number v = (Number) ctxt.handleWeirdNumberValue(_valueClass, p.getNumberValue(),
-                            "not a valid 64-bit long for creating `java.util.Date`");
+                            "not a valid 64-bit `long` for creating `java.util.Date`");
                     ts = v.longValue();
                 }
                 return new java.util.Date(ts);

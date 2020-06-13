@@ -1173,34 +1173,6 @@ inputDesc, _coercedTypeDesc());
         _reportFailedNullCoerce(ctxt, enable, feat, strDesc);
     }
 
-    /*
-    /**********************************************************************
-    /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
-    /**********************************************************************
-     */
-
-    @Deprecated // since 2.12
-    protected final void _verifyNullForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
-    {
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
-            _reportFailedNullCoerce(ctxt, true, MapperFeature.ALLOW_COERCION_OF_SCALARS, strDesc);
-        }
-    }
-
-    @Deprecated // since 2.12
-    protected void _verifyNumberForScalarCoercion(DeserializationContext ctxt, JsonParser p) throws IOException
-    {
-        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-        if (!ctxt.isEnabled(feat)) {
-            // 31-Mar-2017, tatu: Since we don't know (or this deep, care) about exact type,
-            //   access as a String: may require re-encoding by parser which should be fine
-            String valueDesc = p.getText();
-            ctxt.reportInputMismatch(this, "Cannot coerce Number (%s) to %s (enable `%s.%s` to allow)",
-                valueDesc, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
-        }
-    }
-
     protected void _reportFailedNullCoerce(DeserializationContext ctxt, boolean state, Enum<?> feature,
             String inputDesc) throws JsonMappingException
     {
@@ -1215,6 +1187,8 @@ inputDesc, _coercedTypeDesc());
      * on coerce failure.
      *
      * @return Message with backtick-enclosed name of type this deserializer supports
+     *
+     * @since 2.9
      */
     protected String _coercedTypeDesc() {
         boolean structured;
@@ -1235,6 +1209,14 @@ inputDesc, _coercedTypeDesc());
         }
         return typeDesc+" value";
     }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
+    /**********************************************************************
+     */
+
+    // Removed from 3.0
 
     /*
     /**********************************************************************

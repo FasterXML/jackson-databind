@@ -1204,15 +1204,6 @@ inputDesc, _coercedTypeDesc());
 
     // Removed from 3.0
 
-    @Deprecated // since 2.12
-    protected Object _coerceNullToken(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
-    {
-        if (isPrimitive) {
-            _verifyNullForPrimitive(ctxt);
-        }
-        return getNullValue(ctxt);
-    }
-
     /*
     /**********************************************************************
     /* Helper methods for sub-classes, resolving dependencies

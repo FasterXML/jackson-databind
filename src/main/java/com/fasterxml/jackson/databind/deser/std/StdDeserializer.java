@@ -426,6 +426,24 @@ public abstract class StdDeserializer<T>
         return ((Boolean) ctxt.handleUnexpectedToken(Boolean.TYPE, p)).booleanValue();
     }
 
+    /**
+     * Helper method called for cases where non-primitive, boolean-based value
+     * is to be deserialized: result of this method will be {@link java.lang.Boolean},
+     * although actual target type may be something different.
+     *<p>
+     * Note: does NOT dynamically access "empty value" or "null value" of deserializer
+     * since those values could be of type other than {@link java.lang.Boolean}.
+     * Caller may need to translate from 3 possible result types into appropriately
+     * matching output types.
+     *
+     * @param ctxt Deserialization context for accessing configuration
+     * @param p Underlying parser
+     * @param targetType Actual type that is being deserialized, may be
+     *    same as {@link #handledType} but could be {@code AtomicBoolean} for example.
+     *    Used for coercion config access.
+     *
+     * @since 2.12
+     */
     protected final Boolean _parseBoolean(DeserializationContext ctxt,
             JsonParser p, Class<?> targetType)
         throws IOException
@@ -436,30 +454,30 @@ public abstract class StdDeserializer<T>
             CoercionAction act = _checkFromStringCoercion(ctxt, text,
                     LogicalType.Boolean, targetType);
             if (act == CoercionAction.AsNull) {
-                return (Boolean) getNullValue(ctxt);
+                return null;
             }
             if (act == CoercionAction.AsEmpty) {
-                return (Boolean) getEmptyValue(ctxt);
+                return false;
             }
             text = text.trim();
             // [databind#422]: Allow aliases
             if ("true".equals(text) || "True".equals(text)) {
-                return Boolean.TRUE;
+                return true;
             }
             if ("false".equals(text) || "False".equals(text)) {
-                return Boolean.FALSE;
+                return false;
             }
-            if (_hasTextualNull(text)) {
-                return (Boolean) _coerceTextualNull(ctxt, false);
+            if (_checkTextualNull(ctxt, text)) {
+                return null;
             }
-            return (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
+            return (Boolean) ctxt.handleWeirdStringValue(targetType, text,
                     "only \"true\" or \"false\" recognized");
         case JsonTokenId.ID_TRUE:
             return true;
         case JsonTokenId.ID_FALSE:
             return false;
         case JsonTokenId.ID_NULL: // null fine for non-primitive
-            return (Boolean) getNullValue(ctxt);
+            return null;
         case JsonTokenId.ID_NUMBER_INT:
             // may accept ints too, (0 == false, otherwise true)
             return _coerceBooleanFromInt(ctxt, p, targetType);
@@ -468,20 +486,6 @@ public abstract class StdDeserializer<T>
         }
         // Otherwise, no can do:
         return (Boolean) ctxt.handleUnexpectedToken(targetType, p);
-    }
-
-    @Deprecated // since 2.12
-    protected boolean _parseBooleanFromInt(JsonParser p, DeserializationContext ctxt)
-        throws IOException
-    {
-        // 13-Oct-2016, tatu: As per [databind#1324], need to be careful wrt
-        //    degenerate case of huge integers, legal in JSON.
-        //  ... this is, on the other hand, probably wrong/sub-optimal for non-JSON
-        //  input. For now, no rea
-        _verifyNumberForScalarCoercion(ctxt, p);
-        // Anyway, note that since we know it's valid (JSON) integer, it can't have
-        // extra whitespace to trim.
-        return !"0".equals(p.getText());
     }
 
     @Deprecated // since 2.12, use overloaded variant
@@ -1308,7 +1312,21 @@ inputDesc, _coercedTypeDesc());
     /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
     /**********************************************************************
      */
-    
+
+    @Deprecated // since 2.12
+    protected boolean _parseBooleanFromInt(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        // 13-Oct-2016, tatu: As per [databind#1324], need to be careful wrt
+        //    degenerate case of huge integers, legal in JSON.
+        //  ... this is, on the other hand, probably wrong/sub-optimal for non-JSON
+        //  input. For now, no rea
+        _verifyNumberForScalarCoercion(ctxt, p);
+        // Anyway, note that since we know it's valid (JSON) integer, it can't have
+        // extra whitespace to trim.
+        return !"0".equals(p.getText());
+    }
+
     /**
      * @deprecated Since 2.12 use {@link #_checkFromStringCoercion} instead
      */

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -52,6 +53,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
 
         _verifyNullOkFromEmpty(BigInteger.class, null);
         _verifyNullOkFromEmpty(BigDecimal.class, null);
+        _verifyNullOkFromEmpty(AtomicBoolean.class, null);
     }
 
     private void _verifyNullOkFromEmpty(Class<?> type, Object exp) throws IOException
@@ -88,6 +90,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
 
         _verifyNullFail(BigInteger.class);
         _verifyNullFail(BigDecimal.class);
+        _verifyNullFail(AtomicBoolean.class);
     }
 
     private void _verifyNullFail(Class<?> type) throws IOException
@@ -137,6 +140,10 @@ public class CoerceJDKScalarsTest extends BaseMapTest
 
         _verifyCoerceSuccess(quote("123"), BigInteger.class, BigInteger.valueOf(123));
         _verifyCoerceSuccess(quote("123.0"), BigDecimal.class, new BigDecimal("123.0"));
+
+        AtomicBoolean ab = COERCING_MAPPER.readValue(quote("true"), AtomicBoolean.class);
+        assertNotNull(ab);
+        assertTrue(ab.get());
     }
 
     public void testStringCoercionFailBoolean() throws Exception

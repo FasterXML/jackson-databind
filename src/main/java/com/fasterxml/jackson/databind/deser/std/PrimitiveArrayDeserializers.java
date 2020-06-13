@@ -492,7 +492,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _verifyNullForPrimitive(ctxt);
                             value = (byte) 0;
                         } else {
-                            value = _parseBytePrimitive(ctxt, p, handledType());
+                            value = _parseBytePrimitive(ctxt, p, Byte.TYPE);
                         }
                     }
                     if (ix >= chunk.length) {
@@ -584,7 +584,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                         _verifyNullForPrimitive(ctxt);
                         value = (short) 0;
                     } else {
-                        value = _parseShortPrimitive(p, ctxt);
+                        value = _parseShortPrimitive(ctxt, p, Short.TYPE);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -601,7 +601,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected short[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new short[] { _parseShortPrimitive(p, ctxt) };
+            return new short[] { _parseShortPrimitive(ctxt, p, Short.TYPE) };
         }
 
         @Override

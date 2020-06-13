@@ -1872,8 +1872,9 @@ trailingToken, ClassUtil.nameOf(targetType)
                 return "Embedded Object";
 
             case VALUE_NUMBER_FLOAT:
+                return "Floating-point value";
             case VALUE_NUMBER_INT:
-                return "Number value";
+                return "Integer value";
             case VALUE_STRING:
                 return "String value";
 

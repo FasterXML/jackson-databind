@@ -301,6 +301,14 @@ public abstract class StdDeserializer<T>
     /**********************************************************************
      */
 
+    /**
+     * @param ctxt Deserialization context for accessing configuration
+     * @param p Underlying parser
+     * @param targetType Actual type that is being deserialized, typically
+     *    same as {@link #handledType}, and not necessarily {@code boolean}
+     *    (may be {@code boolean[]} or {@code AtomicBoolean} for example);
+     *    used for coercion config access
+     */
     protected final boolean _parseBooleanPrimitive(DeserializationContext ctxt,
             JsonParser p, Class<?> targetType)
         throws IOException
@@ -406,20 +414,6 @@ public abstract class StdDeserializer<T>
         return (Boolean) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
-    @Deprecated // since 2.12
-    protected boolean _parseBooleanFromInt(JsonParser p, DeserializationContext ctxt)
-        throws IOException
-    {
-        // 13-Oct-2016, tatu: As per [databind#1324], need to be careful wrt
-        //    degenerate case of huge integers, legal in JSON.
-        //  ... this is, on the other hand, probably wrong/sub-optimal for non-JSON
-        //  input. For now, no rea
-        _verifyNumberForScalarCoercion(ctxt, p);
-        // Anyway, note that since we know it's valid (JSON) integer, it can't have
-        // extra whitespace to trim.
-        return !"0".equals(p.getText());
-    }
-
     protected final byte _parseBytePrimitive(DeserializationContext ctxt, JsonParser p,
             Class<?> targetType)
         throws IOException
@@ -427,14 +421,14 @@ public abstract class StdDeserializer<T>
         final JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NUMBER_INT) return p.getByteValue();
         if (t == JsonToken.VALUE_NULL) {
-            return (Byte) _coerceNullToken(ctxt, true);
+            _verifyNullForPrimitive(ctxt);
+            return (byte) 0;
         }
         if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
             String text = p.getText();
             CoercionAction act = _checkFromStringCoercion(ctxt, text,
                     LogicalType.Integer, targetType);
             if (act == CoercionAction.AsNull) {
-//                _verifyNullForPrimitiveCoercion(ctxt, text);
                 return (byte) 0; // no need to check as does not come from `null`, explicit coercion
             }
             if (act == CoercionAction.AsEmpty) {
@@ -481,7 +475,10 @@ public abstract class StdDeserializer<T>
         return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p)).byteValue();
     }
 
-    protected Byte _parseByte(JsonParser p, DeserializationContext ctxt,
+    /**
+     * @since 2.12
+     */
+    protected Byte _parseByte(DeserializationContext ctxt, JsonParser p,
             Class<?> targetType) throws IOException
     {
         final JsonToken t = p.currentToken();
@@ -507,13 +504,13 @@ public abstract class StdDeserializer<T>
             try {
                 value = NumberInput.parseInt(text);
             } catch (IllegalArgumentException iae) {
-                return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
+                return (Byte) ctxt.handleWeirdStringValue(targetType, text,
                         "not a valid Byte value");
             }
             // So far so good: but does it fit?
             // as per [JACKSON-804], allow range up to 255, inclusive
             if (_byteOverflow(value)) {
-                return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
+                return (Byte) ctxt.handleWeirdStringValue(targetType, text,
                         "overflow, value cannot be represented as 8-bit value");
                 // fall-through for deferred fails
             }
@@ -535,22 +532,106 @@ public abstract class StdDeserializer<T>
         return (Byte) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
-    protected final short _parseShortPrimitive(JsonParser p, DeserializationContext ctxt)
+    /**
+     * @since 2.12
+     */
+    protected final short _parseShortPrimitive(DeserializationContext ctxt, JsonParser p,
+            Class<?> targetType)
         throws IOException
     {
         final JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NUMBER_INT) return p.getShortValue();
         if (t == JsonToken.VALUE_NULL) {
-            return (Byte) _coerceNullToken(ctxt, true);
+            _verifyNullForPrimitive(ctxt);
+            return (short) 0;
         }
-        int value = _parseIntPrimitive(p, ctxt);
-        // So far so good: but does it fit?
-        if (_shortOverflow(value)) {
-            Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, String.valueOf(value),
-                    "overflow, value cannot be represented as 16-bit value");
-            return _nonNullNumber(v).shortValue();
+        if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
+            String text = p.getText();
+            CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                    LogicalType.Integer, targetType);
+            if (act == CoercionAction.AsNull) {
+                return (short) 0; // no need to check as does not come from `null`, explicit coercion
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (short) 0;
+            }
+            text = text.trim();
+            if (_hasTextualNull(text)) {
+                _verifyNullForPrimitiveCoercion(ctxt, text);
+                return (short) 0;
+            }
+            int value;
+            try {
+                value = NumberInput.parseInt(text);
+            } catch (IllegalArgumentException iae) {
+                return (Short) ctxt.handleWeirdStringValue(targetType, text,
+                        "not a valid Short value");
+            }
+            if (_shortOverflow(value)) {
+                return (Short) ctxt.handleWeirdStringValue(targetType, text,
+                        "overflow, value cannot be represented as 16-bit value");
+            }
+            return (short) value;
         }
-        return (short) value;
+        // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            p.nextToken();
+            final short parsed = _parseShortPrimitive(ctxt, p, targetType);
+            _verifyEndArrayForSingle(p, ctxt);
+            return parsed;
+        }
+        return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p)).shortValue();
+    }
+
+    protected Short _parseShort(DeserializationContext ctxt, JsonParser p,
+            Class<?> targetType) throws IOException
+    {
+        final JsonToken t = p.currentToken();
+        if (t == JsonToken.VALUE_NUMBER_INT) return p.getShortValue();
+        if (t == JsonToken.VALUE_NULL) {
+            return (Short) _coerceNullToken(ctxt, false);
+        }
+        if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
+            String text = p.getText();
+            CoercionAction act = _checkFromStringCoercion(ctxt, text);
+            if (act == CoercionAction.AsNull) {
+                return (Short) getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (Short) getEmptyValue(ctxt);
+            }
+            text = text.trim();
+            if (_hasTextualNull(text)) {
+                return (Short) _coerceTextualNull(ctxt, false);
+            }
+            int value;
+            try {
+                value = NumberInput.parseInt(text);
+            } catch (IllegalArgumentException iae) {
+                return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
+                        "not a valid Short value");
+            }
+            // So far so good: but does it fit?
+            if (_shortOverflow(value)) {
+                return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
+                        "overflow, value cannot be represented as 16-bit value");
+            }
+            return Short.valueOf((short) value);
+        }
+        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+            CoercionAction act = _checkFloatToIntCoercion(ctxt, p, targetType);
+            if (act == CoercionAction.AsNull) {
+                return (Short) getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (Short) getEmptyValue(ctxt);
+            }
+            return p.getShortValue();
+        }
+        if (t == JsonToken.START_ARRAY) {
+            return (Short)_deserializeFromArray(p, ctxt);
+        }
+        return (Short) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
     protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)

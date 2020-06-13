@@ -266,9 +266,9 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getByteValue();
             }
-//            if (_primitive) {
-//                return _parseBytePrimitive(ctxt, p, _valueClass);
-//            }
+            if (_primitive) {
+                return _parseBytePrimitive(ctxt, p, _valueClass);
+            }
             return _parseByte(ctxt, p, _valueClass);
         }
     }
@@ -294,9 +294,9 @@ public class NumberDeserializers
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
                 return p.getShortValue();
             }
-//            if (_primitive) {
-//                return _parseShortPrimitive(ctxt, p, _valueClass);
-//            }
+            if (_primitive) {
+                return _parseShortPrimitive(ctxt, p, _valueClass);
+            }
             return _parseShort(ctxt, p, _valueClass);
         }
     }

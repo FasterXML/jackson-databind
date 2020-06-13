@@ -701,9 +701,11 @@ public class JDKScalarsTest
 
     public void testEmptyStringFailForPrimitives() throws IOException
     {
-        _verifyEmptyStringFailForPrimitives("byteValue");
+        // 12-Jun-2020, tatu: Empty String coercion is not same as explicit
+        //    `null`, so some of these do not apply:
+//        _verifyEmptyStringFailForPrimitives("byteValue");
         _verifyEmptyStringFailForPrimitives("charValue");
-        _verifyEmptyStringFailForPrimitives("shortValue");
+//        _verifyEmptyStringFailForPrimitives("shortValue");
         _verifyEmptyStringFailForPrimitives("intValue");
         _verifyEmptyStringFailForPrimitives("longValue");
         _verifyEmptyStringFailForPrimitives("floatValue");

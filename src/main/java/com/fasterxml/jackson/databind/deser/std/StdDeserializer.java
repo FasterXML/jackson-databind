@@ -1106,12 +1106,6 @@ inputDesc, _coercedTypeDesc());
         return p.getNumberValue(); // should be optimal, whatever it is
     }
 
-    /*
-    /**********************************************************************
-    /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
-    /**********************************************************************
-     */
-
     /**
      * Method to call when JSON `null` token is encountered. Note: only called when
      * this deserializer encounters it but NOT when reached via property
@@ -1178,6 +1172,12 @@ inputDesc, _coercedTypeDesc());
         String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
         _reportFailedNullCoerce(ctxt, enable, feat, strDesc);
     }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes, coercions, older (pre-2.12), deprecated
+    /**********************************************************************
+     */
 
     @Deprecated // since 2.12
     protected final void _verifyNullForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException

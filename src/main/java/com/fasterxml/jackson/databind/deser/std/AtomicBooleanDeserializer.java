@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
 public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoolean>
@@ -31,4 +32,9 @@ public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoole
 
     @Override
     public LogicalType logicalType() { return LogicalType.Boolean; }
+
+    @Override // @since 2.12
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return new AtomicBoolean(false);
+    }
 }

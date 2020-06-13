@@ -301,8 +301,8 @@ public class NumberDeserializers
                     return (Byte) getEmptyValue(ctxt);
                 }
                 return p.getByteValue();
-            case JsonTokenId.ID_NULL:
-                return (Byte) _coerceNullToken(ctxt, false);
+            case JsonTokenId.ID_NULL: // null fine for non-primitive
+                return (Byte) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:
                 return p.getByteValue();
             case JsonTokenId.ID_START_ARRAY:
@@ -377,8 +377,8 @@ public class NumberDeserializers
                     return (Short) getEmptyValue(ctxt);
                 }
                 return p.getShortValue();
-            case JsonTokenId.ID_NULL:
-                return (Short) _coerceNullToken(ctxt, false);
+            case JsonTokenId.ID_NULL: // null fine for non-primitive
+                return (Short) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:
                 return p.getShortValue();
             case JsonTokenId.ID_START_ARRAY:
@@ -438,7 +438,10 @@ public class NumberDeserializers
                 }
                 break;
             case JsonTokenId.ID_NULL:
-                return (Character) _coerceNullToken(ctxt, _primitive);
+                if (_primitive) {
+                    _verifyNullForPrimitive(ctxt);
+                }
+                return (Character) getNullValue(ctxt);
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             default:
@@ -532,8 +535,8 @@ public class NumberDeserializers
                 return p.getValueAsInt();
             case JsonTokenId.ID_NUMBER_INT: // NOTE: caller assumed to check in fast path
                 return p.getIntValue();
-            case JsonTokenId.ID_NULL:
-                return (Integer) _coerceNullToken(ctxt, false);
+            case JsonTokenId.ID_NULL: // null fine for non-primitive
+                return (Integer) getNullValue(ctxt);
             case JsonTokenId.ID_START_ARRAY:
                 return (Integer) _deserializeFromArray(p, ctxt);
             }
@@ -599,8 +602,8 @@ public class NumberDeserializers
                     return (Long) getEmptyValue(ctxt);
                 }
                 return p.getValueAsLong();
-            case JsonTokenId.ID_NULL:
-                return (Long) _coerceNullToken(ctxt, false);
+            case JsonTokenId.ID_NULL: // null fine for non-primitive
+                return (Long) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:
                 return p.getLongValue();
             case JsonTokenId.ID_START_ARRAY:
@@ -674,8 +677,8 @@ public class NumberDeserializers
                 } catch (IllegalArgumentException iae) { }
                 return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
                         "not a valid Float value");
-            case JsonTokenId.ID_NULL:
-                return (Float) _coerceNullToken(ctxt, _primitive);
+            case JsonTokenId.ID_NULL: // null fine for non-primitive
+                return (Float) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_FLOAT:
             case JsonTokenId.ID_NUMBER_INT: // safe coercion
                 return p.getFloatValue();
@@ -763,8 +766,8 @@ public class NumberDeserializers
                 } catch (IllegalArgumentException iae) { }
                 return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
                         "not a valid Double value");
-            case JsonTokenId.ID_NULL:
-                return (Double) _coerceNullToken(ctxt, _primitive);
+            case JsonTokenId.ID_NULL: // null fine for non-primitive
+                return (Double) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_FLOAT:
             case JsonTokenId.ID_NUMBER_INT: // safe coercion
                 return p.getDoubleValue();

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 
 /**
- * Base for serializers that allows parsing DOM Documents from JSON Strings.
+ * Base for deserializers that allows parsing DOM Documents from JSON Strings.
  * Nominal type can be either {@link org.w3c.dom.Node} or
  * {@link org.w3c.dom.Document}.
  */

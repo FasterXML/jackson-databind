@@ -287,8 +287,8 @@ public class NumberDeserializers
                     return (Byte) getEmptyValue(ctxt);
                 }
                 text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Byte) _coerceTextualNull(ctxt, false);
+                if (_checkTextualNull(ctxt, text)) {
+                    return (Byte) getNullValue(ctxt);
                 }
                 int value;
                 try {
@@ -367,8 +367,8 @@ public class NumberDeserializers
                     return (Short) getEmptyValue(ctxt);
                 }
                 text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Short) _coerceTextualNull(ctxt, false);
+                if (_checkTextualNull(ctxt, text)) {
+                    return (Short) getNullValue(ctxt);
                 }
                 int value;
                 try {
@@ -446,8 +446,8 @@ public class NumberDeserializers
                     return (Character) getEmptyValue(ctxt);
                 }
                 text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Character) _coerceTextualNull(ctxt, _primitive);
+                if (_checkTextualNull(ctxt, text)) {
+                    return (Character) getNullValue(ctxt);
                 }
                 // But does it have to be exactly one char?
                 if (text.length() == 1) {
@@ -526,8 +526,8 @@ public class NumberDeserializers
                     return (Integer) getEmptyValue(ctxt);
                 }
                 text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Integer) _coerceTextualNull(ctxt, false);
+                if (_checkTextualNull(ctxt, text)) {
+                    return (Integer) getNullValue(ctxt);
                 }
                 final int len = text.length();
                 try {
@@ -609,8 +609,8 @@ public class NumberDeserializers
                     return (Long) getEmptyValue(ctxt);
                 }
                 text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Long) _coerceTextualNull(ctxt, false);
+                if (_checkTextualNull(ctxt, text)) {
+                    return (Long) getNullValue(ctxt);
                 }
                 // let's allow Strings to be converted too
                 try {
@@ -679,8 +679,8 @@ public class NumberDeserializers
                     return (Float) getEmptyValue(ctxt);
                 }
                 text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Float) _coerceTextualNull(ctxt, false);
+                if (_checkTextualNull(ctxt, text)) {
+                    return (Float) getNullValue(ctxt);
                 }
                 switch (text.charAt(0)) {
                 case 'I':
@@ -770,8 +770,8 @@ public class NumberDeserializers
                     return (Double) getEmptyValue(ctxt);
                 }
                 text = text.trim();
-                if (_hasTextualNull(text)) {
-                    return (Double) _coerceTextualNull(ctxt, _primitive);
+                if (_checkTextualNull(ctxt, text)) {
+                    return (Double) getNullValue(ctxt);
                 }
                 switch (text.charAt(0)) {
                 case 'I':

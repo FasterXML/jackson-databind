@@ -1056,13 +1056,6 @@ public abstract class StdDeserializer<T>
         return "null".equals(value);
     }
 
-    /**
-     * @since 2.9
-     */
-    protected boolean _isEmptyOrTextualNull(String value) {
-        return value.isEmpty() || "null".equals(value);
-    }
-
     protected final boolean _isNegInf(String text) {
         return "-Infinity".equals(text) || "-INF".equals(text);
     }
@@ -1182,6 +1175,25 @@ inputDesc, _coercedTypeDesc());
         return act;
     }
 
+    /**
+     * Method called when otherwise unrecognized String value is encountered for
+     * a non-primitive type: should see if it is String value {@code "null"}, and if so,
+     * whether it is acceptable according to configuration or not
+     *
+     * @since 2.12
+     */
+    protected boolean _checkTextualNull(DeserializationContext ctxt, String text)
+            throws JsonMappingException
+    {
+        if (_hasTextualNull(text)) {
+            if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+                _reportFailedNullCoerce(ctxt, true,  MapperFeature.ALLOW_COERCION_OF_SCALARS, "String \"null\"");
+            }
+            return true;
+        }
+        return false;
+    }
+
     /*
     /**********************************************************************
     /* Helper methods for sub-classes, coercions, older (pre-2.12), non-deprecated
@@ -1212,29 +1224,13 @@ inputDesc, _coercedTypeDesc());
     }
 
     /**
-     * Method called when JSON String with value "null" is encountered.
+     * Method called to verify that {@code null} token from input is acceptable
+     * for primitive (unboxed) target type. It should NOT be called if {@code null}
+     * was received by other means (coerced due to configuration, or even from
+     * optionally acceptable String {@code "null"} token).
      *
      * @since 2.9
      */
-    protected Object _coerceTextualNull(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
-    {
-        Enum<?> feat;
-        boolean enable;
-
-        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-            enable = true;
-        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
-            enable = false;
-        } else {
-            return getNullValue(ctxt);
-        }
-        _reportFailedNullCoerce(ctxt, enable, feat, "String \"null\"");
-        return null;
-    }
-
-    // @since 2.9
     protected final void _verifyNullForPrimitive(DeserializationContext ctxt) throws JsonMappingException
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
@@ -1244,8 +1240,14 @@ inputDesc, _coercedTypeDesc());
         }
     }
 
-    // NOTE: only for primitive Scalars
-    // @since 2.9
+    /**
+     * Method called to verify that text value {@code "null"} from input is acceptable
+     * for primitive (unboxed) target type. It should not be called if actual
+     * {@code null} token was received, or if null is a result of coercion from
+     * Some other input type.
+     *
+     * @since 2.9
+     */
     protected final void _verifyNullForPrimitiveCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
     {
         Enum<?> feat;
@@ -1382,6 +1384,19 @@ inputDesc, _coercedTypeDesc());
             _verifyNullForPrimitive(ctxt);
         }
         return getNullValue(ctxt);
+    }
+
+    @Deprecated // since 2.12
+    protected Object _coerceTextualNull(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException {
+        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            _reportFailedNullCoerce(ctxt, true,  MapperFeature.ALLOW_COERCION_OF_SCALARS, "String \"null\"");
+        }
+        return getNullValue(ctxt);
+    }
+
+    @Deprecated // since 2.12
+    protected boolean _isEmptyOrTextualNull(String value) {
+        return value.isEmpty() || "null".equals(value);
     }
 
     /*

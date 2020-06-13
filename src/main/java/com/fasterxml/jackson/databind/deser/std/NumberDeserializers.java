@@ -427,6 +427,9 @@ public class NumberDeserializers
         @Override
         public Float deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
+            if (_primitive) {
+                return _parseFloatPrimitive(ctxt, p);
+            }
             return _parseFloat(p, ctxt);
         }
 
@@ -434,9 +437,11 @@ public class NumberDeserializers
             throws IOException
         {
             // We accept couple of different types; obvious ones first:
-            JsonToken t = p.currentToken();
-            
-            if (t == JsonToken.VALUE_NUMBER_FLOAT || t == JsonToken.VALUE_NUMBER_INT) { // coercing should work too
+            if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
+                return p.getFloatValue();
+            }
+            final JsonToken t = p.currentToken();
+            if (t == JsonToken.VALUE_NUMBER_INT) { // safe coercion
                 return p.getFloatValue();
             }
             // And finally, let's allow Strings to be converted too
@@ -509,13 +514,20 @@ public class NumberDeserializers
         public Double deserializeWithType(JsonParser p, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer) throws IOException
         {
+            if (_primitive) {
+                return _parseDoublePrimitive(ctxt, p);
+            }
             return _parseDouble(p, ctxt);
         }
 
         protected final Double _parseDouble(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = p.currentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
+            // We accept couple of different types; obvious ones first:
+            if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
+                return p.getDoubleValue();
+            }
+            final JsonToken t = p.currentToken();
+            if (t == JsonToken.VALUE_NUMBER_INT) { // safe coercion
                 return p.getDoubleValue();
             }
             if (t == JsonToken.VALUE_STRING) {

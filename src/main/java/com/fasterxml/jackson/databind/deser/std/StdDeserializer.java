@@ -342,6 +342,7 @@ public abstract class StdDeserializer<T>
             }
             text = text.trim();
             // [databind#422]: Allow aliases
+            // 13-Jun-2020, tatu: ... should we consider "lenient" vs "strict" here?
             if ("true".equals(text) || "True".equals(text)) {
                 return true;
             }
@@ -370,19 +371,17 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             JsonParser p, Class<?> targetType)
         throws IOException
     {
-        final JsonToken t = p.currentToken();
-        // usually caller should have handled but:
-        if (t == JsonToken.VALUE_TRUE) return true;
-        if (t == JsonToken.VALUE_FALSE) return false;
-        if (t == JsonToken.VALUE_NULL) {
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_TRUE:
+            return true;
+        case JsonTokenId.ID_FALSE:
+            return false;
+        case JsonTokenId.ID_NULL:
             return (Boolean) _coerceNullToken(ctxt, false);
-        }
-        // may accept ints too, (0 == false, otherwise true)
-        if (t == JsonToken.VALUE_NUMBER_INT) {
+        case JsonTokenId.ID_NUMBER_INT:
+            // may accept ints too, (0 == false, otherwise true)
             return _coerceBooleanFromInt(ctxt, p, targetType);
-        }
-        // And finally, let's allow Strings to be converted too
-        if (t == JsonToken.VALUE_STRING) {
+        case JsonTokenId.ID_STRING:
             String text = p.getText();
             CoercionAction act = _checkFromStringCoercion(ctxt, text,
                     LogicalType.Boolean, targetType);
@@ -405,8 +404,7 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             }
             return (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
                     "only \"true\" or \"false\" recognized");
-        }
-        if (t == JsonToken.START_ARRAY) { // unwrapping / from-empty-array coercion?
+        case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             return (Boolean) _deserializeFromArray(p, ctxt);
         }
         // Otherwise, no can do:
@@ -473,66 +471,6 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
         return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(Byte.TYPE), p)).byteValue();
     }
 
-    /**
-     * @since 2.12
-     */
-    protected Byte _parseByte(DeserializationContext ctxt, JsonParser p,
-            Class<?> targetType) throws IOException
-    {
-        final JsonToken t = p.currentToken();
-        if (t == JsonToken.VALUE_NUMBER_INT) return p.getByteValue();
-        if (t == JsonToken.VALUE_NULL) {
-            return (Byte) _coerceNullToken(ctxt, false);
-        }
-        if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-            String text = p.getText();
-            CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, targetType);
-            if (act == CoercionAction.AsNull) {
-                return (Byte) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Byte) getEmptyValue(ctxt);
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                return (Byte) _coerceTextualNull(ctxt, false);
-            }
-            int value;
-            try {
-                value = NumberInput.parseInt(text);
-            } catch (IllegalArgumentException iae) {
-                return (Byte) ctxt.handleWeirdStringValue(targetType, text,
-                        "not a valid Byte value");
-            }
-            // So far so good: but does it fit?
-            // as per [JACKSON-804], allow range up to 255, inclusive
-            if (_byteOverflow(value)) {
-                return (Byte) ctxt.handleWeirdStringValue(targetType, text,
-                        "overflow, value cannot be represented as 8-bit value");
-                // fall-through for deferred fails
-            }
-            return Byte.valueOf((byte) value);
-        }
-        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-            CoercionAction act = _checkFloatToIntCoercion(ctxt, p, targetType);
-            if (act == CoercionAction.AsNull) {
-                return (Byte) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Byte) getEmptyValue(ctxt);
-            }
-            return p.getByteValue();
-        }
-        if (t == JsonToken.START_ARRAY) { // [databind#381]
-            return (Byte) _deserializeFromArray(p, ctxt);
-        }
-        return (Byte) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
-    }
-
-    /**
-     * @since 2.12
-     */
     protected final short _parseShortPrimitive(DeserializationContext ctxt, JsonParser p)
         throws IOException
     {
@@ -588,57 +526,6 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
             return parsed;
         }
         return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(Short.TYPE), p)).shortValue();
-    }
-
-    protected Short _parseShort(DeserializationContext ctxt, JsonParser p,
-            Class<?> targetType) throws IOException
-    {
-        final JsonToken t = p.currentToken();
-        if (t == JsonToken.VALUE_NUMBER_INT) return p.getShortValue();
-        if (t == JsonToken.VALUE_NULL) {
-            return (Short) _coerceNullToken(ctxt, false);
-        }
-        if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-            String text = p.getText();
-            CoercionAction act = _checkFromStringCoercion(ctxt, text);
-            if (act == CoercionAction.AsNull) {
-                return (Short) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Short) getEmptyValue(ctxt);
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                return (Short) _coerceTextualNull(ctxt, false);
-            }
-            int value;
-            try {
-                value = NumberInput.parseInt(text);
-            } catch (IllegalArgumentException iae) {
-                return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "not a valid Short value");
-            }
-            // So far so good: but does it fit?
-            if (_shortOverflow(value)) {
-                return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "overflow, value cannot be represented as 16-bit value");
-            }
-            return (short) value;
-        }
-        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-            CoercionAction act = _checkFloatToIntCoercion(ctxt, p, targetType);
-            if (act == CoercionAction.AsNull) {
-                return (Short) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Short) getEmptyValue(ctxt);
-            }
-            return p.getShortValue();
-        }
-        if (t == JsonToken.START_ARRAY) {
-            return (Short)_deserializeFromArray(p, ctxt);
-        }
-        return (Short) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
     @Deprecated // since 2.12, use overloaded variant
@@ -716,63 +603,6 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
         }
     }
 
-    // @since 2.12
-    protected final Integer _parseInteger(DeserializationContext ctxt, JsonParser p,
-            Class<?> targetType) throws IOException
-    {
-        CoercionAction act;
-        switch (p.currentTokenId()) {
-        // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
-        case JsonTokenId.ID_NUMBER_INT:
-            return p.getIntValue();
-        case JsonTokenId.ID_NULL:
-            return (Integer) _coerceNullToken(ctxt, false);
-        case JsonTokenId.ID_STRING: // let's do implicit re-parse
-            String text = p.getText();
-            act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, targetType);
-            if (act == CoercionAction.AsNull) {
-                return (Integer) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Integer) getEmptyValue(ctxt);
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                return (Integer) _coerceTextualNull(ctxt, false);
-            }
-            final int len = text.length();
-            try {
-                if (len > 9) {
-                    long l = Long.parseLong(text);
-                    if (_intOverflow(l)) {
-                        return (Integer) ctxt.handleWeirdStringValue(targetType, text, String.format(
-                            "Overflow: numeric value (%s) out of range of Integer (%d - %d)",
-                            text, Integer.MIN_VALUE, Integer.MAX_VALUE));
-                    }
-                    return Integer.valueOf((int) l);
-                }
-                return Integer.valueOf(NumberInput.parseInt(text));
-            } catch (IllegalArgumentException iae) {
-                return (Integer) ctxt.handleWeirdStringValue(targetType, text,
-                        "not a valid Integer value");
-            }
-        case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too
-            act = _checkFloatToIntCoercion(ctxt, p, targetType);
-            if (act == CoercionAction.AsNull) {
-                return (Integer) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Integer) getEmptyValue(ctxt);
-            }
-            return p.getValueAsInt();
-        case JsonTokenId.ID_START_ARRAY:
-            return (Integer) _deserializeFromArray(p, ctxt);
-        }
-        // Otherwise, no can do:
-        return (Integer) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
-    }
-
     @Deprecated // since 2.12, use overloaded variant
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException {
@@ -837,53 +667,6 @@ protected final Boolean _parseBoolean(DeserializationContext ctxt,
                     "not a valid long value");
             return _nonNullNumber(v).longValue();
         }
-    }
-
-    // @since 2.12
-    protected final Long _parseLong(DeserializationContext ctxt, JsonParser p,
-            Class<?> targetType) throws IOException
-    {
-        CoercionAction act;
-        switch (p.currentTokenId()) {
-        // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
-        case JsonTokenId.ID_NUMBER_INT:
-            return p.getLongValue();
-        case JsonTokenId.ID_NULL:
-            return (Long) _coerceNullToken(ctxt, false);
-        case JsonTokenId.ID_STRING:
-            String text = p.getText();
-            act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, targetType);
-            if (act == CoercionAction.AsNull) {
-                return (Long) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Long) getEmptyValue(ctxt);
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                return (Long) _coerceTextualNull(ctxt, false);
-            }
-            // let's allow Strings to be converted too
-            try {
-                return Long.valueOf(NumberInput.parseLong(text));
-            } catch (IllegalArgumentException iae) { }
-            return (Long) ctxt.handleWeirdStringValue(targetType, text,
-                    "not a valid Long value");
-        case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToIntCoercion(ctxt, p, targetType);
-            if (act == CoercionAction.AsNull) {
-                return (Long) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Long) getEmptyValue(ctxt);
-            }
-            return p.getValueAsLong();
-        case JsonTokenId.ID_START_ARRAY:
-            return (Long) _deserializeFromArray(p, ctxt);
-        }
-        // Otherwise, no can do:
-        return (Long) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
     @Deprecated // since 2.12, use overloaded variant

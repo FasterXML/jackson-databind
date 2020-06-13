@@ -40,9 +40,8 @@ public class OptionalIntDeserializer extends BaseScalarOptionalDeserializer<Opti
                 return (OptionalInt) getEmptyValue(ctxt);
             }
             text = text.trim();
-            if (_hasTextualNull(text)) {
-                _coerceTextualNull(ctxt, false);
-                return _empty;
+            if (_checkTextualNull(ctxt, text)) {
+                return (OptionalInt) getNullValue(ctxt);
             }
             return OptionalInt.of(_parseIntPrimitive(ctxt, text));
         case JsonTokenId.ID_NUMBER_FLOAT:

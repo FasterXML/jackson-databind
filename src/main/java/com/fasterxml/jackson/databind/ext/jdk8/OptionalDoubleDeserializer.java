@@ -40,8 +40,7 @@ public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<O
                     return (OptionalDouble) getEmptyValue(ctxt);
                 }
                 text = text.trim();
-                if (_hasTextualNull(text)) {
-                    _coerceTextualNull(ctxt, false);
+                if (_checkTextualNull(ctxt, text)) {
                     return _empty;
                 }
                 return OptionalDouble.of(_parseDoublePrimitive(ctxt, text));

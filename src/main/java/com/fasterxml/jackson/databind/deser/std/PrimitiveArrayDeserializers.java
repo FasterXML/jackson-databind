@@ -392,7 +392,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         _verifyNullForPrimitive(ctxt);
                         value = false;
                     } else {
-                        value = _parseBooleanPrimitive(ctxt, p, Boolean.TYPE);
+                        value = _parseBooleanPrimitive(ctxt, p);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -409,7 +409,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected boolean[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new boolean[] { _parseBooleanPrimitive(ctxt, p, Boolean.TYPE) };
+            return new boolean[] { _parseBooleanPrimitive(ctxt, p) };
         }
 
         @Override
@@ -508,7 +508,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                             _verifyNullForPrimitive(ctxt);
                             value = (byte) 0;
                         } else {
-                            value = _parseBytePrimitive(ctxt, p, Byte.TYPE);
+                            value = _parseBytePrimitive(ctxt, p);
                         }
                     }
                     if (ix >= chunk.length) {
@@ -602,7 +602,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         _verifyNullForPrimitive(ctxt);
                         value = (short) 0;
                     } else {
-                        value = _parseShortPrimitive(ctxt, p, Short.TYPE);
+                        value = _parseShortPrimitive(ctxt, p);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -619,7 +619,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected short[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new short[] { _parseShortPrimitive(ctxt, p, Short.TYPE) };
+            return new short[] { _parseShortPrimitive(ctxt, p) };
         }
 
         @Override
@@ -680,7 +680,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         _verifyNullForPrimitive(ctxt);
                         value = 0;
                     } else {
-                        value = _parseIntPrimitive(p, ctxt);
+                        value = _parseIntPrimitive(ctxt, p);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -697,7 +697,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected int[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new int[] { _parseIntPrimitive(p, ctxt) };
+            return new int[] { _parseIntPrimitive(ctxt, p) };
         }
 
         @Override

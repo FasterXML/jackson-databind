@@ -71,7 +71,8 @@ public class CoerceFloatToIntTest extends BaseMapTest
             r.forType(targetType).readValue(doc);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point",
+                    "Cannot coerce Floating-point");
         }
     }
 

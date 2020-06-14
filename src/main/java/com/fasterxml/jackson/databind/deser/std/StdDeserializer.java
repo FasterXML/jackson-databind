@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.NumberInput;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -427,7 +426,7 @@ public abstract class StdDeserializer<T>
         return (Boolean) ctxt.handleUnexpectedToken(ctxt.constructType(targetType), p);
     }
 
-    protected final byte _parseBytePrimitive(DeserializationContext ctxt, JsonParser p)
+    protected final byte _parseBytePrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         final JsonToken t = p.currentToken();
@@ -468,7 +467,7 @@ public abstract class StdDeserializer<T>
             return (byte) value;
         }
         if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-            CoercionAction act = _checkFloatToIntCoercion(ctxt, p, Byte.TYPE);
+            CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Byte.TYPE);
             if (act == CoercionAction.AsNull) {
                 return (byte) 0;
             }
@@ -480,14 +479,14 @@ public abstract class StdDeserializer<T>
         // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
-            final byte parsed = _parseBytePrimitive(ctxt, p);
+            final byte parsed = _parseBytePrimitive(p, ctxt);
             _verifyEndArrayForSingle(p, ctxt);
             return parsed;
         }
         return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(Byte.TYPE), p)).byteValue();
     }
 
-    protected final short _parseShortPrimitive(DeserializationContext ctxt, JsonParser p)
+    protected final short _parseShortPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         final JsonToken t = p.currentToken();
@@ -525,7 +524,7 @@ public abstract class StdDeserializer<T>
             return (short) value;
         }
         if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-            CoercionAction act = _checkFloatToIntCoercion(ctxt, p, Short.TYPE);
+            CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Short.TYPE);
             if (act == CoercionAction.AsNull) {
                 return (short) 0;
             }
@@ -537,14 +536,14 @@ public abstract class StdDeserializer<T>
         // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
-            final short parsed = _parseShortPrimitive(ctxt, p);
+            final short parsed = _parseShortPrimitive(p, ctxt);
             _verifyEndArrayForSingle(p, ctxt);
             return parsed;
         }
         return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(Short.TYPE), p)).shortValue();
     }
 
-    protected final int _parseIntPrimitive(DeserializationContext ctxt, JsonParser p)
+    protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         CoercionAction act;
@@ -571,7 +570,7 @@ public abstract class StdDeserializer<T>
             }
             return _parseIntPrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToIntCoercion(ctxt, p, Integer.TYPE);
+            act = _checkFloatToIntCoercion(p, ctxt, Integer.TYPE);
             if (act == CoercionAction.AsNull) {
                 return 0;
             }
@@ -582,7 +581,7 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
-                final int parsed = _parseIntPrimitive(ctxt, p);
+                final int parsed = _parseIntPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -614,7 +613,7 @@ public abstract class StdDeserializer<T>
         }
     }
 
-    protected final long _parseLongPrimitive(DeserializationContext ctxt, JsonParser p)
+    protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
         CoercionAction act;
@@ -641,7 +640,7 @@ public abstract class StdDeserializer<T>
             }
             return _parseLongPrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToIntCoercion(ctxt, p, Long.TYPE);
+            act = _checkFloatToIntCoercion(p, ctxt, Long.TYPE);
             if (act == CoercionAction.AsNull) {
                 return 0L;
             }
@@ -652,7 +651,7 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
-                final long parsed = _parseLongPrimitive(ctxt, p);
+                final long parsed = _parseLongPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -674,7 +673,7 @@ public abstract class StdDeserializer<T>
         }
     }
 
-    protected final float _parseFloatPrimitive(DeserializationContext ctxt, JsonParser p)
+    protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         CoercionAction act;
@@ -704,7 +703,7 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
-                final float parsed = _parseFloatPrimitive(ctxt, p);
+                final float parsed = _parseFloatPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -742,7 +741,7 @@ public abstract class StdDeserializer<T>
         return _nonNullNumber(v).floatValue();
     }
 
-    protected final double _parseDoublePrimitive(DeserializationContext ctxt, JsonParser p)
+    protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         CoercionAction act;
@@ -772,7 +771,7 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
-                final double parsed = _parseDoublePrimitive(ctxt, p);
+                final double parsed = _parseDoublePrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
@@ -1015,7 +1014,7 @@ value, _coercedTypeDesc());
     /**
      * @since 2.12
      */
-    protected CoercionAction _checkFloatToIntCoercion(DeserializationContext ctxt, JsonParser p,
+    protected CoercionAction _checkFloatToIntCoercion(JsonParser p, DeserializationContext ctxt,
             Class<?> rawTargetType)
         throws IOException
     {

@@ -491,7 +491,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             _verifyNullForPrimitive(ctxt);
                             value = (byte) 0;
                         } else {
-                            value = _parseBytePrimitive(ctxt, p);
+                            value = _parseBytePrimitive(p, ctxt);
                         }
                     }
                     if (ix >= chunk.length) {
@@ -582,7 +582,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                         _verifyNullForPrimitive(ctxt);
                         value = (short) 0;
                     } else {
-                        value = _parseShortPrimitive(ctxt, p);
+                        value = _parseShortPrimitive(p, ctxt);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -599,7 +599,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected short[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new short[] { _parseShortPrimitive(ctxt, p) };
+            return new short[] { _parseShortPrimitive(p, ctxt) };
         }
 
         @Override
@@ -658,7 +658,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                         _verifyNullForPrimitive(ctxt);
                         value = 0;
                     } else {
-                        value = _parseIntPrimitive(ctxt, p);
+                        value = _parseIntPrimitive(p, ctxt);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -675,7 +675,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected int[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new int[] { _parseIntPrimitive(ctxt, p) };
+            return new int[] { _parseIntPrimitive(p, ctxt) };
         }
 
         @Override
@@ -734,7 +734,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                         _verifyNullForPrimitive(ctxt);
                         value = 0L;
                     } else {
-                        value = _parseLongPrimitive(ctxt, p);
+                        value = _parseLongPrimitive(p, ctxt);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -751,7 +751,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected long[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new long[] { _parseLongPrimitive(ctxt, p) };
+            return new long[] { _parseLongPrimitive(p, ctxt) };
         }
 
         @Override
@@ -804,7 +804,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             continue;
                         }
                     }
-                    float value = _parseFloatPrimitive(ctxt, p);
+                    float value = _parseFloatPrimitive(p, ctxt);
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
                         ix = 0;
@@ -820,7 +820,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected float[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new float[] { _parseFloatPrimitive(ctxt, p) };
+            return new float[] { _parseFloatPrimitive(p, ctxt) };
         }
 
         @Override
@@ -872,7 +872,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                             continue;
                         }
                     }
-                    double value = _parseDoublePrimitive(ctxt, p);
+                    double value = _parseDoublePrimitive(p, ctxt);
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
                         ix = 0;
@@ -888,7 +888,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected double[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new double[] { _parseDoublePrimitive(ctxt, p) };
+            return new double[] { _parseDoublePrimitive(p, ctxt) };
         }
 
         @Override

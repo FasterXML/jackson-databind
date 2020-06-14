@@ -45,7 +45,7 @@ public class OptionalIntDeserializer extends BaseScalarOptionalDeserializer<Opti
             }
             return OptionalInt.of(_parseIntPrimitive(ctxt, text));
         case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToIntCoercion(ctxt, p, _valueClass);
+            act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
             if (act == CoercionAction.AsNull) {
                 return (OptionalInt) getNullValue(ctxt);
             }

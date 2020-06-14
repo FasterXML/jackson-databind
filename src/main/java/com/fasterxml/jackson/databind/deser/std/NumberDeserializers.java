@@ -267,12 +267,12 @@ public class NumberDeserializers
                 return p.getByteValue();
             }
             if (_primitive) {
-                return _parseBytePrimitive(ctxt, p);
+                return _parseBytePrimitive(p, ctxt);
             }
-            return _parseByte(ctxt, p);
+            return _parseByte(p, ctxt);
         }
 
-        protected Byte _parseByte(DeserializationContext ctxt, JsonParser p)
+        protected Byte _parseByte(JsonParser p, DeserializationContext ctxt)
                 throws IOException
         {
             CoercionAction act;
@@ -306,7 +306,7 @@ public class NumberDeserializers
                 }
                 return Byte.valueOf((byte) value);
             case JsonTokenId.ID_NUMBER_FLOAT:
-                act = _checkFloatToIntCoercion(ctxt, p, _valueClass);
+                act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
                 if (act == CoercionAction.AsNull) {
                     return (Byte) getNullValue(ctxt);
                 }
@@ -347,7 +347,7 @@ public class NumberDeserializers
                 return p.getShortValue();
             }
             if (_primitive) {
-                return _parseShortPrimitive(ctxt, p);
+                return _parseShortPrimitive(p, ctxt);
             }
             return _parseShort(ctxt, p);
         }
@@ -384,7 +384,7 @@ public class NumberDeserializers
                 }
                 return (short) value;
             case JsonTokenId.ID_NUMBER_FLOAT:
-                act = _checkFloatToIntCoercion(ctxt, p, _valueClass);
+                act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
                 if (act == CoercionAction.AsNull) {
                     return (Short) getNullValue(ctxt);
                 }
@@ -490,7 +490,7 @@ public class NumberDeserializers
                 return p.getIntValue();
             }
             if (_primitive) {
-                return _parseIntPrimitive(ctxt, p);
+                return _parseIntPrimitive(p, ctxt);
             }
             return _parseInteger(ctxt, p);
         }
@@ -505,7 +505,7 @@ public class NumberDeserializers
                 return p.getIntValue();
             }
             if (_primitive) {
-                return _parseIntPrimitive(ctxt, p);
+                return _parseIntPrimitive(p, ctxt);
             }
             return _parseInteger(ctxt, p);
         }
@@ -546,7 +546,7 @@ public class NumberDeserializers
                             "not a valid Integer value");
                 }
             case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too
-                act = _checkFloatToIntCoercion(ctxt, p, _valueClass);
+                act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
                 if (act == CoercionAction.AsNull) {
                     return (Integer) getNullValue(ctxt);
                 }
@@ -588,7 +588,7 @@ public class NumberDeserializers
                 return p.getLongValue();
             }
             if (_primitive) {
-                return _parseLongPrimitive(ctxt, p);
+                return _parseLongPrimitive(p, ctxt);
             }
             return _parseLong(ctxt, p);
         }
@@ -619,7 +619,7 @@ public class NumberDeserializers
                 return (Long) ctxt.handleWeirdStringValue(_valueClass, text,
                         "not a valid Long value");
             case JsonTokenId.ID_NUMBER_FLOAT:
-                act = _checkFloatToIntCoercion(ctxt, p, _valueClass);
+                act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
                 if (act == CoercionAction.AsNull) {
                     return (Long) getNullValue(ctxt);
                 }
@@ -659,7 +659,7 @@ public class NumberDeserializers
                 return p.getFloatValue();
             }
             if (_primitive) {
-                return _parseFloatPrimitive(ctxt, p);
+                return _parseFloatPrimitive(p, ctxt);
             }
             return _parseFloat(p, ctxt);
         }
@@ -736,7 +736,7 @@ public class NumberDeserializers
                 return p.getDoubleValue();
             }
             if (_primitive) {
-                return _parseDoublePrimitive(ctxt, p);
+                return _parseDoublePrimitive(p, ctxt);
             }
             return _parseDouble(p, ctxt);
         }
@@ -751,7 +751,7 @@ public class NumberDeserializers
                 return p.getDoubleValue();
             }
             if (_primitive) {
-                return _parseDoublePrimitive(ctxt, p);
+                return _parseDoublePrimitive(p, ctxt);
             }
             return _parseDouble(p, ctxt);
         }
@@ -973,7 +973,7 @@ public class NumberDeserializers
                 }
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT:
-                act = _checkFloatToIntCoercion(ctxt, p, _valueClass);
+                act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
                 if (act == CoercionAction.AsNull) {
                     return (BigInteger) getNullValue(ctxt);
                 }

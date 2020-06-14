@@ -353,9 +353,10 @@ public abstract class StdDeserializer<T>
     /**********************************************************
      */
 
-    @Deprecated // since 2.11, use overloaded variant
-    protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException {
-        return _parseBooleanPrimitive(ctxt, p);
+    @Deprecated // since 2.12, use overloaded variant that does NOT take target type
+    protected final boolean _parseBooleanPrimitive(DeserializationContext ctxt,
+            JsonParser p, Class<?> targetType) throws IOException {
+        return _parseBooleanPrimitive(p, ctxt);
     }
 
     /**
@@ -365,12 +366,9 @@ public abstract class StdDeserializer<T>
      *    same as {@link #handledType}, and not necessarily {@code boolean}
      *    (may be {@code boolean[]} or {@code AtomicBoolean} for example);
      *    used for coercion config access
-     *
-     * @since 2.12
      */
-    protected final boolean _parseBooleanPrimitive(DeserializationContext ctxt,
-            JsonParser p)
-        throws IOException
+    protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt)
+            throws IOException
     {
         final JsonToken t = p.currentToken();
         // usually caller should have handled but:
@@ -419,7 +417,7 @@ public abstract class StdDeserializer<T>
         // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
-            final boolean parsed = _parseBooleanPrimitive(ctxt, p);
+            final boolean parsed = _parseBooleanPrimitive(p, ctxt);
             _verifyEndArrayForSingle(p, ctxt);
             return parsed;
         }
@@ -436,16 +434,16 @@ public abstract class StdDeserializer<T>
      * Caller may need to translate from 3 possible result types into appropriately
      * matching output types.
      *
-     * @param ctxt Deserialization context for accessing configuration
      * @param p Underlying parser
+     * @param ctxt Deserialization context for accessing configuration
      * @param targetType Actual type that is being deserialized, may be
      *    same as {@link #handledType} but could be {@code AtomicBoolean} for example.
      *    Used for coercion config access.
      *
      * @since 2.12
      */
-    protected final Boolean _parseBoolean(DeserializationContext ctxt,
-            JsonParser p, Class<?> targetType)
+    protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt,
+            Class<?> targetType)
         throws IOException
     {
         switch (p.currentTokenId()) {

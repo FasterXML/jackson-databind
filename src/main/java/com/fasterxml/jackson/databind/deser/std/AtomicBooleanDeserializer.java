@@ -26,7 +26,7 @@ public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoole
         }
         // 12-Jun-2020, tatu: May look convoluted, but need to work correctly with
         //   CoercionConfig
-        Boolean b = _parseBoolean(ctxt, p, AtomicBoolean.class);
+        Boolean b = _parseBoolean(p, ctxt, AtomicBoolean.class);
         return (b == null) ? null : new AtomicBoolean(b.booleanValue());
     }
 

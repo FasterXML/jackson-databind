@@ -194,6 +194,9 @@ public class SubTypeValidator
         s.add("oracle.jms.AQjmsXAQueueConnectionFactory");
         s.add("oracle.jms.AQjmsXAConnectionFactory");
 
+        // [databind#2764]: org.jsecurity:
+        s.add("org.jsecurity.realm.jndi.JndiRealmFactory");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

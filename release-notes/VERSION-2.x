@@ -10,7 +10,7 @@ Project: jackson-databind
  (reported by Topsec(tcc))
 #2698: Block one more gadget type (weblogic/oracle-aqjms)
  (reported by Fangrun Li)
-#2704: Block one more gadget type (weblogic/oracle-aqjms)
+#2704: Block one more gadget type (jaxp-ri)
  (reported by XuYuanzhen)
 #2765: Block one more gadget type (org.jsecurity))
  (reported by Al1ex@knownsec)

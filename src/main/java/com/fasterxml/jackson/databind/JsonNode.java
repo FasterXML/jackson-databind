@@ -580,7 +580,7 @@ public abstract class JsonNode
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation cannot be converted to an long (including structured types
+     * If representation cannot be converted to a long (including structured types
      * like Objects and Arrays),
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      */
@@ -594,7 +594,7 @@ public abstract class JsonNode
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation cannot be converted to an long (including structured types
+     * If representation cannot be converted to a long (including structured types
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */

@@ -378,7 +378,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                         _verifyNullForPrimitive(ctxt);
                         value = false;
                     } else {
-                        value = _parseBooleanPrimitive(ctxt, p);
+                        value = _parseBooleanPrimitive(p, ctxt);
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -395,7 +395,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         @Override
         protected boolean[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            return new boolean[] { _parseBooleanPrimitive(ctxt, p) };
+            return new boolean[] { _parseBooleanPrimitive(p, ctxt) };
         }
 
         @Override

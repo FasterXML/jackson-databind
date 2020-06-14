@@ -209,9 +209,9 @@ public class NumberDeserializers
                 return Boolean.FALSE;
             }
             if (_primitive) {
-                return _parseBooleanPrimitive(ctxt, p);
+                return _parseBooleanPrimitive(p, ctxt);
             }
-            return _parseBoolean(ctxt, p, _valueClass);
+            return _parseBoolean(p, ctxt, _valueClass);
         }
 
         // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
@@ -229,9 +229,9 @@ public class NumberDeserializers
                 return Boolean.FALSE;
             }
             if (_primitive) {
-                return _parseBooleanPrimitive(ctxt, p);
+                return _parseBooleanPrimitive(p, ctxt);
             }
-            return _parseBoolean(ctxt, p, _valueClass);
+            return _parseBoolean(p, ctxt, _valueClass);
         }
     }
 

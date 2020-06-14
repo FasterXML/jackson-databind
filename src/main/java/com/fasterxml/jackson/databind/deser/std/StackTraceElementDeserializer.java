@@ -28,7 +28,7 @@ public class StackTraceElementDeserializer
             int lineNumber = -1;
 
             while ((t = p.nextValue()) != JsonToken.END_OBJECT) {
-                String propName = p.getCurrentName();
+                String propName = p.currentName();
                 // TODO: with Java 8, convert to switch
                 if ("className".equals(propName)) {
                     className = p.getText();

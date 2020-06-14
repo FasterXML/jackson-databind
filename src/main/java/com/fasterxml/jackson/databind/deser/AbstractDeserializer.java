@@ -249,7 +249,7 @@ handledType().getName()));
                     t = p.nextToken();
                 }
                 if ((t == JsonToken.FIELD_NAME) && _objectIdReader.maySerializeAsObject()
-                        && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
+                        && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                     return _deserializeFromObjectId(p, ctxt);
                 }
             }

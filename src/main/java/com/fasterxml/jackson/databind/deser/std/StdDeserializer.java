@@ -381,7 +381,7 @@ public abstract class StdDeserializer<T>
 
         // may accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            Boolean b = _coerceBooleanFromInt(ctxt, p, Boolean.TYPE);
+            Boolean b = _coerceBooleanFromInt(p, ctxt, Boolean.TYPE);
             // may get `null`, Boolean.TRUE or Boolean.FALSE so:
             return (b == Boolean.TRUE);
         }
@@ -478,7 +478,7 @@ public abstract class StdDeserializer<T>
             return null;
         case JsonTokenId.ID_NUMBER_INT:
             // may accept ints too, (0 == false, otherwise true)
-            return _coerceBooleanFromInt(ctxt, p, targetType);
+            return _coerceBooleanFromInt(p, ctxt, targetType);
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             return (Boolean) _deserializeFromArray(p, ctxt);
         }
@@ -1102,7 +1102,7 @@ value, _coercedTypeDesc());
     /**
      * @since 2.12
      */
-    protected Boolean _coerceBooleanFromInt(DeserializationContext ctxt, JsonParser p,
+    protected Boolean _coerceBooleanFromInt(JsonParser p, DeserializationContext ctxt,
             Class<?> rawTargetType)
         throws IOException
     {

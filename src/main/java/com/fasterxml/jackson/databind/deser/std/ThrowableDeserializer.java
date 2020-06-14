@@ -85,7 +85,7 @@ public class ThrowableDeserializer
         int pendingIx = 0;
 
         for (; !p.hasToken(JsonToken.END_OBJECT); p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             SettableBeanProperty prop = _beanProperties.find(propName);
             p.nextToken(); // to point to field value
 

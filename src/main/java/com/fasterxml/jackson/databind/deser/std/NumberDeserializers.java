@@ -349,10 +349,10 @@ public class NumberDeserializers
             if (_primitive) {
                 return _parseShortPrimitive(p, ctxt);
             }
-            return _parseShort(ctxt, p);
+            return _parseShort(p, ctxt);
         }
 
-        protected Short _parseShort(DeserializationContext ctxt, JsonParser p)
+        protected Short _parseShort(JsonParser p, DeserializationContext ctxt)
                 throws IOException
         {
             CoercionAction act;
@@ -492,7 +492,7 @@ public class NumberDeserializers
             if (_primitive) {
                 return _parseIntPrimitive(p, ctxt);
             }
-            return _parseInteger(ctxt, p);
+            return _parseInteger(p, ctxt);
         }
 
         // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
@@ -507,11 +507,10 @@ public class NumberDeserializers
             if (_primitive) {
                 return _parseIntPrimitive(p, ctxt);
             }
-            return _parseInteger(ctxt, p);
+            return _parseInteger(p, ctxt);
         }
 
-        // @since 2.12
-        protected final Integer _parseInteger(DeserializationContext ctxt, JsonParser p)
+        protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt)
                 throws IOException
         {
             CoercionAction act;
@@ -590,11 +589,10 @@ public class NumberDeserializers
             if (_primitive) {
                 return _parseLongPrimitive(p, ctxt);
             }
-            return _parseLong(ctxt, p);
+            return _parseLong(p, ctxt);
         }
 
-        // @since 2.12
-        protected final Long _parseLong(DeserializationContext ctxt, JsonParser p)
+        protected final Long _parseLong(JsonParser p, DeserializationContext ctxt)
                 throws IOException
         {
             CoercionAction act;

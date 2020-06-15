@@ -12,11 +12,11 @@ import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Basic serializer that can take JSON "Object" structure and
- * construct a {@link java.util.Map} instance, with typed contents.
+ * construct a {@link java.util.Map.Entry} instance, with typed contents.
  *<p>
  * Note: for untyped content (one indicated by passing Object.class
  * as the type), {@link UntypedObjectDeserializer} is used instead.
- * It can also construct {@link java.util.Map}s, but not with specific
+ * It can also construct {@link java.util.Map.Entry}s, but not with specific
  * POJO types, only other containers and primitives/wrappers.
  */
 @JacksonStdImpl

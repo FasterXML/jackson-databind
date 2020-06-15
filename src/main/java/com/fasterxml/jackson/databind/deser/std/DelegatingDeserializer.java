@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
 /**
  * Base class that simplifies implementations of {@link JsonDeserializer}s
  * that mostly delegate functionality to another deserializer implementation
- * (possibly forming a chaing of deserializers delegating functionality
+ * (possibly forming a chain of deserializers delegating functionality
  * in some cases)
  */
 public abstract class DelegatingDeserializer

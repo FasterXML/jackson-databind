@@ -71,7 +71,7 @@ public class BuilderFailTest extends BaseMapTest
             fail("Missing expected InvalidDefinitionException exception");
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Build method ");
-            verifyException(e, "#build(0 params)");
+            verifyException(e, "#build()");
             verifyException(e, "has wrong return type");
         }
     }

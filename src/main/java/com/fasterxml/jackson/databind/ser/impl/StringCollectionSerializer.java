@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 /**
  * Efficient implement for serializing {@link Collection}s that contain Strings.
  * The only complexity is due to possibility that serializer for {@link String}
- * may be overridde; because of this, logic is needed to ensure that the default
+ * may be override; because of this, logic is needed to ensure that the default
  * serializer is in use to use fastest mode, or if not, to defer to custom
  * String serializer.
  */

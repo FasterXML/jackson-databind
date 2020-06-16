@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * the base type is NOT one of potential dangerous base types (see {@link #isUnsafeBaseType}
  * for specific list of such base types).
  *<p>
- * This is implementation is the default one used for annotation-based polymorphic deserialization.
+ * This implementation is the default one used for annotation-based polymorphic deserialization.
  * Default Typing requires explicit registration of validator; while this implementation may
  * be used users are recommended to either use a custom implementation or sub-class this
  * implementation and override either {@link #validateSubClassName} or

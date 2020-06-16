@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
  *<p>
  * Separate deserialization methods are needed because serialized
  * form for inclusion mechanism {@link As#PROPERTY}
- * is slighty different if value is not expressed as JSON Object:
+ * is slightly different if value is not expressed as JSON Object:
  * and as such both type deserializer and serializer need to
  * JSON Object form (array, object or other (== scalar)) being used.
  */

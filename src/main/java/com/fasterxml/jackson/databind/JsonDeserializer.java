@@ -24,9 +24,9 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * If deserializer is an aggregate one -- meaning it delegates handling of some
  * of its contents by using other deserializer(s) -- it typically also needs
  * to implement {@link #resolve}
- * which can locate dependant deserializers. This is important to allow dynamic
+ * which can locate dependent deserializers. This is important to allow dynamic
  * overrides of deserializers; separate call interface is needed to separate
- * resolution of dependant deserializers (which may have cyclic link back
+ * resolution of dependent deserializers (which may have cyclic link back
  * to deserializer itself, directly or indirectly).
  *<p>
  * In addition, to support per-property annotations (to configure aspects

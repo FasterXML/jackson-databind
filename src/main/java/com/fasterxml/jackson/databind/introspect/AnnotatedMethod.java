@@ -189,6 +189,14 @@ public final class AnnotatedMethod
 
     @Override
     public String getFullName() {
+        final String methodName = super.getFullName();
+        switch (getParameterCount()) {
+        case 0:
+            return methodName+"()";
+        case 1:
+            return methodName+"("+getRawParameterType(0).getName()+")";
+        default:
+        }
         return String.format("%s(%d params)", super.getFullName(), getParameterCount());
     }
 

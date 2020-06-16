@@ -6,13 +6,13 @@ Project: jackson-databind
 
 2.9.10.5 (not yet released)
 
-#2688: Block one more gadget type (apache-drill)
+#2688: Block one more gadget type (apache-drill, CVE-2020-14060)
  (reported by Topsec(tcc))
-#2698: Block one more gadget type (weblogic/oracle-aqjms)
+#2698: Block one more gadget type (weblogic/oracle-aqjms, CVE-2020-14061)
  (reported by Fangrun Li)
-#2704: Block one more gadget type (jaxp-ri)
+#2704: Block one more gadget type (jaxp-ri, CVE-2020-14062)
  (reported by XuYuanzhen)
-#2765: Block one more gadget type (org.jsecurity))
+#2765: Block one more gadget type (org.jsecurity, CVE-2020-14195)
  (reported by Al1ex@knownsec)
 
 2.9.10.4 (11-Apr-2020)

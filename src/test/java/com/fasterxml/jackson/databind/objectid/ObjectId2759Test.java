@@ -1,39 +1,17 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.objectid;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import com.fasterxml.jackson.databind.*;
 
-public class JsonIdentityInfo2759Test extends BaseMapTest
+public class ObjectId2759Test extends BaseMapTest
 {
-    static class Bee {
-        public Long id;
-
-        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-///        @JsonIdentityReference(alwaysAsId = true)
-//        @JsonProperty("hiveId")
-        Hive hive;
-
-        public Bee() { }
-
-        public Bee(Long id, Hive hive) {
-            this.id = id;
-            this.hive = hive;
-        }
-
-        public Hive getHive() {
-            return hive;
-        }
-
-        public void setHive(Hive hive) {
-            this.hive = hive;
-        }
-    }
-
     static class Hive {
         public String name;
         public List<Bee> bees = new ArrayList<>();
@@ -52,6 +30,30 @@ public class JsonIdentityInfo2759Test extends BaseMapTest
         }
     }
 
+    static class Bee {
+        public Long id;
+
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+        @JsonIdentityReference(alwaysAsId = true)
+        @JsonProperty("hiveId")
+        Hive hive;
+
+        public Bee() { }
+
+        public Bee(Long id, Hive hive) {
+            this.id = id;
+            this.hive = hive;
+        }
+
+        public Hive getHive() {
+            return hive;
+        }
+
+        public void setHive(Hive hive) {
+            this.hive = hive;
+        }
+    }
+
     public void testObjectId2759() throws Exception
     {
         Hive hive = new Hive(100500L, "main hive");
@@ -60,7 +62,6 @@ public class JsonIdentityInfo2759Test extends BaseMapTest
         ObjectMapper mapper = newJsonMapper();
         final String json = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(hive);
-
         try {
             mapper.readerFor(JsonNode.class)
                 .with(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)

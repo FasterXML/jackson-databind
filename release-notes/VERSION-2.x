@@ -41,9 +41,15 @@ Project: jackson-databind
 
 #2486: Builder Deserialization with JsonCreator Value vs Array
  (reported by Ville K)
+#2725: JsonCreator on static method in Enum and Enum used as key in map
+  fails randomly
+ (reported by Michael C)
 #2755: `StdSubtypeResolver` is not thread safe (possibly due to copy
   not being made with `ObjectMapper.copy()`)
  (reported by tjwilson90@github)
+#2759: Rearranging of props when property-based generator is in use leads
+  to incorrect output
+ (reported by Oleg C)
 
 2.11.0 (26-Apr-2020)
 

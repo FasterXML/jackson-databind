@@ -6,6 +6,7 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -111,12 +112,20 @@ public class BeanAsArraySerializer
         return new BeanAsArraySerializer(this, toIgnore);
     }
 
+    @Override // @since 2.11.1
+    protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+            BeanPropertyWriter[] filteredProperties) {
+        // 16-Jun-2020, tatu: Added for [databind#2759] but with as-array we
+        //    probably do not want to reorder anything; so actually leave unchanged
+        return this;
+    }
+
     @Override
     protected BeanSerializerBase asArraySerializer() {
         // already is one, so:
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* JsonSerializer implementation that differs between impls

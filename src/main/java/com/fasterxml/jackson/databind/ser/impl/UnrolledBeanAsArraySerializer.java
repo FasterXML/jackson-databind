@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.UnrolledBeanSerializer;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -123,6 +124,13 @@ public class UnrolledBeanAsArraySerializer
     @Override
     protected UnrolledBeanAsArraySerializer withIgnorals(Set<String> toIgnore) {
         return new UnrolledBeanAsArraySerializer(this, toIgnore);
+    }
+
+    @Override
+    protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+            BeanPropertyWriter[] filteredProperties) {
+        // Similar to regular as-array-serializer, let's NOT reorder properties
+        return this;
     }
 
     @Override

@@ -129,7 +129,7 @@ public abstract class BeanSerializerBase
         this(src, src._props, src._filteredProps);
     }
 
-    public BeanSerializerBase(BeanSerializerBase src,
+    protected BeanSerializerBase(BeanSerializerBase src,
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
     {
         super(src._handledType);
@@ -223,6 +223,13 @@ public abstract class BeanSerializerBase
      */
     @Override
     public abstract BeanSerializerBase withFilterId(Object filterId);
+
+    /**
+     * Mutant factory used for creating a new instance with modified set
+     * of properties
+     */
+    protected abstract BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+            BeanPropertyWriter[] filteredProperties);
 
     /**
      * Lets force sub-classes to implement this, to avoid accidental missing
@@ -423,6 +430,10 @@ public abstract class BeanSerializerBase
         }
 
         ObjectIdWriter oiw = _objectIdWriter;
+
+        // 16-Jun-2020, tatu: [databind#2759] means we need to handle reordering
+        //    at a later point
+        int idPropOrigIndex = 0;
         Set<String> ignoredProps = null;
         Object newFilterId = null;
 
@@ -447,7 +458,7 @@ public abstract class BeanSerializerBase
                 
                 // 2.1: allow modifications by "id ref" annotations as well:
                 objectIdInfo = intr.findObjectReferenceInfo(config, accessor, objectIdInfo);
-                ObjectIdGenerator<?> gen;
+
                 Class<?> implClass = objectIdInfo.getGeneratorType();
                 JavaType type = ctxt.constructType(implClass);
                 JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
@@ -455,7 +466,7 @@ public abstract class BeanSerializerBase
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
                     String propName = objectIdInfo.getPropertyName().getSimpleName();
                     BeanPropertyWriter idProp = null;
-
+                    
                     for (int i = 0, len = _props.length; ; ++i) {
                         if (i == len) {
                             ctxt.reportBadDefinition(_beanType, String.format(
@@ -465,25 +476,17 @@ public abstract class BeanSerializerBase
                         BeanPropertyWriter prop = _props[i];
                         if (propName.equals(prop.getName())) {
                             idProp = prop;
-                            // Let's force it to be the first property to output
+                            // Let's mark id prop to be moved as the first (may still get rearranged)
                             // (although it may still get rearranged etc)
-                            if (i > 0) { // note: must shuffle both regular properties and filtered
-                                System.arraycopy(_props, 0, _props, 1, i);
-                                _props[0] = idProp;
-                                if (_filteredProps != null) {
-                                    BeanPropertyWriter fp = _filteredProps[i];
-                                    System.arraycopy(_filteredProps, 0, _filteredProps, 1, i);
-                                    _filteredProps[0] = fp;
-                                }
-                            }
+                            idPropOrigIndex = i;
                             break;
                         }
                     }
                     idType = idProp.getType();
-                    gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
+                    ObjectIdGenerator<?> gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
                     oiw = ObjectIdWriter.construct(idType, (PropertyName) null, gen, objectIdInfo.getAlwaysAsId());
                 } else { // other types need to be simpler
-                    gen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
+                    ObjectIdGenerator<?>gen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
                     oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen,
                             objectIdInfo.getAlwaysAsId());
                 }
@@ -499,6 +502,25 @@ public abstract class BeanSerializerBase
         }
         // either way, need to resolve serializer:
         BeanSerializerBase contextual = this;
+
+        // 16-Jun-2020, tatu: [databind#2759] must make copies, then reorder
+        if (idPropOrigIndex > 0) { // note: must shuffle both regular properties and filtered
+            final BeanPropertyWriter[] newProps = Arrays.copyOf(_props, _props.length);
+            BeanPropertyWriter bpw = newProps[idPropOrigIndex];
+            System.arraycopy(newProps, 0, newProps, 1, idPropOrigIndex);
+            newProps[0] = bpw;
+            final BeanPropertyWriter[] newFiltered;
+            if (_filteredProps == null) {
+                newFiltered = null;
+            } else {
+                newFiltered = Arrays.copyOf(_filteredProps, _filteredProps.length);
+                bpw = newFiltered[idPropOrigIndex];
+                System.arraycopy(newFiltered, 0, newFiltered, 1, idPropOrigIndex);
+                newFiltered[0] = bpw;
+            }
+            contextual = contextual.withProperties(newProps, newFiltered);
+        }
+
         if (oiw != null) {
             // not really associated with the property so let's not pass it?
             JsonSerializer<?> ser = ctxt.findRootValueSerializer(oiw.idType);
@@ -514,6 +536,7 @@ public abstract class BeanSerializerBase
         if (newFilterId != null) {
             contextual = contextual.withFilterId(newFilterId);
         }
+
         if (shape == null) {
             shape = _serializationShape;
         }

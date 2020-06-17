@@ -41,9 +41,15 @@ Project: jackson-databind
 
 #2486: Builder Deserialization with JsonCreator Value vs Array
  (reported by Ville K)
+#2725: JsonCreator on static method in Enum and Enum used as key in map
+  fails randomly
+ (reported by Michael C)
 #2755: `StdSubtypeResolver` is not thread safe (possibly due to copy
   not being made with `ObjectMapper.copy()`)
  (reported by tjwilson90@github)
+#2759: Rearranging of props when property-based generator is in use leads
+  to incorrect output
+ (reported by Oleg C)
 
 2.11.0 (26-Apr-2020)
 
@@ -134,13 +140,13 @@ Project: jackson-databind
 
 2.9.10.5 (not yet released)
 
-#2688: Block one more gadget type (apache-drill)
+#2688: Block one more gadget type (apache-drill, CVE-2020-14060)
  (reported by Topsec(tcc))
-#2698: Block one more gadget type (weblogic/oracle-aqjms)
+#2698: Block one more gadget type (weblogic/oracle-aqjms, CVE-2020-14061)
  (reported by Fangrun Li)
-#2704: Block one more gadget type (jaxp-ri)
+#2704: Block one more gadget type (jaxp-ri, CVE-2020-14062)
  (reported by XuYuanzhen)
-#2765: Block one more gadget type (org.jsecurity))
+#2765: Block one more gadget type (org.jsecurity, CVE-2020-14195)
  (reported by Al1ex@knownsec)
 
 2.9.10.4 (11-Apr-2020)

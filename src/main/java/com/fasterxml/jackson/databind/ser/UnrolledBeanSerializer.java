@@ -64,6 +64,13 @@ public class UnrolledBeanSerializer
         _calcUnrolled();
     }
 
+    protected UnrolledBeanSerializer(UnrolledBeanSerializer src,
+            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties) {
+        super(src, properties, filteredProperties);
+        _propCount = _props.length;
+        _calcUnrolled();
+    }
+
     private void _calcUnrolled() {
         BeanPropertyWriter[] oProps = new BeanPropertyWriter[6];
         int offset = 6 - _propCount;
@@ -117,6 +124,12 @@ public class UnrolledBeanSerializer
     @Override
     protected BeanSerializerBase withIgnorals(Set<String> toIgnore) {
         return new UnrolledBeanSerializer(this, toIgnore);
+    }
+
+    @Override
+    protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+            BeanPropertyWriter[] filteredProperties) {
+        return new UnrolledBeanSerializer(this, properties, filteredProperties);
     }
 
     @Override

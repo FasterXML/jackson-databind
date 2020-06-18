@@ -499,6 +499,17 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
             AnnotatedClass actualClass);
 
     /**
+     * Helper method that may be called to see if there are property inclusion
+     * definitions from annotations (via {@link AnnotatedClass}).
+     *
+     * TODO: config override.
+     *
+     * @since 2.8
+     */
+    public abstract JsonIncludeProperties.Value getDefaultPropertyInclusions(Class<?> baseType,
+            AnnotatedClass actualClass);
+
+    /**
      * Accessor for object used for determining whether specific property elements
      * (method, constructors, fields) can be auto-detected based on
      * their visibility (access modifiers). Can be changed to allow

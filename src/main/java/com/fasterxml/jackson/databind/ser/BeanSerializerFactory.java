@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Factory class that can provide serializers for any regular Java beans
@@ -634,17 +636,25 @@ public class BeanSerializerFactory
         //   just use it as is.
         JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(beanDesc.getBeanClass(),
                 beanDesc.getClassInfo());
+        Set<String> ignored = null;
         if (ignorals != null) {
-            Set<String> ignored = ignorals.findIgnoredForSerialization();
-            if (!ignored.isEmpty()) {
-                Iterator<BeanPropertyWriter> it = props.iterator();
-                while (it.hasNext()) {
-                    if (ignored.contains(it.next().getName())) {
-                        it.remove();
-                    }
+            ignored = ignorals.findIgnoredForSerialization();
+        }
+        JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(beanDesc.getBeanClass(),
+                beanDesc.getClassInfo());
+        Set<String> included = null;
+        if (inclusions != null) {
+            included = inclusions.getIncluded();
+        }
+        if (included != null || (ignored != null && !ignored.isEmpty())) {
+            Iterator<BeanPropertyWriter> it = props.iterator();
+            while (it.hasNext()) {
+                if (IgnorePropertiesUtil.shouldIgnore(it.next().getName(), ignored, included)) {
+                    it.remove();
                 }
             }
         }
+
         return props;
     }
 

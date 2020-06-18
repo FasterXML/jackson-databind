@@ -279,6 +279,19 @@ public abstract class AnnotationIntrospector
     public Boolean isIgnorableType(AnnotatedClass ac) { return null; }
 
     /**
+     * Method for finding information about properties to include either by
+     * name, or by more general specification ("include all null").
+     *
+     * @param ac Annotated class to introspect
+     *
+     * @since 2.12
+     */
+    public JsonIncludeProperties.Value findPropertyInclusions(Annotated ac)
+    {
+        return JsonIncludeProperties.Value.all();
+    }
+
+    /**
      * Method for finding if annotated class has associated filter; and if so,
      * to return id that is used to locate filter.
      *

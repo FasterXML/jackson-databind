@@ -68,6 +68,10 @@ public class BeanSerializer
         super(src, toIgnore);
     }
 
+    protected BeanSerializer(BeanSerializerBase src, Set<String> toIgnore, Set<String> toInclude) {
+        super(src, toIgnore, toInclude);
+    }
+
     // @since 2.11.1
     protected BeanSerializer(BeanSerializerBase src,
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties) {
@@ -118,6 +122,11 @@ public class BeanSerializer
     @Override
     protected BeanSerializerBase withIgnorals(Set<String> toIgnore) {
         return new BeanSerializer(this, toIgnore);
+    }
+
+    @Override
+    protected BeanSerializerBase withIgnorals(Set<String> toIgnore, Set<String> toInclude) {
+        return new BeanSerializer(this, toIgnore, toInclude);
     }
 
     @Override // @since 2.11.1

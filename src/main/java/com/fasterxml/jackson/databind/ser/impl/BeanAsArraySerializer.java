@@ -67,7 +67,11 @@ public class BeanAsArraySerializer
     }
 
     protected BeanAsArraySerializer(BeanSerializerBase src, Set<String> toIgnore) {
-        super(src, toIgnore);
+        this(src, toIgnore, null);
+    }
+
+    protected BeanAsArraySerializer(BeanSerializerBase src, Set<String> toIgnore, Set<String> toInclude) {
+        super(src, toIgnore, toInclude);
         _defaultSerializer = src;
     }
 
@@ -110,6 +114,11 @@ public class BeanAsArraySerializer
     @Override
     protected BeanAsArraySerializer withIgnorals(Set<String> toIgnore) {
         return new BeanAsArraySerializer(this, toIgnore);
+    }
+
+    @Override
+    protected BeanAsArraySerializer withIgnorals(Set<String> toIgnore, Set<String> toInclude) {
+        return new BeanAsArraySerializer(this, toIgnore, toInclude);
     }
 
     @Override // @since 2.11.1

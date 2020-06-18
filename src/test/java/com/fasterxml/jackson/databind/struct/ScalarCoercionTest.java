@@ -183,8 +183,11 @@ public class ScalarCoercionTest extends BaseMapTest
         _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
         _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
         _verifyBooleanCoerceFail(beanDoc, false, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
+
+        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
     }
-    
+
     public void testMiscCoercionFail() throws Exception
     {
         // And then we have coercions from more esoteric types too

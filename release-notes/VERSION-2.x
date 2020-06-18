@@ -17,6 +17,9 @@ Project: jackson-databind
 #2759: Rearranging of props when property-based generator is in use leads
   to incorrect output
  (reported by Oleg C)
+#2760: Jackson doesn't respect `CAN_OVERRIDE_ACCESS_MODIFIERS=false` for
+  deserializer properties
+ (reported by Johannes K)
 
 2.11.0 (26-Apr-2020)
 

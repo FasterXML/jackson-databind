@@ -1235,6 +1235,10 @@ public abstract class DeserializationContext
                         ClassUtil.getTypeDescription(targetType), t);
             }
         }
+        // 18-Jun-2020, tatu: to resolve [databind#2770], force access to `getText()` for scalars
+        if ((t != null) && t.isScalarValue()) {
+            p.getText();
+        }
         reportInputMismatch(targetType, msg);
         return null; // never gets here
     }

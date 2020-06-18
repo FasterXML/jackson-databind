@@ -20,6 +20,9 @@ Project: jackson-databind
 #2760: Jackson doesn't respect `CAN_OVERRIDE_ACCESS_MODIFIERS=false` for
   deserializer properties
  (reported by Johannes K)
+#2770: JsonParser from MismatchedInputException cannot getText() for
+  floating-point value
+ (reported by João G)
 
 2.11.0 (26-Apr-2020)
 
@@ -68,6 +71,8 @@ Project: jackson-databind
  (reported by robotmrv@github)
 #2632: Failure to resolve generic type parameters on serialization
  (reported by Simone D)
+#2635: JsonParser cannot getText() for input stream on MismatchedInputException
+ (reported by João G)
 #2636: ObjectReader readValue lacks Class<T> argument
  (contributed by Robin R)
 #2643: Change default textual serialization of `java.util.Date`/`Calendar`

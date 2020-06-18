@@ -991,6 +991,11 @@ João Guerra (joca-bt@github)
   (2.10.1)
   * Reported #2567: Incorrect target type for arrays when providing nulls and nulls are disabled
   (2.10.2)
+  * Reported #2635: JsonParser cannot getText() for input stream on MismatchedInputException
+  (2.11.0)
+  * Reported #2770: JsonParser from MismatchedInputException cannot getText() for
+    floating-point value
+  (2.11.1)
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,

@@ -15,6 +15,10 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 // Tests for "old" coercions (pre-2.12), with `MapperFeature.ALLOW_COERCION_OF_SCALARS`
 public class CoerceJDKScalarsTest extends BaseMapTest
 {
+    static class BooleanPOJO {
+        public Boolean value;
+    }
+
     private final ObjectMapper COERCING_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
@@ -175,6 +179,30 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         _verifyRootStringCoerceFail("123.0", BigDecimal.class);
     }
 
+    // [databind#2635], [databind#2770]
+    public void testToBooleanCoercionFailBytes() throws Exception
+    {
+        final String beanDoc = aposToQuotes("{'value':1}");
+        _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
+        _verifyBooleanCoerceFail(beanDoc, true, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
+
+        _verifyBooleanCoerceFail("1.25", true, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1.25", true, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
+    }
+
+    // [databind#2635], [databind#2770]
+    public void testToBooleanCoercionFailChars() throws Exception
+    {
+        final String beanDoc = aposToQuotes("{'value':1}");
+        _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
+        _verifyBooleanCoerceFail(beanDoc, false, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
+
+        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
+    }
+
     public void testMiscCoercionFail() throws Exception
     {
         // And then we have coercions from more esoteric types too
@@ -246,4 +274,44 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         }
     }
 
+    private void _verifyBooleanCoerceFail(String doc, boolean useBytes,
+            JsonToken tokenType, String tokenValue, Class<?> targetType) throws IOException
+    {
+        // Test failure for root value: for both byte- and char-backed sources.
+
+        // [databind#2635]: important, need to use `readValue()` that takes content and NOT
+        // JsonParser, as this forces closing of underlying parser and exposes more issues.
+
+        final ObjectReader r = NOT_COERCING_MAPPER.readerFor(targetType);
+        try {
+            if (useBytes) {
+                r.readValue(utf8Bytes(doc));
+            } else {
+                r.readValue(doc);
+            }
+            fail("Should not have allowed coercion");
+        } catch (MismatchedInputException e) {
+            _verifyBooleanCoerceFailReason(e, tokenType, tokenValue);
+        }
+    }
+
+    @SuppressWarnings("resource")
+    private void _verifyBooleanCoerceFailReason(MismatchedInputException e,
+            JsonToken tokenType, String tokenValue) throws IOException
+    {
+        // 2 different possibilities here
+        verifyException(e, "Cannot coerce Integer value", "Cannot deserialize value of type `");
+
+        JsonParser p = (JsonParser) e.getProcessor();
+
+        assertToken(tokenType, p.currentToken());
+
+        final String text = p.getText();
+
+        if (!tokenValue.equals(text)) {
+            String textDesc = (text == null) ? "NULL" : quote(text);
+            fail("Token text ("+textDesc+") via parser of type "+p.getClass().getName()
+                    +" not as expected ("+quote(tokenValue)+"); exception message: '"+e.getMessage()+"'");
+        }
+    }
 }

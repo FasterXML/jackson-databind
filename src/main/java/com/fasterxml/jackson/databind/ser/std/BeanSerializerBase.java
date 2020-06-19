@@ -258,12 +258,21 @@ public abstract class BeanSerializerBase
 
     /**
      * Mutant factory used for creating a new instance with modified set
-     * of properties
+     * of properties.
+     *<p>
+     * Note: in 2.11.x, need to keep non-abstract for slightly better compatibility
+     * (XML module extends)
      * 
      * @since 2.11.1
      */
-    protected abstract BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
-            BeanPropertyWriter[] filteredProperties);
+    protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+            BeanPropertyWriter[] filteredProperties) {
+        return this;
+    }
+
+    // Should be this, will be with 2.12:
+//    protected abstract BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+//            BeanPropertyWriter[] filteredProperties);
 
     /**
      * Copy-constructor that is useful for sub-classes that just want to

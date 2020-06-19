@@ -120,7 +120,7 @@ public class JDKScalarsTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    final ObjectMapper MAPPER_NO_COERCION =jsonMapperBuilder()
+    private final ObjectMapper MAPPER_NO_COERCION = jsonMapperBuilder()
             .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 

@@ -279,8 +279,7 @@ public abstract class AnnotationIntrospector
     public Boolean isIgnorableType(AnnotatedClass ac) { return null; }
 
     /**
-     * Method for finding information about properties to include either by
-     * name, or by more general specification ("include all null").
+     * Method for finding information about properties to include.
      *
      * @param ac Annotated class to introspect
      *

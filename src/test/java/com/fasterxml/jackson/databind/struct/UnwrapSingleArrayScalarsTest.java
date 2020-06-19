@@ -80,7 +80,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
                 .readValue("{\"v\":[3]}");
             fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize instance of `int`");
+            verifyException(e, "Cannot deserialize value of type `int`");
         }
 
         ObjectReader r = UNWRAPPING_READER.forType(IntBean.class);
@@ -117,7 +117,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             noUnwrapR.readValue("{\"v\":[3]}");
             fail("Did not throw exception when reading a value from a single value array");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize instance of `long`");
+            verifyException(e, "Cannot deserialize value of type `long`");
         }
 
         LongBean result = unwrapR.readValue("{\"v\":[3]}");
@@ -154,7 +154,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             noUnwrapR.readValue("{\"v\":[" + value + "]}");
             fail("Did not throw exception when reading a value from a single value array");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Cannot deserialize instance of `double`");
+            verifyException(e, "Cannot deserialize value of type `double`");
         }
         
         DoubleBean result = unwrapR.readValue("{\"v\":[" + value + "]}");

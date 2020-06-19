@@ -20,6 +20,9 @@ Project: jackson-databind
 #2760: Jackson doesn't respect `CAN_OVERRIDE_ACCESS_MODIFIERS=false` for
   deserializer properties
  (reported by Johannes K)
+#2767: `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS` don't support `Map`
+  type field
+ (reported by abomb4@github)
 #2770: JsonParser from MismatchedInputException cannot getText() for
   floating-point value
  (reported by João G)

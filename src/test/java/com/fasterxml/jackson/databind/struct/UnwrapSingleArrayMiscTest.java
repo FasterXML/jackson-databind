@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.struct;
 
 import java.util.Collections;
 import java.util.EnumMap;

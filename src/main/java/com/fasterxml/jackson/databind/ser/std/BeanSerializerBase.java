@@ -203,7 +203,7 @@ public abstract class BeanSerializerBase
         }
         _props = propsOut.toArray(new BeanPropertyWriter[propsOut.size()]);
         _filteredProps = (fpropsOut == null) ? null : fpropsOut.toArray(new BeanPropertyWriter[fpropsOut.size()]);
-        
+
         _typeId = src._typeId;
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = src._objectIdWriter;
@@ -303,7 +303,7 @@ public abstract class BeanSerializerBase
 
     /*
     /**********************************************************
-    /* Post-constriction processing: resolvable, contextual
+    /* Post-construction processing: resolvable, contextual
     /**********************************************************
      */
 

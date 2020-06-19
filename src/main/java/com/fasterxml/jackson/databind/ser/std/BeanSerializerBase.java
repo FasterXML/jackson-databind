@@ -265,14 +265,8 @@ public abstract class BeanSerializerBase
      * 
      * @since 2.11.1
      */
-    protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
-            BeanPropertyWriter[] filteredProperties) {
-        return this;
-    }
-
-    // Should be this, will be with 2.12:
-//    protected abstract BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
-//            BeanPropertyWriter[] filteredProperties);
+    protected abstract BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+            BeanPropertyWriter[] filteredProperties);
 
     /**
      * Copy-constructor that is useful for sub-classes that just want to

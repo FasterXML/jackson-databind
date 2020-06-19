@@ -118,7 +118,7 @@ public class JDKScalarsTest
         public Void value;
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************

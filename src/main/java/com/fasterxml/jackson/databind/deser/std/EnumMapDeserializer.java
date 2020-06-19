@@ -124,7 +124,7 @@ public class EnumMapDeserializer
     /* Validation, post-processing (ResolvableDeserializer)
     /**********************************************************
      */
-    
+
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
@@ -234,18 +234,18 @@ public class EnumMapDeserializer
             return (EnumMap<?,?>) _valueInstantiator.createUsingDelegate(ctxt,
                     _delegateDeserializer.deserialize(p, ctxt));
         }
-        // Ok: must point to START_OBJECT
-        JsonToken t = p.currentToken();
-        if ((t != JsonToken.START_OBJECT) && (t != JsonToken.FIELD_NAME) && (t != JsonToken.END_OBJECT)) {
-            // (empty) String may be ok however; or single-String-arg ctor
-            if (t == JsonToken.VALUE_STRING) {
-                return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
-            }
-            // slightly redundant (since String was passed above), but also handles empty array case:
-            return _deserializeFromEmpty(p, ctxt);
+        // Ok: must point to START_OBJECT (or similar)
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_END_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
+            return deserialize(p, ctxt, constructMap(ctxt));
+        case JsonTokenId.ID_STRING:
+            return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
+        default:
         }
-        EnumMap result = constructMap(ctxt);
-        return deserialize(p, ctxt, result);
+        // slightly redundant (since String was passed above), but also handles empty array case:
+        return _deserializeFromEmpty(p, ctxt);
     }
 
     @Override

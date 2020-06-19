@@ -5,11 +5,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -1370,9 +1366,12 @@ nonAnnotatedParamIndex, ctor);
                     MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
                     JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
                             beanDesc.getClassInfo());
-                    Set<String> ignored = (ignorals == null) ? null
-                            : ignorals.findIgnoredForDeserialization();
+                    Set<String> ignored = (ignorals == null) ? null : ignorals.findIgnoredForDeserialization();
                     md.setIgnorableProperties(ignored);
+                    JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(Map.class,
+                            beanDesc.getClassInfo());
+                    Set<String> included = inclusions == null ? null : inclusions.getIncluded();
+                    md.setIncludableProperties(included);
                     deser = md;
                 }
             }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Builder class used for aggregating deserialization information about
@@ -71,6 +72,12 @@ public class BeanDeserializerBuilder
      * purposes (meaning no exception is thrown, value is just skipped).
      */
     protected HashSet<String> _ignorableProps;
+
+    /**
+     * Set of names of properties that are recognized and are set to be included for deserialization
+     * purposes (null deactivate this, empty includes nothing).
+     */
+    protected HashSet<String> _includableProds;
 
     /**
      * Object that will handle value instantiation for the bean type.
@@ -136,7 +143,8 @@ public class BeanDeserializerBuilder
         _injectables = _copy(src._injectables);
         _backRefProperties = _copy(src._backRefProperties);
         // Hmmh. Should we create defensive copies here? For now, not yet
-        _ignorableProps = src._ignorableProps;        
+        _ignorableProps = src._ignorableProps;
+        _includableProds = src._includableProds;
         _valueInstantiator = src._valueInstantiator;
         _objectIdReader = src._objectIdReader;
 
@@ -233,6 +241,17 @@ public class BeanDeserializerBuilder
             _ignorableProps = new HashSet<String>();
         }
         _ignorableProps.add(propName);
+    }
+
+    /**
+     * Method that will add property name as one of the properties that will be included.
+     */
+    public void addIncludable(String propName)
+    {
+        if (_includableProds == null) {
+            _includableProds = new HashSet<>();
+        }
+        _includableProds.add(propName);
     }
 
     /**
@@ -333,7 +352,7 @@ public class BeanDeserializerBuilder
      * @since 2.9.4
      */
     public boolean hasIgnorable(String name) {
-        return (_ignorableProps != null) && _ignorableProps.contains(name);
+        return IgnorePropertiesUtil.shouldIgnore(name, _ignorableProps, _includableProds);
     }
 
     /*
@@ -379,7 +398,7 @@ public class BeanDeserializerBuilder
         }
 
         return new BeanDeserializer(this,
-                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
+                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProds,
                 anyViews);
     }
 
@@ -463,7 +482,7 @@ public class BeanDeserializerBuilder
             BeanPropertyMap propertyMap, boolean anyViews) {
         return new BuilderBasedDeserializer(this,
                 _beanDesc, valueType, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
-                anyViews);
+                _includableProds, anyViews);
     }
 
     /*

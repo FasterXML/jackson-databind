@@ -67,8 +67,8 @@ public class BeanAsArrayDeserializer
     }
 
     @Override
-    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps) {
-        return new BeanAsArrayDeserializer(_delegate.withIgnorableProperties(ignorableProps),
+    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps) {
+        return new BeanAsArrayDeserializer(_delegate.withIgnorableProperties(ignorableProps, includableProps),
                 _orderedProperties);
     }
 

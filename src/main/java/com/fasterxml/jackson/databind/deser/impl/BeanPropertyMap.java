@@ -382,7 +382,7 @@ public class BeanPropertyMap
      */
     public BeanPropertyMap withoutProperties(Collection<String> toExclude)
     {
-        if (toExclude.isEmpty()) {
+        if (toExclude == null || toExclude.isEmpty()) {
             return this;
         }
         final int len = _propsInOrder.length;

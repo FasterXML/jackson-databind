@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -63,7 +64,21 @@ public class BeanDeserializer
             boolean hasViews)
     {
         super(builder, beanDesc, properties, backRefs,
-                ignorableProps, ignoreAllUnknown, hasViews);
+                ignorableProps, ignoreAllUnknown, null, hasViews);
+    }
+
+    /**
+     * Constructor used by {@link BeanDeserializerBuilder}.
+     *
+     * @since 2.12
+     */
+    public BeanDeserializer(BeanDeserializerBuilder builder, BeanDescription beanDesc,
+                            BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
+                            HashSet<String> ignorableProps, boolean ignoreAllUnknown, Set<String> includableProps,
+                            boolean hasViews)
+    {
+        super(builder, beanDesc, properties, backRefs,
+                ignorableProps, ignoreAllUnknown, includableProps, hasViews);
     }
 
     /**
@@ -88,6 +103,10 @@ public class BeanDeserializer
 
     public BeanDeserializer(BeanDeserializerBase src, Set<String> ignorableProps) {
         super(src, ignorableProps);
+    }
+
+    public BeanDeserializer(BeanDeserializerBase src, Set<String> ignorableProps, Set<String> includableProps) {
+        super(src, ignorableProps, includableProps);
     }
 
     public BeanDeserializer(BeanDeserializerBase src, BeanPropertyMap props) {
@@ -119,8 +138,8 @@ public class BeanDeserializer
     }
 
     @Override
-    public BeanDeserializer withIgnorableProperties(Set<String> ignorableProps) {
-        return new BeanDeserializer(this, ignorableProps);
+    public BeanDeserializer withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps) {
+        return new BeanDeserializer(this, ignorableProps, includableProps);
     }
 
     @Override
@@ -464,7 +483,7 @@ public class BeanDeserializer
                 continue;
             }
             // Things marked as ignorable should not be passed to any setter
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -694,7 +713,7 @@ public class BeanDeserializer
                 continue;
             }
             // Things marked as ignorable should not be passed to any setter
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -751,7 +770,7 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -850,7 +869,7 @@ public class BeanDeserializer
                 continue;
             }
             // Things marked as ignorable should not be passed to any setter
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -942,7 +961,7 @@ public class BeanDeserializer
                 continue;
             }
             // ignorable things should be ignored
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -1033,7 +1052,7 @@ public class BeanDeserializer
                 continue;
             }
             // Things marked as ignorable should not be passed to any setter
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }

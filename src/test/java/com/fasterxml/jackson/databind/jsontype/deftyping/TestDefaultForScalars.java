@@ -128,13 +128,14 @@ public class TestDefaultForScalars
         mapData.put("longAsField", data);
 
         // Configure Jackson to preserve types
-        ObjectMapper mapper = new ObjectMapper();
         StdTypeResolverBuilder resolver = new StdTypeResolverBuilder();
         resolver.init(JsonTypeInfo.Id.CLASS, null);
         resolver.inclusion(JsonTypeInfo.As.PROPERTY);
         resolver.typeProperty("__t");
-        mapper.setDefaultTyping(resolver);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .setDefaultTyping(resolver)
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .build();
 
         // Serialize
         String json = mapper.writeValueAsString(mapData);

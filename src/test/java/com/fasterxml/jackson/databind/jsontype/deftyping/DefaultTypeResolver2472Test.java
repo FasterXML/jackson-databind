@@ -20,8 +20,9 @@ public class DefaultTypeResolver2472Test extends BaseMapTest
         legacyTyper.init(JsonTypeInfo.Id.CLASS, null);
         legacyTyper.inclusion(JsonTypeInfo.As.PROPERTY);
 
-        final ObjectMapper mapper = JsonMapper.builder().build();
-        mapper.setDefaultTyping(legacyTyper);
+        final ObjectMapper mapper = JsonMapper.builder()
+                .setDefaultTyping(legacyTyper)
+                .build();
 
         String json = mapper.writeValueAsString(Arrays.asList("foo"));
         assertNotNull(json);

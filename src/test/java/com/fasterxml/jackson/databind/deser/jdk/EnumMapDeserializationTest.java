@@ -181,14 +181,6 @@ public class EnumMapDeserializationTest extends BaseMapTest
                         ObjectMapper.DefaultTyping.NON_FINAL, "@type")
                 .build();
 
-        // 05-Mar-2018, tatu: Original issue had this; should not make difference:
-         /*
-        TypeResolverBuilder<?> mapTyperAsPropertyType = new ObjectMapper.DefaultTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapTyperAsPropertyType.init(JsonTypeInfo.Id.CLASS, null);
-        mapTyperAsPropertyType.inclusion(JsonTypeInfo.As.PROPERTY);
-        mapper.setDefaultTyping(mapTyperAsPropertyType);
-         */
-
         String json = mapper.writeValueAsString(input);
         Pojo1859 result = mapper.readValue(json, Pojo1859.class);
         assertNotNull(result);

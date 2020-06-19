@@ -355,10 +355,10 @@ public class MapDeserializer
                     getValueInstantiator(), p,
                     "no default constructor found");
         }
-        // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
-        JsonToken t = p.currentToken();
-        if ((t == JsonToken.START_OBJECT) || (t == JsonToken.FIELD_NAME)
-                || (t == JsonToken.END_OBJECT)) {
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_END_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
             final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
             if (_standardStringKey) {
                 _readAndBindStringKeyMap(p, ctxt, result);
@@ -366,15 +366,13 @@ public class MapDeserializer
             }
             _readAndBind(p, ctxt, result);
             return result;
-        }
-
-        // (empty) String may be ok however; or single-String-arg ctor
-        if (t == JsonToken.VALUE_STRING) {
+        case JsonTokenId.ID_STRING:
+            // (empty) String may be ok however; or single-String-arg ctor
             return _deserializeFromString(p, ctxt);
-        }
-        // Empty array, or single-value wrapped in array?
-        if (t == JsonToken.START_ARRAY) {
+        case JsonTokenId.ID_START_ARRAY:
+            // Empty array, or single-value wrapped in array?
             return _deserializeFromArray(p, ctxt);
+        default:
         }
         return (Map<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

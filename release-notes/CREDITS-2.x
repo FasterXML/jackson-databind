@@ -991,6 +991,11 @@ João Guerra (joca-bt@github)
   (2.10.1)
   * Reported #2567: Incorrect target type for arrays when providing nulls and nulls are disabled
   (2.10.2)
+  * Reported #2635: JsonParser cannot getText() for input stream on MismatchedInputException
+  (2.11.0)
+  * Reported #2770: JsonParser from MismatchedInputException cannot getText() for
+    floating-point value
+  (2.11.1)
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
@@ -1101,21 +1106,26 @@ Oleksandr Poslavskyi (alevskyi@github)
 
 Simone D'Avico (simonedavico@github)
   * Reported #2632: Failure to resolve generic type parameters on serialization
- (2.11.0)
+  (2.11.0)
  
 Robin Roos (robinroos@github)
   * Contributed #2636: ObjectReader readValue lacks Class<T> argument
- (2.11.0)
+  (2.11.0)
 
 Michael Cramer (BigMichi1@github)
   * Reported #2725: JsonCreator on static method in Enum and Enum used as key in map
-  fails randomly
- (2.11.1)
+   fails randomly
+  (2.11.1)
  
 Oleg Chtchoukine (oshatrk@github)
   * Reported #2759: Rearranging of props when property-based generator is in use leads
-   to incorrect output
- (2.11.1)
+    to incorrect output
+  (2.11.1)
+
+Johannes Kuhn (DasBrain@github)
+  * Reported #2760: Jackson doesn't respect `CAN_OVERRIDE_ACCESS_MODIFIERS=false` for
+    deserializer properties
+  (2.11.1)
 
 Mike Gilbode (gilbode@github)
   * Reported #792: Deserialization Not Working Right with Generic Types and Builders

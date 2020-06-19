@@ -208,7 +208,7 @@ public abstract class BeanSerializerBase
         }
         _props = propsOut.toArray(new BeanPropertyWriter[propsOut.size()]);
         _filteredProps = (fpropsOut == null) ? null : fpropsOut.toArray(new BeanPropertyWriter[fpropsOut.size()]);
-        
+
         _typeId = src._typeId;
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = src._objectIdWriter;
@@ -281,7 +281,10 @@ public abstract class BeanSerializerBase
 
     /**
      * Mutant factory used for creating a new instance with modified set
-     * of properties
+     * of properties.
+     *<p>
+     * Note: in 2.11.x, need to keep non-abstract for slightly better compatibility
+     * (XML module extends)
      * 
      * @since 2.11.1
      */
@@ -323,7 +326,7 @@ public abstract class BeanSerializerBase
 
     /*
     /**********************************************************
-    /* Post-constriction processing: resolvable, contextual
+    /* Post-construction processing: resolvable, contextual
     /**********************************************************
      */
 

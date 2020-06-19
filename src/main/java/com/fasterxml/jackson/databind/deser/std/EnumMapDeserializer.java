@@ -125,7 +125,7 @@ public class EnumMapDeserializer
     /* Validation, post-processing (ResolvableDeserializer)
     /**********************************************************
      */
-    
+
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
@@ -244,19 +244,19 @@ public class EnumMapDeserializer
             return (EnumMap<?,?>) _valueInstantiator.createUsingDelegate(ctxt,
                     _delegateDeserializer.deserialize(p, ctxt));
         }
-        // Ok: must point to START_OBJECT
-        JsonToken t = p.currentToken();
-        if ((t == JsonToken.START_OBJECT) || (t == JsonToken.FIELD_NAME)
-                || (t == JsonToken.END_OBJECT)) {
+
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_END_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
             return deserialize(p, ctxt, constructMap(ctxt));
-        }
-        // (empty) String may be ok however; or single-String-arg ctor
-        if (t == JsonToken.VALUE_STRING) {
+        case JsonTokenId.ID_STRING:
+            // (empty) String may be ok however; or single-String-arg ctor
             return _deserializeFromString(p, ctxt);
-        }
-        // Empty array, or single-value wrapped in array?
-        if (t == JsonToken.START_ARRAY) {
+        case JsonTokenId.ID_START_ARRAY:
+            // Empty array, or single-value wrapped in array?
             return _deserializeFromArray(p, ctxt);
+        default:
         }
         return (EnumMap<?,?>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

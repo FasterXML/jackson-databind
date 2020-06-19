@@ -50,7 +50,6 @@ public abstract class StdDeserializer<T>
             DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS.getMask() |
             DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT.getMask();
 
-
     /**
      * Type of values this deserializer handles: sometimes
      * exact types, other time most specific supertype of

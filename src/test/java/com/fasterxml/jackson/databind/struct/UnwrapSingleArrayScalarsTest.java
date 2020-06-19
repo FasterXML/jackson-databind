@@ -16,8 +16,19 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 public class UnwrapSingleArrayScalarsTest extends BaseMapTest
 {
     static class BooleanBean {
-        boolean _v;
-        void setV(boolean v) { _v = v; }
+        public boolean v;
+    }
+
+    static class IntBean {
+        public int v;
+    }
+
+    static class LongBean {
+        public long v;
+    }
+
+    static class DoubleBean {
+        public double v;
     }
 
     private final ObjectMapper MAPPER = new ObjectMapper();
@@ -37,17 +48,17 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         // [databind#381]
         final ObjectReader r = UNWRAPPING_READER.forType(BooleanBean.class);
         BooleanBean result = r.readValue(new StringReader("{\"v\":[true]}"));
-        assertTrue(result._v);
+        assertTrue(result.v);
 
         _verifyMultiValueArrayFail("[{\"v\":[true,true]}]", BooleanBean.class);
 
         result = r.readValue("{\"v\":[null]}");
         assertNotNull(result);
-        assertFalse(result._v);
+        assertFalse(result.v);
         
         result = r.readValue("[{\"v\":[null]}]");
         assertNotNull(result);
-        assertFalse(result._v);
+        assertFalse(result.v);
         
         boolean[] array = UNWRAPPING_READER.forType(boolean[].class)
                 .readValue(new StringReader("[ [ null ] ]"));
@@ -61,8 +72,115 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /* Single-element as array tests, numbers
     /**********************************************************
      */
-    
-    // [databind#381]
+
+    public void testIntPrimitiveArrayUnwrap() throws Exception
+    {
+        try {
+            NO_UNWRAPPING_READER.forType(IntBean.class)
+                .readValue("{\"v\":[3]}");
+            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize instance of `int`");
+        }
+
+        ObjectReader r = UNWRAPPING_READER.forType(IntBean.class);
+        IntBean result = r.readValue("{\"v\":[3]}");
+        assertEquals(3, result.v);
+        
+        result = r.readValue("[{\"v\":[3]}]");
+        assertEquals(3, result.v);
+        
+        try {
+            r.readValue("[{\"v\":[3,3]}]");
+            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "more than one value");
+        }
+        
+        result = r.readValue("{\"v\":[null]}");
+        assertNotNull(result);
+        assertEquals(0, result.v);
+
+        int[] array = UNWRAPPING_READER.forType(int[].class).readValue("[ [ null ] ]");
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0, array[0]);
+        
+    }
+
+    public void testLongPrimitiveArrayUnwrap() throws Exception
+    {
+        final ObjectReader unwrapR = UNWRAPPING_READER.forType(LongBean.class);
+        final ObjectReader noUnwrapR = NO_UNWRAPPING_READER.forType(LongBean.class);
+        
+        try {
+            noUnwrapR.readValue("{\"v\":[3]}");
+            fail("Did not throw exception when reading a value from a single value array");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize instance of `long`");
+        }
+
+        LongBean result = unwrapR.readValue("{\"v\":[3]}");
+        assertEquals(3, result.v);
+        
+        result = unwrapR.readValue("[{\"v\":[3]}]");
+        assertEquals(3, result.v);
+
+        try {
+            unwrapR.readValue("[{\"v\":[3,3]}]");
+            fail("Did not throw exception while reading a value from a multi value array");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "more than one value");
+        }
+        
+        result = unwrapR.readValue("{\"v\":[null]}");
+        assertNotNull(result);
+        assertEquals(0, result.v);
+
+        long[] array = unwrapR.forType(long[].class)
+                .readValue("[ [ null ] ]");
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0, array[0]);
+    }
+
+    public void testDoubleAsArray() throws Exception
+    {
+        final ObjectReader unwrapR = UNWRAPPING_READER.forType(DoubleBean.class);
+        final ObjectReader noUnwrapR = NO_UNWRAPPING_READER.forType(DoubleBean.class);
+
+        final double value = 0.016;
+        try {
+            noUnwrapR.readValue("{\"v\":[" + value + "]}");
+            fail("Did not throw exception when reading a value from a single value array");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize instance of `double`");
+        }
+        
+        DoubleBean result = unwrapR.readValue("{\"v\":[" + value + "]}");
+        assertEquals(value, result.v);
+        
+        result = unwrapR.readValue("[{\"v\":[" + value + "]}]");
+        assertEquals(value, result.v);
+        
+        try {
+            unwrapR.readValue("[{\"v\":[" + value + "," + value + "]}]");
+            fail("Did not throw exception while reading a value from a multi value array");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "more than one value");
+        }
+        
+        result = unwrapR.readValue("{\"v\":[null]}");
+        assertNotNull(result);
+        assertEquals(0d, result.v);
+
+        double[] array = unwrapR.forType(double[].class)
+                .readValue("[ [ null ] ]");
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0d, array[0]);
+    }
+
     public void testSingleElementScalarArrays() throws Exception {
         final int intTest = 932832;
         final double doubleTest = 32.3234;

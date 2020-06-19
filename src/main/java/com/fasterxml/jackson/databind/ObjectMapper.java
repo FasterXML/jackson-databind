@@ -1946,6 +1946,8 @@ public class ObjectMapper
      * explicitly annotated types (ones with
      * {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) will have
      * additional embedded type information.
+     *
+     * @since 2.10
      */
     public ObjectMapper deactivateDefaultTyping() {
         return setDefaultTyping(null);

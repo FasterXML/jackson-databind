@@ -94,11 +94,8 @@ public class TestGenerics
         assertEquals(13, bean.x);
     }
 
-    /**
-     * Unit test for verifying that we can use different
-     * type bindings for individual generic types;
-     * problem with [JACKSON-190]
-     */
+    // Test for verifying that we can use different
+    // type bindings for individual generic types.
     public void testMultipleWrappers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

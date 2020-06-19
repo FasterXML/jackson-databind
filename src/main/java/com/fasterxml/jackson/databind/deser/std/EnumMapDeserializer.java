@@ -242,6 +242,22 @@ public class EnumMapDeserializer
             return deserialize(p, ctxt, constructMap(ctxt));
         case JsonTokenId.ID_STRING:
             return (EnumMap<?,?>) _valueInstantiator.createFromString(ctxt, p.getText());
+        case JsonTokenId.ID_START_ARRAY:
+            {
+                JsonToken t = p.nextToken();
+                if (t == JsonToken.END_ARRAY) {
+                    if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                        return null;
+                    }
+                } else if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    final Object value = deserialize(p, ctxt);
+                    if (p.nextToken() != JsonToken.END_ARRAY) {
+                        handleMissingEndArrayForSingle(p, ctxt);
+                    }
+                    return (EnumMap<?,?>) value;
+                }
+            }
+            return (EnumMap<?,?>) ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
         default:
         }
         // slightly redundant (since String was passed above), but also handles empty array case:

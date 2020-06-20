@@ -332,7 +332,7 @@ public abstract class BeanSerializerBase
                     }
                 }
             }
-            
+
             if (prop.hasSerializer()) {
                 continue;
             }
@@ -354,9 +354,8 @@ public abstract class BeanSerializerBase
                     }
                 }
                 ser = provider.findValueSerializer(type, prop);
-                /* 04-Feb-2010, tatu: We may have stashed type serializer for content types
-                 *   too, earlier; if so, it's time to connect the dots here:
-                 */
+                // 04-Feb-2010, tatu: We may have stashed type serializer for content types
+                //   too, earlier; if so, it's time to connect the dots here:
                 if (type.isContainerType()) {
                     TypeSerializer typeSer = type.getContentType().getTypeHandler();
                     if (typeSer != null) {

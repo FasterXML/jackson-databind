@@ -239,16 +239,20 @@ public class POJOPropertyBuilder
      * Helper method that contains logic for accessing and merging all setter
      * information that we needed, regarding things like possible merging
      * of property value, and handling of incoming nulls.
+     * Only called for deserialization purposes.
      */
     protected PropertyMetadata _getSetterInfo(PropertyMetadata metadata)
     {
         boolean needMerge = true;
         Nulls valueNulls = null;
         Nulls contentNulls = null;
-        
+
         // Slightly confusing: first, annotations should be accessed via primary member
-        // (mutator); but accessor is needed for actual merge operation. So:
-        AnnotatedMember prim = getPrimaryMember();
+        // (mutator); but accessor is needed for actual merge operation. So
+
+        // 20-Jun-2020, tatu: Unfortunately strict checks lead to [databind#2757]
+        //   so we will need to try to avoid them at this point
+        AnnotatedMember prim = getPrimaryMemberUnchecked();
         AnnotatedMember acc = getAccessor();
 
         if (prim != null) {
@@ -272,7 +276,10 @@ public class POJOPropertyBuilder
             // If not, config override?
             // 25-Oct-2016, tatu: Either this, or type of accessor...
             if (needMerge || (valueNulls == null) || (contentNulls == null)) {
-                Class<?> rawType = getRawPrimaryType();
+                // 20-Jun-2020, tatu: Related to [databind#2757], need to find type
+                //   but keeping mind that type for setters is trickier; and that
+                //   generic typing gets tricky as well.
+                Class<?> rawType = _rawTypeOf(prim);
                 ConfigOverride co = _config.getConfigOverride(rawType);
                 JsonSetter.Value setterInfo = co.getSetterInfo();
                 if (setterInfo != null) {
@@ -330,7 +337,6 @@ public class POJOPropertyBuilder
                     // 09-Feb-2017, tatu: Not sure if this or `null` but...
                     return TypeFactory.unknownType();
                 }
-                return m.getType();
             }
             return m.getType();
         }
@@ -575,6 +581,45 @@ public class POJOPropertyBuilder
             m = getAccessor();
         }
         return m;
+    }
+
+    // Sometimes we need to actually by-pass failures related to conflicting
+    // getters or setters (see [databind#2757] for specific example); if so,
+    // this method is to be used instead of `getPrimaryMember()`
+    // @since 2.11.1
+    protected AnnotatedMember getPrimaryMemberUnchecked() {
+        if (_forSerialization) { // Inlined `getAccessor()` logic:
+            // Inlined `getGetter()`:
+            if (_getters != null) {
+                return _getters.value;
+            }
+            // Inlined `getField()`:
+            if (_fields != null) {
+                return _fields.value;
+            }
+            return null;
+        }
+
+        // Otherwise, inlined `getMutator()` logic:
+
+        // Inlined `getConstructorParameter()`:
+        if (_ctorParameters != null) {
+            return _ctorParameters.value;
+        }
+        // Inlined `getSetter()`:
+        if (_setters != null) {
+            return _setters.value;
+        }
+        // Inlined `getField()`:
+        if (_fields != null) {
+            return _fields.value;
+        }
+        // but to support setterless-properties, also include part of
+        // `getAccessor()` not yet covered, `getGetter()`:
+        if (_getters != null) {
+            return _getters.value;
+        }
+        return null;
     }
 
     protected int _getterPriority(AnnotatedMethod m)
@@ -1218,6 +1263,26 @@ public class POJOPropertyBuilder
             }
         }
         return null;
+    }
+
+    // Helper method needed to work around oddity in type access for
+    // `AnnotatedMethod`.
+    //
+    // @since 2.11.1
+    protected Class<?> _rawTypeOf(AnnotatedMember m) {
+        // AnnotatedMethod always returns return type, but for setters we
+        // actually need argument type
+        if (m instanceof AnnotatedMethod) {
+            AnnotatedMethod meh = (AnnotatedMethod) m;
+            if (meh.getParameterCount() > 0) {
+                // note: get raw type FROM full type since only that resolves
+                // generic types
+                return meh.getParameterType(0).getRawClass();
+            }
+        }
+        // same as above, must get fully resolved type to handled generic typing
+        // of fields etc.
+        return m.getType().getRawClass();
     }
 
     /*

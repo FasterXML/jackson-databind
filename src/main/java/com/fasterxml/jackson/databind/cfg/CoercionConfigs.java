@@ -206,11 +206,14 @@ public class CoercionConfigs
                     CoercionAction.TryConvert : CoercionAction.Fail;
         }
 
-        final boolean classicScalar = (targetType == LogicalType.Float)
+        // classic scalars are numbers, booleans; but date/time also considered
+        // scalar for this particular purpose
+        final boolean baseScalar = (targetType == LogicalType.Float)
                 || (targetType == LogicalType.Integer)
-                || (targetType == LogicalType.Boolean);
+                || (targetType == LogicalType.Boolean)
+                || (targetType == LogicalType.DateTime);
 
-        if (classicScalar) {
+        if (baseScalar) {
             // Default for setting in 2.x is true
             if (!config.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
                 return CoercionAction.Fail;
@@ -220,8 +223,7 @@ public class CoercionConfigs
         if (inputShape == CoercionInputShape.EmptyString) {
             // Since coercion of scalar must be enabled (see check above), allow empty-string
             // coercions by default even without this setting
-            if (classicScalar
-                    || (targetType == LogicalType.DateTime)
+            if (baseScalar
                     // Default for setting is false
                     || config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return CoercionAction.AsNull;

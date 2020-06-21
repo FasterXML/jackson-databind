@@ -394,7 +394,7 @@ public abstract class BeanDeserializerBase
 
         // 01-May-2016, tatu: [databind#1217]: Remove properties from mapping,
         //    to avoid them being deserialized
-        _beanProperties = src._beanProperties.withoutProperties(ignorableProps);
+        _beanProperties = src._beanProperties.withoutProperties(ignorableProps, includableProps);
     }
 
 
@@ -806,7 +806,7 @@ public abstract class BeanDeserializerBase
             if (inclusions != null) {
                 Set<String> included = inclusions.getIncluded();
                 Set<String> prev = contextual._includableProps;
-                if (prev != null) {
+                if (prev != null && included != null) {
                     Set<String> newIncluded = new HashSet<>();
                     // Make the intersection with the previously included properties.
                     for(String prop : prev) {
@@ -814,9 +814,8 @@ public abstract class BeanDeserializerBase
                             newIncluded.add(prop);
                         }
                     }
-                    included = newIncluded;
+                    contextual = contextual.withIncludableProperties(newIncluded);
                 }
-                contextual = contextual.withIncludableProperties(included);
             }
         }
 

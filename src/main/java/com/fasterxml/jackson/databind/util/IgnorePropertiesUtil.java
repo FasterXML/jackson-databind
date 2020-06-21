@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 
+import java.util.Collection;
 import java.util.Set;
 
 public class IgnorePropertiesUtil
@@ -11,7 +12,7 @@ public class IgnorePropertiesUtil
      *
      * @since 2.12
      */
-    public static boolean shouldIgnore(Object value, Set<String> toIgnore, Set<String> toInclude) {
+    public static boolean shouldIgnore(Object value, Collection<String> toIgnore, Collection<String> toInclude) {
         if (toIgnore == null && toInclude ==null) {
             return false;
         }

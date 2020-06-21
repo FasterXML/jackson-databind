@@ -237,10 +237,10 @@ public class TestCustomValueInstDefaults extends BaseTest
         }
     }
 
-    static class BucketInstantiators implements ValueInstantiators
+    static class BucketInstantiators extends ValueInstantiators.Base
     {
         @Override
-        public ValueInstantiator findValueInstantiator(
+        public ValueInstantiator modifyValueInstantiator(
                 DeserializationConfig config,
                 BeanDescription beanDesc,
                 ValueInstantiator defaultInstantiator)
@@ -356,7 +356,7 @@ public class TestCustomValueInstDefaults extends BaseTest
         public void setupModule(SetupContext context) {
             context.addValueInstantiators(new ValueInstantiators.Base() {
                 @Override
-                public ValueInstantiator findValueInstantiator(DeserializationConfig config,
+                public ValueInstantiator modifyValueInstantiator(DeserializationConfig config,
                         BeanDescription beanDesc, ValueInstantiator defaultInstantiator) {
                     if (beanDesc.getBeanClass() == ClassWith32Props.class) {
                         return new VerifyingValueInstantiator((StdValueInstantiator)

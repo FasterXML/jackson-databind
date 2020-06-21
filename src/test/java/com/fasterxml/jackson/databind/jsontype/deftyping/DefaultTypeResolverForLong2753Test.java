@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonTypeResolver;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
 public class DefaultTypeResolverForLong2753Test extends BaseMapTest

@@ -153,6 +153,7 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
+        final boolean hasCustom = _factoryConfig.hasValueInstantiators();
 
         ValueInstantiator instantiator = null;
         // Check @JsonValueInstantiator before anything else
@@ -165,15 +166,28 @@ public abstract class BasicDeserializerFactory
             // Second: see if some of standard Jackson/JDK types might provide value
             // instantiators.
             instantiator = JDKValueInstantiators.findStdValueInstantiator(config, beanDesc.getBeanClass());
+
+            // Third: custom value instantiators via provider?
             if (instantiator == null) {
-                instantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
+                if (hasCustom) {
+                    for (ValueInstantiators insts : _factoryConfig.valueInstantiators()) {
+                        instantiator = insts.findValueInstantiator(config, beanDesc);
+                        if (instantiator != null) {
+                            break;
+                        }
+                    }
+                }
+                // Fourth: create default one, if no custom
+                if (instantiator == null) {
+                    instantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
+                }
             }
         }
 
         // finally: anyone want to modify ValueInstantiator?
-        if (_factoryConfig.hasValueInstantiators()) {
+        if (hasCustom) {
             for (ValueInstantiators insts : _factoryConfig.valueInstantiators()) {
-                instantiator = insts.findValueInstantiator(config, beanDesc, instantiator);
+                instantiator = insts.modifyValueInstantiator(config, beanDesc, instantiator);
                 // let's do sanity check; easier to spot buggy handlers
                 if (instantiator == null) {
                     ctxt.reportBadTypeDefinition(beanDesc,

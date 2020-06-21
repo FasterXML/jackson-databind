@@ -501,7 +501,7 @@ public abstract class BeanDeserializerBase
             if (_ignorableProps != null || _includableProps != null) {
                 for (int i = 0, end = creatorProps.length; i < end; ++i) {
                     SettableBeanProperty prop  = creatorProps[i];
-                    if (IgnorePropertiesUtil.shouldIgnore(prop.getName(), _includableProps, _includableProps)) {
+                    if (IgnorePropertiesUtil.shouldIgnore(prop.getName(), _ignorableProps, _includableProps)) {
                         creatorProps[i].markAsIgnorable();
                     }
                 }

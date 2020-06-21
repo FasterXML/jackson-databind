@@ -344,8 +344,6 @@ public class ObjectMapper
         }
     }
 
-    
-    
     /*
     /**********************************************************
     /* Internal constants, singletons
@@ -1851,7 +1849,7 @@ public class ObjectMapper
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableDefaultTyping(ptv, DefaultTyping.OBJECT_AND_NON_CONCRETE);
+     *  activateDefaultTyping(ptv, DefaultTyping.OBJECT_AND_NON_CONCRETE);
      *</pre>
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
@@ -1869,7 +1867,7 @@ public class ObjectMapper
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableDefaultTyping(ptv, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+     *  activateDefaultTyping(ptv, dti, JsonTypeInfo.As.WRAPPER_ARRAY);
      *</pre>
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
@@ -1888,11 +1886,11 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling automatic inclusion of type information, needed
-     * for proper deserialization of polymorphic types (unless types
+     * Method for enabling automatic inclusion of type information ("Default Typing"),
+     * needed for proper deserialization of polymorphic types (unless types
      * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}).
      *<P>
-     * NOTE: use of <code>JsonTypeInfo.As#EXTERNAL_PROPERTY</code> <b>NOT SUPPORTED</b>;
+     * NOTE: use of {@code JsonTypeInfo.As#EXTERNAL_PROPERTY} <b>NOT SUPPORTED</b>;
      * and attempts of do so will throw an {@link IllegalArgumentException} to make
      * this limitation explicit.
      *<p>
@@ -1924,8 +1922,8 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling automatic inclusion of type information -- needed
-     * for proper deserialization of polymorphic types (unless types
+     * Method for enabling automatic inclusion of type information ("Default Typing")
+     * -- needed for proper deserialization of polymorphic types (unless types
      * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) --
      * using "As.PROPERTY" inclusion mechanism and specified property name
      * to use for inclusion (default being "@class" since default type information
@@ -1968,8 +1966,8 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling automatic inclusion of type information, using
-     * specified handler object for determining which types this affects,
+     * Method for enabling automatic inclusion of type information ("Default Typing"),
+     * using specified handler object for determining which types this affects,
      * as well as details of how information is embedded.
      *<p>
      * NOTE: use of Default Typing can be a potential security risk if incoming

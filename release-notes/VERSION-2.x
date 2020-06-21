@@ -47,6 +47,9 @@ Project: jackson-databind
 #2755: `StdSubtypeResolver` is not thread safe (possibly due to copy
   not being made with `ObjectMapper.copy()`)
  (reported by tjwilson90@github)
+#2757: "Conflicting setter definitions for property" exception for `Map`
+  subtype during deserialization
+ (reported by Frank S)
 #2759: Rearranging of props when property-based generator is in use leads
   to incorrect output
  (reported by Oleg C)

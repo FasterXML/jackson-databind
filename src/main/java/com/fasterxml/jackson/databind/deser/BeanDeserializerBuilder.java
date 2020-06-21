@@ -77,7 +77,7 @@ public class BeanDeserializerBuilder
      * Set of names of properties that are recognized and are set to be included for deserialization
      * purposes (null deactivate this, empty includes nothing).
      */
-    protected HashSet<String> _includableProds;
+    protected HashSet<String> _includableProps;
 
     /**
      * Object that will handle value instantiation for the bean type.
@@ -144,7 +144,7 @@ public class BeanDeserializerBuilder
         _backRefProperties = _copy(src._backRefProperties);
         // Hmmh. Should we create defensive copies here? For now, not yet
         _ignorableProps = src._ignorableProps;
-        _includableProds = src._includableProds;
+        _includableProps = src._includableProps;
         _valueInstantiator = src._valueInstantiator;
         _objectIdReader = src._objectIdReader;
 
@@ -248,10 +248,10 @@ public class BeanDeserializerBuilder
      */
     public void addIncludable(String propName)
     {
-        if (_includableProds == null) {
-            _includableProds = new HashSet<>();
+        if (_includableProps == null) {
+            _includableProps = new HashSet<>();
         }
-        _includableProds.add(propName);
+        _includableProps.add(propName);
     }
 
     /**
@@ -352,7 +352,7 @@ public class BeanDeserializerBuilder
      * @since 2.9.4
      */
     public boolean hasIgnorable(String name) {
-        return IgnorePropertiesUtil.shouldIgnore(name, _ignorableProps, _includableProds);
+        return IgnorePropertiesUtil.shouldIgnore(name, _ignorableProps, _includableProps);
     }
 
     /*
@@ -398,7 +398,7 @@ public class BeanDeserializerBuilder
         }
 
         return new BeanDeserializer(this,
-                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProds,
+                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProps,
                 anyViews);
     }
 
@@ -482,7 +482,7 @@ public class BeanDeserializerBuilder
             BeanPropertyMap propertyMap, boolean anyViews) {
         return new BuilderBasedDeserializer(this,
                 _beanDesc, valueType, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
-                _includableProds, anyViews);
+                _includableProps, anyViews);
     }
 
     /*

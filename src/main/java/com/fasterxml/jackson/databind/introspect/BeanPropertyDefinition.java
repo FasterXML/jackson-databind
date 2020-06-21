@@ -224,12 +224,15 @@ public abstract class BeanPropertyDefinition
      * the highest precedence in current context (getter method when serializing,
      * if available, and so forth), if any.
      *<p>
+     * Note: may throw {@link IllegalArgumentException} in case problems are found
+     * trying to getter or setter info.
+     *<p>
      * Note: abstract since 2.5
      * 
      * @since 2.1
      */
     public abstract AnnotatedMember getPrimaryMember();
-    
+
     /*
     /**********************************************************
     /* More refined access to configuration features

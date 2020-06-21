@@ -136,6 +136,11 @@ public abstract class BeanDeserializerBase
     final protected Set<String> _ignorableProps;
 
     /**
+     * Keep track of the the properties that needs to be specifically included.
+     */
+    final protected Set<String> _includableProps;
+
+    /**
      * Flag that can be set to ignore and skip unknown properties.
      * If set, will not throw an exception for unknown properties.
      */
@@ -201,6 +206,7 @@ public abstract class BeanDeserializerBase
             BeanDescription beanDesc,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             Set<String> ignorableProps, boolean ignoreAllUnknown,
+            Set<String> includableProps,
             boolean hasViews)
     {
         super(beanDesc.getType());
@@ -211,6 +217,7 @@ public abstract class BeanDeserializerBase
         _backRefs = backRefs;
         _ignorableProps = ignorableProps;
         _ignoreAllUnknown = ignoreAllUnknown;
+        _includableProps = includableProps;
 
         _anySetter = builder.getAnySetter();
         List<ValueInjector> injectables = builder.getInjectables();
@@ -263,6 +270,7 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = ignoreAllUnknown;
+        _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         _objectIdReader = src._objectIdReader;
@@ -288,6 +296,7 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = (unwrapper != null) || src._ignoreAllUnknown;
+        _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         _objectIdReader = src._objectIdReader;
@@ -325,6 +334,7 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
+        _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         
@@ -352,9 +362,17 @@ public abstract class BeanDeserializerBase
 
     public BeanDeserializerBase(BeanDeserializerBase src, Set<String> ignorableProps)
     {
+        this(src, ignorableProps, src._includableProps);
+    }
+
+    /**
+     * @since 2.12
+     */
+    public BeanDeserializerBase(BeanDeserializerBase src, Set<String> ignorableProps, Set<String> includableProps)
+    {
         super(src._beanType);
         _beanType = src._beanType;
-        
+
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
@@ -362,6 +380,7 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
+        _includableProps = includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
 
@@ -375,8 +394,9 @@ public abstract class BeanDeserializerBase
 
         // 01-May-2016, tatu: [databind#1217]: Remove properties from mapping,
         //    to avoid them being deserialized
-        _beanProperties = src._beanProperties.withoutProperties(ignorableProps);
+        _beanProperties = src._beanProperties.withoutProperties(ignorableProps, includableProps);
     }
+
 
     /**
      * @since 2.8
@@ -394,6 +414,7 @@ public abstract class BeanDeserializerBase
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
+        _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         _objectIdReader = src._objectIdReader;
@@ -411,7 +432,15 @@ public abstract class BeanDeserializerBase
 
     public abstract BeanDeserializerBase withObjectIdReader(ObjectIdReader oir);
 
-    public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps);
+    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps) {
+        return withIgnorableProperties(ignorableProps, _includableProps);
+    }
+
+    public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps);
+
+    public BeanDeserializerBase withIncludableProperties(Set<String> includableProperties) {
+        return withIgnorableProperties(_ignorableProps, includableProperties);
+    }
 
     // NOTE! To be made `abstract` in 2.12 or later
     /**
@@ -422,7 +451,7 @@ public abstract class BeanDeserializerBase
         if (ignoreUnknown == _ignoreAllUnknown) {
             return this;
         }
-        return withIgnorableProperties(_ignorableProps);
+        return withIgnorableProperties(_ignorableProps, _includableProps);
     }
 
     /**
@@ -469,10 +498,10 @@ public abstract class BeanDeserializerBase
             // 22-Jan-2018, tatu: May need to propagate "ignorable" status (from `Access.READ_ONLY`
             //     or perhaps class-ignorables) into Creator properties too. Can not just delete,
             //     at this point, but is needed for further processing down the line
-            if (_ignorableProps != null) {
+            if (_ignorableProps != null || _includableProps != null) {
                 for (int i = 0, end = creatorProps.length; i < end; ++i) {
                     SettableBeanProperty prop  = creatorProps[i];
-                    if (_ignorableProps.contains(prop.getName())) {
+                    if (IgnorePropertiesUtil.shouldIgnore(prop.getName(), _ignorableProps, _includableProps)) {
                         creatorProps[i].markAsIgnorable();
                     }
                 }
@@ -771,6 +800,21 @@ public abstract class BeanDeserializerBase
                 //  defaults to `false` (i.e. can not know if `false` is explicit value)
                 if (ignorals.getIgnoreUnknown() && !_ignoreAllUnknown) {
                     contextual = contextual.withIgnoreAllUnknown(true);
+                }
+            }
+            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(accessor);
+            if (inclusions != null) {
+                Set<String> included = inclusions.getIncluded();
+                Set<String> prev = contextual._includableProps;
+                if (prev != null && included != null) {
+                    Set<String> newIncluded = new HashSet<>();
+                    // Make the intersection with the previously included properties.
+                    for(String prop : prev) {
+                        if (included.contains(prop)) {
+                            newIncluded.add(prop);
+                        }
+                    }
+                    contextual = contextual.withIncludableProperties(newIncluded);
                 }
             }
         }
@@ -1587,7 +1631,8 @@ public abstract class BeanDeserializerBase
             Object beanOrBuilder, String propName)
         throws IOException
     {
-        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+
+        if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
         } else if (_anySetter != null) {
             try {
@@ -1615,7 +1660,7 @@ public abstract class BeanDeserializerBase
             p.skipChildren();
             return;
         }
-        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+        if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrClass, propName);
         }
         // Otherwise use default handling (call handler(s); if not

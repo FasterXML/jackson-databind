@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Basic deserializer that can take JSON "Object" structure and
@@ -86,6 +88,7 @@ public class MapDeserializer
     // // Any properties to ignore if seen?
 
     protected Set<String> _ignorableProperties;
+    protected Set<String> _includableProperties;
 
     /*
     /**********************************************************
@@ -124,6 +127,7 @@ public class MapDeserializer
         _hasDefaultCreator = src._hasDefaultCreator;
         // should we make a copy here?
         _ignorableProperties = src._ignorableProperties;
+        _includableProperties = src._includableProperties;
 
         _standardStringKey = src._standardStringKey;
     }
@@ -134,6 +138,19 @@ public class MapDeserializer
             NullValueProvider nuller,
             Set<String> ignorable)
     {
+       this(src, keyDeser,valueDeser, valueTypeDeser, nuller, ignorable, null);
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected MapDeserializer(MapDeserializer src,
+                              KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
+                              TypeDeserializer valueTypeDeser,
+                              NullValueProvider nuller,
+                              Set<String> ignorable,
+                              Set<String> includable)
+    {
         super(src, nuller, src._unwrapSingle);
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
@@ -143,6 +160,7 @@ public class MapDeserializer
         _delegateDeserializer = src._delegateDeserializer;
         _hasDefaultCreator = src._hasDefaultCreator;
         _ignorableProperties = ignorable;
+        _includableProperties = includable;
 
         _standardStringKey = _isStdKeyDeser(_containerType, keyDeser);
     }
@@ -157,15 +175,26 @@ public class MapDeserializer
             NullValueProvider nuller,
             Set<String> ignorable)
     {
-        
+        return withResolved(keyDeser, valueTypeDeser, valueDeser, nuller, ignorable, _includableProperties);
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected MapDeserializer withResolved(KeyDeserializer keyDeser,
+                                           TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
+                                           NullValueProvider nuller,
+                                           Set<String> ignorable, Set<String> includable)
+    {
+
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
                 && (_valueTypeDeserializer == valueTypeDeser) && (_nullProvider == nuller)
-                && (_ignorableProperties == ignorable)) {
+                && (_ignorableProperties == ignorable) && (_includableProperties == includable)) {
             return this;
         }
         return new MapDeserializer(this,
                 keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser,
-                nuller, ignorable);
+                nuller, ignorable, includable);
     }
 
     /**
@@ -194,6 +223,10 @@ public class MapDeserializer
     public void setIgnorableProperties(Set<String> ignorable) {
         _ignorableProperties = (ignorable == null || ignorable.size() == 0) ?
                 null : ignorable;
+    }
+
+    public void setIncludableProperties(Set<String> includable) {
+        _includableProperties = includable;
     }
 
     /*
@@ -269,6 +302,7 @@ public class MapDeserializer
             vtd = vtd.forProperty(property);
         }
         Set<String> ignored = _ignorableProperties;
+        Set<String> included = _includableProperties;
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (_neitherNull(intr, property)) {
             AnnotatedMember member = property.getMember();
@@ -283,10 +317,27 @@ public class MapDeserializer
                         }
                     }
                 }
+                JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(member);
+                if (inclusions != null) {
+                    Set<String> includedToAdd = inclusions.getIncluded();
+                    if (includedToAdd != null) {
+                        Set<String> newIncluded = new HashSet<>();
+                        if (included == null) {
+                            newIncluded = new HashSet<>(includedToAdd);
+                        } else {
+                            for (String str : includedToAdd) {
+                                if (included.contains(str)) {
+                                    newIncluded.add(str);
+                                }
+                            }
+                        }
+                        included = newIncluded;
+                    }
+                }
             }
         }
         return withResolved(keyDeser, vtd, valueDeser,
-                findContentNullProvider(ctxt, property, valueDeser), ignored);
+                findContentNullProvider(ctxt, property, valueDeser), ignored, included);
     }
 
     /*
@@ -331,7 +382,8 @@ public class MapDeserializer
         return (_valueDeserializer == null)
                 && (_keyDeserializer == null)
                 && (_valueTypeDeserializer == null)
-                && (_ignorableProperties == null);
+                && (_ignorableProperties == null)
+                && (_includableProperties == null);
     }
 
     @Override // since 2.12
@@ -458,7 +510,7 @@ public class MapDeserializer
             Object key = keyDes.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
-            if (_ignorableProperties != null && _ignorableProperties.contains(keyStr)) {
+            if (IgnorePropertiesUtil.shouldIgnore(keyStr, _ignorableProperties, _includableProperties)) {
                 p.skipChildren();
                 continue;
             }
@@ -520,7 +572,7 @@ public class MapDeserializer
 
         for (; key != null; key = p.nextFieldName()) {
             JsonToken t = p.nextToken();
-            if (_ignorableProperties != null && _ignorableProperties.contains(key)) {
+            if (IgnorePropertiesUtil.shouldIgnore(key, _ignorableProperties, _includableProperties)) {
                 p.skipChildren();
                 continue;
             }
@@ -572,7 +624,7 @@ public class MapDeserializer
         
         for (; key != null; key = p.nextFieldName()) {
             JsonToken t = p.nextToken(); // to get to value
-            if (_ignorableProperties != null && _ignorableProperties.contains(key)) {
+            if (IgnorePropertiesUtil.shouldIgnore(key, _ignorableProperties, _includableProperties)) {
                 p.skipChildren(); // and skip it (in case of array/object)
                 continue;
             }
@@ -661,7 +713,7 @@ public class MapDeserializer
             Object key = keyDes.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
-            if (_ignorableProperties != null && _ignorableProperties.contains(keyStr)) {
+            if (IgnorePropertiesUtil.shouldIgnore(keyStr, _ignorableProperties, _includableProperties)) {
                 p.skipChildren();
                 continue;
             }
@@ -728,7 +780,7 @@ public class MapDeserializer
 
         for (; key != null; key = p.nextFieldName()) {
             JsonToken t = p.nextToken();
-            if (_ignorableProperties != null && _ignorableProperties.contains(key)) {
+            if (IgnorePropertiesUtil.shouldIgnore(key, _ignorableProperties, _includableProperties)) {
                 p.skipChildren();
                 continue;
             }

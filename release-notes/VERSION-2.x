@@ -30,74 +30,6 @@ Project: jackson-databind
 #2101: `FAIL_ON_NULL_FOR_PRIMITIVES` failure does not indicate field name in exception message
  (reported by raderio@github)
 
-2.9.10.5 (not yet released)
-
-#2688: Block one more gadget type (apache-drill, CVE-2020-14060)
- (reported by Topsec(tcc))
-#2698: Block one more gadget type (weblogic/oracle-aqjms, CVE-2020-14061)
- (reported by Fangrun Li)
-#2704: Block one more gadget type (jaxp-ri, CVE-2020-14062)
- (reported by XuYuanzhen)
-#2765: Block one more gadget type (org.jsecurity, CVE-2020-14195)
- (reported by Al1ex@knownsec)
-
-2.9.10.4 (11-Apr-2020)
-
-#2631: Block one more gadget type (shaded-hikari-config, CVE-2020-9546)
- (reported by threedr3am & LFY)
-#2634: Block two more gadget types (ibatis-sqlmap, anteros-core; CVE-2020-9547 / CVE-2020-9548)
- (reported by threedr3am & V1ZkRA)
-#2642: Block one more gadget type (javax.swing, CVE-2020-10969)
- (reported by threedr3am)
-#2648: Block one more gadget type (shiro-core)
-#2653: Block one more gadget type (shiro-core)
-#2658: Block one more gadget type (ignite-jta, CVE-2020-10650)
- (reported by Srikanth Ramu, threedr3am'follower)
-#2659: Block one more gadget type (aries.transaction.jms, CVE-2020-10672)
- (reported by Srikanth Ramu)
-#2660: Block one more gadget type (caucho-quercus, CVE-2020-10673)
- (reported by threedr3am'follower)
-#2662: Block one more gadget type (bus-proxy, CVE-2020-10968)
- (reported by XuYuanzhen)
-#2664: Block one more gadget type (activemq-pool[-jms], CVE-2020-11111)
- (reported by Srikanth Ramu)
-#2666: Block one more gadget type (apache/commons-proxy, CVE-2020-11112)
- (reported by Yiting Fan)
-#2670: Block one more gadget type (openjpa, CVE-2020-11113)
- (reported by XuYuanzhen)
-#2680: Block one more gadget type (SSRF, spring-aop, CVE-2020-11619)
-#2682: Block one more gadget type (commons-jelly, CVE-2020-11620)
-
-2.9.10.3 (23-Feb-2020)
-
-#2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)
- (reported by threedr3am@github)
-
-2.9.10.2 (03-Jan-2020)
-
-#2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)
-  (repoerted by UltramanGaia)
-#2544: java.lang.NoClassDefFoundError Thrown for compact profile1
-  (reported by Jon A)
-#2553: JsonDeserialize(contentAs=...) broken with raw collections
- (reported by cpopp@github)
-#2556: Contention in `TypeNameIdResolver.idFromClass()`
- (reported by Fabian L)
-#2560: Check `WRAP_EXCEPTIONS` in `CollectionDeserializer.handleNonArray()`
- (reported by Stefan W)
-#2564: Fix `IllegalArgumentException` on empty input collection for `ArrayBlockingQueue`
- (reported, fix suggested by yamert89@github)
-#2566: `MissingNode.toString()` returns `null` (4 character token) instead of empty string
- (reported by Greg A)
-#2567: Incorrect target type for arrays when providing nulls and nulls are disabled
- (reported by João G)
-#2573: Problem with `JsonInclude` config overrides for `java.util.Map`
- (reported by SukruthKS@github)
-#2576: Fail to serialize `Enum` instance which includes a method override
-  as POJO (shape = Shape.OBJECT)
- (reported by ylhuang-veeva@github)
-- Fix an issue with `ObjectReader.with(JsonParser.Feature)` (and related) not working
-
 2.10.1 (09-Nov-2019)
 
 #2457: Extended enum values are not handled as enums when used as Map keys
@@ -176,7 +108,7 @@ Project: jackson-databind
 #2241: Add `PropertyNamingStrategy.LOWER_DOT_CASE` for dot-delimited names
  (contributed by zenglian@github.com)
 #2251: Getter that returns an abstract collection breaks a delegating `@JsonCreator`
-#2265: Inconsistent handling of Collections$UnmodifiableList vs Collections$UnmodifiableRandomAccessListq
+#2265: Inconsistent handling of Collections$UnmodifiableList vs Collections$UnmodifiableRandomAccessList
 #2273: Add basic Java 9+ module info
 #2280: JsonMerge not work with constructor args
  (reported by Deblock T)

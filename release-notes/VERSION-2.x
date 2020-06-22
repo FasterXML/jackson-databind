@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.10.5 (not yet released)
+2.9.10.5 (21-Jun-2020)
 
 #2688: Block one more gadget type (apache-drill, CVE-2020-14060)
  (reported by Topsec(tcc))

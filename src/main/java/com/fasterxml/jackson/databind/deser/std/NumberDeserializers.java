@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
@@ -423,24 +424,37 @@ public class NumberDeserializers
         public Character deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
+            CoercionAction act;
+
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT: // ok iff Unicode value
-                // 12-Jun-2020, tatu: inlined from `StdDeserializer`
-                if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-                    ctxt.reportInputMismatch(this,
-"Cannot coerce Integer value to `Character` (enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow)");
+                act = ctxt.findCoercionAction(logicalType(), _valueClass, CoercionInputShape.Integer);
+                switch (act) {
+                case Fail:
+                    _checkCoercionActionFail(ctxt, act, "Integer value ("+p.getText()+")");
+                    break;
+                case AsNull:
+                    return getNullValue(ctxt);
+                case AsEmpty:
+                    return (Character) getEmptyValue(ctxt);
+                default:
                 }
                 int value = p.getIntValue();
                 if (value >= 0 && value <= 0xFFFF) {
                     return Character.valueOf((char) value);
                 }
                 break;
-            case JsonTokenId.ID_STRING: // this is the usual type
-
+            case JsonTokenId.ID_STRING:
+                // 23-Jun-2020, tatu: Unlike real numeric types, Character/char does not
+                //   have canonical shape in JSON, and String in particular does not need
+                //   coercion -- as long as it has length of 1.
                 String text = p.getText();
-                CoercionAction act = _checkFromStringCoercion(ctxt, text);
+                if (text.length() == 1) {
+                    return Character.valueOf(text.charAt(0));
+                }
+                act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
-                    return (Character) getNullValue(ctxt);
+                    return getNullValue(ctxt);
                 }
                 if (act == CoercionAction.AsEmpty) {
                     return (Character) getEmptyValue(ctxt);
@@ -448,10 +462,6 @@ public class NumberDeserializers
                 text = text.trim();
                 if (_checkTextualNull(ctxt, text)) {
                     return (Character) getNullValue(ctxt);
-                }
-                // But does it have to be exactly one char?
-                if (text.length() == 1) {
-                    return Character.valueOf(text.charAt(0));
                 }
                 break;
             case JsonTokenId.ID_NULL:
@@ -463,7 +473,7 @@ public class NumberDeserializers
                 return _deserializeFromArray(p, ctxt);
             default:
             }
-            return (Character) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 

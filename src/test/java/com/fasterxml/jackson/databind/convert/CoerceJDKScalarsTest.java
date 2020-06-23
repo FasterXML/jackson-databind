@@ -208,11 +208,9 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         // And then we have coercions from more esoteric types too
 
         _verifyCoerceFail("65", Character.class,
-                "Cannot coerce Integer value to `Character",
-                "enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow");
+                "Cannot coerce Integer value (65) to `java.lang.Character` value");
         _verifyCoerceFail("65", Character.TYPE,
-                "Cannot coerce Integer value to `Character",
-                "enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow");
+                "Cannot coerce Integer value (65) to `char` value");
     }
 
     /*

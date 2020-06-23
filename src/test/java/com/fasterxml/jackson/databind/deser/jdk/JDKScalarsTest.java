@@ -230,12 +230,15 @@ public class JDKScalarsTest
     public void testCharacterWrapper() throws Exception
     {
         // First: canonical value is 1-char string
-        Character result = MAPPER.readValue("\"a\"", Character.class);
-        assertEquals(Character.valueOf('a'), result);
+        assertEquals(Character.valueOf('a'), MAPPER.readValue(quote("a"), Character.class));
 
         // But can also pass in ascii code
-        result = MAPPER.readValue(" "+((int) 'X'), Character.class);
+        Character result = MAPPER.readValue(" "+((int) 'X'), Character.class);
         assertEquals(Character.valueOf('X'), result);
+
+        // 22-Jun-2020, tatu: one special case turns out to be white space;
+        //    need to avoid considering it "blank" value
+        assertEquals(Character.valueOf(' '), MAPPER.readValue(quote(" "), Character.class));
         
         final CharacterWrapperBean wrapper = MAPPER.readValue("{\"v\":null}", CharacterWrapperBean.class);
         assertNotNull(wrapper);

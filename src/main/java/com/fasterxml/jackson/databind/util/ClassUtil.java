@@ -123,11 +123,15 @@ public final class ClassUtil
     {
         /* As per [JACKSON-187], GAE seems to throw SecurityExceptions
          * here and there... and GAE itself has a bug, too
-         * (see []). Bah. So we need to catch some wayward exceptions on GAE
+         * Bah. So we need to catch some wayward exceptions on GAE
          */
         try {
+            final boolean isStatic = Modifier.isStatic(type.getModifiers());
+
             // one more: method locals, anonymous, are not good:
-            if (hasEnclosingMethod(type)) {
+            // 23-Jun-2020, tatu: [databind#2758] With JDK14+ should allow
+            //    local Record types, however
+            if (!isStatic && hasEnclosingMethod(type)) {
                 return "local/anonymous";
             }
             /* But how about non-static inner classes? Can't construct
@@ -135,7 +139,7 @@ public final class ClassUtil
              * happens to be enclosing... but that gets convoluted)
              */
             if (!allowNonStatic) {
-                if (isNonStaticInnerClass(type)) {
+                if (!isStatic && getEnclosingClass(type) != null) {
                     return "non-static member class";
                 }
             }

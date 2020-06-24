@@ -875,9 +875,8 @@ name, ((AnnotatedParameter) m).getIndex());
         if (ClassUtil.isProxyType(type)) {
             throw new IllegalArgumentException("Cannot deserialize Proxy class "+type.getName()+" as a Bean");
         }
-        /* also: can't deserialize some local classes: static are ok; in-method not;
-         * other non-static inner classes are ok
-         */
+        // also: can't deserialize some local classes: static are ok; in-method not;
+        // other non-static inner classes are ok
         typeStr = ClassUtil.isLocalType(type, true);
         if (typeStr != null) {
             throw new IllegalArgumentException("Cannot deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");

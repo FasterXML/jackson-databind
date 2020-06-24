@@ -1115,17 +1115,19 @@ Michael Cramer (BigMichi1@github)
    fails randomly
   (2.11.1)
  
-Oleg Chtchoukine (oshatrk@github)
-  * Reported #2759: Rearranging of props when property-based generator is in use leads
-    to incorrect output
+Frank Schmager (fschmager@github)
+  * Reported #2757: "Conflicting setter definitions for property" exception for `Map`
+   subtype during deserialization
   (2.11.1)
 
 Johannes Kuhn (DasBrain@github)
+  * Reported #2758: Fail to deserialize local Records
+  (2.11.1)
   * Reported #2760: Jackson doesn't respect `CAN_OVERRIDE_ACCESS_MODIFIERS=false` for
     deserializer properties
   (2.11.1)
 
-Frank Schmager (fschmager@github)
-  * Reported #2757: "Conflicting setter definitions for property" exception for `Map`
-   subtype during deserialization
+Oleg Chtchoukine (oshatrk@github)
+  * Reported #2759: Rearranging of props when property-based generator is in use leads
+    to incorrect output
   (2.11.1)

@@ -17,6 +17,8 @@ Project: jackson-databind
 #2757: "Conflicting setter definitions for property" exception for `Map`
   subtype during deserialization
  (reported by Frank S)
+#2758: Fail to deserialize local Records
+ (reported by Johannes K)
 #2759: Rearranging of props when property-based generator is in use leads
   to incorrect output
  (reported by Oleg C)

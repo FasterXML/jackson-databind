@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #921: Deserialization Not Working Right with Generic Types and Builders
  (reported by Mike G; fix contributed by Ville K)
+#1852: Allow case insensitive deserialization of String value into
+  `boolean`/`Boolean` (esp for Excel)
+ (requested by Patrick J)
 #1886: Allow use of `@JsonFormat(with=JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)`
   on Class
 #1919: Abstract class included as part of known type ids for error message

@@ -1138,6 +1138,11 @@ Mike Gilbode (gilbode@github)
   * Reported #792: Deserialization Not Working Right with Generic Types and Builders
   (2.12.0)
 
+Patrick Jungermann (pjungermann@github)
+  * Requested #1852: Allow case insensitive deserialization of String value into
+  `boolean`/`Boolean` (esp for Excel)
+  (2.12.0)
+ 
 Nate Bauernfeind (nbauernfeind@github)
   * Reported #2091: `ReferenceType` does not expose valid containedType
   (2.12.0)

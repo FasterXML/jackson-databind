@@ -193,7 +193,9 @@ public class MapSerializer
 
     /**
      * @since 2.5
+     * @deprecated in 2.12, remove from 3.0
      */
+    @Deprecated
     protected MapSerializer(Set<String> ignoredEntries,
             JavaType keyType, JavaType valueType, boolean valueTypeIsStatic,
             TypeSerializer vts,
@@ -232,7 +234,11 @@ public class MapSerializer
         _suppressNulls = src._suppressNulls;
     }
 
+    /**
+     * @deprecated in 2.12, remove from 3.0
+     */
     @SuppressWarnings("unchecked")
+    @Deprecated
     protected MapSerializer(MapSerializer src, BeanProperty property,
                             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
                             Set<String> ignoredEntries)

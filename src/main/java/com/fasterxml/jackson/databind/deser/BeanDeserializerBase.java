@@ -436,8 +436,14 @@ public abstract class BeanDeserializerBase
         return withIgnorableProperties(ignorableProps, _includableProps);
     }
 
+    /**
+     * @since 2.12
+     */
     public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps);
 
+    /**
+     * @since 2.12
+     */
     public BeanDeserializerBase withIncludableProperties(Set<String> includableProperties) {
         return withIgnorableProperties(_ignorableProps, includableProperties);
     }

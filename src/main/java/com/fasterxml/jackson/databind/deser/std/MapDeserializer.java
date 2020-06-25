@@ -215,6 +215,10 @@ public class MapDeserializer
                 && isDefaultKeyDeserializer(keyDeser));
     }
 
+    /**
+     * @deprecated in 2.12, remove from 3.0
+     */
+    @Deprecated
     public void setIgnorableProperties(String[] ignorable) {
         _ignorableProperties = (ignorable == null || ignorable.length == 0) ?
             null : ArrayBuilders.arrayToSet(ignorable);

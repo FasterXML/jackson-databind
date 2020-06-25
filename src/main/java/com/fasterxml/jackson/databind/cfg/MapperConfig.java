@@ -504,7 +504,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *
      * TODO: config override.
      *
-     * @since 2.8
+     * @since 2.12
      */
     public abstract JsonIncludeProperties.Value getDefaultPropertyInclusions(Class<?> baseType,
             AnnotatedClass actualClass);

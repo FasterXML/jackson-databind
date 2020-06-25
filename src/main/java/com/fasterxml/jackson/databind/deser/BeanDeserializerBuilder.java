@@ -245,6 +245,8 @@ public class BeanDeserializerBuilder
 
     /**
      * Method that will add property name as one of the properties that will be included.
+     *
+     * @since 2.12
      */
     public void addIncludable(String propName)
     {

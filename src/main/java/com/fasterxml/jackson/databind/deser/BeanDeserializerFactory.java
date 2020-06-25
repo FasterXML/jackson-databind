@@ -659,7 +659,10 @@ public class BeanDeserializerFactory
      * as well as properties that have "ignorable types".
      * Note that this will not remove properties that have no
      * setters.
+     *
+     * @deprecated in 2.12, remove from 3.0
      */
+    @Deprecated
     protected List<BeanPropertyDefinition> filterBeanProps(DeserializationContext ctxt,
             BeanDescription beanDesc, BeanDeserializerBuilder builder,
             List<BeanPropertyDefinition> propDefsIn,

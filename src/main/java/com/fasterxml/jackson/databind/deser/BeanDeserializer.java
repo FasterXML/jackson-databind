@@ -57,7 +57,10 @@ public class BeanDeserializer
 
     /**
      * Constructor used by {@link BeanDeserializerBuilder}.
+     *
+     * @deprecated in 2.12, remove from 3.0
      */
+    @Deprecated
     public BeanDeserializer(BeanDeserializerBuilder builder, BeanDescription beanDesc,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             HashSet<String> ignorableProps, boolean ignoreAllUnknown,
@@ -101,10 +104,17 @@ public class BeanDeserializer
         super(src, oir);
     }
 
+    /**
+     * @deprecated in 2.12, remove from 3.0
+     */
+    @Deprecated
     public BeanDeserializer(BeanDeserializerBase src, Set<String> ignorableProps) {
         super(src, ignorableProps);
     }
 
+    /**
+     * @since 2.12
+     */
     public BeanDeserializer(BeanDeserializerBase src, Set<String> ignorableProps, Set<String> includableProps) {
         super(src, ignorableProps, includableProps);
     }

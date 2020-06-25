@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.11.1 (not yet released)
+2.11.1 (25-Jun-2020)
 
 #2486: Builder Deserialization with JsonCreator Value vs Array
  (reported by Ville K)

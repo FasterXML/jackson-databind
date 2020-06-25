@@ -163,15 +163,15 @@ public class MapSerializer
     /* Life-cycle
     /**********************************************************
      */
-
+    
     /**
      * @since 2.12
      */
     @SuppressWarnings("unchecked")
     protected MapSerializer(Set<String> ignoredEntries, Set<String> includedEntries,
-                            JavaType keyType, JavaType valueType, boolean valueTypeIsStatic,
-                            TypeSerializer vts,
-                            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
+            JavaType keyType, JavaType valueType, boolean valueTypeIsStatic,
+            TypeSerializer vts,
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
     {
         super(Map.class, false);
         _ignoredEntries = ((ignoredEntries == null) || ignoredEntries.isEmpty())
@@ -298,8 +298,8 @@ public class MapSerializer
      * @since 2.12
      */
     public MapSerializer withResolved(BeanProperty property,
-                                      JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
-                                      Set<String> ignored, Set<String> included, boolean sortKeys)
+             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+             Set<String> ignored, Set<String> included, boolean sortKeys)
     {
         _ensureOverride("withResolved");
         MapSerializer ser = new MapSerializer(this, property, keySerializer, valueSerializer, ignored, included);

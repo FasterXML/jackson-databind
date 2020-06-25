@@ -1371,7 +1371,8 @@ nonAnnotatedParamIndex, ctor);
                     MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
                     JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
                             beanDesc.getClassInfo());
-                    Set<String> ignored = (ignorals == null) ? null : ignorals.findIgnoredForDeserialization();
+                    Set<String> ignored = (ignorals == null) ? null
+                            : ignorals.findIgnoredForDeserialization();
                     md.setIgnorableProperties(ignored);
                     JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(Map.class,
                             beanDesc.getClassInfo());

@@ -372,7 +372,7 @@ public abstract class BeanDeserializerBase
     {
         super(src._beanType);
         _beanType = src._beanType;
-
+        
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;

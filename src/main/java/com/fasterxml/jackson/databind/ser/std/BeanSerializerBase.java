@@ -215,7 +215,7 @@ public abstract class BeanSerializerBase
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
     }
-
+    
     /**
      * Mutant factory used for creating a new instance with different
      * {@link ObjectIdWriter}.

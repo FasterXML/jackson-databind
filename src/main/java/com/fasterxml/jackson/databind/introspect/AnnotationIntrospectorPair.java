@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.Version;
@@ -123,6 +124,15 @@ public class AnnotationIntrospectorPair
         JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(a);
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
+    }
+
+    @Override
+    public JsonIncludeProperties.Value findPropertyInclusions(Annotated a)
+    {
+        JsonIncludeProperties.Value v2 = _secondary.findPropertyInclusions(a);
+        JsonIncludeProperties.Value v1 = _primary.findPropertyInclusions(a);
+        return (v2 == null) // shouldn't occur but
+                ? v1 : v2.withOverrides(v1);
     }
 
     @Override

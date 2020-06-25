@@ -113,7 +113,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testStringCoercionOk() throws Exception
+    public void testStringCoercionOkBoolean() throws Exception
     {
         // first successful coercions. Boolean has a ton...
         _verifyCoerceSuccess("1", Boolean.TYPE, Boolean.TRUE);
@@ -122,13 +122,20 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         _verifyCoerceSuccess(quote("true"), Boolean.class, Boolean.TRUE);
         _verifyCoerceSuccess(quote("True"), Boolean.TYPE, Boolean.TRUE);
         _verifyCoerceSuccess(quote("True"), Boolean.class, Boolean.TRUE);
+        _verifyCoerceSuccess(quote("TRUE"), Boolean.TYPE, Boolean.TRUE);
+        _verifyCoerceSuccess(quote("TRUE"), Boolean.class, Boolean.TRUE);
         _verifyCoerceSuccess("0", Boolean.TYPE, Boolean.FALSE);
         _verifyCoerceSuccess("0", Boolean.class, Boolean.FALSE);
         _verifyCoerceSuccess(quote("false"), Boolean.TYPE, Boolean.FALSE);
         _verifyCoerceSuccess(quote("false"), Boolean.class, Boolean.FALSE);
         _verifyCoerceSuccess(quote("False"), Boolean.TYPE, Boolean.FALSE);
         _verifyCoerceSuccess(quote("False"), Boolean.class, Boolean.FALSE);
+        _verifyCoerceSuccess(quote("FALSE"), Boolean.TYPE, Boolean.FALSE);
+        _verifyCoerceSuccess(quote("FALSE"), Boolean.class, Boolean.FALSE);
+    }
 
+    public void testStringCoercionOkNumbers() throws Exception
+    {
         _verifyCoerceSuccess(quote("123"), Byte.TYPE, Byte.valueOf((byte) 123));
         _verifyCoerceSuccess(quote("123"), Byte.class, Byte.valueOf((byte) 123));
         _verifyCoerceSuccess(quote("123"), Short.TYPE, Short.valueOf((short) 123));
@@ -154,6 +161,13 @@ public class CoerceJDKScalarsTest extends BaseMapTest
     {
         _verifyRootStringCoerceFail("true", Boolean.TYPE);
         _verifyRootStringCoerceFail("true", Boolean.class);
+        _verifyRootStringCoerceFail("True", Boolean.TYPE);
+        _verifyRootStringCoerceFail("True", Boolean.class);
+        _verifyRootStringCoerceFail("TRUE", Boolean.TYPE);
+        _verifyRootStringCoerceFail("TRUE", Boolean.class);
+
+        _verifyRootStringCoerceFail("false", Boolean.TYPE);
+        _verifyRootStringCoerceFail("false", Boolean.class);
     }
 
     public void testStringCoercionFailInteger() throws Exception

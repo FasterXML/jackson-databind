@@ -339,20 +339,25 @@ public abstract class StdDeserializer<T>
                 return false;
             }
             text = text.trim();
-            // [databind#422]: Allow aliases
-            // 13-Jun-2020, tatu: ... should we consider "lenient" vs "strict" here?
-            if ("true".equals(text) || "True".equals(text)) {
-                return true;
-            }
-            if ("false".equals(text) || "False".equals(text)) {
-                return false;
+            final int len = text.length();
+
+            // For [databind#1852] allow some case-insensitive matches (namely,
+            // true/True/TRUE, false/False/FALSE
+            if (len == 4) {
+                if (_isTrue(text)) {
+                    return true;
+                }
+            } else if (len == 5) {
+                if (_isFalse(text)) {
+                    return false;
+                }
             }
             if (_hasTextualNull(text)) {
                 _verifyNullForPrimitiveCoercion(ctxt, text);
                 return false;
             }
             Boolean b = (Boolean) ctxt.handleWeirdStringValue(Boolean.TYPE, text,
-                    "only \"true\" or \"false\" recognized");
+                    "only \"true\"/\"True\"/\"TRUE\" or \"false\"/\"False\"/\"FALSE\" recognized");
             return Boolean.TRUE.equals(b);
         }
         // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
@@ -365,6 +370,29 @@ public abstract class StdDeserializer<T>
         return ((Boolean) ctxt.handleUnexpectedToken(ctxt.constructType(Boolean.TYPE), p)).booleanValue();
     }
 
+    // [databind#1852]
+    protected boolean _isTrue(String text) {
+        char c = text.charAt(0);
+        if (c == 't') {
+            return "true".equals(text);
+        }
+        if (c == 'T') {
+            return "TRUE".equals(text) || "True".equals(text);
+        }
+        return false;
+    }
+
+    protected boolean _isFalse(String text) {
+        char c = text.charAt(0);
+        if (c == 'f') {
+            return "false".equals(text);
+        }
+        if (c == 'F') {
+            return "FALSE".equals(text) || "False".equals(text);
+        }
+        return false;
+    }
+ 
     /**
      * Helper method called for cases where non-primitive, boolean-based value
      * is to be deserialized: result of this method will be {@link java.lang.Boolean},
@@ -399,12 +427,18 @@ public abstract class StdDeserializer<T>
                 return false;
             }
             text = text.trim();
-            // [databind#422]: Allow aliases
-            if ("true".equals(text) || "True".equals(text)) {
-                return true;
-            }
-            if ("false".equals(text) || "False".equals(text)) {
-                return false;
+            final int len = text.length();
+
+            // For [databind#1852] allow some case-insensitive matches (namely,
+            // true/True/TRUE, false/False/FALSE
+            if (len == 4) {
+                if (_isTrue(text)) {
+                    return true;
+                }
+            } else if (len == 5) {
+                if (_isFalse(text)) {
+                    return false;
+                }
             }
             if (_checkTextualNull(ctxt, text)) {
                 return null;

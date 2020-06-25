@@ -216,20 +216,30 @@ public class POJOPropertyBuilder
      */
 
     @Override
-    public PropertyMetadata getMetadata() {
+    public PropertyMetadata getMetadata()
+    {
         if (_metadata == null) {
-            final Boolean b = _findRequired();
-            final String desc = _findDescription();
-            final Integer idx = _findIndex();
-            final String def = _findDefaultValue();
-            if (b == null && idx == null && def == null) {
-                _metadata = (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
-                        : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
+            // 20-Jun-2020, tatu: Unfortunately strict checks lead to [databind#2757]
+            //   so we will need to try to avoid them at this point
+            final AnnotatedMember prim = getPrimaryMemberUnchecked();
+
+            if (prim == null) {
+                _metadata = PropertyMetadata.STD_REQUIRED_OR_OPTIONAL;
             } else {
-                _metadata = PropertyMetadata.construct(b, desc, idx, def);
-            }
-            if (!_forSerialization) {
-                _metadata = _getSetterInfo(_metadata);
+                final Boolean b = _annotationIntrospector.hasRequiredMarker(prim);
+                final String desc = _annotationIntrospector.findPropertyDescription(prim);
+                final Integer idx = _annotationIntrospector.findPropertyIndex(prim);
+                final String def = _annotationIntrospector.findPropertyDefaultValue(prim);
+
+                if (b == null && idx == null && def == null) {
+                    _metadata = (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
+                            : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
+                } else {
+                    _metadata = PropertyMetadata.construct(b, desc, idx, def);
+                }
+                if (!_forSerialization) {
+                    _metadata = _getSetterInfo(_metadata, prim);
+                }
             }
         }
         return _metadata;
@@ -239,23 +249,25 @@ public class POJOPropertyBuilder
      * Helper method that contains logic for accessing and merging all setter
      * information that we needed, regarding things like possible merging
      * of property value, and handling of incoming nulls.
+     * Only called for deserialization purposes.
      */
-    protected PropertyMetadata _getSetterInfo(PropertyMetadata metadata)
+    protected PropertyMetadata _getSetterInfo(PropertyMetadata metadata,
+            AnnotatedMember primary)
     {
         boolean needMerge = true;
         Nulls valueNulls = null;
         Nulls contentNulls = null;
-        
+
         // Slightly confusing: first, annotations should be accessed via primary member
-        // (mutator); but accessor is needed for actual merge operation. So:
-        AnnotatedMember prim = getPrimaryMember();
+        // (mutator); but accessor is needed for actual merge operation. So
+
         AnnotatedMember acc = getAccessor();
 
-        if (prim != null) {
+        if (primary != null) {
             // Ok, first: does property itself have something to say?
             if (_annotationIntrospector != null) {
                 if (acc != null) {
-                    Boolean b = _annotationIntrospector.findMergeInfo(prim);
+                    Boolean b = _annotationIntrospector.findMergeInfo(primary);
                     if (b != null) {
                         needMerge = false;
                         if (b.booleanValue()) {
@@ -263,7 +275,7 @@ public class POJOPropertyBuilder
                         }
                     }
                 }
-                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(prim);
+                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(primary);
                 if (setterInfo != null) {
                     valueNulls = setterInfo.nonDefaultValueNulls();
                     contentNulls = setterInfo.nonDefaultContentNulls();
@@ -272,7 +284,10 @@ public class POJOPropertyBuilder
             // If not, config override?
             // 25-Oct-2016, tatu: Either this, or type of accessor...
             if (needMerge || (valueNulls == null) || (contentNulls == null)) {
-                Class<?> rawType = getRawPrimaryType();
+                // 20-Jun-2020, tatu: Related to [databind#2757], need to find type
+                //   but keeping mind that type for setters is trickier; and that
+                //   generic typing gets tricky as well.
+                Class<?> rawType = _rawTypeOf(primary);
                 ConfigOverride co = _config.getConfigOverride(rawType);
                 JsonSetter.Value setterInfo = co.getSetterInfo();
                 if (setterInfo != null) {
@@ -330,7 +345,6 @@ public class POJOPropertyBuilder
                     // 09-Feb-2017, tatu: Not sure if this or `null` but...
                     return TypeFactory.unknownType();
                 }
-                return m.getType();
             }
             return m.getType();
         }
@@ -577,6 +591,45 @@ public class POJOPropertyBuilder
         return m;
     }
 
+    // Sometimes we need to actually by-pass failures related to conflicting
+    // getters or setters (see [databind#2757] for specific example); if so,
+    // this method is to be used instead of `getPrimaryMember()`
+    // @since 2.11.1
+    protected AnnotatedMember getPrimaryMemberUnchecked() {
+        if (_forSerialization) { // Inlined `getAccessor()` logic:
+            // Inlined `getGetter()`:
+            if (_getters != null) {
+                return _getters.value;
+            }
+            // Inlined `getField()`:
+            if (_fields != null) {
+                return _fields.value;
+            }
+            return null;
+        }
+
+        // Otherwise, inlined `getMutator()` logic:
+
+        // Inlined `getConstructorParameter()`:
+        if (_ctorParameters != null) {
+            return _ctorParameters.value;
+        }
+        // Inlined `getSetter()`:
+        if (_setters != null) {
+            return _setters.value;
+        }
+        // Inlined `getField()`:
+        if (_fields != null) {
+            return _fields.value;
+        }
+        // but to support setterless-properties, also include part of
+        // `getAccessor()` not yet covered, `getGetter()`:
+        if (_getters != null) {
+            return _getters.value;
+        }
+        return null;
+    }
+
     protected int _getterPriority(AnnotatedMethod m)
     {
         final String name = m.getName();
@@ -649,42 +702,6 @@ public class POJOPropertyBuilder
         return (b != null) && b.booleanValue();
     }
 
-    protected Boolean _findRequired() {
-       return fromMemberAnnotations(new WithMember<Boolean>() {
-            @Override
-            public Boolean withMember(AnnotatedMember member) {
-                return _annotationIntrospector.hasRequiredMarker(member);
-            }
-        });
-    }
-    
-    protected String _findDescription() {
-        return fromMemberAnnotations(new WithMember<String>() {
-            @Override
-            public String withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findPropertyDescription(member);
-            }
-        });
-    }
-
-    protected Integer _findIndex() {
-        return fromMemberAnnotations(new WithMember<Integer>() {
-            @Override
-            public Integer withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findPropertyIndex(member);
-            }
-        });
-    }
-
-    protected String _findDefaultValue() {
-        return fromMemberAnnotations(new WithMember<String>() {
-            @Override
-            public String withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findPropertyDefaultValue(member);
-            }
-        });
-    }
-    
     @Override
     public ObjectIdInfo findObjectIdInfo() {
         return fromMemberAnnotations(new WithMember<ObjectIdInfo>() {
@@ -1235,6 +1252,26 @@ public class POJOPropertyBuilder
             }
         }
         return null;
+    }
+
+    // Helper method needed to work around oddity in type access for
+    // `AnnotatedMethod`.
+    //
+    // @since 2.11.1
+    protected Class<?> _rawTypeOf(AnnotatedMember m) {
+        // AnnotatedMethod always returns return type, but for setters we
+        // actually need argument type
+        if (m instanceof AnnotatedMethod) {
+            AnnotatedMethod meh = (AnnotatedMethod) m;
+            if (meh.getParameterCount() > 0) {
+                // note: get raw type FROM full type since only that resolves
+                // generic types
+                return meh.getParameterType(0).getRawClass();
+            }
+        }
+        // same as above, must get fully resolved type to handled generic typing
+        // of fields etc.
+        return m.getType().getRawClass();
     }
 
     /*

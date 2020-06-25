@@ -1083,26 +1083,26 @@ Robert Diebels (RobertDiebels@github)
 Joseph Koshakow (jkosh44@github)
   * Contributed fix for #2515: `ObjectMapper.registerSubtypes(NamedType...)` doesn't allow registering
     the same POJO for two different type ids
- (2.11.0)
+  (2.11.0)
 
 Haowei Wen (yushijinhun@github)
   * Reported #2565: Java 8 `Optional` not working with `@JsonUnwrapped` on unwrappable type
- (2.11.0)
+  (2.11.0)
 
 Bartosz Baranowski (baranowb@github)
   * Reported #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
    external entity expansion in all cases
- (2.11.0)
+  (2.11.0)
 
 Oleksii Khomchenko (gagoman@github)
   * Reported, contributed fix for #2592: `ObjectMapper.setSerializationInclusion()` is
    ignored for `JsonAnyGetter`
- (2.11.0)
+  (2.11.0)
 
 Oleksandr Poslavskyi (alevskyi@github)
   * Contributed fix for #1983: Polymorphic deserialization should handle case-insensitive Type Id
     property name if `MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES` is enabled
- (2.11.0)
+  (2.11.0)
 
 Simone D'Avico (simonedavico@github)
   * Reported #2632: Failure to resolve generic type parameters on serialization
@@ -1117,14 +1117,21 @@ Michael Cramer (BigMichi1@github)
    fails randomly
   (2.11.1)
  
-Oleg Chtchoukine (oshatrk@github)
-  * Reported #2759: Rearranging of props when property-based generator is in use leads
-    to incorrect output
+Frank Schmager (fschmager@github)
+  * Reported #2757: "Conflicting setter definitions for property" exception for `Map`
+   subtype during deserialization
   (2.11.1)
 
 Johannes Kuhn (DasBrain@github)
+  * Reported #2758: Fail to deserialize local Records
+  (2.11.1)
   * Reported #2760: Jackson doesn't respect `CAN_OVERRIDE_ACCESS_MODIFIERS=false` for
     deserializer properties
+  (2.11.1)
+
+Oleg Chtchoukine (oshatrk@github)
+  * Reported #2759: Rearranging of props when property-based generator is in use leads
+    to incorrect output
   (2.11.1)
 
 Mike Gilbode (gilbode@github)

@@ -681,12 +681,6 @@ public abstract class StdDeserializer<T>
                 return parsed;
             }
             break;
-        case JsonTokenId.ID_START_OBJECT:
-            {
-                JsonNode n = ctxt.readTree(p);
-                System.err.println("Object: "+n);
-            }
-            break;
         default:
         }
         // Otherwise, no can do:

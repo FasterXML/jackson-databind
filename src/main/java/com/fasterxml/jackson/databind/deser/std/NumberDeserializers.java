@@ -251,7 +251,7 @@ public class NumberDeserializers
         @Override
         public Byte deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            if (p.isExpectedNumberIntToken()) {
                 return p.getByteValue();
             }
             if (_primitive) {
@@ -329,7 +329,7 @@ public class NumberDeserializers
         public Short deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
-            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            if (p.isExpectedNumberIntToken()) {
                 return p.getShortValue();
             }
             if (_primitive) {
@@ -476,7 +476,7 @@ public class NumberDeserializers
 
         @Override
         public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            if (p.isExpectedNumberIntToken()) {
                 return p.getIntValue();
             }
             if (_primitive) {
@@ -491,7 +491,7 @@ public class NumberDeserializers
         public Integer deserializeWithType(JsonParser p, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer) throws IOException
         {
-            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            if (p.isExpectedNumberIntToken()) {
                 return p.getIntValue();
             }
             if (_primitive) {
@@ -570,7 +570,7 @@ public class NumberDeserializers
         
         @Override
         public Long deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            if (p.isExpectedNumberIntToken()) {
                 return p.getLongValue();
             }
             if (_primitive) {
@@ -941,16 +941,12 @@ public class NumberDeserializers
         @Override
         public BigInteger deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
+            if (p.isExpectedNumberIntToken()) {
+                return p.getBigIntegerValue();
+            }
+
             CoercionAction act;
             switch (p.currentTokenId()) {
-            case JsonTokenId.ID_NUMBER_INT:
-                switch (p.getNumberType()) {
-                case INT:
-                case LONG:
-                case BIG_INTEGER:
-                    return p.getBigIntegerValue();
-                }
-                break;
             case JsonTokenId.ID_NUMBER_FLOAT:
                 act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
                 if (act == CoercionAction.AsNull) {

@@ -311,23 +311,9 @@ public abstract class StdDeserializer<T>
     protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
-        final JsonToken t = p.currentToken();
-        // usually caller should have handled but:
-        if (t == JsonToken.VALUE_TRUE) return true;
-        if (t == JsonToken.VALUE_FALSE) return false;
-        if (t == JsonToken.VALUE_NULL) {
-            _verifyNullForPrimitive(ctxt);
-            return false;
-        }
-
-        // may accept ints too, (0 == false, otherwise true)
-        if (t == JsonToken.VALUE_NUMBER_INT) {
-            Boolean b = _coerceBooleanFromInt(p, ctxt, Boolean.TYPE);
-            // may get `null`, Boolean.TRUE or Boolean.FALSE so:
-            return (b == Boolean.TRUE);
-        }
-        // And finally, let's allow Strings to be converted too
-        if (t == JsonToken.VALUE_STRING) {
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_STRING:
+            // And finally, let's allow Strings to be converted too
             String text = p.getText();
             CoercionAction act = _checkFromStringCoercion(ctxt, text,
                     LogicalType.Boolean, Boolean.TYPE);
@@ -356,16 +342,31 @@ public abstract class StdDeserializer<T>
                 _verifyNullForPrimitiveCoercion(ctxt, text);
                 return false;
             }
-            Boolean b = (Boolean) ctxt.handleWeirdStringValue(Boolean.TYPE, text,
-                    "only \"true\"/\"True\"/\"TRUE\" or \"false\"/\"False\"/\"FALSE\" recognized");
-            return Boolean.TRUE.equals(b);
-        }
-        // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
-        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final boolean parsed = _parseBooleanPrimitive(p, ctxt);
-            _verifyEndArrayForSingle(p, ctxt);
-            return parsed;
+            {
+                Boolean b = (Boolean) ctxt.handleWeirdStringValue(Boolean.TYPE, text,
+                        "only \"true\"/\"True\"/\"TRUE\" or \"false\"/\"False\"/\"FALSE\" recognized");
+                return Boolean.TRUE.equals(b);
+            }
+        case JsonTokenId.ID_NUMBER_INT:
+            // may accept ints too, (0 == false, otherwise true)
+
+            // call returns `null`, Boolean.TRUE or Boolean.FALSE so:
+            return _coerceBooleanFromInt(p, ctxt, Boolean.TYPE) == Boolean.TRUE;
+        case JsonTokenId.ID_TRUE: // usually caller should have handled but:
+            return true;
+        case JsonTokenId.ID_FALSE:
+            return false;
+        case JsonTokenId.ID_NULL: // null fine for non-primitive
+            _verifyNullForPrimitive(ctxt);
+            return false;
+        case JsonTokenId.ID_START_ARRAY:
+            // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final boolean parsed = _parseBooleanPrimitive(p, ctxt);
+                _verifyEndArrayForSingle(p, ctxt);
+                return parsed;
+            }
         }
         return ((Boolean) ctxt.handleUnexpectedToken(ctxt.constructType(Boolean.TYPE), p)).booleanValue();
     }
@@ -445,15 +446,15 @@ public abstract class StdDeserializer<T>
             }
             return (Boolean) ctxt.handleWeirdStringValue(targetType, text,
                     "only \"true\" or \"false\" recognized");
+        case JsonTokenId.ID_NUMBER_INT:
+            // may accept ints too, (0 == false, otherwise true)
+            return _coerceBooleanFromInt(p, ctxt, targetType);
         case JsonTokenId.ID_TRUE:
             return true;
         case JsonTokenId.ID_FALSE:
             return false;
         case JsonTokenId.ID_NULL: // null fine for non-primitive
             return null;
-        case JsonTokenId.ID_NUMBER_INT:
-            // may accept ints too, (0 == false, otherwise true)
-            return _coerceBooleanFromInt(p, ctxt, targetType);
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             return (Boolean) _deserializeFromArray(p, ctxt);
         }

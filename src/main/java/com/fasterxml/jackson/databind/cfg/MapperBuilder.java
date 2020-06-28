@@ -1194,7 +1194,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    public B deserializationContext(DeserializationContexts ctxt) {
+    public B deserializationContexts(DeserializationContexts ctxt) {
         _deserializationContexts = ctxt;
         return _this();
     }

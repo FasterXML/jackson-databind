@@ -15,13 +15,13 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
  * Immutable container class used to store simple configuration
- * settings. Since instances are fully immutable, instances can
+ * settings for both serialization and deserialization.
+ * Since instances are fully immutable, instances can
  * be freely shared and used without synchronization.
  */
 public final class BaseSettings
     implements java.io.Serializable
 {
-    // for 2.6
     private static final long serialVersionUID = 1L;
 
     /**
@@ -91,7 +91,7 @@ public final class BaseSettings
      */
     
     /**
-     * Custom date format to use for de-serialization. If specified, will be
+     * Custom date format to use for deserialization. If specified, will be
      * used instead of {@link com.fasterxml.jackson.databind.util.StdDateFormat}.
      *<p>
      * Note that the configured format object will be cloned once per

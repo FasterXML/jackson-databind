@@ -333,7 +333,7 @@ public abstract class DefaultDeserializationContext
         }
 
         private Impl(Impl src) { super(src); }
-        
+
         private Impl(Impl src, DeserializerFactory factory) {
             super(src, factory);
         }
@@ -363,6 +363,6 @@ public abstract class DefaultDeserializationContext
         @Override
         public DefaultDeserializationContext with(DeserializerFactory factory) {
             return new Impl(this, factory);
-        }        
+        }
     }
 }

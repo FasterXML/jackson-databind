@@ -464,44 +464,12 @@ public abstract class StdDeserializer<T>
     protected final byte _parseBytePrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        final JsonToken t = p.currentToken();
-        if (t == JsonToken.VALUE_NUMBER_INT) return p.getByteValue();
-        if (t == JsonToken.VALUE_NULL) {
-            _verifyNullForPrimitive(ctxt);
-            return (byte) 0;
-        }
-        if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-            String text = p.getText();
-            CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, Byte.TYPE);
-            if (act == CoercionAction.AsNull) {
-                return (byte) 0; // no need to check as does not come from `null`, explicit coercion
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (byte) 0;
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return (byte) 0;
-            }
-            int value;
-            try {
-                value = NumberInput.parseInt(text);
-            } catch (IllegalArgumentException iae) {
-                return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "not a valid `byte` value");
-            }
-            // So far so good: but does it fit?
-            // as per [JACKSON-804], allow range up to 255, inclusive
-            if (_byteOverflow(value)) {
-                return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "overflow, value cannot be represented as 8-bit value");
-                // fall-through for deferred fails
-            }
-            return (byte) value;
-        }
-        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+        String text;
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_STRING:
+            text = p.getText();
+            break;
+        case JsonTokenId.ID_NUMBER_FLOAT:
             CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Byte.TYPE);
             if (act == CoercionAction.AsNull) {
                 return (byte) 0;
@@ -510,55 +478,62 @@ public abstract class StdDeserializer<T>
                 return (byte) 0;
             }
             return p.getByteValue();
+        case JsonTokenId.ID_NUMBER_INT:
+            return p.getByteValue();
+        case JsonTokenId.ID_NULL:
+            _verifyNullForPrimitive(ctxt);
+            return (byte) 0;
+        case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
+            // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final byte parsed = _parseBytePrimitive(p, ctxt);
+                _verifyEndArrayForSingle(p, ctxt);
+                return parsed;
+            }
+            // fall through
+        default:
+            return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(Byte.TYPE), p)).byteValue();
         }
-        // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
-        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final byte parsed = _parseBytePrimitive(p, ctxt);
-            _verifyEndArrayForSingle(p, ctxt);
-            return parsed;
+
+        // Coercion from String
+        CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                LogicalType.Integer, Byte.TYPE);
+        if (act == CoercionAction.AsNull) {
+            return (byte) 0; // no need to check as does not come from `null`, explicit coercion
         }
-        return ((Byte) ctxt.handleUnexpectedToken(ctxt.constructType(Byte.TYPE), p)).byteValue();
+        if (act == CoercionAction.AsEmpty) {
+            return (byte) 0;
+        }
+        text = text.trim();
+        if (_hasTextualNull(text)) {
+            _verifyNullForPrimitiveCoercion(ctxt, text);
+            return (byte) 0;
+        }
+        int value;
+        try {
+            value = NumberInput.parseInt(text);
+        } catch (IllegalArgumentException iae) {
+            return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
+                    "not a valid `byte` value");
+        }
+        // So far so good: but does it fit? Allow both -128 / 255 range (inclusive)
+        if (_byteOverflow(value)) {
+            return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
+                    "overflow, value cannot be represented as 8-bit value");
+        }
+        return (byte) value;
     }
 
     protected final short _parseShortPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        final JsonToken t = p.currentToken();
-        if (t == JsonToken.VALUE_NUMBER_INT) return p.getShortValue();
-        if (t == JsonToken.VALUE_NULL) {
-            _verifyNullForPrimitive(ctxt);
-            return (short) 0;
-        }
-        if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-            String text = p.getText();
-            CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, Short.TYPE);
-            if (act == CoercionAction.AsNull) {
-                return (short) 0; // no need to check as does not come from `null`, explicit coercion
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (short) 0;
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return (short) 0;
-            }
-            int value;
-            try {
-                value = NumberInput.parseInt(text);
-            } catch (IllegalArgumentException iae) {
-                return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
-                        "not a valid `short` value");
-            }
-            if (_shortOverflow(value)) {
-                return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
-                        "overflow, value cannot be represented as 16-bit value");
-            }
-            return (short) value;
-        }
-        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+        String text;
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_STRING:
+            text = p.getText();
+            break;
+        case JsonTokenId.ID_NUMBER_FLOAT:
             CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Short.TYPE);
             if (act == CoercionAction.AsNull) {
                 return (short) 0;
@@ -567,40 +542,61 @@ public abstract class StdDeserializer<T>
                 return (short) 0;
             }
             return p.getShortValue();
+        case JsonTokenId.ID_NUMBER_INT:
+            return p.getShortValue();
+        case JsonTokenId.ID_NULL:
+            _verifyNullForPrimitive(ctxt);
+            return (short) 0;
+        case JsonTokenId.ID_START_ARRAY:
+            // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final short parsed = _parseShortPrimitive(p, ctxt);
+                _verifyEndArrayForSingle(p, ctxt);
+                return parsed;
+            }
+            // fall through to fail
+        default:
+            return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(Short.TYPE), p)).shortValue();
         }
-        // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
-        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final short parsed = _parseShortPrimitive(p, ctxt);
-            _verifyEndArrayForSingle(p, ctxt);
-            return parsed;
+
+        CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                LogicalType.Integer, Short.TYPE);
+        if (act == CoercionAction.AsNull) {
+            return (short) 0; // no need to check as does not come from `null`, explicit coercion
         }
-        return ((Short) ctxt.handleUnexpectedToken(ctxt.constructType(Short.TYPE), p)).shortValue();
+        if (act == CoercionAction.AsEmpty) {
+            return (short) 0;
+        }
+        text = text.trim();
+        if (_hasTextualNull(text)) {
+            _verifyNullForPrimitiveCoercion(ctxt, text);
+            return (short) 0;
+        }
+        int value;
+        try {
+            value = NumberInput.parseInt(text);
+        } catch (IllegalArgumentException iae) {
+            return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
+                    "not a valid `short` value");
+        }
+        if (_shortOverflow(value)) {
+            return (Short) ctxt.handleWeirdStringValue(Short.TYPE, text,
+                    "overflow, value cannot be represented as 16-bit value");
+        }
+        return (short) value;
     }
 
     protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        CoercionAction act;
+        String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            String text = p.getText();
-            act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, Integer.TYPE);
-            if (act == CoercionAction.AsNull) {
-                return 0; // no need to check as does not come from `null`, explicit coercion
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return 0;
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return 0;
-            }
-            return _parseIntPrimitive(ctxt, text);
+            text = p.getText();
+            break;
         case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToIntCoercion(p, ctxt, Integer.TYPE);
+            final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Integer.TYPE);
             if (act == CoercionAction.AsNull) {
                 return 0;
             }
@@ -608,6 +604,11 @@ public abstract class StdDeserializer<T>
                 return 0;
             }
             return p.getValueAsInt();
+        case JsonTokenId.ID_NUMBER_INT:
+            return p.getIntValue();
+        case JsonTokenId.ID_NULL:
+            _verifyNullForPrimitive(ctxt);
+            return 0;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -615,16 +616,25 @@ public abstract class StdDeserializer<T>
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
-            break;
-        case JsonTokenId.ID_NUMBER_INT:
-            return p.getIntValue();
-        case JsonTokenId.ID_NULL:
-            _verifyNullForPrimitive(ctxt);
-            return 0;
+            // fall through to fail
         default:
+            return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Integer.TYPE), p)).intValue();
         }
-        // Otherwise, no can do:
-        return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Integer.TYPE), p)).intValue();
+
+        final CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                LogicalType.Integer, Integer.TYPE);
+        if (act == CoercionAction.AsNull) {
+            return 0; // no need to check as does not come from `null`, explicit coercion
+        }
+        if (act == CoercionAction.AsEmpty) {
+            return 0;
+        }
+        text = text.trim();
+        if (_hasTextualNull(text)) {
+            _verifyNullForPrimitiveCoercion(ctxt, text);
+            return 0;
+        }
+        return _parseIntPrimitive(ctxt, text);
     }
 
     protected final int _parseIntPrimitive(DeserializationContext ctxt, String text) throws IOException

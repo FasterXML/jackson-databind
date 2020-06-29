@@ -661,31 +661,13 @@ public abstract class StdDeserializer<T>
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
-        CoercionAction act;
+        String text;
         switch (p.currentTokenId()) {
-        case JsonTokenId.ID_NUMBER_INT:
-            return p.getLongValue();
-        case JsonTokenId.ID_NULL:
-            _verifyNullForPrimitive(ctxt);
-            return 0L;
         case JsonTokenId.ID_STRING:
-            String text = p.getText();
-            act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, Long.TYPE);
-            if (act == CoercionAction.AsNull) {
-                return 0L; // no need to check as does not come from `null`, explicit coercion
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return 0L;
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return 0L;
-            }
-            return _parseLongPrimitive(ctxt, text);
+            text = p.getText();
+            break;
         case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToIntCoercion(p, ctxt, Long.TYPE);
+            final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, Long.TYPE);
             if (act == CoercionAction.AsNull) {
                 return 0L;
             }
@@ -693,6 +675,11 @@ public abstract class StdDeserializer<T>
                 return 0L;
             }
             return p.getValueAsLong();
+        case JsonTokenId.ID_NUMBER_INT:
+            return p.getLongValue();
+        case JsonTokenId.ID_NULL:
+            _verifyNullForPrimitive(ctxt);
+            return 0L;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -700,10 +687,25 @@ public abstract class StdDeserializer<T>
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
-            break;
+            // fall through
         default:
+            return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Long.TYPE), p)).longValue();
         }
-        return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Long.TYPE), p)).longValue();
+
+        final CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                LogicalType.Integer, Long.TYPE);
+        if (act == CoercionAction.AsNull) {
+            return 0L; // no need to check as does not come from `null`, explicit coercion
+        }
+        if (act == CoercionAction.AsEmpty) {
+            return 0L;
+        }
+        text = text.trim();
+        if (_hasTextualNull(text)) {
+            _verifyNullForPrimitiveCoercion(ctxt, text);
+            return 0L;
+        }
+        return _parseLongPrimitive(ctxt, text);
     }
 
     protected final long _parseLongPrimitive(DeserializationContext ctxt, String text) throws IOException
@@ -721,30 +723,17 @@ public abstract class StdDeserializer<T>
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        CoercionAction act;
+        String text;
         switch (p.currentTokenId()) {
+        case JsonTokenId.ID_STRING:
+            text = p.getText();
+            break;
         case JsonTokenId.ID_NUMBER_INT:
         case JsonTokenId.ID_NUMBER_FLOAT:
             return p.getFloatValue();
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return 0f;
-        case JsonTokenId.ID_STRING:
-            String text = p.getText();
-            act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, Float.TYPE);
-            if (act == CoercionAction.AsNull) {
-                return  0.0f; // no need to check as does not come from `null`, explicit coercion
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return  0.0f;
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return  0.0f;
-            }
-            return _parseFloatPrimitive(ctxt, text);
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -752,9 +741,25 @@ public abstract class StdDeserializer<T>
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
-            break;
+            // fall through
+        default:
+            return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Float.TYPE), p)).floatValue();
         }
-        return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Float.TYPE), p)).floatValue();
+
+        final CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                LogicalType.Integer, Float.TYPE);
+        if (act == CoercionAction.AsNull) {
+            return  0.0f; // no need to check as does not come from `null`, explicit coercion
+        }
+        if (act == CoercionAction.AsEmpty) {
+            return  0.0f;
+        }
+        text = text.trim();
+        if (_hasTextualNull(text)) {
+            _verifyNullForPrimitiveCoercion(ctxt, text);
+            return  0.0f;
+        }
+        return _parseFloatPrimitive(ctxt, text);
     }
 
     /**
@@ -789,30 +794,17 @@ public abstract class StdDeserializer<T>
     protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        CoercionAction act;
+        String text;
         switch (p.currentTokenId()) {
+        case JsonTokenId.ID_STRING:
+            text = p.getText();
+            break;
         case JsonTokenId.ID_NUMBER_INT:
         case JsonTokenId.ID_NUMBER_FLOAT:
             return p.getDoubleValue();
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return 0.0;
-        case JsonTokenId.ID_STRING:
-            String text = p.getText();
-            act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Integer, Double.TYPE);
-            if (act == CoercionAction.AsNull) {
-                return  0.0; // no need to check as does not come from `null`, explicit coercion
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return  0.0;
-            }
-            text = text.trim();
-            if (_hasTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return  0.0;
-            }
-            return _parseDoublePrimitive(ctxt, text);
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -820,9 +812,25 @@ public abstract class StdDeserializer<T>
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
-            break;
+            // fall through
+        default:
+            return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Double.TYPE), p)).doubleValue();
         }
-        return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Double.TYPE), p)).doubleValue();
+
+        final CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                LogicalType.Integer, Double.TYPE);
+        if (act == CoercionAction.AsNull) {
+            return  0.0; // no need to check as does not come from `null`, explicit coercion
+        }
+        if (act == CoercionAction.AsEmpty) {
+            return  0.0;
+        }
+        text = text.trim();
+        if (_hasTextualNull(text)) {
+            _verifyNullForPrimitiveCoercion(ctxt, text);
+            return  0.0;
+        }
+        return _parseDoublePrimitive(ctxt, text);
     }
 
     protected final double _parseDoublePrimitive(DeserializationContext ctxt, String text)
@@ -846,19 +854,34 @@ public abstract class StdDeserializer<T>
             break;
         }
         try {
-            return parseDouble(text);
+            return _parseDouble(text);
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
                 "not a valid `double` value (as String to convert)");
         return _nonNullNumber(v).doubleValue();
     }
 
+    /**
+     * Helper method for encapsulating calls to low-level double value parsing; single place
+     * just because we need a work-around that must be applied to all calls.
+     */
+    protected final static double _parseDouble(String numStr) throws NumberFormatException
+    {
+        // avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
+        if (NumberInput.NASTY_SMALL_DOUBLE.equals(numStr)) {
+            return Double.MIN_NORMAL; // since 2.7; was MIN_VALUE prior
+        }
+        return Double.parseDouble(numStr);
+    }
+
     protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
+        String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            return _parseDate(p.getText().trim(), ctxt);
+            text = p.getText();
+            break;
         case JsonTokenId.ID_NUMBER_INT:
             {
                 long ts;
@@ -877,11 +900,13 @@ public abstract class StdDeserializer<T>
             return (java.util.Date) getNullValue(ctxt);
         case JsonTokenId.ID_START_ARRAY:
             return _parseDateFromArray(p, ctxt);
+        default:
+            return (java.util.Date) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
-        return (java.util.Date) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+
+        return _parseDate(text.trim(), ctxt);
     }
 
-    // @since 2.9
     protected java.util.Date _parseDateFromArray(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
@@ -940,23 +965,8 @@ public abstract class StdDeserializer<T>
     }
 
     /**
-     * Helper method for encapsulating calls to low-level double value parsing; single place
-     * just because we need a work-around that must be applied to all calls.
-     */
-    protected final static double parseDouble(String numStr) throws NumberFormatException
-    {
-        // avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
-        if (NumberInput.NASTY_SMALL_DOUBLE.equals(numStr)) {
-            return Double.MIN_NORMAL; // since 2.7; was MIN_VALUE prior
-        }
-        return Double.parseDouble(numStr);
-    }
-
-    /**
      * Helper method used for accessing String value, if possible, doing
      * necessary conversion or throwing exception as necessary.
-     *
-     * @since 2.1
      */
     protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -1001,7 +1011,6 @@ public abstract class StdDeserializer<T>
 
     protected final boolean _isNaN(String text) { return "NaN".equals(text); }
 
-    // @since 2.12
     protected final static boolean _isBlank(String text)
     {
         final int len = text.length();

@@ -293,6 +293,10 @@ public abstract class BaseMapTest
         return json.replace("'", "\"");
     }
 
+    protected static String a2q(String json) {
+        return json.replace("'", "\"");
+    }
+    
     protected static String quotesToApos(String json) {
         return json.replace("\"", "'");
     }

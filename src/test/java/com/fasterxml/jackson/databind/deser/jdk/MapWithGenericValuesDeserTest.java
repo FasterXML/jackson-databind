@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.*;
 
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 @SuppressWarnings("serial")
-public class TestGenericMapDeser
+public class MapWithGenericValuesDeserTest
     extends BaseMapTest
 {
     /*

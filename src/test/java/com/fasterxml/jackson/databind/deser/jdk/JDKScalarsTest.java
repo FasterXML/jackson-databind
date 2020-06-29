@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.*;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 
 import org.junit.Assert;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Unit tests for verifying handling of simple basic non-structured
@@ -787,9 +790,38 @@ public class JDKScalarsTest
 
         try {
             MAPPER.readerFor(cls).readValue(JSON);
-            fail("Should not pass");
+            fail("Should MismatchedInputException pass");
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot deserialize value of type `"+targetTypeName+"` from String \"foobar\"");
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for mismatch: JSON Object for scalars (not supported
+    /* for JSON
+    /**********************************************************
+     */
+
+    public void testFailForScalarFromObject() throws Exception
+    {
+        _testFailForNumberFromObject(Byte.TYPE);
+        _testFailForNumberFromObject(Short.TYPE);
+        _testFailForNumberFromObject(Long.TYPE);
+        _testFailForNumberFromObject(Float.TYPE);
+        _testFailForNumberFromObject(Double.TYPE);
+        _testFailForNumberFromObject(BigInteger.class);
+        _testFailForNumberFromObject(BigDecimal.class);
+    }
+
+    private void _testFailForNumberFromObject(Class<?> targetType) throws Exception
+    {
+        try {
+            MAPPER.readValue(a2q("{'value':12}"), targetType);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "from Object value");
+            verifyException(e, ClassUtil.getClassDescription(targetType));
         }
     }
 }

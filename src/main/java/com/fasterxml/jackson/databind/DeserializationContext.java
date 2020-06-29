@@ -854,8 +854,10 @@ public abstract class DeserializationContext
      * "simple" unstructured value type.
      * 
      * @param p Actual parser to read content from
-     * @param ctxt Deserialization context
      * @param deser Deserializer that needs extracted String value
+     * @param scalarType Immediate type of scalar to extract; usually type deserializer
+     *    handles but not always (for example, deserializer for {@code int[]} would pass
+     *    scalar type of {@code int})
      *
      * @return String value found; not {@code null} (exception should be thrown if no suitable
      *     value found)
@@ -863,11 +865,13 @@ public abstract class DeserializationContext
      * @throws IOException If there are problems either reading content (underlying parser
      *    problem) or finding expected scalar value
      */
-    public String extractScalarFromObject(JsonParser p, DeserializationContext ctxt,
-            JsonDeserializer<?> deser)
+    public String extractScalarFromObject(JsonParser p, JsonDeserializer<?> deser,
+            Class<?> scalarType)
         throws IOException
     {
-        return null;
+        return reportInputMismatch(scalarType, String.format(
+"Cannot deserialize value of type %s from %s (token `JsonToken.START_OBJECT`)",
+ClassUtil.getClassDescription(scalarType), _shapeForToken(JsonToken.START_OBJECT)));
     }
 
     /*
@@ -1350,7 +1354,7 @@ public abstract class DeserializationContext
                 }
                 reportBadDefinition(targetType, String.format(
                         "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        ClassUtil.getClassDescription(targetType),
+                        ClassUtil.getTypeDescription(targetType),
                         ClassUtil.classNameOf(instance)
                 ));
             }

@@ -535,7 +535,7 @@ public class NumberDeserializers
         {
             String text;
             switch (p.currentTokenId()) {
-            case JsonTokenId.ID_STRING: // let's do implicit re-parse
+            case JsonTokenId.ID_STRING:
                 text = p.getText();
                 break;
             case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too

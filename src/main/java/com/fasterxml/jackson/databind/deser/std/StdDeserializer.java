@@ -674,6 +674,12 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return 0;
+
+        // 29-Jun-2020, tatu: New! "Scalar from Object" to support tricky case of
+        //    XML element with attributes
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, Integer.TYPE);
+            break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -683,7 +689,6 @@ public abstract class StdDeserializer<T>
             }
             // fall through to fail
         default:
-            // Otherwise, no can do:
             return ((Number) ctxt.handleUnexpectedToken(Integer.TYPE, p)).intValue();
         }
 

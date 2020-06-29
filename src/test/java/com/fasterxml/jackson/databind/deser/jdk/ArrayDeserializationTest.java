@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.*;
 import java.util.*;
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * This unit test suite tries to verify that the "Native" java type
  * mapper can properly re-construct Java array objects from Json arrays.
  */
-public class TestArrayDeserialization
+public class ArrayDeserializationTest
     extends BaseMapTest
 {
     public final static class Bean1

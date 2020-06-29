@@ -370,42 +370,11 @@ public abstract class StdDeserializer<T>
     protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
+        String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            // And finally, let's allow Strings to be converted too
-            String text = p.getText();
-            CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Boolean, Boolean.TYPE);
-            if (act == CoercionAction.AsNull) {
-                _verifyNullForPrimitive(ctxt);
-                return false;
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return false;
-            }
-            text = text.trim();
-            final int len = text.length();
-
-            // For [databind#1852] allow some case-insensitive matches (namely,
-            // true/True/TRUE, false/False/FALSE
-            if (len == 4) {
-                if (_isTrue(text)) {
-                    return true;
-                }
-            } else if (len == 5) {
-                if (_isFalse(text)) {
-                    return false;
-                }
-            }
-            if (_hasTextualNull(text)) {
-                _verifyNullForPrimitiveCoercion(ctxt, text);
-                return false;
-            }
-            {
-                Boolean b = (Boolean) ctxt.handleWeirdStringValue(Boolean.TYPE, text,
-                        "only \"true\"/\"True\"/\"TRUE\" or \"false\"/\"False\"/\"FALSE\" recognized");
-                return Boolean.TRUE.equals(b);
-            }
+            text = p.getText();
+            break;
         case JsonTokenId.ID_NUMBER_INT:
             // may accept ints too, (0 == false, otherwise true)
 
@@ -426,8 +395,41 @@ public abstract class StdDeserializer<T>
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
+            // fall through
+        default:
+            return ((Boolean) ctxt.handleUnexpectedToken(Boolean.TYPE, p)).booleanValue();
         }
-        return ((Boolean) ctxt.handleUnexpectedToken(Boolean.TYPE, p)).booleanValue();
+
+        final CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                LogicalType.Boolean, Boolean.TYPE);
+        if (act == CoercionAction.AsNull) {
+            _verifyNullForPrimitive(ctxt);
+            return false;
+        }
+        if (act == CoercionAction.AsEmpty) {
+            return false;
+        }
+        text = text.trim();
+        final int len = text.length();
+
+        // For [databind#1852] allow some case-insensitive matches (namely,
+        // true/True/TRUE, false/False/FALSE
+        if (len == 4) {
+            if (_isTrue(text)) {
+                return true;
+            }
+        } else if (len == 5) {
+            if (_isFalse(text)) {
+                return false;
+            }
+        }
+        if (_hasTextualNull(text)) {
+            _verifyNullForPrimitiveCoercion(ctxt, text);
+            return false;
+        }
+        Boolean b = (Boolean) ctxt.handleWeirdStringValue(Boolean.TYPE, text,
+                "only \"true\"/\"True\"/\"TRUE\" or \"false\"/\"False\"/\"FALSE\" recognized");
+        return Boolean.TRUE.equals(b);
     }
 
     // [databind#1852]
@@ -475,36 +477,11 @@ public abstract class StdDeserializer<T>
             Class<?> targetType)
         throws IOException
     {
+        String text;
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
-            String text = p.getText();
-            CoercionAction act = _checkFromStringCoercion(ctxt, text,
-                    LogicalType.Boolean, targetType);
-            if (act == CoercionAction.AsNull) {
-                return null;
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return false;
-            }
-            text = text.trim();
-            final int len = text.length();
-
-            // For [databind#1852] allow some case-insensitive matches (namely,
-            // true/True/TRUE, false/False/FALSE
-            if (len == 4) {
-                if (_isTrue(text)) {
-                    return true;
-                }
-            } else if (len == 5) {
-                if (_isFalse(text)) {
-                    return false;
-                }
-            }
-            if (_checkTextualNull(ctxt, text)) {
-                return null;
-            }
-            return (Boolean) ctxt.handleWeirdStringValue(targetType, text,
-                    "only \"true\" or \"false\" recognized");
+            text = p.getText();
+            break;
         case JsonTokenId.ID_NUMBER_INT:
             // may accept ints too, (0 == false, otherwise true)
             return _coerceBooleanFromInt(p, ctxt, targetType);
@@ -516,9 +493,37 @@ public abstract class StdDeserializer<T>
             return null;
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             return (Boolean) _deserializeFromArray(p, ctxt);
+        default:
+            return (Boolean) ctxt.handleUnexpectedToken(targetType, p);
         }
-        // Otherwise, no can do:
-        return (Boolean) ctxt.handleUnexpectedToken(targetType, p);
+
+        final CoercionAction act = _checkFromStringCoercion(ctxt, text,
+                LogicalType.Boolean, targetType);
+        if (act == CoercionAction.AsNull) {
+            return null;
+        }
+        if (act == CoercionAction.AsEmpty) {
+            return false;
+        }
+        text = text.trim();
+        final int len = text.length();
+
+        // For [databind#1852] allow some case-insensitive matches (namely,
+        // true/True/TRUE, false/False/FALSE
+        if (len == 4) {
+            if (_isTrue(text)) {
+                return true;
+            }
+        } else if (len == 5) {
+            if (_isFalse(text)) {
+                return false;
+            }
+        }
+        if (_checkTextualNull(ctxt, text)) {
+            return null;
+        }
+        return (Boolean) ctxt.handleWeirdStringValue(targetType, text,
+                "only \"true\" or \"false\" recognized");
     }
 
     protected final byte _parseBytePrimitive(JsonParser p, DeserializationContext ctxt)

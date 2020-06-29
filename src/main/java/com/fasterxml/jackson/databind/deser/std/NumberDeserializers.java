@@ -518,22 +518,7 @@ public class NumberDeserializers
                 if (_checkTextualNull(ctxt, text)) {
                     return (Integer) getNullValue(ctxt);
                 }
-                final int len = text.length();
-                try {
-                    if (len > 9) {
-                        long l = Long.parseLong(text);
-                        if (_intOverflow(l)) {
-                            return (Integer) ctxt.handleWeirdStringValue(_valueClass, text, String.format(
-                                "Overflow: numeric value (%s) out of range of Integer (%d - %d)",
-                                text, Integer.MIN_VALUE, Integer.MAX_VALUE));
-                        }
-                        return Integer.valueOf((int) l);
-                    }
-                    return Integer.valueOf(NumberInput.parseInt(text));
-                } catch (IllegalArgumentException iae) {
-                    return (Integer) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "not a valid Integer value");
-                }
+                return _parseIntPrimitive(ctxt, text);
             case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too
                 act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
                 if (act == CoercionAction.AsNull) {
@@ -598,11 +583,7 @@ public class NumberDeserializers
                     return (Long) getNullValue(ctxt);
                 }
                 // let's allow Strings to be converted too
-                try {
-                    return Long.valueOf(NumberInput.parseLong(text));
-                } catch (IllegalArgumentException iae) { }
-                return (Long) ctxt.handleWeirdStringValue(_valueClass, text,
-                        "not a valid Long value");
+                return _parseLongPrimitive(ctxt, text);
             case JsonTokenId.ID_NUMBER_FLOAT:
                 act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
                 if (act == CoercionAction.AsNull) {

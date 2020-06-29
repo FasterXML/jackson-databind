@@ -941,7 +941,7 @@ public abstract class DeserializationContext
     public Date parseDate(String dateStr) throws IllegalArgumentException
     {
         try {
-            DateFormat df = getDateFormat();
+            DateFormat df = _getDateFormat();
             return df.parse(dateStr);
         } catch (ParseException e) {
             throw new IllegalArgumentException(String.format(
@@ -959,6 +959,36 @@ public abstract class DeserializationContext
         Calendar c = Calendar.getInstance(getTimeZone());
         c.setTime(d);
         return c;
+    }
+
+    /*
+    /**********************************************************************
+    /* Extension points for more esoteric data coercion
+    /**********************************************************************
+     */
+
+    /**
+     * Method to call in case incoming shape is Object Value (and parser thereby
+     * points to {@link com.fasterxml.jackson.core.JsonToken#START_OBJECT} token),
+     * but a Scalar value (potentially coercible from String value) is expected.
+     * This would typically be used to deserializer a Number, Boolean value or some other
+     * "simple" unstructured value type.
+     * 
+     * @param p Actual parser to read content from
+     * @param ctxt Deserialization context
+     * @param deser Deserializer that needs extracted String value
+     *
+     * @return String value found; not {@code null} (exception should be thrown if no suitable
+     *     value found)
+     *
+     * @throws IOException If there are problems either reading content (underlying parser
+     *    problem) or finding expected scalar value
+     */
+    public String extractScalarFromObject(JsonParser p, DeserializationContext ctxt,
+            JsonDeserializer<?> deser)
+        throws IOException
+    {
+        return null;
     }
 
     /*
@@ -1836,8 +1866,7 @@ trailingToken, ClassUtil.nameOf(targetType)
      * (unless caller somehow manages to share context objects across threads which is not
      * supported).
      */
-    protected DateFormat getDateFormat()
-    {
+    protected DateFormat _getDateFormat() {
         if (_dateFormat != null) {
             return _dateFormat;
         }
@@ -1849,7 +1878,6 @@ trailingToken, ClassUtil.nameOf(targetType)
         return df;
     }
 
-    // @since 2.12
     /**
      * Helper method for constructing description like "Object value" given
      * {@link JsonToken} encountered.

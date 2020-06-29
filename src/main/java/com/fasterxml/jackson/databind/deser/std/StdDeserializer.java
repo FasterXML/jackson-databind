@@ -328,6 +328,10 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NULL: // null fine for non-primitive
             _verifyNullForPrimitive(ctxt);
             return false;
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, Boolean.TYPE);
+            break;
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -432,6 +436,10 @@ public abstract class StdDeserializer<T>
             return false;
         case JsonTokenId.ID_NULL: // null fine for non-primitive
             return null;
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, targetType);
+            break;
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             return (Boolean) _deserializeFromArray(p, ctxt);
         default:
@@ -489,6 +497,10 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return (byte) 0;
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, Byte.TYPE);
+            break;
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -553,6 +565,10 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return (short) 0;
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, Short.TYPE);
+            break;
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -615,9 +631,7 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return 0;
-
-        // 29-Jun-2020, tatu: New! "Scalar from Object" to support tricky case of
-        //    XML element with attributes
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
             text = ctxt.extractScalarFromObject(p, this, Integer.TYPE);
             break;
@@ -692,6 +706,10 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return 0L;
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, Long.TYPE);
+            break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -746,6 +764,10 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return 0f;
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, Float.TYPE);
+            break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -817,6 +839,10 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NULL:
             _verifyNullForPrimitive(ctxt);
             return 0.0;
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, Double.TYPE);
+            break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -910,6 +936,10 @@ public abstract class StdDeserializer<T>
             }
         case JsonTokenId.ID_NULL:
             return (java.util.Date) getNullValue(ctxt);
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, _valueClass);
+            break;
         case JsonTokenId.ID_START_ARRAY:
             return _parseDateFromArray(p, ctxt);
         default:
@@ -997,6 +1027,11 @@ public abstract class StdDeserializer<T>
             // otherwise, try conversion using toString()...
             return ob.toString();
         }
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        if (p.hasToken(JsonToken.START_OBJECT)) {
+            return ctxt.extractScalarFromObject(p, this, _valueClass);
+        }
+
         String value = p.getValueAsString();
         if (value != null) {
             return value;

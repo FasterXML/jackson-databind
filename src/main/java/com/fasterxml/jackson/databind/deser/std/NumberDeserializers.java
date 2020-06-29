@@ -284,6 +284,10 @@ public class NumberDeserializers
                 return p.getByteValue();
             case JsonTokenId.ID_START_ARRAY:
                 return (Byte) _deserializeFromArray(p, ctxt);
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             default:
                 return (Byte) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
@@ -364,11 +368,16 @@ public class NumberDeserializers
                 return (Short) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:
                 return p.getShortValue();
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             case JsonTokenId.ID_START_ARRAY:
                 return (Short)_deserializeFromArray(p, ctxt);
             default:
                 return (Short) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
+
             // Rest of the processing is for coercion from String
             final CoercionAction act = _checkFromStringCoercion(ctxt, text);
             if (act == CoercionAction.AsNull) {
@@ -446,11 +455,16 @@ public class NumberDeserializers
                     _verifyNullForPrimitive(ctxt);
                 }
                 return (Character) getNullValue(ctxt);
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             default:
                 return (Character) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
+
             if (text.length() == 1) {
                 return Character.valueOf(text.charAt(0));
             }
@@ -531,6 +545,10 @@ public class NumberDeserializers
                 return p.getIntValue();
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Integer) getNullValue(ctxt);
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             case JsonTokenId.ID_START_ARRAY:
                 return (Integer) _deserializeFromArray(p, ctxt);
             default:
@@ -598,6 +616,10 @@ public class NumberDeserializers
                 return (Long) getNullValue(ctxt);
             case JsonTokenId.ID_NUMBER_INT:
                 return p.getLongValue();
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             case JsonTokenId.ID_START_ARRAY:
                 return (Long) _deserializeFromArray(p, ctxt);
             default:
@@ -656,11 +678,16 @@ public class NumberDeserializers
             case JsonTokenId.ID_NUMBER_FLOAT:
             case JsonTokenId.ID_NUMBER_INT: // safe coercion
                 return p.getFloatValue();
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             default:
                 return (Float) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
+
             final CoercionAction act = _checkFromStringCoercion(ctxt, text);
             if (act == CoercionAction.AsNull) {
                 return (Float) getNullValue(ctxt);
@@ -746,6 +773,10 @@ public class NumberDeserializers
             case JsonTokenId.ID_NUMBER_FLOAT:
             case JsonTokenId.ID_NUMBER_INT: // safe coercion
                 return p.getDoubleValue();
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             default:
@@ -838,6 +869,10 @@ public class NumberDeserializers
                     }
                 }
                 return p.getNumberValue();
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             default:
@@ -961,6 +996,10 @@ public class NumberDeserializers
                     return (BigInteger) getEmptyValue(ctxt);
                 }
                 return p.getDecimalValue().toBigInteger();
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
+                break;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             default:
@@ -1017,6 +1056,10 @@ public class NumberDeserializers
                 return p.getDecimalValue();
             case JsonTokenId.ID_STRING:
                 text = p.getText();
+                break;
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            case JsonTokenId.ID_START_OBJECT:
+                text = ctxt.extractScalarFromObject(p, this, _valueClass);
                 break;
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);

@@ -643,11 +643,6 @@ public abstract class StdDeserializer<T>
     {
         CoercionAction act;
         switch (p.currentTokenId()) {
-        case JsonTokenId.ID_NUMBER_INT:
-            return p.getIntValue();
-        case JsonTokenId.ID_NULL:
-            _verifyNullForPrimitive(ctxt);
-            return 0;
         case JsonTokenId.ID_STRING:
             String text = p.getText();
             act = _checkFromStringCoercion(ctxt, text,
@@ -681,6 +676,11 @@ public abstract class StdDeserializer<T>
                 return parsed;
             }
             break;
+        case JsonTokenId.ID_NUMBER_INT:
+            return p.getIntValue();
+        case JsonTokenId.ID_NULL:
+            _verifyNullForPrimitive(ctxt);
+            return 0;
         default:
         }
         // Otherwise, no can do:

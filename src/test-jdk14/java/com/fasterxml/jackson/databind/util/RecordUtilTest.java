@@ -24,7 +24,7 @@ public class RecordUtilTest {
         assertArrayEquals(new String[]{}, RecordUtil.getRecordComponents(String.class));
     }
 
-    record SimpleRecord(String name, int id) {
+    public record SimpleRecord(String name, int id) {
         public SimpleRecord(int id) {
             this("", id);
         }

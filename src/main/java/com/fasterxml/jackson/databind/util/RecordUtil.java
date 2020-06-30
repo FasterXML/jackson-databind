@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.util;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -13,17 +14,41 @@ import java.util.Arrays;
  */
 public final class RecordUtil {
 
-    private static final String RECORD_CLASS_NAME = "java.lang.Record";
-    private static final String RECORD_GET_RECORD_COMPONENTS = "getRecordComponents";
+    private static final Method IS_RECORD;
+    private static final Method GET_RECORD_COMPONENTS;
+    private static final Method GET_NAME;
+    private static final Method GET_TYPE;
 
-    private static final String RECORD_COMPONENT_CLASS_NAME = "java.lang.reflect.RecordComponent";
-    private static final String RECORD_COMPONENT_GET_NAME = "getName";
-    private static final String RECORD_COMPONENT_GET_TYPE = "getType";
+    static {
+        Method isRecord;
+        Method getRecordComponents;
+        Method getName;
+        Method getType;
+        try {
+            isRecord = Class.class.getDeclaredMethod("isRecord");
+            getRecordComponents = Class.class.getMethod("getRecordComponents");
+            Class c = Class.forName("java.lang.reflect.RecordComponent");
+            getName = c.getMethod("getName");
+            getType = c.getMethod("getType");
+        } catch (ClassNotFoundException| NoSuchMethodException e) {
+            // pre-Java-14
+            isRecord = null;
+            getRecordComponents = null;
+            getName = null;
+            getType = null;
+        }
+        IS_RECORD = isRecord;
+        GET_RECORD_COMPONENTS = getRecordComponents;
+        GET_NAME = getName;
+        GET_TYPE = getType;
+    }
 
     public static boolean isRecord(Class<?> aClass) {
-        return aClass != null
-                && aClass.getSuperclass() != null
-                && aClass.getSuperclass().getName().equals(RECORD_CLASS_NAME);
+        try {
+            return IS_RECORD == null ? false : (boolean) IS_RECORD.invoke(aClass);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new AssertionError();
+        }
     }
 
     /**
@@ -35,13 +60,11 @@ public final class RecordUtil {
         }
 
         try {
-            Method method = Class.class.getMethod(RECORD_GET_RECORD_COMPONENTS);
-            Object[] components = (Object[]) method.invoke(aRecord);
+            Object[] components = (Object[]) GET_RECORD_COMPONENTS.invoke(aRecord);
             String[] names = new String[components.length];
-            Method recordComponentGetName = Class.forName(RECORD_COMPONENT_CLASS_NAME).getMethod(RECORD_COMPONENT_GET_NAME);
             for (int i = 0; i < components.length; i++) {
                 Object component = components[i];
-                names[i] = (String) recordComponentGetName.invoke(component);
+                names[i] = (String) GET_NAME.invoke(component);
             }
             return names;
         } catch (Throwable e) {
@@ -65,13 +88,11 @@ public final class RecordUtil {
 
     private static Class<?>[] getRecordComponentTypes(Class<?> aRecord) {
         try {
-            Method method = Class.class.getMethod(RECORD_GET_RECORD_COMPONENTS);
-            Object[] components = (Object[]) method.invoke(aRecord);
+            Object[] components = (Object[]) GET_RECORD_COMPONENTS.invoke(aRecord);
             Class<?>[] types = new Class[components.length];
-            Method recordComponentGetName = Class.forName(RECORD_COMPONENT_CLASS_NAME).getMethod(RECORD_COMPONENT_GET_TYPE);
             for (int i = 0; i < components.length; i++) {
                 Object component = components[i];
-                types[i] = (Class<?>) recordComponentGetName.invoke(component);
+                types[i] = (Class<?>) GET_TYPE.invoke(component);
             }
             return types;
         } catch (Throwable e) {
@@ -79,3 +100,4 @@ public final class RecordUtil {
         }
     }
 }
+

@@ -15,7 +15,7 @@ public class RecordTest extends BaseMapTest {
         jsonMapper = new JsonMapper();
     }
 
-    record SimpleRecord(int id, String name) {
+    public record SimpleRecord(int id, String name) {
     }
 
     public void testSerializeSimpleRecord() throws JsonProcessingException {
@@ -52,7 +52,7 @@ public class RecordTest extends BaseMapTest {
         assertEquals(new SimpleRecord(123, "Bob"), value);
     }
 
-    record RecordOfRecord(SimpleRecord record) {
+    public record RecordOfRecord(SimpleRecord record) {
     }
 
     public void testSerializeRecordOfRecord() throws JsonProcessingException {
@@ -63,7 +63,7 @@ public class RecordTest extends BaseMapTest {
         assertEquals("{\"record\":{\"id\":123,\"name\":\"Bob\"}}", json);
     }
 
-    record JsonIgnoreRecord(int id, @JsonIgnore String name) {
+    public record JsonIgnoreRecord(int id, @JsonIgnore String name) {
     }
 
     public void testSerializeJsonIgnoreRecord() throws JsonProcessingException {
@@ -74,7 +74,7 @@ public class RecordTest extends BaseMapTest {
         assertEquals("{\"id\":123}", json);
     }
 
-    record RecordWithConstructor(int id, String name) {
+    public record RecordWithConstructor(int id, String name) {
         public RecordWithConstructor(int id) {
             this(id, "name");
         }
@@ -86,7 +86,7 @@ public class RecordTest extends BaseMapTest {
         assertEquals(new RecordWithConstructor(123, "Bob"), value);
     }
 
-    record JsonPropertyRenameRecord(int id, @JsonProperty("rename")String name) {
+    public record JsonPropertyRenameRecord(int id, @JsonProperty("rename")String name) {
     }
 
     public void testSerializeJsonRenameRecord() throws JsonProcessingException {

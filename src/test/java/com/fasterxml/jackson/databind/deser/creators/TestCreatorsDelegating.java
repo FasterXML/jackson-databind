@@ -26,7 +26,30 @@ public class TestCreatorsDelegating extends BaseMapTest
         }
     }
 
-    // for [JACKSON-711]; should allow delegate-based one(s) too
+    static class IntegerBean
+    {
+        protected Integer value;
+
+        public IntegerBean(Integer v) { value = v; }
+        
+        @JsonCreator
+        protected static IntegerBean create(Integer value) {
+            return new IntegerBean(value);
+        }
+    }
+
+    static class LongBean
+    {
+        protected Long value;
+
+        public LongBean(Long v) { value = v; }
+        
+        @JsonCreator
+        protected static LongBean create(Long value) {
+            return new LongBean(value);
+        }
+    }
+
     static class CtorBean711
     {
         protected String name;
@@ -40,7 +63,6 @@ public class TestCreatorsDelegating extends BaseMapTest
         }
     }
 
-    // for [JACKSON-711]; should allow delegate-based one(s) too
     static class FactoryBean711
     {
         protected String name1;
@@ -116,7 +138,7 @@ public class TestCreatorsDelegating extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testBooleanDelegate() throws Exception
     {
         // should obviously work with booleans...
@@ -127,8 +149,28 @@ public class TestCreatorsDelegating extends BaseMapTest
         bb = MAPPER.readValue(quote("true"), BooleanBean.class);
         assertEquals(Boolean.TRUE, bb.value);
     }
-    
-    // As per [JACKSON-711]: should also work with delegate model (single non-annotated arg)
+
+    public void testIntegerDelegate() throws Exception
+    {
+        IntegerBean bb = MAPPER.readValue("-13", IntegerBean.class);
+        assertEquals(Integer.valueOf(-13), bb.value);
+
+        // but also with value conversion from String (unless blocked)
+        bb = MAPPER.readValue(quote("127"), IntegerBean.class);
+        assertEquals(Integer.valueOf(127), bb.value);
+    }
+
+    public void testLongDelegate() throws Exception
+    {
+        LongBean bb = MAPPER.readValue("11", LongBean.class);
+        assertEquals(Long.valueOf(11L), bb.value);
+
+        // but also with value conversion from String (unless blocked)
+        bb = MAPPER.readValue(quote("-99"), LongBean.class);
+        assertEquals(Long.valueOf(-99L), bb.value);
+    }
+
+    // should also work with delegate model (single non-annotated arg)
     public void testWithCtorAndDelegate() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

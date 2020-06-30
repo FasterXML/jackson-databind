@@ -230,16 +230,30 @@ public abstract class StdDeserializer<T>
         // 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
         //   systems that expect conversions in some cases, let's just add a minimal
         //   patch (note: same could conceivably be used for numbers too).
-        if ((inst != null) && inst.canCreateFromBoolean()) {
-            // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
-            if (ctxt.findCoercionAction(LogicalType.Boolean, Boolean.class,
-                    CoercionInputShape.String) == CoercionAction.TryConvert) {
-                String str = value.trim();
-                if ("true".equals(str)) {
-                    return (T) inst.createFromBoolean(ctxt, true);
+        if (inst != null) {
+            if (inst.canCreateFromInt()) {
+                if (ctxt.findCoercionAction(LogicalType.Integer, Integer.class,
+                        CoercionInputShape.String) == CoercionAction.TryConvert) {
+                    return (T) inst.createFromInt(ctxt, _parseIntPrimitive(ctxt, value));
                 }
-                if ("false".equals(str)) {
-                    return (T) inst.createFromBoolean(ctxt, false);
+            }
+            if (inst.canCreateFromLong()) {
+                if (ctxt.findCoercionAction(LogicalType.Integer, Long.class,
+                        CoercionInputShape.String) == CoercionAction.TryConvert) {
+                    return (T) inst.createFromLong(ctxt, _parseLongPrimitive(ctxt, value));
+                }
+            }
+            if (inst.canCreateFromBoolean()) {
+                // 29-May-2020, tatu: With 2.12 can and should use CoercionConfig so:
+                if (ctxt.findCoercionAction(LogicalType.Boolean, Boolean.class,
+                        CoercionInputShape.String) == CoercionAction.TryConvert) {
+                    String str = value.trim();
+                    if ("true".equals(str)) {
+                        return (T) inst.createFromBoolean(ctxt, true);
+                    }
+                    if ("false".equals(str)) {
+                        return (T) inst.createFromBoolean(ctxt, false);
+                    }
                 }
             }
         }

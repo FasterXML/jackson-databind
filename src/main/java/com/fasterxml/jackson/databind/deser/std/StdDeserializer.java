@@ -258,8 +258,8 @@ public abstract class StdDeserializer<T>
             throws IOException
     {
         final ValueInstantiator inst = getValueInstantiator();
-        final String value = p.getValueAsString();
         final Class<?> rawTargetType = handledType();
+        String value = p.getValueAsString();
 
         if ((inst != null) && inst.canCreateFromString()) {
             return (T) inst.createFromString(ctxt, value);
@@ -282,6 +282,7 @@ public abstract class StdDeserializer<T>
         //   systems that expect conversions in some cases, let's just add a minimal
         //   patch (note: same could conceivably be used for numbers too).
         if (inst != null) {
+            value = value.trim(); // mostly to avoid problems wrt XML indentation
             if (inst.canCreateFromInt()) {
                 if (ctxt.findCoercionAction(LogicalType.Integer, Integer.class,
                         CoercionInputShape.String) == CoercionAction.TryConvert) {

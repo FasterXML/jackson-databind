@@ -57,6 +57,10 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
             // otherwise, try conversion using toString()...
             return ob.toString();
         }
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        if (t == JsonToken.START_OBJECT) {
+            return ctxt.extractScalarFromObject(p, this, _valueClass);
+        }
         // allow coercions for other scalar types
         // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
         //   "real" scalar

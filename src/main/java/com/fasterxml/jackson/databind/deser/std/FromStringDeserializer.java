@@ -152,33 +152,49 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     {
         // Let's get textual value, possibly via coercion from other scalar types
         String text = p.getValueAsString();
-        if (text != null) { // has String representation
-            if (text.length() == 0 || (text = text.trim()).length() == 0) {
-                // 09-Jun-2020, tatu: Commonly `null` but may coerce to "empty" as well
-                return (T) _deserializeFromEmptyString(ctxt);
+        if (text == null) {
+            JsonToken t = p.currentToken();
+            if (t != JsonToken.START_OBJECT) {
+                return (T) _deserializeFromOther(p, ctxt, t);
             }
-            Exception cause = null;
-            try {
-                // 19-May-2017, tatu: Used to require non-null result (assuming `null`
-                //    indicated error; but that seems wrong. Should be able to return
-                //    `null` as value.
-                return _deserialize(text, ctxt);
-            } catch (IllegalArgumentException | MalformedURLException e) {
-                cause = e;
-            }
-            // note: `cause` can't be null
-            String msg = "not a valid textual representation";
-            String m2 = cause.getMessage();
-            if (m2 != null) {
-                msg = msg + ", problem: "+m2;
-            }
-            // 05-May-2016, tatu: Unlike most usage, this seems legit, so...
-            JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
-            e.initCause(cause);
-            throw e;
-            // nothing to do here, yet? We'll fail anyway
+            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+            text = ctxt.extractScalarFromObject(p, this, _valueClass);
         }
-        JsonToken t = p.currentToken();
+        if (text.length() == 0 || (text = text.trim()).length() == 0) {
+            // 09-Jun-2020, tatu: Commonly `null` but may coerce to "empty" as well
+            return (T) _deserializeFromEmptyString(ctxt);
+        }
+        Exception cause = null;
+        try {
+            // 19-May-2017, tatu: Used to require non-null result (assuming `null`
+            //    indicated error; but that seems wrong. Should be able to return
+            //    `null` as value.
+            return _deserialize(text, ctxt);
+        } catch (IllegalArgumentException | MalformedURLException e) {
+            cause = e;
+        }
+        // note: `cause` can't be null
+        String msg = "not a valid textual representation";
+        String m2 = cause.getMessage();
+        if (m2 != null) {
+            msg = msg + ", problem: "+m2;
+        }
+        // 05-May-2016, tatu: Unlike most usage, this seems legit, so...
+        JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
+        e.initCause(cause);
+        throw e;
+    }
+
+    /**
+     * Main method from trying to deserialize actual value from non-empty
+     * String.
+     */
+    protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;
+
+    // @since 2.12
+    protected Object _deserializeFromOther(JsonParser p, DeserializationContext ctxt,
+            JsonToken t) throws IOException
+    {
         // [databind#381]
         if (t == JsonToken.START_ARRAY) {
             return _deserializeFromArray(p, ctxt);
@@ -190,18 +206,12 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 return null;
             }
             if (_valueClass.isAssignableFrom(ob.getClass())) {
-                return (T) ob;
+                return ob;
             }
-            return (T) _deserializeEmbedded(ob, ctxt);
+            return _deserializeEmbedded(ob, ctxt);
         }
-        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
-
-    /**
-     * Main method from trying to deserialize actual value from non-empty
-     * String.
-     */
-    protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;
 
     /**
      * Overridable method to allow coercion from embedded value that is neither

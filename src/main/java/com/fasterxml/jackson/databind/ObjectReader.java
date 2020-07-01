@@ -1997,11 +1997,10 @@ public class ObjectReader
      */
     protected Object _bind(JsonParser p, Object valueToUpdate) throws IOException
     {
-        /* First: may need to read the next token, to initialize state (either
-         * before first read from parser, or after previous token has been cleared)
-         */
+        // First: may need to read the next token, to initialize state (either
+        // before first read from parser, or after previous token has been cleared)
         Object result;
-        final DeserializationContext ctxt = createDeserializationContext(p);
+        final DefaultDeserializationContext ctxt = createDeserializationContext(p);
         JsonToken t = _initForReading(ctxt, p);
         if (t == JsonToken.VALUE_NULL) {
             if (valueToUpdate == null) {
@@ -2038,7 +2037,7 @@ public class ObjectReader
         try (JsonParser p = p0) {
             Object result;
 
-            DeserializationContext ctxt = createDeserializationContext(p);
+            DefaultDeserializationContext ctxt = createDeserializationContext(p);
             JsonToken t = _initForReading(ctxt, p);
             if (t == JsonToken.VALUE_NULL) {
                 if (_valueToUpdate == null) {
@@ -2089,7 +2088,7 @@ public class ObjectReader
                 return _config.getNodeFactory().missingNode();
             }
         }
-        final DeserializationContext ctxt;
+        final DefaultDeserializationContext ctxt;
         final JsonNode resultNode;
         final boolean checkTrailing = _config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
@@ -2131,7 +2130,7 @@ public class ObjectReader
                 return null;
             }
         }
-        final DeserializationContext ctxt;
+        final DefaultDeserializationContext ctxt;
         final JsonNode resultNode;
         final boolean checkTrailing = _config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         if (t == JsonToken.VALUE_NULL) {
@@ -2154,7 +2153,7 @@ public class ObjectReader
         }
         return resultNode;
     }
-    
+
     /**
      * @since 2.1
      */
@@ -2203,9 +2202,6 @@ public class ObjectReader
             ctxt.reportWrongTokenException(rootType, JsonToken.END_OBJECT,
                     "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
                     expSimpleName, p.currentToken());
-        }
-        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, _valueType);
         }
         return result;
     }

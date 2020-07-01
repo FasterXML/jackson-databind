@@ -2388,19 +2388,19 @@ public class ObjectMapper
             JavaType valueType)
         throws IOException
     {
-        /* First: may need to read the next token, to initialize
-         * state (either before first read from parser, or after
-         * previous token has been cleared)
-         */
-        Object result;
+        // First: may need to read the next token, to initialize
+        // state (either before first read from parser, or after
+        // previous token has been cleared)
+        final Object result;
         JsonToken t = _initForReading(p, valueType);
-        final DeserializationConfig config = ctxt.getConfig();
+
         if (t == JsonToken.VALUE_NULL) {
             // Ask JsonDeserializer what 'null value' to use:
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
         } else { // pointing to event other than null
+            final DeserializationConfig config = ctxt.getConfig();
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
             // ok, let's get the value
             if (config.useRootWrapping()) {
@@ -2411,7 +2411,7 @@ public class ObjectMapper
         }
         // Need to consume the token too
         p.clearCurrentToken();
-        if (config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
             _verifyNoTrailingTokens(p, ctxt, valueType);
         }
         return result;
@@ -2469,8 +2469,7 @@ public class ObjectMapper
                     return cfg.getNodeFactory().missingNode();
                 }
             }
-            JsonNode resultNode;
-
+            final JsonNode resultNode;
             if (t == JsonToken.VALUE_NULL) {
                 resultNode = cfg.getNodeFactory().nullNode();
             } else {

@@ -88,9 +88,8 @@ public abstract class DefaultDeserializationContext
     @Override
     public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen, ObjectIdResolver resolverType)
     {
-        /* 02-Apr-2015, tatu: As per [databind#742] should allow 'null', similar to how
-         *   missing id already works.
-         */
+        // 02-Apr-2015, tatu: As per [databind#742] should allow 'null', similar to how
+        //   missing id already works.
         if (id == null) {
             return null;
         }
@@ -215,9 +214,8 @@ public abstract class DefaultDeserializationContext
         if (deserDef instanceof JsonDeserializer) {
             deser = (JsonDeserializer<?>) deserDef;
         } else {
-            /* Alas, there's no way to force return type of "either class
-             * X or Y" -- need to throw an exception after the fact
-             */
+            // Alas, there's no way to force return type of "either class
+            // X or Y" -- need to throw an exception after the fact
             if (!(deserDef instanceof Class)) {
                 throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
             }

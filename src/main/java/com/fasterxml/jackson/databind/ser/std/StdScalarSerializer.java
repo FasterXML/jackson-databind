@@ -25,7 +25,18 @@ public abstract class StdScalarSerializer<T>
     protected StdScalarSerializer(Class<?> t, boolean dummy) {
         super((Class<T>) t);
     }
-    
+
+    /**
+     * Basic copy-constructor
+     *
+     * @param src Original instance to copy settings from
+     *
+     * @since 2.12
+     */
+    protected StdScalarSerializer(StdScalarSerializer<?> src) {
+        super(src);
+    }
+
     /**
      * Default implementation will write type prefix, call regular serialization
      * method (since assumption is that value itself does not need JSON

@@ -1669,9 +1669,8 @@ public class ObjectReader
     protected Object _bind(DefaultDeserializationContext ctxt,
             JsonParser p, Object valueToUpdate) throws IOException
     {
-        /* First: may need to read the next token, to initialize state (either
-         * before first read from parser, or after previous token has been cleared)
-         */
+        // First: may need to read the next token, to initialize state (either
+        // before first read from parser, or after previous token has been cleared)
         Object result;
         JsonToken t = _initForReading(ctxt, p);
         if (t == JsonToken.VALUE_NULL) {
@@ -1852,9 +1851,6 @@ public class ObjectReader
             ctxt.reportWrongTokenException(rootType, JsonToken.END_OBJECT,
                     "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
                     expSimpleName, p.currentToken());
-        }
-        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, _valueType);
         }
         return result;
     }

@@ -2523,9 +2523,6 @@ public class ObjectMapper
                     "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
                     expSimpleName, p.currentToken());
         }
-        if (config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-            _verifyNoTrailingTokens(p, ctxt, rootType);
-        }
         return result;
     }
 

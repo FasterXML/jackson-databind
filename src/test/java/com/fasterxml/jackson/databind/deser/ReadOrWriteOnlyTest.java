@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.*;
 
 public class ReadOrWriteOnlyTest extends BaseMapTest
@@ -105,6 +106,24 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
         }
     }
 
+    // [databind#2779]: ignorable property renaming
+    static class Bean2779 {
+        String works;
+
+        @JsonProperty(value = "t", access = JsonProperty.Access.READ_ONLY)
+        public String getDoesntWork() {
+            return "pleaseFixThisBug";
+        }
+
+        public String getWorks() {
+            return works;
+        }
+
+        public void setWorks(String works) {
+            this.works = works;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -166,5 +185,16 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
         assertTrue(json.contains("roles"));
         UserAllowGetters1805 result = MAPPER.readValue(json, UserAllowGetters1805.class);
         assertNotNull(result);
+    }
+
+    // [databind#2779]: ignorable property renaming
+    public void testIssue2779() throws Exception
+    {
+        Bean2779 bean = new Bean2779();
+        bean.setWorks("works");
+
+        String json = MAPPER.writeValueAsString(bean);
+        Bean2779 newBean = MAPPER.readValue(json, Bean2779.class);
+        assertNotNull(newBean);
     }
 }

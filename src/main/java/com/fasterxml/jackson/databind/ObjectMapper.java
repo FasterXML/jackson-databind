@@ -4485,13 +4485,12 @@ public class ObjectMapper
             JavaType valueType)
         throws IOException
     {
-        /* First: may need to read the next token, to initialize
-         * state (either before first read from parser, or after
-         * previous token has been cleared)
-         */
-        Object result;
+        // First: may need to read the next token, to initialize
+        // state (either before first read from parser, or after
+        // previous token has been cleared)
+        final Object result;
         JsonToken t = _initForReading(p, valueType);
-        final DeserializationContext ctxt = createDeserializationContext(p, cfg);
+        final DefaultDeserializationContext ctxt = createDeserializationContext(p, cfg);
         if (t == JsonToken.VALUE_NULL) {
             // Ask JsonDeserializer what 'null value' to use:
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
@@ -4518,10 +4517,10 @@ public class ObjectMapper
         throws IOException
     {
         try (JsonParser p = p0) {
-            Object result;
-            JsonToken t = _initForReading(p, valueType);
+            final Object result;
             final DeserializationConfig cfg = getDeserializationConfig();
-            final DeserializationContext ctxt = createDeserializationContext(p, cfg);
+            final DefaultDeserializationContext ctxt = createDeserializationContext(p, cfg);
+            JsonToken t = _initForReading(p, valueType);
             if (t == JsonToken.VALUE_NULL) {
                 // Ask JsonDeserializer what 'null value' to use:
                 result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
@@ -4568,18 +4567,12 @@ public class ObjectMapper
                     return cfg.getNodeFactory().missingNode();
                 }
             }
-            final boolean checkTrailing = cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
-            DeserializationContext ctxt;
-            JsonNode resultNode;
+            final JsonNode resultNode;
 
+            final DefaultDeserializationContext ctxt = createDeserializationContext(p, cfg);
             if (t == JsonToken.VALUE_NULL) {
                 resultNode = cfg.getNodeFactory().nullNode();
-                if (!checkTrailing) {
-                    return resultNode;
-                }
-                ctxt = createDeserializationContext(p, cfg);
             } else {
-                ctxt = createDeserializationContext(p, cfg);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
                 if (cfg.useRootWrapping()) {
                     resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
@@ -4587,7 +4580,7 @@ public class ObjectMapper
                     resultNode = (JsonNode) deser.deserialize(p, ctxt);
                 }
             }
-            if (checkTrailing) {
+            if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
                 _verifyNoTrailingTokens(p, ctxt, valueType);
             }
             // No ObjectIds so can ignore

@@ -250,7 +250,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(MAPPER.constructType(String.class), r.getValueType());
     }
 
-    public void testParserConfigViaMapper() throws Exception
+    public void testParserConfigViaReader() throws Exception
     {
         try (JsonParser p = MAPPER.reader()
                 .with(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
@@ -267,7 +267,7 @@ public class ObjectReaderTest extends BaseMapTest
         */
     }
 
-    public void testGeneratorConfigViaMapper() throws Exception
+    public void testGeneratorConfigViaReader() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator g = MAPPER.writer()

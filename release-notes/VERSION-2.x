@@ -40,6 +40,11 @@ Project: jackson-databind
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 
+2.11.2 (not yet released)
+
+#2783: Parser/Generator features not set when using `ObjectMapper.createParser()`,
+  `createGenerator()`
+
 2.11.1 (25-Jun-2020)
 
 #2486: Builder Deserialization with JsonCreator Value vs Array

@@ -255,9 +255,8 @@ public class ObjectWriter
             JsonGenerator gen, boolean managedInput)
         throws IOException
     {
-        _configureGenerator(gen);
         return new SequenceWriter(_serializerProvider(),
-                gen, managedInput, _prefetch)
+                _configureGenerator(gen), managedInput, _prefetch)
             .init(wrapInArray);
     }
 
@@ -675,7 +674,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream out) throws IOException {
         _assertNotNull("out", out);
-        return _generatorFactory.createGenerator(out, JsonEncoding.UTF8);
+        return _configureGenerator(_generatorFactory.createGenerator(out, JsonEncoding.UTF8));
     }
 
     /**
@@ -688,7 +687,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
         _assertNotNull("out", out);
-        return _generatorFactory.createGenerator(out, enc);
+        return _configureGenerator(_generatorFactory.createGenerator(out, enc));
     }
 
     /**
@@ -701,7 +700,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(Writer w) throws IOException {
         _assertNotNull("w", w);
-        return _generatorFactory.createGenerator(w);
+        return _configureGenerator(_generatorFactory.createGenerator(w));
     }
 
     /**
@@ -714,7 +713,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(File outputFile, JsonEncoding enc) throws IOException {
         _assertNotNull("outputFile", outputFile);
-        return _generatorFactory.createGenerator(outputFile, enc);
+        return _configureGenerator(_generatorFactory.createGenerator(outputFile, enc));
     }
 
     /**
@@ -727,7 +726,7 @@ public class ObjectWriter
      */
     public JsonGenerator createGenerator(DataOutput out) throws IOException {
         _assertNotNull("out", out);
-        return _generatorFactory.createGenerator(out);
+        return _configureGenerator(_generatorFactory.createGenerator(out));
     }
 
     /*
@@ -770,8 +769,7 @@ public class ObjectWriter
      */
     public SequenceWriter writeValues(JsonGenerator g) throws IOException {
         _assertNotNull("g", g);
-        _configureGenerator(g);
-        return _newSequenceWriter(false, g, false);
+        return _newSequenceWriter(false, _configureGenerator(g), false);
     }
 
     /**
@@ -1022,7 +1020,7 @@ public class ObjectWriter
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(createGenerator(resultFile, JsonEncoding.UTF8), value);
+        _writeValue(createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -1039,7 +1037,7 @@ public class ObjectWriter
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(createGenerator(out, JsonEncoding.UTF8), value);
+        _writeValue(createGenerator(out, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -1055,7 +1053,7 @@ public class ObjectWriter
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(createGenerator(w), value);
+        _writeValue(createGenerator(w), value);
     }
 
     /**
@@ -1064,7 +1062,7 @@ public class ObjectWriter
     public void writeValue(DataOutput out, Object value)
         throws IOException
     {
-        _configAndWriteValue(createGenerator(out), value);
+        _writeValue(createGenerator(out), value);
     }
 
     /**
@@ -1082,7 +1080,7 @@ public class ObjectWriter
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(createGenerator(sw), value);
+            _writeValue(createGenerator(sw), value);
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -1106,7 +1104,7 @@ public class ObjectWriter
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_generatorFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(createGenerator(bb, JsonEncoding.UTF8), value);
+            _writeValue(createGenerator(bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -1204,9 +1202,8 @@ public class ObjectWriter
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(JsonGenerator gen, Object value) throws IOException
+    protected final void _writeValue(JsonGenerator gen, Object value) throws IOException
     {
-        _configureGenerator(gen);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseable(gen, value);
             return;
@@ -1246,12 +1243,13 @@ public class ObjectWriter
      * 
      * @since 2.5
      */
-    protected final void _configureGenerator(JsonGenerator gen)
+    protected final JsonGenerator _configureGenerator(JsonGenerator gen)
     {
         // order is slightly significant: both may change PrettyPrinter
         // settings.
         _config.initialize(gen); // since 2.5
         _generatorSettings.initialize(gen);
+        return gen;
     }
 
     protected final void _assertNotNull(String paramName, Object src) {

@@ -1197,9 +1197,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(File src) throws IOException {
         _assertNotNull("src", src);
-        JsonParser p = _jsonFactory.createParser(src);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(src));
     }
 
     /**
@@ -1212,9 +1210,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(URL src) throws IOException {
         _assertNotNull("src", src);
-        JsonParser p = _jsonFactory.createParser(src);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(src));
     }
 
     /**
@@ -1227,9 +1223,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(InputStream in) throws IOException {
         _assertNotNull("in", in);
-        JsonParser p = _jsonFactory.createParser(in);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(in));
     }
 
     /**
@@ -1242,9 +1236,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(Reader r) throws IOException {
         _assertNotNull("r", r);
-        JsonParser p = _jsonFactory.createParser(r);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(r));
     }
 
     /**
@@ -1257,9 +1249,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] content) throws IOException {
         _assertNotNull("content", content);
-        JsonParser p = _jsonFactory.createParser(content);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(content));
     }
 
     /**
@@ -1272,9 +1262,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        JsonParser p = _jsonFactory.createParser(content, offset, len);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(content, offset, len));
     }
 
     /**
@@ -1287,9 +1275,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(String content) throws IOException {
         _assertNotNull("content", content);
-        JsonParser p = _jsonFactory.createParser(content);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(content));
     }
 
     /**
@@ -1302,9 +1288,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content) throws IOException {
         _assertNotNull("content", content);
-        JsonParser p = _jsonFactory.createParser(content);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(content));
     }
 
     /**
@@ -1317,9 +1301,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        JsonParser p = _jsonFactory.createParser(content, offset, len);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(content, offset, len));
     }
 
     /**
@@ -1332,9 +1314,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(DataInput content) throws IOException {
         _assertNotNull("content", content);
-        JsonParser p = _jsonFactory.createParser(content);
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createParser(content));
     }
 
     /**
@@ -1346,9 +1326,7 @@ public class ObjectMapper
      * @since 2.11
      */
     public JsonParser createNonBlockingByteArrayParser() throws IOException {
-        JsonParser p = _jsonFactory.createNonBlockingByteArrayParser();
-        _deserializationConfig.initialize(p);
-        return p;
+        return _deserializationConfig.initialize(_jsonFactory.createNonBlockingByteArrayParser());
     }
 
     /*

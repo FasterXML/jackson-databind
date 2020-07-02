@@ -728,13 +728,30 @@ public final class DeserializationConfig
      * 
      * @since 2.5
      */
-    public void initialize(JsonParser p) {
+    public JsonParser initialize(JsonParser p) {
         if (_parserFeaturesToChange != 0) {
             p.overrideStdFeatures(_parserFeatures, _parserFeaturesToChange);
         }
         if (_formatReadFeaturesToChange != 0) {
             p.overrideFormatFeatures(_formatReadFeatures, _formatReadFeaturesToChange);
         }
+        return p;
+    }
+
+    /**
+     * @since 2.12
+     */
+    public JsonParser initialize(JsonParser p, FormatSchema schema) {
+        if (_parserFeaturesToChange != 0) {
+            p.overrideStdFeatures(_parserFeatures, _parserFeaturesToChange);
+        }
+        if (_formatReadFeaturesToChange != 0) {
+            p.overrideFormatFeatures(_formatReadFeatures, _formatReadFeaturesToChange);
+        }
+        if (schema != null) {
+            p.setSchema(schema);
+        }
+        return p;
     }
 
     /*

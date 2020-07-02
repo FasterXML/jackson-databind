@@ -882,9 +882,8 @@ public class ObjectMapper
                 return null;
             }
         }
-        DeserializationContext ctxt = _deserializationContext(p);
         // NOTE! _readValue() will check for trailing tokens
-        JsonNode n = (JsonNode) _readValue(ctxt, p, JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readValue(_deserializationContext(p), p, JSON_NODE_TYPE);
         if (n == null) {
             n = getNodeFactory().nullNode();
         }
@@ -931,8 +930,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = _deserializationContext(p);
-        return (T) _readValue(ctxt, p, _typeFactory.constructType(valueType));
+        return (T) _readValue(_deserializationContext(p), p, _typeFactory.constructType(valueType));
     } 
 
     /**
@@ -955,8 +953,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = _deserializationContext(p);
-        return (T) _readValue(ctxt, p, _typeFactory.constructType(valueTypeRef));
+        return (T) _readValue(_deserializationContext(p), p, _typeFactory.constructType(valueTypeRef));
     }
 
     /**
@@ -978,8 +975,7 @@ public class ObjectMapper
     public final <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = _deserializationContext(p);
-        return (T) _readValue(ctxt, p, (JavaType) valueType);
+        return (T) _readValue(_deserializationContext(p), p, (JavaType) valueType);
     }
 
     /**
@@ -998,8 +994,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser p, JavaType valueType) throws IOException
     {
         _assertNotNull("p", p);
-        DeserializationContext ctxt = _deserializationContext(p);
-        return (T) _readValue(ctxt, p, valueType);
+        return (T) _readValue(_deserializationContext(p), p, valueType);
     }
 
     /**
@@ -2384,7 +2379,7 @@ public class ObjectMapper
     /**
      * Actual implementation of value reading+binding operation.
      */
-    protected Object _readValue(DeserializationContext ctxt, JsonParser p,
+    protected Object _readValue(DefaultDeserializationContext ctxt, JsonParser p,
             JavaType valueType)
         throws IOException
     {
@@ -2400,14 +2395,7 @@ public class ObjectMapper
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
         } else { // pointing to event other than null
-            final DeserializationConfig config = ctxt.getConfig();
-            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
-            // ok, let's get the value
-            if (config.useRootWrapping()) {
-                result = _unwrapAndDeserialize(p, ctxt, config, valueType, deser);
-            } else {
-                result = deser.deserialize(p, ctxt);
-            }
+            result = ctxt.readRootValue(p, valueType, _findRootDeserializer(ctxt, valueType), null);
         }
         // Need to consume the token too
         p.clearCurrentToken();
@@ -2431,13 +2419,8 @@ public class ObjectMapper
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else {
-                final DeserializationConfig config = ctxt.getConfig();
-                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
-                if (config.useRootWrapping()) {
-                    result = _unwrapAndDeserialize(p, ctxt, config, valueType, deser);
-                } else {
-                    result = deser.deserialize(p, ctxt);
-                }
+                result = ctxt.readRootValue(p, valueType,
+                        _findRootDeserializer(ctxt, valueType), null);
                 ctxt.checkUnresolvedObjectId();
             }
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
@@ -2473,56 +2456,16 @@ public class ObjectMapper
             if (t == JsonToken.VALUE_NULL) {
                 resultNode = cfg.getNodeFactory().nullNode();
             } else {
-                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
-                if (cfg.useRootWrapping()) {
-                    resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
-                } else {
-                    resultNode = (JsonNode) deser.deserialize(p, ctxt);
-                }
+                resultNode = (JsonNode) ctxt.readRootValue(p, valueType,
+                        _findRootDeserializer(ctxt, valueType), null);
+                // No ObjectIds so can ignore
+//              ctxt.checkUnresolvedObjectId();
             }
             if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
                 _verifyNoTrailingTokens(p, ctxt, valueType);
             }
-            // No ObjectIds so can ignore
-//            ctxt.checkUnresolvedObjectId();
             return resultNode;
         }
-    }
-
-    protected Object _unwrapAndDeserialize(JsonParser p, DeserializationContext ctxt, 
-            DeserializationConfig config,
-            JavaType rootType, JsonDeserializer<Object> deser)
-        throws IOException
-    {
-        PropertyName expRootName = ctxt.findRootName(rootType);
-        // 12-Jun-2015, tatu: Should try to support namespaces etc but...
-        String expSimpleName = expRootName.getSimpleName();
-        if (p.currentToken() != JsonToken.START_OBJECT) {
-            ctxt.reportWrongTokenException(rootType, JsonToken.START_OBJECT,
-                    "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
-                    expSimpleName, p.currentToken());
-        }
-        if (p.nextToken() != JsonToken.FIELD_NAME) {
-            ctxt.reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
-                    "Current token not FIELD_NAME (to contain expected root name '%s'), but %s",
-                    expSimpleName, p.currentToken());
-        }
-        String actualName = p.currentName();
-        if (!expSimpleName.equals(actualName)) {
-            ctxt.reportPropertyInputMismatch(rootType, actualName,
-                    "Root name '%s' does not match expected ('%s') for type %s",
-                    actualName, expSimpleName, rootType);
-        }
-        // ok, then move to value itself....
-        p.nextToken();
-        Object result = deser.deserialize(p, ctxt);
-        // and last, verify that we now get matching END_OBJECT
-        if (p.nextToken() != JsonToken.END_OBJECT) {
-            ctxt.reportWrongTokenException(rootType, JsonToken.END_OBJECT,
-                    "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
-                    expSimpleName, p.currentToken());
-        }
-        return result;
     }
 
     /**

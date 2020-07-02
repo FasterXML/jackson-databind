@@ -3599,7 +3599,7 @@ public class ObjectMapper
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _writeValue(createGenerator(resultFile, JsonEncoding.UTF8), value);
+        _writeValueAndClose(createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -3616,7 +3616,7 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _writeValue(createGenerator(out, JsonEncoding.UTF8), value);
+        _writeValueAndClose(createGenerator(out, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -3624,7 +3624,7 @@ public class ObjectMapper
      */
     public void writeValue(DataOutput out, Object value) throws IOException
     {
-        _writeValue(createGenerator(out), value);
+        _writeValueAndClose(createGenerator(out), value);
     }
 
     /**
@@ -3640,7 +3640,7 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _writeValue(createGenerator(w), value);
+        _writeValueAndClose(createGenerator(w), value);
     }
 
     /**
@@ -3658,7 +3658,7 @@ public class ObjectMapper
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
         try {
-            _writeValue(createGenerator(sw), value);
+            _writeValueAndClose(createGenerator(sw), value);
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -3682,7 +3682,7 @@ public class ObjectMapper
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
         try {
-            _writeValue(createGenerator(bb, JsonEncoding.UTF8), value);
+            _writeValueAndClose(createGenerator(bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -4392,8 +4392,10 @@ public class ObjectMapper
     /**
      * Method called to configure the generator as necessary and then
      * call write functionality
+     *
+     * @since 2.11.2
      */
-    protected final void _writeValue(JsonGenerator g, Object value)
+    protected final void _writeValueAndClose(JsonGenerator g, Object value)
         throws IOException
     {
         SerializationConfig cfg = getSerializationConfig();
@@ -4448,6 +4450,15 @@ public class ObjectMapper
             return;
         }
         toClose.close();
+    }
+
+    /**
+     * @deprecated Since 2.11.2 Use {@link #_writeValueAndClose} instead
+     */
+    @Deprecated // since 2.11.2 (to remove earliest from 2.13)
+    protected final void _configAndWriteValue(JsonGenerator g, Object value) throws IOException {
+        getSerializationConfig().initialize(g);
+        _writeValueAndClose(g, value);
     }
 
     /*

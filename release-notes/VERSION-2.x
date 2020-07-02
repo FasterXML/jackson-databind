@@ -4,9 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.11.1 (not yet released)
+2.11.2 (not yet released)
 
--
+#2783: Parser/Generator features not set when using `ObjectMapper.createParser()`,
+  `createGenerator()`
 
 2.11.1 (25-Jun-2020)
 

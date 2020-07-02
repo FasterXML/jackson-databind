@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -8,7 +9,7 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 
 import com.fasterxml.jackson.core.JsonParser;
-
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
@@ -284,7 +285,7 @@ public abstract class DefaultDeserializationContext
 
     /*
     /**********************************************************
-    /* Extended API
+    /* Extended API, life-cycle
     /**********************************************************
      */
 
@@ -304,6 +305,66 @@ public abstract class DefaultDeserializationContext
     public abstract DefaultDeserializationContext createDummyInstance(
             DeserializationConfig config);
     
+    /*
+    /**********************************************************
+    /* Extended API, read methods
+    /**********************************************************
+     */
+
+    public Object readRootValue(JsonParser p, JavaType valueType,
+            JsonDeserializer<Object> deser, Object valueToUpdate)
+        throws IOException
+    {
+        if (_config.useRootWrapping()) {
+            return _unwrapAndDeserialize(p, valueType, deser, valueToUpdate);
+        }
+        if (valueToUpdate == null) {
+            return deser.deserialize(p, this);
+        }
+        return deser.deserialize(p, this, valueToUpdate);
+    }
+
+    protected Object _unwrapAndDeserialize(JsonParser p,
+            JavaType rootType, JsonDeserializer<Object> deser,
+            Object valueToUpdate)
+        throws IOException
+    {
+        PropertyName expRootName = _config.findRootName(rootType);
+        // 12-Jun-2015, tatu: Should try to support namespaces etc but...
+        String expSimpleName = expRootName.getSimpleName();
+        if (p.currentToken() != JsonToken.START_OBJECT) {
+            reportWrongTokenException(rootType, JsonToken.START_OBJECT,
+                    "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
+                    expSimpleName, p.currentToken());
+        }
+        if (p.nextToken() != JsonToken.FIELD_NAME) {
+            reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
+                    "Current token not FIELD_NAME (to contain expected root name '%s'), but %s",
+                    expSimpleName, p.currentToken());
+        }
+        String actualName = p.getCurrentName();
+        if (!expSimpleName.equals(actualName)) {
+            reportPropertyInputMismatch(rootType, actualName,
+                    "Root name '%s' does not match expected ('%s') for type %s",
+                    actualName, expSimpleName, rootType);
+        }
+        // ok, then move to value itself....
+        p.nextToken();
+        final Object result;
+        if (valueToUpdate == null) {
+            result = deser.deserialize(p, this);
+        } else {
+            result = deser.deserialize(p, this, valueToUpdate);
+        }
+        // and last, verify that we now get matching END_OBJECT
+        if (p.nextToken() != JsonToken.END_OBJECT) {
+            reportWrongTokenException(rootType, JsonToken.END_OBJECT,
+                    "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
+                    expSimpleName, p.currentToken());
+        }
+        return result;
+    }
+
     /*
     /**********************************************************
     /* And then the concrete implementation class

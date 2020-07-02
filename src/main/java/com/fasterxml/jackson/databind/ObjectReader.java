@@ -2011,18 +2011,7 @@ public class ObjectReader
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = valueToUpdate;
         } else { // pointing to event other than null
-            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt);
-            if (_unwrapRoot) {
-                result = _unwrapAndDeserialize(p, ctxt, _valueType, deser);
-            } else {
-                if (valueToUpdate == null) {
-                    result = deser.deserialize(p, ctxt);
-                } else {
-                    // 20-Mar-2017, tatu: Important! May be different from `valueToUpdate`
-                    //   for immutable Objects like Java arrays; logical result
-                    result = deser.deserialize(p, ctxt, valueToUpdate);
-                }
-            }
+            result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
         }
         // Need to consume the token too
         p.clearCurrentToken();
@@ -2037,7 +2026,7 @@ public class ObjectReader
         try (JsonParser p = p0) {
             Object result;
 
-            DefaultDeserializationContext ctxt = createDeserializationContext(p);
+            final DefaultDeserializationContext ctxt = createDeserializationContext(p);
             JsonToken t = _initForReading(ctxt, p);
             if (t == JsonToken.VALUE_NULL) {
                 if (_valueToUpdate == null) {
@@ -2048,17 +2037,7 @@ public class ObjectReader
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = _valueToUpdate;
             } else {
-                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt);
-                if (_unwrapRoot) {
-                    result = _unwrapAndDeserialize(p, ctxt, _valueType, deser);
-                } else {
-                    if (_valueToUpdate == null) {
-                        result = deser.deserialize(p, ctxt);
-                    } else {
-                        deser.deserialize(p, ctxt, _valueToUpdate);
-                        result = _valueToUpdate;                    
-                    }
-                }
+                result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
             }
             if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
                 _verifyNoTrailingTokens(p, ctxt, _valueType);
@@ -2088,24 +2067,14 @@ public class ObjectReader
                 return _config.getNodeFactory().missingNode();
             }
         }
-        final DefaultDeserializationContext ctxt;
+        final DefaultDeserializationContext ctxt = createDeserializationContext(p);
         final JsonNode resultNode;
-        final boolean checkTrailing = _config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
 
         if (t == JsonToken.VALUE_NULL) {
             resultNode = _config.getNodeFactory().nullNode();
-            if (!checkTrailing) {
-                return resultNode;
-            }
-            ctxt = createDeserializationContext(p);
         } else {
-            ctxt = createDeserializationContext(p);
-            final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
-            if (_unwrapRoot) {
-                resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, _jsonNodeType(), deser);
-            } else {
-                resultNode = (JsonNode) deser.deserialize(p, ctxt);
-            }
+            // Will not be called for merge (need not pass _valueToUpdate)
+            resultNode = (JsonNode) ctxt.readRootValue(p, _jsonNodeType(), _findTreeDeserializer(ctxt), null);
         }
         if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
             _verifyNoTrailingTokens(p, ctxt, _jsonNodeType());
@@ -2130,25 +2099,15 @@ public class ObjectReader
                 return null;
             }
         }
-        final DefaultDeserializationContext ctxt;
+        final DefaultDeserializationContext ctxt = createDeserializationContext(p);
         final JsonNode resultNode;
-        final boolean checkTrailing = _config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         if (t == JsonToken.VALUE_NULL) {
             resultNode = _config.getNodeFactory().nullNode();
-            if (!checkTrailing) {
-                return resultNode;
-            }
-            ctxt = createDeserializationContext(p);
         } else {
-            ctxt = createDeserializationContext(p);
-            final JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
-            if (_unwrapRoot) {
-                resultNode = (JsonNode) _unwrapAndDeserialize(p, ctxt, _jsonNodeType(), deser);
-            } else {
-                resultNode = (JsonNode) deser.deserialize(p, ctxt);
-            }
+            // Will not be called for merge (need not pass _valueToUpdate)
+            resultNode = (JsonNode) ctxt.readRootValue(p, _jsonNodeType(), _findTreeDeserializer(ctxt), null);
         }
-        if (checkTrailing) {
+        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
             _verifyNoTrailingTokens(p, ctxt, _jsonNodeType());
         }
         return resultNode;
@@ -2163,47 +2122,6 @@ public class ObjectReader
         _initForMultiRead(ctxt, p);
         p.nextToken();
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
-    }
-
-    protected Object _unwrapAndDeserialize(JsonParser p, DeserializationContext ctxt,
-            JavaType rootType, JsonDeserializer<Object> deser) throws IOException
-    {
-        PropertyName expRootName = _config.findRootName(rootType);
-        // 12-Jun-2015, tatu: Should try to support namespaces etc but...
-        String expSimpleName = expRootName.getSimpleName();
-
-        if (p.currentToken() != JsonToken.START_OBJECT) {
-            ctxt.reportWrongTokenException(rootType, JsonToken.START_OBJECT,
-                    "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
-                    expSimpleName, p.currentToken());
-        }
-        if (p.nextToken() != JsonToken.FIELD_NAME) {
-            ctxt.reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
-                    "Current token not FIELD_NAME (to contain expected root name '%s'), but %s", 
-                    expSimpleName, p.currentToken());
-        }
-        String actualName = p.getCurrentName();
-        if (!expSimpleName.equals(actualName)) {
-            ctxt.reportPropertyInputMismatch(rootType, actualName,
-                    "Root name '%s' does not match expected ('%s') for type %s",
-                    actualName, expSimpleName, rootType);
-        }
-        // ok, then move to value itself....
-        p.nextToken();
-        Object result;
-        if (_valueToUpdate == null) {
-            result = deser.deserialize(p, ctxt);
-        } else {
-            deser.deserialize(p, ctxt, _valueToUpdate);
-            result = _valueToUpdate;                    
-        }
-        // and last, verify that we now get matching END_OBJECT
-        if (p.nextToken() != JsonToken.END_OBJECT) {
-            ctxt.reportWrongTokenException(rootType, JsonToken.END_OBJECT,
-                    "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
-                    expSimpleName, p.currentToken());
-        }
-        return result;
     }
 
     /**

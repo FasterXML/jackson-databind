@@ -1024,7 +1024,9 @@ public class ObjectReader
      */
     public JsonParser createParser(File src) throws IOException {
         _assertNotNull("src", src);
-        return _parserFactory.createParser(src);
+        JsonParser p = _parserFactory.createParser(src);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1037,7 +1039,9 @@ public class ObjectReader
      */
     public JsonParser createParser(URL src) throws IOException {
         _assertNotNull("src", src);
-        return _parserFactory.createParser(src);
+        JsonParser p = _parserFactory.createParser(src);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1050,7 +1054,9 @@ public class ObjectReader
      */
     public JsonParser createParser(InputStream in) throws IOException {
         _assertNotNull("in", in);
-        return _parserFactory.createParser(in);
+        JsonParser p = _parserFactory.createParser(in);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1063,7 +1069,9 @@ public class ObjectReader
      */
     public JsonParser createParser(Reader r) throws IOException {
         _assertNotNull("r", r);
-        return _parserFactory.createParser(r);
+        JsonParser p = _parserFactory.createParser(r);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1076,7 +1084,9 @@ public class ObjectReader
      */
     public JsonParser createParser(byte[] content) throws IOException {
         _assertNotNull("content", content);
-        return _parserFactory.createParser(content);
+        JsonParser p = _parserFactory.createParser(content);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1089,7 +1099,9 @@ public class ObjectReader
      */
     public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        return _parserFactory.createParser(content, offset, len);
+        JsonParser p = _parserFactory.createParser(content, offset, len);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1102,7 +1114,9 @@ public class ObjectReader
      */
     public JsonParser createParser(String content) throws IOException {
         _assertNotNull("content", content);
-        return _parserFactory.createParser(content);
+        JsonParser p = _parserFactory.createParser(content);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1115,7 +1129,9 @@ public class ObjectReader
      */
     public JsonParser createParser(char[] content) throws IOException {
         _assertNotNull("content", content);
-        return _parserFactory.createParser(content);
+        JsonParser p = _parserFactory.createParser(content);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1128,7 +1144,9 @@ public class ObjectReader
      */
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         _assertNotNull("content", content);
-        return _parserFactory.createParser(content, offset, len);
+        JsonParser p = _parserFactory.createParser(content, offset, len);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1141,7 +1159,9 @@ public class ObjectReader
      */
     public JsonParser createParser(DataInput content) throws IOException {
         _assertNotNull("content", content);
-        return _parserFactory.createParser(content);
+        JsonParser p = _parserFactory.createParser(content);
+        _config.initialize(p);
+        return p;
     }
 
     /**
@@ -1153,7 +1173,9 @@ public class ObjectReader
      * @since 2.11
      */
     public JsonParser createNonBlockingByteArrayParser() throws IOException {
-        return _parserFactory.createNonBlockingByteArrayParser();
+        JsonParser p = _parserFactory.createNonBlockingByteArrayParser();
+        _config.initialize(p);
+        return p;
     }
 
     /*

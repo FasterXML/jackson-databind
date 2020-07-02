@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -32,7 +33,13 @@ public class ObjectReaderTest extends BaseMapTest
             this.knownField = knownField;
         }
     }
-    
+
+    /*
+    /**********************************************************
+    /* Test methods, simple read/write with defaults
+    /**********************************************************
+     */
+
     public void testSimpleViaParser() throws Exception
     {
         final String JSON = "[1]";
@@ -96,6 +103,22 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(Collections.singletonMap("key", ABC.B), value);
     }
 
+    public void testNodeHandling() throws Exception
+    {
+        JsonNodeFactory nodes = new JsonNodeFactory(true);
+        ObjectReader r = MAPPER.reader().with(nodes);
+        // but also no further changes if attempting again
+        assertSame(r, r.with(nodes));
+        assertTrue(r.createArrayNode().isArray());
+        assertTrue(r.createObjectNode().isObject());
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, some alternative JSON settings
+    /**********************************************************
+     */
+
     public void testJsonReadFeaturesComments() throws Exception
     {
         final String JSON = "[ /* foo */ 7 ]";
@@ -147,15 +170,11 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(1, result.size());
     }
 
-    public void testNodeHandling() throws Exception
-    {
-        JsonNodeFactory nodes = new JsonNodeFactory(true);
-        ObjectReader r = MAPPER.reader().with(nodes);
-        // but also no further changes if attempting again
-        assertSame(r, r.with(nodes));
-        assertTrue(r.createArrayNode().isArray());
-        assertTrue(r.createObjectNode().isObject());
-    }
+    /*
+    /**********************************************************
+    /* Test methods, config setting verification
+    /**********************************************************
+     */
 
     public void testFeatureSettings() throws Exception
     {
@@ -229,6 +248,33 @@ public class ObjectReaderTest extends BaseMapTest
 
         r = r.forType(String.class);
         assertEquals(MAPPER.constructType(String.class), r.getValueType());
+    }
+
+    public void testParserConfigViaMapper() throws Exception
+    {
+        try (JsonParser p = MAPPER.reader()
+                .with(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+                .createParser("[ ]")) {
+            assertTrue(p.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION));
+        }
+
+        /*
+        try (JsonParser p = MAPPER.reader()
+                .with(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                .createParser("[ ]")) {
+            assertTrue(p.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        }
+        */
+    }
+
+    public void testGeneratorConfigViaMapper() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator g = MAPPER.writer()
+                .with(StreamWriteFeature.IGNORE_UNKNOWN)
+                .createGenerator(sw)) {
+            assertTrue(g.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
+        }
     }
 
     /*

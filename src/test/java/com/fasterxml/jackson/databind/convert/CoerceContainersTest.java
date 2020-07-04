@@ -137,6 +137,14 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.length);
     }
 
+    public void testPOJOArray() throws Exception
+    {
+        _verifyNoCoercion(StringWrapper[].class);
+        StringWrapper[] result = _readWithCoercion(StringWrapper[].class);
+        assertNotNull(result);
+        assertEquals(0, result.length);
+    }
+    
     /*
     /********************************************************
     /* Helper methods

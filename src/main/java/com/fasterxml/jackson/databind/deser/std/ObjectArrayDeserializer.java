@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
@@ -25,8 +26,6 @@ public class ObjectArrayDeserializer
     implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
-
-    protected final static Object[] NO_OBJECTS = new Object[0];
 
     // // Configuration
 
@@ -53,20 +52,27 @@ public class ObjectArrayDeserializer
      */
     protected final TypeDeserializer _elementTypeDeserializer;
 
+    /**
+     * @since 2.12
+     */
+    protected final Object[] _emptyValue;
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    public ObjectArrayDeserializer(JavaType arrayType,
+    public ObjectArrayDeserializer(JavaType arrayType0,
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
     {
-        super(arrayType, null, null);
+        super(arrayType0, null, null);
+        ArrayType arrayType = (ArrayType) arrayType0;
         _elementClass = arrayType.getContentType().getRawClass();
         _untyped = (_elementClass == Object.class);
         _elementDeserializer = elemDeser;
         _elementTypeDeserializer = elemTypeDeser;
+        _emptyValue = arrayType.getEmptyArray();
     }
 
     protected ObjectArrayDeserializer(ObjectArrayDeserializer base,
@@ -76,6 +82,7 @@ public class ObjectArrayDeserializer
         super(base, nuller, unwrapSingle);
         _elementClass = base._elementClass;
         _untyped = base._untyped;
+        _emptyValue = base._emptyValue;
 
         _elementDeserializer = elemDeser;
         _elementTypeDeserializer = elemTypeDeser;
@@ -166,7 +173,9 @@ public class ObjectArrayDeserializer
     // need to override as we can't expose ValueInstantiator
     @Override // since 2.9
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
-        return NO_OBJECTS;
+        // 03-Jul-2020, tatu: Must be assignment-compatible; can not just return `new Object[0]`
+        //   if element type is different
+        return _emptyValue;
     }
 
     /*
@@ -337,7 +346,7 @@ public class ObjectArrayDeserializer
         if (p.hasToken(JsonToken.VALUE_NULL)) {
             // 03-Feb-2017, tatu: Should this be skipped or not?
             if (_skipNullValues) {
-                return NO_OBJECTS;
+                return _emptyValue;
             }
             value = _nullProvider.getNullValue(ctxt);
         } else if (_elementTypeDeserializer == null) {

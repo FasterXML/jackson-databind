@@ -183,7 +183,20 @@ public final class ArrayType
         sb.append('[');
         return _componentType.getErasedSignature(sb);
     }
-    
+
+    /*
+    /**********************************************************
+    /* Extended API
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.12
+     */
+    public Object[] getEmptyArray() {
+        return  (Object[]) _emptyArray;
+    }
+
     /*
     /**********************************************************
     /* Standard methods

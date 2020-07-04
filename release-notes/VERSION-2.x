@@ -44,6 +44,8 @@ Project: jackson-databind
 
 #2783: Parser/Generator features not set when using `ObjectMapper.createParser()`,
   `createGenerator()`
+#2785: Polymorphic subtypes not registering on copied ObjectMapper (2.11.1)
+ (reported, fix contributed by Joshua S)
 
 2.11.1 (25-Jun-2020)
 

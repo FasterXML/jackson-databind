@@ -129,11 +129,11 @@ public final class DeserializationConfig
      * @since 2.12
      */
     protected DeserializationConfig(DeserializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides,
             CoercionConfigs coercionConfigs)
     {
-        super(src, mixins, rootNames, configOverrides);
+        super(src, str, mixins, rootNames, configOverrides);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
@@ -151,11 +151,11 @@ public final class DeserializationConfig
         this(base, str, mixins, rootNames, configOverrides, new CoercionConfigs());
     }
 
-    @Deprecated // since 2.12, remove from 2.13 or later
+    @Deprecated // since 2.11.2, remove from 2.13 or later
     protected DeserializationConfig(DeserializationConfig src,
             SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides) {
-        this(src, mixins, rootNames, configOverrides, new CoercionConfigs());
+        this(src, src._subtypeResolver, mixins, rootNames, configOverrides, new CoercionConfigs());
     }
 
     /*

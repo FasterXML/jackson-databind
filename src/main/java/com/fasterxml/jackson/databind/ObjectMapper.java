@@ -565,9 +565,9 @@ public class ObjectMapper
 
         RootNameLookup rootNames = new RootNameLookup();
         _serializationConfig = new SerializationConfig(src._serializationConfig,
-                _mixIns, rootNames, _configOverrides);
+                _mixIns, rootNames, _configOverrides).with(_subtypeResolver);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig,
-                _mixIns, rootNames,  _configOverrides);
+                _mixIns, rootNames,  _configOverrides).with(_subtypeResolver);
         _serializerProvider = src._serializerProvider.copy();
         _deserializationContext = src._deserializationContext.copy();
 

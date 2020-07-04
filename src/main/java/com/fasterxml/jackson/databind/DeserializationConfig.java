@@ -116,13 +116,13 @@ public final class DeserializationConfig
     /**
      * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
      *
-     * @since 2.9
+     * @since 2.11.2
      */
     protected DeserializationConfig(DeserializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
     {
-        super(src, mixins, rootNames, configOverrides);
+        super(src, str, mixins, rootNames, configOverrides);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
@@ -130,6 +130,18 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+    }
+
+    /**
+     * @since 2.9
+     * @deprecated since 2.11.2
+     */
+    @Deprecated
+    protected DeserializationConfig(DeserializationConfig src,
+            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
+    {
+        this(src, src._subtypeResolver, mixins, rootNames, configOverrides);
     }
 
     /*

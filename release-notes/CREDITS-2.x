@@ -1131,3 +1131,8 @@ Oleg Chtchoukine (oshatrk@github)
   * Reported #2759: Rearranging of props when property-based generator is in use leads
     to incorrect output
   (2.11.1)
+
+Joshua Shannon (retrodaredevil@github)
+  * Reported, contributed fix for #2785: Polymorphic subtypes not registering on copied
+    ObjectMapper (2.11.1)
+  (2.11.2)

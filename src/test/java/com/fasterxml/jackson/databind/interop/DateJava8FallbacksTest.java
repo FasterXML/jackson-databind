@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.jdk;
+package com.fasterxml.jackson.databind.interop;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -8,8 +8,10 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 // [databind#2683]: add fallback handling for Java 8 date/time types, to
-// prevent accidental serialzization as POJOs, as well as give more information
+// prevent accidental serialization as POJOs, as well as give more information
 // on deserialization attempts
+//
+// @since 2.12
 public class DateJava8FallbacksTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -26,7 +28,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
             fail("Should not pass, wrote out as\n: "+json);
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Java 8 date/time type `java.time.OffsetDateTime` not supported by default");
-            verifyException(e, "please register module `jackson-datatype-jsr310`");
+            verifyException(e, "add Module \"com.fasterxml.jackson.datatype:jackson-datatype-jsr310\"");
         }
     }
 
@@ -37,7 +39,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
             fail("Not expecting to pass, resulted in: "+result);
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Java 8 date/time type `java.time.OffsetDateTime` not supported by default");
-            verifyException(e, "please register module `jackson-datatype-jsr310`");
+            verifyException(e, "add Module \"com.fasterxml.jackson.datatype:jackson-datatype-jsr310\"");
         }
     }
 }

@@ -289,4 +289,50 @@ public class BeanUtil
         sb.append(basename, offset+1, end);
         return sb.toString();
     }
+
+    /*
+    /**********************************************************
+    /* Package-specific type detection for error handling
+    /**********************************************************
+     */
+
+    /**
+     * Helper method called by {@link com.fasterxml.jackson.databind.deser.BeanDeserializerFactory}
+     * and {@link com.fasterxml.jackson.databind.ser.BeanSerializerFactory} to check
+     * if given unrecognized type (to be (de)serialized as general POJO) is one of
+     * "well-known" types for which there would be a datatype module; and if so,
+     * return appropriate failure message to give to caller.
+     *
+     * @since 2.12
+     */
+    public static String checkUnsupportedType(JavaType type) {
+        final Class<?> rawType = type.getRawClass();
+        String typeName, moduleName;
+
+        if (isJava8TimeClass(rawType)) {
+            typeName =  "Java 8 date/time";
+            moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310";
+        } else if (isJodaTimeClass(rawType)) {
+            typeName =  "Joda date/time";
+            moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-joda";
+        } else {
+            return null;
+        }
+        return String.format("%s type %s not supported by default: add Module \"%s\" to enable handling",
+                typeName, ClassUtil.getTypeDescription(type), moduleName);
+    }
+    
+    /**
+     * @since 2.12
+     */
+    public static boolean isJava8TimeClass(Class<?> rawType) {
+        return rawType.getName().startsWith("java.time.");
+    }
+
+    /**
+     * @since 2.12
+     */
+    public static boolean isJodaTimeClass(Class<?> rawType) {
+        return rawType.getName().startsWith("org.joda.time.");
+    }
 }

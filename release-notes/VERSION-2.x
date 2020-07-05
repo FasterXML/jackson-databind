@@ -37,6 +37,8 @@ Project: jackson-databind
 #2732: Allow `JsonNode` auto-convert into `ArrayNode` if duplicates found (for XML)
 #2733: Allow values of "untyped" auto-convert into `List` if duplicates found (for XML)
 #2751: Add `ValueInstantiator.createContextual(...)
+#2776: Explicitly fail (de)serialization of `org.joda.time.*` types in absence of registered
+  custom (de)serializers
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 

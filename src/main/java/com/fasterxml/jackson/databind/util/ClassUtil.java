@@ -1088,13 +1088,6 @@ public final class ClassUtil
         return rawType.getName().startsWith("java.");
     }
 
-    /**
-     * @since 2.12
-     */
-    public static boolean isJava8TimeClass(Class<?> rawType) {
-        return rawType.getName().startsWith("java.time.");
-    }
-
     /*
     /**********************************************************
     /* Access to various Class definition aspects; possibly

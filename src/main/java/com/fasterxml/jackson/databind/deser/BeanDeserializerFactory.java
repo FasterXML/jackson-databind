@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
 
@@ -200,14 +201,11 @@ public class BeanDeserializerFactory
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        if (ClassUtil.isJava8TimeClass(type.getRawClass())) {
-            // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
-            //   (to let users force 'serialize-as-POJO'?
-            return new UnsupportedTypeDeserializer(type,
-"Java 8 date/time type "+ClassUtil.getTypeDescription(type)
-+" not supported by default: please register module `jackson-datatype-jsr310` to add handling");
-        }
-        return null;
+        // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
+        //   (to let users force 'serialize-as-POJO'? Or not?
+        final String errorMsg = BeanUtil.checkUnsupportedType(type);
+        return (errorMsg == null) ? null
+                : new UnsupportedTypeDeserializer(type, errorMsg);
     }
 
     protected JavaType materializeAbstractType(DeserializationContext ctxt,

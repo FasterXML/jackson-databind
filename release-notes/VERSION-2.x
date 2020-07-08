@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.10.5 (not yet released)
+
+#2787 (partial fix): NPE after add mixin for enum
+ (reported by Denis K)
+
 2.10.4 (03-May-2020)
 
 #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"

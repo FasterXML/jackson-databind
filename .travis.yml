@@ -6,10 +6,10 @@ git:
 
 # Since Jackson 2.10 build requires JDK 8 even if only JDK 7 runtime
 # But we also want to test against newer LTS versions
+# 08-Jul-2020, tatu: can not yet enable JDK14 due to new Record tests failing
 jdk:
   - openjdk8
   - openjdk11
-  - openjdk14
 
 # 2019-11-26, tatu: Let's try caching Maven dependencies
 cache:

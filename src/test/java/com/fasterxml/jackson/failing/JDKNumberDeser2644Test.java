@@ -5,8 +5,13 @@ import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.*;
 
+// Tests for
+//
+// [databind#2644]
+// [databind#2785]
 public class JDKNumberDeser2644Test extends BaseMapTest
 {
     // [databind#2644]
@@ -35,6 +40,16 @@ public class JDKNumberDeser2644Test extends BaseMapTest
         }
     }
 
+    // [databind#2785]
+    static class BigDecimalHolder2785 {
+        public BigDecimal value;
+    }
+
+    static class NestedBigDecimalHolder2785 {
+        @JsonUnwrapped
+        public BigDecimalHolder2785 holder;
+    }
+    
     // [databind#2644]
     public void testBigDecimalSubtypes() throws Exception
     {
@@ -50,7 +65,22 @@ public class JDKNumberDeser2644Test extends BaseMapTest
         );
 
         assertEquals(new BigDecimal("9999999999999999.99"), root.node.getVal());
-
     }
 
+    // [databind#2785]
+   
+    public void testBigDecimalUnwrapped() throws Exception
+    {
+        final ObjectMapper mapper = newJsonMapper();
+        // mapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        final String JSON = "{\"value\": 5.00}";
+
+        // first simple working case:
+        BigDecimalHolder2785 holder = mapper.readValue(JSON, BigDecimalHolder2785.class);
+        assertEquals(new BigDecimal("5.00"), holder.value);
+
+        // and then one that doesn't
+        NestedBigDecimalHolder2785 result = mapper.readValue(JSON, NestedBigDecimalHolder2785.class);
+        assertEquals(new BigDecimal("5.00"), result.holder.value);
+    }
 }

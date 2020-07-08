@@ -1056,6 +1056,10 @@ Endre Stølsvik (stolsvik@github)
   * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
   (2.10.4)
 
+Denis Kostousov (kostousov-ds@github)
+  * Reported #2787 (partial fix): NPE after add mixin for enum
+  (2.10.5)
+
 Máté Rédecsi (rmatesz@github)
   * Reported #953: i-I case convertion problem in Turkish locale with case-insensitive deserialization
   (2.11.0)

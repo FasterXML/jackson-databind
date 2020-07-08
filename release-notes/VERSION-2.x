@@ -620,7 +620,7 @@ Project: jackson-databind
   `TokenBuffer` content
  (reported by Patrick G)
 #1444: Change `ObjectMapper.setSerializationInclusion()` to apply to content inclusion too
-#1450: `SimpleModule.addKeyDeserializer()' should throw `IllegalArgumentException` if `null`
+#1450: `SimpleModule.addKeyDeserializer()` should throw `IllegalArgumentException` if `null`
   reference of `KeyDeserializer` passed
  (suggested by PawelJagus@github)
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`

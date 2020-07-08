@@ -85,7 +85,7 @@ public class AnnotatedFieldCollector
             fields.put(f.getName(), b);
         }
         // And then... any mix-in overrides?
-        if (mixin != null) {
+        if ((fields != null) && (mixin != null)) {
             _addFieldMixIns(mixin, rawType, fields);
         }
         return fields;

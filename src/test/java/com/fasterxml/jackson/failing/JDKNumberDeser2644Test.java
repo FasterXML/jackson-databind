@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
 // Tests for
 //
 // [databind#2644]
-// [databind#2785]
+// [databind#2784]
 public class JDKNumberDeser2644Test extends BaseMapTest
 {
     // [databind#2644]
@@ -40,14 +40,14 @@ public class JDKNumberDeser2644Test extends BaseMapTest
         }
     }
 
-    // [databind#2785]
-    static class BigDecimalHolder2785 {
+    // [databind#2784]
+    static class BigDecimalHolder2784 {
         public BigDecimal value;
     }
 
-    static class NestedBigDecimalHolder2785 {
+    static class NestedBigDecimalHolder2784 {
         @JsonUnwrapped
-        public BigDecimalHolder2785 holder;
+        public BigDecimalHolder2784 holder;
     }
     
     // [databind#2644]
@@ -67,7 +67,7 @@ public class JDKNumberDeser2644Test extends BaseMapTest
         assertEquals(new BigDecimal("9999999999999999.99"), root.node.getVal());
     }
 
-    // [databind#2785]
+    // [databind#2784]
    
     public void testBigDecimalUnwrapped() throws Exception
     {
@@ -76,11 +76,11 @@ public class JDKNumberDeser2644Test extends BaseMapTest
         final String JSON = "{\"value\": 5.00}";
 
         // first simple working case:
-        BigDecimalHolder2785 holder = mapper.readValue(JSON, BigDecimalHolder2785.class);
-        assertEquals(new BigDecimal("5.00"), holder.value);
+//        BigDecimalHolder2784 holder = mapper.readValue(JSON, BigDecimalHolder2784.class);
+//        assertEquals(new BigDecimal("5.00"), holder.value);
 
         // and then one that doesn't
-        NestedBigDecimalHolder2785 result = mapper.readValue(JSON, NestedBigDecimalHolder2785.class);
+        NestedBigDecimalHolder2784 result = mapper.readValue(JSON, NestedBigDecimalHolder2784.class);
         assertEquals(new BigDecimal("5.00"), result.holder.value);
     }
 }

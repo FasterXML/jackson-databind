@@ -29,6 +29,10 @@ public class TokenBuffer
 {
     protected final static int DEFAULT_STREAM_WRITE_FEATURES = StreamWriteFeature.collectDefaults();
 
+    // Should work for now
+    protected final static JacksonFeatureSet<StreamWriteCapability> BOGUS_WRITE_CAPABILITIES
+        = JacksonFeatureSet.fromDefaults(StreamWriteCapability.values());
+
     /*
     /**********************************************************************
     /* Configuration
@@ -669,7 +673,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     //    buffered.
     @Override
     public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
-        return DEFAULT_WRITE_CAPABILITIES;
+        return BOGUS_WRITE_CAPABILITIES;
     }
 
     /*

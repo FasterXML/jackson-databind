@@ -640,7 +640,16 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public boolean canWriteBinaryNatively() {
         return true;
     }
-    
+
+    // 20-May-2020, tatu: This may or may not be enough -- ideally access is
+    //    via `DeserializationContext`, not parser, but if latter is needed
+    //    then we'll need to pass this from parser contents if which were
+    //    buffered.
+    @Override
+    public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
+        return DEFAULT_WRITE_CAPABILITIES;
+    }
+
     /*
     /**********************************************************
     /* JsonGenerator implementation: low-level output handling

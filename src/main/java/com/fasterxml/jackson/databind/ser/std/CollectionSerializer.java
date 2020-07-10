@@ -50,13 +50,13 @@ public class CollectionSerializer
         // note: assumption is 'property' is always passed as null
         this(elemType, staticTyping, vts, valueSerializer);
     }
-    
+
     public CollectionSerializer(CollectionSerializer src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
             Boolean unwrapSingle) {
         super(src, property, vts, valueSerializer, unwrapSingle);
     }
-    
+
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new CollectionSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
@@ -107,7 +107,7 @@ public class CollectionSerializer
         serializeContents(value, g, provider);
         g.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
@@ -123,10 +123,17 @@ public class CollectionSerializer
         PropertySerializerMap serializers = _dynamicSerializers;
         final TypeSerializer typeSer = _valueTypeSerializer;
 
+        final boolean handleCircularReferencesIndividually = provider.isEnabled(
+            SerializationFeature.HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_ARRAYS
+        );
+
         int i = 0;
         try {
             do {
                 Object elem = it.next();
+                if(handleCircularReferencesIndividually) {
+                    provider.resetMemoryCircularReference();
+                }
                 if (elem == null) {
                     provider.defaultSerializeNull(g);
                 } else {

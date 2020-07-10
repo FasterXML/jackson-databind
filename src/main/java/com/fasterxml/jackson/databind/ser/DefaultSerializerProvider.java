@@ -615,6 +615,13 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
         }
 
         @Override
+        public void resetMemoryCircularReference() {
+            if(_seenObjectIds != null) {
+                _seenObjectIds.clear();
+            }
+        }
+
+        @Override
         public DefaultSerializerProvider copy()
         {
             if (getClass() != Impl.class) {

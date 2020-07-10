@@ -425,10 +425,10 @@ public enum SerializationFeature implements ConfigFeature
     /**
      * Feature that determines if serialization avoiding circular dependencies
      * (i.e. remembering visited elements and fully serializing only the first)
-     * should be applied to arrays as a whole, or should treat individually each
-     * item, "wiping the memory" for visited elements in every iteration.
+     * should be applied to collections as a whole, or should treat individually
+     * each item, "wiping the memory" for visited elements in every iteration.
      */
-    HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_ARRAYS(false)
+    HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_COLLECTIONS(false)
     ;
 
     private final boolean _defaultState;

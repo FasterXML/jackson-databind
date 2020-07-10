@@ -1438,4 +1438,11 @@ public abstract class SerializerProvider
         */
         return df;
     }
+
+    /**
+     * This method wipes out from memory
+     */
+    public void resetMemoryCircularReference() {
+        // unimplemented method
+    }
 }

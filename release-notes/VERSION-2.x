@@ -25,6 +25,8 @@ Project: jackson-databind
  (reported by Xiang Z)
 #2283: `JsonProperty.Access.READ_ONLY` fails with collections when a property name is specified
  (reported by Yona A)
+#2644: `BigDecimal` precision not retained for polymorphic deserialization
+ (reported by rost5000@github)
 #2675: Support use of `Void` valued properties (`MapperFeature.ALLOW_VOID_VALUED_PROPERTIES`)
 #2683: Explicitly fail (de)serialization of `java.time.*` types in absence of
   registered custom (de)serializers
@@ -39,6 +41,9 @@ Project: jackson-databind
 #2751: Add `ValueInstantiator.createContextual(...)
 #2776: Explicitly fail (de)serialization of `org.joda.time.*` types in absence of registered
   custom (de)serializers
+#2784: Trailing zeros are stripped when deserializing BigDecimal values inside a
+  @JsonUnwrapped property
+ (reported by mjustin@github)
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 

@@ -19,7 +19,7 @@ public class NumberNodes1770Test extends BaseMapTest
         final JsonNode jsonNode = MAPPER.reader()
             .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
             .readTree("7976931348623157e309");
-        assertTrue(jsonNode.isBigDecimal());
+        assertTrue("Expected DecimalNode, got: "+jsonNode.getClass().getName()+": "+jsonNode, jsonNode.isBigDecimal());
         // the following fails with NumberFormatException, because jsonNode is a DoubleNode with a value of POSITIVE_INFINITY
 //        Assert.assertTrue(jsonNode.decimalValue().compareTo(new BigDecimal("7976931348623157e309")) == 0);
     }

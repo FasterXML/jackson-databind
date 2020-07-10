@@ -124,7 +124,7 @@ public class CollectionSerializer
         final TypeSerializer typeSer = _valueTypeSerializer;
 
         final boolean handleCircularReferencesIndividually = provider.isEnabled(
-            SerializationFeature.HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_ARRAYS
+            SerializationFeature.HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_COLLECTIONS
         );
 
         int i = 0;

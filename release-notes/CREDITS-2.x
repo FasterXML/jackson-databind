@@ -1174,3 +1174,7 @@ David Bidorff (bidorffOL@github)
 Jendrik Johannes (jjohannes@github)
   * Contributed #2726: Add Gradle Module Metadata for version alignment with Gradle 6
   (2.12.0)
+
+Swayam Raina (swayamraina@github)
+  * Contributed #2761: Support multiple names in `JsonSubType.Type`
+  (2.12.0)

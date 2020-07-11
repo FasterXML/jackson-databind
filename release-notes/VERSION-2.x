@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.12.0 (not yet released)
 
+#426: `@JsonIgnoreProperties` does not prevent Exception Conflicting getter/setter
+  definitions for property
+ (reported by gmkll@github)
 #921: Deserialization Not Working Right with Generic Types and Builders
  (reported by Mike G; fix contributed by Ville K)
 #1852: Allow case insensitive deserialization of String value into

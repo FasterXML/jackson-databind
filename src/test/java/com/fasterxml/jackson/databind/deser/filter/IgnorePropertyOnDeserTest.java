@@ -10,6 +10,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class IgnorePropertyOnDeserTest extends BaseMapTest
 {
+    // [databind#426]
+    @JsonIgnoreProperties({ "userId" })
+    static class User {
+        public String firstName;
+        Integer userId; 
+
+        public Integer getUserId() {
+            return userId;
+        }
+
+        public void setUserId(CharSequence id) {
+            userId = Integer.valueOf(id.toString());
+        }
+
+        public void setUserId(Integer v) {
+            this.userId = v;
+        }
+
+        public void setUserId(User u) {
+            // bogus
+        }
+
+        public void setUserId(boolean b) {
+            // bogus
+        }
+    }
+
     // [databind#1217]
     static class IgnoreObject {
         public int x = 1;
@@ -61,6 +88,16 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    // [databind#426]
+    public void testIssue426() throws Exception
+    {
+        final String JSON = aposToQuotes("{'userId': 9, 'firstName': 'Mike' }");
+        User result = MAPPER.readerFor(User.class).readValue(JSON);
+        assertNotNull(result);
+        assertEquals("Mike", result.firstName);
+        assertNull(result.userId);
+    }
 
     // [databind#1217]
     public void testIgnoreOnProperty1217() throws Exception

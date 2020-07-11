@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -327,6 +329,18 @@ public class TestCreators
 
         BooleanConstructorBean2 bean2 = MAPPER.readValue(" true ", BooleanConstructorBean2.class);
         assertTrue(bean2.b);
+    }
+
+    public void testSimpleBigIntegerConstructor() throws Exception
+    {
+        final BigIntegerWrapper result = MAPPER.readValue("17", BigIntegerWrapper.class);
+        assertEquals(new BigInteger("17"), result.i);
+    }
+
+    public void testSimpleBigDecimalConstructor() throws Exception
+    {
+        final BigDecimalWrapper result = MAPPER.readValue("42.5", BigDecimalWrapper.class);
+        assertEquals(new BigDecimal("42.5"), result.d);
     }
 
     public void testSimpleFactory() throws Exception

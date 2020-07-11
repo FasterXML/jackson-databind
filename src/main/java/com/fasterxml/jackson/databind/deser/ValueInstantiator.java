@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.type.LogicalType;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Class that defines simple API implemented by objects that create value
@@ -138,16 +140,29 @@ public abstract class ValueInstantiator
     public boolean canCreateFromLong() { return false; }
 
     /**
+     * Method that can be called to check whether a BigInteger based creator is available
+     * to use (to call {@link #createFromBigInteger}). +
+     */
+    public boolean canCreateFromBigInteger() { return false; }
+
+    /**
      * Method that can be called to check whether a double (double / Double) based
      * creator is available to use (to call {@link #createFromDouble}).
      */
     public boolean canCreateFromDouble() { return false; }
 
     /**
+     * Method that can be called to check whether a BigDecimal based creator is available
+     * to use (to call {@link #createFromBigDecimal}).
+     */
+    public boolean canCreateFromBigDecimal() { return false; }
+
+    /**
      * Method that can be called to check whether a double (boolean / Boolean) based
      * creator is available to use (to call {@link #createFromDouble}).
      */
     public boolean canCreateFromBoolean() { return false; }
+
 
     /**
      * Method that can be called to check whether a default creator (constructor,
@@ -263,7 +278,7 @@ public abstract class ValueInstantiator
      * {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} to safely
      * read the present properties only, and to have some other behavior for the
      * missing properties.
-     * 
+     *
      * @since 2.8
      */
     public Object createFromObjectWith(DeserializationContext ctxt,
@@ -316,10 +331,26 @@ public abstract class ValueInstantiator
                 value);
     }
 
+    public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws IOException
+    {
+        return ctxt.handleMissingInstantiator(getValueClass(),this,null,
+                                              "no BigInteger-argument constructor/factory method to deserialize from Number value (%s)",
+                                              value
+        );
+    }
+
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no double/Double-argument constructor/factory method to deserialize from Number value (%s)",
                 value);
+    }
+
+    public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws IOException
+    {
+        return ctxt.handleMissingInstantiator(getValueClass(),this,null,
+                                              "no BigDecimal/double/Double-argument constructor/factory method to deserialize from Number value (%s)",
+                                              value
+        );
     }
 
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException {
@@ -444,7 +475,7 @@ public abstract class ValueInstantiator
         public Base(JavaType type) {
             _valueType = type.getRawClass();
         }
-        
+
         @Override
         public String getValueTypeDesc() {
             return _valueType.getName();
@@ -468,7 +499,7 @@ public abstract class ValueInstantiator
         private static final long serialVersionUID = 1L;
 
         protected final ValueInstantiator _delegate;
-        
+
         protected Delegating(ValueInstantiator delegate) {
             _delegate = delegate;
         }
@@ -575,8 +606,18 @@ public abstract class ValueInstantiator
         }
 
         @Override
+        public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws IOException {
+            return delegate().createFromBigInteger(ctxt, value);
+        }
+
+        @Override
         public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException {
             return delegate().createFromDouble(ctxt, value);
+        }
+
+        @Override
+        public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws IOException {
+            return delegate().createFromBigDecimal(ctxt, value);
         }
 
         @Override

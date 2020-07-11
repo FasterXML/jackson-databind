@@ -676,7 +676,8 @@ public class POJOPropertyBuilder
             }
             return result;
         }
-        AnnotatedMember m = getPrimaryMember();
+        // 11-Jul-2020, tatu: [databind#426] need to avoid triggering check at this point
+        AnnotatedMember m = getPrimaryMemberUnchecked();
         result = (m == null) ? null : _annotationIntrospector.findReferenceType(_config, m);
         _referenceInfo = (result == null) ? NOT_REFEFERENCE_PROP : result;
         return result;
@@ -684,7 +685,7 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean isTypeId() {
-        AnnotatedMember m = getPrimaryMember();
+        AnnotatedMember m = getPrimaryMemberUnchecked();
         if (m != null) {
             Boolean b = _annotationIntrospector.isTypeId(_config, m);
             if (b != null) {
@@ -696,7 +697,7 @@ public class POJOPropertyBuilder
 
     @Override
     public ObjectIdInfo findObjectIdInfo() {
-        AnnotatedMember m = getPrimaryMember();
+        AnnotatedMember m = getPrimaryMemberUnchecked();
         if (m != null) {
             ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(_config, m);
             if (info != null) {

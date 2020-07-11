@@ -99,7 +99,7 @@ public class JDKNumberDeserTest extends BaseMapTest
      */
 
     final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testNaN() throws Exception
     {
         Float result = MAPPER.readValue(" \"NaN\"", Float.class);

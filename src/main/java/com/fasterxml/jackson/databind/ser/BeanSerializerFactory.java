@@ -535,7 +535,7 @@ public class BeanSerializerFactory
     {
         return FilteredBeanPropertyWriter.constructViewBased(writer, inViews);
     }
-    
+
     protected PropertyBuilder constructPropertyBuilder(SerializationConfig config,
             BeanDescription beanDesc)
     {
@@ -545,7 +545,7 @@ public class BeanSerializerFactory
     protected BeanSerializerBuilder constructBeanSerializerBuilder(BeanDescription beanDesc) {
         return new BeanSerializerBuilder(beanDesc);
     }
-    
+
     /*
     /**********************************************************
     /* Overridable non-public introspection methods

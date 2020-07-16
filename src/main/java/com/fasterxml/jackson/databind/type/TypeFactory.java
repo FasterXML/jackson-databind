@@ -698,6 +698,14 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         return _fromAny(null, type, EMPTY_BINDINGS);
     }
 
+    /**
+     * Method that you very likely should NOT be using -- you need to know a lot
+     * about internal details of {@link TypeBindings} and even then it will probably
+     * not do what you want.
+     * Usually you would instead want to call one of {@code constructXxxType()}
+     * methods (where {@code Xxx} would be "Array", "Collection[Like]", "Map[Like]"
+     * or "Parametric").
+     */
     public JavaType constructType(Type type, TypeBindings bindings) {
         return _fromAny(null, type, bindings);
     }

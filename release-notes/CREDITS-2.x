@@ -1143,6 +1143,10 @@ Joshua Shannon (retrodaredevil@github)
     ObjectMapper (2.11.1)
   (2.11.2)
 
+Daniel Hrabovcak (TheSpiritXIII@github)
+  * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
+  (2.11.2)
+
 Mike Gilbode (gilbode@github)
   * Reported #792: Deserialization Not Working Right with Generic Types and Builders
   (2.12.0)

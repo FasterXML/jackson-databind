@@ -1140,3 +1140,7 @@ Joshua Shannon (retrodaredevil@github)
   * Reported, contributed fix for #2785: Polymorphic subtypes not registering on copied
     ObjectMapper (2.11.1)
   (2.11.2)
+
+Daniel Hrabovcak (TheSpiritXIII@github)
+  * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
+  (2.11.2)

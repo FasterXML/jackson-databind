@@ -699,9 +699,15 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     public JavaType constructType(Type type, TypeBindings bindings) {
+        // 15-Jun-2020, tatu: To resolve (parts of) [databind#2796], need to
+        //    call _fromClass() directly if we get `Class` argument
+        if (type instanceof Class<?>) {
+            JavaType resultType = _fromClass(null, (Class<?>) type, bindings);
+            return _applyModifiers(type, resultType);
+        }
         return _fromAny(null, type, bindings);
     }
-    
+
     public JavaType constructType(TypeReference<?> typeRef)
     {
         // 19-Oct-2015, tatu: Simpler variant like so should work
@@ -1274,51 +1280,58 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * as Java typing returned from <code>getGenericXxx</code> methods
      * (usually for a return or argument type).
      */
-    protected JavaType _fromAny(ClassStack context, Type type, TypeBindings bindings)
+    protected JavaType _fromAny(ClassStack context, Type srcType, TypeBindings bindings)
     {
         JavaType resultType;
 
         // simple class?
-        if (type instanceof Class<?>) {
+        if (srcType instanceof Class<?>) {
             // Important: remove possible bindings since this is type-erased thingy
-            resultType = _fromClass(context, (Class<?>) type, EMPTY_BINDINGS);
+            resultType = _fromClass(context, (Class<?>) srcType, EMPTY_BINDINGS);
         }
         // But if not, need to start resolving.
-        else if (type instanceof ParameterizedType) {
-            resultType = _fromParamType(context, (ParameterizedType) type, bindings);
+        else if (srcType instanceof ParameterizedType) {
+            resultType = _fromParamType(context, (ParameterizedType) srcType, bindings);
         }
-        else if (type instanceof JavaType) { // [databind#116]
+        else if (srcType instanceof JavaType) { // [databind#116]
             // no need to modify further if we already had JavaType
-            return (JavaType) type;
+            return (JavaType) srcType;
         }
-        else if (type instanceof GenericArrayType) {
-            resultType = _fromArrayType(context, (GenericArrayType) type, bindings);
+        else if (srcType instanceof GenericArrayType) {
+            resultType = _fromArrayType(context, (GenericArrayType) srcType, bindings);
         }
-        else if (type instanceof TypeVariable<?>) {
-            resultType = _fromVariable(context, (TypeVariable<?>) type, bindings);
+        else if (srcType instanceof TypeVariable<?>) {
+            resultType = _fromVariable(context, (TypeVariable<?>) srcType, bindings);
         }
-        else if (type instanceof WildcardType) {
-            resultType = _fromWildcard(context, (WildcardType) type, bindings);
+        else if (srcType instanceof WildcardType) {
+            resultType = _fromWildcard(context, (WildcardType) srcType, bindings);
         } else {
             // sanity check
-            throw new IllegalArgumentException("Unrecognized Type: "+((type == null) ? "[null]" : type.toString()));
+            throw new IllegalArgumentException("Unrecognized Type: "+((srcType == null) ? "[null]" : srcType.toString()));
         }
         // 21-Feb-2016, nateB/tatu: as per [databind#1129] (applied for 2.7.2),
         //   we do need to let all kinds of types to be refined, esp. for Scala module.
-        if (_modifiers != null) {
-            TypeBindings b = resultType.getBindings();
-            if (b == null) {
-                b = EMPTY_BINDINGS;
+        return _applyModifiers(srcType, resultType);
+    }
+
+    protected JavaType _applyModifiers(Type srcType, JavaType resolvedType)
+    {
+        if (_modifiers == null) {
+            return resolvedType;
+        }
+        JavaType resultType = resolvedType;
+        TypeBindings b = resultType.getBindings();
+        if (b == null) {
+            b = EMPTY_BINDINGS;
+        }
+        for (TypeModifier mod : _modifiers) {
+            JavaType t = mod.modifyType(resultType, srcType, b, this);
+            if (t == null) {
+                throw new IllegalStateException(String.format(
+                        "TypeModifier %s (of type %s) return null for type %s",
+                        mod, mod.getClass().getName(), resultType));
             }
-            for (TypeModifier mod : _modifiers) {
-                JavaType t = mod.modifyType(resultType, type, b, this);
-                if (t == null) {
-                    throw new IllegalStateException(String.format(
-                            "TypeModifier %s (of type %s) return null for type %s",
-                            mod, mod.getClass().getName(), resultType));
-                }
-                resultType = t;
-            }
+            resultType = t;
         }
         return resultType;
     }

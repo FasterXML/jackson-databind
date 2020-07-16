@@ -278,7 +278,7 @@ public class TestTypeFactory
     public void testCollections()
     {
         // Ok, first: let's test what happens when we pass 'raw' Collection:
-        TypeFactory tf = TypeFactory.defaultInstance();
+        final TypeFactory tf = TypeFactory.defaultInstance();
         JavaType t = tf.constructType(ArrayList.class);
         assertEquals(CollectionType.class, t.getClass());
         assertSame(ArrayList.class, t.getRawClass());
@@ -299,7 +299,19 @@ public class TestTypeFactory
         assertEquals(CollectionType.class, t.getClass());
         assertSame(String.class, ((CollectionType) t).getContentType().getRawClass());
     }
-    
+
+    // [databind#2796]
+    public void testCollectionsWithBindings()
+    {
+        final TypeFactory tf = TypeFactory.defaultInstance();
+        TypeBindings tb = TypeBindings.create(Set.class, new JavaType[] {
+                tf.constructType(String.class) });
+        JavaType t = tf.constructType(ArrayList.class, tb);
+        assertEquals(CollectionType.class, t.getClass());
+        assertSame(ArrayList.class, t.getRawClass());
+        assertSame(String.class, ((CollectionType) t).getContentType().getRawClass());
+    }
+
     // since 2.7
     public void testCollectionTypesRefined()
     {

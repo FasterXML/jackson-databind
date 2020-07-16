@@ -10,6 +10,8 @@ Project: jackson-databind
   `createGenerator()`
 #2785: Polymorphic subtypes not registering on copied ObjectMapper (2.11.1)
  (reported, fix contributed by Joshua S)
+#2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
+ (reported by Daniel H)
 
 2.11.1 (25-Jun-2020)
 

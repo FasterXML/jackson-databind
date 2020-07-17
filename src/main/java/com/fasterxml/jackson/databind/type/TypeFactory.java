@@ -888,8 +888,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * Method for constructing a {@link MapType} instance
      *<p>
-     * NOTE: type modifiers are NOT called on constructed type itself; but are called
-     * for contained types.
+     * NOTE: type modifiers are NOT called on constructed type itself.
      */
     public MapType constructMapType(Class<? extends Map> mapClass, JavaType keyType, JavaType valueType) {
         TypeBindings bindings = TypeBindings.createIfNeeded(mapClass, new JavaType[] { keyType, valueType });
@@ -929,8 +928,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * Method for constructing a {@link MapLikeType} instance
      *<p>
-     * NOTE: type modifiers are NOT called on constructed type itself; but are called
-     * for contained types.
+     * NOTE: type modifiers are NOT called on constructed type itself.
      */
     public MapLikeType constructMapLikeType(Class<?> mapClass, JavaType keyType, JavaType valueType) {
         // 19-Oct-2015, tatu: Allow case of no-type-variables, since it seems likely to be
@@ -946,7 +944,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * Method for constructing a type instance with specified parameterization.
      *<p>
-     * NOTE: was briefly deprecated for 2.6.
+     * NOTE: type modifiers are NOT called on constructed type itself.
      */
     public JavaType constructSimpleType(Class<?> rawType, JavaType[] parameterTypes) {
         return _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
@@ -967,6 +965,11 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     } 
 
     /**
+     * Method for constructing a {@link ReferenceType} instance with given type parameter
+     * (type MUST take one and only one type parameter)
+     *<p>
+     * NOTE: type modifiers are NOT called on constructed type itself.
+     *
      * @since 2.6
      */
     public JavaType constructReferenceType(Class<?> rawType, JavaType referredType)
@@ -1049,12 +1052,12 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * In most cases distinction does not matter, but there are types where it does;
      * one such example is parameterization of types that implement {@link java.util.Iterator}.
      *<p>
-     * NOTE: type modifiers are NOT called on constructed type.
+     * NOTE: since 2.11.2 {@link TypeModifier}s ARE called on result (fix for [databind#2796])
      *
      * @param rawType Actual type-erased type
      * @param parameterTypes Type parameters to apply
      *
-     * @since 2.5 NOTE: was briefly deprecated for 2.6
+     * @return Fully resolved type for given base type and type parameters
      */
     public JavaType constructParametricType(Class<?> rawType, JavaType... parameterTypes)
     {
@@ -1081,7 +1084,10 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     public JavaType constructParametricType(Class<?> rawType, TypeBindings parameterTypes)
     {
-        return _fromClass(null, rawType, parameterTypes);
+        // 16-Jul-2020, tatu: Since we do not call `_fromAny()`, need to make
+        //   sure `TypeModifier`s are applied:
+        JavaType resultType =  _fromClass(null, rawType, parameterTypes);
+        return _applyModifiers(rawType, resultType);
     }
 
     /**

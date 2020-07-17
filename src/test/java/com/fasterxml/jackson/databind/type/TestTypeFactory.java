@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestTypeFactory
     extends BaseMapTest
-{    
+{
     /*
     /**********************************************************
     /* Helper types

@@ -1049,7 +1049,10 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     public JavaType constructParametricType(Class<?> rawType, JavaType... parameterTypes)
     {
-        return _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
+        // 16-Jul-2020, tatu: Since we do not call `_fromAny()`, need to make
+        //   sure `TypeModifier`s are applied:
+        JavaType resultType =  _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
+        return _applyModifiers(rawType, resultType);
     }
 
     /**

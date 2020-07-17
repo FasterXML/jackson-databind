@@ -42,27 +42,26 @@ public class TestAutoDetect
     /*********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     public void testDefaults() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // by default, only public fields and getters are detected
         assertEquals("{\"p1\":\"public\"}",
-                     m.writeValueAsString(new FieldBean()));
+                MAPPER.writeValueAsString(new FieldBean()));
         assertEquals("{\"a\":\"a\"}",
-                     m.writeValueAsString(new MethodBean()));
+                MAPPER.writeValueAsString(new MethodBean()));
     }
 
     public void testProtectedViaAnnotations() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-
-        Map<String,Object> result = writeAndMap(m, new ProtFieldBean());
+        Map<String,Object> result = writeAndMap(MAPPER, new ProtFieldBean());
         assertEquals(2, result.size());
         assertEquals("public", result.get("p1"));
         assertEquals("protected", result.get("p2"));
         assertNull(result.get("p3"));
 
-        result = writeAndMap(m, new ProtMethodBean());
+        result = writeAndMap(MAPPER, new ProtMethodBean());
         assertEquals(2, result.size());
         assertEquals("a", result.get("a"));
         assertEquals("b", result.get("b"));
@@ -93,7 +92,6 @@ public class TestAutoDetect
         assertEquals("c", result.get("c"));
     }
 
-    // [JACKSON-621]
     public void testBasicSetup() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -108,7 +106,6 @@ public class TestAutoDetect
         assertEquals("private", result.get("p3"));
     }
 
-    // [JACKSON-595]
     public void testMapperShortcutMethods() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -120,5 +117,4 @@ public class TestAutoDetect
         assertEquals("protected", result.get("p2"));
         assertEquals("private", result.get("p3"));
     }
-
 }

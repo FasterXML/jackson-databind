@@ -58,6 +58,8 @@ Project: jackson-databind
   `createGenerator()`
 #2785: Polymorphic subtypes not registering on copied ObjectMapper (2.11.1)
  (reported, fix contributed by Joshua S)
+#2789: Failure to read AnnotatedField value in Jackson 2.11
+ (reported by isaki@github)
 #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
  (reported by Daniel H)
 

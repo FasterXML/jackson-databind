@@ -197,6 +197,9 @@ public class SubTypeValidator
         // [databind#2764]: org.jsecurity:
         s.add("org.jsecurity.realm.jndi.JndiRealmFactory");
 
+        // [databind#2798]: com.pastdev.httpcomponents:
+        s.add("com.pastdev.httpcomponents.configuration.JndiConfiguration");
+        
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

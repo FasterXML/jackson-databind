@@ -8,7 +8,7 @@ git:
 # and since 2.10, will require jdk8 for build
 jdk:
   - openjdk8
-  - oraclejdk11
+  - openjdk11
 
 # 2019-11-26, tatu: Let's try caching Maven dependencies
 cache:

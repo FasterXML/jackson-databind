@@ -28,7 +28,20 @@ public interface TypeResolutionContext {
 
         @Override
         public JavaType resolveType(Type type) {
+            // 15-Jun-2020, tatu: As a consequence of [databind#2796], need to
+            //    AVOID passing bindings for raw, type-erased cases, as otherwise
+            //    we seem to get odd "generic Long" cases (for Mr Bean module at least)
+            if (type instanceof Class<?>) {
+                return _typeFactory.constructType(type);
+            }
             return _typeFactory.constructType(type, _bindings);
         }
+
+        /*// debugging
+        @Override
+        public String toString() {
+            return "[TRC.Basic, bindings: "+_bindings+"]";
+        }
+        */
     }
 }

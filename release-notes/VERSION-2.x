@@ -154,7 +154,7 @@ Project: jackson-databind
   (ObjectMapper.readerForListOf())
 - Add `SerializerProvider.findContentValueSerializer()` methods
 
-2.10.5 (not yet released)
+2.10.5 (21-Jul-2020)
 
 #2787 (partial fix): NPE after add mixin for enum
  (reported by Denis K)

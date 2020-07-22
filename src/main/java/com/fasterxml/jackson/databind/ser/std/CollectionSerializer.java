@@ -94,22 +94,34 @@ public class CollectionSerializer
     @Override
     public final void serialize(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
+      serialize(value, g, provider, false);
+    }
+
+  @Override
+  public final void serialize(Collection<?> value, JsonGenerator g, SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
+    {
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, provider);
+                serializeContents(value, g, provider, handleCircularReferencesIndividually);
                 return;
             }
         }
         g.writeStartArray(len);
-        serializeContents(value, g, provider);
+        serializeContents(value, g, provider, handleCircularReferencesIndividually);
         g.writeEndArray();
     }
 
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
+    {
+      serializeContents(value, g, provider, false);
+    }
+
+  @Override
+  public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
     {
         g.setCurrentValue(value);
         if (_elementSerializer != null) {
@@ -122,10 +134,6 @@ public class CollectionSerializer
         }
         PropertySerializerMap serializers = _dynamicSerializers;
         final TypeSerializer typeSer = _valueTypeSerializer;
-
-        final boolean handleCircularReferencesIndividually = provider.isEnabled(
-            SerializationFeature.HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_COLLECTIONS
-        );
 
         int i = 0;
         try {

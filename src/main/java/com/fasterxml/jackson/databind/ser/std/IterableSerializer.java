@@ -62,22 +62,36 @@ public class IterableSerializer
     public final void serialize(Iterable<?> value, JsonGenerator gen,
         SerializerProvider provider)throws IOException
     {
+        serialize(value, gen, provider, false);
+    }
+
+    @Override
+    public final void serialize(Iterable<?> value, JsonGenerator gen,
+        SerializerProvider provider, boolean handleCircularReferencesIndividually)throws IOException
+    {
         if (((_unwrapSingle == null) &&
                 provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
             if (hasSingleElement(value)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, gen, provider, handleCircularReferencesIndividually);
                 return;
             }
         }
         gen.writeStartArray();
-        serializeContents(value, gen, provider);
+        serializeContents(value, gen, provider, handleCircularReferencesIndividually);
         gen.writeEndArray();
     }
     
     @Override
     public void serializeContents(Iterable<?> value, JsonGenerator jgen,
         SerializerProvider provider) throws IOException
+    {
+        serializeContents(value, jgen, provider, false);
+    }
+
+    @Override
+    public void serializeContents(Iterable<?> value, JsonGenerator jgen,
+        SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
@@ -87,6 +101,9 @@ public class IterableSerializer
             
             do {
                 Object elem = it.next();
+                if(handleCircularReferencesIndividually) {
+                    provider.resetMemoryCircularReference();
+                }
                 if (elem == null) {
                     provider.defaultSerializeNull(jgen);
                     continue;

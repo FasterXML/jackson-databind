@@ -52,6 +52,13 @@ public class IteratorSerializer
     public final void serialize(Iterator<?> value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
+        serialize(value, gen, provider, false);
+    }
+
+    @Override
+    public final void serialize(Iterator<?> value, JsonGenerator gen,
+            SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
+    {
         // 02-Dec-2016, tatu: As per comments above, can't determine single element so...
         /*
         if (((_unwrapSingle == null) &&
@@ -64,13 +71,20 @@ public class IteratorSerializer
         }
         */
         gen.writeStartArray();
-        serializeContents(value, gen, provider);
+        serializeContents(value, gen, provider, handleCircularReferencesIndividually);
         gen.writeEndArray();
     }
     
     @Override
     public void serializeContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
+    {
+        serializeContents(value, g, provider, false);
+    }
+
+    @Override
+    public void serializeContents(Iterator<?> value, JsonGenerator g,
+            SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
     {
         if (!value.hasNext()) {
             return;
@@ -83,6 +97,9 @@ public class IteratorSerializer
         final TypeSerializer typeSer = _valueTypeSerializer;
         do {
             Object elem = value.next();
+            if(handleCircularReferencesIndividually) {
+                provider.resetMemoryCircularReference();
+            }
             if (elem == null) {
                 provider.defaultSerializeNull(g);
             } else if (typeSer == null) {

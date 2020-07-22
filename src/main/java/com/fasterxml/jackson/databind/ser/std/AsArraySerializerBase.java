@@ -239,7 +239,7 @@ public abstract class AsArraySerializerBase<T>
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
-        serialize(value, gen, provider);
+        serialize(value, gen, provider, false);
     }
 
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException

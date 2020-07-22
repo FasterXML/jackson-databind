@@ -1,10 +1,11 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
 
-import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Simple unit tests to verify that it is possible to handle
@@ -21,17 +22,27 @@ public class TestCollectionCyclicReference
     /**********************************************************
      */
 
-    static class Bean
-    {
+
+    @JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class
+        , property = "id"
+        , scope = Bean.class
+    )
+    static class Bean {
+        final int _id;
         Bean _next;
         final String _name;
 
-        public Bean(Bean next, String name) {
+        public Bean(int id, Bean next, String name) {
+            _id = id;
             _next = next;
             _name = name;
         }
 
+        public int getId() { return _id; }
+
         public Bean getNext() { return _next; }
+
         public String getName() { return _name; }
 
         public void assignNext(Bean n) { _next = n; }
@@ -43,37 +54,30 @@ public class TestCollectionCyclicReference
     /**********************************************************
      */
 
-    public void testLinked() throws Exception
-    {
-        Bean last = new Bean(null, "last");
-        Bean first = new Bean(last, "first");
-        Map<String,Object> map = writeAndMap(new ObjectMapper(), first);
+    public void testLinked() throws Exception {
+        Bean sameChild = new Bean(3, null, "sameChild");
+        Bean first = new Bean(1, sameChild, "first");
+        Bean second = new Bean(2, sameChild, "second");
+        sameChild.assignNext(first);
 
-        assertEquals(2, map.size());
-        assertEquals("first", map.get("name"));
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_COLLECTIONS);
+        final String result = mapper.writeValueAsString(Arrays.asList(first, second));
 
-        @SuppressWarnings("unchecked")
-        Map<String,Object> map2 = (Map<String,Object>) map.get("next");
-        assertNotNull(map2);
-        assertEquals(2, map2.size());
-        assertEquals("last", map2.get("name"));
-        assertNull(map2.get("next"));
-    }
+        final StringBuilder expected = new StringBuilder();
+        expected.append("[");
+        expected.append("{\"id\":1,\"name\":\"first\",\"next\":");
+        expected.append(
+            "{\"id\":3,\"name\":\"sameChild\",\"next\":1}}"); // 1 has been visited this iteration => next is a reference
+        expected.append(",{\"id\":2,\"name\":\"second\",\"next\":");
+        expected.append(
+            "{\"id\":3,\"name\":\"sameChild\",\"next\":"); // 1 has noy been visited this iteration => next is fully serialized
+        expected
+            .append("{\"id\":1,\"name\":\"first\",\"next\":3}"); // 3 has been visited this iteration => next is a reference
+        expected.append("}");
+        expected.append("}");
+        expected.append("]");
 
-    /**
-     * Test for verifying that [JACKSON-158] works as expected
-     */
-    public void testSelfReference() throws Exception
-    {
-        Bean selfRef = new Bean(null, "self-refs");
-        Bean first = new Bean(selfRef, "first");
-        selfRef.assignNext(selfRef);
-        ObjectMapper m = new ObjectMapper();
-        Bean[] wrapper = new Bean[] { first };
-        try {
-            writeAndMap(m, wrapper);
-        } catch (JsonMappingException e) {
-            verifyException(e, "Direct self-reference leading to cycle");
-        }
+        assertEquals(result, expected.toString());
     }
 }

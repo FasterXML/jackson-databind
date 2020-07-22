@@ -238,15 +238,20 @@ public abstract class AsArraySerializerBase<T>
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
+        serialize(value, gen, provider);
+    }
+
+    public void serialize(T value, JsonGenerator gen, SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
+    {
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(value)) {
-            serializeContents(value, gen, provider);
+            serializeContents(value, gen, provider, handleCircularReferencesIndividually);
             return;
         }
         gen.writeStartArray();
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);
-        serializeContents(value, gen, provider);
+        serializeContents(value, gen, provider, handleCircularReferencesIndividually);
         gen.writeEndArray();
     }
 
@@ -262,7 +267,11 @@ public abstract class AsArraySerializerBase<T>
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
-    protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
+    protected void serializeContents(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        serializeContents(value, gen, provider, false);
+    }
+
+    protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider, boolean handleCircularReferencesIndividually)
         throws IOException;
 
     @SuppressWarnings("deprecation")

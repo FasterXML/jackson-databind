@@ -66,22 +66,36 @@ public final class IndexedListSerializer
     public final void serialize(List<?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
+        serialize(value, gen, provider, false);
+    }
+
+    @Override
+    public final void serialize(List<?> value, JsonGenerator gen, SerializerProvider provider, boolean handleCircularReferencesIndividually)
+        throws IOException
+    {
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, gen, provider, handleCircularReferencesIndividually);
                 return;
             }
         }
         gen.writeStartArray(len);
-        serializeContents(value, gen, provider);
+        serializeContents(value, gen, provider, handleCircularReferencesIndividually);
         gen.writeEndArray();
     }
     
     @Override
     public void serializeContents(List<?> value, JsonGenerator g, SerializerProvider provider)
+        throws IOException
+    {
+        serializeContents(value, g, provider, false);
+    }
+
+    @Override
+    public void serializeContents(List<?> value, JsonGenerator g, SerializerProvider provider, boolean handleCircularReferencesIndividually)
         throws IOException
     {
         if (_elementSerializer != null) {
@@ -101,6 +115,9 @@ public final class IndexedListSerializer
             PropertySerializerMap serializers = _dynamicSerializers;
             for (; i < len; ++i) {
                 Object elem = value.get(i);
+                if(handleCircularReferencesIndividually) {
+                    provider.resetMemoryCircularReference();
+                }
                 if (elem == null) {
                     provider.defaultSerializeNull(g);
                 } else {

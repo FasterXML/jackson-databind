@@ -97,7 +97,8 @@ public class CollectionSerializer
       serialize(value, g, provider, false);
     }
 
-    public final void serialize(Collection<?> value, JsonGenerator g, SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
+  @Override
+  public final void serialize(Collection<?> value, JsonGenerator g, SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
     {
         final int len = value.size();
         if (len == 1) {
@@ -119,7 +120,8 @@ public class CollectionSerializer
       serializeContents(value, g, provider, false);
     }
 
-    public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
+  @Override
+  public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider, boolean handleCircularReferencesIndividually) throws IOException
     {
         g.setCurrentValue(value);
         if (_elementSerializer != null) {

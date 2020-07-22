@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
+import com.fasterxml.jackson.databind.ser.std.AsArraySerializerBase;
 import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -478,8 +479,8 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         throws IOException
     {
         try {
-            if(ser instanceof CollectionSerializer){
-                ((CollectionSerializer)ser).serialize((Collection<?>) value, gen, this, isEnabled(
+            if(ser instanceof AsArraySerializerBase){
+                ((AsArraySerializerBase)ser).serialize(value, gen, this, isEnabled(
                     SerializationFeature.HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_COLLECTIONS
                 ));
             } else {

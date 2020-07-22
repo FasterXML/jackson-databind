@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
+import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -473,11 +474,17 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     }
 
     private final void _serialize(JsonGenerator gen, Object value,
-            JsonSerializer<Object> ser)
+            JsonSerializer ser)
         throws IOException
     {
         try {
-            ser.serialize(value, gen, this);
+            if(ser instanceof CollectionSerializer){
+                ((CollectionSerializer)ser).serialize((Collection<?>) value, gen, this, isEnabled(
+                    SerializationFeature.HANDLE_CIRCULAR_REFERENCE_INDIVIDUALLY_FOR_COLLECTIONS
+                ));
+            } else {
+                ser.serialize(value, gen, this);
+            }
         } catch (Exception e) {
             throw _wrapAsIOE(gen, e);
         }

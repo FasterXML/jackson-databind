@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -912,6 +914,16 @@ nonAnnotatedParamIndex, ctor);
                 creators.addBooleanCreator(ctor, isCreator);
             }
             return true;
+        }
+        if (type == BigInteger.class) {
+            if (isCreator || isVisible) {
+                creators.addBigIntegerCreator(ctor, isCreator);
+            }
+        }
+        if (type == BigDecimal.class) {
+            if (isCreator || isVisible) {
+                creators.addBigDecimalCreator(ctor, isCreator);
+            }
         }
         // Delegating Creator ok iff it has @JsonCreator (etc)
         if (isCreator) {

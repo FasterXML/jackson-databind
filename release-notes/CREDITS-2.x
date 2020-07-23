@@ -1165,6 +1165,14 @@ Xiang Zhang (zhangyangyu@github)
     Collections
   (2.12.0)
 
+David Nelson (eatdrinksleepcode@github)
+  * Requested #2215: Support `BigInteger` and `BigDecimal` creators in `StdValueInstantiator`
+  (2.12.0)
+
+Tiago Martins (upsidedownsmile@github)
+  * Contributed #2215: Support `BigInteger` and `BigDecimal` creators in `StdValueInstantiator`
+  (2.12.0)
+
 Yona Appletree (Yona-Appletree@github)
   * Reported #2283: `JsonProperty.Access.READ_ONLY` fails with collections when a
     property name is specified

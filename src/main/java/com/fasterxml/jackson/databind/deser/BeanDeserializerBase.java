@@ -1390,15 +1390,19 @@ public abstract class BeanDeserializerBase
             }
             return _valueInstantiator.createFromLong(ctxt, p.getLongValue());
         }
-        // actually, could also be BigInteger, so:
-        if (delegateDeser != null) {
-            Object bean = _valueInstantiator.createUsingDelegate(ctxt,
-                    delegateDeser.deserialize(p, ctxt));
-            if (_injectables != null) {
-                injectValues(ctxt, bean);
+        if (nt == NumberType.BIG_INTEGER) {
+            if (delegateDeser != null) {
+                if (!_valueInstantiator.canCreateFromBigInteger()) {
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, delegateDeser.deserialize(p, ctxt));
+                    if (_injectables != null) {
+                        injectValues(ctxt, bean);
+                    }
+                    return bean;
+                }
             }
-            return bean;
+            return _valueInstantiator.createFromBigInteger(ctxt, p.getBigIntegerValue());
         }
+
         return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                 "no suitable creator method found to deserialize from Number value (%s)",
                 p.getNumberValue());
@@ -1449,12 +1453,22 @@ public abstract class BeanDeserializerBase
             }
             return _valueInstantiator.createFromDouble(ctxt, p.getDoubleValue());
         }
-        // actually, could also be BigDecimal, so:
-        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
-        if (delegateDeser != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt,
-                    delegateDeser.deserialize(p, ctxt));
+
+        if (t == NumberType.BIG_DECIMAL) {
+            JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+            if (delegateDeser != null) {
+                if (!_valueInstantiator.canCreateFromBigDecimal()) {
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, delegateDeser.deserialize(p, ctxt));
+                    if (_injectables != null) {
+                        injectValues(ctxt, bean);
+                    }
+                    return bean;
+                }
+            }
+
+            return _valueInstantiator.createFromBigDecimal(ctxt, p.getDecimalValue());
         }
+
         return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                 "no suitable creator method found to deserialize from Number value (%s)",
                 p.getNumberValue());

@@ -21,15 +21,17 @@ public class CreatorCollector {
     protected final static int C_STRING = 1;
     protected final static int C_INT = 2;
     protected final static int C_LONG = 3;
-    protected final static int C_DOUBLE = 4;
-    protected final static int C_BOOLEAN = 5;
-    protected final static int C_DELEGATE = 6;
-    protected final static int C_PROPS = 7;
-    protected final static int C_ARRAY_DELEGATE = 8;
+    protected final static int C_BIG_INTEGER = 4;
+    protected final static int C_DOUBLE = 5;
+    protected final static int C_BIG_DECIMAL = 6;
+    protected final static int C_BOOLEAN = 7;
+    protected final static int C_DELEGATE = 8;
+    protected final static int C_PROPS = 9;
+    protected final static int C_ARRAY_DELEGATE = 10;
 
     protected final static String[] TYPE_DESCS = new String[] { "default",
-            "from-String", "from-int", "from-long", "from-double",
-            "from-boolean", "delegate", "property-based", "array-delegate"
+            "from-String", "from-int", "from-long", "from-big-integer", "from-double",
+            "from-big-decimal", "from-boolean", "delegate", "property-based", "array-delegate"
     };
 
     // Type of bean being created
@@ -47,7 +49,7 @@ public class CreatorCollector {
      * 
      * @since 2.5
      */
-    final protected AnnotatedWithParams[] _creators = new AnnotatedWithParams[9];
+    final protected AnnotatedWithParams[] _creators = new AnnotatedWithParams[11];
 
     /**
      * Bitmask of creators that were explicitly marked as creators; false for
@@ -99,7 +101,9 @@ public class CreatorCollector {
         inst.configureFromStringCreator(_creators[C_STRING]);
         inst.configureFromIntCreator(_creators[C_INT]);
         inst.configureFromLongCreator(_creators[C_LONG]);
+        inst.configureFromBigIntegerCreator(_creators[C_BIG_INTEGER]);
         inst.configureFromDoubleCreator(_creators[C_DOUBLE]);
+        inst.configureFromBigDecimalCreator(_creators[C_BIG_DECIMAL]);
         inst.configureFromBooleanCreator(_creators[C_BOOLEAN]);
         return inst;
     }
@@ -136,8 +140,16 @@ public class CreatorCollector {
         verifyNonDup(creator, C_LONG, explicit);
     }
 
+    public void addBigIntegerCreator(AnnotatedWithParams creator, boolean explicit) {
+        verifyNonDup(creator, C_BIG_INTEGER, explicit);
+    }
+
     public void addDoubleCreator(AnnotatedWithParams creator, boolean explicit) {
         verifyNonDup(creator, C_DOUBLE, explicit);
+    }
+
+    public void addBigDecimalCreator(AnnotatedWithParams creator, boolean explicit) {
+        verifyNonDup(creator, C_BIG_DECIMAL, explicit);
     }
 
     public void addBooleanCreator(AnnotatedWithParams creator, boolean explicit) {

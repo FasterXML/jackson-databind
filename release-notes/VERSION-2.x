@@ -26,6 +26,8 @@ Project: jackson-databind
 #2113: Add `CoercionConfig[s]` mechanism for configuring allowed coercions
 #2118: `JsonProperty.Access.READ_ONLY` does not work with "getter-as-setter" `Collection`s
  (reported by Xiang Z)
+#2215: Support `BigInteger` and `BigDecimal` creators in `StdValueInstantiator`
+ (requested by David N, implementation contributed by Tiago M)
 #2283: `JsonProperty.Access.READ_ONLY` fails with collections when a property name is specified
  (reported by Yona A)
 #2644: `BigDecimal` precision not retained for polymorphic deserialization

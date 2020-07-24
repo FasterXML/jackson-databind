@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-
 import java.util.Collection;
-import java.util.Set;
 
+/**
+ * @since 2.12
+ */
 public class IgnorePropertiesUtil
 {
     /**

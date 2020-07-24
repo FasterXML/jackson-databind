@@ -269,7 +269,11 @@ public abstract class AnnotationIntrospector
     public Boolean isIgnorableType(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /**
-     * Method for finding information about properties to include.
+     * Method for finding information about names of properties to included.
+     *<p>
+     * NOTE: naming confusing wrt {@link #findPropertyInclusion}, which controls
+     * inclusion rules for individual properties based on value, as opposed to
+     * inclusion by name.
      *
      * @param ac Annotated class to introspect
      */

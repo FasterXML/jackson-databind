@@ -179,11 +179,10 @@ public class MapDeserializer
      */
     @SuppressWarnings("unchecked")
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
-                                           TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
-                                           NullValueProvider nuller,
-                                           Set<String> ignorable, Set<String> includable)
+            TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
+            NullValueProvider nuller,
+            Set<String> ignorable, Set<String> includable)
     {
-
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
                 && (_valueTypeDeserializer == valueTypeDeser) && (_nullProvider == nuller)
                 && (_ignorableProperties == ignorable) && (_includableProperties == includable)) {

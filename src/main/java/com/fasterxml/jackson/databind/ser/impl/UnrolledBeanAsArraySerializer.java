@@ -122,7 +122,8 @@ public class UnrolledBeanAsArraySerializer
     }
 
     @Override
-    protected UnrolledBeanAsArraySerializer withIgnorals(Set<String> toIgnore, Set<String> toInclude) {
+    protected UnrolledBeanAsArraySerializer withByNameInclusion(Set<String> toIgnore,
+            Set<String> toInclude) {
         return new UnrolledBeanAsArraySerializer(this, toIgnore, toInclude);
     }
 

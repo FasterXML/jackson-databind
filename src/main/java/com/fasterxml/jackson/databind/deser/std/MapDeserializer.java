@@ -310,7 +310,8 @@ public class MapDeserializer
         if (_neitherNull(intr, property)) {
             AnnotatedMember member = property.getMember();
             if (member != null) {
-                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(member);
+                final DeserializationConfig config = ctxt.getConfig();
+                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, member);
                 if (ignorals != null) {
                     Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
                     if (!ignoresToAdd.isEmpty()) {
@@ -320,7 +321,7 @@ public class MapDeserializer
                         }
                     }
                 }
-                JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(ctxt.getConfig(), member);
+                JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, member);
                 if (inclusions != null) {
                     Set<String> includedToAdd = inclusions.getIncluded();
                     if (includedToAdd != null) {

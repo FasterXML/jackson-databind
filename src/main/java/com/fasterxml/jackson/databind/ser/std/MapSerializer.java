@@ -506,8 +506,9 @@ public class MapSerializer
         Set<String> included = _includedEntries;
         boolean sortKeys = false;
         if (_neitherNull(propertyAcc, intr)) {
+            final SerializationConfig config = provider.getConfig();
             // ignorals
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, propertyAcc);
             if (ignorals != null){
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if (_nonEmpty(newIgnored)) {
@@ -518,7 +519,7 @@ public class MapSerializer
                 }
             }
             // inclusions
-            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(provider.getConfig(), propertyAcc);
+            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, propertyAcc);
             if (inclusions != null) {
                 Set<String> newIncluded = inclusions.getIncluded();
                 if (newIncluded != null) {

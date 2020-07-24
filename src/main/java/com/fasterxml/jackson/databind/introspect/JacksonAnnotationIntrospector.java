@@ -292,20 +292,20 @@ public class JacksonAnnotationIntrospector
         return PropertyName.construct(ann.value(), ns);
     }
 
-    @Override // since 2.8
-    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
+    @Override
+    public Boolean isIgnorableType(AnnotatedClass ac) {
+        JsonIgnoreType ignore = _findAnnotation(ac, JsonIgnoreType.class);
+        return (ignore == null) ? null : ignore.value();
+    }
+
+    @Override // since 2.12
+    public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated a)
     {
         JsonIgnoreProperties v = _findAnnotation(a, JsonIgnoreProperties.class);
         if (v == null) {
             return JsonIgnoreProperties.Value.empty();
         }
         return JsonIgnoreProperties.Value.from(v);
-    }
-
-    @Override
-    public Boolean isIgnorableType(AnnotatedClass ac) {
-        JsonIgnoreType ignore = _findAnnotation(ac, JsonIgnoreType.class);
-        return (ignore == null) ? null : ignore.value();
     }
 
     @Override

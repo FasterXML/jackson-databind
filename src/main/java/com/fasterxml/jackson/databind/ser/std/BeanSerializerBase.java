@@ -504,7 +504,7 @@ public abstract class BeanSerializerBase
 
         // Then we may have an override for Object Id
         if (accessor != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(accessor);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, accessor);
             if (ignorals != null) {
                 ignoredProps = ignorals.findIgnoredForSerialization();
             }

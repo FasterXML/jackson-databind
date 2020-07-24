@@ -247,25 +247,6 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Method for finding information about properties to ignore either by
-     * name, or by more general specification ("ignore all unknown").
-     * This method combines multiple aspects of ignorals and deprecates
-     * earlier methods such as
-     * {@link #findPropertiesToIgnore(Annotated, boolean)} and
-     * {@link #findIgnoreUnknownProperties(AnnotatedClass)}.
-     *
-     * @param ac Annotated class to introspect
-     *
-     * @since 2.8
-     */
-    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated ac)
-    {
-        // 18-Oct-2016, tatu: Used to call deprecated methods for backwards
-        //   compatibility in 2.8, but not any more in 2.9
-        return JsonIgnoreProperties.Value.empty();
-    }
-
-    /**
      * Method for checking whether properties that have specified type
      * (class, not generics aware) should be completely ignored for
      * serialization and deserialization purposes.
@@ -279,16 +260,36 @@ public abstract class AnnotationIntrospector
     public Boolean isIgnorableType(AnnotatedClass ac) { return null; }
 
     /**
+     * Method for finding information about properties to ignore either by
+     * name, or by more general specification ("ignore all unknown").
+     * This method combines multiple aspects of ignorals and deprecates
+     * earlier methods such as
+     * {@link #findPropertiesToIgnore(Annotated, boolean)} and
+     * {@link #findIgnoreUnknownProperties(AnnotatedClass)}.
+     *
+     * @param config Configuration settings in effect (for serialization or deserialization)
+     * @param ann Annotated entity (Class, Accessor) to introspect
+     *
+     * @since 2.12 (to replace {@code findPropertyIgnorals()})
+     */
+    public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated ann)
+    {
+        // In 2.12, remove redirection in future
+        return findPropertyIgnorals(ann);
+    }
+
+    /**
      * Method for finding information about names of properties to included.
      * This is typically used to strictly limit properties to include based
      * on fully defined set of names ("allow-listing"), as opposed to excluding
      * potential properties by exclusion ("deny-listing").
      *
-     * @param ac Annotated entity (Class, acccessor) to introspect
+     * @param config Configuration settings in effect (for serialization or deserialization)
+     * @param ann Annotated entity (Class, Accessor) to introspect
      *
      * @since 2.12
      */
-    public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated ac) {
+    public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated ann) {
         return JsonIncludeProperties.Value.all();
     }
 
@@ -342,7 +343,7 @@ public abstract class AnnotationIntrospector
      *
      * @since 2.6
      *
-     * @deprecated Since 2.8, use {@link #findPropertyIgnorals} instead
+     * @deprecated Since 2.8, use {@link #findPropertyIgnoralByName} instead
      */
     @Deprecated // since 2.8
     public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
@@ -357,11 +358,20 @@ public abstract class AnnotationIntrospector
      *
      * @return True if class has something indicating "ignore [all] unknown properties"
      *
-     * @deprecated Since 2.8, use {@link #findPropertyIgnorals} instead
+     * @deprecated Since 2.8, use {@link #findPropertyIgnoralByName} instead
      */
     @Deprecated // since 2.8
     public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) { return null; }
-    
+
+    /**
+     * @since 2.8
+     * @deprecated 2.12
+     */
+    @Deprecated // since 2.12
+    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated ac) {
+        return JsonIgnoreProperties.Value.empty();
+    }
+
     /*
     /**********************************************************
     /* Property auto-detection

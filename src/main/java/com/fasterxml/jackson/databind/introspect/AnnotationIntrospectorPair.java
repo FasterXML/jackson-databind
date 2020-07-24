@@ -117,15 +117,16 @@ public class AnnotationIntrospectorPair
         return (name2 == null) ? name1 : name2;
     }
 
+    // since 2.12
     @Override
-    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
+    public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated ann)
     {
-        JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnorals(a);
-        JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(a);
+        JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnoralByName(config, ann);
+        JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnoralByName(config, ann);
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
     }
-
+    
     @Override
     public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated a)
     {
@@ -193,7 +194,16 @@ public class AnnotationIntrospectorPair
             result = _secondary.findIgnoreUnknownProperties(ac);
         }
         return result;
-    }        
+    }
+
+    @Override
+    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
+    {
+        JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnorals(a);
+        JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(a);
+        return (v2 == null) // shouldn't occur but
+            ? v1 : v2.withOverrides(v1);
+    }
 
     /*
     /******************************************************

@@ -789,7 +789,8 @@ public abstract class BeanDeserializerBase
         }
         // And possibly add more properties to ignore
         if (accessor != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(accessor);
+            final DeserializationConfig config = ctxt.getConfig();
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, accessor);
             if (ignorals != null) {
                 Set<String> ignored = ignorals.findIgnoredForDeserialization();
                 if (!ignored.isEmpty()) {
@@ -808,7 +809,7 @@ public abstract class BeanDeserializerBase
                     contextual = contextual.withIgnoreAllUnknown(true);
                 }
             }
-            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(ctxt.getConfig(), accessor);
+            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, accessor);
             if (inclusions != null) {
                 Set<String> included = inclusions.getIncluded();
                 Set<String> prev = contextual._includableProps;

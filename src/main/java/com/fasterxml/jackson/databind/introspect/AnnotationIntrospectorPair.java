@@ -197,6 +197,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    @Deprecated // since 2.12
     public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
     {
         JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnorals(a);

@@ -350,18 +350,6 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * @param ac Annotated class to introspect
-     *
-     * @return Array of names of properties to ignore
-     *
-     * @deprecated Since 2.6, use variant that takes second argument.
-     */
-    @Deprecated // since 2.6
-    public String[] findPropertiesToIgnore(Annotated ac) {
-        return null;
-    }
-
-    /**
      * Method for checking whether an annotation indicates that all unknown properties
      * should be ignored.
      *

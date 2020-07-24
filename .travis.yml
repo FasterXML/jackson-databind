@@ -19,8 +19,7 @@ cache:
 # Below this line is configuration for deploying to the Sonatype OSS repo
 # https://knowm.org/configure-travis-ci-to-deploy-snapshots/
 before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
-after_success:
-  - "mvn -B source:jar javadoc:jar deploy --settings target/travis/settings.xml"
+script: "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && mvn -B source:jar deploy --settings target/travis/settings.xml || mvn clean verify --settings target/travis/settings.xml"
 
 # whitelist
 branches:

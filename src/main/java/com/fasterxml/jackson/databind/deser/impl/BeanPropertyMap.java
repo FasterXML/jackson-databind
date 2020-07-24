@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -382,7 +383,20 @@ public class BeanPropertyMap
      */
     public BeanPropertyMap withoutProperties(Collection<String> toExclude)
     {
-        if (toExclude.isEmpty()) {
+        return withoutProperties(toExclude, null);
+    }
+
+    /**
+     * Mutant factory method that will use this instance as the base, and
+     * construct an instance that is otherwise same except for excluding
+     * properties with specified names, or including only the one marked
+     * as included
+     *
+     * @since 2.12
+     */
+    public BeanPropertyMap withoutProperties(Collection<String> toExclude, Collection<String> toInclude)
+    {
+        if ((toExclude == null || toExclude.isEmpty()) && toInclude == null) {
             return this;
         }
         final int len = _propsInOrder.length;
@@ -394,7 +408,7 @@ public class BeanPropertyMap
             //   or, if entries to ignore should be retained as nulls. For now just
             //   prune them out
             if (prop != null) { // may contain holes, too, check.
-                if (!toExclude.contains(prop.getName())) {
+                if (!IgnorePropertiesUtil.shouldIgnore(prop.getName(), toExclude, toInclude)) {
                     newProps.add(prop);
                 }
             }

@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
@@ -823,7 +824,11 @@ public abstract class BasicSerializerFactory
                         beanDesc.getClassInfo());
                 Set<String> ignored = (ignorals == null) ? null
                         : ignorals.findIgnoredForSerialization();
-                MapSerializer mapSer = MapSerializer.construct(ignored,
+                JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(Map.class,
+                        beanDesc.getClassInfo());
+                Set<String> included = (inclusions == null) ? null
+                        : inclusions.getIncluded();
+                MapSerializer mapSer = MapSerializer.construct(ignored, included,
                         type, staticTyping, elementTypeSerializer,
                         keySerializer, elementValueSerializer, filterId);
                 ser = _checkMapContentInclusion(prov, beanDesc, mapSer);

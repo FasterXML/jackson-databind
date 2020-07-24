@@ -7,6 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Standard serializer implementation for serializing {link java.util.Map} types.
@@ -110,6 +113,11 @@ public class MapSerializer
     protected final Set<String> _ignoredEntries;
 
     /**
+     * Set of entries to include during serialization, if null, it is ignored, empty will include nothing.
+     */
+    protected final Set<String> _includedEntries;
+
+    /**
      * Id of the property filter to use, if any; null if none.
      *
      * @since 2.3
@@ -157,10 +165,10 @@ public class MapSerializer
      */
     
     /**
-     * @since 2.5
+     * @since 2.12
      */
     @SuppressWarnings("unchecked")
-    protected MapSerializer(Set<String> ignoredEntries,
+    protected MapSerializer(Set<String> ignoredEntries, Set<String> includedEntries,
             JavaType keyType, JavaType valueType, boolean valueTypeIsStatic,
             TypeSerializer vts,
             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
@@ -168,6 +176,7 @@ public class MapSerializer
         super(Map.class, false);
         _ignoredEntries = ((ignoredEntries == null) || ignoredEntries.isEmpty())
                 ? null : ignoredEntries;
+        _includedEntries = includedEntries;
         _keyType = keyType;
         _valueType = valueType;
         _valueTypeIsStatic = valueTypeIsStatic;
@@ -182,14 +191,34 @@ public class MapSerializer
         _suppressNulls = false;
     }
 
+    /**
+     * @since 2.5
+     * @deprecated in 2.12, remove from 3.0
+     */
+    @Deprecated
+    protected MapSerializer(Set<String> ignoredEntries,
+            JavaType keyType, JavaType valueType, boolean valueTypeIsStatic,
+            TypeSerializer vts,
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
+    {
+        this(ignoredEntries, null,
+                keyType, valueType, valueTypeIsStatic,
+                vts,
+                keySerializer, valueSerializer);
+    }
+
+    /**
+     * @since 2.12
+     */
     @SuppressWarnings("unchecked")
     protected MapSerializer(MapSerializer src, BeanProperty property,
             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
-            Set<String> ignoredEntries)
+            Set<String> ignoredEntries, Set<String> includedEntries)
     {
         super(Map.class, false);
         _ignoredEntries = ((ignoredEntries == null) || ignoredEntries.isEmpty())
                 ? null : ignoredEntries;
+        _includedEntries = includedEntries;
         _keyType = src._keyType;
         _valueType = src._valueType;
         _valueTypeIsStatic = src._valueTypeIsStatic;
@@ -206,6 +235,18 @@ public class MapSerializer
     }
 
     /**
+     * @deprecated in 2.12, remove from 3.0
+     */
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    protected MapSerializer(MapSerializer src, BeanProperty property,
+                            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+                            Set<String> ignoredEntries)
+    {
+        this(src, property, keySerializer, valueSerializer, ignoredEntries, null);
+    }
+
+    /**
      * @since 2.9
      */
     protected MapSerializer(MapSerializer src, TypeSerializer vts,
@@ -213,6 +254,7 @@ public class MapSerializer
     {
         super(Map.class, false);
         _ignoredEntries = src._ignoredEntries;
+        _includedEntries = src._includedEntries;
         _keyType = src._keyType;
         _valueType = src._valueType;
         _valueTypeIsStatic = src._valueTypeIsStatic;
@@ -233,6 +275,7 @@ public class MapSerializer
     {
         super(Map.class, false);
         _ignoredEntries = src._ignoredEntries;
+        _includedEntries = src._includedEntries;
         _keyType = src._keyType;
         _valueType = src._valueType;
         _valueTypeIsStatic = src._valueTypeIsStatic;
@@ -258,18 +301,28 @@ public class MapSerializer
     }
 
     /**
+     * @since 2.12
+     */
+    public MapSerializer withResolved(BeanProperty property,
+             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+             Set<String> ignored, Set<String> included, boolean sortKeys)
+    {
+        _ensureOverride("withResolved");
+        MapSerializer ser = new MapSerializer(this, property, keySerializer, valueSerializer, ignored, included);
+        if (sortKeys != ser._sortKeys) {
+            ser = new MapSerializer(ser, _filterId, sortKeys);
+        }
+        return ser;
+    }
+
+    /**
      * @since 2.4
      */
     public MapSerializer withResolved(BeanProperty property,
             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
             Set<String> ignored, boolean sortKeys)
     {
-        _ensureOverride("withResolved");
-        MapSerializer ser = new MapSerializer(this, property, keySerializer, valueSerializer, ignored);
-        if (sortKeys != ser._sortKeys) {
-            ser = new MapSerializer(ser, _filterId, sortKeys);
-        }
-        return ser;
+        return withResolved(property, keySerializer, valueSerializer, ignored, null, sortKeys);
     }
 
     @Override
@@ -296,9 +349,9 @@ public class MapSerializer
     }
 
     /**
-     * @since 2.8
+     * @since 2.12
      */
-    public static MapSerializer construct(Set<String> ignoredEntries, JavaType mapType,
+    public static MapSerializer construct(Set<String> ignoredEntries, Set<String> includedEntries, JavaType mapType,
             boolean staticValueType, TypeSerializer vts,
             JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer,
             Object filterId)
@@ -326,12 +379,23 @@ public class MapSerializer
                 staticValueType = false;
             }
         }
-        MapSerializer ser = new MapSerializer(ignoredEntries, keyType, valueType, staticValueType, vts,
+        MapSerializer ser = new MapSerializer(ignoredEntries, includedEntries, keyType, valueType, staticValueType, vts,
                 keySerializer, valueSerializer);
         if (filterId != null) {
             ser = ser.withFilterId(filterId);
         }
         return ser;
+    }
+
+    /**
+     * @since 2.8
+     */
+    public static MapSerializer construct(Set<String> ignoredEntries, JavaType mapType,
+                                          boolean staticValueType, TypeSerializer vts,
+                                          JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer,
+                                          Object filterId)
+    {
+        return construct(ignoredEntries, null, mapType, staticValueType, vts, keySerializer, valueSerializer, filterId);
     }
 
     /**
@@ -439,8 +503,10 @@ public class MapSerializer
             keySer = provider.handleSecondaryContextualization(keySer, property);
         }
         Set<String> ignored = _ignoredEntries;
+        Set<String> included = _includedEntries;
         boolean sortKeys = false;
         if (_neitherNull(propertyAcc, intr)) {
+            // ignorals
             JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
             if (ignorals != null){
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
@@ -451,6 +517,18 @@ public class MapSerializer
                     }
                 }
             }
+            // inclusions
+            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(propertyAcc);
+            if (inclusions != null) {
+                Set<String> newIncluded = inclusions.getIncluded();
+                if (newIncluded != null) {
+                    included = (included == null) ? new HashSet<String>() : new HashSet<String>(included);
+                    for (String str : newIncluded) {
+                        included.add(str);
+                    }
+                }
+            }
+            // sort key
             Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
             sortKeys = Boolean.TRUE.equals(b);
         }
@@ -461,7 +539,7 @@ public class MapSerializer
                 sortKeys = B.booleanValue();
             }
         }
-        MapSerializer mser = withResolved(property, keySer, ser, ignored, sortKeys);
+        MapSerializer mser = withResolved(property, keySer, ser, ignored, included, sortKeys);
 
         // [databind#307]: allow filtering
         if (property != null) {
@@ -698,6 +776,7 @@ public class MapSerializer
         }
         final JsonSerializer<Object> keySerializer = _keySerializer;
         final Set<String> ignored = _ignoredEntries;
+        final Set<String> included = _includedEntries;
         Object keyElem = null;
 
         try {
@@ -709,7 +788,7 @@ public class MapSerializer
                     provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
                 } else {
                     // One twist: is entry ignorable? If so, skip
-                    if ((ignored != null) && ignored.contains(keyElem)) {
+                    if (IgnorePropertiesUtil.shouldIgnore(keyElem, ignored, included)) {
                         continue;
                     }
                     keySerializer.serialize(keyElem, gen, provider);
@@ -743,6 +822,7 @@ public class MapSerializer
             return;
         }
         final Set<String> ignored = _ignoredEntries;
+        final Set<String> included = _includedEntries;
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
@@ -752,7 +832,7 @@ public class MapSerializer
             if (keyElem == null) {
                 keySerializer = provider.findNullKeySerializer(_keyType, _property);
             } else {
-                if (ignored != null && ignored.contains(keyElem)) continue;
+                if (IgnorePropertiesUtil.shouldIgnore(keyElem, ignored, included)) continue;
                 keySerializer = _keySerializer;
             }
 
@@ -801,11 +881,12 @@ public class MapSerializer
     {
         final JsonSerializer<Object> keySerializer = _keySerializer;
         final Set<String> ignored = _ignoredEntries;
+        final Set<String> included = _includedEntries;
         final TypeSerializer typeSer = _valueTypeSerializer;
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             Object keyElem = entry.getKey();
-            if (ignored != null && ignored.contains(keyElem)) continue;
+            if (IgnorePropertiesUtil.shouldIgnore(keyElem, ignored, included)) continue;
 
             if (keyElem == null) {
                 provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
@@ -841,13 +922,14 @@ public class MapSerializer
         throws IOException
     {
         final Set<String> ignored = _ignoredEntries;
+        final Set<String> included = _includedEntries;
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First, serialize key; unless ignorable by key
             final Object keyElem = entry.getKey();
-            if (ignored != null && ignored.contains(keyElem)) continue;
+            if (IgnorePropertiesUtil.shouldIgnore(keyElem, ignored, included)) continue;
 
             JsonSerializer<Object> keySerializer;
             if (keyElem == null) {
@@ -899,6 +981,7 @@ public class MapSerializer
         throws IOException
     {
         final Set<String> ignored = _ignoredEntries;
+        final Set<String> included = _includedEntries;
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
@@ -908,7 +991,7 @@ public class MapSerializer
                 keySerializer = provider.findNullKeySerializer(_keyType, _property);
             } else {
                 // One twist: is entry ignorable? If so, skip
-                if (ignored != null && ignored.contains(keyElem)) continue;
+                if (IgnorePropertiesUtil.shouldIgnore(keyElem, ignored, included)) continue;
                 keySerializer = _keySerializer;
             }
             final Object valueElem = entry.getValue();
@@ -959,13 +1042,14 @@ public class MapSerializer
         throws IOException
     {
         final Set<String> ignored = _ignoredEntries;
+        final Set<String> included = _includedEntries;
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First, serialize key; unless ignorable by key
             final Object keyElem = entry.getKey();
-            if (ignored != null && ignored.contains(keyElem)) continue;
+            if (IgnorePropertiesUtil.shouldIgnore(keyElem, ignored, included)) continue;
 
             JsonSerializer<Object> keySerializer;
             if (keyElem == null) {

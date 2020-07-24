@@ -169,7 +169,6 @@ public class MapDeserializer
      * Fluent factory method used to create a copy with slightly
      * different settings. When sub-classing, MUST be overridden.
      */
-    @SuppressWarnings("unchecked")
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
             TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
             NullValueProvider nuller,
@@ -181,12 +180,12 @@ public class MapDeserializer
     /**
      * @since 2.12
      */
+    @SuppressWarnings("unchecked")
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
-                                           TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
-                                           NullValueProvider nuller,
-                                           Set<String> ignorable, Set<String> includable)
+            TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
+            NullValueProvider nuller,
+            Set<String> ignorable, Set<String> includable)
     {
-
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
                 && (_valueTypeDeserializer == valueTypeDeser) && (_nullProvider == nuller)
                 && (_ignorableProperties == ignorable) && (_includableProperties == includable)) {
@@ -321,7 +320,7 @@ public class MapDeserializer
                         }
                     }
                 }
-                JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(member);
+                JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(ctxt.getConfig(), member);
                 if (inclusions != null) {
                     Set<String> includedToAdd = inclusions.getIncluded();
                     if (includedToAdd != null) {

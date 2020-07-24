@@ -8,15 +8,16 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
@@ -237,7 +238,6 @@ public class MapSerializer
     /**
      * @deprecated in 2.12, remove from 3.0
      */
-    @SuppressWarnings("unchecked")
     @Deprecated
     protected MapSerializer(MapSerializer src, BeanProperty property,
                             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
@@ -518,7 +518,7 @@ public class MapSerializer
                 }
             }
             // inclusions
-            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(propertyAcc);
+            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(provider.getConfig(), propertyAcc);
             if (inclusions != null) {
                 Set<String> newIncluded = inclusions.getIncluded();
                 if (newIncluded != null) {

@@ -127,10 +127,10 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public JsonIncludeProperties.Value findPropertyInclusions(Annotated a)
+    public JsonIncludeProperties.Value findPropertyInclusions(MapperConfig<?> config, Annotated a)
     {
-        JsonIncludeProperties.Value v2 = _secondary.findPropertyInclusions(a);
-        JsonIncludeProperties.Value v1 = _primary.findPropertyInclusions(a);
+        JsonIncludeProperties.Value v2 = _secondary.findPropertyInclusions(config, a);
+        JsonIncludeProperties.Value v1 = _primary.findPropertyInclusions(config, a);
         return (v2 == null) // shouldn't occur but
                 ? v1 : v2.withOverrides(v1);
     }

@@ -91,7 +91,7 @@ public class UnwrappingBeanSerializer
     }
 
     @Override
-    protected BeanSerializerBase withIgnorals(Set<String> toIgnore, Set<String> toInclude) {
+    protected BeanSerializerBase withByNameInclusion(Set<String> toIgnore, Set<String> toInclude) {
         return new UnwrappingBeanSerializer(this, toIgnore, toInclude);
     }
 

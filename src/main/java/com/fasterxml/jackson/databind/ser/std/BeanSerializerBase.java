@@ -209,15 +209,8 @@ public abstract class BeanSerializerBase
      * Mutant factory used for creating a new instance with additional
      * set of properties to ignore or include (from properties this instance otherwise has)
      */
-    protected abstract BeanSerializerBase withIgnorals(Set<String> toIgnore, Set<String> toInclude);
-
-    /**
-     * Mutant factory used for creating a new instance with additional
-     * set of properties to ignore or include (from properties this instance otherwise has)
-     */
-    protected BeanSerializerBase withInclusions(Set<String> toInclude) {
-        return withIgnorals(Collections.<String>emptySet(), toInclude);
-    }
+    protected abstract BeanSerializerBase withByNameInclusion(Set<String> toIgnore,
+            Set<String> toInclude);
 
     /**
      * Mutant factory for creating a variant that output POJO as a
@@ -449,14 +442,8 @@ public abstract class BeanSerializerBase
 
         // Then we may have an override for Object Id
         if (accessor != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, accessor);
-            if (ignorals != null) {
-                ignoredProps = ignorals.findIgnoredForSerialization();
-            }
-            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, accessor);
-            if (inclusions != null) {
-                includedProps = inclusions.getIncluded();
-            }
+            ignoredProps = intr.findPropertyIgnoralByName(config, accessor).findIgnoredForSerialization();
+            includedProps = intr.findPropertyInclusionByName(config, accessor).getIncluded();
             ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(config, accessor);
             if (objectIdInfo == null) {
                 // no ObjectId override, but maybe ObjectIdRef?
@@ -543,10 +530,11 @@ public abstract class BeanSerializerBase
                 contextual = contextual.withObjectIdWriter(oiw);
             }
         }
-        // And possibly add more properties to ignore
-        contextual = contextual.withInclusions(includedProps);
-        if ((ignoredProps != null) && !ignoredProps.isEmpty()) {
-            contextual = contextual.withIgnorals(ignoredProps, includedProps);
+        // Possibly change inclusions: for ignored, only non-empty set matters;
+        // for inclusion `null` means "not defined" but empty "include nothing":
+        if (((ignoredProps != null) && !ignoredProps.isEmpty())
+                || (includedProps != null)) {
+            contextual = contextual.withByNameInclusion(ignoredProps, includedProps);
         }
         if (newFilterId != null) {
             contextual = contextual.withFilterId(newFilterId);

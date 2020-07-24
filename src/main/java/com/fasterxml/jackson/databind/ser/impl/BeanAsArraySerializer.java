@@ -115,7 +115,7 @@ public class BeanAsArraySerializer
     }
 
     @Override
-    protected BeanAsArraySerializer withIgnorals(Set<String> toIgnore, Set<String> toInclude) {
+    protected BeanAsArraySerializer withByNameInclusion(Set<String> toIgnore, Set<String> toInclude) {
         return new BeanAsArraySerializer(this, toIgnore, toInclude);
     }
 

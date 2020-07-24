@@ -111,13 +111,8 @@ public class BeanAsArraySerializer
         return new BeanAsArraySerializer(this, _objectIdWriter, filterId);
     }
 
-    @Override
-    protected BeanAsArraySerializer withIgnorals(Set<String> toIgnore) {
-        return new BeanAsArraySerializer(this, toIgnore);
-    }
-
-    @Override
-    protected BeanAsArraySerializer withIgnorals(Set<String> toIgnore, Set<String> toInclude) {
+    @Override // @since 2.12
+    protected BeanAsArraySerializer withByNameInclusion(Set<String> toIgnore, Set<String> toInclude) {
         return new BeanAsArraySerializer(this, toIgnore, toInclude);
     }
 

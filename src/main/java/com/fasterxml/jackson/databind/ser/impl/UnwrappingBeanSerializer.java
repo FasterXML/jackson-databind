@@ -93,13 +93,8 @@ public class UnwrappingBeanSerializer
         return new UnwrappingBeanSerializer(this, _objectIdWriter, filterId);
     }
 
-    @Override
-    protected BeanSerializerBase withIgnorals(Set<String> toIgnore) {
-        return new UnwrappingBeanSerializer(this, toIgnore);
-    }
-
-    @Override
-    protected BeanSerializerBase withIgnorals(Set<String> toIgnore, Set<String> toInclude) {
+    @Override // @since 2.12
+    protected BeanSerializerBase withByNameInclusion(Set<String> toIgnore, Set<String> toInclude) {
         return new UnwrappingBeanSerializer(this, toIgnore, toInclude);
     }
 

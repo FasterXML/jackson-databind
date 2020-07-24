@@ -11,6 +11,8 @@ Project: jackson-databind
  (reported by gmkll@github)
 #921: Deserialization Not Working Right with Generic Types and Builders
  (reported by Mike G; fix contributed by Ville K)
+#1296: Add `@JsonIncludeProperties(propertyNames)` (reverse of `@JsonIgnoreProperties`)
+ (contributed Baptiste P)
 #1852: Allow case insensitive deserialization of String value into
   `boolean`/`Boolean` (esp for Excel)
  (requested by Patrick J)

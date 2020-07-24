@@ -518,7 +518,7 @@ public class MapSerializer
                 }
             }
             // inclusions
-            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(provider.getConfig(), propertyAcc);
+            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(provider.getConfig(), propertyAcc);
             if (inclusions != null) {
                 Set<String> newIncluded = inclusions.getIncluded();
                 if (newIncluded != null) {

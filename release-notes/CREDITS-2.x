@@ -1151,6 +1151,11 @@ Mike Gilbode (gilbode@github)
   * Reported #792: Deserialization Not Working Right with Generic Types and Builders
   (2.12.0)
 
+Baptiste Pernet (sp4ce@github)
+  * Contributed #1296 implementation: Add `@JsonIncludeProperties(propertyNames)` (reverse
+    of `@JsonIgnoreProperties`)
+  (2.12.0)
+
 Patrick Jungermann (pjungermann@github)
   * Requested #1852: Allow case insensitive deserialization of String value into
   `boolean`/`Boolean` (esp for Excel)

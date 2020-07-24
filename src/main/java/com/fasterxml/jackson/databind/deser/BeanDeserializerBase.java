@@ -808,7 +808,7 @@ public abstract class BeanDeserializerBase
                     contextual = contextual.withIgnoreAllUnknown(true);
                 }
             }
-            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(ctxt.getConfig(), accessor);
+            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(ctxt.getConfig(), accessor);
             if (inclusions != null) {
                 Set<String> included = inclusions.getIncluded();
                 Set<String> prev = contextual._includableProps;

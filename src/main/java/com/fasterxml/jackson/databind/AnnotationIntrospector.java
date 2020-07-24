@@ -270,15 +270,15 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for finding information about names of properties to included.
-     *<p>
-     * NOTE: naming confusing wrt {@link #findPropertyInclusion}, which controls
-     * inclusion rules for individual properties based on value, as opposed to
-     * inclusion by name.
+     * This is typically used to strictly limit properties to include based
+     * on fully defined set of names ("allow-listing"), as opposed to excluding
+     * potential properties by exclusion ("deny-listing").
      *
-     * @param ac Annotated class to introspect
+     * @param ac Annotated entity (Class, acccessor) to introspect
+     *
+     * @since 2.12
      */
-    public JsonIncludeProperties.Value findPropertyInclusions(MapperConfig<?> config, Annotated ac)
-    {
+    public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated ac) {
         return JsonIncludeProperties.Value.all();
     }
 

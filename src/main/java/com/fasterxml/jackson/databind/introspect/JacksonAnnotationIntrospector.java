@@ -275,7 +275,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public JsonIncludeProperties.Value findPropertyInclusions(MapperConfig<?> config, Annotated a)
+    public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated a)
     {
         JsonIncludeProperties v = _findAnnotation(a, JsonIncludeProperties.class);
         if (v == null) {

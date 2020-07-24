@@ -453,7 +453,7 @@ public abstract class BeanSerializerBase
             if (ignorals != null) {
                 ignoredProps = ignorals.findIgnoredForSerialization();
             }
-            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusions(config, accessor);
+            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, accessor);
             if (inclusions != null) {
                 includedProps = inclusions.getIncluded();
             }

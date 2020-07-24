@@ -486,7 +486,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             AnnotatedClass actualClass)
     {
         AnnotationIntrospector intr = getAnnotationIntrospector();
-        return (intr == null) ? null : intr.findPropertyInclusions(this, actualClass);
+        return (intr == null) ? null : intr.findPropertyInclusionByName(this, actualClass);
     }
 
     @Override

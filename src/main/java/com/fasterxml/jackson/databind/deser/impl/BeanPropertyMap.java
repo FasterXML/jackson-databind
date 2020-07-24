@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -214,16 +215,34 @@ public class BeanPropertyMap
      */
     public BeanPropertyMap withoutProperties(Collection<String> toExclude)
     {
-        if (toExclude.isEmpty()) {
-            return this;
+        return withoutProperties(toExclude, null);
+    }
+
+    /**
+     * Mutant factory method that will use this instance as the base, and
+     * construct an instance that is otherwise same except for excluding
+     * properties with specified names, or including only the one marked
+     * as included
+     */
+    public BeanPropertyMap withoutProperties(Collection<String> toExclude, Collection<String> toInclude)
+    {
+        if ((toExclude == null) || toExclude.isEmpty()) {
+            if (toInclude == null) {
+                return this;
+            }
+            toExclude = Collections.emptySet();
         }
         final int len = _propsInOrder.length;
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(len);
 
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _propsInOrder[i];
+            // 23-Jul-2020, tatu: Earlier comment from 2.x suggested `prop` could be null,
+            //    checked, skipped, if so... but no more null checks
             if (!toExclude.contains(prop.getName())) {
-                newProps.add(prop);
+                if (!IgnorePropertiesUtil.shouldIgnore(prop.getName(), toExclude, toInclude)) {
+                    newProps.add(prop);
+                }
             }
         }
         // should we try to re-index? Apparently no need

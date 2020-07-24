@@ -482,6 +482,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     @Override
+    public final JsonIncludeProperties.Value getDefaultPropertyInclusions(Class<?> baseType,
+            AnnotatedClass actualClass)
+    {
+        AnnotationIntrospector intr = getAnnotationIntrospector();
+        return (intr == null) ? null : intr.findPropertyInclusions(this, actualClass);
+    }
+
+    @Override
     public final VisibilityChecker getDefaultVisibilityChecker()
     {
         return _configOverrides.getDefaultVisibility();

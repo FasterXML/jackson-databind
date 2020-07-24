@@ -273,6 +273,16 @@ public class JacksonAnnotationIntrospector
         JsonIgnoreType ignore = _findAnnotation(ac, JsonIgnoreType.class);
         return (ignore == null) ? null : ignore.value();
     }
+
+    @Override
+    public JsonIncludeProperties.Value findPropertyInclusions(MapperConfig<?> config, Annotated a)
+    {
+        JsonIncludeProperties v = _findAnnotation(a, JsonIncludeProperties.class);
+        if (v == null) {
+            return JsonIncludeProperties.Value.all();
+        }
+        return JsonIncludeProperties.Value.from(v);
+    }
  
     @Override
     public Object findFilterId(MapperConfig<?> config, Annotated a) {

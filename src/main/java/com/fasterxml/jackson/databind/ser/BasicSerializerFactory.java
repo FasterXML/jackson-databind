@@ -756,7 +756,11 @@ public abstract class BasicSerializerFactory
                         beanDesc.getClassInfo());
                 Set<String> ignored = (ignorals == null) ? null
                         : ignorals.findIgnoredForSerialization();
-                MapSerializer mapSer = MapSerializer.construct(ignored,
+                JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(Map.class,
+                        beanDesc.getClassInfo());
+                Set<String> included = (inclusions == null) ? null
+                        : inclusions.getIncluded();
+                MapSerializer mapSer = MapSerializer.construct(ignored, included,
                         type, staticTyping, elementTypeSerializer,
                         keySerializer, elementValueSerializer, filterId);
                 ser = _checkMapContentInclusion(ctxt, beanDesc, mapSer);

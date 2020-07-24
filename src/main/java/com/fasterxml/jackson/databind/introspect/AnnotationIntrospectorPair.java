@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
@@ -113,6 +112,15 @@ public class AnnotationIntrospectorPair
         JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(config, a);
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
+    }
+
+    @Override
+    public JsonIncludeProperties.Value findPropertyInclusions(MapperConfig<?> config, Annotated a)
+    {
+        JsonIncludeProperties.Value v2 = _secondary.findPropertyInclusions(config, a);
+        JsonIncludeProperties.Value v1 = _primary.findPropertyInclusions(config, a);
+        return (v2 == null) // shouldn't occur but
+                ? v1 : v2.withOverrides(v1);
     }
 
     @Override

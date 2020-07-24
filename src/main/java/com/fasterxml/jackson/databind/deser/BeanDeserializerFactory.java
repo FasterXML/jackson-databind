@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
 
 /**
@@ -509,6 +510,18 @@ public class BeanDeserializerFactory
         } else {
             ignored = Collections.emptySet();
         }
+        JsonIncludeProperties.Value inclusions = ctxt.getConfig()
+                .getDefaultPropertyInclusions(beanDesc.getBeanClass(),
+                        beanDesc.getClassInfo());
+        Set<String> included = null;
+        if (inclusions != null) {
+            included = inclusions.getIncluded();
+            if (included != null) {
+                for(String propName : included) {
+                    builder.addIncludable(propName);
+                }
+            }
+        }
 
         // Also, do we have a fallback "any" setter?
         AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
@@ -533,7 +546,7 @@ public class BeanDeserializerFactory
 
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
-                beanDesc, builder, beanDesc.findProperties(), ignored);
+                beanDesc, builder, beanDesc.findProperties(), ignored, included);
         // After which we can let custom code change the set
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
@@ -645,12 +658,32 @@ public class BeanDeserializerFactory
      * as well as properties that have "ignorable types".
      * Note that this will not remove properties that have no
      * setters.
+     *
+     * @deprecated in 2.12, remove from 3.0
      */
+    @Deprecated
     protected List<BeanPropertyDefinition> filterBeanProps(DeserializationContext ctxt,
             BeanDescription beanDesc, BeanDeserializerBuilder builder,
             List<BeanPropertyDefinition> propDefsIn,
             Set<String> ignored)
         throws JsonMappingException
+    {
+        return filterBeanProps(ctxt, beanDesc, builder, propDefsIn, ignored, null);
+    }
+
+    /**
+     * Helper method called to filter out explicit ignored properties,
+     * as well as properties that have "ignorable types".
+     * Note that this will not remove properties that have no
+     * setters.
+     *
+     * @since 2.12
+     */
+    protected List<BeanPropertyDefinition> filterBeanProps(DeserializationContext ctxt,
+                                                           BeanDescription beanDesc, BeanDeserializerBuilder builder,
+                                                           List<BeanPropertyDefinition> propDefsIn,
+                                                           Set<String> ignored,
+                                                           Set<String> included)
     {
         ArrayList<BeanPropertyDefinition> result = new ArrayList<BeanPropertyDefinition>(
                 Math.max(4, propDefsIn.size()));
@@ -658,7 +691,8 @@ public class BeanDeserializerFactory
         // These are all valid setters, but we do need to introspect bit more
         for (BeanPropertyDefinition property : propDefsIn) {
             String name = property.getName();
-            if (ignored.contains(name)) { // explicit ignoral using @JsonIgnoreProperties needs to block entries
+            // explicit ignoral using @JsonIgnoreProperties of @JsonIncludeProperties needs to block entries
+            if (IgnorePropertiesUtil.shouldIgnore(name, ignored, included)) {
                 continue;
             }
             if (!property.hasConstructorParameter()) { // never skip constructor params

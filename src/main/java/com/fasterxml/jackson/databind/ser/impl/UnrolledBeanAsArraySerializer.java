@@ -54,8 +54,9 @@ public class UnrolledBeanAsArraySerializer
         _calcUnrolled();
     }
 
-    protected UnrolledBeanAsArraySerializer(BeanSerializerBase src, Set<String> toIgnore) {
-        super(src, toIgnore);
+    protected UnrolledBeanAsArraySerializer(BeanSerializerBase src,
+            Set<String> toIgnore, Set<String> toInclude) {
+        super(src, toIgnore, toInclude);
         _defaultSerializer = src;
         _propCount = _props.length;
         _calcUnrolled();
@@ -121,8 +122,8 @@ public class UnrolledBeanAsArraySerializer
     }
 
     @Override
-    protected UnrolledBeanAsArraySerializer withIgnorals(Set<String> toIgnore) {
-        return new UnrolledBeanAsArraySerializer(this, toIgnore);
+    protected UnrolledBeanAsArraySerializer withIgnorals(Set<String> toIgnore, Set<String> toInclude) {
+        return new UnrolledBeanAsArraySerializer(this, toIgnore, toInclude);
     }
 
     @Override

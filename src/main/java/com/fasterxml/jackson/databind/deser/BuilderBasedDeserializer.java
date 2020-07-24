@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -60,8 +61,20 @@ public class BuilderBasedDeserializer
             Set<String> ignorableProps, boolean ignoreAllUnknown,
             boolean hasViews)
     {
+        this(builder, beanDesc, targetType, properties, backRefs, ignorableProps, ignoreAllUnknown, null, hasViews);
+    }
+
+    /**
+     * @since 2.12
+     */
+    public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
+                                    BeanDescription beanDesc, JavaType targetType,
+                                    BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
+                                    Set<String> ignorableProps, boolean ignoreAllUnknown, Set<String> includableProps,
+                                    boolean hasViews)
+    {
         super(builder, beanDesc, properties, backRefs,
-                ignorableProps, ignoreAllUnknown, hasViews);
+                ignorableProps, ignoreAllUnknown, includableProps, hasViews);
         _targetType = targetType;
         _buildMethod = builder.getBuildMethod();
         // 05-Mar-2012, tatu: Cannot really make Object Ids work with builders, not yet anyway
@@ -108,7 +121,11 @@ public class BuilderBasedDeserializer
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, Set<String> ignorableProps) {
-        super(src, ignorableProps);
+        this(src, ignorableProps, src._includableProps);
+    }
+
+    public BuilderBasedDeserializer(BuilderBasedDeserializer src, Set<String> ignorableProps, Set<String> includableProps) {
+        super(src, ignorableProps, includableProps);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
         _fieldMatcher = src._fieldMatcher;
@@ -158,8 +175,8 @@ public class BuilderBasedDeserializer
     }
 
     @Override
-    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps) {
-        return new BuilderBasedDeserializer(this, ignorableProps);
+    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps) {
+        return new BuilderBasedDeserializer(this, ignorableProps, includableProps);
     }
 
     @Override
@@ -431,7 +448,7 @@ public class BuilderBasedDeserializer
             }
             // As per [JACKSON-313], things marked as ignorable should not be
             // passed to any setter
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -645,7 +662,7 @@ public class BuilderBasedDeserializer
             final String propName = p.currentName();
             p.nextToken();
             // ignorable things should be ignored
-            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -755,7 +772,7 @@ public class BuilderBasedDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
@@ -774,6 +791,7 @@ public class BuilderBasedDeserializer
             builder = creator.build(ctxt, buffer);
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
+
         }
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
     }
@@ -827,7 +845,7 @@ public class BuilderBasedDeserializer
             }
             // ignorable things should be ignored
             final String propName = p.currentName();
-            if ((_ignorableProps != null) && (_ignorableProps.contains(propName))) {
+            if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }

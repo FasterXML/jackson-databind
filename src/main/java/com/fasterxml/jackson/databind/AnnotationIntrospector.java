@@ -269,6 +269,16 @@ public abstract class AnnotationIntrospector
     public Boolean isIgnorableType(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /**
+     * Method for finding information about properties to include.
+     *
+     * @param ac Annotated class to introspect
+     */
+    public JsonIncludeProperties.Value findPropertyInclusions(MapperConfig<?> config, Annotated ac)
+    {
+        return JsonIncludeProperties.Value.all();
+    }
+
+    /**
      * Method for finding if annotated class has associated filter; and if so,
      * to return id that is used to locate filter.
      *

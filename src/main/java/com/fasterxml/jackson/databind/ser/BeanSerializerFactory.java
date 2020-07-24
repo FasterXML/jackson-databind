@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Factory class that can provide serializers for any regular Java beans
@@ -336,6 +338,7 @@ public class BeanSerializerFactory
             if (anySer == null) {
                 // TODO: support '@JsonIgnoreProperties' with any setter?
                 anySer = MapSerializer.construct(/* ignored props*/ (Set<String>) null,
+                        /* included props*/ (Set<String>) null,
                         anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
                         typeSer, null, null, /*filterId*/ null);
             }
@@ -534,10 +537,22 @@ public class BeanSerializerFactory
         //   just use it as is.
         JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(beanDesc.getBeanClass(),
                 beanDesc.getClassInfo());
+        Set<String> ignored = null;
         if (ignorals != null) {
-            Set<String> ignored = ignorals.findIgnoredForSerialization();
-            if (!ignored.isEmpty()) {
-                props.removeIf(beanPropertyWriter -> ignored.contains(beanPropertyWriter.getName()));
+            ignored = ignorals.findIgnoredForSerialization();
+        }
+        JsonIncludeProperties.Value inclusions = config.getDefaultPropertyInclusions(beanDesc.getBeanClass(),
+                beanDesc.getClassInfo());
+        Set<String> included = null;
+        if (inclusions != null) {
+            included = inclusions.getIncluded();
+        }
+        if (included != null || (ignored != null && !ignored.isEmpty())) {
+            Iterator<BeanPropertyWriter> it = props.iterator();
+            while (it.hasNext()) {
+                if (IgnorePropertiesUtil.shouldIgnore(it.next().getName(), ignored, included)) {
+                    it.remove();
+                }
             }
         }
         return props;

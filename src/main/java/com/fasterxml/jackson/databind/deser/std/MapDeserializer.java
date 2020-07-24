@@ -506,7 +506,7 @@ public class MapDeserializer
                 }
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            keyStr = p.getCurrentName();
+            keyStr = p.currentName();
         }
         
         for (; keyStr != null; keyStr = p.nextFieldName()) {
@@ -570,7 +570,7 @@ public class MapDeserializer
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            key = p.getCurrentName();
+            key = p.currentName();
         }
 
         for (; key != null; key = p.nextFieldName()) {
@@ -620,7 +620,7 @@ public class MapDeserializer
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else if (p.hasToken(JsonToken.FIELD_NAME)) {
-            key = p.getCurrentName();
+            key = p.currentName();
         } else {
             key = null;
         }
@@ -709,7 +709,7 @@ public class MapDeserializer
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            keyStr = p.getCurrentName();
+            keyStr = p.currentName();
         }
         
         for (; keyStr != null; keyStr = p.nextFieldName()) {
@@ -778,7 +778,7 @@ public class MapDeserializer
             if (t != JsonToken.FIELD_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            key = p.getCurrentName();
+            key = p.currentName();
         }
 
         for (; key != null; key = p.nextFieldName()) {

@@ -92,7 +92,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            final String name = p.getCurrentName();
+            final String name = p.currentName();
             p.nextToken(); // to point to the value
             if (name.equals(_typePropertyName)
                     || (ignoreCase && name.equalsIgnoreCase(_typePropertyName))) { // gotcha!
@@ -117,7 +117,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             if (tb == null) {
                 tb = new TokenBuffer(p, ctxt);
             }
-            tb.writeFieldName(p.getCurrentName());
+            tb.writeFieldName(p.currentName());
             tb.writeString(typeId);
         }
         if (tb != null) { // need to put back skipped properties?

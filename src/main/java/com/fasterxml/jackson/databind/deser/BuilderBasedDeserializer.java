@@ -283,7 +283,7 @@ public class BuilderBasedDeserializer
     {
         Object bean = _valueInstantiator.createUsingDefault(ctxt);
         for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             // Skip field name:
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
@@ -328,7 +328,7 @@ public class BuilderBasedDeserializer
             }
         }
         for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             // Skip field name:
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
@@ -370,7 +370,7 @@ public class BuilderBasedDeserializer
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
@@ -478,7 +478,7 @@ public class BuilderBasedDeserializer
             t = p.nextToken();
         }
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             // Skip field name:
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
@@ -549,7 +549,7 @@ public class BuilderBasedDeserializer
     {
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             // Skip field name:
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
@@ -600,7 +600,7 @@ public class BuilderBasedDeserializer
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case
@@ -651,7 +651,7 @@ public class BuilderBasedDeserializer
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
@@ -712,7 +712,7 @@ public class BuilderBasedDeserializer
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             SettableBeanProperty prop = _beanProperties.find(propName);
             p.nextToken();
             if (prop != null) { // normal case
@@ -767,7 +767,7 @@ public class BuilderBasedDeserializer
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             t = p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case

@@ -283,7 +283,7 @@ public class EnumMapDeserializer
                 }
                 ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
-            keyStr = p.getCurrentName();
+            keyStr = p.currentName();
         }
 
         for (; keyStr != null; keyStr = p.nextFieldName()) {
@@ -360,7 +360,7 @@ public class EnumMapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyName = p.nextFieldName();
         } else if (p.hasToken(JsonToken.FIELD_NAME)) {
-            keyName = p.getCurrentName();
+            keyName = p.currentName();
         } else {
             keyName = null;
         }

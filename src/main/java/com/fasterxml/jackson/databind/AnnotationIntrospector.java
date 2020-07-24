@@ -243,18 +243,6 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Method for finding information about properties to ignore either by
-     * name, or by more general specification ("ignore all unknown").
-     *
-     * @param config Effective mapper configuration in use
-     * @param ac Annotated class to introspect
-     */
-    public JsonIgnoreProperties.Value findPropertyIgnorals(MapperConfig<?> config, Annotated ac)
-    {
-        return JsonIgnoreProperties.Value.empty();
-    }
-
-    /**
      * Method for checking whether properties that have specified type
      * (class, not generics aware) should be completely ignored for
      * serialization and deserialization purposes.
@@ -269,16 +257,30 @@ public abstract class AnnotationIntrospector
     public Boolean isIgnorableType(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /**
+     * Method for finding information about properties to ignore either by
+     * name, or by more general specification ("ignore all unknown").
+     * This method combines multiple aspects of name-based (as opposed to value-based)
+     * ignorals.
+     *
+     * @param config Configuration settings in effect (for serialization or deserialization)
+     * @param ann Annotated entity (Class, Accessor) to introspect
+     */
+    public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated ann) {
+        return JsonIgnoreProperties.Value.empty();
+    }
+
+    /**
      * Method for finding information about names of properties to included.
      * This is typically used to strictly limit properties to include based
      * on fully defined set of names ("allow-listing"), as opposed to excluding
      * potential properties by exclusion ("deny-listing").
      *
-     * @param ac Annotated entity (Class, acccessor) to introspect
+     * @param config Configuration settings in effect (for serialization or deserialization)
+     * @param ann Annotated entity (Class, Accessor) to introspect
      *
      * @since 2.12
      */
-    public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated ac) {
+    public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated ann) {
         return JsonIncludeProperties.Value.all();
     }
 

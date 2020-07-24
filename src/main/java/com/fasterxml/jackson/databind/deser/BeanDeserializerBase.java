@@ -758,7 +758,7 @@ public abstract class BeanDeserializerBase
         }
         // And possibly add more properties to ignore
         if (accessor != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, accessor);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, accessor);
             if (ignorals != null) {
                 Set<String> ignored = ignorals.findIgnoredForDeserialization();
                 if (!ignored.isEmpty()) {

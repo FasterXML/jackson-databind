@@ -117,8 +117,8 @@ public class IntrospectorPairTest extends BaseMapTest
         }
 
         @Override
-        public JsonIgnoreProperties.Value findPropertyIgnorals(MapperConfig<?> config, Annotated a) {
-            return (JsonIgnoreProperties.Value) values.get("findPropertyIgnorals");
+        public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated a) {
+            return (JsonIgnoreProperties.Value) values.get("findPropertyIgnoralByName");
         }
 
         @Override
@@ -262,14 +262,14 @@ public class IntrospectorPairTest extends BaseMapTest
     {
         JsonIgnoreProperties.Value incl = JsonIgnoreProperties.Value.forIgnoredProperties("foo");
         IntrospectorWithMap intr = new IntrospectorWithMap()
-                .add("findPropertyIgnorals", incl);
+                .add("findPropertyIgnoralByName", incl);
         IntrospectorWithMap intrEmpty = new IntrospectorWithMap()
-                .add("findPropertyIgnorals", JsonIgnoreProperties.Value.empty());
+                .add("findPropertyIgnoralByName", JsonIgnoreProperties.Value.empty());
         assertEquals(JsonIgnoreProperties.Value.empty(),
-                new AnnotationIntrospectorPair(intrEmpty, intrEmpty).findPropertyIgnorals(null, null));
+                new AnnotationIntrospectorPair(intrEmpty, intrEmpty).findPropertyIgnoralByName(null, null));
         // should actually verify inclusion combining, but there are separate tests for that
-        assertEquals(incl, new AnnotationIntrospectorPair(intrEmpty, intr).findPropertyIgnorals(null, null));
-        assertEquals(incl, new AnnotationIntrospectorPair(intr, intrEmpty).findPropertyIgnorals(null, null));
+        assertEquals(incl, new AnnotationIntrospectorPair(intrEmpty, intr).findPropertyIgnoralByName(null, null));
+        assertEquals(incl, new AnnotationIntrospectorPair(intr, intrEmpty).findPropertyIgnoralByName(null, null));
     }
 
     public void testIsIgnorableType() throws Exception

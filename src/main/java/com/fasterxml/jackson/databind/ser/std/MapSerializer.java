@@ -347,7 +347,7 @@ public class MapSerializer
         Set<String> included = _includedEntries;
         boolean sortKeys = false;
         if (_neitherNull(propertyAcc, intr)) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, propertyAcc);
             if (ignorals != null){
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if (_nonEmpty(newIgnored)) {

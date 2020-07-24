@@ -106,14 +106,14 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public JsonIgnoreProperties.Value findPropertyIgnorals(MapperConfig<?> config, Annotated a)
+    public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated a)
     {
-        JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnorals(config, a);
-        JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(config, a);
+        JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnoralByName(config, a);
+        JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnoralByName(config, a);
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
     }
-
+    
     @Override
     public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated a)
     {

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +28,23 @@ public class IgnorePropertiesUtil
 
         // NOTE: conflict between both, JsonIncludeProperties will take priority.
         return !toInclude.contains(value) || toIgnore.contains(value);
+    }
+
+    /**
+     * Factory method for creating and return a {@link Checker} instance if (and only if)
+     * one needed.
+     * 
+     * @param toIgnore Set of property names to ignore (may be null)
+     * @param toInclude Set of only property names to include (if null, undefined)
+     *
+     * @return Checker, if validity checks are needed; {@code null} otherwise
+     */
+    public static Checker buildCheckerIfNeeded(Set<String> toIgnore, Set<String> toInclude) {
+        // First: no-op case
+        if ((toInclude == null) && ((toIgnore == null) || toIgnore.isEmpty())) {
+            return null;
+        }
+        return Checker.construct(toIgnore, toInclude);
     }
 
     /**
@@ -57,5 +75,36 @@ public class IgnorePropertiesUtil
             }
         }
         return result;
+    }
+
+    /**
+     * Helper class to encapsulate logic from static {@code shouldIgnore} method
+     * of util class.
+     */
+    public final static class Checker
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final Set<String> _toIgnore;
+        private final Set<String> _toInclude;
+
+        private Checker(Set<String> toIgnore, Set<String> toInclude) {
+            if (toIgnore == null) {
+                toIgnore = Collections.emptySet();
+            }
+            _toIgnore = toIgnore;
+            _toInclude = toInclude;
+        }
+
+        public static Checker construct(Set<String> toIgnore, Set<String> toInclude) {
+            return new Checker(toIgnore, toInclude);
+        }
+
+        // May seem odd but during serialization key is not cast up to String:
+        public boolean shouldIgnore(Object propertyName) {
+            return ((_toInclude != null) && !_toInclude.contains(propertyName))
+                    || _toIgnore.contains(propertyName);
+        }
     }
 }

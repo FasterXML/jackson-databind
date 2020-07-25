@@ -79,6 +79,7 @@ public class IncludeWithDeserTest
         }
     }
 
+    @SuppressWarnings("serial")
     @JsonIncludeProperties({"@class", "a"})
     static class MyMap extends HashMap<String, String>
     {

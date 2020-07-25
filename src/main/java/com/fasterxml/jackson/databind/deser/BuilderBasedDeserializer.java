@@ -175,7 +175,8 @@ public class BuilderBasedDeserializer
     }
 
     @Override
-    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps) {
+    public BeanDeserializerBase withByNameInclusion(Set<String> ignorableProps,
+            Set<String> includableProps) {
         return new BuilderBasedDeserializer(this, ignorableProps, includableProps);
     }
 

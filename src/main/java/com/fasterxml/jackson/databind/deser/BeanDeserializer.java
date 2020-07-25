@@ -97,23 +97,20 @@ public class BeanDeserializer
         _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
     }
 
-    public BeanDeserializer(BeanDeserializer src, ObjectIdReader oir) {
+    protected BeanDeserializer(BeanDeserializer src, ObjectIdReader oir) {
         super(src, oir);
         _fieldMatcher = src._fieldMatcher;
         _fieldsByIndex = src._fieldsByIndex;
     }
 
-    public BeanDeserializer(BeanDeserializer src, Set<String> ignorableProps) {
-        super(src, ignorableProps);
+    protected BeanDeserializer(BeanDeserializer src,
+            Set<String> ignorableProps, Set<String> includableProps) {
+        super(src, ignorableProps, includableProps);
         _fieldMatcher = src._fieldMatcher;
         _fieldsByIndex = src._fieldsByIndex;
     }
 
-    public BeanDeserializer(BeanDeserializerBase src, Set<String> ignorableProps, Set<String> includableProps) {
-        super(src, ignorableProps, includableProps);
-    }
-
-    public BeanDeserializer(BeanDeserializer src, BeanPropertyMap props) {
+    protected BeanDeserializer(BeanDeserializer src, BeanPropertyMap props) {
         super(src, props);
         _fieldMatcher = _beanProperties.getFieldMatcher();
         _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
@@ -157,7 +154,8 @@ public class BeanDeserializer
     }
 
     @Override
-    public BeanDeserializer withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps) {
+    public BeanDeserializer withByNameInclusion(Set<String> ignorableProps,
+            Set<String> includableProps) {
         return new BeanDeserializer(this, ignorableProps, includableProps);
     }
 

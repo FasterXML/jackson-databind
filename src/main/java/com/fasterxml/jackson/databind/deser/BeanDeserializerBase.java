@@ -350,15 +350,11 @@ public abstract class BeanDeserializerBase
         }
     }
 
-    public BeanDeserializerBase(BeanDeserializerBase src, Set<String> ignorableProps)
-    {
-        this(src, ignorableProps, src._includableProps);
-    }
-
     /**
      * @since 2.12
      */
-    public BeanDeserializerBase(BeanDeserializerBase src, Set<String> ignorableProps, Set<String> includableProps)
+    public BeanDeserializerBase(BeanDeserializerBase src,
+            Set<String> ignorableProps, Set<String> includableProps)
     {
         super(src._beanType);
         _beanType = src._beanType;
@@ -412,22 +408,10 @@ public abstract class BeanDeserializerBase
 
         _vanillaProcessing = src._vanillaProcessing;
     }
-    
-    @Override
-    public abstract JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
-            NameTransformer unwrapper);
 
     public abstract BeanDeserializerBase withObjectIdReader(ObjectIdReader oir);
 
-    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps) {
-        return withIgnorableProperties(ignorableProps, _includableProps);
-    }
-
-    public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps);
-
-    public BeanDeserializerBase withIncludableProperties(Set<String> includableProperties) {
-        return withIgnorableProperties(_ignorableProps, includableProperties);
-    }
+    public abstract BeanDeserializerBase withByNameInclusion(Set<String> ignorableProps, Set<String> includableProps);
 
     public abstract BeanDeserializerBase withIgnoreAllUnknown(boolean ignoreUnknown);
 
@@ -439,13 +423,20 @@ public abstract class BeanDeserializerBase
         throw new UnsupportedOperationException("Class "+getClass().getName()
                 +" does not override `withBeanProperties()`, needs to");
     }
-    
+
+    @Override
+    public abstract JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper);
+
     /**
      * Fluent factory for creating a variant that can handle
      * POJO output as a JSON Array. Implementations may ignore this request
      * if no such input is possible.
      */
     protected abstract BeanDeserializerBase asArrayDeserializer();
+
+    // @since 3.0
+    protected abstract void initFieldMatcher(DeserializationContext ctxt);
 
     /*
     /**********************************************************
@@ -758,40 +749,7 @@ public abstract class BeanDeserializerBase
         }
         // And possibly add more properties to ignore
         if (accessor != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, accessor);
-            if (ignorals != null) {
-                Set<String> ignored = ignorals.findIgnoredForDeserialization();
-                if (!ignored.isEmpty()) {
-                    Set<String> prev = contextual._ignorableProps;
-                    if ((prev != null) && !prev.isEmpty()) {
-                        ignored = new HashSet<String>(ignored);
-                        ignored.addAll(prev);
-                    }
-                    contextual = contextual.withIgnorableProperties(ignored);
-                }
-                // 30-Mar-2020, tatu: As per [databind#2627], need to also allow
-                //    per-property override to "ignore all unknown".
-                //  NOTE: there is no way to override with `false` because annotation
-                //  defaults to `false` (i.e. can not know if `false` is explicit value)
-                if (ignorals.getIgnoreUnknown() && !_ignoreAllUnknown) {
-                    contextual = contextual.withIgnoreAllUnknown(true);
-                }
-            }
-            JsonIncludeProperties.Value inclusions = intr.findPropertyInclusionByName(config, accessor);
-            if (inclusions != null) {
-                Set<String> included = inclusions.getIncluded();
-                Set<String> prev = contextual._includableProps;
-                if (prev != null && included != null) {
-                    Set<String> newIncluded = new HashSet<>();
-                    // Make the intersection with the previously included properties.
-                    for(String prop : prev) {
-                        if (included.contains(prop)) {
-                            newIncluded.add(prop);
-                        }
-                    }
-                    contextual = contextual.withIncludableProperties(newIncluded);
-                }
-            }
+            contextual = _handleByNameInclusion(ctxt, intr, contextual, accessor);
         }
 
         // One more thing: are we asked to serialize POJO as array?
@@ -821,8 +779,45 @@ public abstract class BeanDeserializerBase
         return contextual;
     }
 
-    // @since 3.0
-    protected abstract void initFieldMatcher(DeserializationContext ctxt);
+    protected BeanDeserializerBase _handleByNameInclusion(DeserializationContext ctxt,
+            AnnotationIntrospector intr,
+            BeanDeserializerBase contextual,
+            AnnotatedMember accessor) throws JsonMappingException
+    {
+        final DeserializationConfig config = ctxt.getConfig();
+        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, accessor);
+
+        // 30-Mar-2020, tatu: As per [databind#2627], need to also allow
+        //    per-property override to "ignore all unknown".
+        //  NOTE: there is no way to override with `false` because annotation
+        //  defaults to `false` (i.e. can not know if `false` is explicit value)
+        if (ignorals.getIgnoreUnknown() && !_ignoreAllUnknown) {
+            contextual = contextual.withIgnoreAllUnknown(true);
+        }
+
+        final Set<String> namesToIgnore = ignorals.findIgnoredForDeserialization();
+        final Set<String> prevNamesToIgnore = contextual._ignorableProps;
+        final Set<String> newNamesToIgnore;
+
+        if (namesToIgnore.isEmpty()) {
+            newNamesToIgnore = prevNamesToIgnore;
+        } else if ((prevNamesToIgnore == null) || prevNamesToIgnore.isEmpty()) {
+            newNamesToIgnore = namesToIgnore;
+        } else {
+            newNamesToIgnore = new HashSet<String>(prevNamesToIgnore);
+            newNamesToIgnore.addAll(namesToIgnore);
+        }
+
+        final Set<String> prevNamesToInclude = contextual._includableProps;
+        final Set<String> newNamesToInclude = IgnorePropertiesUtil.combineNamesToInclude(prevNamesToInclude,
+                intr.findPropertyInclusionByName(config, accessor).getIncluded());
+
+        if ((newNamesToIgnore != prevNamesToIgnore)
+                || (newNamesToInclude != prevNamesToInclude)) {
+            contextual = contextual.withByNameInclusion(newNamesToIgnore, newNamesToInclude);
+        }
+        return contextual;
+    }
 
     /**
      * Helper method called to see if given property is part of 'managed' property

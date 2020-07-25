@@ -148,7 +148,8 @@ public class BeanDeserializer
     }
 
     @Override
-    public BeanDeserializer withIgnorableProperties(Set<String> ignorableProps, Set<String> includableProps) {
+    public BeanDeserializer withByNameInclusion(Set<String> ignorableProps,
+            Set<String> includableProps) {
         return new BeanDeserializer(this, ignorableProps, includableProps);
     }
 

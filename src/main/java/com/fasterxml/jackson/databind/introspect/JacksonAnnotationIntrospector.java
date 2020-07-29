@@ -308,6 +308,13 @@ public class JacksonAnnotationIntrospector
         return JsonIgnoreProperties.Value.from(v);
     }
 
+    // Keep around until 3.x
+    @Deprecated // since 2.12
+    @Override
+    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated ac) {
+        return findPropertyIgnoralByName(null, ac);
+    }
+
     @Override
     public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated a)
     {

@@ -365,7 +365,7 @@ public abstract class AnnotationIntrospector
 
     /**
      * @since 2.8
-     * @deprecated 2.12
+     * @deprecated 2.12, use {@link #findPropertyIgnoralByName} instead.
      */
     @Deprecated // since 2.12
     public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated ac) {

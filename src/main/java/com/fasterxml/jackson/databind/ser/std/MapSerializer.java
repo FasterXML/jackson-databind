@@ -272,14 +272,16 @@ public class MapSerializer
         return new MapSerializer(this, _valueTypeSerializer, suppressableValue, suppressNulls);
     }
 
-    public static MapSerializer construct(Set<String> ignoredEntries, Set<String> includedEntries, JavaType mapType,
+    // @since 3.0 (different argument order in 2.x)
+    public static MapSerializer construct(JavaType mapType,
             boolean staticValueType, TypeSerializer vts,
             JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer,
-            Object filterId)
+            Object filterId,
+            Set<String> ignoredEntries, Set<String> includedEntries)
     {
         JavaType keyType, valueType;
 
-        if (mapType == null) {
+        if (mapType == null) { // for tests?
             keyType = valueType = UNSPECIFIED_TYPE;
         } else { 
             keyType = mapType.getKeyType();

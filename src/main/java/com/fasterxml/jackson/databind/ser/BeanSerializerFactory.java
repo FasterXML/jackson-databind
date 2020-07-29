@@ -337,10 +337,11 @@ public class BeanSerializerFactory
             JsonSerializer<?> anySer = findSerializerFromAnnotation(ctxt, anyGetter);
             if (anySer == null) {
                 // TODO: support '@JsonIgnoreProperties' with any setter?
-                anySer = MapSerializer.construct(/* ignored props*/ (Set<String>) null,
-                        /* included props*/ (Set<String>) null,
+                anySer = MapSerializer.construct(
                         anyType, config.isEnabled(MapperFeature.USE_STATIC_TYPING),
-                        typeSer, null, null, /*filterId*/ null);
+                        typeSer, null, null, /*filterId*/ null,
+                        /* ignored props*/ (Set<String>) null,
+                        /* included props*/ (Set<String>) null);
             }
             // TODO: can we find full PropertyName?
             PropertyName name = PropertyName.construct(anyGetter.getName());

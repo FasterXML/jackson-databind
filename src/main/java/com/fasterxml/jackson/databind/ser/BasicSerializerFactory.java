@@ -760,9 +760,10 @@ public abstract class BasicSerializerFactory
                         beanDesc.getClassInfo());
                 Set<String> included = (inclusions == null) ? null
                         : inclusions.getIncluded();
-                MapSerializer mapSer = MapSerializer.construct(ignored, included,
-                        type, staticTyping, elementTypeSerializer,
-                        keySerializer, elementValueSerializer, filterId);
+                MapSerializer mapSer = MapSerializer.construct(type,
+                        staticTyping, elementTypeSerializer,
+                        keySerializer, elementValueSerializer, filterId,
+                        ignored, included);
                 ser = _checkMapContentInclusion(ctxt, beanDesc, mapSer);
             }
         }

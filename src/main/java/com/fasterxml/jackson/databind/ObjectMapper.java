@@ -3182,7 +3182,7 @@ public class ObjectMapper
     @SuppressWarnings("unchecked")
     @Override
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
-        throws JsonProcessingException
+        throws IllegalArgumentException
     {
         if (n == null) {
             return null;

@@ -112,7 +112,7 @@ public class BeanPropertyMap
             Map<String,List<PropertyName>> aliasDefs) {
         this(caseInsensitive, props, aliasDefs, Locale.getDefault());
     }
-    
+
     /* Copy constructors used when a property can replace existing one
      *
      * @since 2.9.6
@@ -373,7 +373,7 @@ public class BeanPropertyMap
     /* Public API, mutators
     /**********************************************************
      */
-    
+
     /**
      * Mutant factory method that will use this instance as the base, and
      * construct an instance that is otherwise same except for excluding

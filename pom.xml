@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <!-- This module was also published with a richer model, Gradle metadata,  -->
   <!-- which should be used instead. Do not delete the following line which  -->
   <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
@@ -39,10 +40,10 @@
   <properties>
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
-    <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android --> 
+    <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android -->
     <osgi.import>
-        org.w3c.dom.bootstrap;resolution:=optional,
-        *
+      org.w3c.dom.bootstrap;resolution:=optional,
+      *
     </osgi.import>
 
     <!-- Generate PackageVersion.java into this directory. -->
@@ -114,8 +115,12 @@
       <id>sonatype-nexus-snapshots</id>
       <name>Sonatype Nexus Snapshots</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases><enabled>false</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
@@ -123,22 +128,22 @@
     <plugins>
 
       <plugin>
-	<groupId>org.jacoco</groupId>
-	<artifactId>jacoco-maven-plugin</artifactId>
-	<executions>
-	  <execution>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
           </execution>
-	  <execution>
+          <execution>
             <id>report</id>
             <phase>test</phase>
             <goals>
               <goal>report</goal>
             </goals>
           </execution>
-	</executions>
+        </executions>
       </plugin>
 
       <plugin>
@@ -175,6 +180,15 @@
         <!-- Inherited from oss-base. Generate PackageVersion.java.-->
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
+        <executions>
+          <execution>
+            <id>generate-package-version-java</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- 17-Sep-2017, tatu: With 3.0 need to ensure parameter names compiled in
@@ -200,7 +214,7 @@
         <groupId>de.jjohannes</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
       </plugin>
-     </plugins>
+    </plugins>
   </build>
 
   <profiles>

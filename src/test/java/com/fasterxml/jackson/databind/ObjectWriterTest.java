@@ -26,7 +26,7 @@ public class ObjectWriterTest
         public int x;
 
         public boolean closed;
-        
+
         @Override
         public void close() throws IOException {
             closed = true;
@@ -42,14 +42,14 @@ public class ObjectWriterTest
     @JsonTypeName("A")
     static class ImplA extends PolyBase {
         public int value;
-        
+
         public ImplA(int v) { value = v; }
     }
 
     @JsonTypeName("B")
     static class ImplB extends PolyBase {
         public int b;
-        
+
         public ImplB(int v) { b = v; }
     }
 
@@ -64,7 +64,7 @@ public class ObjectWriterTest
         ObjectWriter writer = MAPPER.writer();
         HashMap<String, Integer> data = new HashMap<String,Integer>();
         data.put("a", 1);
-        
+
         // default: no indentation
         assertEquals("{\"a\":1}", writer.writeValueAsString(data));
 
@@ -159,9 +159,20 @@ public class ObjectWriterTest
         assertNotSame(w, newW);
         assertSame(newW, newW.withView(String.class));
 
-        newW = w.with(Locale.CANADA);
+        // Avoid using the default Locale so that a new ObjectWriter will be
+        // created when calling `with(Locale)`.
+        Locale newLocale = notTheDefaultLocale();
+
+        newW = w.with(newLocale);
         assertNotSame(w, newW);
-        assertSame(newW, newW.with(Locale.CANADA));
+        assertSame(newW, newW.with(newLocale));
+    }
+
+    private Locale notTheDefaultLocale() {
+        return Arrays.stream(Locale.getAvailableLocales())
+                .filter(locale -> !locale.equals(Locale.getDefault()))
+                .findAny()
+                .get();
     }
 
     public void testMiscSettings() throws Exception
@@ -174,7 +185,7 @@ public class ObjectWriterTest
         ObjectWriter newW = w.with(Base64Variants.MODIFIED_FOR_URL);
         assertNotSame(w, newW);
         assertSame(newW, newW.with(Base64Variants.MODIFIED_FOR_URL));
-        
+
         w = w.withAttributes(Collections.emptyMap());
         w = w.withAttribute("a", "b");
         assertEquals("b", w.getAttributes().getAttribute("a"));
@@ -193,7 +204,7 @@ public class ObjectWriterTest
     public void testRootValueSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        
+
         // First, root name:
         ObjectWriter newW = w.withRootName("foo");
         assertNotSame(w, newW);
@@ -259,7 +270,7 @@ public class ObjectWriterTest
         assertNotSame(w, w.without(StreamWriteFeature.AUTO_CLOSE_TARGET));
         assertNotSame(w, w.withoutFeatures(StreamWriteFeature.AUTO_CLOSE_TARGET));
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, failures

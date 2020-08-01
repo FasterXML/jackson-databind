@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -417,20 +418,6 @@ public class BeanPropertyMap
         return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, _locale);
     }
 
-    @Deprecated // in 2.9.4 -- must call method that takes old and new property to avoid mismatch
-    public void replace(SettableBeanProperty newProp)
-    {
-        String key = getPropertyName(newProp);
-        int ix = _findIndexInHash(key);
-        if (ix < 0) {
-            throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
-        }
-        SettableBeanProperty prop = (SettableBeanProperty) _hashArea[ix];
-        _hashArea[ix] = newProp;
-        // also, replace in in-order
-        _propsInOrder[_findFromOrdered(prop)] = newProp;
-    }
-
     /**
      * Specialized method that can be used to replace an existing entry
      * (note: entry MUST exist; otherwise exception is thrown) with
@@ -775,6 +762,7 @@ public class BeanPropertyMap
      *
      * @since 2.7
      */
+    /*
     private final int _findIndexInHash(String key)
     {
         final int slot = _hashCode(key);
@@ -799,6 +787,7 @@ public class BeanPropertyMap
         }
         return -1;
     }
+    */
     
     private final int _findFromOrdered(SettableBeanProperty prop) {
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {

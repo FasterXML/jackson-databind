@@ -18,8 +18,8 @@ public class JsonIgnoreProperties2803Test extends BaseMapTest
     }
 
     static class Room2803 {
-        public String id;
         public Building2803 something;
+        public String id;
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -31,6 +31,11 @@ public class JsonIgnoreProperties2803Test extends BaseMapTest
 
         // Important! Must do both calls, in this order
         Museum2803 museum = MAPPER.readValue(DOC, Museum2803.class);
+        assertNotNull(museum);
+//System.err.println();
+//System.err.println("------------------------------");
+//System.err.println();
         Building2803 building = MAPPER.readValue(DOC, Building2803.class);
+        assertNotNull(building);
     }
 }

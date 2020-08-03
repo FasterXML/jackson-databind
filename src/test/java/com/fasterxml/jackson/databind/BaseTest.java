@@ -344,7 +344,7 @@ public abstract class BaseTest
         assertTrue("Should have positive line number", location.getLineNr() > 0);
     }
 
-    protected void verifyException(Throwable e, String... matches)
+    public static void verifyException(Throwable e, String... matches)
     {
         String msg = e.getMessage();
         String lmsg = (msg == null) ? "" : msg.toLowerCase();

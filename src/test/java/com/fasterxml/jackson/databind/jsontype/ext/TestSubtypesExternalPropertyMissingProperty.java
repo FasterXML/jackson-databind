@@ -6,21 +6,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 
 // for [databind#1341]
-public class TestSubtypesExternalPropertyMissingProperty
+public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
 {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     /**
      * Base class - external property for Fruit subclasses.
      */
@@ -95,7 +87,7 @@ public class TestSubtypesExternalPropertyMissingProperty
         }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************
@@ -246,14 +238,20 @@ public class TestSubtypesExternalPropertyMissingProperty
     }
 
     private void checkBoxJsonMappingException(String json) throws Exception {
-        thrown.expect(JsonMappingException.class);
-        thrown.expectMessage("Missing property 'fruit' for external type id 'type'");
-        MAPPER.readValue(json, Box.class);
+        try {
+            MAPPER.readValue(json, Box.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+        }
     }
 
     private void checkReqBoxJsonMappingException(String json) throws Exception {
-        thrown.expect(JsonMappingException.class);
-        thrown.expectMessage("Missing property 'fruit' for external type id 'type'");
-        MAPPER.readValue(json, ReqBox.class);
+        try {
+            MAPPER.readValue(json, ReqBox.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+        }
     }
 }    

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.misc;
+package com.fasterxml.jackson.databind.deser.impl;
 
 import java.util.*;
 

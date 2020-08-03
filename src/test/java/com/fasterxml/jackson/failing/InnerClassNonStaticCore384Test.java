@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-
-import static org.junit.Assert.assertThat;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -190,8 +186,8 @@ for (Vehicle v : fleet.vehicles) {
 
         Fleet deserializedFleet = mapper.readValue(serializedFleet, Fleet.class);
 
-        assertThat(deserializedFleet.getVehicles().get(0), instanceOf(Car.class));
-        assertThat(deserializedFleet.getVehicles().get(1), instanceOf(Truck.class));
+        assertTrue(deserializedFleet.getVehicles().get(0) instanceof Car);
+        assertTrue(deserializedFleet.getVehicles().get(1) instanceof Truck);
 
         assertEquals(fleet, deserializedFleet);
     }

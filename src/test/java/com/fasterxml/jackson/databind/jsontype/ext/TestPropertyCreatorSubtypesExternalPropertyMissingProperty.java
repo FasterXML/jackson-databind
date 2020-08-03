@@ -1,32 +1,23 @@
 package com.fasterxml.jackson.databind.jsontype.ext;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 // for [databind#2404]
 public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
 {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     /**
      * Base class - external property for Fruit subclasses.
      */
@@ -243,8 +234,11 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
     }
 
     private void checkBoxJsonMappingException(ObjectReader reader, String json) throws Exception {
-        thrown.expect(JsonMappingException.class);
-        thrown.expectMessage("Missing property 'fruit' for external type id 'type'");
-        reader.readValue(json);
+        try {
+            reader.readValue(json);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+        }
     }
 }    

@@ -415,7 +415,7 @@ public abstract class BaseTest
         assertTrue("Should have positive line number", location.getLineNr() > 0);
     }
 
-    protected void verifyException(Exception e, Class<?> expType, String expMsg)
+    public static void verifyException(Exception e, Class<?> expType, String expMsg)
         throws Exception
     {
         if (e.getClass() != expType) {
@@ -426,7 +426,7 @@ public abstract class BaseTest
         }
     }
 
-    protected void verifyException(Throwable e, String... matches)
+    public static void verifyException(Throwable e, String... matches)
     {
         String msg = e.getMessage();
         String lmsg = (msg == null) ? "" : msg.toLowerCase();

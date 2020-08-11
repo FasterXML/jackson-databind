@@ -137,9 +137,11 @@ public class SubTypeValidator
         // [databind#2631]: shaded hikari-config
         s.add("org.apache.hadoop.shaded.com.zaxxer.hikari.HikariConfig");
 
-        // [databind#2634]: ibatis-sqlmap, anteros-core
+        // [databind#2634]: ibatis-sqlmap, anteros-core/-dbcp
         s.add("com.ibatis.sqlmap.engine.transaction.jta.JtaTransactionConfig");
         s.add("br.com.anteros.dbcp.AnterosDBCPConfig");
+        // [databind#2814]: anteros-dbcp
+        s.add("br.com.anteros.dbcp.AnterosDBCPDataSource");
 
         // [databind#2642]: javax.swing (jdk)
         s.add("javax.swing.JEditorPane");

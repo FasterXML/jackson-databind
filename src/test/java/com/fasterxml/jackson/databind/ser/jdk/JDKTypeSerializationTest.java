@@ -18,9 +18,9 @@ import com.fasterxml.jackson.databind.*;
  * that are not Enums, Collections, Maps, or standard Date/Time types)
  */
 public class JDKTypeSerializationTest
-    extends com.fasterxml.jackson.databind.BaseMapTest
+    extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = sharedMapper();
 
     static class InetAddressBean {
         public InetAddress value;
@@ -180,40 +180,6 @@ public class JDKTypeSerializationTest
         exp = MAPPER.writeValueAsString(new byte[] { 2, 3, 4 });
         bbuf = ByteBuffer.wrap(INPUT_BYTES, 1, 3);
         assertEquals(exp, MAPPER.writeValueAsString(bbuf.duplicate()));
-    }
-
-    // Verify that efficient UUID codec won't mess things up:
-    public void testUUIDs() throws IOException
-    {
-        // first, couple of generated UUIDs:
-        for (String value : new String[] {
-                "76e6d183-5f68-4afa-b94a-922c1fdb83f8",
-                "540a88d1-e2d8-4fb1-9396-9212280d0a7f",
-                "2c9e441d-1cd0-472d-9bab-69838f877574",
-                "591b2869-146e-41d7-8048-e8131f1fdec5",
-                "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
-                "00000007-0000-0000-0000-000000000000"
-        }) {
-            UUID uuid = UUID.fromString(value);
-            String json = MAPPER.writeValueAsString(uuid);
-            assertEquals(quote(uuid.toString()), json);
-
-            // Also, wrt [#362], should convert cleanly
-            String str = MAPPER.convertValue(uuid, String.class);
-            assertEquals(value, str);
-        }
-        
-        // then use templating; note that these are not exactly valid UUIDs
-        // wrt spec (type bits etc), but JDK UUID should deal ok
-        final String TEMPL = "00000000-0000-0000-0000-000000000000";
-        final String chars = "123456789abcdef";
-
-        for (int i = 0; i < chars.length(); ++i) {
-            String value = TEMPL.replace('0', chars.charAt(i));
-            UUID uuid = UUID.fromString(value);
-            String json = MAPPER.writeValueAsString(uuid);
-            assertEquals(quote(uuid.toString()), json);
-        }
     }
 
     // [databind#2197]

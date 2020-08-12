@@ -12,12 +12,10 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
@@ -31,11 +29,11 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * is limited to the <i>names</i> of child fields (not their values or, consequently, any nested descendants).
  * Exceptions will be thrown if not enough unique information is present to select a single subtype.
  */
-public class AsDeductionTypeDeserializer extends AsArrayTypeDeserializer {
+public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer {
 
-  // Fingerprint-indices of every field discovered across all subtypes
+  // Fieldname -> bitmap-index of every field discovered, across all subtypes
   private final Map<String, Integer> fieldBitIndex;
-  // Bitmap of fields in each subtype
+  // Bitmap of available fields in each subtype (including its parents)
   private final Map<BitSet, String> subtypeFingerprints;
 
   public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl, DeserializationConfig config, Collection<NamedType> subtypes) {
@@ -99,13 +97,19 @@ public class AsDeductionTypeDeserializer extends AsArrayTypeDeserializer {
     if (t == JsonToken.START_OBJECT) {
       t = p.nextToken();
     } else {
-      // FIXME
+      /* This is most likely due to the fact that not all Java types are
+       * serialized as JSON Objects; so if "as-property" inclusion is requested,
+       * serialization of things like Lists must be instead handled as if
+       * "as-wrapper-array" was requested.
+       * But this can also be due to some custom handling: so, if "defaultImpl"
+       * is defined, it will be asked to handle this case.
+       */
+      return _deserializeTypedUsingDefaultImpl(p, ctxt, null);
     }
 
     List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());
 
-    // Record tokens we process as we'll have to rewind
-    // once we have deduced what deserialzer to use
+    // Record processed tokens as we must rewind once after deducing the deserializer to use
     TokenBuffer tb = new TokenBuffer(p, ctxt);
     boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES); // FIXME
 
@@ -115,7 +119,7 @@ public class AsDeductionTypeDeserializer extends AsArrayTypeDeserializer {
 
       Integer bit = fieldBitIndex.get(name);
       if (bit != null) {
-        // fieldname is known by at least one subtype
+        // field is known by at least one subtype
         prune(candidates, bit);
         if (candidates.size() == 1) {
           return _deserializeTypedForId(p, ctxt, tb, subtypeFingerprints.get(candidates.get(0)));
@@ -131,29 +135,7 @@ public class AsDeductionTypeDeserializer extends AsArrayTypeDeserializer {
     );
   }
 
-  // Cut n paste from AsPropertyTypeDeserializer with one improvement to the signature
-  protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
-                                          TokenBuffer tb, String typeId) throws IOException {
-    JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
-    if (_typeIdVisible) { // need to merge id back in JSON input?
-      if (tb == null) {
-        tb = new TokenBuffer(p, ctxt);
-      }
-      tb.writeFieldName(p.getCurrentName());
-      tb.writeString(typeId);
-    }
-    if (tb != null) { // need to put back skipped properties?
-      // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
-      //   try to access current token; ensure there isn't one
-      p.clearCurrentToken();
-      p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
-    }
-    // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
-    p.nextToken(); // to skip past String value
-    // deserializer should take care of closing END_OBJECT as well
-    return deser.deserialize(p, ctxt);
-  }
-
+  // Keep only fingerprints containing this field
   private static void prune(List<BitSet> candidates, int bit) {
     for (Iterator<BitSet> iter = candidates.iterator(); iter.hasNext(); ) {
       if (!iter.next().get(bit)) {

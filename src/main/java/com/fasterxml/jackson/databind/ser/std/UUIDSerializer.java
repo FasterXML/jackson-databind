@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -20,7 +21,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class UUIDSerializer
     extends StdScalarSerializer<UUID>
-    implements ContextualSerializer // since 2.11.3 (for databind#2815)
 {
     final static char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 

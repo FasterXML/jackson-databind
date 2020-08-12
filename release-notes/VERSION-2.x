@@ -67,6 +67,7 @@ Project: jackson-databind
  (reported by isaki@github)
 #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
  (reported by Daniel H)
+#2815: Add `JsonFormat.Shape` awareness for UUID serialization (`UUIDSerializer`)
 
 2.11.1 (25-Jun-2020)
 

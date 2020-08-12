@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -147,6 +148,25 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertSame(cat.getClass(), LiveCat.class);
     assertEquals("Felix", cat.name);
     assertTrue(((LiveCat)cat).angry);
+  }
+
+  static class AnotherLiveCat extends Cat {
+    public boolean angry;
+
+    AnotherLiveCat(@JsonProperty("name") String name) {
+      super(name);
+    }
+  }
+
+  public void testAmbiguousClasses() throws Exception {
+    try {
+      ObjectMapper mapper = newJsonMapper(); // Don't use shared mapper!
+      mapper.registerSubtypes(AnotherLiveCat.class);
+      Cat cat = mapper.readValue(liveCatJson, Cat.class);
+      fail("Should not get here");
+    } catch (IllegalStateException e) {
+      // NO OP
+    }
   }
 
   public void testAmbiguousProperties() throws Exception {

@@ -80,16 +80,15 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer {
         fingerprint.set(bitIndex);
       }
 
-      // Validate uniqueness
-//      if ( fingerprints.containsKey(fingerprint)) {
-//        throw InvalidDefinitionException.from(
-//          (JsonParser)null,
-//          String.format("Subtypes %s and %s have the same signature and cannot be uniquely deduced.", fingerprints.get(fingerprint), subtype.getType().getName()),
-//          _baseType
-//          );
-//      }
+      String existingFingerprint = fingerprints.put(fingerprint, subtype.getType().getName());
 
-      fingerprints.put(fingerprint, subtype.getType().getName());
+      // Validate uniqueness
+      if (existingFingerprint != null) {
+        throw new IllegalStateException(
+          String.format("Subtypes %s and %s have the same signature and cannot be uniquely deduced.", existingFingerprint, subtype.getType().getName())
+        );
+      }
+
     }
     return fingerprints;
   }

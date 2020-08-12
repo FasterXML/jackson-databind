@@ -3,10 +3,12 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class UUIDSerializer
     extends StdScalarSerializer<UUID>
+    implements ContextualSerializer // since 2.11.3 (for databind#2815)
 {
     final static char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
@@ -35,6 +38,26 @@ public class UUIDSerializer
     }
 
     @Override
+    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+            BeanProperty property) throws JsonMappingException
+    {
+        JsonFormat.Value format = findFormatOverrides(serializers,
+                property, handledType());
+        Boolean asBinary = null;
+        if (format != null) {
+            JsonFormat.Shape shape = format.getShape();
+            if (shape == JsonFormat.Shape.BINARY) {
+                asBinary = true;
+            } else if (shape == JsonFormat.Shape.STRING) {
+                asBinary = false;
+            }
+            // otherwise leave as `null` meaning about same as NATURAL
+        }
+        // !!! TODO:
+        return this;
+    }
+
+    @Override
     public void serialize(UUID value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
@@ -49,7 +72,7 @@ public class UUIDSerializer
                 return;
             }
         }
-        
+
         // UUID.toString() works ok functionally, but we can make it go much faster
         // (by 4x with micro-benchmark)
 
@@ -92,7 +115,6 @@ public class UUIDSerializer
         ch[++offset] = HEX_CHARS[(bits >> 8) & 0xF];
         ch[++offset] = HEX_CHARS[(bits >> 4) & 0xF];
         ch[++offset] = HEX_CHARS[bits  & 0xF];
-
     }
 
     private final static byte[] _asBytes(UUID uuid)

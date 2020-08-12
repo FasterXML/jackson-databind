@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -80,6 +81,29 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertEquals("Felix", cat.name);
     assertEquals("entropy", ((DeadCat)cat).causeOfDeath);
   }
+
+  public void testCaseInsensitiveInference() throws Exception {
+    Cat cat = newJsonMapper() // Don't use shared mapper!
+      .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+      .readValue(deadCatJson.toUpperCase(), Cat.class);
+    assertTrue(cat instanceof DeadCat);
+    assertSame(cat.getClass(), DeadCat.class);
+    assertEquals("FELIX", cat.name);
+    assertEquals("ENTROPY", ((DeadCat)cat).causeOfDeath);
+  }
+
+  // TODO not currently supported
+//  public void testCaseInsensitivePerFieldInference() throws Exception {
+//    ObjectMapper mapper = newJsonMapper(); // Don't use shared mapper!
+//    mapper.configOverride(DeadCat.class)
+//      .setFormat(JsonFormat.Value.empty()
+//      .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+//    Cat cat = mapper.readValue(deadCatJson.replace("causeOfDeath", "CAUSEOFDEATH"), Cat.class);
+//    assertTrue(cat instanceof DeadCat);
+//    assertSame(cat.getClass(), DeadCat.class);
+//    assertEquals("Felix", cat.name);
+//    assertEquals("Entropy", ((DeadCat)cat).causeOfDeath);
+//  }
 
   public void testContainedInference() throws Exception {
     Box box = sharedMapper().readValue(box1Json, Box.class);

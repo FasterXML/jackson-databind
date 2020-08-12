@@ -59,6 +59,8 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer {
   }
 
   protected Map<BitSet, String> buildFingerprints(DeserializationConfig config, Collection<NamedType> subtypes) {
+    boolean ignoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+
     int nextField = 0;
     Map<BitSet, String> fingerprints = new HashMap<>();
 
@@ -68,10 +70,12 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer {
 
       BitSet fingerprint = new BitSet(nextField + properties.size());
       for (BeanPropertyDefinition property : properties) {
-        Integer bitIndex = fieldBitIndex.get(property.getName());
+        String name = property.getName();
+        if (ignoreCase) name = name.toLowerCase();
+        Integer bitIndex = fieldBitIndex.get(name);
         if (bitIndex == null) {
           bitIndex = nextField;
-          fieldBitIndex.put(property.getName(), nextField++);
+          fieldBitIndex.put(name, nextField++);
         }
         fingerprint.set(bitIndex);
       }
@@ -111,10 +115,12 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer {
 
     // Record processed tokens as we must rewind once after deducing the deserializer to use
     TokenBuffer tb = new TokenBuffer(p, ctxt);
-    boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES); // FIXME
+    boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
     for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
       String name = p.getCurrentName();
+      if (ignoreCase) name = name.toLowerCase();
+
       tb.copyCurrentStructure(p);
 
       Integer bit = fieldBitIndex.get(name);

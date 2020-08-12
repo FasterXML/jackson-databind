@@ -25,7 +25,24 @@ public class UUIDSerializer
 {
     final static char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
-    public UUIDSerializer() { super(UUID.class); }
+    /**
+     * Configuration setting that indicates if serialization as binary
+     * (native or Base64-encoded) has been forced; {@code null} means
+     * "use default heuristic"
+     *
+     * @since 2.11.3
+     */
+    protected final Boolean _asBinary;
+
+    public UUIDSerializer() { this(null); }
+
+    /**
+     * @since 2.11.3
+     */
+    protected UUIDSerializer(Boolean asBinary) {
+        super(UUID.class);
+        _asBinary = asBinary;
+    }
 
     @Override
     public boolean isEmpty(SerializerProvider prov, UUID value)
@@ -45,6 +62,7 @@ public class UUIDSerializer
         JsonFormat.Value format = findFormatOverrides(serializers,
                 property, handledType());
         Boolean asBinary = null;
+
         if (format != null) {
             JsonFormat.Shape shape = format.getShape();
             if (shape == JsonFormat.Shape.BINARY) {
@@ -54,7 +72,9 @@ public class UUIDSerializer
             }
             // otherwise leave as `null` meaning about same as NATURAL
         }
-        // !!! TODO:
+        if (asBinary != _asBinary) {
+            return new UUIDSerializer(asBinary);
+        }
         return this;
     }
 
@@ -63,15 +83,9 @@ public class UUIDSerializer
         throws IOException
     {
         // First: perhaps we could serialize it as raw binary data?
-        if (gen.canWriteBinaryNatively()) {
-            // 07-Dec-2013, tatu: One nasty case; that of TokenBuffer. While it can
-            //   technically retain binary data, we do not want to do use binary
-            //   with it, as that results in UUIDs getting converted to Base64 for
-            //   most conversions.
-            if (!(gen instanceof TokenBuffer)) {
-                gen.writeBinary(_asBytes(value));
-                return;
-            }
+        if (_writeAsBinary(gen)) {
+            gen.writeBinary(_asBytes(value));
+            return;
         }
 
         // UUID.toString() works ok functionally, but we can make it go much faster
@@ -95,6 +109,20 @@ public class UUIDSerializer
 
         gen.writeString(ch, 0, 36);
     }
+
+    // @since 2.11.3
+    protected boolean _writeAsBinary(JsonGenerator g)
+    {
+        if (_asBinary != null) {
+            return _asBinary;
+        }
+        // 07-Dec-2013, tatu: One nasty case; that of TokenBuffer. While it can
+        //   technically retain binary data, we do not want to do use binary
+        //   with it, as that results in UUIDs getting converted to Base64 for
+        //   most conversions.
+        return !(g instanceof TokenBuffer) && g.canWriteBinaryNatively();
+    }
+
 
     // Need to add bit of extra info, format
     @Override

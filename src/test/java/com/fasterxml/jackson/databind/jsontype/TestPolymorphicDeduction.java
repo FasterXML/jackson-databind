@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -18,7 +19,7 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   @JsonTypeInfo(use = DEDUCTION)
   @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class)})
   static abstract class Cat {
-    private final String name;
+    public final String name;
 
     protected Cat(String name) {
       this.name = name;
@@ -58,6 +59,7 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   private static final String box1Json = aposToQuotes("{'cat':" + liveCatJson + "}");
   private static final String box2Json = aposToQuotes("{'cat':" + deadCatJson + "}");
   private static final String arrayOfCatsJson = aposToQuotes("[" + liveCatJson + "," + deadCatJson + "]");
+  private static final String mapOfCatsJson = aposToQuotes("{'live':" + liveCatJson + "}");
 
   /*
   /**********************************************************
@@ -70,7 +72,7 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertTrue(cat instanceof LiveCat);
     assertSame(cat.getClass(), LiveCat.class);
     assertEquals("Felix", cat.name);
-    assertEquals(true, ((LiveCat)cat).angry);
+    assertTrue(((LiveCat)cat).angry);
 
     cat = sharedMapper().readValue(deadCatJson, Cat.class);
     assertTrue(cat instanceof DeadCat);
@@ -84,7 +86,7 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertTrue(box.cat instanceof LiveCat);
     assertSame(box.cat.getClass(), LiveCat.class);
     assertEquals("Felix", box.cat.name);
-    assertEquals(true, ((LiveCat)box.cat).angry);
+    assertTrue(((LiveCat)box.cat).angry);
 
     box = sharedMapper().readValue(box2Json, Box.class);
     assertTrue(box.cat instanceof DeadCat);
@@ -100,6 +102,13 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertTrue(boxes.get(1) instanceof DeadCat);
   }
 
+  public void testMapInference() throws Exception {
+    JavaType mapOfCats = TypeFactory.defaultInstance().constructParametricType(Map.class, String.class, Cat.class);
+    Map<String, Cat> map = sharedMapper().readValue(mapOfCatsJson, mapOfCats);
+    assertEquals(1, map.size());
+    assertTrue(map.entrySet().iterator().next().getValue() instanceof LiveCat);
+  }
+
   public void testArrayInference() throws Exception {
     Cat[] boxes = sharedMapper().readValue(arrayOfCatsJson, Cat[].class);
     assertTrue(boxes[0] instanceof LiveCat);
@@ -113,7 +122,7 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertTrue(cat instanceof LiveCat);
     assertSame(cat.getClass(), LiveCat.class);
     assertEquals("Felix", cat.name);
-    assertEquals(true, ((LiveCat)cat).angry);
+    assertTrue(((LiveCat)cat).angry);
   }
 
   public void testAmbiguousProperties() throws Exception {
@@ -123,6 +132,27 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     } catch (InvalidTypeIdException e) {
       // NO OP
     }
+  }
+
+  public void testSimpleSerialization() throws Exception {
+    // Given:
+    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+    List<Cat> list = sharedMapper().readValue(arrayOfCatsJson, listOfCats);
+    Cat cat = list.get(0);
+    // When:
+    String json = sharedMapper().writeValueAsString(list.get(0));
+    // Then:
+    assertEquals(liveCatJson, json);
+  }
+
+  public void testListSerialization() throws Exception {
+    // Given:
+    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+    List<Cat> list = sharedMapper().readValue(arrayOfCatsJson, listOfCats);
+    // When:
+    String json = sharedMapper().writeValueAsString(list);
+    // Then:
+    assertEquals(arrayOfCatsJson, json);
   }
 
 }

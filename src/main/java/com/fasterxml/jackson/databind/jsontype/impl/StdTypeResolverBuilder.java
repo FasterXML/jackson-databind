@@ -96,8 +96,15 @@ public class StdTypeResolverBuilder
                 return null;
             }
         }
+
         TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator(config),
                 subtypes, true, false);
+
+        if(_idType == JsonTypeInfo.Id.DEDUCTION) {
+            // Deduction doesn't require a type property. We use EXISTING_PROPERTY with a name of <null> to drive this.
+            return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+        }
+
         switch (_includeAs) {
         case WRAPPER_ARRAY:
             return new AsArrayTypeSerializer(idRes, null);

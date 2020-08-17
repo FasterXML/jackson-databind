@@ -127,7 +127,7 @@ public class DefaultAccessorNamingStrategy
 
             Class<?> compType = rt.getComponentType();
             // Actually, let's just verify it's a "net.sf.cglib.*" class/interface
-            String className = compType.getName();
+            final String className = compType.getName();
             if (className.contains(".cglib")) {
                 return className.startsWith("net.sf.cglib")
                     // also, as per [JACKSON-177]

@@ -4,9 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
-import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
-import com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 // for [databind#884]

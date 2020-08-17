@@ -18,18 +18,18 @@ public class TestMultipleTypeNames extends BaseMapTest
     static class MultiTypeName { }
 
     static class A extends MultiTypeName {
-        private long x;
+        long x;
         public long getX() { return x; }
     }
 
     static class B extends MultiTypeName {
-        private float y;
+        float y;
         public float getY() { return y; }
     }
 
     // data for test 1
     static class WrapperForNamesTest {
-        private List<BaseForNamesTest> base;
+        List<BaseForNamesTest> base;
         public List<BaseForNamesTest> getBase() { return base; }
     }
 
@@ -46,12 +46,12 @@ public class TestMultipleTypeNames extends BaseMapTest
                 @JsonSubTypes.Type(value = A.class, names = "a"),
                 @JsonSubTypes.Type(value = B.class, names = {"b","c"}),
         })
-        private MultiTypeName data;
+        MultiTypeName data;
         public MultiTypeName getData() { return data; }
     }
 
     static class WrapperForNameAndNamesTest {
-        private List<BaseForNameAndNamesTest> base;
+        List<BaseForNameAndNamesTest> base;
         public List<BaseForNameAndNamesTest> getBase() { return base; }
     }
 
@@ -68,7 +68,7 @@ public class TestMultipleTypeNames extends BaseMapTest
                 @JsonSubTypes.Type(value = A.class, name = "a"),
                 @JsonSubTypes.Type(value = B.class, names = {"b","c"}),
         })
-        private MultiTypeName data;
+        MultiTypeName data;
         public MultiTypeName getData() { return data; }
     }
 

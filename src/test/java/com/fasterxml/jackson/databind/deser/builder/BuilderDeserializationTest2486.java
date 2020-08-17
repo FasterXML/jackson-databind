@@ -14,7 +14,7 @@ public class BuilderDeserializationTest2486
     public static class MyPOJOWithArrayCreator {
         private final int index;
 
-        private MyPOJOWithArrayCreator(int i) {
+        MyPOJOWithArrayCreator(int i) {
             index = i;
         }
 
@@ -23,7 +23,7 @@ public class BuilderDeserializationTest2486
         }
 
         public static class Builder {
-            private int index;
+            int index;
 
             public Builder() {
                 // Default constructor
@@ -56,7 +56,7 @@ public class BuilderDeserializationTest2486
     public static class MyPOJOWithPrimitiveCreator {
         private final int index;
 
-        private MyPOJOWithPrimitiveCreator(int i) {
+        MyPOJOWithPrimitiveCreator(int i) {
             index = i;
         }
 
@@ -65,7 +65,7 @@ public class BuilderDeserializationTest2486
         }
 
         public static class Builder {
-            private int index;
+            int index;
 
             public Builder() {
                 // Default constructor

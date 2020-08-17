@@ -27,9 +27,9 @@ public class BuilderWithTypeParametersTest
 
     @JsonDeserialize(builder = MyGenericPOJO.Builder.class)
     public static class MyGenericPOJO<T> {
-      private List<T> data;
+      List<T> data;
 
-      private MyGenericPOJO(List<T> d) {
+      MyGenericPOJO(List<T> d) {
         data = d;
       }
 
@@ -58,9 +58,9 @@ public class BuilderWithTypeParametersTest
     }
 
     public static class MyGenericPOJOWithCreator<T> {
-      private List<T> data;
+      List<T> data;
 
-      private MyGenericPOJOWithCreator(List<T> d) {
+      MyGenericPOJOWithCreator(List<T> d) {
           data = d;
       }
 

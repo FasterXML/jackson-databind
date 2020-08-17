@@ -39,7 +39,7 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
         private final int age;
         private final boolean alive;
 
-        private Person(Builder builder) {
+        Person(Builder builder) {
             id = builder.id;
             name = builder.name;
             age = builder.age;
@@ -64,10 +64,10 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
 
         @JsonPOJOBuilder(withPrefix = "set")
         final static class Builder {
-            private final long id;
-            private Name name;
-            private int age;
-            private boolean alive;
+            final long id;
+            Name name;
+            int age;
+            boolean alive;
 
             Builder(@JsonProperty("person_id") long id) {
                 this.id = id;
@@ -101,7 +101,7 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
         private final int age;
         private final boolean alive;
 
-        private Animal(Builder builder) {
+        Animal(Builder builder) {
             id = builder.id;
             name = builder.name;
             age = builder.age;
@@ -126,10 +126,10 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
 
         @JsonPOJOBuilder(withPrefix = "set")
         final static class Builder {
-            private final long id;
-            private Name name;
-            private int age;
-            private final boolean alive;
+            final long id;
+            Name name;
+            int age;
+            final boolean alive;
 
             Builder(
                     @JsonProperty("animal_id") long id,
@@ -161,7 +161,7 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
         private final Name name;
         private final String age;
 
-        private AnimalNoCreator(Builder builder) {
+        AnimalNoCreator(Builder builder) {
             id = builder.id;
             name = builder.name;
             age = builder.age;
@@ -181,9 +181,9 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
 
         @JsonPOJOBuilder(withPrefix = "set")
         final static class Builder {
-            private long id;
-            private Name name;
-            private String age;
+            long id;
+            Name name;
+            String age;
 
             Builder() { }
 

@@ -2262,14 +2262,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /**
          * @since 2.3
          */
-        private Object findObjectId(int index) {
+        Object findObjectId(int index) {
             return (_nativeIds == null) ? null : _nativeIds.get(_objectIdIndex(index));
         }
         
         /**
          * @since 2.3
          */
-        private Object findTypeId(int index) {
+        Object findTypeId(int index) {
             return (_nativeIds == null) ? null : _nativeIds.get(_typeIdIndex(index));
         }
 

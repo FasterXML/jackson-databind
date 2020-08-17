@@ -1104,7 +1104,10 @@ public final class ClassUtil
 
     /**
      * @since 2.7
+     *
+     * @deprecated Since 2.12 (just call methods directly or check class name)
      */
+    @Deprecated // since 2.12
     public static String getPackageName(Class<?> cls) {
         Package pkg = cls.getPackage();
         return (pkg == null) ? null : pkg.getName();

@@ -137,13 +137,6 @@ public class JsonMappingException
                     while (--arrays >= 0) {
                         sb.append("[]");
                     }
-                    /* was:
-                    String pkgName = ClassUtil.getPackageName(cls);
-                    if (pkgName != null) {
-                        sb.append(pkgName);
-                        sb.append('.');
-                    }
-                    */
                 }
                 sb.append('[');
                 if (_fieldName != null) {

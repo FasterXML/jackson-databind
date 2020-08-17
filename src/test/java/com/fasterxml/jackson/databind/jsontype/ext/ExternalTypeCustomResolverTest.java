@@ -301,8 +301,8 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             protected final UUID paymentInstrumentID;
             protected final String name;
 
-            private EncryptedCreditCardDetails (final UUID paymentInstrumentID, final String name) {
-                super ();
+            EncryptedCreditCardDetails (final UUID paymentInstrumentID, final String name) {
+                super();
                 this.paymentInstrumentID = paymentInstrumentID;
                 this.name = name;
             }
@@ -348,7 +348,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 private PaymentDetails paymentDetails;
                 
                 public PaymentMean build () {
-                    return new PaymentMean (this.formOfPayment, this.paymentDetails);
+                    return new PaymentMean(this.formOfPayment, this.paymentDetails);
                 }
                 
                 // if you annotate with @JsonIgnore, it works, but the value
@@ -373,7 +373,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             protected final FormOfPayment  formOfPayment;
             protected final PaymentDetails paymentDetails;
 
-            private PaymentMean (final FormOfPayment formOfPayment, final PaymentDetails paymentDetails) {
+            PaymentMean (final FormOfPayment formOfPayment, final PaymentDetails paymentDetails) {
                 super ();
                 this.formOfPayment = formOfPayment;
                 this.paymentDetails = paymentDetails;

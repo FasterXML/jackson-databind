@@ -95,7 +95,7 @@ public class TestUnwrapped extends BaseMapTest
     static class Outer {
         // @JsonProperty
         @JsonUnwrapped
-        private Inner inner;
+        Inner inner;
     }
 
     // [databind#1493]: case-insensitive handling

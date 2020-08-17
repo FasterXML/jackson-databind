@@ -16,7 +16,7 @@ public class TestEmptyArrayBlockingQueueDeser extends BaseMapTest
     }
 
     static class Entity{
-        private ArrayBlockingQueue<Double> values;
+        ArrayBlockingQueue<Double> values;
 
         public Collection<Double> getValues() {
             return values;

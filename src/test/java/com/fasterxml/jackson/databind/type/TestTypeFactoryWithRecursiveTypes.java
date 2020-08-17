@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 
 // https://github.com/FasterXML/jackson-databind/issues/1647

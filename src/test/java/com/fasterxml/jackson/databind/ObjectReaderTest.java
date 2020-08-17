@@ -516,8 +516,8 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals("test", aObject.knownField);
     }
 
-    private static class A{
-        private String knownField;
+    private static class A {
+        String knownField;
 
         @JsonCreator
         private A(@JsonProperty("knownField") String knownField) {

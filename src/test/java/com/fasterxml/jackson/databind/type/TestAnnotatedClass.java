@@ -97,6 +97,7 @@ public class TestAnnotatedClass
     {
         // Need this call to ensure there is a synthetic constructor being generated
         // (not really needed otherwise)
+        @SuppressWarnings("synthetic-access")
         Bean1005 bean = new Bean1005(13);
         SerializationConfig config = MAPPER.getSerializationConfig();
         JavaType t = MAPPER.constructType(bean.getClass());

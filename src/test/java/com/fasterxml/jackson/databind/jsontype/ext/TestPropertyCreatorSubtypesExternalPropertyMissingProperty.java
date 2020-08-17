@@ -30,7 +30,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
         })
         private Fruit fruit;
 
-        private Box(String type, Fruit fruit) {
+        Box(String type, Fruit fruit) {
             this.type = type;
             this.fruit = fruit;
         }
@@ -64,7 +64,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
     static class Apple extends Fruit {
         private int seedCount;
 
-        private Apple(String name, int b) {
+        Apple(String name, int b) {
             super(name);
             seedCount = b;
         }
@@ -81,7 +81,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
 
     static class Orange extends Fruit {
         private String color;
-        private Orange(String name, String c) {
+        Orange(String name, String c) {
             super(name);
             color = c;
         }
@@ -195,7 +195,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
         Box deserAppleBox = reader.readValue(appleBoxJson);
         assertEquals(appleBox.getType(), deserAppleBox.getType());
 
-        Fruit deserApple = deserAppleBox.fruit;
+        Fruit deserApple = deserAppleBox.getFruit();
         assertSame(Apple.class, deserApple.getClass());
         assertEquals(apple.getName(), deserApple.getName());
         assertEquals(apple.getSeedCount(), ((Apple) deserApple).getSeedCount());
@@ -215,7 +215,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
         Box deserAppleBox = reader.readValue(json);
         assertEquals(appleBox.getType(), deserAppleBox.getType());
 
-        Fruit deserApple = deserAppleBox.fruit;
+        Fruit deserApple = deserAppleBox.getFruit();
         assertSame(Apple.class, deserApple.getClass());
         assertNull(deserApple.getName());
         assertEquals(0, ((Apple) deserApple).getSeedCount());

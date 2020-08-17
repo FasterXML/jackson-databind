@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.*;
 
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -19,6 +18,10 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class POJOPropertiesCollector
 {
+    // !!! TEMPORARY
+    protected final static AccessorNamingStrategy.Provider NAMING_PROVIDER
+        = new DefaultAccessorNamingStrategy.Provider();
+    
     /*
     /**********************************************************************
     /* Configuration
@@ -30,6 +33,13 @@ public class POJOPropertiesCollector
      */
     protected final MapperConfig<?> _config;
 
+    /**
+     * Handler used for name-mangling of setter, getter methods
+     *
+     * @since 2.12
+     */
+    protected final AccessorNamingStrategy _accessorNaming;
+    
     /**
      * True if introspection is done for serialization (giving
      * precedence for serialization annotations), or not (false, deserialization)
@@ -51,12 +61,6 @@ public class POJOPropertiesCollector
     protected final AnnotationIntrospector _annotationIntrospector;
 
     protected final boolean _useAnnotations;
-
-    /**
-     * Prefix used by auto-detected mutators ("setters"): usually "set",
-     * but differs for builder objects ("with" by default).
-     */
-    protected final String _mutatorPrefix;
 
     /*
     /**********************************************************************
@@ -135,7 +139,7 @@ public class POJOPropertiesCollector
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
-        _mutatorPrefix = (mutatorPrefix == null) ? "set" : mutatorPrefix;
+        mutatorPrefix = (mutatorPrefix == null) ? "set" : mutatorPrefix;
         if (config.isAnnotationProcessingEnabled()) {
             _useAnnotations = true;
             _annotationIntrospector = _config.getAnnotationIntrospector();
@@ -145,6 +149,8 @@ public class POJOPropertiesCollector
         }
         _visibilityChecker = _config.getDefaultVisibilityChecker(type.getRawClass(),
                 classDef);
+
+        _accessorNaming = NAMING_PROVIDER.forPOJO(_config, classDef, mutatorPrefix);
     }
 
     /*
@@ -578,10 +584,10 @@ public class POJOPropertiesCollector
         if (!nameExplicit) { // no explicit name; must consider implicit
             implName = ai.findImplicitPropertyName(_config, m);
             if (implName == null) {
-                implName = BeanUtil.okNameForRegularGetter(m, m.getName());
+                implName = _accessorNaming.findNameForRegularGetter(m, m.getName());
             }
             if (implName == null) { // if not, must skip
-                implName = BeanUtil.okNameForIsGetter(m, m.getName());
+                implName = _accessorNaming.findNameForIsGetter(m, m.getName());
                 if (implName == null) {
                     return;
                 }
@@ -593,7 +599,10 @@ public class POJOPropertiesCollector
             // we still need implicit name to link with other pieces
             implName = ai.findImplicitPropertyName(_config, m);
             if (implName == null) {
-                implName = BeanUtil.okNameForGetter(m);
+                implName = _accessorNaming.findNameForRegularGetter(m, m.getName());
+                if (implName == null) {
+                    implName = _accessorNaming.findNameForIsGetter(m, m.getName());
+                }
             }
             // if not regular getter name, use method name as is
             if (implName == null) {
@@ -622,7 +631,7 @@ public class POJOPropertiesCollector
         if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = (ai == null) ? null : ai.findImplicitPropertyName(_config, m);
             if (implName == null) {
-                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+                implName = _accessorNaming.findNameForMutator(m, m.getName());
             }
             if (implName == null) { // if not, must skip
             	return;
@@ -632,7 +641,7 @@ public class POJOPropertiesCollector
             // we still need implicit name to link with other pieces
             implName = (ai == null) ? null : ai.findImplicitPropertyName(_config, m);
             if (implName == null) {
-                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+                implName = _accessorNaming.findNameForMutator(m, m.getName());
             }
             // if not regular getter name, use method name as is
             if (implName == null) {

@@ -5,8 +5,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
  * Helper class that contains functionality needed by both serialization
@@ -14,66 +14,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
  */
 public class BeanUtil
 {
-    /*
-    /**********************************************************
-    /* Handling property names
-    /**********************************************************
-     */
-
-    public static String okNameForGetter(AnnotatedMember am) {
-        String name = am.getName();
-        String str = okNameForIsGetter(am, name);
-        if (str == null) {
-            str = okNameForRegularGetter(am, name);
-        }
-        return str;
-    }
-
-    public static String okNameForRegularGetter(AnnotatedMember am, String name)
-    {
-        if (name.startsWith("get")) {
-            /* 16-Feb-2009, tatu: To handle [JACKSON-53], need to block
-             *   CGLib-provided method "getCallbacks". Not sure of exact
-             *   safe criteria to get decent coverage without false matches;
-             *   but for now let's assume there's no reason to use any 
-             *   such getter from CGLib.
-             *   But let's try this approach...
-             */
-            if ("getCallbacks".equals(name)) {
-                if (isCglibGetCallbacks(am)) {
-                    return null;
-                }
-            } else if ("getMetaClass".equals(name)) {
-                // 30-Apr-2009, tatu: Need to suppress serialization of a cyclic reference
-                if (isGroovyMetaClassGetter(am)) {
-                    return null;
-                }
-            }
-            return stdManglePropertyName(name, 3);
-        }
-        return null;
-    }
-
-    public static String okNameForIsGetter(AnnotatedMember am, String name)
-    {
-        if (name.startsWith("is")) { // plus, must return a boolean
-            Class<?> rt = am.getRawType();
-            if (rt == Boolean.class || rt == Boolean.TYPE) {
-                return stdManglePropertyName(name, 2);
-            }
-        }
-        return null;
-    }
-
-    public static String okNameForMutator(AnnotatedMember am, String prefix)
-    {
-        String name = am.getName();
-        if (name.startsWith(prefix)) {
-            return stdManglePropertyName(name, prefix.length());
-        }
-        return null;
-    }
-
     /*
     /**********************************************************
     /* Value defaulting helpers
@@ -122,49 +62,6 @@ public class BeanUtil
         return null;
     }
 
-    /*
-    /**********************************************************
-    /* Special case handling
-    /**********************************************************
-     */
-
-    /**
-     * This method was added to address the need to weed out
-     * CGLib-injected "getCallbacks" method. 
-     * At this point caller has detected a potential getter method
-     * with name "getCallbacks" and we need to determine if it is
-     * indeed injectect by Cglib. We do this by verifying that the
-     * result type is "net.sf.cglib.proxy.Callback[]"
-     */
-    protected static boolean isCglibGetCallbacks(AnnotatedMember am)
-    {
-        Class<?> rt = am.getRawType();
-        // Ok, first: must return an array type
-        if (rt.isArray()) {
-            /* And that type needs to be "net.sf.cglib.proxy.Callback".
-             * Theoretically could just be a type that implements it, but
-             * for now let's keep things simple, fix if need be.
-             */
-            Class<?> compType = rt.getComponentType();
-            // Actually, let's just verify it's a "net.sf.cglib.*" class/interface
-            String className = compType.getName();
-            if (className.contains(".cglib")) {
-                return className.startsWith("net.sf.cglib")
-                    // also, as per [JACKSON-177]
-                    || className.startsWith("org.hibernate.repackage.cglib")
-                    // and [core#674]
-                    || className.startsWith("org.springframework.cglib");
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Another helper method to deal with Groovy's problematic metadata accessors
-     */
-    protected static boolean isGroovyMetaClassGetter(AnnotatedMember am) {
-        return am.getRawType().getName().startsWith("groovy.lang");
-    }
     /*
     /**********************************************************
     /* Actual name mangling methods

@@ -16,13 +16,16 @@ public class BeanUtil
 {
     /*
     /**********************************************************
-    /* Handling property names
+    /* Property name mangling methods: deprecated
     /**********************************************************
      */
 
     /**
      * @since 2.5
+     *
+     * @deprecated Since 2.12 replaced with {@link com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy}
      */
+    @Deprecated
     public static String okNameForGetter(AnnotatedMethod am, boolean stdNaming) {
         String name = am.getName();
         String str = okNameForIsGetter(am, name, stdNaming);
@@ -34,7 +37,10 @@ public class BeanUtil
     
     /**
      * @since 2.5
+     *
+     * @deprecated Since 2.12 replaced with {@link com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy}
      */
+    @Deprecated
     public static String okNameForRegularGetter(AnnotatedMethod am, String name,
             boolean stdNaming)
     {
@@ -65,7 +71,10 @@ public class BeanUtil
 
     /**
      * @since 2.5
+     *
+     * @deprecated Since 2.12 replaced with {@link com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy}
      */
+    @Deprecated
     public static String okNameForIsGetter(AnnotatedMethod am, String name,
             boolean stdNaming)
     {
@@ -82,21 +91,10 @@ public class BeanUtil
 
     /**
      * @since 2.5
+     *
+     * @deprecated Since 2.12 replaced with {@link com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy}
      */
-    @Deprecated // since 2.9, not used any more
-    public static String okNameForSetter(AnnotatedMethod am, boolean stdNaming) {
-        String name = okNameForMutator(am, "set", stdNaming);
-        if ((name != null) 
-            // 26-Nov-2009, tatu: need to suppress this internal groovy method
-                && (!"metaClass".equals(name) || !isGroovyMetaClassSetter(am))) {
-            return name;
-        }
-        return null;
-    }
-
-    /**
-     * @since 2.5
-     */
+    @Deprecated
     public static String okNameForMutator(AnnotatedMethod am, String prefix,
             boolean stdNaming) {
         String name = am.getName();
@@ -195,17 +193,6 @@ public class BeanUtil
             }
         }
         return false;
-    }
-
-    /**
-     * Similar to {@link #isCglibGetCallbacks}, need to suppress
-     * a cyclic reference.
-     */
-    protected static boolean isGroovyMetaClassSetter(AnnotatedMethod am)
-    {
-        Class<?> argType = am.getRawParameterType(0);
-        String pkgName = ClassUtil.getPackageName(argType);
-        return (pkgName != null) && pkgName.startsWith("groovy.lang");
     }
 
     /**

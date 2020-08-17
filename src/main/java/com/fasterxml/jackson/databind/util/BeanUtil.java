@@ -175,21 +175,18 @@ public class BeanUtil
         Class<?> rt = am.getRawType();
         // Ok, first: must return an array type
         if (rt.isArray()) {
-            /* And that type needs to be "net.sf.cglib.proxy.Callback".
-             * Theoretically could just be a type that implements it, but
-             * for now let's keep things simple, fix if need be.
-             */
+            // And that type needs to be "net.sf.cglib.proxy.Callback".
+            // Theoretically could just be a type that implements it, but
+            // for now let's keep things simple, fix if need be.
             Class<?> compType = rt.getComponentType();
             // Actually, let's just verify it's a "net.sf.cglib.*" class/interface
-            String pkgName = ClassUtil.getPackageName(compType);
-            if (pkgName != null) {
-                if (pkgName.contains(".cglib")) {
-                    return pkgName.startsWith("net.sf.cglib")
-                        // also, as per [JACKSON-177]
-                        || pkgName.startsWith("org.hibernate.repackage.cglib")
-                        // and [core#674]
-                        || pkgName.startsWith("org.springframework.cglib");
-                }
+            final String className = compType.getName();
+            if (className.contains(".cglib")) {
+                return className.startsWith("net.sf.cglib")
+                    // also, as per [JACKSON-177]
+                    || className.startsWith("org.hibernate.repackage.cglib")
+                    // and [core#674]
+                    || className.startsWith("org.springframework.cglib");
             }
         }
         return false;
@@ -198,10 +195,8 @@ public class BeanUtil
     /**
      * Another helper method to deal with Groovy's problematic metadata accessors
      */
-    protected static boolean isGroovyMetaClassGetter(AnnotatedMethod am)
-    {
-        String pkgName = ClassUtil.getPackageName(am.getRawType());
-        return (pkgName != null) && pkgName.startsWith("groovy.lang");
+    protected static boolean isGroovyMetaClassGetter(AnnotatedMethod am) {
+        return am.getRawType().getName().startsWith("groovy.lang");
     }
 
     /*

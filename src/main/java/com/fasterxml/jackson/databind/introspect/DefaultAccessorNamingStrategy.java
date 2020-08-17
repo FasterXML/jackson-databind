@@ -173,25 +173,21 @@ public class DefaultAccessorNamingStrategy
 
             Class<?> compType = rt.getComponentType();
             // Actually, let's just verify it's a "net.sf.cglib.*" class/interface
-            String pkgName = ClassUtil.getPackageName(compType);
-            if (pkgName != null) {
-                if (pkgName.contains(".cglib")) {
-                    return pkgName.startsWith("net.sf.cglib")
-                        // also, as per [JACKSON-177]
-                        || pkgName.startsWith("org.hibernate.repackage.cglib")
-                        // and [core#674]
-                        || pkgName.startsWith("org.springframework.cglib");
-                }
+            final String className = compType.getName();
+            if (className.contains(".cglib")) {
+                return className.startsWith("net.sf.cglib")
+                    // also, as per [JACKSON-177]
+                    || className.startsWith("org.hibernate.repackage.cglib")
+                    // and [core#674]
+                    || className.startsWith("org.springframework.cglib");
             }
         }
         return false;
     }
 
     // Another helper method to deal with Groovy's problematic metadata accessors
-    private static boolean isGroovyMetaClassGetter(AnnotatedMethod am)
-    {
-        String pkgName = ClassUtil.getPackageName(am.getRawType());
-        return (pkgName != null) && pkgName.startsWith("groovy.lang");
+    private static boolean isGroovyMetaClassGetter(AnnotatedMethod am) {
+        return am.getRawType().getName().startsWith("groovy.lang");
     }
 
     /*

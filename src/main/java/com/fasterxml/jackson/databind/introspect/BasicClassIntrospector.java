@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -233,20 +232,18 @@ public class BasicClassIntrospector
     /**********************************************************************
      */
 
-    protected POJOPropertiesCollector collectProperties(JavaType type, AnnotatedClass ac,
+    protected POJOPropertiesCollector collectProperties(JavaType type, AnnotatedClass classDef,
             boolean forSerialization, String mutatorPrefix)
     {
-        return constructPropertyCollector(type, ac, forSerialization, mutatorPrefix);
+        final AccessorNamingStrategy accNaming = _config.getAccessorNaming().forPOJO(_config, classDef);
+        return constructPropertyCollector(type, classDef, forSerialization, accNaming);
     }
 
-    protected POJOPropertiesCollector collectPropertiesWithBuilder(JavaType type, AnnotatedClass ac,
+    protected POJOPropertiesCollector collectPropertiesWithBuilder(JavaType type, AnnotatedClass builderClassDef,
             boolean forSerialization)
     {
-        AnnotationIntrospector ai = _config.isAnnotationProcessingEnabled() ? _config.getAnnotationIntrospector() : null;
-        JsonPOJOBuilder.Value builderConfig = (ai == null) ? null
-                : ai.findPOJOBuilderConfig(_config, ac);
-        String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
-        return constructPropertyCollector(type, ac, forSerialization, mutatorPrefix);
+        final AccessorNamingStrategy accNaming = _config.getAccessorNaming().forBuilder(_config, builderClassDef);
+        return constructPropertyCollector(type, builderClassDef, forSerialization, accNaming);
     }
 
     /**
@@ -254,13 +251,8 @@ public class BasicClassIntrospector
      * to use; override is needed if a custom sub-class is to be used.
      */
     protected POJOPropertiesCollector constructPropertyCollector(JavaType type, AnnotatedClass classDef,
-            boolean forSerialization, String mutatorPrefix)
+            boolean forSerialization, AccessorNamingStrategy accNaming)
     {
-        if (mutatorPrefix == null) {
-            mutatorPrefix = "set";
-        }
-        final AccessorNamingStrategy accNaming = _config.getAccessorNaming().forPOJO(_config,
-                classDef, mutatorPrefix);
         return new POJOPropertiesCollector(_config, forSerialization, type, classDef, accNaming);
     }
 

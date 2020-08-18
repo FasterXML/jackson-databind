@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -205,17 +207,18 @@ public class DefaultAccessorNamingStrategy
         private static final long serialVersionUID = 1L;
 
         @Override
-        public AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass ac,
-                String mutatorPrefix) {
-            return new DefaultAccessorNamingStrategy(config, ac, mutatorPrefix);
+        public AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass targetClass)
+        {
+            return new DefaultAccessorNamingStrategy(config, targetClass, "set");
         }
 
         @Override
-        public AccessorNamingStrategy forBuilder(MapperConfig<?> config, AnnotatedClass builderClass,
-                AnnotatedClass targetClass, String mutatorPrefix)
+        public AccessorNamingStrategy forBuilder(MapperConfig<?> config, AnnotatedClass builderClass)
         {
+            AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
+            JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(builderClass);
+            String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
             return new DefaultAccessorNamingStrategy(config, builderClass, mutatorPrefix);
         }
-    
     }
 }

@@ -53,10 +53,9 @@ public abstract class AccessorNamingStrategy
     {
         private static final long serialVersionUID = 1L;
 
-        public abstract AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass ac,
-                String mutatorPrefix);
+        public abstract AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass valueClass);
 
         public abstract AccessorNamingStrategy forBuilder(MapperConfig<?> config,
-                AnnotatedClass builderClass, AnnotatedClass targetClass, String mutatorPrefix);
+                AnnotatedClass builderClass);
     }
 }

@@ -3,12 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Collection;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -89,7 +84,7 @@ public class BasicClassIntrospector
             desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
                 desc = BasicBeanDescription.forSerialization(collectProperties(config,
-                        type, r, true, "set"));
+                        type, r, true));
             }
         }
         return desc;
@@ -107,7 +102,7 @@ public class BasicClassIntrospector
             desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
                 desc = BasicBeanDescription.forDeserialization(collectProperties(config,
-                        		type, r, false, "set"));
+                        type, r, false));
             }
         }
         return desc;
@@ -133,7 +128,7 @@ public class BasicClassIntrospector
             desc = _findStdJdkCollectionDesc(config, type);
             if (desc == null) {
                 desc = BasicBeanDescription.forDeserialization(
-                        collectProperties(config, type, r, false, "set"));
+                        collectProperties(config, type, r, false));
             }
         }
         return desc;
@@ -170,35 +165,26 @@ public class BasicClassIntrospector
      */
 
     protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
-            JavaType type, MixInResolver r, boolean forSerialization,
-            String mutatorPrefix)
+            JavaType type, MixInResolver r, boolean forSerialization)
     {
-        return constructPropertyCollector(config,
-                _resolveAnnotatedClass(config, type, r),
-                type, forSerialization, mutatorPrefix);
+        final AnnotatedClass classDef = _resolveAnnotatedClass(config, type, r);
+        final AccessorNamingStrategy accNaming = config.getAccessorNaming().forPOJO(config, classDef);
+        return constructPropertyCollector(config, classDef, type, forSerialization, accNaming);
     }
 
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
-        AnnotatedClass ac = _resolveAnnotatedClass(config, type, r);
-        AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
-        JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
-        String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
-        return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
+        final AnnotatedClass builderClassDef = _resolveAnnotatedClass(config, type, r);
+        final AccessorNamingStrategy accNaming = config.getAccessorNaming().forBuilder(config, builderClassDef);
+        return constructPropertyCollector(config, builderClassDef, type, forSerialization, accNaming);
     }
 
-    /**
-     * Overridable method called for creating {@link POJOPropertiesCollector} instance
-     * to use; override is needed if a custom sub-class is to be used.
-     */
+    // @since 2.12
     protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
-            AnnotatedClass classDef, JavaType type, boolean forSerialization, String mutatorPrefix)
+            AnnotatedClass classDef, JavaType type, boolean forSerialization,
+            AccessorNamingStrategy accNaming)
     {
-        if (mutatorPrefix == null) {
-            mutatorPrefix = "set";
-        }
-        final AccessorNamingStrategy accNaming = config.getAccessorNaming().forPOJO(config, classDef, mutatorPrefix);
         return new POJOPropertiesCollector(config, forSerialization, type, classDef, accNaming);
     }
 

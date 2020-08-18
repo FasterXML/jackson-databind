@@ -541,9 +541,9 @@ public class POJOPropertiesCollectorTest
         // no real difference between serialization, deserialization, at least here
         if (forSerialization) {
             return bci.collectProperties(m0.getSerializationConfig(),
-                    m0.constructType(cls), null, true, "set");
+                    m0.constructType(cls), null, true);
         }
         return bci.collectProperties(m0.getDeserializationConfig(),
-                m0.constructType(cls), null, false, "set");
+                m0.constructType(cls), null, false);
     }
 }

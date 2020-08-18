@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -244,6 +245,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
     public final PropertyNamingStrategy getPropertyNamingStrategy() {
         return _base.getPropertyNamingStrategy();
+    }
+
+    // @since 2.12
+    public final AccessorNamingStrategy.Provider getAccessorNaming() {
+        return _base.getAccessorNaming();
     }
 
     public final HandlerInstantiator getHandlerInstantiator() {

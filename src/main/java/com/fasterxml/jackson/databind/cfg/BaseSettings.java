@@ -5,9 +5,12 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.Base64Variant;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.DefaultAccessorNamingStrategy;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -39,7 +42,14 @@ public final class BaseSettings
     /* Configuration settings; introspection, related
     /**********************************************************
      */
-    
+
+    /**
+     * Specific factory used for creating {@link JavaType} instances;
+     * needed to allow modules to add more custom type handling
+     * (mostly to support types of non-Java JVM languages)
+     */
+    protected final TypeFactory _typeFactory;
+
     /**
      * Introspector used to figure out Bean properties needed for bean serialization
      * and deserialization. Overridable so that it is possible to change low-level
@@ -58,15 +68,15 @@ public final class BaseSettings
     protected final PropertyNamingStrategy _propertyNamingStrategy;
 
     /**
-     * Specific factory used for creating {@link JavaType} instances;
-     * needed to allow modules to add more custom type handling
-     * (mostly to support types of non-Java JVM languages)
+     * Provider for creating {@link AccessorNamingStrategy} instances to use
+     *
+     * @since 2.12
      */
-    protected final TypeFactory _typeFactory;
+    protected final AccessorNamingStrategy.Provider _accessorNaming;
 
     /*
     /**********************************************************
-    /* Configuration settings; poly type resolution
+    /* Configuration settings; polymorphic type resolution
     /**********************************************************
      */
 
@@ -140,13 +150,13 @@ public final class BaseSettings
      */
 
     /**
-     * @since 2.10
+     * @since 2.12
      */
     public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
             PropertyNamingStrategy pns, TypeFactory tf,
             TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
             Locale locale, TimeZone tz, Base64Variant defaultBase64,
-            PolymorphicTypeValidator ptv)
+            PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming)
     {
         _classIntrospector = ci;
         _annotationIntrospector = ai;
@@ -159,15 +169,18 @@ public final class BaseSettings
         _timeZone = tz;
         _defaultBase64 = defaultBase64;
         _typeValidator = ptv;
+        _accessorNaming = accNaming;
     }
 
-    @Deprecated // since 2.10 
+    @Deprecated // since 2.12
     public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
             PropertyNamingStrategy pns, TypeFactory tf,
             TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
-            Locale locale, TimeZone tz, Base64Variant defaultBase64)
+            Locale locale, TimeZone tz, Base64Variant defaultBase64,
+            PolymorphicTypeValidator ptv)
     {
-        this(ci, ai, pns, tf, typer, dateFormat, hi, locale, tz, defaultBase64, null);
+        this(ci, ai, pns, tf, typer, dateFormat, hi, locale, tz, defaultBase64, ptv,
+                new DefaultAccessorNamingStrategy.Provider());
     }
 
     /**
@@ -187,8 +200,8 @@ public final class BaseSettings
             _locale,
             _timeZone,
             _defaultBase64,
-            _typeValidator);
-
+            _typeValidator,
+            _accessorNaming);
     }
 
     /*
@@ -203,7 +216,7 @@ public final class BaseSettings
         }
         return new BaseSettings(ci, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
     
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -212,7 +225,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, ai, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
 
     public BaseSettings withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -239,7 +252,17 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, pns, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+    }
+
+    // @since 2.12
+    public BaseSettings withAccessorNaming(AccessorNamingStrategy.Provider p) {
+        if (_accessorNaming == p) {
+            return this;
+        }
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
 
     public BaseSettings withTypeFactory(TypeFactory tf) {
@@ -248,7 +271,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, tf,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
 
     public BaseSettings withTypeResolverBuilder(TypeResolverBuilder<?> typer) {
@@ -257,7 +280,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 typer, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
     
     public BaseSettings withDateFormat(DateFormat df) {
@@ -271,7 +294,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
 
     public BaseSettings withHandlerInstantiator(HandlerInstantiator hi) {
@@ -280,7 +303,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, hi, _locale,
-                _timeZone, _defaultBase64, _typeValidator);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
 
     public BaseSettings with(Locale l) {
@@ -289,7 +312,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, l,
-                _timeZone, _defaultBase64, _typeValidator);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
 
     /**
@@ -310,7 +333,7 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                tz, _defaultBase64, _typeValidator);
+                tz, _defaultBase64, _typeValidator, _accessorNaming);
     }
 
     /**
@@ -323,7 +346,7 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, base64, _typeValidator);
+                _timeZone, base64, _typeValidator, _accessorNaming);
     }
 
     /**
@@ -336,7 +359,7 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, v);
+                _timeZone, _defaultBase64, v, _accessorNaming);
     }
     
     /*
@@ -355,6 +378,10 @@ public final class BaseSettings
 
     public PropertyNamingStrategy getPropertyNamingStrategy() {
         return _propertyNamingStrategy;
+    }
+
+    public AccessorNamingStrategy.Provider getAccessorNaming() {
+        return _accessorNaming;
     }
 
     public TypeFactory getTypeFactory() {

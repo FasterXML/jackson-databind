@@ -18,10 +18,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class POJOPropertiesCollector
 {
-    // !!! TEMPORARY
-    protected final static AccessorNamingStrategy.Provider NAMING_PROVIDER
-        = new DefaultAccessorNamingStrategy.Provider();
-    
     /*
     /**********************************************************
     /* Configuration
@@ -155,7 +151,7 @@ public class POJOPropertiesCollector
         _visibilityChecker = _config.getDefaultVisibilityChecker(type.getRawClass(),
                 classDef);
 
-        _accessorNaming = NAMING_PROVIDER.forPOJO(_config, classDef, mutatorPrefix);
+        _accessorNaming = config.getAccessorNaming().forPOJO(_config, classDef, mutatorPrefix);
     }
 
     /*

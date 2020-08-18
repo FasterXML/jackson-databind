@@ -366,7 +366,9 @@ public class ObjectMapper
             null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
             Base64Variants.getDefaultVariant(),
             // Only for 2.x; 3.x will use more restrictive default
-            LaissezFaireSubTypeValidator.instance
+            LaissezFaireSubTypeValidator.instance,
+            // Since 2.12:
+            new DefaultAccessorNamingStrategy.Provider()
     );
 
     /*
@@ -1648,7 +1650,7 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.with(deserializerAI);
         return this;
     }
-    
+
     /**
      * Method for setting custom property naming strategy to use.
      */
@@ -1664,6 +1666,17 @@ public class ObjectMapper
     public PropertyNamingStrategy getPropertyNamingStrategy() {
         // arbitrary choice but let's do:
         return _serializationConfig.getPropertyNamingStrategy();
+    }
+
+    /**
+     * Method for setting custom accessor naming strategy to use.
+     *
+     * @since 2.12
+     */
+    public ObjectMapper setAccessorNaming(AccessorNamingStrategy.Provider s) {
+        _serializationConfig = _serializationConfig.with(s);
+        _deserializationConfig = _deserializationConfig.with(s);
+        return this;
     }
 
     /**

@@ -14,6 +14,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
+import com.fasterxml.jackson.databind.introspect.DefaultAccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -373,14 +375,42 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * id resolvers), given a class.
      *
      * @param hi Instantiator to use; if null, use the default implementation
+     *
+     * @return Builder instance itself to allow chaining
      */
     public B handlerInstantiator(HandlerInstantiator hi) {
         _mapper.setHandlerInstantiator(hi);
         return _this();
     }
 
+    /**
+     * Method for configuring {@link PropertyNamingStrategy} to use for adapting
+     * POJO property names (internal) into content property names (external)
+     *
+     * @param s Strategy instance to use; if null, use the default implementation
+     *
+     * @return Builder instance itself to allow chaining
+     */
     public B propertyNamingStrategy(PropertyNamingStrategy s) {
         _mapper.setPropertyNamingStrategy(s);
+        return _this();
+    }
+
+    /**
+     * Method for configuring {@link AccessorNamingStrategy} to use for auto-detecting
+     * accessor ("getter") and mutator ("setter") methods based on naming of methods.
+     *
+     * @param s Strategy instance to use; if null, use the default implementation
+     *
+     * @return Builder instance itself to allow chaining
+     *
+     * @since 2.12
+     */
+    public B accessorNaming(AccessorNamingStrategy.Provider s) {
+        if (s == null) {
+            s = new DefaultAccessorNamingStrategy.Provider();
+        }
+        _mapper.setAccessorNaming(s);
         return _this();
     }
 

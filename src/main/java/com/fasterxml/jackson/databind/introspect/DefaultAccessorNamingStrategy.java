@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link AccessorNamingStrategy} used by Jackson: to be used either as-is,
@@ -199,7 +198,7 @@ public class DefaultAccessorNamingStrategy
     /**
      * Provider for {@link DefaultAccessorNamingStrategy}.
      */
-    protected static class Provider
+    public final static class Provider
         extends AccessorNamingStrategy.Provider
         implements java.io.Serializable
     {

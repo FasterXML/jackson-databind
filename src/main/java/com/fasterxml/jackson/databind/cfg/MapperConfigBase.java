@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
+import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -455,6 +456,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     public final T with(PropertyNamingStrategy pns) {
         return _withBase(_base.withPropertyNamingStrategy(pns));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link PropertyNamingStrategy}
+     * to use.
+     *
+     * @since 2.12
+     */
+    public final T with(AccessorNamingStrategy.Provider p) {
+        return _withBase(_base.withAccessorNaming(p));
     }
 
     /**

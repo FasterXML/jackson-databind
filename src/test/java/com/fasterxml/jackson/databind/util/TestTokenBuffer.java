@@ -596,7 +596,6 @@ public class TestTokenBuffer extends BaseMapTest
      * Test to verify that TokenBuffer and JsonParserSequence work together
      * as expected.
      */
-    @SuppressWarnings("resource")
     public void testWithMultipleJsonParserSequences() throws IOException
     {
         TokenBuffer buf1 = TokenBuffer.forGeneration();

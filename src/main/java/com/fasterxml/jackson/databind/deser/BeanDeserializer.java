@@ -556,7 +556,6 @@ public class BeanDeserializer
      * as well.
      */
     @Override
-    @SuppressWarnings("resource")
     protected Object _deserializeUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt)
         throws IOException
     {

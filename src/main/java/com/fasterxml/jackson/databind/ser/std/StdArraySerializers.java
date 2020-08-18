@@ -212,8 +212,7 @@ public class StdArraySerializers
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
-        
-        @SuppressWarnings("cast")
+
         @Override
         public void serializeContents(short[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException

@@ -918,7 +918,6 @@ public class ObjectWriter
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
      */
-    @SuppressWarnings("resource")
     public String writeValueAsString(Object value)
         throws JsonProcessingException
     {        
@@ -943,7 +942,6 @@ public class ObjectWriter
      * and getting bytes, but more efficient.
      * Encoding used will be UTF-8.
      */
-    @SuppressWarnings("resource")
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {

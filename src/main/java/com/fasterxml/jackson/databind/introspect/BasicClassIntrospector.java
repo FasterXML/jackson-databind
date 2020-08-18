@@ -253,10 +253,15 @@ public class BasicClassIntrospector
      * Overridable method called for creating {@link POJOPropertiesCollector} instance
      * to use; override is needed if a custom sub-class is to be used.
      */
-    protected POJOPropertiesCollector constructPropertyCollector(JavaType type, AnnotatedClass ac,
+    protected POJOPropertiesCollector constructPropertyCollector(JavaType type, AnnotatedClass classDef,
             boolean forSerialization, String mutatorPrefix)
     {
-        return new POJOPropertiesCollector(_config, forSerialization, type, ac, mutatorPrefix);
+        if (mutatorPrefix == null) {
+            mutatorPrefix = "set";
+        }
+        final AccessorNamingStrategy accNaming = _config.getAccessorNaming().forPOJO(_config,
+                classDef, mutatorPrefix);
+        return new POJOPropertiesCollector(_config, forSerialization, type, classDef, accNaming);
     }
 
     protected BasicBeanDescription _findStdTypeDesc(JavaType type) {

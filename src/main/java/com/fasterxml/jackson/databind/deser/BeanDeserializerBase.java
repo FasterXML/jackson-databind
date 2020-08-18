@@ -1619,7 +1619,6 @@ public abstract class BeanDeserializerBase
      * stored in their entirety in given {@link TokenBuffer}
      * (as field entries, name and value).
      */
-    @SuppressWarnings("resource")
     protected Object handleUnknownProperties(DeserializationContext ctxt,
             Object bean, TokenBuffer unknownTokens)
         throws IOException
@@ -1714,7 +1713,6 @@ public abstract class BeanDeserializerBase
      *   (in addition to buffered properties); if null, all properties are passed
      *   in buffer
      */
-    @SuppressWarnings("resource")
     protected Object handlePolymorphic(JsonParser p, DeserializationContext ctxt,                                          
             Object bean, TokenBuffer unknownTokens)
         throws IOException

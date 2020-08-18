@@ -79,13 +79,11 @@ public class TestExceptionsDuringWriting
      * Unit test for verifying that regular IOExceptions are not wrapped
      * but are passed through as is.
      */
-    @SuppressWarnings("resource")
     public void testExceptionWithSimpleMapper()
         throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            BrokenStringWriter sw = new BrokenStringWriter("TEST");
+        try (BrokenStringWriter sw = new BrokenStringWriter("TEST")) {
             mapper.writeValue(sw, createLongObject());
             fail("Should have gotten an exception");
         } catch (IOException e) {
@@ -93,16 +91,13 @@ public class TestExceptionsDuringWriting
         }
     }
 
-    @SuppressWarnings("resource")
     public void testExceptionWithMapperAndGenerator()
         throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         JsonFactory f = new MappingJsonFactory();
         BrokenStringWriter sw = new BrokenStringWriter("TEST");
-        JsonGenerator jg = f.createGenerator(sw);
-
-        try {
+        try (JsonGenerator jg = f.createGenerator(sw)) {
             mapper.writeValue(jg, createLongObject());
             fail("Should have gotten an exception");
         } catch (IOException e) {
@@ -110,13 +105,11 @@ public class TestExceptionsDuringWriting
         }
     }
 
-    @SuppressWarnings("resource")
     public void testExceptionWithGeneratorMapping()
         throws Exception
     {
         JsonFactory f = new MappingJsonFactory();
-        JsonGenerator jg = f.createGenerator(new BrokenStringWriter("TEST"));
-        try {
+        try (JsonGenerator jg = f.createGenerator(new BrokenStringWriter("TEST"))) {
             jg.writeObject(createLongObject());
             fail("Should have gotten an exception");
         } catch (Exception e) {

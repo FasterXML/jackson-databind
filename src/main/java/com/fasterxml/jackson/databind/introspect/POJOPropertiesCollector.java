@@ -30,12 +30,12 @@ public class POJOPropertiesCollector
     protected final MapperConfig<?> _config;
 
     /**
-     * Handler used for name-mangling of setter, getter methods
+     * Handler used for name-mangling of getter, mutator (setter/with) methods
      *
      * @since 2.12
      */
     protected final AccessorNamingStrategy _accessorNaming;
-    
+
     /**
      * True if introspection is done for serialization (giving
      * precedence for serialization annotations), or not (false, deserialization)
@@ -134,13 +134,12 @@ public class POJOPropertiesCollector
      */
 
     protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
-            JavaType type, AnnotatedClass classDef, String mutatorPrefix)
+            JavaType type, AnnotatedClass classDef, AccessorNamingStrategy accessorNaming)
     {
         _config = config;
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
-        mutatorPrefix = (mutatorPrefix == null) ? "set" : mutatorPrefix;
         if (config.isAnnotationProcessingEnabled()) {
             _useAnnotations = true;
             _annotationIntrospector = _config.getAnnotationIntrospector();
@@ -150,8 +149,7 @@ public class POJOPropertiesCollector
         }
         _visibilityChecker = _config.getDefaultVisibilityChecker(type.getRawClass(),
                 classDef);
-
-        _accessorNaming = config.getAccessorNaming().forPOJO(_config, classDef, mutatorPrefix);
+        _accessorNaming = accessorNaming;
     }
 
     /*

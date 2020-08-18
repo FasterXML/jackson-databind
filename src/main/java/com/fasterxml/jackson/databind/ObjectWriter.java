@@ -1076,7 +1076,6 @@ public class ObjectWriter
      *<p>
      * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
-    @SuppressWarnings("resource")
     public String writeValueAsString(Object value)
         throws JsonProcessingException
     {        
@@ -1101,7 +1100,6 @@ public class ObjectWriter
      *<p>
      * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
-    @SuppressWarnings("resource")
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {

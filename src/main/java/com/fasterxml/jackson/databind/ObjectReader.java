@@ -1862,7 +1862,6 @@ public class ObjectReader
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
-    @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(Reader src) throws IOException
     {
         if (_dataFormatReaders != null) {
@@ -1880,7 +1879,6 @@ public class ObjectReader
      * 
      * @param json String that contains JSON content to parse
      */
-    @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(String json) throws IOException
     {
         if (_dataFormatReaders != null) {
@@ -2152,8 +2150,7 @@ public class ObjectReader
     /* Internal methods, format auto-detection
     /**********************************************************
      */
-    
-    @SuppressWarnings("resource")
+
     protected Object _detectBindAndClose(byte[] src, int offset, int length) throws IOException
     {
         DataFormatReaders.Match match = _dataFormatReaders.findFormat(src, offset, length);
@@ -2164,7 +2161,6 @@ public class ObjectReader
         return match.getReader()._bindAndClose(p);
     }
 
-    @SuppressWarnings({ "resource" })
     protected Object _detectBindAndClose(DataFormatReaders.Match match, boolean forceClosing)
         throws IOException
     {
@@ -2181,7 +2177,6 @@ public class ObjectReader
         return match.getReader()._bindAndClose(p);
     }
 
-    @SuppressWarnings({ "resource" })
     protected <T> MappingIterator<T> _detectBindAndReadValues(DataFormatReaders.Match match, boolean forceClosing)
         throws IOException
     {
@@ -2197,8 +2192,7 @@ public class ObjectReader
         // important: use matching ObjectReader (may not be 'this')
         return match.getReader()._bindAndReadValues(p);
     }
-    
-    @SuppressWarnings({ "resource" })
+
     protected JsonNode _detectBindAndCloseAsTree(InputStream in) throws IOException
     {
         DataFormatReaders.Match match = _dataFormatReaders.findFormat(in);

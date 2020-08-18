@@ -193,9 +193,13 @@ public class BasicClassIntrospector
      * to use; override is needed if a custom sub-class is to be used.
      */
     protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
-            AnnotatedClass ac, JavaType type, boolean forSerialization, String mutatorPrefix)
+            AnnotatedClass classDef, JavaType type, boolean forSerialization, String mutatorPrefix)
     {
-        return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
+        if (mutatorPrefix == null) {
+            mutatorPrefix = "set";
+        }
+        final AccessorNamingStrategy accNaming = config.getAccessorNaming().forPOJO(config, classDef, mutatorPrefix);
+        return new POJOPropertiesCollector(config, forSerialization, type, classDef, accNaming);
     }
 
     /**

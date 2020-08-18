@@ -357,7 +357,6 @@ public class BuilderBasedDeserializer
      * @return Builder instance constructed
      */
     @Override
-    @SuppressWarnings("resource")
     protected Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
         throws IOException
@@ -449,7 +448,6 @@ public class BuilderBasedDeserializer
         return builder;
     }
 
-    @SuppressWarnings("resource")
     protected final Object _deserialize(JsonParser p,
             DeserializationContext ctxt, Object builder) throws IOException
     {        

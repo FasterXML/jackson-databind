@@ -307,7 +307,6 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("resource")
     private void _verifyBooleanCoerceFailReason(MismatchedInputException e,
             JsonToken tokenType, String tokenValue) throws IOException
     {

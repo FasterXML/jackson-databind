@@ -303,7 +303,7 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
             protected final UUID paymentInstrumentID;
             protected final String name;
 
-            private EncryptedCreditCardDetails(final UUID paymentInstrumentID, final String name) {
+            EncryptedCreditCardDetails(final UUID paymentInstrumentID, final String name) {
                 super ();
                 this.paymentInstrumentID = paymentInstrumentID;
                 this.name = name;
@@ -348,7 +348,7 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
             public static class Builder {
                 private FormOfPayment formOfPayment;
                 private PaymentDetails paymentDetails;
-                
+
                 public PaymentMean build() {
                     return new PaymentMean (this.formOfPayment, this.paymentDetails);
                 }
@@ -375,7 +375,7 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
             protected final FormOfPayment formOfPayment;
             protected final PaymentDetails paymentDetails;
 
-            private PaymentMean(final FormOfPayment formOfPayment, final PaymentDetails paymentDetails) {
+            PaymentMean(final FormOfPayment formOfPayment, final PaymentDetails paymentDetails) {
                 super ();
                 this.formOfPayment = formOfPayment;
                 this.paymentDetails = paymentDetails;

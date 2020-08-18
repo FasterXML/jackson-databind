@@ -35,7 +35,7 @@ public class TestTypeModifierNameResolution extends BaseMapTest
         }
     }
 
-    private static class CustomTypeModifier extends TypeModifier {
+    static class CustomTypeModifier extends TypeModifier {
         @Override
         public JavaType modifyType(JavaType type, Type jdkType, TypeBindings context, TypeFactory typeFactory) {
             if (type.hasRawClass(MyTypeImpl.class)) {

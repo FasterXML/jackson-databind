@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class TestJacksonAnnotationIntrospector
     extends BaseMapTest

@@ -15,7 +15,7 @@ public class DefaultTypeResolverForLong2753Test extends BaseMapTest
         private Long key;
 
         @JsonCreator
-        private Data(@JsonProperty("key") Long key) {
+        Data(@JsonProperty("key") Long key) {
             this.key = key;
         }
 

@@ -26,7 +26,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     static class A2297 {
-        private String knownField;
+        String knownField;
 
         @JsonCreator
         private A2297(@JsonProperty("knownField") String knownField) {

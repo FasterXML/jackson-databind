@@ -10,23 +10,15 @@ import java.util.function.UnaryOperator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.introspect.MixInResolver;
-import com.fasterxml.jackson.databind.introspect.MixInHandler;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
+import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -58,9 +50,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected final static PolymorphicTypeValidator DEFAULT_TYPE_VALIDATOR = new DefaultBaseTypeLimitingValidator();
 
+    protected final static AccessorNamingStrategy.Provider DEFAULT_ACCESSOR_NAMING = new DefaultAccessorNamingStrategy.Provider();
+    
     protected final static BaseSettings DEFAULT_BASE_SETTINGS = new BaseSettings(
             DEFAULT_ANNOTATION_INTROSPECTOR,
-             null,
+            null, DEFAULT_ACCESSOR_NAMING,
             null, // no default typing, by default
             DEFAULT_TYPE_VALIDATOR, // and polymorphic type by class won't pass either
             StdDateFormat.instance, null,
@@ -1138,13 +1132,41 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * id resolvers), given a class.
      *
      * @param hi Instantiator to use; if null, use the default implementation
+     *
+     * @return Builder instance itself to allow chaining
      */
     public B handlerInstantiator(HandlerInstantiator hi) {
         _baseSettings = _baseSettings.with(hi);
         return _this();
     }
 
+    /**
+     * Method for configuring {@link PropertyNamingStrategy} to use for adapting
+     * POJO property names (internal) into content property names (external)
+     *
+     * @param s Strategy instance to use; if null, use the default implementation
+     *
+     * @return Builder instance itself to allow chaining
+     */
     public B propertyNamingStrategy(PropertyNamingStrategy s) {
+        _baseSettings = _baseSettings.with(s);
+        return _this();
+    }
+
+    /**
+     * Method for configuring {@link AccessorNamingStrategy} to use for auto-detecting
+     * accessor ("getter") and mutator ("setter") methods based on naming of methods.
+     *
+     * @param s Strategy instance to use; if null, use the default implementation
+     *
+     * @return Builder instance itself to allow chaining
+     *
+     * @since 2.12
+     */
+    public B accessorNaming(AccessorNamingStrategy.Provider s) {
+        if (s == null) {
+            s = new DefaultAccessorNamingStrategy.Provider();
+        }
         _baseSettings = _baseSettings.with(s);
         return _this();
     }

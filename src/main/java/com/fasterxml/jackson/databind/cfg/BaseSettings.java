@@ -7,6 +7,7 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.core.Base64Variant;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -30,9 +31,9 @@ public final class BaseSettings
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC");
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration settings; introspection, related
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -45,10 +46,15 @@ public final class BaseSettings
      */
     protected final PropertyNamingStrategy _propertyNamingStrategy;
 
+    /**
+     * Provider for creating {@link AccessorNamingStrategy} instances to use
+     */
+    protected final AccessorNamingStrategy.Provider _accessorNaming;
+
     /*
-    /**********************************************************
-    /* Configuration settings; type resolution
-    /**********************************************************
+    /**********************************************************************
+    /* Configuration settings; polymorphic type resolution
+    /**********************************************************************
      */
 
     /**
@@ -121,7 +127,8 @@ public final class BaseSettings
     /**********************************************************
      */
 
-    public BaseSettings(AnnotationIntrospector ai, PropertyNamingStrategy pns,
+    public BaseSettings(AnnotationIntrospector ai,
+            PropertyNamingStrategy pns, AccessorNamingStrategy.Provider accNaming,
             TypeResolverBuilder<?> defaultTyper, PolymorphicTypeValidator ptv,
             DateFormat dateFormat, HandlerInstantiator hi,
             Locale locale, TimeZone tz, Base64Variant defaultBase64,
@@ -129,6 +136,7 @@ public final class BaseSettings
     {
         _annotationIntrospector = ai;
         _propertyNamingStrategy = pns;
+        _accessorNaming = accNaming;
         _defaultTyper = defaultTyper;
         _typeValidator = ptv;
         _dateFormat = dateFormat;
@@ -149,7 +157,7 @@ public final class BaseSettings
         if (_annotationIntrospector == ai) {
             return this;
         }
-        return new BaseSettings(ai, _propertyNamingStrategy,
+        return new BaseSettings(ai, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
@@ -166,7 +174,16 @@ public final class BaseSettings
         if (_propertyNamingStrategy == pns) {
             return this;
         }
-        return new BaseSettings(_annotationIntrospector, pns,
+        return new BaseSettings(_annotationIntrospector, pns, _accessorNaming,
+                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _nodeFactory);
+    }
+
+    public BaseSettings with(AccessorNamingStrategy.Provider p) {
+        if (_accessorNaming == p) {
+            return this;
+        }
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, p,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
@@ -175,7 +192,7 @@ public final class BaseSettings
         if (_defaultTyper == typer) {
             return this;
         }
-        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 typer, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
@@ -184,7 +201,7 @@ public final class BaseSettings
         if (_typeValidator == ptv) {
             return this;
         }
-        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, ptv, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
@@ -198,7 +215,7 @@ public final class BaseSettings
         if ((df != null) && hasExplicitTimeZone()) {
             df = _force(df, _timeZone);
         }
-        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, df, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
@@ -207,7 +224,7 @@ public final class BaseSettings
         if (_handlerInstantiator == hi) {
             return this;
         }
-        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, hi, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
@@ -216,7 +233,7 @@ public final class BaseSettings
         if (_locale == l) {
             return this;
         }
-        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, l,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
@@ -234,10 +251,8 @@ public final class BaseSettings
         if (tz == _timeZone) {
             return this;
         }
-        
         DateFormat df = _force(_dateFormat, tz);
-        return new BaseSettings(_annotationIntrospector,
-                _propertyNamingStrategy,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, df, _handlerInstantiator, _locale,
                 tz, _defaultBase64, _nodeFactory);
     }
@@ -246,8 +261,7 @@ public final class BaseSettings
         if (base64 == _defaultBase64) {
             return this;
         }
-        return new BaseSettings(_annotationIntrospector,
-                _propertyNamingStrategy,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, base64, _nodeFactory);
     }
@@ -256,8 +270,7 @@ public final class BaseSettings
         if (nodeFactory == _nodeFactory) {
             return this;
         }
-        return new BaseSettings(_annotationIntrospector,
-                _propertyNamingStrategy,
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, nodeFactory);
     }
@@ -274,6 +287,10 @@ public final class BaseSettings
 
     public PropertyNamingStrategy getPropertyNamingStrategy() {
         return _propertyNamingStrategy;
+    }
+
+    public AccessorNamingStrategy.Provider getAccessorNaming() {
+        return _accessorNaming;
     }
 
     public TypeResolverBuilder<?> getDefaultTyper() {

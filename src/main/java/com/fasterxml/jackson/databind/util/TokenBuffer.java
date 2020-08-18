@@ -2179,11 +2179,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
         }
 
-        private Object findObjectId(int index) {
+        public Object findObjectId(int index) {
             return (_nativeIds == null) ? null : _nativeIds.get(_objectIdIndex(index));
         }
 
-        private Object findTypeId(int index) {
+        public Object findTypeId(int index) {
             return (_nativeIds == null) ? null : _nativeIds.get(_typeIdIndex(index));
         }
 

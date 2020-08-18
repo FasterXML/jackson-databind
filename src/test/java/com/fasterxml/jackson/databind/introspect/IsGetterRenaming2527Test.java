@@ -6,15 +6,13 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 
 // [databind#2527] Support Kotlin-style "is" properties
 public class IsGetterRenaming2527Test extends BaseMapTest
 {
     static class POJO2527 {
-        private boolean isEnabled;
+        boolean isEnabled;
 
         protected POJO2527() { }
         public POJO2527(boolean b) {
@@ -38,7 +36,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
     }
 
     static class POJO2527Creator {
-        private final boolean isEnabled;
+        final boolean isEnabled;
 
         public POJO2527Creator(@JsonProperty("enabled") boolean b) {
             isEnabled = b;

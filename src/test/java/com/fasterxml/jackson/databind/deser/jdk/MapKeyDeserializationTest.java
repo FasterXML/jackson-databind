@@ -16,7 +16,7 @@ import org.junit.Assert;
 public class MapKeyDeserializationTest extends BaseMapTest
 {
     static class FullName {
-        private String _firstname, _lastname;
+        String _firstname, _lastname;
 
         private FullName(String firstname, String lastname) {
             _firstname = firstname;

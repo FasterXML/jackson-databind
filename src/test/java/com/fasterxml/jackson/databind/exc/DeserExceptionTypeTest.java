@@ -3,9 +3,8 @@ package com.fasterxml.jackson.databind.exc;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.testutil.BrokenStringReader;
 
 /**

@@ -1,8 +1,8 @@
 ---
 name: Custom issue template
-about: Describe this issue template's purpose here.
+about: If none of the other options is a match, please use this template
 title: ''
-labels: ''
+labels: to-evaluate
 assignees: ''
 
 ---

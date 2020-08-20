@@ -219,6 +219,14 @@ public final class ClassUtil
         return (cls == Void.class || cls == Void.TYPE);
     }
 
+    /**
+     * Helper method for detecting Java14-added new {@code Record} types
+     */
+    public static boolean isRecordType(Class<?> cls) {
+        Class<?> parent = cls.getSuperclass();
+        return (parent != null) && "java.lang.Record".equals(parent.getName());
+    }
+
     public static boolean isObjectOrPrimitive(Class<?> cls) {
         return (cls == CLS_OBJECT) || cls.isPrimitive();
     }

@@ -240,14 +240,14 @@ public class AnySetterTest
     static class IdentityDTO349 {
         public int x, y;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testSimpleMapImitation() throws Exception
     {

@@ -312,6 +312,13 @@ public abstract class JavaType
         return ClassUtil.isEnumType(_class) && (_class != Enum.class);
     }
 
+    /**
+     * @since 2.12
+     */
+    public final boolean isRecordType() {
+        return ClassUtil.isRecordType(_class);
+    }
+
     @Override
     public final boolean isInterface() { return _class.isInterface(); }
 

@@ -282,6 +282,16 @@ public final class ClassUtil
     }
 
     /**
+     * Helper method for detecting Java14-added new {@code Record} types
+     *
+     * @since 2.12
+     */
+    public static boolean isRecordType(Class<?> cls) {
+        Class<?> parent = cls.getSuperclass();
+        return (parent != null) && "java.lang.Record".equals(parent.getName());
+    }
+
+    /**
      * @since 2.7
      */
     public static boolean isObjectOrPrimitive(Class<?> cls) {

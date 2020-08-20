@@ -110,11 +110,21 @@ public class BasicClassIntrospector
 
     @Override
     public BasicBeanDescription forDeserializationWithBuilder(DeserializationConfig config,
+            JavaType builderType, MixInResolver r, BeanDescription valueTypeDesc)
+    {
+        // no std JDK types with Builders, so:
+        return BasicBeanDescription.forDeserialization(collectPropertiesWithBuilder(config,
+                builderType, r, valueTypeDesc, false));
+    }
+
+    @Override
+    @Deprecated // since 2.12
+    public BasicBeanDescription forDeserializationWithBuilder(DeserializationConfig config,
             JavaType type, MixInResolver r)
     {
         // no std JDK types with Builders, so:
         return BasicBeanDescription.forDeserialization(collectPropertiesWithBuilder(config,
-                type, r, false));
+                type, r, null, false));
     }
 
     @Override
@@ -168,15 +178,18 @@ public class BasicClassIntrospector
             JavaType type, MixInResolver r, boolean forSerialization)
     {
         final AnnotatedClass classDef = _resolveAnnotatedClass(config, type, r);
-        final AccessorNamingStrategy accNaming = config.getAccessorNaming().forPOJO(config, classDef);
+        final AccessorNamingStrategy accNaming = config.getAccessorNaming()
+                .forPOJO(config, classDef);
         return constructPropertyCollector(config, classDef, type, forSerialization, accNaming);
     }
 
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
-            JavaType type, MixInResolver r, boolean forSerialization)
+            JavaType type, MixInResolver r, BeanDescription valueTypeDesc,
+            boolean forSerialization)
     {
         final AnnotatedClass builderClassDef = _resolveAnnotatedClass(config, type, r);
-        final AccessorNamingStrategy accNaming = config.getAccessorNaming().forBuilder(config, builderClassDef);
+        final AccessorNamingStrategy accNaming = config.getAccessorNaming()
+                .forBuilder(config, builderClassDef, valueTypeDesc);
         return constructPropertyCollector(config, builderClassDef, type, forSerialization, accNaming);
     }
 

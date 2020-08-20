@@ -78,10 +78,19 @@ public abstract class ClassIntrospector
      * Factory method that constructs an introspector that has all
      * information needed for constructing deserializers that use
      * intermediate Builder objects.
+     *
+     * @since 2.12
      */
     public abstract BeanDescription forDeserializationWithBuilder(DeserializationConfig cfg,
-    		JavaType type, MixInResolver r);
-    
+            JavaType builderType, MixInResolver r, BeanDescription valueTypeDesc);
+
+    /**
+     * @deprecated Since 2.12 use overload that take value type description
+     */
+    @Deprecated
+    public abstract BeanDescription forDeserializationWithBuilder(DeserializationConfig cfg,
+            JavaType builderType, MixInResolver r);
+
     /**
      * Factory method that constructs an introspector that has
      * information necessary for creating instances of given

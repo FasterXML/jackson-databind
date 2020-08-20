@@ -152,7 +152,7 @@ public class BeanDeserializerFactory
 
     @Override
     public JsonDeserializer<Object> createBuilderBasedDeserializer(
-            DeserializationContext ctxt, JavaType valueType, BeanDescription beanDesc,
+            DeserializationContext ctxt, JavaType valueType, BeanDescription valueBeanDesc,
             Class<?> builderClass)
         throws JsonMappingException
     {
@@ -163,7 +163,9 @@ public class BeanDeserializerFactory
         } else {
             builderType = ctxt.constructType(builderClass);
         }
-        BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
+        BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType, valueBeanDesc);
+        // 20-Aug-2020, tatu: May want to change at some point (after 2.12) to pass "valueBeanDesc"
+        //    too; no urgent need at this point
         return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
     }
 

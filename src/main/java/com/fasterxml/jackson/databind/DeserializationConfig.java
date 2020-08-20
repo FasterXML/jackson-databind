@@ -867,9 +867,9 @@ public final class DeserializationConfig
      * @since 2.0
      * @deprecated Since 2.12 - use variant that takes both builder and value type
      */
-/*    public BeanDescription introspectForBuilder(JavaType type) {
+    public BeanDescription introspectForBuilder(JavaType type) {
         return getClassIntrospector().forDeserializationWithBuilder(this, type, this);
-    }*/
+    }
 
     /**
      * @since 2.12

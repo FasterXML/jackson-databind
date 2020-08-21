@@ -87,13 +87,13 @@ public class BasicClassIntrospector
     }
 
     @Override
-    public ClassIntrospector forMapper() {
+    public BasicClassIntrospector forMapper() {
         // 14-Oct-2019, tatu: no per-mapper caching used, so just return as-is
         return this;
     }
 
     @Override
-    public ClassIntrospector forOperation(MapperConfig<?> config) {
+    public BasicClassIntrospector forOperation(MapperConfig<?> config) {
         return new BasicClassIntrospector(config);
     }
     /*
@@ -201,11 +201,12 @@ public class BasicClassIntrospector
     }
 
     @Override
-    public BasicBeanDescription introspectForDeserializationWithBuilder(JavaType type)
+    public BasicBeanDescription introspectForDeserializationWithBuilder(JavaType type,
+            BeanDescription valueTypeDesc)
     {
         // no std JDK types with Builders, so:
         return BasicBeanDescription.forDeserialization(collectPropertiesWithBuilder(type,
-                introspectClassAnnotations(type),
+                introspectClassAnnotations(type), valueTypeDesc,
                 false));
     }
 
@@ -239,10 +240,12 @@ public class BasicClassIntrospector
         return constructPropertyCollector(type, classDef, forSerialization, accNaming);
     }
 
-    protected POJOPropertiesCollector collectPropertiesWithBuilder(JavaType type, AnnotatedClass builderClassDef,
+    protected POJOPropertiesCollector collectPropertiesWithBuilder(JavaType type,
+            AnnotatedClass builderClassDef, BeanDescription valueTypeDesc,
             boolean forSerialization)
     {
-        final AccessorNamingStrategy accNaming = _config.getAccessorNaming().forBuilder(_config, builderClassDef);
+        final AccessorNamingStrategy accNaming = _config.getAccessorNaming().forBuilder(_config,
+                builderClassDef, valueTypeDesc);
         return constructPropertyCollector(type, builderClassDef, forSerialization, accNaming);
     }
 

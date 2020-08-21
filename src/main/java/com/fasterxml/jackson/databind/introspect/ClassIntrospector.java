@@ -74,7 +74,8 @@ public abstract class ClassIntrospector
      * information needed for constructing deserializers that use
      * intermediate Builder objects.
      */
-    public abstract BeanDescription introspectForDeserializationWithBuilder(JavaType type);
+    public abstract BeanDescription introspectForDeserializationWithBuilder(JavaType builderType,
+            BeanDescription valueTypeDesc);
 
     /**
      * Factory method that constructs an introspector that has

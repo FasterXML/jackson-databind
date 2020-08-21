@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -43,19 +44,52 @@ public abstract class AccessorNamingStrategy
      */
     public abstract String findNameForMutator(AnnotatedMethod am, String name);
 
-    // FunctionalInterface
     /**
-     * Interface for provider (factory) for constructing {@link AccessorNamingStrategy} for given
-     * type.
+     * Interface for provider (factory) for constructing {@link AccessorNamingStrategy}
+     * for given type of deserialization target
      */
     public abstract static class Provider
         implements java.io.Serializable // since one configured with Mapper/MapperBuilder
     {
         private static final long serialVersionUID = 1L;
 
-        public abstract AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass valueClass);
+        /**
+         * Factory method for creating strategy instance for a "regular" POJO,
+         * called if none of the other factory methods is applicable.
+         *
+         * @param config Current mapper configuration
+         * @param valueClass Information about value type
+         *
+         * @return Naming strategy instance to use
+         */
+        public abstract AccessorNamingStrategy forPOJO(MapperConfig<?> config,
+                AnnotatedClass valueClass);
 
+        /**
+         * Factory method for creating strategy instance for POJOs
+         * that are deserialized using Builder type: in this case eventual
+         * target (value) type is different from type of "builder" object that is
+         * used by databinding to accumulate state.
+         *
+         * @param config Current mapper configuration
+         * @param builderClass Information about builder type
+         * @param valueTypeDesc Information about the eventual target (value) type
+         *
+         * @return Naming strategy instance to use
+         */
         public abstract AccessorNamingStrategy forBuilder(MapperConfig<?> config,
-                AnnotatedClass builderClass);
+                AnnotatedClass builderClass, BeanDescription valueTypeDesc);
+
+        /**
+         * Factory method for creating strategy instance for special {@code java.lang.Record}
+         * type (new in JDK 14).
+         *
+         * @param config Current mapper configuration
+         * @param recordClass Information about value type (of type {@code java.lang.Record})
+         *
+         * @return Naming strategy instance to use
+         */
+        public abstract AccessorNamingStrategy forRecord(MapperConfig<?> config,
+                AnnotatedClass recordClass);
     }
 }

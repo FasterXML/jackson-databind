@@ -426,7 +426,6 @@ public class POJOPropertiesCollectorTest
     // 27-Nov-2019, tatu: Not sure why, but changes for [databind#2555] started to
     //   fail this test, due to call to `prop.getMetadata()` (to check for `index`).
     //   Probably related to comment on "Can't call getGetter..."
-/*
     public void testDuplicateGettersCreator() throws Exception
     {
         List<BeanPropertyDefinition> props = beanPropList(MAPPER, DuplicateGetterCreatorBean.class, true);
@@ -438,7 +437,7 @@ public class POJOPropertiesCollectorTest
         assertNotNull(prop._getters.next);
         assertTrue(prop._getters.next.value.hasAnnotation(A.class));
     }
-*/
+
     /*
     /**********************************************************
     /* Helper methods

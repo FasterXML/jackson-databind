@@ -511,8 +511,10 @@ public abstract class DeserializationContext
         return classIntrospector().introspectForCreation(type);
     }
 
-    public BeanDescription introspectBeanDescriptionForBuilder(JavaType type) {
-        return classIntrospector().introspectForDeserializationWithBuilder(type);
+    public BeanDescription introspectBeanDescriptionForBuilder(JavaType builderType,
+            BeanDescription valueTypeDesc) {
+        return classIntrospector().introspectForDeserializationWithBuilder(builderType,
+                valueTypeDesc);
     }
 
     /*

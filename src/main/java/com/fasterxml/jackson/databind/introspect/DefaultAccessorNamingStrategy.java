@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -169,12 +170,19 @@ public class DefaultAccessorNamingStrategy
         }
 
         @Override
-        public AccessorNamingStrategy forBuilder(MapperConfig<?> config, AnnotatedClass builderClass)
+        public AccessorNamingStrategy forBuilder(MapperConfig<?> config,
+                AnnotatedClass builderClass, BeanDescription valueTypeDesc)
         {
             AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
             JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
             String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
             return new DefaultAccessorNamingStrategy(config, builderClass, mutatorPrefix);
+        }
+
+        @Override
+        public AccessorNamingStrategy forRecord(MapperConfig<?> config, AnnotatedClass recordClass)
+        {
+            return new DefaultAccessorNamingStrategy(config, recordClass, "set");
         }
     }
 }

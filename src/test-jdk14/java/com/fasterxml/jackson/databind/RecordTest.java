@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class RecordTest extends BaseMapTest
 {
@@ -66,22 +69,21 @@ public class RecordTest extends BaseMapTest
         SimpleRecord record = new SimpleRecord(123, "Bob");
 
         String json = MAPPER.writeValueAsString(record);
-
-        assertEquals("{\"id\":123,\"name\":\"Bob\"}", json);
+        final Object EXP = map("id", Integer.valueOf(123), "name", "Bob");
+        assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
     public void testDeserializeSimpleRecord() throws IOException {
         SimpleRecord value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", SimpleRecord.class);
-
         assertEquals(new SimpleRecord(123, "Bob"), value);
     }
 
     public void testSerializeRecordOfRecord() throws JsonProcessingException {
         RecordOfRecord record = new RecordOfRecord(new SimpleRecord(123, "Bob"));
-
         String json = MAPPER.writeValueAsString(record);
-
-        assertEquals("{\"record\":{\"id\":123,\"name\":\"Bob\"}}", json);
+        final Object EXP = Collections.singletonMap("record",
+                map("id", Integer.valueOf(123), "name", "Bob"));
+        assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
     /*
@@ -125,8 +127,8 @@ public class RecordTest extends BaseMapTest
     }
 
     public void testDeserializeRecordWithConstructor() throws IOException {
-        RecordWithConstructor value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithConstructor.class);
-
+        RecordWithConstructor value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
+                RecordWithConstructor.class);
         assertEquals(new RecordWithConstructor(123, "Bob"), value);
     }
 
@@ -134,13 +136,21 @@ public class RecordTest extends BaseMapTest
         JsonPropertyRenameRecord record = new JsonPropertyRenameRecord(123, "Bob");
 
         String json = MAPPER.writeValueAsString(record);
-
-        assertEquals("{\"id\":123,\"rename\":\"Bob\"}", json);
+        final Object EXP = map("id", Integer.valueOf(123), "rename", "Bob");
+        assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
     public void testDeserializeJsonRenameRecord() throws IOException {
-        JsonPropertyRenameRecord value = MAPPER.readValue("{\"id\":123,\"rename\":\"Bob\"}", JsonPropertyRenameRecord.class);
-
+        JsonPropertyRenameRecord value = MAPPER.readValue("{\"id\":123,\"rename\":\"Bob\"}",
+                JsonPropertyRenameRecord.class);
         assertEquals(new JsonPropertyRenameRecord(123, "Bob"), value);
+    }
+
+    private Map<String,Object> map(String key1, Object value1,
+            String key2, Object value2) {
+        final Map<String, Object> result = new LinkedHashMap<>();
+        result.put(key1, value1);
+        result.put(key2, value2);
+        return result;
     }
 }

@@ -555,7 +555,7 @@ nonAnnotatedParamIndex, ctor);
      */
     protected void _addRecordConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
-            AnnotatedConstructor canonical, List<String> names)
+            AnnotatedConstructor canonical, List<String> implicitNames)
                     throws JsonMappingException
     {
         final int argCount = canonical.getParameterCount();
@@ -565,7 +565,10 @@ nonAnnotatedParamIndex, ctor);
         for (int i = 0; i < argCount; ++i) {
             final AnnotatedParameter param = canonical.getParameter(i);
             JacksonInject.Value injectable = intr.findInjectableValue(param);
-            final PropertyName name = PropertyName.construct(names.get(i));
+            PropertyName name = intr.findNameForDeserialization(param);
+            if (name == null || name.isEmpty()) {
+                name = PropertyName.construct(implicitNames.get(i));
+            }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
         }
         creators.addPropertyCreator(canonical, false, properties);

@@ -1183,6 +1183,10 @@ Yona Appletree (Yona-Appletree@github)
     property name is specified
   (2.12.0)
 
+Youri Bonnaffé (youribonnaffe@github)
+  * Contributed #2709: Support for JDK 14 record types
+  (2.12.0)
+
 David Bidorff (bidorffOL@github)
   * Reported, contributed fix for #2719: `FAIL_ON_IGNORED_PROPERTIES` does not throw
     on `READONLY` properties with an explicit name

@@ -366,6 +366,10 @@ public class BeanSerializerFactory
                     beanDesc.getType(), e.getClass().getName(), e.getMessage());
         }
         if (ser == null) {
+            // 21-Aug-2020, tatu: Empty Records should be fine tho
+            if (type.isRecordType()) {
+                return builder.createDummy();
+            }
             // [databind#2390]: Need to consider add-ons before fallback "empty" serializer
             ser = (JsonSerializer<Object>) findSerializerByAddonType(ctxt, type, beanDesc, format, staticTyping);
             if (ser == null) {

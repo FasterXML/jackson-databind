@@ -2,11 +2,10 @@ package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,6 +28,9 @@ public class RecordTest extends BaseMapTest
     }
 
     record JsonPropertyRenameRecord(int id, @JsonProperty("rename")String name) {
+    }
+
+    record EmptyRecord() {
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -65,20 +67,27 @@ public class RecordTest extends BaseMapTest
     /**********************************************************************
      */
 
-    public void testSerializeSimpleRecord() throws JsonProcessingException {
-        SimpleRecord record = new SimpleRecord(123, "Bob");
-
-        String json = MAPPER.writeValueAsString(record);
+    public void testSerializeSimpleRecord() throws Exception {
+        String json = MAPPER.writeValueAsString(new SimpleRecord(123, "Bob"));
         final Object EXP = map("id", Integer.valueOf(123), "name", "Bob");
         assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
-    public void testDeserializeSimpleRecord() throws IOException {
-        SimpleRecord value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", SimpleRecord.class);
-        assertEquals(new SimpleRecord(123, "Bob"), value);
+    public void testDeserializeSimpleRecord() throws Exception {
+        assertEquals(new SimpleRecord(123, "Bob"),
+                MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", SimpleRecord.class));
     }
 
-    public void testSerializeRecordOfRecord() throws JsonProcessingException {
+    public void testSerializeEmptyRecord() throws Exception {
+        assertEquals("{}", MAPPER.writeValueAsString(new EmptyRecord()));
+    }
+
+    public void testDeserializeEmptyRecord() throws Exception {
+        assertEquals(new EmptyRecord(),
+                MAPPER.readValue("{}", EmptyRecord.class));
+    }
+
+    public void testSerializeRecordOfRecord() throws Exception {
         RecordOfRecord record = new RecordOfRecord(new SimpleRecord(123, "Bob"));
         String json = MAPPER.writeValueAsString(record);
         final Object EXP = Collections.singletonMap("record",
@@ -92,7 +101,7 @@ public class RecordTest extends BaseMapTest
     /**********************************************************************
      */
 
-    public void testSerializeSimpleRecord_DisableAnnotationIntrospector() throws JsonProcessingException {
+    public void testSerializeSimpleRecord_DisableAnnotationIntrospector() throws Exception {
         SimpleRecord record = new SimpleRecord(123, "Bob");
 
         JsonMapper mapper = JsonMapper.builder()
@@ -103,7 +112,7 @@ public class RecordTest extends BaseMapTest
         assertEquals("{\"id\":123,\"name\":\"Bob\"}", json);
     }
 
-    public void testDeserializeSimpleRecord_DisableAnnotationIntrospector() throws IOException {
+    public void testDeserializeSimpleRecord_DisableAnnotationIntrospector() throws Exception {
         JsonMapper mapper = JsonMapper.builder()
                 .configure(MapperFeature.USE_ANNOTATIONS, false)
                 .build();
@@ -118,7 +127,7 @@ public class RecordTest extends BaseMapTest
     /**********************************************************************
      */
     
-    public void testSerializeJsonIgnoreRecord() throws JsonProcessingException {
+    public void testSerializeJsonIgnoreRecord() throws Exception {
         JsonIgnoreRecord record = new JsonIgnoreRecord(123, "Bob");
 
         String json = MAPPER.writeValueAsString(record);
@@ -126,13 +135,13 @@ public class RecordTest extends BaseMapTest
         assertEquals("{\"id\":123}", json);
     }
 
-    public void testDeserializeRecordWithConstructor() throws IOException {
+    public void testDeserializeRecordWithConstructor() throws Exception {
         RecordWithConstructor value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
                 RecordWithConstructor.class);
         assertEquals(new RecordWithConstructor(123, "Bob"), value);
     }
 
-    public void testSerializeJsonRenameRecord() throws JsonProcessingException {
+    public void testSerializeJsonRenameRecord() throws Exception {
         JsonPropertyRenameRecord record = new JsonPropertyRenameRecord(123, "Bob");
 
         String json = MAPPER.writeValueAsString(record);
@@ -140,7 +149,7 @@ public class RecordTest extends BaseMapTest
         assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
-    public void testDeserializeJsonRenameRecord() throws IOException {
+    public void testDeserializeJsonRenameRecord() throws Exception {
         JsonPropertyRenameRecord value = MAPPER.readValue("{\"id\":123,\"rename\":\"Bob\"}",
                 JsonPropertyRenameRecord.class);
         assertEquals(new JsonPropertyRenameRecord(123, "Bob"), value);

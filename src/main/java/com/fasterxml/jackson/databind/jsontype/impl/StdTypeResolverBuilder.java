@@ -3,12 +3,19 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.jsontype.*;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -89,8 +96,15 @@ public class StdTypeResolverBuilder
                 return null;
             }
         }
+
         TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator(config),
                 subtypes, true, false);
+
+        if(_idType == JsonTypeInfo.Id.DEDUCTION) {
+            // Deduction doesn't require a type property. We use EXISTING_PROPERTY with a name of <null> to drive this.
+            return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+        }
+
         switch (_includeAs) {
         case WRAPPER_ARRAY:
             return new AsArrayTypeSerializer(idRes, null);
@@ -134,6 +148,11 @@ public class StdTypeResolverBuilder
         TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator, subtypes, false, true);
 
         JavaType defaultImpl = defineDefaultImpl(config, baseType);
+
+        if(_idType == JsonTypeInfo.Id.DEDUCTION) {
+            // Deduction doesn't require an includeAs property
+            return new AsDeductionTypeDeserializer(baseType, idRes, defaultImpl, config, subtypes);
+        }
 
         // First, method for converting type info to type id:
         switch (_includeAs) {
@@ -268,6 +287,7 @@ public class StdTypeResolverBuilder
         if (_customIdResolver != null) { return _customIdResolver; }
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
         switch (_idType) {
+        case DEDUCTION: // Deduction produces class names to be resolved
         case CLASS:
             return ClassNameIdResolver.construct(baseType, config, subtypeValidator);
         case MINIMAL_CLASS:

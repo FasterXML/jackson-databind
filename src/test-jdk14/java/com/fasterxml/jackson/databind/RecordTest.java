@@ -31,9 +31,9 @@ public class RecordTest extends BaseMapTest
         }
     }
 
-    record JsonIgnoreRecord(int id, @JsonIgnore String name) { }
+    record RecordWithIgnore(int id, @JsonIgnore String name) { }
 
-    record JsonPropertyRenameRecord(int id, @JsonProperty("rename")String name) { }
+    record RecordWithRename(int id, @JsonProperty("rename")String name) { }
 
     record EmptyRecord() { }
 
@@ -50,8 +50,8 @@ public class RecordTest extends BaseMapTest
 
         assertTrue(ClassUtil.isRecordType(SimpleRecord.class));
         assertTrue(ClassUtil.isRecordType(RecordOfRecord.class));
-        assertTrue(ClassUtil.isRecordType(JsonIgnoreRecord.class));
-        assertTrue(ClassUtil.isRecordType(JsonPropertyRenameRecord.class));
+        assertTrue(ClassUtil.isRecordType(RecordWithIgnore.class));
+        assertTrue(ClassUtil.isRecordType(RecordWithRename.class));
     }
 
     public void testRecordJavaType() {
@@ -59,8 +59,8 @@ public class RecordTest extends BaseMapTest
 
         assertTrue(MAPPER.constructType(SimpleRecord.class).isRecordType());
         assertTrue(MAPPER.constructType(RecordOfRecord.class).isRecordType());
-        assertTrue(MAPPER.constructType(JsonIgnoreRecord.class).isRecordType());
-        assertTrue(MAPPER.constructType(JsonPropertyRenameRecord.class).isRecordType());
+        assertTrue(MAPPER.constructType(RecordWithIgnore.class).isRecordType());
+        assertTrue(MAPPER.constructType(RecordWithRename.class).isRecordType());
     }
 
     /*
@@ -130,10 +130,7 @@ public class RecordTest extends BaseMapTest
      */
     
     public void testSerializeJsonIgnoreRecord() throws Exception {
-        JsonIgnoreRecord record = new JsonIgnoreRecord(123, "Bob");
-
-        String json = MAPPER.writeValueAsString(record);
-
+        String json = MAPPER.writeValueAsString(new RecordWithIgnore(123, "Bob"));
         assertEquals("{\"id\":123}", json);
     }
 
@@ -152,17 +149,15 @@ public class RecordTest extends BaseMapTest
     }
 
     public void testSerializeJsonRenameRecord() throws Exception {
-        JsonPropertyRenameRecord record = new JsonPropertyRenameRecord(123, "Bob");
-
-        String json = MAPPER.writeValueAsString(record);
+        String json = MAPPER.writeValueAsString(new RecordWithRename(123, "Bob"));
         final Object EXP = map("id", Integer.valueOf(123), "rename", "Bob");
         assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
     public void testDeserializeJsonRenameRecord() throws Exception {
-        JsonPropertyRenameRecord value = MAPPER.readValue("{\"id\":123,\"rename\":\"Bob\"}",
-                JsonPropertyRenameRecord.class);
-        assertEquals(new JsonPropertyRenameRecord(123, "Bob"), value);
+        RecordWithRename value = MAPPER.readValue("{\"id\":123,\"rename\":\"Bob\"}",
+                RecordWithRename.class);
+        assertEquals(new RecordWithRename(123, "Bob"), value);
     }
 
     private Map<String,Object> map(String key1, Object value1,

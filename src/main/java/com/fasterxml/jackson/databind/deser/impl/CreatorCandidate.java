@@ -58,7 +58,7 @@ public final class CreatorCandidate
         }
         return null;
     }
-    
+
     public PropertyName findImplicitParamName(int i) {
         String str = _intr.findImplicitPropertyName(_params[i].annotated);
         if (str != null && !str.isEmpty()) {

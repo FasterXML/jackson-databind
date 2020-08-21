@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 
 /**
  * Default {@link AccessorNamingStrategy} used by Jackson: to be used either as-is,
@@ -16,6 +20,8 @@ public class DefaultAccessorNamingStrategy
     protected final MapperConfig<?> _config;
     protected final AnnotatedClass _forClass;
 
+    protected final String _getterPrefix;
+
     /**
      * Prefix used by auto-detected mutators ("setters"): usually "set",
      * but differs for builder objects ("with" by default).
@@ -23,11 +29,13 @@ public class DefaultAccessorNamingStrategy
     protected final String _mutatorPrefix;
 
     protected DefaultAccessorNamingStrategy(MapperConfig<?> config, AnnotatedClass forClass,
-            String mutatorPrefix) {
+            String mutatorPrefix, String getterPrefix)
+    {
         _config = config;
         _forClass = forClass;
 
         _mutatorPrefix = mutatorPrefix;
+        _getterPrefix = getterPrefix;
     }
     
     @Override
@@ -45,7 +53,7 @@ public class DefaultAccessorNamingStrategy
     @Override
     public String findNameForRegularGetter(AnnotatedMethod am, String name)
     {
-        if (name.startsWith("get")) {
+        if ((_getterPrefix != null) && name.startsWith(_getterPrefix)) {
             // 16-Feb-2009, tatu: To handle [JACKSON-53], need to block CGLib-provided
             // method "getCallbacks". Not sure of exact safe criteria to get decent
             // coverage without false matches; but for now let's assume there is
@@ -60,7 +68,7 @@ public class DefaultAccessorNamingStrategy
                     return null;
                 }
             }
-            return stdManglePropertyName(name, 3);
+            return stdManglePropertyName(name, _getterPrefix.length());
         }
         return null;
     }
@@ -68,7 +76,7 @@ public class DefaultAccessorNamingStrategy
     @Override
     public String findNameForMutator(AnnotatedMethod am, String name)
     {
-        if (name.startsWith(_mutatorPrefix)) {
+        if ((_mutatorPrefix != null) && name.startsWith(_mutatorPrefix)) {
             return stdManglePropertyName(name, _mutatorPrefix.length());
         }
         return null;
@@ -166,7 +174,8 @@ public class DefaultAccessorNamingStrategy
         @Override
         public AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass targetClass)
         {
-            return new DefaultAccessorNamingStrategy(config, targetClass, "set");
+            return new DefaultAccessorNamingStrategy(config, targetClass,
+                    "set", "get");
         }
 
         @Override
@@ -176,13 +185,49 @@ public class DefaultAccessorNamingStrategy
             AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
             JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
             String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
-            return new DefaultAccessorNamingStrategy(config, builderClass, mutatorPrefix);
+            return new DefaultAccessorNamingStrategy(config, builderClass,
+                    mutatorPrefix, "get");
         }
 
         @Override
         public AccessorNamingStrategy forRecord(MapperConfig<?> config, AnnotatedClass recordClass)
         {
-            return new DefaultAccessorNamingStrategy(config, recordClass, "set");
+            return new RecordNaming(config, recordClass);
+        }
+    }
+
+    public static class RecordNaming
+        extends DefaultAccessorNamingStrategy
+    {
+        /**
+         * Names of actual Record fields from definition; auto-detected.
+         */
+        protected final Set<String> _fieldNames;
+
+        public RecordNaming(MapperConfig<?> config, AnnotatedClass forClass) {
+            super(config, forClass,
+                    // no setters for (immutable) Records:
+                    null,
+                    // trickier: regular fields are ok (handled differently), but should
+                    // we also allow getter discovery? For now let's do so
+                    "get");
+            _fieldNames = new HashSet<>();
+            for (String name : JDK14Util.getRecordFieldNames(forClass.getRawType())) {
+                _fieldNames.add(name);
+            }
+        }
+
+        @Override
+        public String findNameForRegularGetter(AnnotatedMethod am, String name)
+        {
+            // By default, field names are un-prefixed, but verify so that we will not
+            // include "toString()" or additional custom methods (unless latter are
+            // annotated for inclusion)
+            if (_fieldNames.contains(name)) {
+                return name;
+            }
+            // but also allow auto-detecting additional getters, if any?
+            return super.findNameForRegularGetter(am, name);
         }
     }
 }

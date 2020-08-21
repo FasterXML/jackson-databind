@@ -236,7 +236,9 @@ public class BasicClassIntrospector
     protected POJOPropertiesCollector collectProperties(JavaType type, AnnotatedClass classDef,
             boolean forSerialization, String mutatorPrefix)
     {
-        final AccessorNamingStrategy accNaming = _config.getAccessorNaming().forPOJO(_config, classDef);
+        final AccessorNamingStrategy accNaming = type.isRecordType()
+                ? _config.getAccessorNaming().forRecord(_config, classDef)
+                : _config.getAccessorNaming().forPOJO(_config, classDef);
         return constructPropertyCollector(type, classDef, forSerialization, accNaming);
     }
 

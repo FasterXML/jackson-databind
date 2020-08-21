@@ -7,12 +7,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import com.fasterxml.jackson.databind.*;
@@ -30,6 +25,7 @@ import com.fasterxml.jackson.databind.ext.jdk8.OptionalDoubleDeserializer;
 import com.fasterxml.jackson.databind.ext.jdk8.OptionalIntDeserializer;
 import com.fasterxml.jackson.databind.ext.jdk8.OptionalLongDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.*;
@@ -237,6 +233,15 @@ public abstract class BasicDeserializerFactory
         _addFactoryCreators(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
+            // [databind#2709]: Record support
+            if (beanDesc.getType().isRecordType()) {
+                final List<String> names = new ArrayList<>();
+                AnnotatedConstructor canonical = JDK14Util.findRecordConstructor(ctxt, beanDesc, names);
+                if (canonical != null) {
+                    _addRecordConstructor(ctxt, beanDesc, creators, canonical, names);
+                    return creators.constructValueInstantiator(ctxt);
+                }
+            }
             _addConstructorCreators(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
         }
         return creators.constructValueInstantiator(ctxt);
@@ -650,6 +655,31 @@ nonAnnotatedParamIndex, ctor);
      */
 
     /**
+     * Helper method called when a {@code java.lang.Record} definition's "canonical"
+     * constructor is to be used: if so, we have implicit names to consider.
+     *
+     * @since 2.12
+     */
+    protected void _addRecordConstructor(DeserializationContext ctxt,
+            BeanDescription beanDesc, CreatorCollector creators,
+            AnnotatedConstructor canonical, List<String> names)
+                    throws JsonMappingException
+    {
+        final DeserializationConfig config = ctxt.getConfig();
+        final int argCount = canonical.getParameterCount();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+
+        for (int i = 0; i < argCount; ++i) {
+            final AnnotatedParameter param = canonical.getParameter(i);
+            JacksonInject.Value injectable = intr.findInjectableValue(config, param);
+            final PropertyName name = PropertyName.construct(names.get(i));
+            properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
+        }
+        creators.addPropertyCreator(canonical, false, properties);
+    }
+
+    /**
      * Helper method called when there is the explicit "is-creator" with mode of "delegating"
      */
     protected void _addExplicitDelegatingCreator(DeserializationContext ctxt,
@@ -1004,7 +1034,7 @@ nonAnnotatedParamIndex, ctor);
     private PropertyName _findParamName(DeserializationContext ctxt,
             AnnotatedParameter param, AnnotationIntrospector intr)
     {
-        if (param != null && intr != null) {
+        if (intr != null) {
             final DeserializationConfig config = ctxt.getConfig();
             PropertyName name = intr.findNameForDeserialization(config, param);
             if (name != null) {

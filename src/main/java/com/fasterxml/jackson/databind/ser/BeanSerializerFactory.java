@@ -463,7 +463,12 @@ public class BeanSerializerFactory
             return prov.reportBadTypeDefinition(beanDesc, "Failed to construct BeanSerializer for %s: (%s) %s",
                     beanDesc.getType(), e.getClass().getName(), e.getMessage());
         }
-        if (ser == null) {
+        if (ser == null) { // Means that no properties were found
+            // 21-Aug-2020, tatu: Empty Records should be fine tho
+            if (type.isRecordType()) {
+                return builder.createDummy();
+            }
+
             // 06-Aug-2019, tatu: As per [databind#2390], we need to check for add-ons here,
             //    before considering fallbacks
             ser = (JsonSerializer<Object>) findSerializerByAddonType(config, type, beanDesc, staticTyping);

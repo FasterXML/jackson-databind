@@ -30,6 +30,9 @@ public class RecordTest extends BaseMapTest
     record JsonPropertyRenameRecord(int id, @JsonProperty("rename")String name) {
     }
 
+    record EmptyRecord() {
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
@@ -65,16 +68,23 @@ public class RecordTest extends BaseMapTest
      */
 
     public void testSerializeSimpleRecord() throws Exception {
-        SimpleRecord record = new SimpleRecord(123, "Bob");
-
-        String json = MAPPER.writeValueAsString(record);
+        String json = MAPPER.writeValueAsString(new SimpleRecord(123, "Bob"));
         final Object EXP = map("id", Integer.valueOf(123), "name", "Bob");
         assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
     public void testDeserializeSimpleRecord() throws Exception {
-        SimpleRecord value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", SimpleRecord.class);
-        assertEquals(new SimpleRecord(123, "Bob"), value);
+        assertEquals(new SimpleRecord(123, "Bob"),
+                MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", SimpleRecord.class));
+    }
+
+    public void testSerializeEmptyRecord() throws Exception {
+        assertEquals("{}", MAPPER.writeValueAsString(new EmptyRecord()));
+    }
+
+    public void testDeserializeEmptyRecord() throws Exception {
+        assertEquals(new EmptyRecord(),
+                MAPPER.readValue("{}", EmptyRecord.class));
     }
 
     public void testSerializeRecordOfRecord() throws Exception {

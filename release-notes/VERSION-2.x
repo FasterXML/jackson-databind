@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.12.0 (not yet released)
 
+#43: Add option to resolve type from multiple existing properties,
+  `@JsonTypeInfo(use=DEDUCTION)`
+ (contributed by drekbour@github)
 #426: `@JsonIgnoreProperties` does not prevent Exception Conflicting getter/setter
   definitions for property
  (reported by gmkll@github)

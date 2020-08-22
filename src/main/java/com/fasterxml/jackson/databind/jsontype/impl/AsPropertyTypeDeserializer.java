@@ -3,9 +3,15 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -89,7 +95,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.nextToken(); // to point to the value
             if (name.equals(_typePropertyName)
                     || (ignoreCase && name.equalsIgnoreCase(_typePropertyName))) { // gotcha!
-                return _deserializeTypedForId(p, ctxt, tb);
+                return _deserializeTypedForId(p, ctxt, tb, p.getText());
             }
             if (tb == null) {
                 tb = new TokenBuffer(p, ctxt);
@@ -102,9 +108,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     @SuppressWarnings("resource")
     protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
-            TokenBuffer tb) throws IOException
-    {
-        String typeId = p.getText();
+                                            TokenBuffer tb, String typeId) throws IOException {
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         if (_typeIdVisible) { // need to merge id back in JSON input?
             if (tb == null) {
@@ -124,7 +128,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // deserializer should take care of closing END_OBJECT as well
         return deser.deserialize(p, ctxt);
     }
-    
+
     // off-lined to keep main method lean and mean...
     @SuppressWarnings("resource")
     protected Object _deserializeTypedUsingDefaultImpl(JsonParser p,

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.*;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -122,6 +121,12 @@ public class StdTypeResolverBuilder
         }
         TypeIdResolver idRes = idResolver(ctxt, baseType, subTypeValidator(ctxt),
                 subtypes, true, false);
+
+        if (_idType == JsonTypeInfo.Id.DEDUCTION) {
+            // Deduction doesn't require a type property. We use EXISTING_PROPERTY with a name of <null> to drive this.
+            return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
+        }
+
         switch (_includeAs) {
         case WRAPPER_ARRAY:
             return new AsArrayTypeSerializer(idRes, null);
@@ -158,6 +163,11 @@ public class StdTypeResolverBuilder
 
         TypeIdResolver idRes = idResolver(ctxt, baseType, subTypeValidator, subtypes, false, true);
         JavaType defaultImpl = defineDefaultImpl(ctxt, baseType);
+
+        if(_idType == JsonTypeInfo.Id.DEDUCTION) {
+            // Deduction doesn't require an includeAs property
+            return new AsDeductionTypeDeserializer(ctxt, baseType, idRes, defaultImpl, subtypes);
+        }
 
         // First, method for converting type info to type id:
         switch (_includeAs) {
@@ -261,6 +271,7 @@ public class StdTypeResolverBuilder
         if (_customIdResolver != null) { return _customIdResolver; }
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
         switch (_idType) {
+        case DEDUCTION: // Deduction produces class names to be resolved
         case CLASS:
             return ClassNameIdResolver.construct(baseType, subtypeValidator);
         case MINIMAL_CLASS:
@@ -301,13 +312,13 @@ public class StdTypeResolverBuilder
     {
         final PolymorphicTypeValidator ptv = subTypeValidator(ctxt);
         if (_idType == JsonTypeInfo.Id.CLASS || _idType == JsonTypeInfo.Id.MINIMAL_CLASS) {
-            final Validity validity = ptv.validateBaseType(ctxt, baseType);
+            final PolymorphicTypeValidator.Validity validity = ptv.validateBaseType(ctxt, baseType);
             // If no subtypes are legal (that is, base type itself is invalid), indicate problem
-            if (validity == Validity.DENIED) {
+            if (validity == PolymorphicTypeValidator.Validity.DENIED) {
                 return reportInvalidBaseType(ctxt, baseType, ptv);
             }
             // If there's indication that any and all subtypes are fine, replace validator itself:
-            if (validity == Validity.ALLOWED) {
+            if (validity == PolymorphicTypeValidator.Validity.ALLOWED) {
                 return LaissezFaireSubTypeValidator.instance;
             }
             // otherwise just return validator, is to be called for each distinct type

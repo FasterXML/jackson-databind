@@ -1147,6 +1147,11 @@ Daniel Hrabovcak (TheSpiritXIII@github)
   * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
   (2.11.2)
 
+Mark Carter (drekbour@github)
+  * Contributed #43 implementation: Add option to resolve type from multiple existing properties,
+   `@JsonTypeInfo(use=DEDUCTION)`
+  (2.12.0)
+ 
 Mike Gilbode (gilbode@github)
   * Reported #792: Deserialization Not Working Right with Generic Types and Builders
   (2.12.0)

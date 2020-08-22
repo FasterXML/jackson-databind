@@ -89,6 +89,13 @@ public class BeanUtil
         return null;
     }
 
+    // since 2.9, not used any more by databind itself but, alas, JAXB module used
+    // up until 2.11.2
+    @Deprecated
+    public static String okNameForSetter(AnnotatedMethod am, boolean stdNaming) {
+        return okNameForMutator(am, "set", stdNaming);
+    }
+
     /**
      * @since 2.5
      *

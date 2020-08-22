@@ -54,7 +54,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         {
             final String origSimple = implName.getSimpleName();
             if (origSimple.startsWith("is")) {
-                String mangledName = BeanUtil.stdManglePropertyName(origSimple, 2);
+                String mangledName = DefaultAccessorNamingStrategy.stdManglePropertyName(origSimple, 2);
                 // Needs to be valid ("is" -> null), and different from original
                 if ((mangledName != null) && !mangledName.equals(origSimple)) {
                     return PropertyName.construct(mangledName);

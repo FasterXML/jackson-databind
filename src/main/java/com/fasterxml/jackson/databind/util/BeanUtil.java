@@ -64,41 +64,6 @@ public class BeanUtil
 
     /*
     /**********************************************************
-    /* Actual name mangling methods
-    /**********************************************************
-     */
-
-    // 24-Sep-2017, tatu: note that "std" here refers to earlier (1.x, 2.x) distinction
-    //   between "legacy" (slightly non-conforming) and "std" (fully conforming): with 3.x
-    //   only latter exists.
-    public static String stdManglePropertyName(final String basename, final int offset)
-    {
-        final int end = basename.length();
-        if (end == offset) { // empty name, nope
-            return null;
-        }
-        // first: if it doesn't start with capital, return as-is
-        char c0 = basename.charAt(offset);
-        char c1 = Character.toLowerCase(c0);
-        if (c0 == c1) {
-            return basename.substring(offset);
-        }
-        // 17-Dec-2014, tatu: As per [databind#653], need to follow more
-        //   closely Java Beans spec; specifically, if two first are upper-case,
-        //   then no lower-casing should be done.
-        if ((offset + 1) < end) {
-            if (Character.isUpperCase(basename.charAt(offset+1))) {
-                return basename.substring(offset);
-            }
-        }
-        StringBuilder sb = new StringBuilder(end - offset);
-        sb.append(c1);
-        sb.append(basename, offset+1, end);
-        return sb.toString();
-    }
-
-    /*
-    /**********************************************************
     /* Package-specific type detection for error handling
     /**********************************************************
      */

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * Helper class used to encapsulate rules that determine subtypes that
  * are invalid to use, even with default typing, mostly due to security
  * concerns.
- * Used by <code>BeanDeserializerFacotry</code>
+ * Used by <code>BeanDeserializerFactory</code>
  *
  * @since 2.8.11
  */
@@ -201,7 +201,11 @@ public class SubTypeValidator
 
         // [databind#2798]: com.pastdev.httpcomponents:
         s.add("com.pastdev.httpcomponents.configuration.JndiConfiguration");
-        
+
+        // [databind#2826], [databind#2827]
+        s.add("com.nqadmin.rowset.JdbcRowSetImpl");
+        s.add("org.arrah.framework.rdbms.UpdatableJdbcRowsetImpl");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

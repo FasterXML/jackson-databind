@@ -10,6 +10,10 @@ Project: jackson-databind
  (reported by Al1ex@knownsec)
 #2814: Block one more gadget type (xxx, CVE-xxxx-xxx)
  (reported by ChenZhaojun)
+#2826: Block one more gadget type (xxx, CVE-xxxx-xxx)
+ (reported by ChenZhaojun)
+#2827: Block one more gadget type (xxx, CVE-xxxx-xxx)
+ (reported by ChenZhaojun)
 
 2.9.10.5 (21-Jun-2020)
 

@@ -3,19 +3,14 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator.Validity;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -332,13 +327,13 @@ public class StdTypeResolverBuilder
     {
         final PolymorphicTypeValidator ptv = subTypeValidator(config);
         if (_idType == JsonTypeInfo.Id.CLASS || _idType == JsonTypeInfo.Id.MINIMAL_CLASS) {
-            final Validity validity = ptv.validateBaseType(config, baseType);
+            final PolymorphicTypeValidator.Validity validity = ptv.validateBaseType(config, baseType);
             // If no subtypes are legal (that is, base type itself is invalid), indicate problem
-            if (validity == Validity.DENIED) {
+            if (validity == PolymorphicTypeValidator.Validity.DENIED) {
                 return reportInvalidBaseType(config, baseType, ptv);
             }
             // If there's indication that any and all subtypes are fine, replace validator itself:
-            if (validity == Validity.ALLOWED) {
+            if (validity == PolymorphicTypeValidator.Validity.ALLOWED) {
                 return LaissezFaireSubTypeValidator.instance;
             }
             // otherwise just return validator, is to be called for each distinct type

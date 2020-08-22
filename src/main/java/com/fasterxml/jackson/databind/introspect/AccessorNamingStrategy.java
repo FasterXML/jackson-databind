@@ -13,36 +13,85 @@ public abstract class AccessorNamingStrategy
 {
     /**
      * Method called to find whether given method would be considered an "is-getter"
-     * method in context of type introspected.
+     * getter method in context of
+     * type introspected, and if so, what is the logical property it is associated with
+     * (which in turn suggest external name for property)
      *<p>
      * Note that signature acceptability has already been checked (no arguments,
      * has return value) but NOT the specific limitation that return type should
      * be of boolean type -- implementation should apply latter check, if so desired
-     * (some languages may use different criteria).
+     * (some languages may use different criteria). It is also possible that some
+     * implementations allow different return types than boolean types.
+     *<p>
+     * Note that visibility checks are applied separately; strategy does not need
+     * to be concerned with that aspect.
+     *
+     * @param method Method to check
+     * @param name Name to check (usually same as {@link AnnotatedMethod#getName()}
+     *
+     * @return Implied property name for is-getter method, if match; {@code null} to indicate
+     *    that the name does not conform to expected naming convention
      */
-    public abstract String findNameForIsGetter(AnnotatedMethod am, String name);
+    public abstract String findNameForIsGetter(AnnotatedMethod method, String name);
 
     /**
      * Method called to find whether given method would be considered a "regular"
-     * getter method in context of type introspected.
+     * getter method in context of
+     * type introspected, and if so, what is the logical property it is associated with
+     * (which in turn suggest external name for property)
      *<p>
      * Note that signature acceptability has already been checked (no arguments,
      * does have a return value) by caller.
      *<p>
      * Note that this method MAY be called for potential "is-getter" methods too
      * (before {@link #findNameForIsGetter})
+     *<p>
+     * Note that visibility checks are applied separately; strategy does not need
+     * to be concerned with that aspect.
+     *
+     * @param method Method to check
+     * @param name Name to check (usually same as {@link AnnotatedMethod#getName()}
+     *
+     * @return Implied property name for getter method, if match; {@code null} to indicate
+     *    that the name does not conform to expected naming convention
      */
-    public abstract String findNameForRegularGetter(AnnotatedMethod am, String name);
+    public abstract String findNameForRegularGetter(AnnotatedMethod method, String name);
 
     /**
      * Method called to find whether given method would be considered a "mutator"
      * (usually setter, but for builders "with-method" or similar) in context of
-     * type introspected.
+     * type introspected, and if so, what is the logical property it is associated with
+     * (which in turn suggest external name for property)
      *<p>
      * Note that signature acceptability has already been checked (exactly one parameter)
      * by caller.
+     *<p>
+     * Note that visibility checks are applied separately; strategy does not need
+     * to be concerned with that aspect.
+     *
+     * @param method Method to check
+     * @param name Name to check (usually same as {@link AnnotatedMethod#getName()}
+     *
+     * @return Implied property name for mutator method, if match; {@code null}
+     *   to indicate that the name does not conform to expected naming convention
      */
-    public abstract String findNameForMutator(AnnotatedMethod am, String name);
+    public abstract String findNameForMutator(AnnotatedMethod method, String name);
+
+    /**
+     * Method called to find the name of logical property that given field should
+     * be associated with, if any.
+     *<p>
+     * Note that visibility checks are applied separately; strategy does not need
+     * to be concerned with that aspect.
+     * 
+     * @param field Field to check
+     * @param name Name to check (usually same as {@link AnnotatedField#getName()}
+     *
+     * @return Implied property name matching given field (often field name as-is) or {@code null}
+     *   to indicate that the name does not conform to expected naming convention
+     *   (and will not be considered for property access)
+     */
+    public abstract String modifyFieldName(AnnotatedField field, String name);
 
     /**
      * Interface for provider (factory) for constructing {@link AccessorNamingStrategy}

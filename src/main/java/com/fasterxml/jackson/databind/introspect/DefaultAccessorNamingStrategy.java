@@ -25,6 +25,7 @@ public class DefaultAccessorNamingStrategy
     protected final boolean _stdBeanNaming;
 
     protected final String _getterPrefix;
+    protected final String _isGetterPrefix;
 
     /**
      * Prefix used by auto-detected mutators ("setters"): usually "set",
@@ -33,7 +34,7 @@ public class DefaultAccessorNamingStrategy
     protected final String _mutatorPrefix;
 
     protected DefaultAccessorNamingStrategy(MapperConfig<?> config, AnnotatedClass forClass,
-            String mutatorPrefix, String getterPrefix)
+            String mutatorPrefix, String getterPrefix, String isGetterPrefix)
     {
         _config = config;
         _forClass = forClass;
@@ -41,23 +42,26 @@ public class DefaultAccessorNamingStrategy
         _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
         _mutatorPrefix = mutatorPrefix;
         _getterPrefix = getterPrefix;
+        _isGetterPrefix = isGetterPrefix;
     }
     
     @Override
     public String findNameForIsGetter(AnnotatedMethod am, String name)
     {
-        final Class<?> rt = am.getRawType();
-        if (rt == Boolean.class || rt == Boolean.TYPE) {
-            if (name.startsWith("is")) { // plus, must return a boolean
-                return _stdBeanNaming
-                        ? stdManglePropertyName(name, 2)
-                        : legacyManglePropertyName(name, 2);
+        if (_isGetterPrefix != null) {
+            final Class<?> rt = am.getRawType();
+            if (rt == Boolean.class || rt == Boolean.TYPE) {
+                if (name.startsWith(_isGetterPrefix)) {
+                    return _stdBeanNaming
+                            ? stdManglePropertyName(name, 2)
+                            : legacyManglePropertyName(name, 2);
+                }
             }
         }
         return null;
     }
 
-    @Override
+        @Override
     public String findNameForRegularGetter(AnnotatedMethod am, String name)
     {
         if ((_getterPrefix != null) && name.startsWith(_getterPrefix)) {
@@ -93,6 +97,12 @@ public class DefaultAccessorNamingStrategy
         return null;
     }
 
+    // Default implementation simply returns name as-is
+    @Override
+    public String modifyFieldName(AnnotatedField field, String name) {
+        return name;
+    }
+    
     /*
     /**********************************************************************
     /* Name-mangling methods copied in 2.12 from "BeanUtil"
@@ -219,7 +229,7 @@ public class DefaultAccessorNamingStrategy
         public AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass targetClass)
         {
             return new DefaultAccessorNamingStrategy(config, targetClass,
-                    "set", "get");
+                    "set", "get", "is");
         }
 
         @Override
@@ -230,7 +240,7 @@ public class DefaultAccessorNamingStrategy
             JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(builderClass);
             String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
             return new DefaultAccessorNamingStrategy(config, builderClass,
-                    mutatorPrefix, "get");
+                    mutatorPrefix, "get", "is");
         }
 
         @Override
@@ -254,7 +264,7 @@ public class DefaultAccessorNamingStrategy
                     null,
                     // trickier: regular fields are ok (handled differently), but should
                     // we also allow getter discovery? For now let's do so
-                    "get");
+                    "get", "is");
             _fieldNames = new HashSet<>();
             for (String name : JDK14Util.getRecordFieldNames(forClass.getRawType())) {
                 _fieldNames.add(name);

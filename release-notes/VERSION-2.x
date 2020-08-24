@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.10.6 (not yet released)
+2.9.10.6 (24-Aug-2020)
 
 #2798: Block one more gadget type (xxx, CVE-xxxx-xxx)
  (reported by Al1ex@knownsec)

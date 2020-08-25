@@ -39,7 +39,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper()
             .setAnnotationIntrospector(new MyParamIntrospector())
-            .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             ;
 
     // for [databind#806]: problem is that renaming occurs too late for implicitly detected

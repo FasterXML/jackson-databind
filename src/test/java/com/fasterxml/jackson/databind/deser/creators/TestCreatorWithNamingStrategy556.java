@@ -56,13 +56,11 @@ public class TestCreatorWithNamingStrategy556
             return super.findImplicitPropertyName(param);
         }
     }
-    
-    private final ObjectMapper MAPPER = new ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
-            ;
-    {
-        MAPPER.setAnnotationIntrospector(new MyParamIntrospector());
-    }
+
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
+            .annotationIntrospector(new MyParamIntrospector())
+            .build();
 
     private final static String CTOR_JSON = aposToQuotes("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
     

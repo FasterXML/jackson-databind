@@ -77,7 +77,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     @JsonPropertyOrder({ "firstName", "lastName" })
-    @JsonNaming(PropertyNamingStrategy.LowerCaseStrategy.class)
+    @JsonNaming(PropertyNamingStrategies.LowerCaseStrategy.class)
     static class BoringBean {
         public String firstName = "Bob";
         public String lastName = "Burger";
@@ -179,7 +179,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     {
         super.setUp();
         _lcWithUndescoreMapper = new ObjectMapper();
-        _lcWithUndescoreMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        _lcWithUndescoreMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     }
     
     /*
@@ -196,7 +196,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseStrategyStandAlone()
     {
         for (Object[] pair : SNAKE_CASE_NAME_TRANSLATIONS) {
-            String translatedJavaName = PropertyNamingStrategy.SNAKE_CASE.nameForField(null, null,
+            String translatedJavaName = PropertyNamingStrategies.SNAKE_CASE.nameForField(null, null,
                     (String) pair[0]);
             assertEquals((String) pair[1], translatedJavaName);
         }
@@ -270,20 +270,20 @@ public class TestNamingStrategyStd extends BaseMapTest
      */
     public void testPascalCaseStandAlone()
     {
-        assertEquals("UserName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "userName"));
-        assertEquals("User", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "User"));
-        assertEquals("User", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "user"));
-        assertEquals("X", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "x"));
+        assertEquals("UserName", PropertyNamingStrategies.UPPER_CAMEL_CASE.nameForField(null, null, "userName"));
+        assertEquals("User", PropertyNamingStrategies.UPPER_CAMEL_CASE.nameForField(null, null, "User"));
+        assertEquals("User", PropertyNamingStrategies.UPPER_CAMEL_CASE.nameForField(null, null, "user"));
+        assertEquals("X", PropertyNamingStrategies.UPPER_CAMEL_CASE.nameForField(null, null, "x"));
 
-        assertEquals("BADPublicName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "bADPublicName"));
-        assertEquals("BADPublicName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForGetterMethod(null, null, "bADPublicName"));
+        assertEquals("BADPublicName", PropertyNamingStrategies.UPPER_CAMEL_CASE.nameForField(null, null, "bADPublicName"));
+        assertEquals("BADPublicName", PropertyNamingStrategies.UPPER_CAMEL_CASE.nameForGetterMethod(null, null, "bADPublicName"));
     }
 
     // [databind#428]
     public void testIssue428PascalWithOverrides() throws Exception
     {
         String json = new ObjectMapper()
-                .setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
+                .setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
                 .writeValueAsString(new Bean428());
         if (!json.contains(quote("fooBar"))) {
             fail("Should use name 'fooBar', does not: "+json);
@@ -315,22 +315,22 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testKebabCaseStrategyStandAlone()
     {
         assertEquals("some-value",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "someValue"));
+                PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "someValue"));
         assertEquals("some-value",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "SomeValue"));
+                PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "SomeValue"));
         assertEquals("url",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "URL"));
+                PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "URL"));
         assertEquals("url-stuff",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "URLStuff"));
+                PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "URLStuff"));
         assertEquals("some-url-stuff",
-                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "SomeURLStuff"));
+                PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "SomeURLStuff"));
     }
     
     public void testSimpleKebabCase() throws Exception
     {
         final FirstNameBean input = new FirstNameBean("Bob");
         ObjectMapper m = new ObjectMapper()
-                .setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
+                .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
 
         assertEquals(aposToQuotes("{'first-name':'Bob'}"), m.writeValueAsString(input));
 
@@ -347,21 +347,21 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseWithDotsStrategyStandAlone()
     {
         assertEquals("some.value",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "someValue"));
+                PropertyNamingStrategies.LOWER_DOT_CASE.nameForField(null, null, "someValue"));
         assertEquals("some.value",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "SomeValue"));
+                PropertyNamingStrategies.LOWER_DOT_CASE.nameForField(null, null, "SomeValue"));
         assertEquals("url",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "URL"));
+                PropertyNamingStrategies.LOWER_DOT_CASE.nameForField(null, null, "URL"));
         assertEquals("url.stuff",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "URLStuff"));
+                PropertyNamingStrategies.LOWER_DOT_CASE.nameForField(null, null, "URLStuff"));
         assertEquals("some.url.stuff",
-            PropertyNamingStrategy.LOWER_DOT_CASE.nameForField(null, null, "SomeURLStuff"));
+                PropertyNamingStrategies.LOWER_DOT_CASE.nameForField(null, null, "SomeURLStuff"));
     }
 
     public void testSimpleLowerCaseWithDots() throws Exception
     {
         final ObjectMapper m = jsonMapperBuilder()
-            .propertyNamingStrategy(PropertyNamingStrategy.LOWER_DOT_CASE)
+            .propertyNamingStrategy(PropertyNamingStrategies.LOWER_DOT_CASE)
             .build();
 
         final FirstNameBean input = new FirstNameBean("Bob");
@@ -384,7 +384,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testNamingWithObjectNode() throws Exception
     {
         ObjectMapper m = new ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE);
+            .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CASE);
         ClassWithObjectNodeField result =
             m.readValue(
                 "{ \"id\": \"1\", \"json\": { \"foo\": \"bar\", \"baz\": \"bing\" } }",
@@ -399,7 +399,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testExplicitRename() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .build();
         // by default, renaming will not take place on explicitly named fields
@@ -407,7 +407,7 @@ public class TestNamingStrategyStd extends BaseMapTest
                 m.writeValueAsString(new ExplicitBean()));
 
         m = jsonMapperBuilder()
-                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
                 .enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)
                 .build();

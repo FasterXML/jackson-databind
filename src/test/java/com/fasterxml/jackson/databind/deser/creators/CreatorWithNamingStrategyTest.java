@@ -39,7 +39,7 @@ public class CreatorWithNamingStrategyTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper()
             .setAnnotationIntrospector(new MyParamIntrospector())
-            .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             ;
 
     // [databind#2051]

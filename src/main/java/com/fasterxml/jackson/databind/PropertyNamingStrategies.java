@@ -6,56 +6,37 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 
 /**
- * Class that defines how names of JSON properties ("external names")
- * are derived from names of POJO methods and fields ("internal names"),
- * in cases where no explicit annotations exist for naming.
- * Methods are passed information about POJO member for which name is needed,
- * as well as default name that would be used if no custom strategy was used.
+ * Container for standard {@link PropertyNamingStrategy} implementations
+ * and singleton instances.
  *<p>
- * Default (empty) implementation returns suggested ("implicit" or "default") name unmodified
- *<p>
- * Note that the strategy is guaranteed to be called once per logical property
- * (which may be represented by multiple members; such as pair of a getter and
- * a setter), but may be called for each: implementations should not count on
- * exact number of times, and should work for any member that represent a
- * property.
- * Also note that calls are made during construction of serializers and deserializers
- * which are typically cached, and not for every time serializer or deserializer
- * is called.
- *<p>
- * In absence of a registered custom strategy, the default Java property naming strategy
- * is used, which leaves field names as is, and removes set/get/is prefix
- * from methods (as well as lower-cases initial sequence of capitalized
- * characters).
- *<p>
- * NOTE! Since 2.12 sub-classes defined here (as well as static singleton instances thereof)
- * are deprecated due to
+ * Added in Jackson 2.12 to resolve issue
  * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>.
- * Please use constants and classes in {@link PropertyNamingStrategies} instead.
- * 
+ *
+ * @since 2.12
  */
-@SuppressWarnings("serial")
-public class PropertyNamingStrategy // NOTE: was abstract until 2.7
+public abstract class PropertyNamingStrategies
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 2L;
 
+    /*
+    /**********************************************************************
+    /* Static instances that may be referenced
+    /**********************************************************************
+     */
+    
     /**
      * Naming convention used in Java, where words other than first are capitalized
      * and no separator is used between words. Since this is the native Java naming convention,
      * naming strategy will not do any transformation between names in data (JSON) and
      * POJOS.
-     *
-     * @since 2.7 (was formerly called {@link #PASCAL_CASE_TO_CAMEL_CASE})
      */
     public static final PropertyNamingStrategy LOWER_CAMEL_CASE = new PropertyNamingStrategy();
 
     /**
      * Naming convention used in languages like Pascal, where words are capitalized
      * and no separator is used between words.
-     * See {@link PascalCaseStrategy} for details.
-     *
-     * @since 2.7 (was formerly called {@link #PASCAL_CASE_TO_CAMEL_CASE})
+     * See {@link UpperCamelCaseStrategy} for details.
      */
     public static final PropertyNamingStrategy UPPER_CAMEL_CASE = new UpperCamelCaseStrategy();
 
@@ -63,8 +44,6 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Naming convention used in languages like C, where words are in lower-case
      * letters, separated by underscores.
      * See {@link SnakeCaseStrategy} for details.
-     *
-     * @since 2.7 (was formerly called {@link #CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES})
      */
     public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy();
 
@@ -72,8 +51,6 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Naming convention in which all words of the logical name are in lower case, and
      * no separator is used between words.
      * See {@link LowerCaseStrategy} for details.
-     * 
-     * @since 2.4
      */
     public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy();
 
@@ -81,8 +58,6 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Naming convention used in languages like Lisp, where words are in lower-case
      * letters, separated by hyphens.
      * See {@link KebabCaseStrategy} for details.
-     * 
-     * @since 2.7
      */
     public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy();
 
@@ -90,134 +65,50 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Naming convention widely used as configuration properties name, where words are in
      * lower-case letters, separated by dots.
      * See {@link LowerDotCaseStrategy} for details.
-     *
-     * @since 2.10
      */
     public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy();
-
-    /*
-    /**********************************************************
-    /* API
-    /**********************************************************
-     */
-
-    /**
-     * Method called to find external name (name used in JSON) for given logical
-     * POJO property,
-     * as defined by given field.
-     * 
-     * @param config Configuration in used: either <code>SerializationConfig</code>
-     *   or <code>DeserializationConfig</code>, depending on whether method is called
-     *   during serialization or deserialization
-     * @param field Field used to access property
-     * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
-     * @return Logical name to use for property that the field represents
-     */
-    public String nameForField(MapperConfig<?> config, AnnotatedField field,
-            String defaultName)
-    {
-        return defaultName;
-    }
-
-    /**
-     * Method called to find external name (name used in JSON) for given logical
-     * POJO property,
-     * as defined by given getter method; typically called when building a serializer.
-     * (but not always -- when using "getter-as-setter", may be called during
-     * deserialization)
-     * 
-     * @param config Configuration in used: either <code>SerializationConfig</code>
-     *   or <code>DeserializationConfig</code>, depending on whether method is called
-     *   during serialization or deserialization
-     * @param method Method used to access property.
-     * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
-     * @return Logical name to use for property that the method represents
-     */
-    public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method,
-            String defaultName)
-    {
-        return defaultName;
-    }
-
-    /**
-     * Method called to find external name (name used in JSON) for given logical
-     * POJO property,
-     * as defined by given setter method; typically called when building a deserializer
-     * (but not necessarily only then).
-     * 
-     * @param config Configuration in used: either <code>SerializationConfig</code>
-     *   or <code>DeserializationConfig</code>, depending on whether method is called
-     *   during serialization or deserialization
-     * @param method Method used to access property.
-     * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
-     * @return Logical name to use for property that the method represents
-     */
-    public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method,
-            String defaultName)
-    {
-        return defaultName;
-    }
-
-    /**
-     * Method called to find external name (name used in JSON) for given logical
-     * POJO property,
-     * as defined by given constructor parameter; typically called when building a deserializer
-     * (but not necessarily only then).
-     * 
-     * @param config Configuration in used: either <code>SerializationConfig</code>
-     *   or <code>DeserializationConfig</code>, depending on whether method is called
-     *   during serialization or deserialization
-     * @param ctorParam Constructor parameter used to pass property.
-     * @param defaultName Default name that would be used for property in absence of custom strategy
-     */
-    public String nameForConstructorParameter(MapperConfig<?> config, AnnotatedParameter ctorParam,
-            String defaultName)
-    {
-        return defaultName;
-    }
-
-    /*
-    /**********************************************************
-    /* Public base class for simple implementations
-    /**********************************************************
-     */
     
-    public static abstract class PropertyNamingStrategyBase extends PropertyNamingStrategy
+    /*
+    /**********************************************************************
+    /* Public base class for simple implementations
+    /**********************************************************************
+     */
+
+    /**
+     * Intermediate base class for simple implementations
+     */
+    static abstract class NamingBase
+        extends PropertyNamingStrategy
     {
+        private static final long serialVersionUID = 2L;
+
         @Override
-        public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName)
-        {
+        public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName) {
             return translate(defaultName);
         }
 
         @Override
-        public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName)
-        {
+        public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName) {
             return translate(defaultName);
         }
 
         @Override
-        public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName)
-        {
+        public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName) {
             return translate(defaultName);
         }
 
         @Override
         public String nameForConstructorParameter(MapperConfig<?> config, AnnotatedParameter ctorParam,
-                String defaultName)
-        {
+                String defaultName) {
             return translate(defaultName);
         }
-        
+
         public abstract String translate(String propertyName);
 
         /**
          * Helper method to share implementation between snake and dotted case.
          */
-        protected static String translateLowerCaseWithSeparator(final String input, final char separator)
+        protected String translateLowerCaseWithSeparator(final String input, final char separator)
         {
             if (input == null) {
                 return input; // garbage in, garbage out
@@ -255,9 +146,9 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard implementations 
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -308,11 +199,11 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * (the first of two underscores was removed)</li>
      * <li>&quot;user__name&quot; is translated to &quot;user__name&quot;
      * (unchanged, with two underscores)</li></ul>
-     *
-     * @since 2.7 (was previously called {@link LowerCaseWithUnderscoresStrategy})
      */
-    public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
+    public static class SnakeCaseStrategy extends NamingBase
     {
+        private static final long serialVersionUID = 2L;
+
         @Override
         public String translate(String input)
         {
@@ -360,11 +251,11 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * This rules result in the following example translation from 
      * Java property names to JSON element names.
      * <ul><li>&quot;userName&quot; is translated to &quot;UserName&quot;</li></ul>
-     * 
-     * @since 2.7 (was formerly called {@link PascalCaseStrategy})
      */
-    public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
+    public static class UpperCamelCaseStrategy extends NamingBase
     {
+        private static final long serialVersionUID = 2L;
+
         /**
          * Converts camelCase to PascalCase
          * 
@@ -396,11 +287,11 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * and no separators.
      * Conversion from internal name like "someOtherValue" would be into external name
      * if "someothervalue".
-     * 
-     * @since 2.4
      */
-    public static class LowerCaseStrategy extends PropertyNamingStrategyBase
+    public static class LowerCaseStrategy extends NamingBase
     {
+        private static final long serialVersionUID = 2L;
+
         @Override
         public String translate(String input) {
             return input.toLowerCase();
@@ -408,14 +299,15 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     }
 
     /**
-     * Naming strategy similar to {@link SnakeCaseStrategy}, but instead of underscores
+     * Naming strategy similar to {@link PropertyNamingStrategies.SnakeCaseStrategy},
+     * but instead of underscores
      * as separators, uses hyphens. Naming convention traditionally used for languages
      * like Lisp.
-     *
-     * @since 2.7
      */
-    public static class KebabCaseStrategy extends PropertyNamingStrategyBase
+    public static class KebabCaseStrategy extends NamingBase
     {
+        private static final long serialVersionUID = 2L;
+
         @Override
         public String translate(String input) {
             return translateLowerCaseWithSeparator(input, '-');
@@ -423,12 +315,13 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     }
 
     /**
-     * Naming strategy similar to {@link KebabCaseStrategy}, but instead of hyphens
+     * Naming strategy similar to {@link PropertyNamingStrategies.KebabCaseStrategy},
+     * but instead of hyphens
      * as separators, uses dots. Naming convention widely used as configuration properties name.
-     *
-     * @since 2.10
      */
-    public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase {
+    public static class LowerDotCaseStrategy extends NamingBase {
+        private static final long serialVersionUID = 2L;
+
         @Override
         public String translate(String input){
             return translateLowerCaseWithSeparator(input, '.');

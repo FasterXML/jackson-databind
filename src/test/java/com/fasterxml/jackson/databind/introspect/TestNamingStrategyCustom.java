@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -136,7 +137,7 @@ public class TestNamingStrategyCustom extends BaseMapTest
         }
     }
 
-    static class LcStrategy extends PropertyNamingStrategy.PropertyNamingStrategyBase
+    static class LcStrategy extends PropertyNamingStrategies.NamingBase
     {
         @Override
         public String translate(String propertyName) {

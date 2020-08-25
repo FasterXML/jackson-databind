@@ -146,7 +146,7 @@ public class EnumFormatShapeTest
     // [databind#2365]
     public void testEnumWithNamingStrategy() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
-                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
         String json = mapper.writeValueAsString(Enum2365.B);
         assertEquals(aposToQuotes("{'main_value':'B-x'}"), json);

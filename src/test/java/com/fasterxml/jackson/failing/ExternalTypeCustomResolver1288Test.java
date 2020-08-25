@@ -415,7 +415,7 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+            .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             .build();
 
     // [databind#1288]

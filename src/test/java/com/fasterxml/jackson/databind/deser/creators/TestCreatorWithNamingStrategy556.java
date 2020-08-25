@@ -57,9 +57,9 @@ public class TestCreatorWithNamingStrategy556
             return super.findImplicitPropertyName(config, param);
         }
     }
-    
+
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .propertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
+            .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
             .annotationIntrospector(new MyParamIntrospector())
             .build();
 

@@ -43,7 +43,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
     public void testImplicitNameWithNamingStrategy() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .annotationIntrospector(new MyParamIntrospector())
                 .build();
         XY value = mapper.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);

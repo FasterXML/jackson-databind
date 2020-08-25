@@ -41,8 +41,11 @@ Project: jackson-databind
 #2683: Explicitly fail (de)serialization of `java.time.*` types in absence of
   registered custom (de)serializers
 #2707: Improve description included in by `DeserializationContext.handleUnexpectedToken()`
-#2709: Support for JDK 14 record types
+#2709: Support for JDK 14 record types (`java.lang.Record`)
  (contributed by Youri B)
+#2715: `PropertyNamingStrategy` class initialization depends on its subclass, this can
+  lead to class loading deadlock
+ (reported by fangwentong@github)
 #2719: `FAIL_ON_IGNORED_PROPERTIES` does not throw on `READONLY` properties with
   an explicit name
  (reported, fix contributed by David B)

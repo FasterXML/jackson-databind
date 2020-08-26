@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * This concrete sub-class implements property that is passed
@@ -187,9 +188,9 @@ public class CreatorProperty
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* BeanProperty impl
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -207,9 +208,9 @@ public class CreatorProperty
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden methods, SettableBeanProperty
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -270,18 +271,18 @@ public class CreatorProperty
     //  public boolean isInjectionOnly() { return false; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public String toString() { return "[creator property, name '"+getName()+"'; inject id '"+getInjectableValueId()+"']"; }
+    public String toString() { return "[creator property, name "+ClassUtil.name(getName())+"; inject id '"+getInjectableValueId()+"']"; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final void _verifySetter() throws IOException {
@@ -292,7 +293,7 @@ public class CreatorProperty
 
     private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        final String msg = "No fallback setter/field defined for creator property '"+getName()+"'";
+        final String msg = "No fallback setter/field defined for creator property "+ClassUtil.name(getName());
         // Hmmmh. Should we return quietly (NOP), or error?
         // Perhaps better to throw an exception, since it's generally an error.
         if (ctxt != null ) {

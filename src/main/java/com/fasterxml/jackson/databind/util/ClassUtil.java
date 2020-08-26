@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.util.Named;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
 public final class ClassUtil
@@ -597,14 +598,37 @@ public final class ClassUtil
     }
 
     /**
-     * Returns either backtick-quoted `named.getName()` (if `named` not null),
-     * or "[null]" if `named` is null.
+     * Returns either single-quoted (apostrophe) {@code 'named.getName()'} (if {@code named} not null),
+     * or "[null]" if {@code named} is null.
      */
     public static String nameOf(Named named) {
         if (named == null) {
             return "[null]";
         }
-        return backticked(named.getName());
+        return apostrophed(named.getName());
+    }
+
+    /**
+     * Returns either single-quoted (apostrophe) {@code 'name'} (if {@code name} not null),
+     * or "[null]" if {@code name} is null.
+     */
+    public static String name(String name) {
+        if (name == null) {
+            return "[null]";
+        }
+        return apostrophed(name);
+    }
+    
+    /**
+     * Returns either single-quoted (apostrophe) {@code 'name'} (if {@code name} not null),
+     * or "[null]" if {@code name} is null.
+     */
+    public static String name(PropertyName name) {
+        if (name == null) {
+            return "[null]";
+        }
+        // 26-Aug-2020, tatu: Should we consider namespace somehow?
+        return apostrophed(name.getSimpleName());
     }
 
     /*
@@ -612,15 +636,25 @@ public final class ClassUtil
     /* Other escaping, description access
     /**********************************************************************
      */
-    
+
     /**
-     * Returns either `text` or [null].
+     * Returns either {@code `text`} (backtick-quoted) or {@code [null]}.
      */
     public static String backticked(String text) {
         if (text == null) {
             return "[null]";
         }
         return new StringBuilder(text.length()+2).append('`').append(text).append('`').toString();
+    }
+
+    /**
+     * Returns either {@code 'text'} (single-quoted) or {@code [null]}.
+     */
+    public static String apostrophed(String text) {
+        if (text == null) {
+            return "[null]";
+        }
+        return new StringBuilder(text.length()+2).append('\'').append(text).append('\'').toString();
     }
 
     /**

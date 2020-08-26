@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Deserializer only used for abstract types used as placeholders during polymorphic
@@ -126,8 +127,8 @@ public class AbstractDeserializer
                         idProp = (_properties == null) ? null : _properties.get(propName.getSimpleName());
                         if (idProp == null) {
                             ctxt.reportBadDefinition(_baseType, String.format(
-                                    "Invalid Object Id definition for %s: cannot find property with name '%s'",
-                                    handledType().getName(), propName));
+"Invalid Object Id definition for %s: cannot find property with name %s",
+ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                         }
                         idType = idProp.getType();
                         idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());

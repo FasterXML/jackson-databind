@@ -570,7 +570,7 @@ public abstract class BeanDeserializerBase
             if (delegateType == null) {
                 ctxt.reportBadDefinition(_beanType, String.format(
 "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-                    _beanType, _valueInstantiator.getClass().getName()));
+ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiator)));
             }
             _delegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
                     _valueInstantiator.getDelegateCreator());
@@ -582,7 +582,7 @@ public abstract class BeanDeserializerBase
             if (delegateType == null) {
                 ctxt.reportBadDefinition(_beanType, String.format(
 "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
-                        _beanType, _valueInstantiator.getClass().getName()));
+ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiator)));
             }
             _arrayDelegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
                     _valueInstantiator.getArrayDelegateCreator());
@@ -726,8 +726,8 @@ public abstract class BeanDeserializerBase
                     idProp = findProperty(propName);
                     if (idProp == null) {
                         ctxt.reportBadDefinition(_beanType, String.format(
-                                "Invalid Object Id definition for %s: cannot find property with name '%s'",
-                                handledType().getName(), propName));
+"Invalid Object Id definition for %s: cannot find property with name %s",
+ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                     }
                     idType = idProp.getType();
                     idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
@@ -835,8 +835,8 @@ public abstract class BeanDeserializerBase
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
         if (backProp == null) {
             ctxt.reportBadDefinition(_beanType, String.format(
-"Cannot handle managed/back reference '%s': no back reference property found from type %s",
-                    refName, prop.getType()));
+"Cannot handle managed/back reference %s: no back reference property found from type %s",
+ClassUtil.name(refName), ClassUtil.getTypeDescription(prop.getType())));
         }
         // also: verify that type is compatible
         JavaType referredType = _beanType;
@@ -844,8 +844,8 @@ public abstract class BeanDeserializerBase
         boolean isContainer = prop.getType().isContainerType();
         if (!backRefType.getRawClass().isAssignableFrom(referredType.getRawClass())) {
             ctxt.reportBadDefinition(_beanType, String.format(
-"Cannot handle managed/back reference '%s': back reference type (%s) not compatible with managed type (%s)",
-                    refName, backRefType.getRawClass().getName(),
+"Cannot handle managed/back reference %s: back reference type (%s) not compatible with managed type (%s)",
+ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                     referredType.getRawClass().getName()));
         }
         return new ManagedReferenceProperty(prop, refName, backProp, isContainer);

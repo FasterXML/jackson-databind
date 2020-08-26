@@ -383,8 +383,10 @@ public class BeanDeserializerFactory
             PropertyName propName = objectIdInfo.getPropertyName();
             idProp = builder.findProperty(propName);
             if (idProp == null) {
-                throw new IllegalArgumentException("Invalid Object Id definition for "
-                        +beanDesc.getBeanClass().getName()+": cannot find property with name '"+propName+"'");
+                throw new IllegalArgumentException(String.format(
+"Invalid Object Id definition for %s: cannot find property with name %s",
+ClassUtil.getTypeDescription(beanDesc.getType()),
+ClassUtil.name(propName)));
             }
             idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
@@ -619,8 +621,8 @@ public class BeanDeserializerFactory
                         n.add(cp.getName());
                     }
                     ctxt.reportBadPropertyDefinition(beanDesc, propDef,
-                            "Could not find creator property with name '%s' (known Creator properties: %s)",
-                            name, n);
+"Could not find creator property with name %s (known Creator properties: %s)",
+                            ClassUtil.name(name), n);
                     continue;
                 }
                 if (prop != null) {
@@ -736,8 +738,8 @@ public class BeanDeserializerFactory
                     //    work through constructors; but let's at least indicate the issue for now
                     if (m instanceof AnnotatedParameter) {
                         ctxt.reportBadTypeDefinition(beanDesc,
-"Cannot bind back reference using Creator parameter (reference '%s', parameter index #%d)",
-name, ((AnnotatedParameter) m).getIndex());
+"Cannot bind back reference using Creator parameter (reference %s, parameter index #%d)",
+ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     }
                 }
                 */

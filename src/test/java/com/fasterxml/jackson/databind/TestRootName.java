@@ -51,7 +51,7 @@ public class TestRootName extends BaseMapTest
             mapper.readValue(aposToQuotes("{'notRudy':{'a':3}}"), Bean.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Root name 'notRudy' does not match expected ('rudy')");
+            verifyException(e, "Root name ('notRudy') does not match expected ('rudy')");
         }
 
         // second: non-Object
@@ -88,7 +88,7 @@ public class TestRootName extends BaseMapTest
             reader.readValue(aposToQuotes("{'notRudy':{'a':3}}"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Root name 'notRudy' does not match expected ('rudy')");
+            verifyException(e, "Root name ('notRudy') does not match expected ('rudy')");
         }
 
         // second: non-Object
@@ -146,7 +146,7 @@ public class TestRootName extends BaseMapTest
                 .readValue(jsonUnwrapped);
             fail("Should have failed");
         } catch (JsonMappingException e) {
-            verifyException(e, "Root name 'a'");
+            verifyException(e, "Root name ('a')");
         }
         // except wrapping may be expected:
         result = mapper.readerFor(Bean.class).with(DeserializationFeature.UNWRAP_ROOT_VALUE)

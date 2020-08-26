@@ -498,7 +498,7 @@ anyField.getName()));
                 names.add(refName);
             } else {
                 if (!names.add(refName)) {
-                    throw new IllegalArgumentException("Multiple back-reference properties with name '"+refName+"'");
+                    throw new IllegalArgumentException("Multiple back-reference properties with name "+ClassUtil.name(refName));
                 }
             }
             result.add(property);

@@ -1094,8 +1094,8 @@ public class POJOPropertyBuilder
                     continue;
                 }
                 
-                throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
-                        +_name+"'): found multiple explicit names: "
+                throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name "
+                        +ClassUtil.name(_name)+"): found multiple explicit names: "
                         +newNames+", but also implicit accessor: "+node);
             }
             POJOPropertyBuilder prop = props.get(name);

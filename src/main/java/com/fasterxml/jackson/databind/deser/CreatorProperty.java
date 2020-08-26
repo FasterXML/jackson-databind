@@ -221,8 +221,8 @@ public class CreatorProperty
     {
         if (_injectableValue == null) {
             context.reportBadDefinition(ClassUtil.classOf(beanInstance),
-                    String.format("Property '%s' (type %s) has no injectable value id configured",
-                    getName(), getClass().getName()));
+                    String.format("Property %s (type %s) has no injectable value id configured",
+                    ClassUtil.name(getName()), ClassUtil.classNameOf(this)));
         }
         return context.findInjectableValue(_injectableValue.getId(), this, beanInstance);
     }
@@ -327,7 +327,7 @@ public class CreatorProperty
      */
     
     @Override
-    public String toString() { return "[creator property, name '"+getName()+"'; inject id '"+getInjectableValueId()+"']"; }
+    public String toString() { return "[creator property, name "+ClassUtil.name(getName())+"; inject id '"+getInjectableValueId()+"']"; }
 
     /*
     /**********************************************************
@@ -345,7 +345,7 @@ public class CreatorProperty
     // since 2.9
     private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        final String msg = "No fallback setter/field defined for creator property '"+getName()+"'";
+        final String msg = "No fallback setter/field defined for creator property "+ClassUtil.name(getName());
         // Hmmmh. Should we return quietly (NOP), or error?
         // Perhaps better to throw an exception, since it's generally an error.
         if (ctxt != null ) {

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -528,8 +529,8 @@ public abstract class BeanSerializerBase
                     for (int i = 0, len = _props.length; ; ++i) {
                         if (i == len) {
                             provider.reportBadDefinition(_beanType, String.format(
-                                    "Invalid Object Id definition for %s: cannot find property with name '%s'",
-                                    handledType().getName(), propName));
+                                    "Invalid Object Id definition for %s: cannot find property with name %s",
+                                    ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                         }
                         BeanPropertyWriter prop = _props[i];
                         if (propName.equals(prop.getName())) {

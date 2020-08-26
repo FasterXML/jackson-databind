@@ -8,7 +8,7 @@ Project: jackson-databind
 
 #2798: Block one more gadget type (xxx, CVE-xxxx-xxx)
  (reported by Al1ex@knownsec)
-#2814: Block one more gadget type (xxx, CVE-xxxx-xxx)
+#2814: Block one more gadget type (Anteros-DBCP, CVE-2020-24616)
  (reported by ChenZhaojun)
 #2826: Block one more gadget type (xxx, CVE-xxxx-xxx)
  (reported by ChenZhaojun)

@@ -95,15 +95,15 @@ public abstract class AsArraySerializerBase<T>
      *
      * @since 2.12
      */
-    protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
-                                    TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer,
-                                    Boolean unwrapSingle)
+    protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
+            TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer,
+            Boolean unwrapSingle)
     {
         // typing with generics is messy... have to resort to this:
         super(cls, false);
-        _elementType = et;
+        _elementType = elementType;
         // static if explicitly requested, or if element type is final
-        _staticTyping = staticTyping || (et != null && et.isFinal());
+        _staticTyping = staticTyping || (elementType != null && elementType.isFinal());
         _valueTypeSerializer = vts;
         _property = property;
         _elementSerializer = elementSerializer;

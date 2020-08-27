@@ -76,15 +76,7 @@ public abstract class AsArraySerializerBase<T>
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<Object> elementSerializer)
     {
-        super(cls, false);
-        _elementType = et;
-        // static if explicitly requested, or if element type is final
-        _staticTyping = staticTyping || (et != null && et.isFinal());
-        _valueTypeSerializer = vts;
-        _property = null;
-        _elementSerializer = elementSerializer;
-        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
-        _unwrapSingle = null;
+        this(cls, et, staticTyping, vts, null, elementSerializer, null);
     }
 
     /**
@@ -95,6 +87,18 @@ public abstract class AsArraySerializerBase<T>
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)
     {
+        this(cls, et, staticTyping, vts, property, elementSerializer, null);
+    }
+
+    /**
+     * General purpose constructor. Use contextual constructors, if possible.
+     *
+     * @since 2.12
+     */
+    protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
+                                    TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer,
+                                    Boolean unwrapSingle)
+    {
         // typing with generics is messy... have to resort to this:
         super(cls, false);
         _elementType = et;
@@ -104,7 +108,7 @@ public abstract class AsArraySerializerBase<T>
         _property = property;
         _elementSerializer = elementSerializer;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
-        _unwrapSingle = null;
+        _unwrapSingle = unwrapSingle;
     }
 
     @SuppressWarnings("unchecked")
@@ -130,7 +134,7 @@ public abstract class AsArraySerializerBase<T>
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer)
     {
-        this(src, property, vts, elementSerializer, src.unwrapSingle());
+        this(src, property, vts, elementSerializer, src._unwrapSingle);
     }
     
     /**
@@ -139,7 +143,7 @@ public abstract class AsArraySerializerBase<T>
     @Deprecated
     public final AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return withResolved(property, vts, elementSerializer, unwrapSingle());
+        return withResolved(property, vts, elementSerializer, _unwrapSingle);
     }
 
     /**
@@ -205,7 +209,7 @@ public abstract class AsArraySerializerBase<T>
         if ((ser != _elementSerializer)
                 || (property != _property)
                 || (_valueTypeSerializer != typeSer)
-                || (unwrapSingle() != unwrapSingle)) {
+                || (_unwrapSingle != unwrapSingle)) {
             return withResolved(property, typeSer, ser, unwrapSingle);
         }
         return this;
@@ -317,15 +321,5 @@ public abstract class AsArraySerializerBase<T>
             _dynamicSerializers = result.map;
         }
         return result.serializer;
-    }
-
-    /**
-     * This function exposes the <code>_unwrapSingle</code> value but allows for easier subclassing.
-     * Intended to be used by jackson-module-scala.
-     *
-     * @since 2.12
-     */
-    protected Boolean unwrapSingle() {
-        return _unwrapSingle;
     }
 }

@@ -130,7 +130,7 @@ public abstract class AsArraySerializerBase<T>
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer)
     {
-        this(src, property, vts, elementSerializer, src._unwrapSingle);
+        this(src, property, vts, elementSerializer, src.unwrapSingle());
     }
     
     /**
@@ -139,7 +139,7 @@ public abstract class AsArraySerializerBase<T>
     @Deprecated
     public final AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return withResolved(property, vts, elementSerializer, _unwrapSingle);
+        return withResolved(property, vts, elementSerializer, unwrapSingle());
     }
 
     /**
@@ -205,7 +205,7 @@ public abstract class AsArraySerializerBase<T>
         if ((ser != _elementSerializer)
                 || (property != _property)
                 || (_valueTypeSerializer != typeSer)
-                || (_unwrapSingle != unwrapSingle)) {
+                || (unwrapSingle() != unwrapSingle)) {
             return withResolved(property, typeSer, ser, unwrapSingle);
         }
         return this;
@@ -317,5 +317,15 @@ public abstract class AsArraySerializerBase<T>
             _dynamicSerializers = result.map;
         }
         return result.serializer;
+    }
+
+    /**
+     * This function exposes the <code>_unwrapSingle</code> value but allows for easier subclassing.
+     * Intended to be used by jackson-module-scala.
+     *
+     * @since 2.12
+     */
+    protected Boolean unwrapSingle() {
+        return _unwrapSingle;
     }
 }

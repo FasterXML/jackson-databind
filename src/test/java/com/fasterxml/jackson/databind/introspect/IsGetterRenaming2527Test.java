@@ -6,7 +6,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 
 // [databind#2527] Support Kotlin-style "is" properties
 public class IsGetterRenaming2527Test extends BaseMapTest

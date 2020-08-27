@@ -15,9 +15,41 @@ import com.fasterxml.jackson.databind.JavaType;
 public class BeanUtil
 {
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Name mangling
+    /**********************************************************************
+     */
+
+    public static String stdManglePropertyName(final String basename, final int offset)
+    {
+        final int end = basename.length();
+        if (end == offset) { // empty name, nope
+            return null;
+        }
+        // first: if it doesn't start with capital, return as-is
+        char c0 = basename.charAt(offset);
+        char c1 = Character.toLowerCase(c0);
+        if (c0 == c1) {
+            return basename.substring(offset);
+        }
+        // 17-Dec-2014, tatu: As per [databind#653], need to follow more
+        //   closely Java Beans spec; specifically, if two first are upper-case,
+        //   then no lower-casing should be done.
+        if ((offset + 1) < end) {
+            if (Character.isUpperCase(basename.charAt(offset+1))) {
+                return basename.substring(offset);
+            }
+        }
+        StringBuilder sb = new StringBuilder(end - offset);
+        sb.append(c1);
+        sb.append(basename, offset+1, end);
+        return sb.toString();
+    }
+
+    /*
+    /**********************************************************************
     /* Value defaulting helpers
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -63,9 +95,9 @@ public class BeanUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Package-specific type detection for error handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -74,8 +106,6 @@ public class BeanUtil
      * if given unrecognized type (to be (de)serialized as general POJO) is one of
      * "well-known" types for which there would be a datatype module; and if so,
      * return appropriate failure message to give to caller.
-     *
-     * @since 2.12
      */
     public static String checkUnsupportedType(JavaType type) {
         final Class<?> rawType = type.getRawClass();
@@ -93,17 +123,11 @@ public class BeanUtil
         return String.format("%s type %s not supported by default: add Module \"%s\" to enable handling",
                 typeName, ClassUtil.getTypeDescription(type), moduleName);
     }
-    
-    /**
-     * @since 2.12
-     */
+
     public static boolean isJava8TimeClass(Class<?> rawType) {
         return rawType.getName().startsWith("java.time.");
     }
 
-    /**
-     * @since 2.12
-     */
     public static boolean isJodaTimeClass(Class<?> rawType) {
         return rawType.getName().startsWith("org.joda.time.");
     }

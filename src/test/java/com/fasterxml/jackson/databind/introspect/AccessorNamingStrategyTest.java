@@ -8,11 +8,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 // for [databind#2800]
 public class AccessorNamingStrategyTest extends BaseMapTest
 {
-    @JsonPropertyOrder({ "X", "Z" })
+    @JsonPropertyOrder({ "X", "x", "Z", "z" }) // since our naming strategy casings vary
     static class GetterBean2800_XZ {
         public int GetX() { return 3; }
         public int getY() { return 5; }
-        public boolean GetZ() { return true; }
+        public boolean IsZ() { return true; }
     }
 
     static class SetterBean2800_Y {
@@ -91,7 +91,7 @@ public class AccessorNamingStrategyTest extends BaseMapTest
 
     /*
     /********************************************************
-    /* Test methods
+    /* Test methods, custom accessor naming impl
     /********************************************************
      */
 
@@ -125,6 +125,12 @@ public class AccessorNamingStrategyTest extends BaseMapTest
         assertEquals(3, result.__z);
     }
 
+    /*
+    /********************************************************
+    /* Test methods, base provider impl
+    /********************************************************
+     */
+    
     // Test to verify that the base naming impl works as advertised
     public void testBaseAccessorNaming() throws Exception
     {
@@ -133,5 +139,43 @@ public class AccessorNamingStrategyTest extends BaseMapTest
                 .build();
         assertEquals(a2q("{'x':72}"),
                 mapper.writeValueAsString(new MixedBean2800_X()));
+    }
+
+    /*
+    /********************************************************
+    /* Test methods, default provider with alternate config
+    /********************************************************
+     */
+
+    public void testBaseAccessorCustomGetter() throws Exception
+    {
+        // First: without customizations, see "y"
+        ObjectMapper mapper = JsonMapper.builder()
+                .accessorNaming(new DefaultAccessorNamingStrategy.Provider())
+                .build();
+        assertEquals(a2q("{'y':5}"),
+                mapper.writeValueAsString(new GetterBean2800_XZ()));
+
+        // But with configurable prefixes will find alternatives, do mangling too:
+        mapper = JsonMapper.builder()
+                .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
+                        .withGetterPrefix("Get")
+                        .withIsGetterPrefix("Is")
+                )
+                .build();
+        assertEquals(a2q("{'x':3,'z':true}"),
+                mapper.writeValueAsString(new GetterBean2800_XZ()));
+    }
+
+    public void testBaseAccessorCustomSetter() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
+                        .withSetterPrefix("Put")
+                )
+                .build();
+
+        SetterBean2800_Y result = mapper.readValue(a2q("{'y':42}"), SetterBean2800_Y.class);
+        assertEquals(42, result.yyy);
     }
 }

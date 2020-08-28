@@ -377,8 +377,14 @@ public class POJOPropertiesCollector
             if (implName == null) {
                 implName = f.getName();
             }
-            final PropertyName implNameP = _propNameFromSimple(implName);
+            // 27-Aug-2020, tatu: [databind#2800] apply naming strategy for
+            //   fields too, to allow use of naming conventions.
+            implName = _accessorNaming.modifyFieldName(f, implName);
+            if (implName == null) {
+                continue;
+            }
 
+            final PropertyName implNameP = _propNameFromSimple(implName);
             // [databind#2527: Field-based renaming can be applied early (here),
             // or at a later point, but probably must be done before pruning
             // final fields. So let's do it early here
@@ -388,7 +394,6 @@ public class POJOPropertiesCollector
                     _fieldRenameMappings = new HashMap<>();
                 }
                 _fieldRenameMappings.put(rename, implNameP);
-                // todo
             }
 
             PropertyName pn;

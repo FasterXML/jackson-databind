@@ -94,6 +94,46 @@ public abstract class AccessorNamingStrategy
     public abstract String modifyFieldName(AnnotatedField field, String name);
 
     /**
+     * Helper class that implements all abstract methods with dummy implementations.
+     * Behavior is as follows:
+     *<ul>
+     * <li>No getter or is-getter methods are recognized: relevant methods return {@code null}
+     *  <li>
+     * <li>No setter methods are recognized: relevant methods return {@code null}
+     *  <li>
+     * <li>Names of fields are returned as-is, without modifications (meaning they may be
+     * discovered if they are otherwise visible
+     *  <li>
+     * </ul>
+     */
+    public static class Base
+        extends AccessorNamingStrategy
+        implements java.io.Serializable // since one configured with Mapper/MapperBuilder
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public String findNameForIsGetter(AnnotatedMethod method, String name) {
+            return null;
+        }
+
+        @Override
+        public String findNameForRegularGetter(AnnotatedMethod method, String name) {
+            return null;
+        }
+
+        @Override
+        public String findNameForMutator(AnnotatedMethod method, String name) {
+            return null;
+        }
+
+        @Override
+        public String modifyFieldName(AnnotatedField field, String name) {
+            return name;
+        }
+    }
+
+    /**
      * Interface for provider (factory) for constructing {@link AccessorNamingStrategy}
      * for given type of deserialization target
      */

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class BeanDescriptionTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final static String CLASS_DESC = "Description, yay!";
     

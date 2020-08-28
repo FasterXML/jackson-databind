@@ -174,7 +174,7 @@ public class DefaultAccessorNamingStrategy
     /**
      * Provider for {@link DefaultAccessorNamingStrategy}.
      */
-    public final static class Provider
+    public static class Provider
         extends AccessorNamingStrategy.Provider
         implements java.io.Serializable
     {

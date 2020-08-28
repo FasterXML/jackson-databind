@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -87,7 +88,6 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
         return null;
       }
 
-      @SuppressWarnings("deprecation")
       @Override
       public boolean hasCreatorAnnotation(Annotated a) {
         final AnnotatedConstructor ctor = (AnnotatedConstructor) a;
@@ -108,8 +108,9 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
     {
         Issue1756Module m = new Issue1756Module();
         m.addAbstractTypeMapping(Foobar.class, FoobarImpl.class);
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
+        final ObjectMapper mapper = JsonMapper.builder()
+                .addModule(m)
+                .build();
 
         final Foobar foobar = mapper.readValue(aposToQuotes("{'bar':'bar', 'foo':'foo'}"),
                 Foobar.class);

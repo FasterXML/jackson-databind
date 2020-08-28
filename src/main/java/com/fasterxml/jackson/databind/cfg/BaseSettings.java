@@ -262,7 +262,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, p);
     }
 
     public BaseSettings withTypeFactory(TypeFactory tf) {

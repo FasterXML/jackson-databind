@@ -61,6 +61,8 @@ Project: jackson-databind
 #2784: Trailing zeros are stripped when deserializing BigDecimal values inside a
   @JsonUnwrapped property
  (reported by mjustin@github)
+#2800: Extract getter/setter/field name mangling from `BeanUtil` into
+  pluggable `AccessorNamingStrategy`
 #2805: Remove `JsonProcessingException` from `ObjectMapper.treeToValue()`
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues

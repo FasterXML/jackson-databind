@@ -45,7 +45,7 @@ public class DefaultAccessorNamingStrategy
         if (_isGetterPrefix != null) {
             final Class<?> rt = am.getRawType();
             if (rt == Boolean.class || rt == Boolean.TYPE) {
-                if (name.startsWith("is")) { // plus, must return a boolean
+                if (name.startsWith(_isGetterPrefix)) { // plus, must return a boolean
                     return stdManglePropertyName(name, 2);
                 }
             }
@@ -90,7 +90,7 @@ public class DefaultAccessorNamingStrategy
     public String modifyFieldName(AnnotatedField field, String name) {
         return name;
     }
-    
+
     /*
     /**********************************************************************
     /* Name-mangling methods copied in 2.12 from "BeanUtil"
@@ -173,6 +173,20 @@ public class DefaultAccessorNamingStrategy
 
     /**
      * Provider for {@link DefaultAccessorNamingStrategy}.
+     *<p>
+     * Default instance will use following default prefixes:
+     *<ul>
+     * <li>Setter for regular POJOs: "set"
+     *  </li>
+     * <li>Builder-mutator: "with"
+     *  </li>
+     * <li>Regular getter: "get"
+     *  </li>
+     * <li>Is-getter (for Boolean values): "is"
+     *  </li>
+     * <ul>
+     *<p>
+     * 
      */
     public static class Provider
         extends AccessorNamingStrategy.Provider
@@ -180,11 +194,46 @@ public class DefaultAccessorNamingStrategy
     {
         private static final long serialVersionUID = 1L;
 
+        protected final String _setterPrefix;
+        protected final String _withPrefix;
+
+        protected final String _getterPrefix;
+        protected final String _isGetterPrefix;
+
+        public Provider() {
+            this("set", JsonPOJOBuilder.DEFAULT_WITH_PREFIX,
+                    "get", "is");
+        }
+
+        public Provider(String setterPrefix, String withPrefix,
+                String getterPrefix, String isGetterPrefix) {
+            _setterPrefix = setterPrefix;
+            _withPrefix = withPrefix;
+            _getterPrefix = getterPrefix;
+            _isGetterPrefix = isGetterPrefix;
+        }
+
+        public Provider withSetterPrefix(String p) {
+            return new Provider(p, _withPrefix, _getterPrefix, _isGetterPrefix);
+        }
+        
+        public Provider withBuilderPrefix(String p) {
+            return new Provider(_setterPrefix, p, _getterPrefix, _isGetterPrefix);
+        }
+
+        public Provider withGetterPrefix(String p) {
+            return new Provider(_setterPrefix, _withPrefix, p, _isGetterPrefix);
+        }
+
+        public Provider withIsGetterPrefix(String p) {
+            return new Provider(_setterPrefix, _withPrefix, _getterPrefix, p);
+        }
+
         @Override
         public AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass targetClass)
         {
             return new DefaultAccessorNamingStrategy(config, targetClass,
-                    "set", "get", "is");
+                    _setterPrefix, _getterPrefix, _isGetterPrefix);
         }
 
         @Override
@@ -193,9 +242,9 @@ public class DefaultAccessorNamingStrategy
         {
             AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
             JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
-            String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
+            String mutatorPrefix = (builderConfig == null) ? _withPrefix : builderConfig.withPrefix;
             return new DefaultAccessorNamingStrategy(config, builderClass,
-                    mutatorPrefix, "get", "is");
+                    mutatorPrefix, _getterPrefix, _isGetterPrefix);
         }
 
         @Override
@@ -205,6 +254,15 @@ public class DefaultAccessorNamingStrategy
         }
     }
 
+    /**
+     * Implementation used for supporting "non-prefix" naming convention of
+     * Java 14 {@code java.lang.Record} types, and in particular find default
+     * accessors for declared record fields.
+     *<p>
+     * Current / initial implementation will also recognize additional "normal"
+     * getters ("get"-prefix) and is-getters ("is"-prefix and boolean return value)
+     * by name.
+     */
     public static class RecordNaming
         extends DefaultAccessorNamingStrategy
     {

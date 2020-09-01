@@ -3,8 +3,13 @@ package com.fasterxml.jackson.databind.jsontype.deftyping;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -76,9 +81,18 @@ public class TestDefaultForObject
         public String subject;
     }
 
-    static public class DomainBeanWrapper {
+    static class DomainBeanWrapper {
         public String name;
         public Object myBean;
+    }
+
+    @SuppressWarnings("serial")
+    static class BlockAllPTV extends PolymorphicTypeValidator.Base
+    {
+        @Override
+        public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
+            return Validity.DENIED;
+        }
     }
 
     /*
@@ -126,6 +140,23 @@ public class TestDefaultForObject
         assertNotNull(result);
         assertEquals(StringBean.class, result.getClass());
         assertEquals("abc", ((StringBean) result).name);
+    }
+
+    // [databind#2840]: ensure "as-property" uses PTV passed
+    public void testAsPropertyWithPTV() throws Exception {
+        ObjectMapper m = JsonMapper.builder()
+                .activateDefaultTypingAsProperty(new BlockAllPTV(),
+                        DefaultTyping.NON_FINAL,
+                        "@classy")
+                .build();
+        String json = m.writeValueAsString(new StringBean("abc"));
+        try {
+            /*Object result =*/ m.readValue(json, Object.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Configured `PolymorphicTypeValidator`");
+            verifyException(e, "denied resolution of all subtypes of ");
+        }
     }
     
     /**

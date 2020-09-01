@@ -1147,6 +1147,10 @@ Daniel Hrabovcak (TheSpiritXIII@github)
   * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
   (2.11.2)
 
+Daniel Wu (DanielYWoo@github)
+  * Reported #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
+  (2.11.3)
+
 Marc Carter (drekbour@github)
   * Contributed #43 implementation: Add option to resolve type from multiple existing properties,
    `@JsonTypeInfo(use=DEDUCTION)`

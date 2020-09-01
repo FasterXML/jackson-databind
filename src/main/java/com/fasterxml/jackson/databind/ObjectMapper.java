@@ -1967,8 +1967,7 @@ public class ObjectMapper
             DefaultTyping applicability, String propertyName)
     {
         TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability,
-                getPolymorphicTypeValidator());
-
+                ptv);
         // we'll always use full class name, when using defaulting
         typer = typer.init(JsonTypeInfo.Id.CLASS, null);
         typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);

@@ -1144,3 +1144,7 @@ Joshua Shannon (retrodaredevil@github)
 Daniel Hrabovcak (TheSpiritXIII@github)
   * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
   (2.11.2)
+
+Daniel Wu (DanielYWoo@github)
+  * Reported #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
+  (2.11.3)

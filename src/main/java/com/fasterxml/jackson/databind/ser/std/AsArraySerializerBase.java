@@ -95,8 +95,9 @@ public abstract class AsArraySerializerBase<T>
      *
      * @since 2.12
      */
+    @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
-            TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer,
+            TypeSerializer vts, BeanProperty property, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle)
     {
         // typing with generics is messy... have to resort to this:
@@ -106,7 +107,7 @@ public abstract class AsArraySerializerBase<T>
         _staticTyping = staticTyping || (elementType != null && elementType.isFinal());
         _valueTypeSerializer = vts;
         _property = property;
-        _elementSerializer = elementSerializer;
+        _elementSerializer = (JsonSerializer<Object>) elementSerializer;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _unwrapSingle = unwrapSingle;
     }

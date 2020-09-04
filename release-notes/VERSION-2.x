@@ -72,6 +72,8 @@ Project: jackson-databind
 #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
   parameter `PolymorphicTypeValidator`
  (reported by Daniel W)
+- Fix issues with `MapLikeType.isTrueMapType()`,
+  `CollectionLikeType.isTrueCollectionType()`
 
 2.11.2 (02-Aug-2020)
 

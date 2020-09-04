@@ -231,7 +231,10 @@ public class CollectionLikeType extends TypeBase
      * "real" Collection type; meaning whether it represents a parameterized
      * subtype of {@link java.util.Collection} or just something that acts
      * like one.
+     *
+     * @deprecated Since 2.12 just use instanceof 
      */
+    @Deprecated // since 2.12 use assignment checks
     public boolean isTrueCollectionType() {
         return Collection.class.isAssignableFrom(_class);
     }

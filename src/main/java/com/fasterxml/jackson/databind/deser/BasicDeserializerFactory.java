@@ -1545,6 +1545,16 @@ factory.toString()));
                     break;
                 }
             }
+
+            List<JavaType> interfaces = type.getInterfaces();
+
+            for (JavaType javaType : interfaces) {
+                Class<?> rawClass = javaType.getRawClass();
+                deser = _findCustomEnumDeserializer(rawClass, config, beanDesc);
+                if (deser != null) {
+                    return deser;
+                }
+            }
            
             // Need to consider @JsonValue if one found
             if (deser == null) {

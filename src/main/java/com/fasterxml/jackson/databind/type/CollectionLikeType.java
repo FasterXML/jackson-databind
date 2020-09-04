@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.util.Collection;
-
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -187,25 +185,9 @@ public class CollectionLikeType extends TypeBase
     }
 
     /*
-    /**********************************************************
-    /* Extended API
-    /**********************************************************
-     */
-
-    /**
-     * Method that can be used for checking whether this type is a
-     * "real" Collection type; meaning whether it represents a parameterized
-     * subtype of {@link java.util.Collection} or just something that acts
-     * like one.
-     */
-    public boolean isTrueCollectionType() {
-        return Collection.class.isAssignableFrom(_class);
-    }
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

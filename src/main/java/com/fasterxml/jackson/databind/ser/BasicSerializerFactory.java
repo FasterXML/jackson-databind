@@ -541,7 +541,7 @@ public abstract class BasicSerializerFactory
              *  But we do need to check class annotations.
              */
             JsonSerializer<Object> keySerializer = _findKeySerializer(ctxt, beanDesc.getClassInfo());
-            if (mlt.isTrueMapType()) {
+            if (mlt instanceof MapType) {
                 return buildMapSerializer(ctxt, (MapType) mlt,
                         beanDesc, formatOverrides, staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
@@ -571,7 +571,7 @@ public abstract class BasicSerializerFactory
         }
         if (type.isCollectionLikeType()) {
             CollectionLikeType clt = (CollectionLikeType) type;
-            if (clt.isTrueCollectionType()) {
+            if (clt instanceof CollectionType) {
                 return buildCollectionSerializer(ctxt, (CollectionType) clt,
                         beanDesc, formatOverrides, staticTyping,
                         elementTypeSerializer, elementValueSerializer);

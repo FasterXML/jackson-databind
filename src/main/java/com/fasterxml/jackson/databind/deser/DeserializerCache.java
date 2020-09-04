@@ -372,7 +372,7 @@ public final class DeserializerCache
                 JsonFormat.Value format = beanDesc.findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     MapLikeType mlt = (MapLikeType) type;
-                    if (mlt.isTrueMapType()) {
+                    if (mlt instanceof MapType) {
                         return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDesc);
                     }
                     return factory.createMapLikeDeserializer(ctxt, mlt, beanDesc);
@@ -386,7 +386,7 @@ public final class DeserializerCache
                 JsonFormat.Value format = beanDesc.findExpectedFormat(type.getRawClass());
                 if (format.getShape() != JsonFormat.Shape.POJO) {
                     CollectionLikeType clt = (CollectionLikeType) type;
-                    if (clt.isTrueCollectionType()) {
+                    if (clt instanceof CollectionType) {
                         return factory.createCollectionDeserializer(ctxt, (CollectionType) clt, beanDesc);
                     }
                     return factory.createCollectionLikeDeserializer(ctxt, clt, beanDesc);

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -242,19 +240,10 @@ public class MapLikeType extends TypeBase {
                 _valueHandler, _typeHandler, _asStatic);
     }
 
-    /**
-     * Method that can be used for checking whether this type is a "real"
-     * Collection type; meaning whether it represents a parameterized subtype of
-     * {@link java.util.Collection} or just something that acts like one.
-     */
-    public boolean isTrueMapType() {
-        return Map.class.isAssignableFrom(_class);
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

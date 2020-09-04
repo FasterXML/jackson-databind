@@ -74,6 +74,23 @@ public abstract class AsArraySerializerBase<T>
         _unwrapSingle = unwrapSingle;
     }
 
+    /**
+     * General purpose constructor. Use contextual constructors, if possible.
+     */
+    @SuppressWarnings("unchecked")
+    protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
+                                    TypeSerializer vts, BeanProperty property, JsonSerializer<?> elementSerializer,
+                                    Boolean unwrapSingle)
+    {
+        super(cls, property);
+        _elementType = elementType;
+        // static if explicitly requested, or if element type is final
+        _staticTyping = staticTyping || (elementType != null && elementType.isFinal());
+        _valueTypeSerializer = vts;
+        _elementSerializer = (JsonSerializer<Object>) elementSerializer;
+        _unwrapSingle = unwrapSingle;
+    }
+
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,

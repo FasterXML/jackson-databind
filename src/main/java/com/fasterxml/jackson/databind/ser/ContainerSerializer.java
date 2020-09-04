@@ -41,8 +41,12 @@ public abstract class ContainerSerializer<T>
      */
 
     protected ContainerSerializer(Class<?> t) {
+        this(t, null);
+    }
+
+    protected ContainerSerializer(Class<?> t, BeanProperty prop) {
         super(t);
-        _property = null;
+        _property = prop;
         _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 

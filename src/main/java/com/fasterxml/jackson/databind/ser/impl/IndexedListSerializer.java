@@ -26,16 +26,22 @@ public final class IndexedListSerializer
     }
 
     public IndexedListSerializer(IndexedListSerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
-            Boolean unwrapSingle) {
-        super(src, property, vts, valueSerializer, unwrapSingle);
+            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, BeanProperty property) {
+        super(src, vts, valueSerializer, unwrapSingle, property);
+    }
+
+    @Override
+    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+        return new IndexedListSerializer(this, 
+                vts, _elementSerializer, _unwrapSingle, _property);
     }
 
     @Override
     public IndexedListSerializer withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new IndexedListSerializer(this, property, vts, elementSerializer, unwrapSingle);
+        return new IndexedListSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
 
     /*
@@ -52,12 +58,6 @@ public final class IndexedListSerializer
     @Override
     public boolean hasSingleElement(Object value) {
         return (((List<?>)value).size() == 1);
-    }
-
-    @Override
-    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IndexedListSerializer(this, 
-                _property, vts, _elementSerializer, _unwrapSingle);
     }
 
     @Override

@@ -79,8 +79,8 @@ public abstract class AsArraySerializerBase<T>
      */
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(Class<?> cls, JavaType elementType, boolean staticTyping,
-                                    TypeSerializer vts, BeanProperty property, JsonSerializer<?> elementSerializer,
-                                    Boolean unwrapSingle)
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, BeanProperty property)
     {
         super(cls, property);
         _elementType = elementType;
@@ -93,8 +93,8 @@ public abstract class AsArraySerializerBase<T>
 
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,
-            Boolean unwrapSingle)
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle, BeanProperty property)
     {
         super(src, property);
         _elementType = src._elementType;

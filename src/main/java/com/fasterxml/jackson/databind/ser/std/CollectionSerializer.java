@@ -36,22 +36,22 @@ public class CollectionSerializer
         super(Collection.class, elemType, staticTyping, vts, valueSerializer);
     }
 
-    public CollectionSerializer(CollectionSerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
-            Boolean unwrapSingle) {
-        super(src, property, vts, valueSerializer, unwrapSingle);
+    protected CollectionSerializer(CollectionSerializer src,
+            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, BeanProperty property) {
+        super(src, vts, valueSerializer, unwrapSingle, property);
     }
-    
+
     @Override
-    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new CollectionSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
+    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+        return new CollectionSerializer(this, vts, _elementSerializer, _unwrapSingle, _property);
     }
 
     @Override
     public CollectionSerializer withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new CollectionSerializer(this, property, vts, elementSerializer, unwrapSingle);
+        return new CollectionSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
 
     /*

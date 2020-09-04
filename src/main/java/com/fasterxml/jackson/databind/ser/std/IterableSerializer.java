@@ -18,23 +18,29 @@ public class IterableSerializer
         super(Iterable.class, elemType, staticTyping, vts, null);
     }
 
-    public IterableSerializer(IterableSerializer src, BeanProperty property,
+    public IterableSerializer(IterableSerializer src,
             TypeSerializer vts, JsonSerializer<?> valueSerializer,
-            Boolean unwrapSingle) {
-        super(src, property, vts, valueSerializer, unwrapSingle);
+            Boolean unwrapSingle, BeanProperty property) {
+        super(src, vts, valueSerializer, unwrapSingle, property);
     }
 
     @Override
-    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IterableSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
+    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+        return new IterableSerializer(this, vts, _elementSerializer, _unwrapSingle, _property);
     }
 
     @Override
     public IterableSerializer withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new IterableSerializer(this, property, vts, elementSerializer, unwrapSingle);
+        return new IterableSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
+
+    /*
+    /**********************************************************************
+    /* Accessors
+    /**********************************************************************
+     */
 
     @Override
     public boolean isEmpty(SerializerProvider prov, Iterable<?> value) {

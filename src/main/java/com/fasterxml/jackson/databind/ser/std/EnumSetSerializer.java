@@ -15,13 +15,13 @@ public class EnumSetSerializer
     }
 
     public EnumSetSerializer(EnumSetSerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
-            Boolean unwrapSingle) {
-        super(src, property, vts, valueSerializer, unwrapSingle);
+            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, BeanProperty property) {
+        super(src, vts, valueSerializer, unwrapSingle, property);
     }
     
     @Override
-    public EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
+    protected EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
         // no typing for enums (always "hard" type)
         return this;
     }
@@ -30,7 +30,7 @@ public class EnumSetSerializer
     public EnumSetSerializer withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
-        return new EnumSetSerializer(this, property, vts, elementSerializer, unwrapSingle);
+        return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
 
     @Override

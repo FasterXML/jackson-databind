@@ -19,10 +19,28 @@ public class IteratorSerializer
     }
 
     public IteratorSerializer(IteratorSerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
-            Boolean unwrapSingle) {
-        super(src, property, vts, valueSerializer, unwrapSingle);
+            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle, BeanProperty property) {
+        super(src, vts, valueSerializer, unwrapSingle, property);
     }
+
+    @Override
+    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+        return new IteratorSerializer(this, vts, _elementSerializer, _unwrapSingle, _property);
+    }
+
+    @Override
+    public IteratorSerializer withResolved(BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle) {
+        return new IteratorSerializer(this, vts, elementSerializer, unwrapSingle, property);
+    }
+
+    /*
+    /**********************************************************************
+    /* Accessors
+    /**********************************************************************
+     */
 
     @Override
     public boolean isEmpty(SerializerProvider prov, Iterator<?> value) {
@@ -33,18 +51,6 @@ public class IteratorSerializer
     public boolean hasSingleElement(Iterator<?> value) {
         // no really good way to determine (without consuming iterator), so:
         return false;
-    }
-    
-    @Override
-    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IteratorSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
-    }
-
-    @Override
-    public IteratorSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer,
-            Boolean unwrapSingle) {
-        return new IteratorSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
 
     @Override

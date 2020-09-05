@@ -53,12 +53,13 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
         }
 
         @Override
-        public String idFromValue(Object value) {
+        public String idFromValue(DatabindContext ctxt, Object value) {
             return null;
         }
 
         @Override
-        public String idFromValueAndType(Object value, Class<?> suggestedType) {
+        public String idFromValueAndType(DatabindContext ctxt,
+                Object value, Class<?> suggestedType) {
             return null;
         }
 

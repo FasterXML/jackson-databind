@@ -65,7 +65,13 @@ public class TextNode
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
         final String str = _value.trim();
-        ByteArrayBuilder builder = new ByteArrayBuilder(4 + ((str.length() * 3) >> 2));
+        // 04-Sep-2020, tatu: Let's limit the size of the initial block to 64k,
+        //    no point in trying to exactly match the size beyond certain point
+        // (plus it could even lead to unnecessarily high retention with block
+        // recycling)
+        final int initBlockSize = 4 + ((str.length() >> 2) * 3);
+        ByteArrayBuilder builder = new ByteArrayBuilder(Math.max(16,
+                Math.min(0x10000, initBlockSize)));
         try {
             b64variant.decode(str, builder);
         } catch (IllegalArgumentException e) {

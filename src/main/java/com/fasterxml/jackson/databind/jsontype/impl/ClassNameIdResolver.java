@@ -106,14 +106,19 @@ public class ClassNameIdResolver
             }
             // 10-Jan-2018, tatu: Up until 2.9.4 we used to have other conversions for `Collections.xxx()`
             //    and `Arrays.asList(...)`; but it was changed to be handled on receiving end instead
-        } else if (str.indexOf('$') >= 0) {
-            /* Other special handling may be needed for inner classes,
-             * The best way to handle would be to find 'hidden' constructor; pass parent
-             * value etc (which is actually done for non-anonymous static classes!),
-             * but that is just not possible due to various things. So, we will instead
-             * try to generalize type into something we will be more likely to be able
-             * construct.
-             */
+        }
+        // 04-Sep-2020, tatu: 2.x used to have weird work-around for inner classes,
+        //   for some... "interesting" usage. Since it was added in 1.x for some now
+        //   unknown issue, remove it from 3.x; may be re-added but only with better
+        //   understanding of all the complexities.
+
+        /*
+        else if (str.indexOf('$') >= 0) {
+            // Other special handling may be needed for inner classes,
+            // The best way to handle would be to find 'hidden' constructor; pass parent
+            // value etc (which is actually done for non-anonymous static classes!),
+            // but that is just not possible due to various things. So, we will instead
+            // try to generalize type into something we will be more likely to be able construct.
             Class<?> outer = ClassUtil.getOuterClass(cls);
             if (outer != null) {
                 // one more check: let's actually not worry if the declared static type is
@@ -126,6 +131,8 @@ public class ClassNameIdResolver
                 }
             }
         }
+        */
+
         return str;
     }
 

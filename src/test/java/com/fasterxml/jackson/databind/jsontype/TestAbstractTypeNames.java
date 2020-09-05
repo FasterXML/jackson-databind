@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * Unit tests for checking how combination of interfaces, implementation
@@ -76,23 +75,10 @@ public class TestAbstractTypeNames  extends BaseMapTest
         }
     }
 
-    static class BaseValue {
-        public int value = 42;
-
-        public int getValue() { return value; }
-    }
-
-    final static class BeanWithAnon {
-        public BaseValue bean = new BaseValue() {
-            @Override
-            public String toString() { return "sub!"; }
-        };
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testEmptyCollection() throws Exception
@@ -107,9 +93,8 @@ public class TestAbstractTypeNames  extends BaseMapTest
         User user = new DefaultEmployee("John Vanspronssen", friends, "MDA");
         String json = mapper.writeValueAsString(user);
 
-        /* 24-Feb-2011, tatu: For now let's simply require registration of
-         *   concrete subtypes; can't think of a way to avoid that for now
-         */
+        // 24-Feb-2011, tatu: For now let's simply require registration of
+        //   concrete subtypes; can't think of a way to avoid that for now
         mapper = jsonMapperBuilder()
                 .registerSubtypes(DefaultEmployee.class,
                         DefaultUser.class)
@@ -123,17 +108,5 @@ public class TestAbstractTypeNames  extends BaseMapTest
         assertEquals(2, friends.size());
         assertEquals(DefaultUser.class, friends.get(0).getClass());
         assertEquals(DefaultEmployee.class, friends.get(1).getClass());
-    }
-    
-    // [JACKSON-584]: change anonymous non-static inner type into static type:
-    public void testInnerClassWithType() throws Exception
-    {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        DefaultTyping.NON_FINAL)
-                .build();
-        String json = mapper.writeValueAsString(new BeanWithAnon());
-        BeanWithAnon result = mapper.readValue(json, BeanWithAnon.class);
-        assertEquals(BeanWithAnon.class, result.getClass());
     }
 }

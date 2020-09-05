@@ -1166,7 +1166,8 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         } else {
             List<JavaType> typeParams = bindings.getTypeParameters();
             // ok to have no types ("raw")
-            switch (typeParams.size()) {
+            final int pc = typeParams.size();
+            switch (pc) {
             case 0: // acceptable?
                 kt = vt = _unknownType();
                 break;
@@ -1175,7 +1176,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                 vt = typeParams.get(1);
                 break;
             default:
-                throw new IllegalArgumentException("Strange Map type "+rawClass.getName()+": cannot determine type parameters");
+                throw new IllegalArgumentException(String.format(
+"Strange Map type %s with %d type parameter%s (%s), can not resolve",
+ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
         }
         return MapType.construct(rawClass, bindings, superClass, superInterfaces, kt, vt);

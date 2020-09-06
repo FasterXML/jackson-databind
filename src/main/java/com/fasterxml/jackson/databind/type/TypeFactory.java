@@ -1468,7 +1468,6 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         if (bindings == null) {
             bindings = EMPTY_BINDINGS;
         }
-        
         // Quite simple when we resolving exact class/interface; start with that
         if (rawType == Map.class) {
             return _mapType(rawType, bindings, superClass, superInterfaces);

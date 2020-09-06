@@ -1148,3 +1148,9 @@ Daniel Hrabovcak (TheSpiritXIII@github)
 Daniel Wu (DanielYWoo@github)
   * Reported #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
   (2.11.3)
+
+Lari Hotari (lhotari@github)
+
+  * Reported #2821: Json serialization fails or a specific case that contains generics and
+   static methods with generic parameters (2.11.1 -> 2.11.2 regression)
+  (2.11.3)

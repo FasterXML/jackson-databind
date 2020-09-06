@@ -309,19 +309,6 @@ public class TestTypeFactory
         assertSame(String.class, ((CollectionType) t).getContentType().getRawClass());
     }
 
-    // [databind#2796]
-    public void testCollectionsWithBindings()
-    {
-        final TypeFactory tf = TypeFactory.defaultInstance();
-        TypeBindings tb = TypeBindings.create(Set.class, new JavaType[] {
-                tf.constructType(String.class) });
-        JavaType t = tf.constructType(ArrayList.class, tb);
-        assertEquals(CollectionType.class, t.getClass());
-        assertSame(ArrayList.class, t.getRawClass());
-        assertSame(String.class, ((CollectionType) t).getContentType().getRawClass());
-    }
-
-    // since 2.7
     public void testCollectionTypesRefined()
     {
         TypeFactory tf = newTypeFactory();

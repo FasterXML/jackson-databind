@@ -49,15 +49,6 @@ final class AnnotatedCreatorCollector
         _collectAnnotations = collectAnnotations;
     }
 
-    @Deprecated // since 2.11.3; to be removed ASAP (2.12.0)
-    public static Creators collectCreators(AnnotationIntrospector intr,
-            TypeResolutionContext tc,
-            JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
-    {
-        return collectCreators(intr, TypeFactory.defaultInstance(),
-                tc, type, primaryMixIn, collectAnnotations);
-    }
-
     /**
      * @since 2.11.3
      */

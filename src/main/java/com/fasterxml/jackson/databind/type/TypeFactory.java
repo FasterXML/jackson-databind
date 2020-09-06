@@ -1111,7 +1111,8 @@ public final class TypeFactory
         } else {
             List<JavaType> typeParams = bindings.getTypeParameters();
             // ok to have no types ("raw")
-            switch (typeParams.size()) {
+            final int pc = typeParams.size();
+            switch (pc) {
             case 0: // acceptable?
                 kt = vt = _unknownType();
                 break;
@@ -1120,7 +1121,9 @@ public final class TypeFactory
                 vt = typeParams.get(1);
                 break;
             default:
-                throw new IllegalArgumentException("Strange Map type "+rawClass.getName()+": cannot determine type parameters");
+                throw new IllegalArgumentException(String.format(
+"Strange Map type %s with %d type parameter%s (%s), can not resolve",
+ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
         }
         return MapType.construct(rawClass, bindings, superClass, superInterfaces, kt, vt);
@@ -1400,7 +1403,6 @@ public final class TypeFactory
         if (bindings == null) {
             bindings = EMPTY_BINDINGS;
         }
-        
         // Quite simple when we resolving exact class/interface; start with that
         if (rawType == Map.class) {
             return _mapType(rawType, bindings, superClass, superInterfaces);

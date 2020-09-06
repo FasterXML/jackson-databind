@@ -57,6 +57,10 @@ public class BuilderWithTypeParametersTest
       }
     }
 
+    // 05-Sep-2020, tatu: This is not correct and cannot be made to work --
+    //   assumption is that static method binding `T` would somehow refer to
+    //   class type parameter `T`: this is not true.
+/*    
     public static class MyGenericPOJOWithCreator<T> {
       List<T> data;
 
@@ -86,6 +90,7 @@ public class BuilderWithTypeParametersTest
           }
       }
     }
+    */
 
     public void testWithBuilderInferringBindings() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
@@ -113,6 +118,8 @@ public class BuilderWithTypeParametersTest
       assertEquals(LinkedHashMap.class, ob.getClass());
     }
 
+    // 05-Sep-2020, tatu: see above for reason why this can not work
+/*    
     public void testWithCreator() throws Exception {
       final ObjectMapper mapper = new ObjectMapper();
       final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
@@ -124,4 +131,5 @@ public class BuilderWithTypeParametersTest
       assertNotNull(ob);
       assertEquals(MyPOJO.class, ob.getClass());
     }
-  }
+    */
+}

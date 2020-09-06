@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.Map;
 
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 
-public class GenericTypeDeserialization2846Test extends BaseMapTest
+public class MapRawWithGeneric2846Test extends BaseMapTest
 {
     @SuppressWarnings("rawtypes")
     static class GenericEntity<T> {

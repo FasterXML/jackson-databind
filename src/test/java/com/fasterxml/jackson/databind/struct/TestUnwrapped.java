@@ -93,7 +93,6 @@ public class TestUnwrapped extends BaseMapTest
     }
 
     static class Outer {
-        // @JsonProperty
         @JsonUnwrapped
         Inner inner;
     }

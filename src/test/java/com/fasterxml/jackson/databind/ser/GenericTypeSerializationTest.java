@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestGenericTypes extends BaseMapTest
+public class GenericTypeSerializationTest extends BaseMapTest
 {
     static class Account {
         private Long id;        

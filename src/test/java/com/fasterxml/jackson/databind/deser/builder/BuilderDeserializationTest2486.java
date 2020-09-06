@@ -12,7 +12,7 @@ public class BuilderDeserializationTest2486
 {
     @JsonDeserialize(builder = MyPOJOWithArrayCreator.Builder.class)
     public static class MyPOJOWithArrayCreator {
-        private final int index;
+        final int index;
 
         MyPOJOWithArrayCreator(int i) {
             index = i;

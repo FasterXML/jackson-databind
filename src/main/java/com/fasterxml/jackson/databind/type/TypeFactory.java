@@ -687,33 +687,15 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         }
         return type1;
     }
-    
+
     /*
     /**********************************************************
-    /* Public factory methods
+    /* Public general-purpose factory methods
     /**********************************************************
      */
 
     public JavaType constructType(Type type) {
         return _fromAny(null, type, EMPTY_BINDINGS);
-    }
-
-    /**
-     * Method that you very likely should NOT be using -- you need to know a lot
-     * about internal details of {@link TypeBindings} and even then it will probably
-     * not do what you want.
-     * Usually you would instead want to call one of {@code constructXxxType()}
-     * methods (where {@code Xxx} would be "Array", "Collection[Like]", "Map[Like]"
-     * or "Parametric").
-     */
-    public JavaType constructType(Type type, TypeBindings bindings) {
-        // 15-Jun-2020, tatu: To resolve (parts of) [databind#2796], need to
-        //    call _fromClass() directly if we get `Class` argument
-        if (type instanceof Class<?>) {
-            JavaType resultType = _fromClass(null, (Class<?>) type, bindings);
-            return _applyModifiers(type, resultType);
-        }
-        return _fromAny(null, type, bindings);
     }
 
     public JavaType constructType(TypeReference<?> typeRef)
@@ -738,6 +720,53 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         }
         return params[0];
         */
+    }
+
+    /**
+     * Method to call when resolving types of {@link java.lang.reflect.Member}s
+     * like Fields, Methods and Constructor parameters and there is a
+     * {@link TypeBindings} (that describes binding of type parameters within
+     * context) to pass.
+     * This is typically used only by code in databind itself.
+     * 
+     * @param type Type of a {@link java.lang.reflect.Member} to resolve
+     * @param bindings Type bindings from the context, often class in which
+     *     member declared but may be subtype of that type (to bind actual bound
+     *     type parametrers). Not used if {@code type} is of type {@code Class<?>}.
+     *
+     * @return Fully resolve type
+     *
+     * @since 2.12 as replacement for deprecated {@link #constructType(Type, TypeBindings)} 
+     */
+    public JavaType resolveMemberType(Type type, TypeBindings contextBindings) {
+        return _fromAny(null, type, contextBindings);
+    }
+
+    /*
+    /**********************************************************
+    /* Deprecated public factory methods
+    /**********************************************************
+     */
+
+    /**
+     * Method that you very likely should NOT be using -- you need to know a lot
+     * about internal details of {@link TypeBindings} and even then it will probably
+     * not do what you want.
+     * Usually you would instead want to call one of {@code constructXxxType()}
+     * methods (where {@code Xxx} would be "Array", "Collection[Like]", "Map[Like]"
+     * or "Parametric").
+     *
+     * @deprecated Since 2.12
+     */
+    @Deprecated // since 2.12
+    public JavaType constructType(Type type, TypeBindings bindings) {
+        // 15-Jun-2020, tatu: To resolve (parts of) [databind#2796], need to
+        //    call _fromClass() directly if we get `Class` argument
+        if (type instanceof Class<?>) {
+            JavaType resultType = _fromClass(null, (Class<?>) type, bindings);
+            return _applyModifiers(type, resultType);
+        }
+        return _fromAny(null, type, bindings);
     }
 
     /**

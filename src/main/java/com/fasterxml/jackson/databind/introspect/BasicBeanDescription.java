@@ -281,10 +281,9 @@ public class BasicBeanDescription extends BeanDescription
     @Override
     @Deprecated // since 2.8
     public JavaType resolveType(java.lang.reflect.Type jdkType) {
-        if (jdkType == null) {
-            return null;
-        }
-        return _config.getTypeFactory().constructType(jdkType, _type.getBindings());
+        // 06-Sep-2020, tatu: Careful wrt [databind#2846][databind#2821],
+        //     call new method added in 2.12
+        return _config.getTypeFactory().resolveMemberType(jdkType, _type.getBindings());
     }
 
     @Override

@@ -322,6 +322,7 @@ public class TestTypeFactory
     }
 
     // [databind#2796]
+    @SuppressWarnings("deprecation")
     public void testCollectionsWithBindings()
     {
         final TypeFactory tf = TypeFactory.defaultInstance();

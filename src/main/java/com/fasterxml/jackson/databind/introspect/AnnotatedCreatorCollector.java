@@ -28,9 +28,6 @@ final class AnnotatedCreatorCollector
 
     private final TypeResolutionContext _typeContext;
 
-    // @since 2.11.3
-    private final TypeFactory _typeFactory;
-
     /**
      * @since 2.11
      */
@@ -40,11 +37,10 @@ final class AnnotatedCreatorCollector
 
     private AnnotatedConstructor _defaultConstructor;
 
-    AnnotatedCreatorCollector(AnnotationIntrospector intr, TypeFactory tf,
+    AnnotatedCreatorCollector(AnnotationIntrospector intr,
             TypeResolutionContext tc, boolean collectAnnotations)
     {
         super(intr);
-        _typeFactory = tf;
         _typeContext = tc;
         _collectAnnotations = collectAnnotations;
     }
@@ -60,18 +56,18 @@ final class AnnotatedCreatorCollector
                 && !ClassUtil.isJDKClass(type.getRawClass());
 
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorCollector(intr, typeFactory, tc, checkClassAnnotations)
-                .collect(type, primaryMixIn);
+        return new AnnotatedCreatorCollector(intr, tc, checkClassAnnotations)
+                .collect(typeFactory, type, primaryMixIn);
     }
 
-    Creators collect(JavaType type, Class<?> primaryMixIn)
+    Creators collect(TypeFactory typeFactory, JavaType type, Class<?> primaryMixIn)
     {
     // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
     //   NOT apply to context since sub-class may have type bindings
 //        TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory, _type.getBindings());
 
         List<AnnotatedConstructor> constructors = _findPotentialConstructors(type, primaryMixIn);
-        List<AnnotatedMethod> factories = _findPotentialFactories(type, primaryMixIn);
+        List<AnnotatedMethod> factories = _findPotentialFactories(typeFactory, type, primaryMixIn);
 
         /* And then... let's remove all constructors that are deemed
          * ignorable after all annotations have been properly collapsed.
@@ -191,7 +187,8 @@ final class AnnotatedCreatorCollector
         return result;
     }
 
-    private List<AnnotatedMethod> _findPotentialFactories(JavaType type, Class<?> primaryMixIn)
+    private List<AnnotatedMethod> _findPotentialFactories(TypeFactory typeFactory,
+            JavaType type, Class<?> primaryMixIn)
     {
         List<Method> candidates = null;
 
@@ -216,7 +213,7 @@ final class AnnotatedCreatorCollector
         //   passing that should not break things, it appears to... Regardless,
         //   it should not be needed or useful as those bindings are only available
         //   to non-static members
-        TypeResolutionContext typeResCtxt = new TypeResolutionContext.Empty(_typeFactory);
+        TypeResolutionContext typeResCtxt = new TypeResolutionContext.Empty(typeFactory);
 
         int factoryCount = candidates.size();
         List<AnnotatedMethod> result = new ArrayList<>(factoryCount);

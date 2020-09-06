@@ -57,7 +57,6 @@ public final class AnnotatedMethod
         return new AnnotatedMethod(_typeContext, _method, ann, _paramAnnotations);
     }
 
-
     @Override
     public Method getAnnotated() { return _method; }
 

@@ -69,6 +69,10 @@ Project: jackson-databind
 
 2.11.3 (not yet released)
 
+#2815: Add `JsonFormat.Shape` awareness for UUID serialization (`UUIDSerializer`)
+#2821: Json serialization fails or a specific case that contains generics and
+  static methods with generic parameters (2.11.1 -> 2.11.2 regression)
+ (reported by Lari H)
 #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
   parameter `PolymorphicTypeValidator`
  (reported by Daniel W)
@@ -85,7 +89,6 @@ Project: jackson-databind
  (reported by isaki@github)
 #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
  (reported by Daniel H)
-#2815: Add `JsonFormat.Shape` awareness for UUID serialization (`UUIDSerializer`)
 
 2.11.1 (25-Jun-2020)
 

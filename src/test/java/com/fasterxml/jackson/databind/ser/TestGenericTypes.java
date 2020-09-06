@@ -2,8 +2,10 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -99,7 +101,69 @@ public class TestGenericTypes extends BaseMapTest
             this.a = a;
             this.b = b;
         }
-    }    
+    }
+
+    // For [databind#2821]
+    static final class Wrapper2821 {
+        // if Entity<?> -> Entity , the test passes
+        final List<Entity2821<?>> entities;
+
+        @JsonCreator
+        public Wrapper2821(List<Entity2821<?>> entities) {
+            this.entities = entities;
+        }
+
+        public List<Entity2821<?>> getEntities() {
+            return this.entities;
+        }
+    }
+
+    static class Entity2821<T> {
+        @JsonIgnore
+        final Attributes2821 attributes;
+
+        final T data;
+
+        public Entity2821(Attributes2821 attributes, T data) {
+            this.attributes = attributes;
+            this.data = data;
+        }
+
+        @JsonUnwrapped
+        public Attributes2821 getAttributes() {
+            return attributes;
+        }
+
+        public T getData() {
+            return data;
+        }
+
+        @JsonCreator
+        public static <T> Entity2821<T> create(@JsonProperty("attributes") Attributes2821 attributes,
+                @JsonProperty("data") T data) {
+            return new Entity2821<>(attributes, data);
+        }
+    }
+
+    public static class Attributes2821 {
+        public final String id;
+
+        public Attributes2821(String id) {
+            this.id = id;
+        }
+
+        @JsonCreator
+        public static Attributes2821 create(@JsonProperty("id") String id) {
+            return new Attributes2821(id);
+        }
+
+        // if this method is removed, the test passes
+        @SuppressWarnings("rawtypes")
+        public static Attributes2821 dummyMethod(Map attributes) {
+            return null;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -177,5 +241,22 @@ public class TestGenericTypes extends BaseMapTest
         // but enforcing type will hinder:
         TypeReference<?> typeRef = new TypeReference<List<Base727>>() { };
         assertEquals(EXP, MAPPER.writer().forType(typeRef).writeValueAsString(input));
+    }
+
+    // For [databind#2821]
+    @SuppressWarnings("unchecked")
+    public void testTypeResolution2821() throws Exception
+    {
+        Entity2821<String> entity = new Entity2821<>(new Attributes2821("id"), "hello");
+        List<Entity2821<?>> list;
+        {
+            List<Entity2821<String>> foo = new ArrayList<>();
+            foo.add(entity);
+            list = (List<Entity2821<?>>) (List<?>) foo;
+        }
+        Wrapper2821 val = new Wrapper2821(list);
+        // fails with com.fasterxml.jackson.databind.JsonMappingException: Strange Map type java.util.Map: cannot determine type parameters (through reference chain: com.github.lhotari.jacksonbug.JacksonBugIsolatedTest$Wrapper["entities"]->java.util.Collections$SingletonList[0]->com.github.lhotari.jacksonbug.JacksonBugIsolatedTest$Entity["attributes"])
+        String json = MAPPER.writeValueAsString(val);
+        assertNotNull(json);
     }
 }

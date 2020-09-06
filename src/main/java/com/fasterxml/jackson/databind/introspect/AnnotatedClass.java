@@ -396,6 +396,7 @@ public final class AnnotatedClass
                 c = NO_CREATORS;
             } else {
                 c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
+                        _typeFactory,
                         this, _type, _primaryMixIn, _collectAnnotations);
             }
             _creators = c;

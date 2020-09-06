@@ -13,8 +13,8 @@ public class TestObjectOrArrayDeserialization extends BaseMapTest
     }
 
     public static class ArrayOrObject {
-        private final List<SomeObject> objects;
-        private final SomeObject object;
+        final List<SomeObject> objects;
+        final SomeObject object;
 
         @JsonCreator
         public ArrayOrObject(List<SomeObject> objects) {

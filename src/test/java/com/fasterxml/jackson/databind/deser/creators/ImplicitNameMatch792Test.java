@@ -54,7 +54,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     {
         private int value;
 
-        private ReadWriteBean(@JsonProperty(value="value",
+        ReadWriteBean(@JsonProperty(value="value",
                 access=JsonProperty.Access.READ_WRITE) int v) {
             value = v;
         }

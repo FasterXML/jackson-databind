@@ -29,6 +29,6 @@ public class TestEmptyArrayBlockingQueueDeser extends BaseMapTest
     {
         String json = MAPPER.writeValueAsString(new RemoteEntity());
         Entity entity = MAPPER.readValue(json, Entity.class);
-        assertEquals(0, entity.values.size());
+        assertEquals(0, entity.getValues().size());
     }
 }

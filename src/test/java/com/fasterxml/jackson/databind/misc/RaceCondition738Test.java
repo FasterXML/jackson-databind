@@ -39,7 +39,7 @@ public class RaceCondition738Test extends BaseMapTest
     static class Wrapper {
         private final HasSubTypes hasSubTypes;
 
-        private Wrapper(HasSubTypes hasSubTypes) {
+        Wrapper(HasSubTypes hasSubTypes) {
             this.hasSubTypes = hasSubTypes;
         }
 

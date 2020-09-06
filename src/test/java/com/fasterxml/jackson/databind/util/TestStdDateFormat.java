@@ -6,7 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 public class TestStdDateFormat
     extends BaseMapTest

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class MapperViaParserTest  extends BaseMapTest

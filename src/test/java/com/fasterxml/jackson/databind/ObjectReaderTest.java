@@ -517,7 +517,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     private static class A{
-        private String knownField;
+        String knownField;
 
         @JsonCreator
         private A(@JsonProperty("knownField") String knownField) {

@@ -11,7 +11,7 @@ public class BuilderWithIgnored1214Test extends BaseMapTest
     static class TestObject1214 {
         final String property1;
 
-        private TestObject1214(Builder builder) {
+        TestObject1214(Builder builder) {
             property1 = builder.property1;
         }
 
@@ -24,8 +24,7 @@ public class BuilderWithIgnored1214Test extends BaseMapTest
         }
 
         static class Builder {
-
-            private String property1;
+            String property1;
 
             public Builder withProperty1(String p1) {
                 property1 = p1;

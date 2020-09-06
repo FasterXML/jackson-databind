@@ -18,7 +18,7 @@ public class ObjectIdWithBuilder1496Test extends BaseMapTest
          public long getId() { return id; }
          private int var;
          public int getVar() { return var; }
-         private POJO (long id, int var) { this.id = id; this.var = var; }
+         POJO (long id, int var) { this.id = id; this.var = var; }
 
          @Override
          public String toString() { return "id: " + id + ", var: " + var; }

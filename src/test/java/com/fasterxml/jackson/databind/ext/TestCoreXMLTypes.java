@@ -4,7 +4,6 @@ import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ext.CoreXMLDeserializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**

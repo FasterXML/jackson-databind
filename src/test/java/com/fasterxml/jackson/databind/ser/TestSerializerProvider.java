@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 
 public class TestSerializerProvider
     extends com.fasterxml.jackson.databind.BaseMapTest

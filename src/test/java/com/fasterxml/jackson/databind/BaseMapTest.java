@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;

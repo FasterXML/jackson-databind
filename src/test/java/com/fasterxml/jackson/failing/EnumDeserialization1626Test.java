@@ -25,7 +25,7 @@ public class EnumDeserialization1626Test extends BaseMapTest
         public int typeId;
 
         @JsonProperty("value")
-        private ShippingMethods value;
+        ShippingMethods value;
 
         @JsonProperty("coverage")
         public int coverage;

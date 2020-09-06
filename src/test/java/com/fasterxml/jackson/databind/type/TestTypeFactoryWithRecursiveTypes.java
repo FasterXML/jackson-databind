@@ -7,10 +7,9 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 
 
 // https://github.com/FasterXML/jackson-databind/issues/1647
-public class TestTypeFactoryWithRecursiveTypes extends BaseMapTest {
-
-    static interface IFace<T> {
-    }
+public class TestTypeFactoryWithRecursiveTypes extends BaseMapTest
+{
+    static interface IFace<T> { }
 
     static class Base implements IFace<Sub> {
         @JsonProperty int base = 1;

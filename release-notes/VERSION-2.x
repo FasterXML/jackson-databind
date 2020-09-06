@@ -13,6 +13,7 @@ Project: jackson-databind
 #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
   parameter `PolymorphicTypeValidator`
  (reported by Daniel W)
+#2846: Problem deserialization "raw generic" fields (like `Map`) in 2.11.2
 - Fix issues with `MapLikeType.isTrueMapType()`,
   `CollectionLikeType.isTrueCollectionType()`
 

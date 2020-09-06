@@ -226,6 +226,12 @@ public final class AnnotatedClass
 
     @Override
     public JavaType resolveType(Type type) {
+        // 05-Sep-2020, tatu: [databind#2846][databind#2821] avoid
+        //    passing context in case of Raw class (generic type declared
+        //    without type parametrers) as that can lead to mismatch
+        if (type instanceof Class<?>) {
+            return _typeFactory.constructType(type);
+        }
         return _typeFactory.constructType(type, _bindings);
     }
 

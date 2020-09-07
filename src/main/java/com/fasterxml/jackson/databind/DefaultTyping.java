@@ -40,13 +40,19 @@ public enum DefaultTyping {
      * "natural" types (String, Boolean, Integer, Double), which
      * can be correctly inferred from JSON; as well as for
      * all arrays of non-final types.
+     * Even if the type is final, when serialized as a root node (not as a field),
+     * default typing is still used because there is no other way to know the type
+     * of the root node when deserialization. for example,
+     * <pre>{@code
+     * objectMapper.writeObjectAsValue(new MyFinalClass()); // even final, still have type information serialized
+     * }</pre>
      * This does NOT apply to {@link TreeNode} and its subtypes.
      */
     NON_FINAL,
 
     /**
      * Value that means that default typing will be used for
-     * all non-final types, with exception of small number of
+     * all types, with exception of small number of
      * "natural" types (String, Boolean, Integer, Double) that
      * can be correctly inferred from JSON, and primitives (which
      * can not be polymorphic either). Typing is also enabled for

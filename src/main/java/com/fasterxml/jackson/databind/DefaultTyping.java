@@ -46,7 +46,7 @@ public enum DefaultTyping {
 
     /**
      * Value that means that default typing will be used for
-     * all non-final types, with exception of small number of
+     * all types, with exception of small number of
      * "natural" types (String, Boolean, Integer, Double) that
      * can be correctly inferred from JSON, and primitives (which
      * can not be polymorphic either). Typing is also enabled for

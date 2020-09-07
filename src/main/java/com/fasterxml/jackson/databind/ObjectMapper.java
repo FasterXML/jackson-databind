@@ -188,13 +188,16 @@ public class ObjectMapper
 
         /**
          * Value that means that default typing will be used for
-         * all non-final types, with exception of small number of
+         * all types, with exception of small number of
          * "natural" types (String, Boolean, Integer, Double) that
          * can be correctly inferred from JSON, and primitives (which
          * can not be polymorphic either). Typing is also enabled for
          * all array types.
          *<p>
-         * Note that the only known use case for this setting is for serialization
+         * Note that this is rarely the option you should use as it results
+         * in adding type information in many places where it should not be needed:
+         * make sure you understand its behavior.
+         * The only known use case for this setting is for serialization
          * when passing instances of final class, and base type is not
          * separately specified.
          *

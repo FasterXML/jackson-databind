@@ -148,14 +148,16 @@ public final class DeserializationConfig
     public DeserializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides) {
-        this(base, str, mixins, rootNames, configOverrides, new CoercionConfigs());
+        this(base, str, mixins, rootNames, configOverrides,
+                new CoercionConfigs());
     }
 
     @Deprecated // since 2.11.2, remove from 2.13 or later
     protected DeserializationConfig(DeserializationConfig src,
             SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides) {
-        this(src, src._subtypeResolver, mixins, rootNames, configOverrides, new CoercionConfigs());
+        this(src, src._subtypeResolver, mixins, rootNames, configOverrides,
+                new CoercionConfigs());
     }
 
     /*

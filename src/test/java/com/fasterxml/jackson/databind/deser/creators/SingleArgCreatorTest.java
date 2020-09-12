@@ -26,15 +26,14 @@ public class SingleArgCreatorTest extends BaseMapTest
         protected final String value;
 
         @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
-        public SingleNamedButStillDelegating(@JsonProperty("foobar") String v){
+        public SingleNamedButStillDelegating(@JsonProperty("foobar") String v) {
             value = v;
         }
 
         public String getFoobar() { return "x"; }
     }
     
-    // [databind#557]
-    
+    // For [databind#557]
     static class StringyBean
     {
         public final String value;

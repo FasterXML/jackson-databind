@@ -338,11 +338,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    public B nodeFactory(JsonNodeFactory f) {
-        _mapper.setNodeFactory(f);
-        return _this();
-    }
-
     /*
     /**********************************************************************
     /* Changing introspection helpers
@@ -451,6 +446,24 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B injectableValues(InjectableValues v) {
         _mapper.setInjectableValues(v);
+        return _this();
+    }
+
+    public B nodeFactory(JsonNodeFactory f) {
+        _mapper.setNodeFactory(f);
+        return _this();
+    }
+
+    /**
+     * Method for specifying {@link ConstructorDetector} to use for
+     * determining some aspects of creator auto-detection (specifically
+     * auto-detection of constructor, and in particular behavior with
+     * single-argument constructors).
+     *
+     * @since 2.12
+     */
+    public B constructorDetector(ConstructorDetector cd) {
+        _mapper.setConstructorDetector(cd);
         return _this();
     }
 

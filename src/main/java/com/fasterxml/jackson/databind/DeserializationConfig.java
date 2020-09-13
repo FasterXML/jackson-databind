@@ -55,6 +55,11 @@ public final class DeserializationConfig
      */
     protected final CoercionConfigs _coercionConfigs;
 
+    /**
+     * @since 2.12
+     */
+    protected final ConstructorDetector _ctorDetector;
+
     /*
     /**********************************************************
     /* Deserialization features 
@@ -109,13 +114,13 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides,
-            CoercionConfigs coercionConfigs)
+            ConfigOverrides configOverrides, CoercionConfigs coercionConfigs)
     {
         super(base, str, mixins, rootNames, configOverrides);
         _deserFeatures = DESER_FEATURE_DEFAULTS;
         _problemHandlers = null;
         _nodeFactory = JsonNodeFactory.instance;
+        _ctorDetector = null;
         _coercionConfigs = coercionConfigs;
         _parserFeatures = 0;
         _parserFeaturesToChange = 0;
@@ -137,6 +142,7 @@ public final class DeserializationConfig
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
+        _ctorDetector = src._ctorDetector;
         _coercionConfigs = coercionConfigs;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
@@ -177,6 +183,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
         _parserFeatures = parserFeatures;
         _parserFeaturesToChange = parserFeatureMask;
         _formatReadFeatures = formatFeatures;
@@ -194,6 +201,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -207,12 +215,13 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
     }
-    
+
     private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
     {
         super(src);
@@ -220,6 +229,22 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = f;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
+        _parserFeatures = src._parserFeatures;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _formatReadFeatures = src._formatReadFeatures;
+        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+    }
+
+    // @since 2.12
+    private DeserializationConfig(DeserializationConfig src, ConstructorDetector ctorDetector)
+    {
+        super(src);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = ctorDetector;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -234,6 +259,7 @@ public final class DeserializationConfig
         _problemHandlers = problemHandlers;
         _nodeFactory = src._nodeFactory;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -247,6 +273,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -260,6 +287,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -273,6 +301,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -286,6 +315,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
@@ -692,6 +722,16 @@ public final class DeserializationConfig
     }
 
     /**
+     * @since 2.12
+     */
+    public DeserializationConfig with(ConstructorDetector ctorDetector) {
+        if (_ctorDetector == ctorDetector) {
+            return this;
+        }
+        return new DeserializationConfig(this, ctorDetector);
+    }
+
+    /**
      * Method that can be used to add a handler that can (try to)
      * resolve non-fatal deserialization problems.
      */
@@ -839,6 +879,16 @@ public final class DeserializationConfig
 
     public final JsonNodeFactory getNodeFactory() {
         return _nodeFactory;
+    }
+
+    /**
+     * @since 2.12
+     */
+    public ConstructorDetector getConstructorDetector() {
+        if (_ctorDetector == null) {
+            return ConstructorDetector.DEFAULT;
+        }
+        return _ctorDetector;
     }
 
     /*

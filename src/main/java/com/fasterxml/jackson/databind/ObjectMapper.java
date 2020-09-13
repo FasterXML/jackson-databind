@@ -2192,6 +2192,19 @@ public class ObjectMapper
     }
 
     /**
+     * Method for specifying {@link ConstructorDetector} to use for
+     * determining some aspects of creator auto-detection (specifically
+     * auto-detection of constructor, and in particular behavior with
+     * single-argument constructors).
+     *
+     * @since 2.12
+     */
+    public ObjectMapper setConstructorDetector(ConstructorDetector cd) {
+        _deserializationConfig = _deserializationConfig.with(cd);
+        return this;
+    }
+
+    /**
      * Method for adding specified {@link DeserializationProblemHandler}
      * to be used for handling specific problems during deserialization.
      */

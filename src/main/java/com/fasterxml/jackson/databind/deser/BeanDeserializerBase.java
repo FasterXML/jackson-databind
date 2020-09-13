@@ -1333,7 +1333,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
 "non-static inner classes like this can only by instantiated using default, no-argument constructor");
         }
         return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
-                "cannot deserialize from Object value (no delegate- or property-based Creator)");
+"cannot deserialize from Object value (no delegate- or property-based Creator)");
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,

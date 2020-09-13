@@ -70,6 +70,11 @@ public final class DeserializationConfig
     protected final AbstractTypeResolver[] _abstractTypeResolvers;
 
     /**
+     * Handler that specifies some aspects of Constructor auto-detection.
+     */
+    protected final ConstructorDetector _ctorDetector;
+
+    /**
      * Configured coercion rules for coercions from secondary input
      * shapes.
      */
@@ -89,7 +94,7 @@ public final class DeserializationConfig
             ConfigOverrides configOverrides, CoercionConfigs coercionConfigs,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
             RootNameLookup rootNames,
-            AbstractTypeResolver[] atrs)
+            AbstractTypeResolver[] atrs, ConstructorDetector ctorDetector)
     {
         super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
         _deserFeatures = deserFeatures;
@@ -98,6 +103,7 @@ public final class DeserializationConfig
         _problemHandlers = b.deserializationProblemHandlers();
         _coercionConfigs = coercionConfigs;
         _abstractTypeResolvers = atrs;
+        _ctorDetector = ctorDetector;
     }
 
     /*
@@ -117,6 +123,7 @@ public final class DeserializationConfig
         _coercionConfigs = src._coercionConfigs;
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
+        _ctorDetector = src._ctorDetector;
     }
 
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
@@ -128,11 +135,12 @@ public final class DeserializationConfig
         _coercionConfigs = src._coercionConfigs;
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
+        _ctorDetector = src._ctorDetector;
     }
 
     private DeserializationConfig(DeserializationConfig src,
             LinkedNode<DeserializationProblemHandler> problemHandlers,
-            AbstractTypeResolver[] atr)
+            AbstractTypeResolver[] atr, ConstructorDetector ctorDetector)
     {
         super(src);
         _deserFeatures = src._deserFeatures;
@@ -141,6 +149,7 @@ public final class DeserializationConfig
         _coercionConfigs = src._coercionConfigs;
         _problemHandlers = problemHandlers;
         _abstractTypeResolvers = atr;
+        _ctorDetector = ctorDetector;
     }
 
     private DeserializationConfig(DeserializationConfig src, PropertyName rootName)
@@ -152,6 +161,7 @@ public final class DeserializationConfig
         _coercionConfigs = src._coercionConfigs;
         _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;
+        _ctorDetector = src._ctorDetector;
     }
 
     private DeserializationConfig(DeserializationConfig src, Class<?> view)
@@ -163,6 +173,7 @@ public final class DeserializationConfig
         _coercionConfigs = src._coercionConfigs;
         _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;
+        _ctorDetector = src._ctorDetector;
     }
 
     protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
@@ -174,6 +185,7 @@ public final class DeserializationConfig
         _streamReadFeatures = src._streamReadFeatures;
         _formatReadFeatures = src._formatReadFeatures;
         _abstractTypeResolvers = src._abstractTypeResolvers;
+        _ctorDetector = src._ctorDetector;
     }
 
     // for unit tests only:
@@ -445,7 +457,7 @@ public final class DeserializationConfig
         return LinkedNode.contains(_problemHandlers, h) ? this
                 : new DeserializationConfig(this,
                         new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers),
-                        _abstractTypeResolvers);
+                        _abstractTypeResolvers, _ctorDetector);
     }
 
     /**
@@ -455,7 +467,8 @@ public final class DeserializationConfig
     public DeserializationConfig withNoProblemHandlers() {
         return (_problemHandlers == null) ? this
                 : new DeserializationConfig(this,
-                        (LinkedNode<DeserializationProblemHandler>) null, _abstractTypeResolvers);
+                        (LinkedNode<DeserializationProblemHandler>) null,
+                        _abstractTypeResolvers, _ctorDetector);
     }
 
     /*
@@ -610,6 +623,10 @@ public final class DeserializationConfig
      */
     public LinkedNode<DeserializationProblemHandler> getProblemHandlers() {
         return _problemHandlers;
+    }
+
+    public ConstructorDetector getConstructorDetector() {
+        return _ctorDetector;
     }
 
     /*

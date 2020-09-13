@@ -180,6 +180,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected AbstractTypeResolver[] _abstractTypeResolvers;
 
+    protected ConstructorDetector _ctorDetector;
+
     /*
     /**********************************************************************
     /* Feature flags: ser, deser
@@ -281,8 +283,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _deserializerFactory = null;
         _deserializationContexts = null;
         _injectableValues = null;
-
         _problemHandlers = null;
+        _ctorDetector = null;
         _abstractTypeResolvers = NO_ABSTRACT_TYPE_RESOLVERS;
     }
 
@@ -326,6 +328,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _injectableValues = Snapshottable.takeSnapshot(state._injectableValues);
         _problemHandlers = state._problemHandlers;
         _abstractTypeResolvers = state._abstractTypeResolvers;
+        _ctorDetector = state._ctorDetector;
 
         // Modules
         if (state._modules == null) {
@@ -368,8 +371,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _deserializerFactory = base._deserializerFactory;
         _deserializationContext = base._deserializationContext;
         _injectableValues = base._injectableValues;
-
         _problemHandlers = base._problemHandlers;
+        _abstractTypeResolvers = base._abstractTypeResolvers;
+        _ctorDetector = base._ctorDetector;
     }
     */
 
@@ -440,7 +444,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
                 _mapperFeatures, _deserFeatures, _streamReadFeatures, _formatReadFeatures,
                 configOverrides, coercionConfigs,
                 tf, classIntr, mixins, str, rootNames,
-                _abstractTypeResolvers);
+                _abstractTypeResolvers, _ctorDetector);
     }
 
     /*
@@ -1083,11 +1087,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    public B nodeFactory(JsonNodeFactory f) {
-        _baseSettings = _baseSettings.with(f);
-        return _this();
-    }
-
     /*
     /**********************************************************************
     /* Changing introspection helpers
@@ -1223,6 +1222,22 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B injectableValues(InjectableValues v) {
         _injectableValues = v;
+        return _this();
+    }
+
+    public B nodeFactory(JsonNodeFactory f) {
+        _baseSettings = _baseSettings.with(f);
+        return _this();
+    }
+
+    /**
+     * Method for specifying {@link ConstructorDetector} to use for
+     * determining some aspects of creator auto-detection (specifically
+     * auto-detection of constructor, and in particular behavior with
+     * single-argument constructors).
+     */
+    public B constructorDetector(ConstructorDetector cd) {
+        _ctorDetector = cd;
         return _this();
     }
 

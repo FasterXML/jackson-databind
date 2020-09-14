@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.ConfigOverride;
+import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
@@ -401,6 +402,7 @@ index, owner, defs[index], propDef);
                 }
                 continue;
             }
+
             switch (creatorMode) {
             case DELEGATING:
                 _addExplicitDelegatingCreator(ctxt, beanDesc, creators,
@@ -412,7 +414,8 @@ index, owner, defs[index], propDef);
                 break;
             default:
                 _addExplicitAnyCreator(ctxt, beanDesc, creators,
-                        CreatorCandidate.construct(intr, ctor, creatorParams.get(ctor)));
+                        CreatorCandidate.construct(intr, ctor, creatorParams.get(ctor)),
+                        ctxt.getConfig().getConstructorDetector());
                 break;
             }
             ++explCount;
@@ -666,48 +669,94 @@ nonAnnotatedParamIndex, ctor);
         creators.addPropertyCreator(candidate.creator(), true, properties);
     }
 
-    /**
-     * Helper method called when there is explicit "is-creator" marker, but no mode declaration.
-     *
-     * @since 2.9.2
-     */
+    @Deprecated // since 2.12, remove from 2.13 or later
     protected void _addExplicitAnyCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,
             CreatorCandidate candidate)
+        throws JsonMappingException
+    {
+        _addExplicitAnyCreator(ctxt, beanDesc, creators, candidate,
+                ctxt.getConfig().getConstructorDetector());
+    }
+
+    /**
+     * Helper method called when there is explicit "is-creator" marker,
+     * but no mode declaration.
+     *
+     * @since 2.12
+     */
+    protected void _addExplicitAnyCreator(DeserializationContext ctxt,
+            BeanDescription beanDesc, CreatorCollector creators,
+            CreatorCandidate candidate, ConstructorDetector ctorDetector)
         throws JsonMappingException
     {
         // Looks like there's bit of magic regarding 1-parameter creators; others simpler:
         if (1 != candidate.paramCount()) {
             // Ok: for delegates, we want one and exactly one parameter without
             // injection AND without name
-            int oneNotInjected = candidate.findOnlyParamWithoutInjection();
-            if (oneNotInjected >= 0) {
-                // getting close; but most not have name
-                if (candidate.paramName(oneNotInjected) == null) {
-                    _addExplicitDelegatingCreator(ctxt, beanDesc, creators, candidate);
-                    return;
+
+            // 13-Sep-2020, tatu: Can only be delegating if not forced to be properties-based
+            if (!ctorDetector.singleArgCreatorDefaultsToProperties()) {
+                int oneNotInjected = candidate.findOnlyParamWithoutInjection();
+                if (oneNotInjected >= 0) {
+                    // getting close; but most not have name (or be explicitly specified
+                    // as default-to-delegate)
+                    if (ctorDetector.singleArgCreatorDefaultsToDelegating()
+                            || candidate.paramName(oneNotInjected) == null) {
+                        _addExplicitDelegatingCreator(ctxt, beanDesc, creators, candidate);
+                        return;
+                    }
                 }
             }
             _addExplicitPropertyCreator(ctxt, beanDesc, creators, candidate);
             return;
         }
-        AnnotatedParameter param = candidate.parameter(0);
-        JacksonInject.Value injectId = candidate.injection(0);
-        PropertyName paramName = candidate.explicitParamName(0);
-        BeanPropertyDefinition paramDef = candidate.propertyDef(0);
 
-        // If there's injection or explicit name, should be properties-based
-        boolean useProps = (paramName != null) || (injectId != null);
-        if (!useProps && (paramDef != null)) {
-            // One more thing: if implicit name matches property with a getter
-            // or field, we'll consider it property-based as well
+        // And here be the "simple" single-argument construct
+        final AnnotatedParameter param = candidate.parameter(0);
+        final JacksonInject.Value injectId = candidate.injection(0);
+        PropertyName paramName = null;
 
-            // 25-May-2018, tatu: as per [databind#2051], looks like we have to get
-            //    not implicit name, but name with possible strategy-based-rename
-//            paramName = candidate.findImplicitParamName(0);
+        boolean useProps;
+        switch (ctorDetector.singleArgMode()) {
+        case DELEGATING:
+            useProps = false;
+            break;
+        case PROPERTIES:
+            useProps = true;
+            // 13-Sep-2020, tatu: since we are configured to prefer Properties-style,
+            //    any name (explicit OR implicit does):
             paramName = candidate.paramName(0);
-            useProps = (paramName != null) && paramDef.couldSerialize();
+            break;
+
+        case REQUIRE_MODE:
+            ctxt.reportBadTypeDefinition(beanDesc,
+"Single-argument constructor (%s) is annotated but no 'mode' defined; `CreatorDetector`"
++ "configured with `SingleArgConstructor.REQUIRE_MODE`",
+candidate.creator());
+            return;
+        case HEURISTIC:
+        default:
+            { // Note: behavior pre-Jackson-2.12
+                final BeanPropertyDefinition paramDef = candidate.propertyDef(0);
+                // with heuristic, need to start with just explicit name
+                paramName = candidate.explicitParamName(0);
+
+                // If there's injection or explicit name, should be properties-based
+                useProps = (paramName != null) || (injectId != null);
+                if (!useProps && (paramDef != null)) {
+                    // One more thing: if implicit name matches property with a getter
+                    // or field, we'll consider it property-based as well
+        
+                    // 25-May-2018, tatu: as per [databind#2051], looks like we have to get
+                    //    not implicit name, but name with possible strategy-based-rename
+        //            paramName = candidate.findImplicitParamName(0);
+                    paramName = candidate.paramName(0);
+                    useProps = (paramName != null) && paramDef.couldSerialize();
+                }
+            }
         }
+
         if (useProps) {
             SettableBeanProperty[] properties = new SettableBeanProperty[] {
                     constructCreatorProperty(ctxt, beanDesc, paramName, 0, param, injectId)
@@ -715,10 +764,12 @@ nonAnnotatedParamIndex, ctor);
             creators.addPropertyCreator(candidate.creator(), true, properties);
             return;
         }
+
         _handleSingleArgumentCreator(creators, candidate.creator(), true, true);
 
         // one more thing: sever link to creator property, to avoid possible later
         // problems with "unresolved" constructor property
+        final BeanPropertyDefinition paramDef = candidate.propertyDef(0);
         if (paramDef != null) {
             ((POJOPropertyBuilder) paramDef).removeConstructors();
         }
@@ -842,7 +893,10 @@ nonAnnotatedParamIndex, ctor);
             case DEFAULT:
             default:
                 _addExplicitAnyCreator(ctxt, beanDesc, creators,
-                        CreatorCandidate.construct(intr, factory, creatorParams.get(factory)));
+                        CreatorCandidate.construct(intr, factory, creatorParams.get(factory)),
+                        // 13-Sep-2020, tatu: Factory methods do not follow config settings
+                        //    (as of Jackson 2.12)
+                        ConstructorDetector.DEFAULT);
                 break;
             }
             ++explCount;

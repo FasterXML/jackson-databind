@@ -59,7 +59,7 @@ public final class ConstructorDetector
          * {@link com.fasterxml.jackson.databind.exc.InvalidDefinitionException}
          * in ambiguous case.
          */
-        FAIL;
+        REQUIRE_MODE;
     }
 
 //    @FunctionalInterface
@@ -115,10 +115,10 @@ public final class ConstructorDetector
 
     /**
      * Instance similar to {@link #DEFAULT} except that for single-argument case
-     * uses setting of {@link SingleArgConstructor#FAIL}.
+     * uses setting of {@link SingleArgConstructor#REQUIRE_MODE}.
      */
     public final static ConstructorDetector EXPLICIT_ONLY
-        = new ConstructorDetector(SingleArgConstructor.FAIL);
+        = new ConstructorDetector(SingleArgConstructor.REQUIRE_MODE);
 
     /*
     /**********************************************************************
@@ -208,5 +208,13 @@ public final class ConstructorDetector
 
     public boolean allowJDKTypeConstructors() {
         return _allowJDKTypeCtors;
+    }
+
+    public boolean singleArgCreatorDefaultsToDelegating() {
+        return _singleArgMode == SingleArgConstructor.DELEGATING;
+    }
+
+    public boolean singleArgCreatorDefaultsToProperties() {
+        return _singleArgMode == SingleArgConstructor.PROPERTIES;
     }
 }

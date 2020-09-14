@@ -626,7 +626,7 @@ public final class DeserializationConfig
     }
 
     public ConstructorDetector getConstructorDetector() {
-        return _ctorDetector;
+        return (_ctorDetector == null) ? ConstructorDetector.DEFAULT : _ctorDetector;
     }
 
     /*

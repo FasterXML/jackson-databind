@@ -36,9 +36,9 @@ public class ConstructorDetector1498Test extends BaseMapTest
     static class SingleArgNotAnnotated {
         protected int v;
 
-//        SingleArgNotAnnotated() { throw new Error("Should not be used"); }
+        SingleArgNotAnnotated() { v = -1; }
         
-        public SingleArgNotAnnotated(@ImplicitName("value") @com.fasterxml.jackson.annotation.JsonSetter int value) {
+        public SingleArgNotAnnotated(@ImplicitName("value") int value) {
             v = value;
         }
     }
@@ -46,7 +46,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
     static class SingleArgNoMode {
         protected int v;
 
-//        SingleArgNoMode() { throw new Error("Should not be used"); }
+        SingleArgNoMode() { v = -1; }
 
         @JsonCreator
         public SingleArgNoMode(@ImplicitName("value") int value) {
@@ -54,6 +54,20 @@ public class ConstructorDetector1498Test extends BaseMapTest
         }
     }
 
+    static class SingleArg2CtorsNotAnnotated {
+        protected int v;
+
+        SingleArg2CtorsNotAnnotated() { v = -1; }
+
+        public SingleArg2CtorsNotAnnotated(@ImplicitName("value") int value) {
+            v = value;
+        }
+
+        public SingleArg2CtorsNotAnnotated(@ImplicitName("value") long value) {
+            v = (int) (value * 2);
+        }
+    }
+    
     static class SingleArg1498 {
         final int _bar;
 
@@ -97,6 +111,19 @@ public class ConstructorDetector1498Test extends BaseMapTest
         assertEquals(404, value._bar);
     }
 
+    // 18-Sep-2020, tatu: For now there is a problematic case of multiple eligible
+    //   choices; not cleanly solvable for 2.12
+    public void test1ArgDefaultsToPropsMultipleCtors() throws Exception
+    {
+        try {
+            MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
+                SingleArg2CtorsNotAnnotated.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Conflicting property-based creators");
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods, selecting from 1-arg constructors, delegating
@@ -119,7 +146,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* Test methods, selecting from 1-arg constructors, other
+    /* Test methods, selecting from 1-arg constructors, heuristic (pre-2.12)
     /**********************************************************************
      */
 
@@ -137,9 +164,15 @@ public class ConstructorDetector1498Test extends BaseMapTest
         assertEquals(13117, v2.v);
     }
 
-    // 15-Sep-2020, tatu: Tricky semantics... should this require turning
-    //    off of auto-detection?
     /*
+    /**********************************************************************
+    /* Test methods, selecting from 1-arg constructors, explicit fail
+    /**********************************************************************
+     */
+
+    // 15-Sep-2020, tatu: Tricky semantics... should this require turning
+    //    off of auto-detection? If there is 0-arg ctor, that is to be used
+/*
     public void test1ArgFailsNoAnnotation() throws Exception
     {
         // First: fail if nothing annotated (for 1-arg case)

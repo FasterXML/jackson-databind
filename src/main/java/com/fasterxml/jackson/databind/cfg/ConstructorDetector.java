@@ -1,11 +1,5 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import java.io.IOException;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.DatabindContext;
-import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
-
 /**
  * Configurable handler used to select aspects of selecting
  * constructor to use as "Creator" for POJOs.
@@ -62,18 +56,6 @@ public final class ConstructorDetector
         REQUIRE_MODE;
     }
 
-//    @FunctionalInterface
-    /**
-     * Simple interface for optionally defined handler that can select
-     * specific Constructor to use if more than one implicitly detected ones
-     * (and no explicitly annotated one) found.
-     */
-    public interface ConstructorSelector {
-        public AnnotatedConstructor select(DatabindContext ctxt,
-                List<AnnotatedConstructor> ctors)
-            throws IOException;
-    }
-
     /*
     /**********************************************************************
     /* Global default instances to use
@@ -84,9 +66,6 @@ public final class ConstructorDetector
      * Instance used by default, which:
      *<ul>
      * <li>Uses {@link SingleArgConstructor#HEURISTIC} for single-argument constructor case
-     *  </li>
-     * <li>Does not specify {@link ConstructorSelector} to solve ambiguous
-     *  (multiple implicitly discovered argument-taking Constructors}
      *  </li>
      * <li>Does not require explicit {@code @JsonCreator} annotations (so allows
      * auto-detection of Visible constructors} (except for JDK types)
@@ -128,8 +107,6 @@ public final class ConstructorDetector
 
     protected final SingleArgConstructor _singleArgMode;
 
-    protected final ConstructorSelector _selector;
-
     /**
      * Whether explicit {@link com.fasterxml.jackson.annotation.JsonCreator}
      * is always required for detecting constructors (even if visible) other
@@ -139,7 +116,7 @@ public final class ConstructorDetector
 
     /**
      * Whether auto-detection of constructors of "JDK types" (those in
-     * packages {@code java.} and {@code javax.}) is allowed or not (
+     * packages {@code java.} and {@code javax.}) is allowed or not
      */
     protected final boolean _allowJDKTypeCtors;
 
@@ -150,12 +127,10 @@ public final class ConstructorDetector
      */
 
     protected ConstructorDetector(SingleArgConstructor singleArgMode,
-            ConstructorSelector selector,
             boolean requireCtorAnnotation,
             boolean allowJDKTypeCtors)
     {
         _singleArgMode = singleArgMode;
-        _selector = selector;
         _requireCtorAnnotation = requireCtorAnnotation;
         _allowJDKTypeCtors = allowJDKTypeCtors;
     }
@@ -165,26 +140,21 @@ public final class ConstructorDetector
      * by {@code _singleArgMode}
      */
     protected ConstructorDetector(SingleArgConstructor singleArgMode) {
-        this(singleArgMode, null, false, false);
+        this(singleArgMode, false, false);
     }
 
     protected ConstructorDetector withSingleArgMode(SingleArgConstructor singleArgMode) {
-        return new ConstructorDetector(singleArgMode, _selector,
-                _requireCtorAnnotation, _allowJDKTypeCtors);
-    }
-
-    protected ConstructorDetector withSelector(ConstructorSelector selector) {
-        return new ConstructorDetector(_singleArgMode, selector,
+        return new ConstructorDetector(singleArgMode,
                 _requireCtorAnnotation, _allowJDKTypeCtors);
     }
 
     protected ConstructorDetector withRequireAnnotation(boolean state) {
-        return new ConstructorDetector(_singleArgMode, _selector,
+        return new ConstructorDetector(_singleArgMode,
                 state, _allowJDKTypeCtors);
     }
 
     protected ConstructorDetector withAllowJDKTypes(boolean state) {
-        return new ConstructorDetector(_singleArgMode, _selector,
+        return new ConstructorDetector(_singleArgMode,
                 _requireCtorAnnotation, state);
     }
 
@@ -196,10 +166,6 @@ public final class ConstructorDetector
 
     public SingleArgConstructor singleArgMode() {
         return _singleArgMode;
-    }
-
-    public ConstructorSelector constructorSelector() {
-        return _selector;
     }
 
     public boolean requireCtorAnnotation() {

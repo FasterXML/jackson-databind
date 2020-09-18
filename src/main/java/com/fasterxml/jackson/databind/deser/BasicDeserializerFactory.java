@@ -252,27 +252,31 @@ public abstract class BasicDeserializerFactory
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        CreatorCollector creators = new CreatorCollector(beanDesc, ctxt.getConfig());
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        
-        // need to construct suitable visibility checker:
-        final DeserializationConfig config = ctxt.getConfig();
-        VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
-                beanDesc.getClassInfo());
+        final CreatorCollectionState ccState;
 
-        /* 24-Sep-2014, tatu: Tricky part first; need to merge resolved property information
-         *  (which has creator parameters sprinkled around) with actual creator
-         *  declarations (which are needed to access creator annotation, amongst other things).
-         *  Easiest to combine that info first, then pass it to remaining processing.
-         */
-        /* 15-Mar-2015, tatu: Alas, this won't help with constructors that only have implicit
-         *   names. Those will need to be resolved later on.
-         */
-        Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs = _findCreatorsFromProperties(ctxt,
-                beanDesc);
+        {
+            final DeserializationConfig config = ctxt.getConfig();
+            // need to construct suitable visibility checker:
+            final VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
+                    beanDesc.getClassInfo());
+
+            // 24-Sep-2014, tatu: Tricky part first; need to merge resolved property information
+            //  (which has creator parameters sprinkled around) with actual creator
+            //  declarations (which are needed to access creator annotation, amongst other things).
+            //  Easiest to combine that info first, then pass it to remaining processing.
+
+            // 15-Mar-2015, tatu: Alas, this won't help with constructors that only have implicit
+            //   names. Those will need to be resolved later on.
+            final CreatorCollector creators = new CreatorCollector(beanDesc, config);
+            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs = _findCreatorsFromProperties(ctxt,
+                    beanDesc);
+            ccState = new CreatorCollectionState(ctxt, beanDesc, vchecker,
+                    creators, creatorDefs);
+        }
+
         // Important: first add factory methods; then constructors, so
         // latter can override former!
-        _addDeserializerFactoryMethods(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
+        _addDeserializerFactoryMethods(ctxt, ccState);
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
             // [databind#2709]: Record support
@@ -280,13 +284,22 @@ public abstract class BasicDeserializerFactory
                 final List<String> names = new ArrayList<>();
                 AnnotatedConstructor canonical = JDK14Util.findRecordConstructor(ctxt, beanDesc, names);
                 if (canonical != null) {
-                    _addRecordConstructor(ctxt, beanDesc, creators, canonical, names);
-                    return creators.constructValueInstantiator(ctxt);
+                    _addRecordConstructor(ctxt, ccState, canonical, names);
+                    return ccState.creators.constructValueInstantiator(ctxt);
                 }
             }
-            _addDeserializerConstructors(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
+            // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
+            //     for now to skip attempts at using anything but no-args constructor (see
+            //     `InnerClassProperty` construction for that)
+            final boolean isNonStaticInnerClass = beanDesc.isNonStaticInnerClass();
+            if (isNonStaticInnerClass) {
+                // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
+                ;
+            } else {
+                _addDeserializerConstructors(ctxt, ccState);
+            }
         }
-        return creators.constructValueInstantiator(ctxt);
+        return ccState.creators.constructValueInstantiator(ctxt);
     }
 
     protected Map<AnnotatedWithParams,BeanPropertyDefinition[]> _findCreatorsFromProperties(DeserializationContext ctxt,
@@ -364,20 +377,15 @@ index, owner, defs[index], propDef);
      */
 
     protected void _addDeserializerConstructors(DeserializationContext ctxt,
-            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
-            AnnotationIntrospector intr, CreatorCollector creators,
-            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
+            CreatorCollectionState ccState)
                     throws JsonMappingException
     {
-        // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
-        //     for now to skip attempts at using anything but no-args constructor (see
-        //     `InnerClassProperty` construction for that)
-        final boolean isNonStaticInnerClass = beanDesc.isNonStaticInnerClass();
-        if (isNonStaticInnerClass) {
-            // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
-            return;
-        }
-
+        final BeanDescription beanDesc = ccState.beanDesc;
+        final CreatorCollector creators = ccState.creators;
+        final AnnotationIntrospector intr = ccState.annotationIntrospector();
+        final VisibilityChecker<?> vchecker = ccState.vchecker;
+        final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorDefs;
+        
         // First things first: the "default constructor" (zero-arg
         // constructor; whether implicit or explicit) is NOT included
         // in list of constructors, so needs to be handled separately.
@@ -556,8 +564,7 @@ nonAnnotatedParamIndex, ctor);
      *
      * @since 2.12
      */
-    protected void _addRecordConstructor(DeserializationContext ctxt,
-            BeanDescription beanDesc, CreatorCollector creators,
+    protected void _addRecordConstructor(DeserializationContext ctxt, CreatorCollectionState ccState,
             AnnotatedConstructor canonical, List<String> implicitNames)
                     throws JsonMappingException
     {
@@ -572,9 +579,9 @@ nonAnnotatedParamIndex, ctor);
             if (name == null || name.isEmpty()) {
                 name = PropertyName.construct(implicitNames.get(i));
             }
-            properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
+            properties[i] = constructCreatorProperty(ctxt, ccState.beanDesc, name, i, param, injectable);
         }
-        creators.addPropertyCreator(canonical, false, properties);
+        ccState.creators.addPropertyCreator(canonical, false, properties);
     }
 
     /**
@@ -852,11 +859,15 @@ candidate.creator());
     }
 
     protected void _addDeserializerFactoryMethods
-        (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
-         AnnotationIntrospector intr, CreatorCollector creators,
-         Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
+        (DeserializationContext ctxt, CreatorCollectionState ccState)
         throws JsonMappingException
     {
+        final BeanDescription beanDesc = ccState.beanDesc;
+        final CreatorCollector creators = ccState.creators;
+        final AnnotationIntrospector intr = ccState.annotationIntrospector();
+        final VisibilityChecker<?> vchecker = ccState.vchecker;
+        final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorDefs;
+
         List<CreatorCandidate> nonAnnotated = new LinkedList<>();
         int explCount = 0;
 
@@ -2435,6 +2446,36 @@ factory.toString()));
 
         public static Class<?> findMapFallback(JavaType type) {
             return _mapFallbacks.get(type.getRawClass().getName());
+        }
+    }
+
+    /**
+     * Helper class to contain largish number of parameters that need to be passed
+     * during Creator introspection.
+     *
+     * @since 2.12
+     */
+    protected static class CreatorCollectionState {
+        public final DeserializationContext context;
+        public final BeanDescription beanDesc;
+        public final VisibilityChecker<?> vchecker;
+        public final CreatorCollector creators;
+        public final Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs;
+
+        public CreatorCollectionState(DeserializationContext ctxt, BeanDescription bd,
+                VisibilityChecker<?> vc,
+                CreatorCollector cc,
+                Map<AnnotatedWithParams,BeanPropertyDefinition[]> cdefs)
+        {
+            context = ctxt;
+            beanDesc = bd;
+            vchecker = vc;
+            creators = cc;
+            creatorDefs = cdefs;
+        }
+
+        public AnnotationIntrospector annotationIntrospector() {
+            return context.getAnnotationIntrospector();
         }
     }
 }

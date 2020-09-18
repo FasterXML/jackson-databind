@@ -956,12 +956,19 @@ public final class ClassUtil
     }
 
     /**
-     * Some aspects of handling need to be changed for JDK types (and possibly
-     * some extensions under {@code javax.}?): for example, forcing of access
+     * Accessor for checking whether given {@code Class} is under Java package
+     * of {@code java.*} or {@code javax.*} (including all sub-packages).
+     *<p>
+     * Added since some aspects of handling need to be changed for JDK types (and
+     * possibly some extensions under {@code javax.}?): for example, forcing of access
      * will not work well for future JDKs (12 and later).
+     *<p>
+     * Note: in Jackson 2.11 only returned true for {@code java.*} (and not {@code javax.*});
+     * was changed in 2.12.
      */
     public static boolean isJDKClass(Class<?> rawType) {
-        return rawType.getName().startsWith("java.");
+        final String clsName = rawType.getName();
+        return clsName.startsWith("java.") || clsName.startsWith("javax.");
     }
 
     /*
@@ -976,9 +983,6 @@ public final class ClassUtil
                 && (getEnclosingClass(cls) != null);
     }
 
-    /**
-     * @since 2.7
-     */
     public static boolean hasEnclosingMethod(Class<?> cls) {
         return !isObjectOrPrimitive(cls) && (cls.getEnclosingMethod() != null);
     }
@@ -1034,15 +1038,10 @@ public final class ClassUtil
     // // // Then methods that do NOT cache access but were considered
     // // // (and could be added to do caching if it was proven effective)
 
-    /**
-     * @since 2.7
-     */
     public static Class<?> getDeclaringClass(Class<?> cls) {
         return isObjectOrPrimitive(cls) ? null : cls.getDeclaringClass();
     }
-    /**
-     * @since 2.7
-     */
+
     public static Class<?> getEnclosingClass(Class<?> cls) {
         // Caching does not seem worthwhile, as per profiling
         return isObjectOrPrimitive(cls) ? null : cls.getEnclosingClass();

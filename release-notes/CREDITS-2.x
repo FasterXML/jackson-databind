@@ -175,6 +175,8 @@ Fernando Otero (zeitos@github)
 Lovro Pandžić (lpandzic@github)
   * Reported #421: @JsonCreator not used in case of multiple creators with parameter names
    (2.5.0)
+  * Requested #1498: Allow handling of single-arg constructor as property based by default
+   (2.12.0)
 
 Adam Stroud (adstro@github)
   * Contributed	#576: Add fluent API for adding mixins

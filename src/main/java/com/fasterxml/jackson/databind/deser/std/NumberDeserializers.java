@@ -526,7 +526,7 @@ public class NumberDeserializers
             if (_primitive) {
                 return _parseIntPrimitive(p, ctxt);
             }
-            return _parseInteger(p, ctxt);
+            return _parseInteger(p, ctxt, Integer.class);
         }
 
         // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
@@ -541,52 +541,7 @@ public class NumberDeserializers
             if (_primitive) {
                 return _parseIntPrimitive(p, ctxt);
             }
-            return _parseInteger(p, ctxt);
-        }
-
-        protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt)
-                throws IOException
-        {
-            String text;
-            switch (p.currentTokenId()) {
-            case JsonTokenId.ID_STRING:
-                text = p.getText();
-                break;
-            case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too
-                final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
-                if (act == CoercionAction.AsNull) {
-                    return (Integer) getNullValue(ctxt);
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (Integer) getEmptyValue(ctxt);
-                }
-                return p.getValueAsInt();
-            case JsonTokenId.ID_NUMBER_INT: // NOTE: caller assumed to check in fast path
-                return p.getIntValue();
-            case JsonTokenId.ID_NULL: // null fine for non-primitive
-                return (Integer) getNullValue(ctxt);
-            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
-            case JsonTokenId.ID_START_OBJECT:
-                text = ctxt.extractScalarFromObject(p, this, _valueClass);
-                break;
-            case JsonTokenId.ID_START_ARRAY:
-                return (Integer) _deserializeFromArray(p, ctxt);
-            default:
-                return (Integer) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-            }
-
-            final CoercionAction act = _checkFromStringCoercion(ctxt, text);
-            if (act == CoercionAction.AsNull) {
-                return (Integer) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Integer) getEmptyValue(ctxt);
-            }
-            text = text.trim();
-            if (_checkTextualNull(ctxt, text)) {
-                return (Integer) getNullValue(ctxt);
-            }
-            return _parseIntPrimitive(ctxt, text);
+            return _parseInteger(p, ctxt, Integer.class);
         }
     }
 

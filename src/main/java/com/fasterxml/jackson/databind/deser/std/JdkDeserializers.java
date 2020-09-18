@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.databind.*;
 
@@ -18,6 +19,7 @@ public class JdkDeserializers
         Class<?>[] types = new Class<?>[] {
                 UUID.class,
                 AtomicBoolean.class,
+                AtomicInteger.class,
                 StackTraceElement.class,
                 ByteBuffer.class,
                 Void.class
@@ -42,6 +44,9 @@ public class JdkDeserializers
             if (rawType == AtomicBoolean.class) {
                 // (note: AtomicInteger/Long work due to single-arg constructor. For now?
                 return new AtomicBooleanDeserializer();
+            }
+            if (rawType == AtomicInteger.class) {
+                return new AtomicIntegerDeserializer();
             }
             if (rawType == ByteBuffer.class) {
                 return new ByteBufferDeserializer();

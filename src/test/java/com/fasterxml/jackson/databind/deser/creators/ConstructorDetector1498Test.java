@@ -38,7 +38,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
 
 //        SingleArgNotAnnotated() { throw new Error("Should not be used"); }
         
-        public SingleArgNotAnnotated(int value) {
+        public SingleArgNotAnnotated(@ImplicitName("value") @com.fasterxml.jackson.annotation.JsonSetter int value) {
             v = value;
         }
     }
@@ -54,6 +54,15 @@ public class ConstructorDetector1498Test extends BaseMapTest
         }
     }
 
+    static class SingleArg1498 {
+        final int _bar;
+
+        // note: annotation only to inject "implicit name" without needing parameter-names module
+        SingleArg1498(@ImplicitName("bar") int b) {
+            _bar = b;
+        }
+    }
+
     private final ObjectMapper MAPPER_PROPS = mapperFor(ConstructorDetector.USE_PROPERTIES_BASED);
     private final ObjectMapper MAPPER_DELEGATING = mapperFor(ConstructorDetector.USE_DELEGATING);
     private final ObjectMapper MAPPER_EXPLICIT = mapperFor(ConstructorDetector.EXPLICIT_ONLY);
@@ -64,14 +73,12 @@ public class ConstructorDetector1498Test extends BaseMapTest
     /**********************************************************************
      */
 
-    /*
     public void test1ArgDefaultsToPropertiesNonAnnotated() throws Exception
     {
         SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
                 SingleArgNotAnnotated.class);
         assertEquals(137, value.v);
     }
-    */
 
     public void test1ArgDefaultsToPropertiesNoMode() throws Exception
     {
@@ -79,6 +86,15 @@ public class ConstructorDetector1498Test extends BaseMapTest
         SingleArgNoMode value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
                 SingleArgNoMode.class);
         assertEquals(137, value.v);
+    }
+
+    // And specific test for original [databind#1498]
+    public void test1ArgDefaultsToPropertiesIssue1498() throws Exception
+    {
+        // and similarly for mode-less
+        SingleArg1498 value = MAPPER_PROPS.readValue(a2q("{'bar' : 404 }"),
+                SingleArg1498.class);
+        assertEquals(404, value._bar);
     }
 
     /*
@@ -147,12 +163,6 @@ public class ConstructorDetector1498Test extends BaseMapTest
             verifyException(e, "SingleArgConstructor.REQUIRE_MODE");
         }
     }
-
-    /*
-    /**********************************************************************
-    /* Test methods
-    /**********************************************************************
-     */
 
     /*
     /**********************************************************************

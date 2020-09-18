@@ -211,16 +211,14 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         final CreatorCollectionState ccState;
-        final boolean findImplicit;
+        final ConstructorDetector ctorDetector;
 
         {
             final DeserializationConfig config = ctxt.getConfig();
             // need to construct suitable visibility checker:
             final VisibilityChecker vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
                     beanDesc.getClassInfo());
-            // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
-            //   has settings to prevent that either generally, or at least for JDK types
-            findImplicit = config.getConstructorDetector().allowImplicitCreators(beanDesc.getBeanClass());
+            ctorDetector = config.getConstructorDetector();
 
             // 24-Sep-2014, tatu: Tricky part first; need to merge resolved property information
             //  (which has creator parameters sprinkled around) with actual creator
@@ -237,7 +235,7 @@ public abstract class BasicDeserializerFactory
         }
 
         // Start with explicitly annotated factory methods
-        _addExplicitFactoryCreators(ctxt, ccState, findImplicit);
+        _addExplicitFactoryCreators(ctxt, ccState, !ctorDetector.requireCtorAnnotation());
 
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
@@ -259,6 +257,9 @@ public abstract class BasicDeserializerFactory
                 // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
                 ;
             } else {
+                // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
+                //   has settings to prevent that either generally, or at least for JDK types
+                final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDesc.getBeanClass());
                 _addExplicitConstructorCreators(ctxt, ccState, findImplicit);
                 if (ccState.hasImplicitConstructorCandidates()
                         && !ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()) {

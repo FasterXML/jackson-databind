@@ -155,7 +155,7 @@ public final class ConstructorDetector
                 state, _allowJDKTypeCtors);
     }
 
-    public ConstructorDetector withAllowJDKTypes(boolean state) {
+    public ConstructorDetector withAllowJDKTypeConstructors(boolean state) {
         return new ConstructorDetector(_singleArgMode,
                 _requireCtorAnnotation, state);
     }
@@ -186,12 +186,31 @@ public final class ConstructorDetector
         return _singleArgMode == SingleArgConstructor.PROPERTIES;
     }
 
-    public boolean allowImplicitCreators(Class<?> rawType) {
+    /**
+     * Accessor that combines calls to {@link #allowImplicitCreators} and
+     * {@link #allowJDKTypeConstructors} to determine whether implicit constructor
+     * detection should be enabled or not.
+     * 
+     * @param rawType Value type to consider
+     *
+     * @return True if implicit constructor detection should be enabled; false if not
+     */
+    public boolean shouldIntrospectorImplicitConstructors(Class<?> rawType) {
         // May not allow implicit creator introspection at all:
         if (_requireCtorAnnotation) {
             return false;
         }
         // But if it is allowed, may further limit use for JDK types
-        return _allowJDKTypeCtors || !ClassUtil.isJDKClass(rawType);
+        if (!_allowJDKTypeCtors) {
+            if (ClassUtil.isJDKClass(rawType)) {
+                // 18-Sep-2020, tatu: Looks like must make an exception for Exception
+                //    types (ha!) -- at this point, single-String-arg constructor
+                //    is to be auto-detected
+                if (!Throwable.class.isAssignableFrom(rawType)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

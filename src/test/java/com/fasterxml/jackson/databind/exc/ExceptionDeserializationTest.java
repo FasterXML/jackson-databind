@@ -56,7 +56,8 @@ public class ExceptionDeserializationTest
     public void testIOException() throws IOException
     {
         IOException ioe = new IOException("TEST");
-        String json = MAPPER.writeValueAsString(ioe);
+        String json = MAPPER.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(ioe);
         IOException result = MAPPER.readValue(json, IOException.class);
         assertEquals(ioe.getMessage(), result.getMessage());
     }

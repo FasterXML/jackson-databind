@@ -276,7 +276,7 @@ public abstract class BasicDeserializerFactory
 
         // Important: first add factory methods; then constructors, so
         // latter can override former!
-        _addDeserializerFactoryMethods(ctxt, ccState);
+        _addFactoryCreators(ctxt, ccState);
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
             // [databind#2709]: Record support
@@ -296,7 +296,7 @@ public abstract class BasicDeserializerFactory
                 // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
                 ;
             } else {
-                _addDeserializerConstructors(ctxt, ccState);
+                _addConstructorCreators(ctxt, ccState);
             }
         }
         return ccState.creators.constructValueInstantiator(ctxt);
@@ -376,7 +376,7 @@ index, owner, defs[index], propDef);
     /**********************************************************
      */
 
-    protected void _addDeserializerConstructors(DeserializationContext ctxt,
+    protected void _addConstructorCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState)
                     throws JsonMappingException
     {
@@ -384,8 +384,8 @@ index, owner, defs[index], propDef);
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
         final VisibilityChecker<?> vchecker = ccState.vchecker;
-        final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorDefs;
-        
+        final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorParams;
+
         // First things first: the "default constructor" (zero-arg
         // constructor; whether implicit or explicit) is NOT included
         // in list of constructors, so needs to be handled separately.
@@ -858,7 +858,7 @@ candidate.creator());
         }
     }
 
-    protected void _addDeserializerFactoryMethods
+    protected void _addFactoryCreators
         (DeserializationContext ctxt, CreatorCollectionState ccState)
         throws JsonMappingException
     {
@@ -866,7 +866,7 @@ candidate.creator());
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
         final VisibilityChecker<?> vchecker = ccState.vchecker;
-        final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorDefs;
+        final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorParams;
 
         List<CreatorCandidate> nonAnnotated = new LinkedList<>();
         int explCount = 0;
@@ -2460,18 +2460,18 @@ factory.toString()));
         public final BeanDescription beanDesc;
         public final VisibilityChecker<?> vchecker;
         public final CreatorCollector creators;
-        public final Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs;
+        public final Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams;
 
         public CreatorCollectionState(DeserializationContext ctxt, BeanDescription bd,
                 VisibilityChecker<?> vc,
                 CreatorCollector cc,
-                Map<AnnotatedWithParams,BeanPropertyDefinition[]> cdefs)
+                Map<AnnotatedWithParams,BeanPropertyDefinition[]> cp)
         {
             context = ctxt;
             beanDesc = bd;
             vchecker = vc;
             creators = cc;
-            creatorDefs = cdefs;
+            creatorParams = cp;
         }
 
         public AnnotationIntrospector annotationIntrospector() {

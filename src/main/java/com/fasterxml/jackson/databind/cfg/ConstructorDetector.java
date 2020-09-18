@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import com.fasterxml.jackson.databind.util.ClassUtil;
+
 /**
  * Configurable handler used to select aspects of selecting
  * constructor to use as "Creator" for POJOs.
@@ -143,17 +145,17 @@ public final class ConstructorDetector
         this(singleArgMode, false, false);
     }
 
-    protected ConstructorDetector withSingleArgMode(SingleArgConstructor singleArgMode) {
+    public ConstructorDetector withSingleArgMode(SingleArgConstructor singleArgMode) {
         return new ConstructorDetector(singleArgMode,
                 _requireCtorAnnotation, _allowJDKTypeCtors);
     }
 
-    protected ConstructorDetector withRequireAnnotation(boolean state) {
+    public ConstructorDetector withRequireAnnotation(boolean state) {
         return new ConstructorDetector(_singleArgMode,
                 state, _allowJDKTypeCtors);
     }
 
-    protected ConstructorDetector withAllowJDKTypes(boolean state) {
+    public ConstructorDetector withAllowJDKTypes(boolean state) {
         return new ConstructorDetector(_singleArgMode,
                 _requireCtorAnnotation, state);
     }
@@ -182,5 +184,14 @@ public final class ConstructorDetector
 
     public boolean singleArgCreatorDefaultsToProperties() {
         return _singleArgMode == SingleArgConstructor.PROPERTIES;
+    }
+
+    public boolean allowImplicitCreators(Class<?> rawType) {
+        // May not allow implicit creator introspection at all:
+        if (_requireCtorAnnotation) {
+            return false;
+        }
+        // But if it is allowed, may further limit use for JDK types
+        return _allowJDKTypeCtors || !ClassUtil.isJDKClass(rawType);
     }
 }

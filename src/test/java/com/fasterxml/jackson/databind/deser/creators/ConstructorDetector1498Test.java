@@ -67,7 +67,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
             v = (int) (value * 2);
         }
     }
-    
+
     static class SingleArg1498 {
         final int _bar;
 
@@ -77,9 +77,21 @@ public class ConstructorDetector1498Test extends BaseMapTest
         }
     }
 
+    static class TwoArgsNotAnnotated {
+        protected int _a, _b;
+
+        public TwoArgsNotAnnotated(@ImplicitName("a") int a, @ImplicitName("b") int b) {
+            _a = a;
+            _b = b;
+        }
+    }
+
     private final ObjectMapper MAPPER_PROPS = mapperFor(ConstructorDetector.USE_PROPERTIES_BASED);
     private final ObjectMapper MAPPER_DELEGATING = mapperFor(ConstructorDetector.USE_DELEGATING);
     private final ObjectMapper MAPPER_EXPLICIT = mapperFor(ConstructorDetector.EXPLICIT_ONLY);
+
+    private final ObjectMapper MAPPER_MUST_ANNOTATE = mapperFor(ConstructorDetector.DEFAULT
+            .withRequireAnnotation(true));
 
     /*
     /**********************************************************************
@@ -96,7 +108,6 @@ public class ConstructorDetector1498Test extends BaseMapTest
 
     public void test1ArgDefaultsToPropertiesNoMode() throws Exception
     {
-        // and similarly for mode-less
         SingleArgNoMode value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
                 SingleArgNoMode.class);
         assertEquals(137, value.v);
@@ -105,10 +116,18 @@ public class ConstructorDetector1498Test extends BaseMapTest
     // And specific test for original [databind#1498]
     public void test1ArgDefaultsToPropertiesIssue1498() throws Exception
     {
-        // and similarly for mode-less
         SingleArg1498 value = MAPPER_PROPS.readValue(a2q("{'bar' : 404 }"),
                 SingleArg1498.class);
         assertEquals(404, value._bar);
+    }
+
+    // This was working already but verify
+    public void testMultiArgAsProperties() throws Exception
+    {
+        TwoArgsNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'a' : 3, 'b':4 }"),
+                TwoArgsNotAnnotated.class);
+        assertEquals(3, value._a);
+        assertEquals(4, value._b);
     }
 
     // 18-Sep-2020, tatu: For now there is a problematic case of multiple eligible
@@ -166,7 +185,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* Test methods, selecting from 1-arg constructors, explicit fail
+    /* Test methods, selecting from 1-arg constructors, explicit fails
     /**********************************************************************
      */
 
@@ -194,6 +213,32 @@ public class ConstructorDetector1498Test extends BaseMapTest
         } catch (InvalidDefinitionException e) {
             verifyException(e, "no 'mode' defined");
             verifyException(e, "SingleArgConstructor.REQUIRE_MODE");
+        }
+    }
+
+    public void test1ArgRequiresAnnotation() throws Exception
+    {
+        // First: if there is a 0-arg ctor, fine, must use that
+        SingleArgNotAnnotated value = MAPPER_MUST_ANNOTATE.readValue("{ }",
+                SingleArgNotAnnotated.class);
+        assertEquals(new SingleArgNotAnnotated().v, value.v);
+
+        // But if no such ctor, will fail
+        try {
+            MAPPER_MUST_ANNOTATE.readValue(" { } ", SingleArg1498.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "no Creators, like default constructor");
+        }
+    }
+
+    public void testMultiArgRequiresAnnotation() throws Exception
+    {
+        try {
+            MAPPER_MUST_ANNOTATE.readValue(" { } ", TwoArgsNotAnnotated.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "no Creators, like default constructor");
         }
     }
 

@@ -16,6 +16,8 @@ Project: jackson-databind
  (reported by Mike G; fix contributed by Ville K)
 #1296: Add `@JsonIncludeProperties(propertyNames)` (reverse of `@JsonIgnoreProperties`)
  (contributed Baptiste P)
+#1498: Allow handling of single-arg constructor as property based by default
+ (requested by Lovro P)
 #1852: Allow case insensitive deserialization of String value into
   `boolean`/`Boolean` (esp for Excel)
  (requested by Patrick J)

@@ -252,12 +252,16 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         final CreatorCollectionState ccState;
+        final boolean findImplicit;
 
         {
             final DeserializationConfig config = ctxt.getConfig();
             // need to construct suitable visibility checker:
             final VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
                     beanDesc.getClassInfo());
+            // 18-Sep-2020, tatu: Although by default implicit introspection is allowed, 2.12
+            //   has settings to prevent that either generally, or at least for JDK types
+            findImplicit = config.getConstructorDetector().allowImplicitCreators(beanDesc.getBeanClass());
 
             // 24-Sep-2014, tatu: Tricky part first; need to merge resolved property information
             //  (which has creator parameters sprinkled around) with actual creator
@@ -274,7 +278,7 @@ public abstract class BasicDeserializerFactory
         }
 
         // Start with explicitly annotated factory methods
-        _addExplicitFactoryCreators(ctxt, ccState);
+        _addExplicitFactoryCreators(ctxt, ccState, findImplicit);
 
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
@@ -296,16 +300,16 @@ public abstract class BasicDeserializerFactory
                 // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
                 ;
             } else {
-                _addExplicitConstructorCreators(ctxt, ccState);
-                if (!ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()
-                        && ccState.hasImplicitConstructorCandidates()) {
+                _addExplicitConstructorCreators(ctxt, ccState, findImplicit);
+                if (ccState.hasImplicitConstructorCandidates()
+                        && !ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()) {
                     _addImplicitConstructorCreators(ctxt, ccState, ccState.implicitConstructorCandidates());
                 }
             }
         }
         // and finally, implicitly found factory methods if nothing explicit found
-        if (!ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()
-                && ccState.hasImplicitFactoryCandidates()) {
+        if (ccState.hasImplicitFactoryCandidates()
+                && !ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()) {
             _addImplicitFactoryCreators(ctxt, ccState, ccState.implicitFactoryCandidates());
         }
         return ccState.creators.constructValueInstantiator(ctxt);
@@ -418,7 +422,7 @@ index, owner, defs[index], propDef);
      */
 
     protected void _addExplicitConstructorCreators(DeserializationContext ctxt,
-            CreatorCollectionState ccState)
+            CreatorCollectionState ccState, boolean findImplicit)
                     throws JsonMappingException
     {
         final BeanDescription beanDesc = ccState.beanDesc;
@@ -444,7 +448,7 @@ index, owner, defs[index], propDef);
             }
             if (creatorMode == null) {
                 // let's check Visibility here, to avoid further processing for non-visible?
-                if (vchecker.isCreatorVisible(ctor)) {
+                if (findImplicit && vchecker.isCreatorVisible(ctor)) {
                     ccState.addImplicitConstructorCandidate(CreatorCandidate.construct(intr,
                             ctor, creatorParams.get(ctor)));
                 }
@@ -623,7 +627,7 @@ nonAnnotatedParamIndex, ctor);
      */
 
     protected void _addExplicitFactoryCreators(DeserializationContext ctxt,
-            CreatorCollectionState ccState)
+            CreatorCollectionState ccState, boolean findImplicit)
         throws JsonMappingException
     {
         final BeanDescription beanDesc = ccState.beanDesc;
@@ -638,7 +642,7 @@ nonAnnotatedParamIndex, ctor);
             final int argCount = factory.getParameterCount();
             if (creatorMode == null) {
                 // Only potentially accept 1-argument factory methods
-                if ((argCount == 1) && vchecker.isCreatorVisible(factory)) {
+                if (findImplicit && (argCount == 1) && vchecker.isCreatorVisible(factory)) {
                     ccState.addImplicitFactoryCandidate(CreatorCandidate.construct(intr, factory, null));
                 }
                 continue;

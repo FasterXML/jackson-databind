@@ -232,14 +232,18 @@ public abstract class BasicDeserializerFactory
                     creators, creatorDefs);
         }
 
-        // Important: first add factory methods; then constructors, so
-        // latter can override former!
-        _addFactoryCreators(ctxt, ccState);
+        // Start with explicitly annotated factory methods
+        _addExplicitFactoryCreators(ctxt, ccState);
+        if (!ccState.hasExplicitFactories() && ccState.hasImplicitFactoryCandidates()) {
+            _addImplicitFactoryCreators(ctxt, ccState, ccState.implicitFactoryCandidates());
+        }
+
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
             // [databind#2709]: Record support
             if (beanDesc.getType().isRecordType()) {
                 final List<String> names = new ArrayList<>();
+                // NOTE: this does verify that there is no explicitly annotated alternatives
                 AnnotatedConstructor canonical = JDK14Util.findRecordConstructor(ctxt, beanDesc, names);
                 if (canonical != null) {
                     _addRecordConstructor(ctxt, ccState, canonical, names);
@@ -555,9 +559,9 @@ nonAnnotatedParamIndex, ctor);
     /* Creator introspection: factory creators
     /**********************************************************************
      */
-    
-    protected void _addFactoryCreators(DeserializationContext ctxt,
-            CreatorCollectionState ccState)
+
+    protected void _addExplicitFactoryCreators
+        (DeserializationContext ctxt, CreatorCollectionState ccState)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -567,10 +571,6 @@ nonAnnotatedParamIndex, ctor);
         final VisibilityChecker vchecker = ccState.vchecker;
         final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorParams;
 
-        List<CreatorCandidate> nonAnnotated = new LinkedList<>();
-
-        int explCount = 0;
-
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), factory);
@@ -578,7 +578,7 @@ nonAnnotatedParamIndex, ctor);
             if (creatorMode == null) {
                 // Only potentially accept 1-argument factory methods
                 if ((argCount == 1) && vchecker.isCreatorVisible(factory)) {
-                    nonAnnotated.add(CreatorCandidate.construct(config, factory, null));
+                    ccState.addImplicitFactoryCandidate(CreatorCandidate.construct(config, factory, null));
                 }
                 continue;
             }
@@ -608,14 +608,23 @@ nonAnnotatedParamIndex, ctor);
                         ctxt.getConfig().getConstructorDetector());
                 break;
             }
-            ++explCount;
+            ccState.increaseExplicitFactoryCount();
         }
-        // And only if and when those handled, consider potentially visible ones
-        if (explCount > 0) { // TODO: split method into two since we could have expl factories
-            return;
-        }
+    }
+
+    protected void _addImplicitFactoryCreators(DeserializationContext ctxt,
+            CreatorCollectionState ccState, List<CreatorCandidate> factoryCandidates)
+        throws JsonMappingException
+    {
+        final DeserializationConfig config = ctxt.getConfig();
+        final BeanDescription beanDesc = ccState.beanDesc;
+        final CreatorCollector creators = ccState.creators;
+        final AnnotationIntrospector intr = ccState.annotationIntrospector();
+        final VisibilityChecker vchecker = ccState.vchecker;
+        final Map<AnnotatedWithParams, BeanPropertyDefinition[]> creatorParams = ccState.creatorParams;
+
         // And then implicitly found
-        for (CreatorCandidate candidate : nonAnnotated) {
+        for (CreatorCandidate candidate : factoryCandidates) {
             final int argCount = candidate.paramCount();
             AnnotatedWithParams factory = candidate.creator();
             final BeanPropertyDefinition[] propDefs = creatorParams.get(factory);
@@ -2328,6 +2337,9 @@ factory.toString()));
         public final CreatorCollector creators;
         public final Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams;
 
+        private List<CreatorCandidate> _implicitFactoryCandidates;
+        private int _explicitFactoryCount;
+
         public CreatorCollectionState(DeserializationContext ctxt, BeanDescription bd,
                 VisibilityChecker vc,
                 CreatorCollector cc,
@@ -2342,6 +2354,29 @@ factory.toString()));
 
         public AnnotationIntrospector annotationIntrospector() {
             return context.getAnnotationIntrospector();
+        }
+
+        public void addImplicitFactoryCandidate(CreatorCandidate cc) {
+            if (_implicitFactoryCandidates == null) {
+                _implicitFactoryCandidates = new LinkedList<>();
+            }
+            _implicitFactoryCandidates.add(cc);
+        }
+
+        public boolean hasImplicitFactoryCandidates() {
+            return _implicitFactoryCandidates != null;
+        }
+
+        public List<CreatorCandidate> implicitFactoryCandidates() {
+            return _implicitFactoryCandidates;
+        }
+
+        public void increaseExplicitFactoryCount() {
+            ++_explicitFactoryCount;
+        }
+
+        public boolean hasExplicitFactories() {
+            return _explicitFactoryCount > 0;
         }
     }
 }

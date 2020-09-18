@@ -814,6 +814,56 @@ public abstract class StdDeserializer<T>
         }
     }
 
+    /**
+     * @since 2.12
+     */
+    protected final Long _parseLong(JsonParser p, DeserializationContext ctxt,
+            Class<?> targetType)
+        throws IOException
+    {
+        String text;
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_STRING:
+            text = p.getText();
+            break;
+        case JsonTokenId.ID_NUMBER_FLOAT:
+            final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, targetType);
+            if (act == CoercionAction.AsNull) {
+                return (Long) getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (Long) getEmptyValue(ctxt);
+            }
+            return p.getValueAsLong();
+        case JsonTokenId.ID_NULL: // null fine for non-primitive
+            return (Long) getNullValue(ctxt);
+        case JsonTokenId.ID_NUMBER_INT:
+            return p.getLongValue();
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        case JsonTokenId.ID_START_OBJECT:
+            text = ctxt.extractScalarFromObject(p, this, targetType);
+            break;
+        case JsonTokenId.ID_START_ARRAY:
+            return (Long) _deserializeFromArray(p, ctxt);
+        default:
+            return (Long) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+
+        final CoercionAction act = _checkFromStringCoercion(ctxt, text);
+        if (act == CoercionAction.AsNull) {
+            return (Long) getNullValue(ctxt);
+        }
+        if (act == CoercionAction.AsEmpty) {
+            return (Long) getEmptyValue(ctxt);
+        }
+        text = text.trim();
+        if (_checkTextualNull(ctxt, text)) {
+            return (Long) getNullValue(ctxt);
+        }
+        // let's allow Strings to be converted too
+        return _parseLongPrimitive(ctxt, text);
+    }
+
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {

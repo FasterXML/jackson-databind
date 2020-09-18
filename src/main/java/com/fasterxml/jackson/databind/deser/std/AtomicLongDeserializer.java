@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -10,19 +10,19 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
 // @since 2.12
-public class AtomicIntegerDeserializer extends StdScalarDeserializer<AtomicInteger>
+public class AtomicLongDeserializer extends StdScalarDeserializer<AtomicLong>
 {
-    public AtomicIntegerDeserializer() { super(AtomicInteger.class); }
+    public AtomicLongDeserializer() { super(AtomicLong.class); }
 
     @Override
-    public AtomicInteger deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public AtomicLong deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         if (p.isExpectedNumberIntToken()) {
-            return new AtomicInteger(p.getIntValue());
+            return new AtomicLong(p.getLongValue());
         }
         // 12-Jun-2020, tatu: May look convoluted, but need to work correctly with
         //   CoercionConfig
-        Integer I = _parseInteger(p, ctxt, AtomicInteger.class);
-        return (I == null) ? null : new AtomicInteger(I.intValue());
+        Long L = _parseLong(p, ctxt, AtomicLong.class);
+        return (L == null) ? null : new AtomicLong(L.intValue());
     }
 
     @Override
@@ -30,6 +30,6 @@ public class AtomicIntegerDeserializer extends StdScalarDeserializer<AtomicInteg
 
     @Override // @since 2.12
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
-        return new AtomicInteger();
+        return new AtomicLong();
     }
 }

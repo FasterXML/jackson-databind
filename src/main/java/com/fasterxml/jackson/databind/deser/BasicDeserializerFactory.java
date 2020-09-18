@@ -8,8 +8,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JacksonInject.Value;
-import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -441,7 +439,7 @@ index, owner, defs[index], propDef);
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
-            if (Mode.DISABLED == creatorMode) {
+            if (JsonCreator.Mode.DISABLED == creatorMode) {
                 continue;
             }
             if (creatorMode == null) {
@@ -645,7 +643,7 @@ nonAnnotatedParamIndex, ctor);
                 }
                 continue;
             }
-            if (creatorMode == Mode.DISABLED) {
+            if (creatorMode == JsonCreator.Mode.DISABLED) {
                 continue;
             }
             

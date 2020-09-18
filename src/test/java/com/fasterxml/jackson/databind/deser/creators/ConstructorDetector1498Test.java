@@ -87,18 +87,12 @@ public class ConstructorDetector1498Test extends BaseMapTest
     /**********************************************************************
      */
 
-    /*
     public void test1ArgDefaultsToDelegatingNoAnnotation() throws Exception
     {
-        // No annotation, fail
-        try {
-            MAPPER_DELEGATING.readValue(" 2812 ", SingleArgNotAnnotated.class);
-            fail("Should not pass");
-        } catch (Exception e) {
-            verifyException(e, "foobar");
-        }
+        // No annotation, should be fine?
+        SingleArgNotAnnotated value = MAPPER_DELEGATING.readValue("1972", SingleArgNotAnnotated.class);
+        assertEquals(1972, value.v);
     }
-    */
 
     public void test1ArgDefaultsToDelegatingNoMode() throws Exception
     {
@@ -127,6 +121,8 @@ public class ConstructorDetector1498Test extends BaseMapTest
         assertEquals(13117, v2.v);
     }
 
+    // 15-Sep-2020, tatu: Tricky semantics... should this require turning
+    //    off of auto-detection?
     /*
     public void test1ArgFailsNoAnnotation() throws Exception
     {
@@ -134,7 +130,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
         try {
             MAPPER_EXPLICIT.readValue(" 2812 ", SingleArgNotAnnotated.class);
             fail("Should not pass");
-        } catch (Exception e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "foobar");
         }
     }

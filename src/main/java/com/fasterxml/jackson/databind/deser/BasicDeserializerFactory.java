@@ -8,6 +8,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JacksonInject.Value;
 import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -475,26 +476,37 @@ index, owner, defs[index], propDef);
             CreatorCollectionState ccState, List<CreatorCandidate> ctorCandidates)
                     throws JsonMappingException
     {
+        final DeserializationConfig config = ctxt.getConfig();
         final BeanDescription beanDesc = ccState.beanDesc;
         final CreatorCollector creators = ccState.creators;
         final AnnotationIntrospector intr = ccState.annotationIntrospector();
         final VisibilityChecker<?> vchecker = ccState.vchecker;
         List<AnnotatedWithParams> implicitCtors = null;
+        final boolean preferPropsBased = config.getConstructorDetector().singleArgCreatorDefaultsToProperties();
 
         for (CreatorCandidate candidate : ctorCandidates) {
             final int argCount = candidate.paramCount();
             final AnnotatedWithParams ctor = candidate.creator();
-
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
-                BeanPropertyDefinition propDef = candidate.propertyDef(0);
-                boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, propDef);
+                final BeanPropertyDefinition propDef = candidate.propertyDef(0);
+                final boolean useProps = preferPropsBased || _checkIfCreatorPropertyBased(intr, ctor, propDef);
 
                 if (useProps) {
                     SettableBeanProperty[] properties = new SettableBeanProperty[1];
+                    final JacksonInject.Value injection = candidate.injection(0);
+
+                    // 18-Sep-2020, tatu: [databind#1498] looks like implicit name not linked
+                    //    unless annotation found, so try again from here
                     PropertyName name = candidate.paramName(0);
+                    if (name == null) {
+                        name = candidate.findImplicitParamName(0);
+                        if ((name == null) && (injection == null)) {
+                            continue;
+                        }
+                    }
                     properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0,
-                            candidate.parameter(0), candidate.injection(0));
+                            candidate.parameter(0), injection);
                     creators.addPropertyCreator(ctor, false, properties);
                 } else {
                     /*boolean added = */ _handleSingleArgumentCreator(creators,

@@ -1015,9 +1015,9 @@ candidate.creator());
             BeanDescription beanDesc, AnnotatedParameter param)
         throws JsonMappingException
     {
-        ctxt.reportBadDefinition(beanDesc.getType(), String.format(
-                "Cannot define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
-                param.getIndex()));
+        ctxt.reportBadTypeDefinition(beanDesc,
+"Cannot define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
+                param.getIndex());
     }
 
     /**

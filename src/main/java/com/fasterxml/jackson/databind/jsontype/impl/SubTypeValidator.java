@@ -143,8 +143,9 @@ public class SubTypeValidator
         // [databind#2814]: anteros-dbcp
         s.add("br.com.anteros.dbcp.AnterosDBCPDataSource");
 
-        // [databind#2642]: javax.swing (jdk)
+        // [databind#2642][databind#2854]: javax.swing (jdk)
         s.add("javax.swing.JEditorPane");
+        s.add("javax.swing.JTextPane");
 
         // [databind#2648], [databind#2653]: shiro-core
         s.add("org.apache.shiro.realm.jndi.JndiRealmFactory");

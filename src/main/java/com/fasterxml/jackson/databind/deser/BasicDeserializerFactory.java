@@ -371,9 +371,41 @@ index, owner, defs[index], propDef);
     }
 
     /*
-    /**********************************************************
-    /* Creator introspection
-    /**********************************************************
+    /**********************************************************************
+    /* Creator introspection: Records (Jackson 2.12+, Java 14+)
+    /**********************************************************************
+     */
+
+    /**
+     * Helper method called when a {@code java.lang.Record} definition's "canonical"
+     * constructor is to be used: if so, we have implicit names to consider.
+     *
+     * @since 2.12
+     */
+    protected void _addRecordConstructor(DeserializationContext ctxt, CreatorCollectionState ccState,
+            AnnotatedConstructor canonical, List<String> implicitNames)
+                    throws JsonMappingException
+    {
+        final int argCount = canonical.getParameterCount();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+
+        for (int i = 0; i < argCount; ++i) {
+            final AnnotatedParameter param = canonical.getParameter(i);
+            JacksonInject.Value injectable = intr.findInjectableValue(param);
+            PropertyName name = intr.findNameForDeserialization(param);
+            if (name == null || name.isEmpty()) {
+                name = PropertyName.construct(implicitNames.get(i));
+            }
+            properties[i] = constructCreatorProperty(ctxt, ccState.beanDesc, name, i, param, injectable);
+        }
+        ccState.creators.addPropertyCreator(canonical, false, properties);
+    }
+
+    /*
+    /**********************************************************************
+    /* Creator introspection: constructors
+    /**********************************************************************
      */
 
     protected void _addConstructorCreators(DeserializationContext ctxt,
@@ -556,32 +588,6 @@ nonAnnotatedParamIndex, ctor);
             _checkImplicitlyNamedConstructors(ctxt, beanDesc, vchecker, intr,
                     creators, implicitCtors);
         }
-    }
-
-    /**
-     * Helper method called when a {@code java.lang.Record} definition's "canonical"
-     * constructor is to be used: if so, we have implicit names to consider.
-     *
-     * @since 2.12
-     */
-    protected void _addRecordConstructor(DeserializationContext ctxt, CreatorCollectionState ccState,
-            AnnotatedConstructor canonical, List<String> implicitNames)
-                    throws JsonMappingException
-    {
-        final int argCount = canonical.getParameterCount();
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
-
-        for (int i = 0; i < argCount; ++i) {
-            final AnnotatedParameter param = canonical.getParameter(i);
-            JacksonInject.Value injectable = intr.findInjectableValue(param);
-            PropertyName name = intr.findNameForDeserialization(param);
-            if (name == null || name.isEmpty()) {
-                name = PropertyName.construct(implicitNames.get(i));
-            }
-            properties[i] = constructCreatorProperty(ctxt, ccState.beanDesc, name, i, param, injectable);
-        }
-        ccState.creators.addPropertyCreator(canonical, false, properties);
     }
 
     /**
@@ -857,6 +863,12 @@ candidate.creator());
             }
         }
     }
+
+    /*
+    /**********************************************************************
+    /* Creator introspection: factory methods
+    /**********************************************************************
+     */
 
     protected void _addFactoryCreators
         (DeserializationContext ctxt, CreatorCollectionState ccState)

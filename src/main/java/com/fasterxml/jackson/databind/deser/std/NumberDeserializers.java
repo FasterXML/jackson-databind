@@ -570,53 +570,7 @@ public class NumberDeserializers
             if (_primitive) {
                 return _parseLongPrimitive(p, ctxt);
             }
-            return _parseLong(p, ctxt);
-        }
-
-        protected final Long _parseLong(JsonParser p, DeserializationContext ctxt)
-                throws IOException
-        {
-            String text;
-            switch (p.currentTokenId()) {
-            case JsonTokenId.ID_STRING:
-                text = p.getText();
-                break;
-            case JsonTokenId.ID_NUMBER_FLOAT:
-                final CoercionAction act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
-                if (act == CoercionAction.AsNull) {
-                    return (Long) getNullValue(ctxt);
-                }
-                if (act == CoercionAction.AsEmpty) {
-                    return (Long) getEmptyValue(ctxt);
-                }
-                return p.getValueAsLong();
-            case JsonTokenId.ID_NULL: // null fine for non-primitive
-                return (Long) getNullValue(ctxt);
-            case JsonTokenId.ID_NUMBER_INT:
-                return p.getLongValue();
-            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
-            case JsonTokenId.ID_START_OBJECT:
-                text = ctxt.extractScalarFromObject(p, this, _valueClass);
-                break;
-            case JsonTokenId.ID_START_ARRAY:
-                return (Long) _deserializeFromArray(p, ctxt);
-            default:
-                return (Long) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
-            }
-
-            final CoercionAction act = _checkFromStringCoercion(ctxt, text);
-            if (act == CoercionAction.AsNull) {
-                return (Long) getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return (Long) getEmptyValue(ctxt);
-            }
-            text = text.trim();
-            if (_checkTextualNull(ctxt, text)) {
-                return (Long) getNullValue(ctxt);
-            }
-            // let's allow Strings to be converted too
-            return _parseLongPrimitive(ctxt, text);
+            return _parseLong(p, ctxt, Long.class);
         }
     }
 

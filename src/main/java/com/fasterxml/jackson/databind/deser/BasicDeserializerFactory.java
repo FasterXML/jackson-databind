@@ -258,7 +258,11 @@ public abstract class BasicDeserializerFactory
                 // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
                 ;
             } else {
-                _addConstructorCreators(ctxt, ccState);
+                _addExplicitConstructorCreators(ctxt, ccState);
+                if (!ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()
+                        && ccState.hasImplicitConstructorCandidates()) {
+                    _addImplicitConstructorCreators(ctxt, ccState, ccState.implicitConstructorCandidates());
+                }
             }
         }
         return ccState.creators.constructValueInstantiator(ctxt);
@@ -369,7 +373,7 @@ index, owner, defs[index], propDef);
     /**********************************************************************
      */
 
-    protected void _addConstructorCreators(DeserializationContext ctxt,
+    protected void _addExplicitConstructorCreators(DeserializationContext ctxt,
             CreatorCollectionState ccState)
         throws JsonMappingException
     {
@@ -390,8 +394,6 @@ index, owner, defs[index], propDef);
             }
         }
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
-        List<CreatorCandidate> nonAnnotated = new LinkedList<>();
-        int explCount = 0;
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(config, ctor);
             if (Mode.DISABLED == creatorMode) {
@@ -403,7 +405,8 @@ index, owner, defs[index], propDef);
                         ? vchecker.isScalarConstructorVisible(ctor)
                         : vchecker.isCreatorVisible(ctor);
                 if (visible) {
-                    nonAnnotated.add(CreatorCandidate.construct(config, ctor, creatorParams.get(ctor)));
+                    ccState.addImplicitConstructorCandidate(CreatorCandidate.construct(config,
+                            ctor, creatorParams.get(ctor)));
                 }
                 continue;
             }
@@ -423,15 +426,22 @@ index, owner, defs[index], propDef);
                         ctxt.getConfig().getConstructorDetector());
                 break;
             }
-            ++explCount;
+            ccState.increaseExplicitConstructorCount();
         }
-        // And only if and when those handled, consider potentially visible ones
-        if (explCount > 0) { // TODO: split method into two since we could have expl factories
-            return;
-        }
+    }
+
+    protected void _addImplicitConstructorCreators(DeserializationContext ctxt,
+            CreatorCollectionState ccState, List<CreatorCandidate> ctorCandidates)
+                    throws JsonMappingException
+    {
+        final DeserializationConfig config = ctxt.getConfig();
+        final BeanDescription beanDesc = ccState.beanDesc;
+        final CreatorCollector creators = ccState.creators;
+        final AnnotationIntrospector intr = ccState.annotationIntrospector();
+        final VisibilityChecker vchecker = ccState.vchecker;
         List<AnnotatedWithParams> implicitCtors = null;
 
-        for (CreatorCandidate candidate : nonAnnotated) {
+        for (CreatorCandidate candidate : ctorCandidates) {
             final int argCount = candidate.paramCount();
             final AnnotatedWithParams ctor = candidate.creator();
             // some single-arg factory methods (String, number) are auto-detected
@@ -560,8 +570,8 @@ nonAnnotatedParamIndex, ctor);
     /**********************************************************************
      */
 
-    protected void _addExplicitFactoryCreators
-        (DeserializationContext ctxt, CreatorCollectionState ccState)
+    protected void _addExplicitFactoryCreators(DeserializationContext ctxt,
+            CreatorCollectionState ccState)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -2340,6 +2350,9 @@ factory.toString()));
         private List<CreatorCandidate> _implicitFactoryCandidates;
         private int _explicitFactoryCount;
 
+        private List<CreatorCandidate> _implicitConstructorCandidates;
+        private int _explicitConstructorCount;
+
         public CreatorCollectionState(DeserializationContext ctxt, BeanDescription bd,
                 VisibilityChecker vc,
                 CreatorCollector cc,
@@ -2356,11 +2369,21 @@ factory.toString()));
             return context.getAnnotationIntrospector();
         }
 
+        // // // Factory creator candidate info
+
         public void addImplicitFactoryCandidate(CreatorCandidate cc) {
             if (_implicitFactoryCandidates == null) {
                 _implicitFactoryCandidates = new LinkedList<>();
             }
             _implicitFactoryCandidates.add(cc);
+        }
+
+        public void increaseExplicitFactoryCount() {
+            ++_explicitFactoryCount;
+        }
+
+        public boolean hasExplicitFactories() {
+            return _explicitFactoryCount > 0;
         }
 
         public boolean hasImplicitFactoryCandidates() {
@@ -2371,12 +2394,29 @@ factory.toString()));
             return _implicitFactoryCandidates;
         }
 
-        public void increaseExplicitFactoryCount() {
-            ++_explicitFactoryCount;
+        // // // Constructor creator candidate info
+
+        public void addImplicitConstructorCandidate(CreatorCandidate cc) {
+            if (_implicitConstructorCandidates == null) {
+                _implicitConstructorCandidates = new LinkedList<>();
+            }
+            _implicitConstructorCandidates.add(cc);
         }
 
-        public boolean hasExplicitFactories() {
-            return _explicitFactoryCount > 0;
+        public void increaseExplicitConstructorCount() {
+            ++_explicitConstructorCount;
+        }
+
+        public boolean hasExplicitConstructors() {
+            return _explicitConstructorCount > 0;
+        }
+
+        public boolean hasImplicitConstructorCandidates() {
+            return _implicitConstructorCandidates != null;
+        }
+
+        public List<CreatorCandidate> implicitConstructorCandidates() {
+            return _implicitConstructorCandidates;
         }
     }
 }

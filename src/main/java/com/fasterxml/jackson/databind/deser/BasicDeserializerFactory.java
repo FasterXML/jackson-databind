@@ -234,9 +234,6 @@ public abstract class BasicDeserializerFactory
 
         // Start with explicitly annotated factory methods
         _addExplicitFactoryCreators(ctxt, ccState);
-        if (!ccState.hasExplicitFactories() && ccState.hasImplicitFactoryCandidates()) {
-            _addImplicitFactoryCreators(ctxt, ccState, ccState.implicitFactoryCandidates());
-        }
 
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
@@ -264,6 +261,11 @@ public abstract class BasicDeserializerFactory
                     _addImplicitConstructorCreators(ctxt, ccState, ccState.implicitConstructorCandidates());
                 }
             }
+        }
+        // and finally, implicitly found factory methods if nothing explicit found
+        if (!ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()
+                && ccState.hasImplicitFactoryCandidates()) {
+            _addImplicitFactoryCreators(ctxt, ccState, ccState.implicitFactoryCandidates());
         }
         return ccState.creators.constructValueInstantiator(ctxt);
     }

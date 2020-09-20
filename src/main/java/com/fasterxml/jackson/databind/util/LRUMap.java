@@ -17,11 +17,13 @@ import java.util.concurrent.ConcurrentHashMap;
  *<p>
  * And yes, there are efficient LRU implementations such as
  * <a href="https://code.google.com/p/concurrentlinkedhashmap/">concurrentlinkedhashmap</a>;
- * but at this point we really try to keep external deps to minimum. But perhaps
- * a shaded variant may be used one day.
+ * but at this point we really try to keep external deps to minimum.
+ * Plan from Jackson 2.12 is to focus more on pluggability as {@link LookupCache} and
+ * let users, frameworks, provide their own cache implementations.
  */
 public class LRUMap<K,V>
-    implements java.io.Serializable
+    implements LookupCache<K,V>, // since 2.12
+        java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -36,6 +38,7 @@ public class LRUMap<K,V>
         _maxEntries = maxEntries;
     }
 
+    @Override
     public V put(K key, V value) {
         if (_map.size() >= _maxEntries) {
             // double-locking, yes, but safe here; trying to avoid "clear storms"
@@ -51,6 +54,7 @@ public class LRUMap<K,V>
     /**
      * @since 2.5
      */
+    @Override
     public V putIfAbsent(K key, V value) {
         // not 100% optimal semantically, but better from correctness (never exceeds
         // defined maximum) and close enough all in all:
@@ -65,9 +69,13 @@ public class LRUMap<K,V>
     }
     
     // NOTE: key is of type Object only to retain binary backwards-compatibility
+    @Override
     public V get(Object key) {  return _map.get(key); }
 
+    @Override
     public void clear() { _map.clear(); }
+
+    @Override
     public int size() { return _map.size(); }
 
     /*

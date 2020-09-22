@@ -186,15 +186,15 @@ Project: jackson-databind
 #2404: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY setting ignored when
   creator properties are buffered
  (contributed by Joe B)
-#2410: Block one more gadget type (CVE-2019-14540)
+#2410: Block one more gadget type (HikariCP, CVE-2019-14540)
   (reported by iSafeBlue@github / blue@ixsec.org)
-#2420: Block one more gadget type (no CVE allocated yet)
+#2420: Block one more gadget type (cxf-jax-rs, no CVE allocated yet)
   (reported by crazylirui@gmail.com)
-#2449: Block one more gadget type (CVE-2019-14540)
+#2449: Block one more gadget type (HikariCP, CVE-2019-14439 / CVE-2019-16335)
   (reported by kingkk)
 #2460: Block one more gadget type (ehcache, CVE-2019-17267)
   (reported by Fei Lu)
-#2462: Block two more gadget types (commons-configuration)
+#2462: Block two more gadget types (commons-configuration/-2)
 #2469: Block one more gadget type (xalan2)
 
 2.9.9 (16-May-2019)

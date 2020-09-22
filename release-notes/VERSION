@@ -3,6 +3,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+Since last release
+
+- Bunch of CVE backports from 2.9 (via https://github.com/FasterXML/jackson-databind/pull/2858)
+  *  #2653 #2658 #2659 #2660 #2662 #2664 #2666 #2670 #2680 #2682 #2688 #2698
+     #2704 #2765 #2798 #2814 #2826 #2827 #2854
+
 2.8.11.6 (10-Mar-2020)
 
 #2631: Block one more gadget type (shaded-hikari-config, CVE-2020-9546)
@@ -15,14 +21,14 @@ Project: jackson-databind
 
 2.8.11.5 (10-Feb-2020)
 
-#2410: Block one more gadget type (CVE-2019-14540)
+#2410: Block one more gadget type (HikariCP, CVE-2019-14540)
   (reported by iSafeBlue@github / blue@ixsec.org)
-#2420: Block one more gadget type (no CVE allocated yet)
+#2420: Block one more gadget type (cxf-jax-rs, no CVE allocated yet)
   (reported by crazylirui@gmail.com)
-#2449: Block one more gadget type (cve CVE-2019-14540)
+#2449: Block one more gadget type (HikariCP, CVE-2019-14439 / CVE-2019-16335)
   (reported by kingkk)
 #2460: Block one more gadget type (ehcache, CVE-2019-17267)
-#2462: Block two more gadget types (commons-configuration)
+#2462: Block two more gadget types (commons-configuration/-2)
 #2469: Block one more gadget type (xalan2)
 #2478: Block two more gadget types (commons-dbcp, p6spy, CVE-2019-16942 / CVE-2019-16943)
 #2498: Block one more gadget type (log4j-extras/1.2, CVE-2019-17531)

@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+Since last release
+
+- Bunch of CVE backports from 2.9 (via https://github.com/FasterXML/jackson-databind/pull/2858)
+  *  #2653 #2658 #2659 #2660 #2662 #2664 #2666 #2670 #2680 #2682 #2688 #2698
+     #2704 #2765 #2798 #2814 #2826 #2827 #2854
+
 2.7.9.7 (10-Mar-2020)
 
 #2410: Block one more gadget type (HikariCP, CVE-2019-14540)

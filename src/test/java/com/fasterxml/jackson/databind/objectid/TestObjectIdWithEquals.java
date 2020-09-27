@@ -82,6 +82,7 @@ public class TestObjectIdWithEquals extends BaseMapTest
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
+                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .build();
 
         Foo foo = new Foo(1);
@@ -100,6 +101,7 @@ public class TestObjectIdWithEquals extends BaseMapTest
         foo.otherBars.add(bar2);
 
         String json = mapper.writeValueAsString(foo);
+        System.out.println( "-------- JSON --------- "+ json);
         assertEquals("{\"id\":1,\"bars\":[{\"id\":1},{\"id\":2}],\"otherBars\":[1,2]}", json);
 
         Foo foo2 = mapper.readValue(json, Foo.class);       

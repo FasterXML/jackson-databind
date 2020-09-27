@@ -257,6 +257,8 @@ public class ExistingPropertyTest extends BaseMapTest
         assertEquals(fruitWrapperSerialized, pinguoWrapperJson);
 
         String fruitListSerialized = MAPPER.writeValueAsString(fruitList);
+
+        System.out.println(fruitListSerialized);
         assertEquals(fruitListSerialized, fruitListJson);
     }
 

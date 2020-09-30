@@ -10,6 +10,8 @@ Project: jackson-databind
 #2821: Json serialization fails or a specific case that contains generics and
   static methods with generic parameters (2.11.1 -> 2.11.2 regression)
  (reported by Lari H)
+#2822: Using JsonValue and JsonFormat on one field does not work as expected
+ (reported by Nils-Christian E)
 #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
   parameter `PolymorphicTypeValidator`
  (reported by Daniel W)

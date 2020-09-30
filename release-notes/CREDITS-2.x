@@ -1145,12 +1145,15 @@ Daniel Hrabovcak (TheSpiritXIII@github)
   * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
   (2.11.2)
 
-Daniel Wu (DanielYWoo@github)
-  * Reported #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
-  (2.11.3)
-
 Lari Hotari (lhotari@github)
-
   * Reported #2821: Json serialization fails or a specific case that contains generics and
    static methods with generic parameters (2.11.1 -> 2.11.2 regression)
+  (2.11.3)
+
+Nils Christian Ehmke (nils-christian@github)
+  * Reported #2822: Using JsonValue and JsonFormat on one field does not work as expected
+  (2.11.3)
+
+Daniel Wu (DanielYWoo@github)
+  * Reported #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
   (2.11.3)

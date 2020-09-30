@@ -354,6 +354,11 @@ public abstract class BaseMapTest
         }
     }
 
+    // @since 2.11.3
+    protected static String a2q(String json) {
+        return json.replace("'", "\"");
+    }
+
     protected static String aposToQuotes(String json) {
         return json.replace("'", "\"");
     }

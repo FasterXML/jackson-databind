@@ -97,7 +97,7 @@ public class JsonValueSerializer
     private final static Class<Object> _notNullClass(Class<?> cls) {
         return (cls == null) ? Object.class : (Class<Object>) cls;
     }
-    
+
     public JsonValueSerializer withResolved(BeanProperty property,
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
@@ -125,9 +125,9 @@ public class JsonValueSerializer
     {
         JsonSerializer<?> ser = _valueSerializer;
         if (ser == null) {
-            /* Can only assign serializer statically if the declared type is final:
-             * if not, we don't really know the actual type until we get the instance.
-             */
+            // Can only assign serializer statically if the declared type is final:
+            // if not, we don't really know the actual type until we get the instance.
+
             // 10-Mar-2010, tatu: Except if static typing is to be used
             JavaType t = _accessor.getType();
             if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || t.isFinal()) {
@@ -145,6 +145,10 @@ public class JsonValueSerializer
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(t.getRawClass(), ser);
                 return withResolved(property, ser, forceTypeInformation);
             }
+            // [databind#2822]: better hold on to "property", regardless
+            if (property != _property) {
+                return withResolved(property, ser, _forceTypeInformation);
+            }
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
             ser = provider.handlePrimaryContextualization(ser, property);
@@ -152,7 +156,7 @@ public class JsonValueSerializer
         }
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Actual serialization
@@ -171,10 +175,10 @@ public class JsonValueSerializer
             JsonSerializer<Object> ser = _valueSerializer;
             if (ser == null) {
                 Class<?> c = value.getClass();
-                /* 10-Mar-2010, tatu: Ideally we would actually separate out type
-                 *   serializer from value serializer; but, alas, there's no access
-                 *   to serializer factory at this point... 
-                 */
+                // 10-Mar-2010, tatu: Ideally we would actually separate out type
+                //   serializer from value serializer; but, alas, there's no access
+                //   to serializer factory at this point...
+
                 // let's cache it, may be needed soon again
                 ser = prov.findTypedValueSerializer(c, true, _property);
             }

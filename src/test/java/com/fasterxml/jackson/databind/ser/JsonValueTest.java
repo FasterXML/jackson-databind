@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -192,6 +195,29 @@ public class JsonValueTest
             gen.writeNumber(42);
         }
     }
+
+    // [databind#2822]
+    @JsonPropertyOrder({ "description", "b" })
+    static class A2822 {
+        public final String description;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        public final B2822 b;
+
+        public A2822(final String description, final B2822 b ) {
+            this.description = description;
+            this.b = b;
+        }
+    }
+
+    static class B2822 {
+        @JsonValue
+        private final BigDecimal value;
+
+        public B2822(final BigDecimal value ) {
+            this.value = value;
+        }
+    }
     
     /*
     /*********************************************************
@@ -199,7 +225,7 @@ public class JsonValueTest
     /*********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testSimpleMethodJsonValue() throws Exception
     {
@@ -294,5 +320,13 @@ public class JsonValueTest
             .addSerializer(Bean838.class, new Bean838Serializer())
             );
         assertEquals("42", mapper.writeValueAsString(INPUT));
+    }
+
+    // [databind#2822]
+    public void testFormatWithJsonValue() throws Exception
+    {
+        final String json = MAPPER.writeValueAsString(new A2822("desc",
+                new B2822(BigDecimal.ONE)));
+        assertEquals(a2q("{'description':'desc','b':'1'}"), json);
     }
 }

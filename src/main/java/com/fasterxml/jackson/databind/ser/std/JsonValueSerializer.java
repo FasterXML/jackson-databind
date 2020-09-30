@@ -135,6 +135,10 @@ public class JsonValueSerializer
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
                 return withResolved(property, ser, forceTypeInformation);
             }
+            // [databind#2822]: better hold on to "property", regardless
+            if (property != _property) {
+                return withResolved(property, ser, _forceTypeInformation);
+            }
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
             ser = provider.handlePrimaryContextualization(ser, property);

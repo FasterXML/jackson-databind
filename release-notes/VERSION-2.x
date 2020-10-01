@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.11.3 (not yet released)
 
+#2795: Cannot detect creator arguments of mixins for JDK types
+ (reported by Marcos P)
 #2815: Add `JsonFormat.Shape` awareness for UUID serialization (`UUIDSerializer`)
 #2821: Json serialization fails or a specific case that contains generics and
   static methods with generic parameters (2.11.1 -> 2.11.2 regression)

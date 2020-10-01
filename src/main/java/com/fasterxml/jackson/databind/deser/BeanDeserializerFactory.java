@@ -207,8 +207,14 @@ public class BeanDeserializerFactory
         // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
         //   (to let users force 'serialize-as-POJO'? Or not?
         final String errorMsg = BeanUtil.checkUnsupportedType(type);
-        return (errorMsg == null) ? null
-                : new UnsupportedTypeDeserializer(type, errorMsg);
+        if (errorMsg != null) {
+            // 30-Sep-2020, tatu: [databind#2867] Avoid checks if there is a mix-in
+            //    which likely providers a handler...
+            if (ctxt.getConfig().findMixInClassFor(type.getRawClass()) == null) {
+                return new UnsupportedTypeDeserializer(type, errorMsg);
+            }
+        }
+        return null;
     }
 
     protected JavaType materializeAbstractType(DeserializationContext ctxt,

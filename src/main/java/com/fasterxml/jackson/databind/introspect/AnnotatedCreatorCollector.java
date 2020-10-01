@@ -33,22 +33,23 @@ final class AnnotatedCreatorCollector
     private AnnotatedConstructor _defaultConstructor;
 
     AnnotatedCreatorCollector(MapperConfig<?> config, JavaType type,
-            TypeResolutionContext tc)
+            TypeResolutionContext tc, boolean collectAnnotations)
     {
         super(config);
         _primaryType = type;
         _typeContext = tc;
-        _collectAnnotations = (_intr != null) && !ClassUtil.isJDKClass(type.getRawClass());
-
-
+        _collectAnnotations = collectAnnotations;
     }
 
     public static Creators collectCreators(MapperConfig<?> config,
             TypeResolutionContext tc, 
             JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
     {
+        // 30-Sep-2020, tatu: [databind#2795] Even if annotations not otherwise
+        //  requested (for JDK collections), force change if mix-in in use
+        collectAnnotations |= (primaryMixIn != null);
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorCollector(config, type, tc)
+        return new AnnotatedCreatorCollector(config, type, tc, collectAnnotations)
                 .collect(primaryMixIn);
     }
 

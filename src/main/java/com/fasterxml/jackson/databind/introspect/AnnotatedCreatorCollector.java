@@ -65,11 +65,12 @@ final class AnnotatedCreatorCollector
             TypeFactory typeFactory, TypeResolutionContext tc,
             JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
     {
-        final boolean checkClassAnnotations = (intr != null)
-                && !ClassUtil.isJDKClass(type.getRawClass());
+        // 30-Sep-2020, tatu: [databind#2795] Even if annotations not otherwise
+        //  requested (for JDK collections), force change if mix-in in use
+        collectAnnotations |= (primaryMixIn != null);
 
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorCollector(intr, typeFactory, tc, checkClassAnnotations)
+        return new AnnotatedCreatorCollector(intr, typeFactory, tc, collectAnnotations)
                 .collect(type, primaryMixIn);
     }
 

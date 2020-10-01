@@ -959,6 +959,8 @@ Vladimir Tsanev (tsachev@github)
 Marcos Passos (marcospassos@github(
   * Contributed #2432: Add support for module bundles
    (2.10.0)
+  * Reported #2795: Cannot detect creator arguments of mixins for JDK types
+   (2.11.3)
 
 David Becker (dsbecker@github)
   * Suggested #2433: Improve `NullNode.equals()`

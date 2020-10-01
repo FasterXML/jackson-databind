@@ -734,7 +734,13 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
         // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
         //   (to let users force 'serialize-as-POJO'?
         final String errorMsg = BeanUtil.checkUnsupportedType(type);
-        return (errorMsg == null) ? null
-                : new UnsupportedTypeSerializer(type, errorMsg);
+        if (errorMsg != null) {
+            // 30-Sep-2020, tatu: [databind#2867] Avoid checks if there is a mix-in
+            //    which likely providers a handler...
+            if (ctxt.getConfig().findMixInClassFor(type.getRawClass()) == null) {
+                return new UnsupportedTypeSerializer(type, errorMsg);
+            }
+        }
+        return null;
     }
 }

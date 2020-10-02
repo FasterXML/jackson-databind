@@ -69,7 +69,7 @@ Project: jackson-databind
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 
-2.11.3 (not yet released)
+2.11.3 (02-Oct-2020)
 
 #2795: Cannot detect creator arguments of mixins for JDK types
  (reported by Marcos P)

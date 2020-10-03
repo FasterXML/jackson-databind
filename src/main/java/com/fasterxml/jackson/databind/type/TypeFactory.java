@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LRUMap;
+import com.fasterxml.jackson.databind.util.LookupCache;
 
 /**
  * Class used for creating concrete {@link JavaType} instances,
@@ -124,7 +125,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
      */
-    protected final LRUMap<Object,JavaType> _typeCache;
+    protected final LookupCache<Object,JavaType> _typeCache;
 
     /*
     /**********************************************************
@@ -159,6 +160,13 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * @since 2.8
      */
     protected TypeFactory(LRUMap<Object,JavaType> typeCache) {
+        this((LookupCache<Object,JavaType>) typeCache);
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
         if (typeCache == null) {
             typeCache = new LRUMap<Object,JavaType>(16, 200);
         }
@@ -170,6 +178,15 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     protected TypeFactory(LRUMap<Object,JavaType> typeCache, TypeParser p,
             TypeModifier[] mods, ClassLoader classLoader)
+    {
+        this((LookupCache<Object,JavaType>) typeCache, p, mods, classLoader);
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected TypeFactory(LookupCache<Object,JavaType> typeCache, TypeParser p,
+                          TypeModifier[] mods, ClassLoader classLoader)
     {
         if (typeCache == null) {
             typeCache = new LRUMap<Object,JavaType>(16, 200);
@@ -188,7 +205,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     public TypeFactory withModifier(TypeModifier mod) 
     {
-        LRUMap<Object,JavaType> typeCache = _typeCache;
+        LookupCache<Object,JavaType> typeCache = _typeCache;
         TypeModifier[] mods;
         if (mod == null) { // mostly for unit tests
             mods = null;
@@ -223,6 +240,17 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * @since 2.8
      */
     public TypeFactory withCache(LRUMap<Object,JavaType> cache)  {
+        return new TypeFactory(cache, _parser, _modifiers, _classLoader);
+    }
+
+    /**
+     * Mutant factory method that will construct new {@link TypeFactory} with
+     * identical settings except for different cache; most likely one with
+     * bigger maximum size.
+     *
+     * @since 2.12
+     */
+    public TypeFactory withCache(LookupCache<Object,JavaType> cache)  {
         return new TypeFactory(cache, _parser, _modifiers, _classLoader);
     }
 

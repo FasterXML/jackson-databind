@@ -49,6 +49,15 @@ public class ContainerTypesTest extends BaseMapTest
         assertEquals(HashMap.class, t.getContentType().getRawClass());
     }
 
+    public void testCustomLookupCache() throws Exception
+    {
+        TypeFactory tf = MAPPER.getTypeFactory().withCache(new ConcurrentMapLookupCache<Object,JavaType>());
+        JavaType t = tf.constructParametricType(List.class, HashMap.class);
+        assertEquals(CollectionType.class, t.getClass());
+        assertEquals(List.class, t.getRawClass());
+        assertEquals(HashMap.class, t.getContentType().getRawClass());
+    }
+
     public void testExplicitMapType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()

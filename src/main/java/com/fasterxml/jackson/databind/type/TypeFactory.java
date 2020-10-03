@@ -159,6 +159,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * @since 2.8
      */
+    @Deprecated
     protected TypeFactory(LRUMap<Object,JavaType> typeCache) {
         this((LookupCache<Object,JavaType>) typeCache);
     }
@@ -168,7 +169,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
         if (typeCache == null) {
-            typeCache = new LRUMap<Object,JavaType>(16, 200);
+            typeCache = new LRUMap<>(16, 200);
         }
         _typeCache = typeCache;
         _parser = new TypeParser(this);
@@ -176,6 +177,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         _classLoader = null;
     }
 
+    @Deprecated
     protected TypeFactory(LRUMap<Object,JavaType> typeCache, TypeParser p,
             TypeModifier[] mods, ClassLoader classLoader)
     {
@@ -189,7 +191,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                           TypeModifier[] mods, ClassLoader classLoader)
     {
         if (typeCache == null) {
-            typeCache = new LRUMap<Object,JavaType>(16, 200);
+            typeCache = new LRUMap<>(16, 200);
         }
         _typeCache = typeCache;
         // As per [databind#894] must ensure we have back-linkage from TypeFactory:
@@ -239,6 +241,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *
      * @since 2.8
      */
+    @Deprecated
     public TypeFactory withCache(LRUMap<Object,JavaType> cache)  {
         return new TypeFactory(cache, _parser, _modifiers, _classLoader);
     }

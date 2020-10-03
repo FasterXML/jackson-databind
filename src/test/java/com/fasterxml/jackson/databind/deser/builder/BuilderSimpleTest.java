@@ -84,7 +84,7 @@ public class BuilderSimpleTest extends BaseMapTest
     }
 
     // // Then Builder that is itself immutable
-    
+
     @JsonDeserialize(builder=BuildImmutable.class)
     static class ValueImmutable
     {

@@ -8,20 +8,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
 
-    private final int _initialEntries, _maxEntries;
+    private final int _initialEntries;
     private final transient ConcurrentHashMap<K,V> _map;
 
-    public UnlimitedLookupCache(int initialEntries, int maxEntries)
+    public UnlimitedLookupCache(int initialEntries)
     {
         _initialEntries = initialEntries;
-        _maxEntries = maxEntries;
         // We'll use concurrency level of 4, seems reasonable
         _map = new ConcurrentHashMap<K,V>(initialEntries, 0.8f, 4);
     }
 
     @Override
     public LookupCache<K, V> snapshot() {
-        return new UnlimitedLookupCache<K,V>(_initialEntries, _maxEntries);
+        return new UnlimitedLookupCache<K,V>(_initialEntries);
     }
 
     /*

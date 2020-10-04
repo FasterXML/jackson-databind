@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNull;
 public class UnlimitedLookupCacheTest {
     @Test
     public void testCache() {
-        UnlimitedLookupCache<Long, String> cache = new UnlimitedLookupCache<>(4, 10);
+        UnlimitedLookupCache<Long, String> cache = new UnlimitedLookupCache<>(4);
         assertNull(cache.get(1000L));
         assertNull(cache.put(1000L, "Thousand"));
         assertEquals("Thousand", cache.get(1000L));
@@ -26,7 +26,7 @@ public class UnlimitedLookupCacheTest {
 
     @Test
     public void testCompatibility() throws JsonProcessingException {
-        UnlimitedLookupCache<Object, JavaType> cache = new UnlimitedLookupCache<>(4, 10);
+        UnlimitedLookupCache<Object, JavaType> cache = new UnlimitedLookupCache<>(4);
         TypeFactory tf = TypeFactory.defaultInstance().withCache(cache);
         assertNotNull(tf); // just to get rid of warning
         

@@ -153,13 +153,14 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
 
     private TypeFactory() {
-        this(null);
+        this((LookupCache<Object,JavaType>) null);
     }
 
     /**
      * @since 2.8
+     * @deprecated Since 2.12
      */
-    @Deprecated
+    @Deprecated // since 2.12
     protected TypeFactory(LRUMap<Object,JavaType> typeCache) {
         this((LookupCache<Object,JavaType>) typeCache);
     }
@@ -177,7 +178,10 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         _classLoader = null;
     }
 
-    @Deprecated
+    /**
+     * @deprecated Since 2.12
+     */
+    @Deprecated // since 2.12
     protected TypeFactory(LRUMap<Object,JavaType> typeCache, TypeParser p,
             TypeModifier[] mods, ClassLoader classLoader)
     {
@@ -240,8 +244,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * bigger maximum size.
      *
      * @since 2.8
+     * @deprecated Since 2.12
      */
-    @Deprecated
+    @Deprecated // since 2.12
     public TypeFactory withCache(LRUMap<Object,JavaType> cache)  {
         return new TypeFactory(cache, _parser, _modifiers, _classLoader);
     }
@@ -271,7 +276,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * if you know there is a problem with retention of type definitions;
      * the most likely (and currently only known) problem is retention
      * of {@link Class} instances via {@link JavaType} reference.
-     * 
+     *
      * @since 2.4.1
      */
     public void clearCache() {

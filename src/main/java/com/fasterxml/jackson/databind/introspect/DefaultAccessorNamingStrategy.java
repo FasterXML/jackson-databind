@@ -70,12 +70,12 @@ public class DefaultAccessorNamingStrategy
             // coverage without false matches; but for now let's assume there is
             // no reason to use any such getter from CGLib.
             if ("getCallbacks".equals(name)) {
-                if (isCglibGetCallbacks(am)) {
+                if (_isCglibGetCallbacks(am)) {
                     return null;
                 }
             } else if ("getMetaClass".equals(name)) {
                 // 30-Apr-2009, tatu: Need to suppress serialization of a cyclic reference
-                if (isGroovyMetaClassGetter(am)) {
+                if (_isGroovyMetaClassGetter(am)) {
                     return null;
                 }
             }
@@ -173,7 +173,7 @@ public class DefaultAccessorNamingStrategy
 
     /*
     /**********************************************************************
-    /* Legacy methods copied in 2.12 from "BeanUtil" -- are these still needed?
+    /* Legacy methods moved in 2.12 from "BeanUtil" -- are these still needed?
     /**********************************************************************
      */
 
@@ -182,7 +182,7 @@ public class DefaultAccessorNamingStrategy
     // At this point caller has detected a potential getter method with
     // name "getCallbacks" and we need to determine if it is indeed injected
     // by Cglib. We do this by verifying that the  result type is "net.sf.cglib.proxy.Callback[]"
-    private static boolean isCglibGetCallbacks(AnnotatedMethod am)
+    protected boolean _isCglibGetCallbacks(AnnotatedMethod am)
     {
         Class<?> rt = am.getRawType();
         // Ok, first: must return an array type
@@ -206,7 +206,7 @@ public class DefaultAccessorNamingStrategy
     }
 
     // Another helper method to deal with Groovy's problematic metadata accessors
-    private static boolean isGroovyMetaClassGetter(AnnotatedMethod am) {
+    protected boolean _isGroovyMetaClassGetter(AnnotatedMethod am) {
         return am.getRawType().getName().startsWith("groovy.lang");
     }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -29,6 +30,7 @@ public class ExistingPropertyTest extends BaseMapTest
     }
 
     @JsonTypeName("apple")
+    @JsonPropertyOrder({ "name", "seedCount", "type" })
     static class Apple extends Fruit
     {
         public int seedCount;
@@ -43,6 +45,7 @@ public class ExistingPropertyTest extends BaseMapTest
     }
 
     @JsonTypeName("orange")
+    @JsonPropertyOrder({ "name", "color", "type" })
     static class Orange extends Fruit
     {
         public String color;

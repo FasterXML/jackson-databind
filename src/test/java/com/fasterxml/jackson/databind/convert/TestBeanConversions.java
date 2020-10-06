@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 /**
  * Tests for various conversions, especially ones using
  * {@link ObjectMapper#convertValue(Object, Class)}.
@@ -79,6 +81,7 @@ public class TestBeanConversions
        }
     }
 
+    @JsonPropertyOrder({ "a", "b" })
     public static class DummyBean {
        public final int a, b;
        public DummyBean(int v1, int v2) {

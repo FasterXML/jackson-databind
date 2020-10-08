@@ -143,7 +143,33 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(dc.shouldSortPropertiesAlphabetically());
     }
 
-    public void testDeserializationContextCache() throws Exception   
+    // Test to ensure that we can check forced property ordering defaults...
+    public void testConfigForForcedPropertySorting() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+
+        // sort-alphabetically is disabled by default:
+        assertFalse(m.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        SerializationConfig sc = m.serializationConfig();
+        assertFalse(sc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        assertFalse(sc.shouldPreservePropertiesOrdering());
+        DeserializationConfig dc = m.deserializationConfig();
+        assertFalse(dc.shouldPreservePropertiesOrdering());
+
+        // but when enabled, should be visible:
+        m = jsonMapperBuilder()
+                .enable(MapperFeature.STRICT_PROPERTIES_ORDERING)
+                .build();
+        sc = m.serializationConfig();
+        assertTrue(sc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        assertTrue(sc.shouldPreservePropertiesOrdering());
+        dc = m.deserializationConfig();
+        // and not just via SerializationConfig, but also via DeserializationConfig
+        assertTrue(dc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        assertTrue(dc.shouldPreservePropertiesOrdering());
+    }
+
+    public void testDeserializationContextCache() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         final String JSON = "{ \"x\" : 3 }";

@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import static com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
+
 @SuppressWarnings("serial")
 public class EnumDeserializationTest
     extends BaseMapTest
@@ -599,6 +601,24 @@ public class EnumDeserializationTest
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(quote("NON_NULL"));
         assertEquals(Enum2309.NON_NULL, value);
+    }
+
+    public void testEnumValuesCaseSensitivity() throws Exception {
+        try {
+            MAPPER.readValue("{\"map\":{\"JACkson\":\"val\"}}", ClassWithEnumMapKey.class);
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize Map key of type `com.fasterxml.jackson.databind.deser.jdk.EnumDeserializationTest$TestEnum");
+        }
+
+    }
+
+    public void testAllowCaseInsensitiveEnumValues() throws Exception {
+        ObjectMapper m = jsonMapperBuilder()
+                .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .build();
+        ClassWithEnumMapKey result = m.readerFor(ClassWithEnumMapKey.class)
+                .readValue("{\"map\":{\"JACkson\":\"val\"}}");
+        assertEquals(1, result.map.size());
     }
 
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 // for [databind#2800]
+@SuppressWarnings("serial")
 public class AccessorNamingStrategyTest extends BaseMapTest
 {
     @JsonPropertyOrder({ "X", "x", "Z", "z" }) // since our naming strategy casings vary
@@ -71,7 +72,6 @@ public class AccessorNamingStrategyTest extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class AccNaming2800Provider extends DefaultAccessorNamingStrategy.Provider
     {
         @Override
@@ -80,7 +80,6 @@ public class AccessorNamingStrategyTest extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class BaseNamingProvider extends DefaultAccessorNamingStrategy.Provider
     {
         @Override

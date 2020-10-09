@@ -245,35 +245,140 @@ public class DefaultAccessorNamingStrategy
         protected final String _getterPrefix;
         protected final String _isGetterPrefix;
 
+        protected final boolean _allowLowerCaseFirstChar;
+        protected final boolean _allowNonLetterFirstChar;
+
         public Provider() {
             this("set", JsonPOJOBuilder.DEFAULT_WITH_PREFIX,
-                    "get", "is");
+                    "get", "is",
+                    true, true);
         }
 
-        public Provider(String setterPrefix, String withPrefix,
-                String getterPrefix, String isGetterPrefix) {
+        protected Provider(Provider p,
+                String setterPrefix, String withPrefix,
+                String getterPrefix, String isGetterPrefix)
+        {
+            this(setterPrefix, withPrefix, getterPrefix, isGetterPrefix,
+                    p._allowLowerCaseFirstChar, p._allowNonLetterFirstChar);
+        }
+
+        protected Provider(Provider p,
+                boolean allowLowerCaseFirstChar, boolean allowNonLetterFirstChar)
+        {
+            this(p._setterPrefix, p._withPrefix,
+                    p._getterPrefix, p._isGetterPrefix,
+                    allowLowerCaseFirstChar, allowNonLetterFirstChar);
+        }
+
+        protected Provider(String setterPrefix, String withPrefix,
+                String getterPrefix, String isGetterPrefix,
+                boolean allowLowerCaseFirstChar, boolean allowNonLetterFirstChar)
+        {
             _setterPrefix = setterPrefix;
             _withPrefix = withPrefix;
             _getterPrefix = getterPrefix;
             _isGetterPrefix = isGetterPrefix;
-        }
-
-        public Provider withSetterPrefix(String p) {
-            return new Provider(p, _withPrefix, _getterPrefix, _isGetterPrefix);
+            _allowLowerCaseFirstChar = allowLowerCaseFirstChar;
+            _allowNonLetterFirstChar = allowNonLetterFirstChar;
         }
         
-        public Provider withBuilderPrefix(String p) {
-            return new Provider(_setterPrefix, p, _getterPrefix, _isGetterPrefix);
+        
+        /**
+         * Mutant factory for changing the prefix used for "setter"
+         * methods
+         *
+         * @param prefix Prefix to use; or empty String {@code ""} to not use
+         *   any prefix (meaning signature-compatible method name is used as
+         *   the property basename (and subject to name mangling)),
+         *   or {@code null} to prevent name-based detection.
+         *
+         * @return Provider instance with specified setter-prefix
+         */
+        public Provider withSetterPrefix(String prefix) {
+            return new Provider(this,
+                    prefix, _withPrefix, _getterPrefix, _isGetterPrefix);
+        }
+        
+        /**
+         * Mutant factory for changing the prefix used for Builders
+         * (from default {@link JsonPOJOBuilder#DEFAULT_WITH_PREFIX})
+         *
+         * @param prefix Prefix to use; or empty String {@code ""} to not use
+         *   any prefix (meaning signature-compatible method name is used as
+         *   the property basename (and subject to name mangling)),
+         *   or {@code null} to prevent name-based detection.
+         *
+         * @return Provider instance with specified with-prefix
+         */
+        public Provider withBuilderPrefix(String prefix) {
+            return new Provider(this,
+                    _setterPrefix, prefix, _getterPrefix, _isGetterPrefix);
         }
 
-        public Provider withGetterPrefix(String p) {
-            return new Provider(_setterPrefix, _withPrefix, p, _isGetterPrefix);
+        /**
+         * Mutant factory for changing the prefix used for "getter"
+         * methods
+         *
+         * @param prefix Prefix to use; or empty String {@code ""} to not use
+         *   any prefix (meaning signature-compatible method name is used as
+         *   the property basename (and subject to name mangling)),
+         *   or {@code null} to prevent name-based detection.
+         *
+         * @return Provider instance with specified getter-prefix
+         */
+        public Provider withGetterPrefix(String prefix) {
+            return new Provider(this,
+                    _setterPrefix, _withPrefix, prefix, _isGetterPrefix);
         }
 
-        public Provider withIsGetterPrefix(String p) {
-            return new Provider(_setterPrefix, _withPrefix, _getterPrefix, p);
+        /**
+         * Mutant factory for changing the prefix used for "is-getter"
+         * methods (getters that return boolean/Boolean value).
+         *
+         * @param prefix Prefix to use; or empty String {@code ""} to not use
+         *   any prefix (meaning signature-compatible method name is used as
+         *   the property basename (and subject to name mangling)).
+         *   or {@code null} to prevent name-based detection.
+         *
+         * @return Provider instance with specified is-getter-prefix
+         */
+        public Provider withIsGetterPrefix(String prefix) {
+            return new Provider(this,
+                    _setterPrefix, _withPrefix, _getterPrefix, prefix);
         }
 
+        /**
+         * Mutant factory for changing the rules regarding which characters
+         * are allowed as the first character of property base name, after
+         * checking and removing prefix.
+         *<p>
+         * For example, consider "getter" method candidate (no arguments, has return
+         * type) named {@code getValue()} is considered, with "getter-prefix"
+         * defined as {@code get}, then base name is {@code Value} and the
+         * first character to consider is {@code V}. Upper-case letters are
+         * always accepted so this is fine.
+         * But with similar settings, method {@code get_value()} would only be
+         * recognized as getter if {@code allowNonLetterFirstChar} is set to
+         * {@code true}: otherwise it will not be considered a getter-method.
+         * Similarly "is-getter" candidate method with name {@code island()}
+         * would only be considered if {@code allowLowerCaseFirstChar} is set
+         * to {@code true}.
+         *
+         * @param allowLowerCaseFirstChar Whether base names that start with lower-case
+         *    letter (like {@code "a"} or {@code "b"}) are accepted as valid or not:
+         *    consider difference between "setter-methods" {@code setValue()} and {@code setvalue()}.
+         * @param allowNonLetterFirstChar  Whether base names that start with non-letter
+         *    character (like {@code "_"} or number {@code 1}) are accepted as valid or not:
+         *    consider difference between "setter-methods" {@code setValue()} and {@code set_value()}.
+         *
+         * @return Provider instance with specified is-getter-prefix
+         */
+        public Provider withFirstCharAcceptance(boolean allowLowerCaseFirstChar,
+                boolean allowNonLetterFirstChar) {
+            return new Provider(this,
+                    allowLowerCaseFirstChar, allowNonLetterFirstChar);
+        }
+        
         @Override
         public AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass targetClass)
         {

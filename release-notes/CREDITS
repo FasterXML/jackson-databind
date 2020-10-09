@@ -9,3 +9,6 @@ Tatu Saloranta, tatu.saloranta@iki.fi: author
 Alexander Koshman (akoshman@github)
  * Requested #1600: Serializing locale with underscore, not standard hyphen	
   [3.0.0]
+
+Ilya Golovin (ilgo0413@github)
+  * Contributed #2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys

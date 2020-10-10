@@ -167,7 +167,7 @@ public class EnumResolver implements java.io.Serializable
 
     public Enum<?> findEnum(String key) { return _isIgnoreCase ? findEnumIgnoreCase(key) : _enumsById.get(key); }
 
-    public Enum<?> findEnumIgnoreCase(String key) {
+    private Enum<?> findEnumIgnoreCase(String key) {
         String keyIgnoreCase = _enumsById.keySet().stream()
                 .filter(k -> k.equalsIgnoreCase(key))
                 .findAny()

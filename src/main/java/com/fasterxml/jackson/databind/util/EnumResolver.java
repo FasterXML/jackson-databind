@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
+import static com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
+
 /**
  * Helper class used to resolve String values (either JSON Object field
  * names or regular String values) into Java Enum instances.
@@ -22,13 +24,16 @@ public class EnumResolver implements java.io.Serializable
 
     protected final Enum<?> _defaultValue;
 
+    protected final boolean _isIgnoreCase;
+
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> map, Enum<?> defaultValue)
+            HashMap<String, Enum<?>> map, Enum<?> defaultValue, boolean isIgnoreCase)
     {
         _enumClass = enumClass;
         _enums = enums;
         _enumsById = map;
         _defaultValue = defaultValue;
+        _isIgnoreCase = isIgnoreCase;
     }
 
     /**
@@ -63,7 +68,8 @@ public class EnumResolver implements java.io.Serializable
             }
         }
         return new EnumResolver(enumCls, enumValues, map,
-                intr.findDefaultEnumValue(config, enumCls));
+                intr.findDefaultEnumValue(config, enumCls),
+                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS));
     }
 
     /**
@@ -90,7 +96,8 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return new EnumResolver(enumCls, enumConstants, map, intr.findDefaultEnumValue(config, enumCls));
+        return new EnumResolver(enumCls, enumConstants, map, intr.findDefaultEnumValue(config, enumCls),
+                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS));
     }
 
     public static EnumResolver constructUsingMethod(MapperConfig<?> config,
@@ -112,7 +119,8 @@ public class EnumResolver implements java.io.Serializable
             }
         }
         Enum<?> defaultEnum = (intr != null) ? intr.findDefaultEnumValue(config, enumCls) : null;
-        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+        return new EnumResolver(enumCls, enumValues, map, defaultEnum,
+                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS));
     }    
 
     /**
@@ -157,7 +165,15 @@ public class EnumResolver implements java.io.Serializable
         return CompactStringObjectMap.construct(_enumsById);
     }
 
-    public Enum<?> findEnum(String key) { return _enumsById.get(key); }
+    public Enum<?> findEnum(String key) { return _isIgnoreCase ? findEnumIgnoreCase(key) : _enumsById.get(key); }
+
+    private Enum<?> findEnumIgnoreCase(String key) {
+        String keyIgnoreCase = _enumsById.keySet().stream()
+                .filter(k -> k.equalsIgnoreCase(key))
+                .findAny()
+                .orElse(null);
+        return keyIgnoreCase == null ? null : _enumsById.get(keyIgnoreCase);
+    }
 
     public Enum<?> getEnum(int index) {
         if (index < 0 || index >= _enums.length) {

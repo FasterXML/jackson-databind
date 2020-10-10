@@ -403,7 +403,10 @@ public enum MapperFeature implements ConfigFeature
      * If enabled, Enum deserialization will ignore case, that is, case of incoming String
      * value and enum id (depending on other settings, either `name()`, `toString()`, or
      * explicit override) do not need to match.
-     * <p>
+     *<p>
+     * This should allow both Enum-as-value deserialization and Enum-as-Map-key, but latter
+     * only works since Jackson 2.12 (due to incomplete implementation).
+     *<p>
      * Feature is disabled by default.
      *
      * @since 2.9

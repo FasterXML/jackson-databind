@@ -401,7 +401,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             EnumResolver res = _byToStringResolver;
             if (res == null) {
                 synchronized (this) {
-                    res = EnumResolver.constructUnsafeUsingToString(ctxt.getConfig(),
+                    res = EnumResolver.constructUsingToString(ctxt.getConfig(),
                             _byNameResolver.getEnumClass());
                     _byToStringResolver = res;
                 }

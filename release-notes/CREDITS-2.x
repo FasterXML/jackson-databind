@@ -1221,3 +1221,7 @@ Jendrik Johannes (jjohannes@github)
 Swayam Raina (swayamraina@github)
   * Contributed #2761: Support multiple names in `JsonSubType.Type`
   (2.12.0)
+
+Ilya Golovin (ilgo0413@github)
+  * Contributed #2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys
+  (2.12.0)

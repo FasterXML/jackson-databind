@@ -66,6 +66,8 @@ Project: jackson-databind
 #2800: Extract getter/setter/field name mangling from `BeanUtil` into
   pluggable `AccessorNamingStrategy`
 #2805: Remove `JsonProcessingException` from `ObjectMapper.treeToValue()`
+#2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys
+ (fix contributed by Ilya G)
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 

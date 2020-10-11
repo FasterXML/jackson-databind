@@ -234,7 +234,7 @@ public class JacksonAnnotationIntrospector
      * @since 2.8
      */
     @Override
-    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<Enum<?>> enumCls) {
+    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<?> enumCls) {
         return ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
     }
 

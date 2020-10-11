@@ -569,7 +569,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<Enum<?>> enumCls) {
+    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<?> enumCls) {
         Enum<?> en = _primary.findDefaultEnumValue(config, enumCls);
         return (en == null) ? _secondary.findDefaultEnumValue(config, enumCls) : en;
     }

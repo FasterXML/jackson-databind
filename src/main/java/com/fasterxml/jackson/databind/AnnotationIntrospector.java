@@ -895,7 +895,7 @@ public abstract class AnnotationIntrospector
      * @return null if none found or it's not possible to determine one.
      */
     public Enum<?> findDefaultEnumValue(MapperConfig<?> config, 
-            Class<Enum<?>> enumCls) {
+            Class<?> enumCls) {
         return null;
     }
 

@@ -2276,12 +2276,12 @@ factory.toString()));
                 ClassUtil.checkAndFixAccess(jsonValueAccessor.getMember(),
                         ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUnsafeUsingMethod(ctxt.getConfig(),
+            return EnumResolver.constructUsingMethod(ctxt.getConfig(),
                     enumClass, jsonValueAccessor);
         }
         // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
         //   here, but that won't do: it must be dynamically changeable...
-        return EnumResolver.constructUnsafe(ctxt.getConfig(), enumClass);
+        return EnumResolver.constructFor(ctxt.getConfig(), enumClass);
     }
 
     protected boolean _hasCreatorAnnotation(DeserializationContext ctxt,

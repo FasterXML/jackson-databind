@@ -909,11 +909,14 @@ public final class ClassUtil
      * @param enumClass The Enum class to scan for a value with the given annotation
      * @param annotationClass The annotation to look for.
      * @return the Enum value annotated with the given Annotation or {@code null} if none is found.
+     *
      * @throws IllegalArgumentException if there's a reflection issue accessing the Enum
-     * @since 2.8
      */
-    public static <T extends Annotation> Enum<?> findFirstAnnotatedEnumValue(Class<Enum<?>> enumClass, Class<T> annotationClass)
+    public static <T extends Annotation> Enum<?> findFirstAnnotatedEnumValue(Class<?> enumClass0,
+            Class<T> annotationClass)
     {
+        @SuppressWarnings("unchecked")
+        final Class<Enum<?>> enumClass = (Class<Enum<?>>) enumClass0;
         Field[] fields = enumClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isEnumConstant()) {

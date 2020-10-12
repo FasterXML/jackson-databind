@@ -102,6 +102,8 @@ public class POJOPropertiesCollector
     
     protected LinkedList<AnnotatedMember> _anyGetters;
 
+    protected LinkedList<AnnotatedMember> _anyGetterField;
+
     protected LinkedList<AnnotatedMethod> _anySetters;
     
     protected LinkedList<AnnotatedMember> _anySetterField;
@@ -208,18 +210,33 @@ public class POJOPropertiesCollector
         return null;
     }
 
-    public AnnotatedMember getAnyGetter()
+    public AnnotatedMember getAnyGetterField()
+    {
+        if (!_collected) {
+            collectAll();
+        }
+        if (_anyGetterField != null) {
+            if (_anyGetterField.size() > 1) {
+                reportProblem("Multiple 'any-getter' fields defined (%s vs %s)",
+                        _anyGetterField.get(0), _anyGetterField.get(1));
+            }
+            return _anyGetterField.getFirst();
+        }
+        return null;
+    }
+
+    public AnnotatedMember getAnyGetterMethod()
     {
         if (!_collected) {
             collectAll();
         }
         if (_anyGetters != null) {
             if (_anyGetters.size() > 1) {
-                reportProblem("Multiple 'any-getters' defined (%s vs %s)",
+                reportProblem("Multiple 'any-getter' methods defined (%s vs %s)",
                         _anyGetters.get(0), _anyGetters.get(1));
             }
             return _anyGetters.getFirst();
-        }        
+        }
         return null;
     }
 
@@ -392,12 +409,25 @@ public class POJOPropertiesCollector
                 _jsonValueAccessors.add(f);
                 continue;
             }
-            // @JsonAnySetter?
-            if (Boolean.TRUE.equals(ai.hasAnySetter(f))) {
-                if (_anySetterField == null) {
-                    _anySetterField = new LinkedList<AnnotatedMember>();
+            // 12-October-2020, dominikrebhan: [databind#1458] Support @JsonAnyGetter on
+            //   fields and allow @JsonAnySetter to be declared as well.
+            boolean anyGetter = Boolean.TRUE.equals(ai.hasAnyGetter(f));
+            boolean anySetter = Boolean.TRUE.equals(ai.hasAnySetter(f));
+            if (anyGetter || anySetter) {
+                // @JsonAnyGetter?
+                if (anyGetter) {
+                    if (_anyGetterField == null) {
+                        _anyGetterField = new LinkedList<>();
+                    }
+                    _anyGetterField.add(f);
                 }
-                _anySetterField.add(f);
+                // @JsonAnySetter?
+                if (anySetter) {
+                    if (_anySetterField == null) {
+                        _anySetterField = new LinkedList<>();
+                    }
+                    _anySetterField.add(f);
+                }
                 continue;
             }
             String implName = ai.findImplicitPropertyName(f);

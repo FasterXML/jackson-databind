@@ -1065,7 +1065,8 @@ public class POJOPropertiesCollector
         }
 
         // Third by sorting Creator properties before other unordered properties
-        if (_creatorProperties != null) {
+        // (unless strict ordering is requested)
+        if (_creatorProperties != null && !_config.shouldPreservePropertiesOrdering()) {
             /* As per [databind#311], this is bit delicate; but if alphabetic ordering
              * is mandated, at least ensure creator properties are in alphabetic
              * order. Related question of creator vs non-creator is punted for now,

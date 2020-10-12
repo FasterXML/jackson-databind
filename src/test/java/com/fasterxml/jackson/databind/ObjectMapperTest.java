@@ -126,7 +126,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(m.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
 
         // // First: verify that handling of features is decoupled:
-        
+
         ObjectMapper m2 = m.copy();
         assertFalse(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         m2.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -215,7 +215,7 @@ public class ObjectMapperTest extends BaseMapTest
         }
     }
 
-    public void testAnnotationIntrospectorCopyin() 
+    public void testAnnotationIntrospectorCopying()
     {
         ObjectMapper m = new ObjectMapper();
         m.setAnnotationIntrospector(new MyAnnotationIntrospector());
@@ -272,6 +272,32 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(dc.shouldSortPropertiesAlphabetically());
     }
 
+    // Test to ensure that we can check forced property ordering defaults...
+    public void testConfigForForcedPropertySorting() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+
+        // sort-alphabetically is disabled by default:
+        assertFalse(m.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        SerializationConfig sc = m.getSerializationConfig();
+        assertFalse(sc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        assertFalse(sc.shouldPreservePropertiesOrdering());
+        DeserializationConfig dc = m.getDeserializationConfig();
+        assertFalse(dc.shouldPreservePropertiesOrdering());
+
+        // but when enabled, should be visible:
+        m = jsonMapperBuilder()
+                .enable(MapperFeature.STRICT_PROPERTIES_ORDERING)
+                .build();
+        sc = m.getSerializationConfig();
+        assertTrue(sc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        assertTrue(sc.shouldPreservePropertiesOrdering());
+        dc = m.getDeserializationConfig();
+        // and not just via SerializationConfig, but also via DeserializationConfig
+        assertTrue(dc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        assertTrue(dc.shouldPreservePropertiesOrdering());
+    }
+
     public void testJsonFactoryLinkage()
     {
         // first, implicit factory, giving implicit linkage
@@ -284,7 +310,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertSame(m, f.getCodec());
     }
 
-    public void testProviderConfig() throws Exception   
+    public void testProviderConfig() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         final String JSON = "{ \"x\" : 3 }";
@@ -332,7 +358,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals("[1,2]", m.writer().without(SerializationFeature.INDENT_OUTPUT)
                 .writeValueAsString(input));
     }
-    
+
     // For [databind#703], [databind#978]
     public void testNonSerializabilityOfObject()
     {

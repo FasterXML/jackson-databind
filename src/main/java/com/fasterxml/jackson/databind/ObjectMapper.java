@@ -3206,11 +3206,17 @@ public class ObjectMapper
      *<pre>
      *   objectMapper.convertValue(n, valueClass);
      *</pre>
+     *<p>
+     * Note: erroneously includes {@code throws JsonProcessingException} even
+     * though this exception is never thrown, only {@link IllegalArgumentException}
+     * is thrown. But since changing exception part of method signature is
+     * source-incompatible change, needs to be retained until 3.0.
      */
     @SuppressWarnings("unchecked")
     @Override
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
-        throws IllegalArgumentException
+        throws IllegalArgumentException,
+            JsonProcessingException // is NOT actually thrown but retained as per #2878
     {
         if (n == null) {
             return null;

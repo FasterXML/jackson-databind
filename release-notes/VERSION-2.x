@@ -9,6 +9,8 @@ Project: jackson-databind
 
 #2878: Revert change initially made to fix #2805: change in signature
   of `ObjectMapper.treeToValue()` regarding exceptions
+#2880: Revert removal of 2.7-deprecated `PropertyNamingStrategy` constants
+ (reported by brettkail-wk@github)
 
 2.12.0-rc1 (12-Oct-2020)
 

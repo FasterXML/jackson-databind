@@ -317,7 +317,7 @@ public class TestConversions extends BaseMapTest
         assertEquals(Long.valueOf(EXP), obj.longObj);
     }
 
-    public void testConversionsOfNull()
+    public void testConversionsOfNull() throws Exception
     {
         // First: `null` value should become `NullNode`
         JsonNode n = MAPPER.valueToTree(null);

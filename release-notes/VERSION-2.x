@@ -4,7 +4,13 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.0 (not yet released)
+
+2.12.0-rc2 (not yet released)
+
+#2878: Revert change initially made to fix #2805: change in signature
+  of `ObjectMapper.treeToValue()` regarding exceptions
+
+2.12.0-rc1 (12-Oct-2020)
 
 #43: Add option to resolve type from multiple existing properties,
   `@JsonTypeInfo(use=DEDUCTION)`
@@ -65,7 +71,6 @@ Project: jackson-databind
  (reported by mjustin@github)
 #2800: Extract getter/setter/field name mangling from `BeanUtil` into
   pluggable `AccessorNamingStrategy`
-#2805: Remove `JsonProcessingException` from `ObjectMapper.treeToValue()`
 #2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys
  (fix contributed by Ilya G)
 - Add `BeanDeserializerBase.isCaseInsensitive()`

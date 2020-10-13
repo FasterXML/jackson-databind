@@ -16,8 +16,24 @@ import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 public class DefaultAccessorNamingStrategy
     extends AccessorNamingStrategy
 {
+    /**
+     * Definition of a handler API to use for checking whether given base name
+     * (remainder of accessor method name after removing prefix) is acceptable
+     * based on various rules.
+     *
+     * @since 2.12
+     */
+    public interface BaseNameValidator {
+        public boolean accept(char firstChar, String basename, int offset);
+    }
+
     protected final MapperConfig<?> _config;
     protected final AnnotatedClass _forClass;
+
+    /**
+     * Optional validator for checking that base name
+     */
+    protected final BaseNameValidator _baseNameValidator;
 
     protected final String _getterPrefix;
     protected final String _isGetterPrefix;
@@ -29,7 +45,8 @@ public class DefaultAccessorNamingStrategy
     protected final String _mutatorPrefix;
 
     protected DefaultAccessorNamingStrategy(MapperConfig<?> config, AnnotatedClass forClass,
-            String mutatorPrefix, String getterPrefix, String isGetterPrefix)
+            String mutatorPrefix, String getterPrefix, String isGetterPrefix,
+            BaseNameValidator baseNameValidator)
     {
         _config = config;
         _forClass = forClass;
@@ -37,6 +54,7 @@ public class DefaultAccessorNamingStrategy
         _mutatorPrefix = mutatorPrefix;
         _getterPrefix = getterPrefix;
         _isGetterPrefix = isGetterPrefix;
+        _baseNameValidator = baseNameValidator;
     }
     
     @Override
@@ -104,7 +122,7 @@ public class DefaultAccessorNamingStrategy
     // 24-Sep-2017, tatu: note that "std" here refers to earlier (1.x, 2.x) distinction
     //   between "legacy" (slightly non-conforming) and "std" (fully conforming): with 3.x
     //   only latter exists.
-    protected static String stdManglePropertyName(final String basename, final int offset)
+    protected String stdManglePropertyName(final String basename, final int offset)
     {
         final int end = basename.length();
         if (end == offset) { // empty name, nope
@@ -112,6 +130,14 @@ public class DefaultAccessorNamingStrategy
         }
         // first: if it doesn't start with capital, return as-is
         char c0 = basename.charAt(offset);
+        // 12-Oct-2020, tatu: Additional configurability; allow checking that
+        //    base name is acceptable (currently just by checking first character)
+        if (_baseNameValidator != null) {
+            if (!_baseNameValidator.accept(c0, basename, offset)) {
+                return null;
+            }
+        }
+
         char c1 = Character.toLowerCase(c0);
         if (c0 == c1) {
             return basename.substring(offset);
@@ -194,8 +220,9 @@ public class DefaultAccessorNamingStrategy
      * <li>Is-getter (for Boolean values): "is"
      *  </li>
      * <ul>
-     *<p>
-     * 
+     * and no additional restrictions on base names accepted (configurable for
+     * limits using {@link BaseNameValidator}), allowing names like
+     * "get_value()" and "getvalue()".
      */
     public static class Provider
         extends AccessorNamingStrategy.Provider
@@ -209,13 +236,11 @@ public class DefaultAccessorNamingStrategy
         protected final String _getterPrefix;
         protected final String _isGetterPrefix;
 
-        protected final boolean _allowLowerCaseFirstChar;
-        protected final boolean _allowNonLetterFirstChar;
+        protected final BaseNameValidator _baseNameValidator;
 
         public Provider() {
             this("set", JsonPOJOBuilder.DEFAULT_WITH_PREFIX,
-                    "get", "is",
-                    true, true);
+                    "get", "is", null);
         }
 
         protected Provider(Provider p,
@@ -223,30 +248,26 @@ public class DefaultAccessorNamingStrategy
                 String getterPrefix, String isGetterPrefix)
         {
             this(setterPrefix, withPrefix, getterPrefix, isGetterPrefix,
-                    p._allowLowerCaseFirstChar, p._allowNonLetterFirstChar);
+                    p._baseNameValidator);
         }
 
-        protected Provider(Provider p,
-                boolean allowLowerCaseFirstChar, boolean allowNonLetterFirstChar)
+        protected Provider(Provider p, BaseNameValidator vld)
         {
             this(p._setterPrefix, p._withPrefix,
-                    p._getterPrefix, p._isGetterPrefix,
-                    allowLowerCaseFirstChar, allowNonLetterFirstChar);
+                    p._getterPrefix, p._isGetterPrefix, vld);
         }
 
         protected Provider(String setterPrefix, String withPrefix,
                 String getterPrefix, String isGetterPrefix,
-                boolean allowLowerCaseFirstChar, boolean allowNonLetterFirstChar)
+                BaseNameValidator vld)
         {
             _setterPrefix = setterPrefix;
             _withPrefix = withPrefix;
             _getterPrefix = getterPrefix;
             _isGetterPrefix = isGetterPrefix;
-            _allowLowerCaseFirstChar = allowLowerCaseFirstChar;
-            _allowNonLetterFirstChar = allowNonLetterFirstChar;
+            _baseNameValidator = vld;
         }
-        
-        
+
         /**
          * Mutant factory for changing the prefix used for "setter"
          * methods
@@ -335,19 +356,34 @@ public class DefaultAccessorNamingStrategy
          *    character (like {@code "_"} or number {@code 1}) are accepted as valid or not:
          *    consider difference between "setter-methods" {@code setValue()} and {@code set_value()}.
          *
-         * @return Provider instance with specified is-getter-prefix
+         * @return Provider instance with specified validity rules
          */
         public Provider withFirstCharAcceptance(boolean allowLowerCaseFirstChar,
                 boolean allowNonLetterFirstChar) {
-            return new Provider(this,
-                    allowLowerCaseFirstChar, allowNonLetterFirstChar);
+            return withBaseNameValidator(
+                    FirstCharBasedValidator.forFirstNameRule(allowLowerCaseFirstChar, allowNonLetterFirstChar));
+        }
+
+        /**
+         * Mutant factory for specifying validator that is used to further verify that
+         * base name derived from accessor name is acceptable: this can be used to add
+         * further restrictions such as limit that the first character of the base name
+         * is an upper-case letter.
+         *
+         * @param vld Validator to use, if any; {@code null} to indicate no additional rules
+         *
+         * @return Provider instance with specified base name validator to use, if any
+         */
+        public Provider withBaseNameValidator(BaseNameValidator vld) {
+            return new Provider(this, vld);
         }
         
         @Override
         public AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass targetClass)
         {
             return new DefaultAccessorNamingStrategy(config, targetClass,
-                    _setterPrefix, _getterPrefix, _isGetterPrefix);
+                    _setterPrefix, _getterPrefix, _isGetterPrefix,
+                    _baseNameValidator);
         }
 
         @Override
@@ -358,7 +394,8 @@ public class DefaultAccessorNamingStrategy
             JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
             String mutatorPrefix = (builderConfig == null) ? _withPrefix : builderConfig.withPrefix;
             return new DefaultAccessorNamingStrategy(config, builderClass,
-                    mutatorPrefix, _getterPrefix, _isGetterPrefix);
+                    mutatorPrefix, _getterPrefix, _isGetterPrefix,
+                    _baseNameValidator);
         }
 
         @Override
@@ -368,6 +405,60 @@ public class DefaultAccessorNamingStrategy
         }
     }
 
+    /**
+     * Simple implementation of {@link BaseNameValidator} that checks the
+     * first character and nothing else.
+     *<p>
+     * Instances are to be constructed using method
+     * {@link FirstCharBasedValidator#forFirstNameRule}.
+     */
+    public static class FirstCharBasedValidator
+        implements BaseNameValidator
+    {
+        private final boolean _allowLowerCaseFirstChar;
+        private final boolean _allowNonLetterFirstChar;
+
+        protected FirstCharBasedValidator(boolean allowLowerCaseFirstChar,
+                boolean allowNonLetterFirstChar) {
+            _allowLowerCaseFirstChar = allowLowerCaseFirstChar;
+            _allowNonLetterFirstChar = allowNonLetterFirstChar;
+        }
+
+        /**
+         * Factory method to use for getting an instance with specified first-character
+         * restrictions, if any; or {@code null} if no checking is needed.
+         *
+         * @param allowLowerCaseFirstChar Whether base names that start with lower-case
+         *    letter (like {@code "a"} or {@code "b"}) are accepted as valid or not:
+         *    consider difference between "setter-methods" {@code setValue()} and {@code setvalue()}.
+         * @param allowNonLetterFirstChar  Whether base names that start with non-letter
+         *    character (like {@code "_"} or number {@code 1}) are accepted as valid or not:
+         *    consider difference between "setter-methods" {@code setValue()} and {@code set_value()}.
+         * 
+         * @return Validator instance to use, if any; {@code null} to indicate no additional
+         *   rules applied (case when both arguments are {@code false})
+         */
+        public static BaseNameValidator forFirstNameRule(boolean allowLowerCaseFirstChar,
+                boolean allowNonLetterFirstChar) {
+            if (!allowLowerCaseFirstChar && !allowNonLetterFirstChar) {
+                return null;
+            }
+            return new FirstCharBasedValidator(allowLowerCaseFirstChar,
+                    allowNonLetterFirstChar);
+        }
+            
+        @Override
+        public boolean accept(char firstChar, String basename, int offset) {
+            // Ok, so... If UTF-16 letter, then check whether lc allowed
+            // (title-case and upper-case both assumed to be acceptable by default)
+            if (Character.isLetter(firstChar)) {
+                return _allowLowerCaseFirstChar || !Character.isLowerCase(firstChar);
+            }
+            // Otherwise, non-letter checking applied
+            return _allowNonLetterFirstChar;
+        }
+    }
+    
     /**
      * Implementation used for supporting "non-prefix" naming convention of
      * Java 14 {@code java.lang.Record} types, and in particular find default
@@ -391,7 +482,7 @@ public class DefaultAccessorNamingStrategy
                     null,
                     // trickier: regular fields are ok (handled differently), but should
                     // we also allow getter discovery? For now let's do so
-                    "get", "is");
+                    "get", "is", null);
             _fieldNames = new HashSet<>();
             for (String name : JDK14Util.getRecordFieldNames(forClass.getRawType())) {
                 _fieldNames.add(name);

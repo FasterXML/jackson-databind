@@ -71,6 +71,11 @@ public abstract class TypeDeserializer
      */
     public abstract Class<?> getDefaultImpl();
 
+    /**
+     * @since 2.12
+     */
+    public boolean hasDefaultImpl() { return getDefaultImpl() != null; }
+
     /*
     /**********************************************************
     /* Type deserialization methods

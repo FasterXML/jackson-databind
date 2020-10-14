@@ -67,7 +67,6 @@ public class AnnotatedFieldCollector
                     parentType, parentMixin, fields);
         }
         final Class<?> rawType = type.getRawClass();
-        //System.out.println("-------- rawType ----------- " + rawType);
         for (Field f : rawType.getDeclaredFields()) {
             // static fields not included (transients are at this point, filtered out later)
             if (!_isIncludableField(f)) {

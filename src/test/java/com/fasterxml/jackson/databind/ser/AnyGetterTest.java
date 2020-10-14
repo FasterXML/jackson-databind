@@ -134,7 +134,7 @@ public class AnyGetterTest extends BaseMapTest
 
     static class Bean2592NoAnnotations
     {
-        protected Map<String, String> properties = new HashMap<>();
+        protected Map<String, String> properties = new LinkedHashMap<>();
 
         @JsonAnyGetter
         public Map<String, String> getProperties() {

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -68,7 +69,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     }
 
     // Let's actually test hierarchic names with unwrapping bit more:
-    
+    @JsonPropertyOrder({ "general", "misc" })
     static class ConfigRoot
     {
         @JsonUnwrapped(prefix="general.")

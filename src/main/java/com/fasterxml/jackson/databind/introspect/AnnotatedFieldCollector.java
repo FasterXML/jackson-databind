@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class AnnotatedFieldCollector
-    extends CollectorBase
+        extends CollectorBase
 {
     private final MixInResolver _mixInResolver;
 
@@ -18,7 +18,7 @@ public class AnnotatedFieldCollector
     // // // Collected state
 
     AnnotatedFieldCollector(MapperConfig<?> config, MixInResolver mixins,
-            boolean collectAnnotations)
+                            boolean collectAnnotations)
     {
         super(config);
         _mixInResolver = mixins;
@@ -26,15 +26,15 @@ public class AnnotatedFieldCollector
     }
 
     public static List<AnnotatedField> collectFields(MapperConfig<?> config,
-            TypeResolutionContext tc, MixInResolver mixins,
-            JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
+                                                     TypeResolutionContext tc, MixInResolver mixins,
+                                                     JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
     {
         return new AnnotatedFieldCollector(config, mixins, collectAnnotations)
                 .collect(tc, type, primaryMixIn);
     }
 
     List<AnnotatedField> collect(TypeResolutionContext tc,
-            JavaType type, Class<?> primaryMixIn)
+                                 JavaType type, Class<?> primaryMixIn)
     {
         Map<String,FieldBuilder> foundFields = _findFields(tc, type, primaryMixIn, null);
         if (foundFields == null) {
@@ -48,8 +48,8 @@ public class AnnotatedFieldCollector
     }
 
     private Map<String,FieldBuilder> _findFields(TypeResolutionContext tc,
-            JavaType type, Class<?> mixin,
-            Map<String,FieldBuilder> fields)
+                                                 JavaType type, Class<?> mixin,
+                                                 Map<String,FieldBuilder> fields)
     {
         // First, a quick test: we only care for regular classes (not interfaces,
         //primitive types etc), except for Object.class. A simple check to rule out
@@ -63,11 +63,10 @@ public class AnnotatedFieldCollector
             Class<?> parentMixin = (_mixInResolver == null) ? null
                     : _mixInResolver.findMixInClassFor(parentType.getRawClass());
             fields = _findFields(new TypeResolutionContext.Basic(_config.getTypeFactory(),
-                    parentType.getBindings()),
+                            parentType.getBindings()),
                     parentType, parentMixin, fields);
         }
         final Class<?> rawType = type.getRawClass();
-        //System.out.println("-------- rawType ----------- " + rawType);
         for (Field f : rawType.getDeclaredFields()) {
             // static fields not included (transients are at this point, filtered out later)
             if (!_isIncludableField(f)) {
@@ -98,7 +97,7 @@ public class AnnotatedFieldCollector
      * super-classes)
      */
     private void _addFieldMixIns(Class<?> mixInCls, Class<?> targetClass,
-            Map<String,FieldBuilder> fields)
+                                 Map<String,FieldBuilder> fields)
     {
         List<Class<?>> parents = ClassUtil.findSuperClasses(mixInCls, targetClass, true);
         for (Class<?> mixin : parents) {

@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 
 public class MapEntryFormatTest extends BaseMapTest
@@ -16,13 +17,14 @@ public class MapEntryFormatTest extends BaseMapTest
 
         protected BeanWithMapEntry() { }
         public BeanWithMapEntry(String key, String value) {
-            Map<String,String> map = new HashMap<>();
+            Map<String,String> map = new LinkedHashMap<>();
             map.put(key, value);
             entry = map.entrySet().iterator().next();
         }
     }
 
     @JsonFormat(shape=JsonFormat.Shape.POJO)
+    @JsonPropertyOrder({ "key", "value" })
     static class MapEntryAsObject implements Map.Entry<String,String> {
         protected String key, value;
 
@@ -172,6 +174,7 @@ public class MapEntryFormatTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Map.Entry.class,
                         o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.POJO)))
+                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .build();
         Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
         assertEquals(aposToQuotes("{'key':'foo','value':'bar'}"),

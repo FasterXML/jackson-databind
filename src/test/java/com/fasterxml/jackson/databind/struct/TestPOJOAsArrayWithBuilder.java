@@ -30,6 +30,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     }
 
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
     static class SimpleBuilderXY
     {
         public int x, y;

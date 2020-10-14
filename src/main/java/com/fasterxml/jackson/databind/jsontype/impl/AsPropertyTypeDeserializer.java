@@ -71,7 +71,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
                 return _deserializeWithNativeTypeId(p, ctxt, typeId);
             }
         }
-        
+
         // but first, sanity check to ensure we have START_OBJECT or FIELD_NAME
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -108,7 +108,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     @SuppressWarnings("resource")
     protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
-                                            TokenBuffer tb, String typeId) throws IOException {
+            TokenBuffer tb, String typeId) throws IOException {
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         if (_typeIdVisible) { // need to merge id back in JSON input?
             if (tb == null) {
@@ -135,8 +135,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             DeserializationContext ctxt, TokenBuffer tb) throws IOException
     {
         // May have default implementation to use
-        JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
-        if (deser == null) {
+        // 13-Oct-2020, tatu: As per [databind#2775], need to be careful to
+        //    avoid ending up using "nullifying" deserializer
+        if (!hasDefaultImpl()) {
             // or, perhaps we just bumped into a "natural" value (boolean/int/double/String)?
             Object result = TypeDeserializer.deserializeIfNatural(p, ctxt, _baseType);
             if (result != null) {
@@ -154,6 +155,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
                     }
                 }
             }
+        }
+        // ... and here we will check for default implementation handling (either
+        // genuine, or faked for "dont fail on bad type id")
+        JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
+        if (deser == null) {
             String msg = String.format("missing type id property '%s'",
                     _typePropertyName);
             // even better, may know POJO property polymorphic value would be assigned to
@@ -183,9 +189,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      */
     @Override
     public Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws IOException {
-        /* Sometimes, however, we get an array wrapper; specifically
-         * when an array or list has been serialized with type information.
-         */
+        // Sometimes, however, we get an array wrapper; specifically
+        // when an array or list has been serialized with type information.
         if (p.hasToken(JsonToken.START_ARRAY)) {
             return super.deserializeTypedFromArray(p, ctxt);
         }

@@ -170,7 +170,7 @@ Project: jackson-databind
 #2587: Add `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` to allow blocking
   use of unsafe base type for polymorphic deserialization
 #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
-  external entity expansion in all cases
+  external entity expansion in all cases [CVE-2020-25649]
  (reported by Bartosz B)
 #2592: `ObjectMapper.setSerializationInclusion()` is ignored for `JsonAnyGetter`
  (reported by Oleksii K)

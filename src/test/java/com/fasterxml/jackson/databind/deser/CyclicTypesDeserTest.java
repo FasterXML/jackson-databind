@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -42,6 +43,7 @@ public class CyclicTypesDeserTest
     static class StringLink extends GenericLink<String> {
     }
 
+    @JsonPropertyOrder({ "id", "parent" })
     static class Selfie405 {
         public int id;
 

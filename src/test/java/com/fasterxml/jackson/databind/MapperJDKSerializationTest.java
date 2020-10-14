@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.core.Version;
 
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.util.SimpleLookupCache;
  */
 public class MapperJDKSerializationTest extends BaseMapTest
 {
+    @JsonPropertyOrder({ "x", "y" })
     static class MyPojo {
         public int x;
         protected int y;
@@ -36,6 +38,7 @@ public class MapperJDKSerializationTest extends BaseMapTest
     }
 
     // for [databind#899]
+    @JsonPropertyOrder({ "abc", "stuff" })
     static class EnumPOJO {
         public ABC abc = ABC.B;
 

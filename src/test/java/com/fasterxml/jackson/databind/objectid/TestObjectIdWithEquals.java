@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 public class TestObjectIdWithEquals extends BaseMapTest
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Foo.class)
+    @JsonPropertyOrder({ "id", "bars", "otherBars" })
     static class Foo {
         public int id;
 
@@ -82,6 +83,7 @@ public class TestObjectIdWithEquals extends BaseMapTest
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
+                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .build();
 
         Foo foo = new Foo(1);

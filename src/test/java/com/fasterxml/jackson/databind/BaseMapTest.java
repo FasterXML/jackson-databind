@@ -268,7 +268,7 @@ public abstract class BaseMapTest
         throws IOException
     {
         String str = m.writeValueAsString(value);
-        return (Map<String,Object>) m.readValue(str, Map.class);
+        return (Map<String,Object>) m.readValue(str, LinkedHashMap.class);
     }
 
     /*

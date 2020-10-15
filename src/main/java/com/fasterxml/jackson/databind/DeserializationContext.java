@@ -1654,6 +1654,22 @@ ClassUtil.getClassDescription(scalarType), _shapeForToken(JsonToken.START_OBJECT
         return reportPropertyInputMismatch(targetType.getRawClass(), propertyName, msg, msgArgs);
     }    
 
+    /**
+     * Helper method used to indicate a problem with input in cases where specific
+     * input coercion was not allowed.
+     *
+     * @since 2.12
+     */
+    public <T> T reportBadCoercion(JsonDeserializer<?> src,
+            Class<?> targetType, Object inputValue,
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
+        msg = _format(msg, msgArgs);
+        InvalidFormatException e = InvalidFormatException.from(getParser(),
+                msg, inputValue, targetType);
+        throw e;
+    }
+
     public <T> T reportTrailingTokens(Class<?> targetType,
             JsonParser p, JsonToken trailingToken) throws JsonMappingException
     {

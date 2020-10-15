@@ -266,7 +266,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      */
     
     /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies#SnakeCaseStrategy} instead
+     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.SnakeCaseStrategy} instead
      * (see
      * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
      * for reason for deprecation)
@@ -310,7 +310,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     }
 
     /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies#UpperCamelCaseStrategy} instead
+     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.UpperCamelCaseStrategy} instead
      * (see
      * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
      * for reason for deprecation)
@@ -345,7 +345,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     }
 
     /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies#LowerCaseStrategy} instead
+     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.LowerCaseStrategy} instead
      * (see
      * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
      * for reason for deprecation)
@@ -360,7 +360,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     }
 
     /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies#KebabCaseStrategy} instead
+     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.KebabCaseStrategy} instead
      * (see
      * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
      * for reason for deprecation)
@@ -375,7 +375,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     }
 
     /**
-     * @deprecated Since 2.12 use {@link PropertyNamingStrategies#LowerDotCaseStrategy} instead
+     * @deprecated Since 2.12 use {@link PropertyNamingStrategies.LowerDotCaseStrategy} instead
      * (see
      * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>
      * for reason for deprecation)
@@ -407,13 +407,13 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE = UPPER_CAMEL_CASE;
 
     /**
-     * @deprecated In 2.7 use {@link PropertyNamingStrategies#SnakeCaseStrategy} instead
+     * @deprecated In 2.7 use {@link PropertyNamingStrategies.SnakeCaseStrategy} instead
      */
     @Deprecated // since 2.7
     public static class LowerCaseWithUnderscoresStrategy extends SnakeCaseStrategy {}
 
     /**
-     * @deprecated In 2.7 use {@link PropertyNamingStrategies#UpperCamelCaseStrategy} instead
+     * @deprecated In 2.7 use {@link PropertyNamingStrategies.UpperCamelCaseStrategy} instead
      */
     @Deprecated // since 2.7
     public static class PascalCaseStrategy extends UpperCamelCaseStrategy { }

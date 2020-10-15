@@ -766,7 +766,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * This is typically used only by code in databind itself.
      * 
      * @param type Type of a {@link java.lang.reflect.Member} to resolve
-     * @param bindings Type bindings from the context, often class in which
+     * @param contextBindings Type bindings from the context, often class in which
      *     member declared but may be subtype of that type (to bind actual bound
      *     type parametrers). Not used if {@code type} is of type {@code Class<?>}.
      *

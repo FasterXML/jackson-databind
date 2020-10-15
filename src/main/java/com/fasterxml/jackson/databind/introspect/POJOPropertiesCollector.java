@@ -102,6 +102,9 @@ public class POJOPropertiesCollector
     
     protected LinkedList<AnnotatedMember> _anyGetters;
 
+    /**
+     * @since 2.12
+     */
     protected LinkedList<AnnotatedMember> _anyGetterField;
 
     protected LinkedList<AnnotatedMethod> _anySetters;
@@ -210,6 +213,9 @@ public class POJOPropertiesCollector
         return null;
     }
 
+    /**
+     * @since 2.12
+     */
     public AnnotatedMember getAnyGetterField()
     {
         if (!_collected) {
@@ -715,7 +721,7 @@ public class POJOPropertiesCollector
         }
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
-        boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
+        boolean ignore = ai != null && ai.hasIgnoreMarker(m);
         _property(props, implName).addSetter(m, pn, nameExplicit, visible, ignore);
     }
 
@@ -751,7 +757,7 @@ public class POJOPropertiesCollector
             if (prev.getClass() == m.getClass()) {
                 String type = id.getClass().getName();
                 throw new IllegalArgumentException("Duplicate injectable value with id '"
-                        +String.valueOf(id)+"' (of type "+type+")");
+                        + id +"' (of type "+type+")");
             }
         }
     }
@@ -1031,7 +1037,7 @@ public class POJOPropertiesCollector
     {
         // Then how about explicit ordering?
         final AnnotationIntrospector intr = _annotationIntrospector;
-        Boolean alpha = intr.findSerializationSortAlphabetically((Annotated) _classDef);
+        Boolean alpha = intr.findSerializationSortAlphabetically(_classDef);
         final boolean sort = (alpha == null)
                 ? _config.shouldSortPropertiesAlphabetically()
                 : alpha.booleanValue();

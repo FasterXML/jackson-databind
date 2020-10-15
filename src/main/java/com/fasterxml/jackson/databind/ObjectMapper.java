@@ -493,6 +493,15 @@ public class ObjectMapper
         return _typeFactory.constructType(type);
     }
 
+    /**
+     * Convenience method for constructing {@link JavaType} out of given
+     * type reference.
+     */
+    public JavaType constructType(TypeReference<?> typeReference) {
+        _assertNotNull("typeReference", typeReference);
+        return _typeFactory.constructType(typeReference);
+    }
+
     /*
     /**********************************************************************
     /* Configuration, accessing features

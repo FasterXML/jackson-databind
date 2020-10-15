@@ -184,7 +184,7 @@ public class TestNamingStrategyStd extends BaseMapTest
 
     /**
      * Unit test to verify translations of 
-     * {@link PropertyNamingStrategy#SNAKE_CASE} 
+     * {@link PropertyNamingStrategies#SNAKE_CASE} 
      * outside the context of an ObjectMapper.
      */
     public void testLowerCaseStrategyStandAlone()
@@ -259,7 +259,7 @@ public class TestNamingStrategyStd extends BaseMapTest
 
     /**
      * Unit test to verify translations of 
-     * {@link PropertyNamingStrategy#UPPER_CAMEL_CASE } 
+     * {@link PropertyNamingStrategies#UPPER_CAMEL_CASE } 
      * outside the context of an ObjectMapper.
      */
     public void testPascalCaseStandAlone()

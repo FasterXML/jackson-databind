@@ -1,16 +1,19 @@
 package com.fasterxml.jackson.databind.convert;
 
 import java.math.BigInteger;
+import java.util.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
 public class CoerceFloatToIntTest extends BaseMapTest
 {
-    private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
+    private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
     private final ObjectReader READER_LEGACY_FAIL = DEFAULT_MAPPER.reader()
             .without(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
 
@@ -100,6 +103,45 @@ public class CoerceFloatToIntTest extends BaseMapTest
 //        _verifyCoerceFail(READER_LEGACY_FAIL, AtomicLong.class, "25236.256");
     }
 
+    /*
+    /********************************************************
+    /* Test methods, legacy, correct exception type
+    /********************************************************
+     */
+    
+    // [databind#2804]
+    public void testLegacyFail2804() throws Exception
+    {
+        _testLegacyFail2804("5.5", Integer.class);
+        _testLegacyFail2804("5.0", Long.class);
+        _testLegacyFail2804("1234567890123456789.0", BigInteger.class);
+        _testLegacyFail2804("[4, 5.5, 6]", "5.5",
+                new TypeReference<List<Integer>>() {});
+        _testLegacyFail2804("{\"key1\": 4, \"key2\": 5.5}", "5.5",
+                new TypeReference<Map<String, Integer>>() {});
+    }
+
+    private void _testLegacyFail2804(String value, Class<?> type) throws Exception {
+        _testLegacyFail2804(value, DEFAULT_MAPPER.constructType(type), value);
+    }
+
+    private void _testLegacyFail2804(String doc, String probValue,
+            TypeReference<?> type) throws Exception {
+        _testLegacyFail2804(doc, DEFAULT_MAPPER.constructType(type), probValue);
+    }
+
+    private void _testLegacyFail2804(String doc, JavaType targetType,
+            String probValue) throws Exception {
+        try {
+            READER_LEGACY_FAIL.forType(targetType).readValue(doc);
+            fail("Should not pass");
+        } catch (InvalidFormatException ex) {
+            verifyException(ex, probValue);
+        } catch (MismatchedInputException ex) {
+            fail("Should get subtype, got: "+ex);
+        }
+    }
+    
     /*
     /********************************************************
     /* Test methods, CoerceConfig, to null

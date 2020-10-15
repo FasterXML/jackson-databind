@@ -318,10 +318,6 @@ public abstract class StdDeserializer<T>
     /**
      * @param ctxt Deserialization context for accessing configuration
      * @param p Underlying parser
-     * @param targetType Actual type that is being deserialized, typically
-     *    same as {@link #handledType}, and not necessarily {@code boolean}
-     *    (may be {@code boolean[]} or {@code AtomicBoolean} for example);
-     *    used for coercion config access
      */
     protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt)
             throws IOException
@@ -1210,10 +1206,12 @@ public abstract class StdDeserializer<T>
         if (value.length() == 0) {
             act = ctxt.findCoercionAction(logicalType, rawTargetType,
                     CoercionInputShape.EmptyString);
-            return _checkCoercionActionFail(ctxt, act, "empty String (\"\")");
+            return _checkCoercionFail(ctxt, act, rawTargetType, value,
+                    "empty String (\"\")");
         } else if (_isBlank(value)) {
             act = ctxt.findCoercionFromBlankString(logicalType, rawTargetType, CoercionAction.Fail);
-            return _checkCoercionActionFail(ctxt, act, "blank String (all whitespace)");
+            return _checkCoercionFail(ctxt, act, rawTargetType, value,
+                    "blank String (all whitespace)");
         } else {
             act = ctxt.findCoercionAction(logicalType, rawTargetType, CoercionInputShape.String);
             if (act == CoercionAction.Fail) {
@@ -1236,7 +1234,8 @@ value, _coercedTypeDesc());
         final CoercionAction act = ctxt.findCoercionAction(LogicalType.Integer,
                 rawTargetType, CoercionInputShape.Float);
         if (act == CoercionAction.Fail) {
-            _checkCoercionActionFail(ctxt, act, "Floating-point value ("+p.getText()+")");
+            return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
+                    "Floating-point value ("+p.getText()+")");
         }
         return act;
     }
@@ -1251,8 +1250,9 @@ value, _coercedTypeDesc());
         CoercionAction act = ctxt.findCoercionAction(LogicalType.Boolean, rawTargetType, CoercionInputShape.Integer);
         switch (act) {
         case Fail:
-            _checkCoercionActionFail(ctxt, act, "Integer value ("+p.getText()+")");
-            break;
+            _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
+                    "Integer value ("+p.getText()+")");
+            return Boolean.FALSE;
         case AsNull:
             return null;
         case AsEmpty:
@@ -1269,11 +1269,16 @@ value, _coercedTypeDesc());
         return !"0".equals(p.getText());
     }
 
-    protected CoercionAction _checkCoercionActionFail(DeserializationContext ctxt,
-            CoercionAction act, String inputDesc) throws IOException
+    /**
+     * @since 2.12
+     */
+    protected CoercionAction _checkCoercionFail(DeserializationContext ctxt,
+            CoercionAction act, Class<?> targetType, Object inputValue,
+            String inputDesc)
+        throws IOException
     {
         if (act == CoercionAction.Fail) {
-            ctxt.reportInputMismatch(this,
+            ctxt.reportBadCoercion(this, targetType, inputValue,
 "Cannot coerce %s to %s (but could if coercion was enabled using `CoercionConfig`)",
 inputDesc, _coercedTypeDesc());
         }

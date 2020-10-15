@@ -13,6 +13,9 @@ Project: jackson-databind
   of `ObjectMapper.treeToValue()` regarding exceptions
 #2880: Revert removal of 2.7-deprecated `PropertyNamingStrategy` constants
  (reported by brettkail-wk@github)
+#2804: Throw `InvalidFormatException` instead of `MismatchedInputException`
+   for ACCEPT_FLOAT_AS_INT coercion failures
+ (requested by mjustin@github)
 
 2.12.0-rc1 (12-Oct-2020)
 

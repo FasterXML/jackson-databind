@@ -7,6 +7,8 @@ Project: jackson-databind
 
 2.12.0-rc2 (not yet released)
 
+#1458: `@JsonAnyGetter` should be allowed on a field
+ (contributed by Dominik K)
 #2775: Disabling `FAIL_ON_INVALID_SUBTYPE` breaks polymorphic deserialization of Enums
  (reported by holgerknoche@github)
 #2878: Revert change initially made to fix #2805: change in signature

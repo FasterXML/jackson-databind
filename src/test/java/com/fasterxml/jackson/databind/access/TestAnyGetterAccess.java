@@ -34,6 +34,22 @@ public class TestAnyGetterAccess
         }
     }
 
+    static class DynaFieldBean {
+        public int id;
+
+        @JsonAnyGetter
+        @JsonAnySetter
+        protected HashMap<String,String> other = new HashMap<String,String>();
+
+        public Map<String,String> any() {
+            return other;
+        }
+
+        public void set(String name, String value) {
+            other.put(name, value);
+        }
+    }
+
     static class PrivateThing
     {
         @JsonAnyGetter
@@ -61,6 +77,18 @@ public class TestAnyGetterAccess
         assertEquals("{\"id\":123,\"name\":\"Billy\"}", MAPPER.writeValueAsString(b));
 
         DynaBean result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\"}", DynaBean.class);
+        assertEquals(2, result.id);
+        assertEquals("Joe", result.other.get("name"));
+    }
+
+    public void testDynaFieldBean() throws Exception
+    {
+        DynaFieldBean b = new DynaFieldBean();
+        b.id = 123;
+        b.set("name", "Billy");
+        assertEquals("{\"id\":123,\"name\":\"Billy\"}", MAPPER.writeValueAsString(b));
+
+        DynaFieldBean result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\"}", DynaFieldBean.class);
         assertEquals(2, result.id);
         assertEquals("Joe", result.other.get("name"));
     }

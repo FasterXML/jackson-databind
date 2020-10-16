@@ -377,6 +377,74 @@ byte[] binary = mapper.convertValue(base64, byte[].class);
 
 Basically, Jackson can work as a replacement for many Apache Commons components, for tasks like base64 encoding/decoding, and handling of "dyna beans" (Maps to/from POJOs).
 
+## Tutorial: Builder design pattern + Jackson
+The Builder design pattern is a creational design pattern and can be used to create complex objects step by step.
+If we have an object that needs multiple checks on other dependencies, In such cases, it is preferred to use builder design pattern.
+
+Let's consider the person structure, which has some optional fields
+
+```java
+public class Person {
+    private final String name;
+    private final Integer age;
+ 
+    // getters
+}
+```
+
+Let’s see how we can employ its power in deserialization. First of all, let’s declare a private all-arguments constructor, and a Builder class.
+```java
+private Person(String name, Integer age) {
+    this.name = name;
+    this.age = age;
+}
+ 
+static class Builder {
+    String name;
+    Integer age;
+    
+    Builder withName(String name) {
+        this.name = name;
+        return this;
+    }
+    
+    Builder withAge(Integer age) {
+        this.age = age;
+        return this;
+    }
+    
+    public Person build() {
+        return new Person(name, age);
+    } 
+}
+```
+First of all, we need to mark our class with `@JsonDeserialize` annotation, passing a builder parameter with a fully qualified domain name of a builder class.
+After that, we need to annotate the builder class itself as `@JsonPOJOBuilder`.
+
+```java
+@JsonDeserialize(builder = Person.Builder.class)
+public class Person {
+    //...
+    
+    @JsonPOJOBuilder
+    static class Builder {
+        //...
+    }
+}
+```
+
+A simple unit test will be:
+
+```java
+String json = "{\"name\":\"Hassan\",\"age\":23}";
+Person person = new ObjectMapper().readValue(json, Person.class);
+ 
+assertEquals("Hassan", person.getName());
+assertEquals(23, person.getAge().intValue());
+```
+
+Overall, Jackson library is very powerful in deserializing objects using builder pattern.
+ 
 # Contribute!
 
 We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.

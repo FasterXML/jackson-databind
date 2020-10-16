@@ -163,13 +163,43 @@ public class AnyGetterTest extends BaseMapTest
     @JsonFilter("Bean2592")
     static class Bean2592WithFilter extends Bean2592NoAnnotations {}
 
+    // [databind#1458]: Allow `@JsonAnyGetter` on fields too
+    static class DynaFieldBean {
+        public int id;
+
+        @JsonAnyGetter
+        @JsonAnySetter
+        protected HashMap<String,String> other = new HashMap<String,String>();
+
+        public Map<String,String> any() {
+            return other;
+        }
+
+        public void set(String name, String value) {
+            other.put(name, value);
+        }
+    }
+
+    // [databind#1458]: Allow `@JsonAnyGetter` on fields too
+    public void testDynaFieldBean() throws Exception
+    {
+        DynaFieldBean b = new DynaFieldBean();
+        b.id = 123;
+        b.set("name", "Billy");
+        assertEquals("{\"id\":123,\"name\":\"Billy\"}", MAPPER.writeValueAsString(b));
+
+        DynaFieldBean result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\"}", DynaFieldBean.class);
+        assertEquals(2, result.id);
+        assertEquals("Joe", result.other.get("name"));
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testSimpleAnyBean() throws Exception
     {

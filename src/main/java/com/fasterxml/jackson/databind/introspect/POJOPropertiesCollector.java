@@ -214,7 +214,18 @@ public class POJOPropertiesCollector
     }
 
     /**
-     * @since 2.12
+     * Alias for {@link #getAnyGetterMethod()}.
+     *
+     * @deprecated Since 2.12 use separate {@link #getAnyGetterMethod()} and
+     *     {@link #getAnyGetterField()}.
+     */
+    @Deprecated // since 2.12
+    public AnnotatedMember getAnyGetter() {
+        return getAnyGetterMethod();
+    }
+
+    /**
+     * @since 2.12 (before only had "getAnyGetter()")
      */
     public AnnotatedMember getAnyGetterField()
     {
@@ -231,6 +242,9 @@ public class POJOPropertiesCollector
         return null;
     }
 
+    /**
+     * @since 2.12 (before only had "getAnyGetter()")
+     */
     public AnnotatedMember getAnyGetterMethod()
     {
         if (!_collected) {
@@ -721,7 +735,7 @@ public class POJOPropertiesCollector
         }
         // 27-Dec-2019, tatu: [databind#2527] may need to rename according to field
         implName = _checkRenameByField(implName);
-        boolean ignore = ai != null && ai.hasIgnoreMarker(m);
+        boolean ignore = (ai != null) && ai.hasIgnoreMarker(m);
         _property(props, implName).addSetter(m, pn, nameExplicit, visible, ignore);
     }
 

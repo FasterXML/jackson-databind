@@ -318,6 +318,14 @@ public abstract class JsonNode
 
     /**
      * Method that can be used to check whether contained value
+     * has a fractional part or not.
+     *
+     * @return True if the value has fractional part
+     */
+    public boolean hasFractionalPart() { return false; }
+
+    /**
+     * Method that can be used to check whether contained value
      * is a number represented as Java <code>long</code>.
      * Note, however, that even if this method returns false, it
      * is possible that conversion would be possible from other numeric

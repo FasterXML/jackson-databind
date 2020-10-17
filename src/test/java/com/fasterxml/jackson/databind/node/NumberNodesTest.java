@@ -50,6 +50,7 @@ public class NumberNodesTest extends NodeTestBase
         assertType(result, IntNode.class);
         assertFalse(result.isLong());
         assertFalse(result.isFloatingPointNumber());
+        assertFalse(result.hasFractionalPart());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
         assertFalse(result.isTextual());
@@ -131,6 +132,7 @@ public class NumberNodesTest extends NodeTestBase
         assertType(result, LongNode.class);
         assertFalse(result.isInt());
         assertFalse(result.isFloatingPointNumber());
+        assertFalse(result.hasFractionalPart());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
         assertFalse(result.isTextual());
@@ -185,6 +187,7 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isNull());
         assertType(result, DoubleNode.class);
         assertTrue(result.isFloatingPointNumber());
+        assertTrue(result.hasFractionalPart());
         assertTrue(result.isDouble());
         assertFalse(result.isInt());
         assertFalse(result.isLong());
@@ -211,7 +214,9 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
         assertEquals(JsonParser.NumberType.FLOAT, n.numberType());
         assertEquals(0, n.intValue());
-        
+        assertTrue(n.isFloatingPointNumber());
+        assertTrue(n.hasFractionalPart());
+
         // NOTE: conversion to double NOT as simple as with exact numbers like 0.25:
         assertEquals(0.45f, n.floatValue());
         assertEquals("0.45", n.asText());
@@ -281,6 +286,7 @@ public class NumberNodesTest extends NodeTestBase
         assertType(result, DecimalNode.class);
         assertFalse(result.isInt());
         assertTrue(result.isFloatingPointNumber());
+        assertTrue(result.hasFractionalPart());
         assertTrue(result.isBigDecimal());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());

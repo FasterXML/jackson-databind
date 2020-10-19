@@ -221,12 +221,6 @@ final class AnnotatedCreatorCollector
         if (candidates == null) {
             return Collections.emptyList();
         }
-        // 05-Sep-2020, tatu: Important fix wrt [databind#2821] -- static methods
-        //   do NOT have type binding context of the surrounding class and although
-        //   passing that should not break things, it appears to... Regardless,
-        //   it should not be needed or useful as those bindings are only available
-        //   to non-static members
-        TypeResolutionContext typeResCtxt = new TypeResolutionContext.Empty(_typeFactory);
 
         int factoryCount = candidates.size();
         List<AnnotatedMethod> result = new ArrayList<>(factoryCount);
@@ -250,8 +244,7 @@ final class AnnotatedCreatorCollector
                 for (int i = 0; i < factoryCount; ++i) {
                     if (key.equals(methodKeys[i])) {
                         result.set(i,
-                                constructFactoryCreator(candidates.get(i),
-                                        typeResCtxt, mixinFactory));
+                                constructFactoryCreator(candidates.get(i), mixinFactory));
                         break;
                     }
                 }
@@ -262,8 +255,7 @@ final class AnnotatedCreatorCollector
             AnnotatedMethod factory = result.get(i);
             if (factory == null) {
                 result.set(i,
-                        constructFactoryCreator(candidates.get(i),
-                                typeResCtxt, null));
+                        constructFactoryCreator(candidates.get(i), null));
             }
         }
         return result;
@@ -335,19 +327,18 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
                 collectAnnotations(ctor, mixin), resolvedAnnotations);
     }
 
-    protected AnnotatedMethod constructFactoryCreator(Method m,
-            TypeResolutionContext typeResCtxt, Method mixin)
+    protected AnnotatedMethod constructFactoryCreator(Method m, Method mixin)
     {
         final int paramCount = m.getParameterTypes().length;
         if (_intr == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(typeResCtxt, m, _emptyAnnotationMap(),
+            return new AnnotatedMethod(_typeContext, m, _emptyAnnotationMap(),
                     _emptyAnnotationMaps(paramCount));
         }
         if (paramCount == 0) { // common enough we can slightly optimize
-            return new AnnotatedMethod(typeResCtxt, m, collectAnnotations(m, mixin),
+            return new AnnotatedMethod(_typeContext, m, collectAnnotations(m, mixin),
                     NO_ANNOTATION_MAPS);
         }
-        return new AnnotatedMethod(typeResCtxt, m, collectAnnotations(m, mixin),
+        return new AnnotatedMethod(_typeContext, m, collectAnnotations(m, mixin),
                 collectAnnotations(m.getParameterAnnotations(),
                         (mixin == null) ? null : mixin.getParameterAnnotations()));
     }

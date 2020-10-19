@@ -44,25 +44,4 @@ public interface TypeResolutionContext {
         }
         */
     }
-
-    /**
-     * Dummy implementation for case where there are no bindings available
-     * (for example, for static methods and fields)
-     *
-     * @since 2.11.3
-     */
-    public static class Empty
-        implements TypeResolutionContext
-    {
-        private final TypeFactory _typeFactory;
-
-        public Empty(TypeFactory tf) {
-            _typeFactory = tf;
-        }
-
-        @Override
-        public JavaType resolveType(Type type) {
-            return _typeFactory.constructType(type);
-        }
-    }
 }

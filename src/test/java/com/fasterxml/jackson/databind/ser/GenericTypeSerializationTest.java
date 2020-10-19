@@ -8,6 +8,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.GenericTypeSerializationTest.WrapperWithFactoryMethod.Value;
+
+import static java.util.Objects.requireNonNull;
 
 public class GenericTypeSerializationTest extends BaseMapTest
 {
@@ -164,6 +167,74 @@ public class GenericTypeSerializationTest extends BaseMapTest
         }
     }
 
+    public static class WrapperWithFactoryMethod<T> {
+        private final List<T> values;
+
+        private WrapperWithFactoryMethod(List<T> values) {
+            this.values = requireNonNull(values, "values is null");
+        }
+
+        @JsonProperty
+        public List<T> getValues() {
+            return values;
+        }
+
+        @JsonCreator
+        public static <T> WrapperWithFactoryMethod<T> fromValues(@JsonProperty("values") List<T> values) {
+            return new WrapperWithFactoryMethod<>(values);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            WrapperWithFactoryMethod<?> wrapper = (WrapperWithFactoryMethod<?>) o;
+            return Objects.equals(values, wrapper.values);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(values);
+        }
+
+        @Override
+        public String toString() {
+            return values.toString();
+        }
+
+        public static class Value {
+            public int x;
+
+            @JsonCreator
+            public Value(@JsonProperty("x") int x) {
+                this.x = x;
+            }
+
+            @JsonProperty
+            public int getX() {
+                return x;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) { return true; }
+                if (o == null || getClass() != o.getClass()) { return false; }
+                Value rawValue = (Value) o;
+                return x == rawValue.x;
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(x);
+            }
+
+            @Override
+            public String toString() {
+                return String.valueOf(x);
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -258,5 +329,12 @@ public class GenericTypeSerializationTest extends BaseMapTest
         // fails with com.fasterxml.jackson.databind.JsonMappingException: Strange Map type java.util.Map: cannot determine type parameters (through reference chain: com.github.lhotari.jacksonbug.JacksonBugIsolatedTest$Wrapper["entities"]->java.util.Collections$SingletonList[0]->com.github.lhotari.jacksonbug.JacksonBugIsolatedTest$Entity["attributes"])
         String json = MAPPER.writeValueAsString(val);
         assertNotNull(json);
+    }
+
+    public void testTypeResolutionFactoryMethod() throws Exception
+    {
+        WrapperWithFactoryMethod<Value> src = new WrapperWithFactoryMethod<>(Arrays.asList(new Value(1), new Value(2)));
+        WrapperWithFactoryMethod<Value> output = MAPPER.readValue(MAPPER.writeValueAsString(src), new TypeReference<WrapperWithFactoryMethod<Value>>() {});
+        assertEquals(src, output);
     }
 }

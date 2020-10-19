@@ -54,9 +54,7 @@ public class FloatNode extends NumericNode
 
     @Override
     public boolean hasFractionalPart() {
-        long iPart = (long) _value;
-        double fPart = _value - iPart;
-        return fPart != 0.0;
+        return _value % 1 != 0.0;
     }
 
     @Override public boolean canConvertToInt() {

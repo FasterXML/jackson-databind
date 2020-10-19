@@ -245,13 +245,10 @@ public final class BaseSettings
      */
     public BaseSettings with(TimeZone tz)
     {
-        if (tz == null) {
-            throw new IllegalArgumentException();
-        }
         if (tz == _timeZone) {
             return this;
         }
-        DateFormat df = _force(_dateFormat, tz);
+        DateFormat df = _force(_dateFormat, (tz == null) ? DEFAULT_TIMEZONE : tz);
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, df, _handlerInstantiator, _locale,
                 tz, _defaultBase64, _nodeFactory);

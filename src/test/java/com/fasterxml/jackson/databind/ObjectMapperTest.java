@@ -282,4 +282,49 @@ public class ObjectMapperTest extends BaseMapTest
                 .collect(Collectors.toList());
         assertEquals(Arrays.asList("dep1", "dep2", "main"), ids);
     }
+
+    // since 2.12
+    public void testHasExplicitTimeZone() throws Exception
+    {
+        final TimeZone DEFAULT_TZ = TimeZone.getTimeZone("UTC");
+
+        // By default, not explicitly set
+        assertFalse(MAPPER.serializationConfig().hasExplicitTimeZone());
+        assertFalse(MAPPER.deserializationConfig().hasExplicitTimeZone());
+        assertEquals(DEFAULT_TZ, MAPPER.serializationConfig().getTimeZone());
+        assertEquals(DEFAULT_TZ, MAPPER.deserializationConfig().getTimeZone());
+        assertFalse(MAPPER.reader().getConfig().hasExplicitTimeZone());
+        assertFalse(MAPPER.writer().getConfig().hasExplicitTimeZone());
+
+        final TimeZone TZ = TimeZone.getTimeZone("GMT+4");
+
+        // should be able to set it via mapper
+        ObjectMapper mapper = JsonMapper.builder()
+                .defaultTimeZone(TZ)
+                .build();
+        assertSame(TZ, mapper.serializationConfig().getTimeZone());
+        assertSame(TZ, mapper.deserializationConfig().getTimeZone());
+        assertTrue(mapper.serializationConfig().hasExplicitTimeZone());
+        assertTrue(mapper.deserializationConfig().hasExplicitTimeZone());
+        assertTrue(mapper.reader().getConfig().hasExplicitTimeZone());
+        assertTrue(mapper.writer().getConfig().hasExplicitTimeZone());
+
+        // ... as well as via ObjectReader/-Writer
+        {
+            final ObjectReader r = MAPPER.reader().with(TZ);
+            assertTrue(r.getConfig().hasExplicitTimeZone());
+            assertSame(TZ, r.getConfig().getTimeZone());
+            final ObjectWriter w = MAPPER.writer().with(TZ);
+            assertTrue(w.getConfig().hasExplicitTimeZone());
+            assertSame(TZ, w.getConfig().getTimeZone());
+
+            // but can also remove explicit definition
+            final ObjectReader r2 = r.with((TimeZone) null);
+            assertFalse(r2.getConfig().hasExplicitTimeZone());
+            assertEquals(DEFAULT_TZ, r2.getConfig().getTimeZone());
+            final ObjectWriter w2 = w.with((TimeZone) null);
+            assertFalse(w2.getConfig().hasExplicitTimeZone());
+            assertEquals(DEFAULT_TZ, w2.getConfig().getTimeZone());
+        }
+    }
 }

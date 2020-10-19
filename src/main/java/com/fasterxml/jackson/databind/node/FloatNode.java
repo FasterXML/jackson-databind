@@ -55,7 +55,7 @@ public class FloatNode extends NumericNode
 
     @Override
     public boolean hasFractionalPart() {
-        return !Double.isNaN(_value) && !Double.isInfinite(_value) && _value % 1 != 0.0;
+        return !Float.isNaN(_value) && !Float.isInfinite(_value) && _value % 1 != 0.0;
     }
 
     @Override public boolean canConvertToInt() {

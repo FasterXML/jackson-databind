@@ -54,7 +54,7 @@ public class DoubleNode
 
     @Override
     public boolean hasFractionalPart() {
-        return _value % 1 != 0.0;
+        return !Double.isNaN(_value) && !Double.isInfinite(_value) && _value % 1 != 0.0;
     }
 
     @Override public boolean canConvertToInt() {

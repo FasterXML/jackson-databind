@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.databind.node;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.io.NumberOutput;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.NumberOutput;
-import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
  * <code>JsonNode</code> implementation for efficiently containing 32-bit
@@ -54,7 +55,7 @@ public class FloatNode extends NumericNode
 
     @Override
     public boolean hasFractionalPart() {
-        return _value % 1 != 0.0;
+        return !Double.isNaN(_value) && !Double.isInfinite(_value) && _value % 1 != 0.0;
     }
 
     @Override public boolean canConvertToInt() {

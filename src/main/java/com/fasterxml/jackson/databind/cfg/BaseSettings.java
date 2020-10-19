@@ -322,14 +322,16 @@ public final class BaseSettings
      */
     public BaseSettings with(TimeZone tz)
     {
-        if (tz == null) {
-            throw new IllegalArgumentException();
-        }
         if (tz == _timeZone) {
             return this;
         }
-        
-        DateFormat df = _force(_dateFormat, tz);
+        // 18-Oct-2020, tatu: Should allow use of `null` to revert back to "Default",
+        //    commented out handling used before 2.12
+//        if (tz == null) {
+//            throw new IllegalArgumentException();
+//        }
+
+        DateFormat df = _force(_dateFormat, (tz == null) ? DEFAULT_TIMEZONE : tz);
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,

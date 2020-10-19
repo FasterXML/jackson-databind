@@ -142,7 +142,18 @@ public class TypeBindings
         return new TypeBindings(new String[] { vars[0].getName(), vars[1].getName() },
                 new JavaType[] { typeArg1, typeArg2 }, null);
     }
-    
+
+    /**
+     * Factory method for constructing bindings given names and associated types.
+     */
+    public static TypeBindings create(List<String> names, List<JavaType> types)
+    {
+        if (names == null || names.isEmpty() || types == null || types.isEmpty()) {
+            return EMPTY;
+        }
+        return new TypeBindings(names.toArray(NO_STRINGS), types.toArray(NO_TYPES), null);
+    }
+
     /**
      * Alternate factory method that may be called if it is possible that type
      * does or does not require type parameters; this is mostly useful for

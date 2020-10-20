@@ -57,6 +57,11 @@ public class DecimalNode
     @Override
     public boolean isBigDecimal() { return true; }
 
+    @Override
+    public boolean hasFractionalPart() {
+        return !(_value.signum() == 0 || _value.scale() <= 0 || _value.stripTrailingZeros().scale() <= 0);
+    }
+
     @Override public boolean canConvertToInt() {
         return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
     }

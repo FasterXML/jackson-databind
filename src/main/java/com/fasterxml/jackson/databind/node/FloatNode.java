@@ -53,11 +53,6 @@ public class FloatNode extends NumericNode
     @Override
     public boolean isFloat() { return true; }
 
-    @Override
-    public boolean hasFractionalPart() {
-        return !Float.isNaN(_value) && !Float.isInfinite(_value) && _value % 1 != 0.0;
-    }
-
     @Override public boolean canConvertToInt() {
         return (_value >= Integer.MIN_VALUE && _value <= Integer.MAX_VALUE);
     }
@@ -65,7 +60,13 @@ public class FloatNode extends NumericNode
     @Override public boolean canConvertToLong() {
         return (_value >= Long.MIN_VALUE && _value <= Long.MAX_VALUE);
     }
-    
+
+    @Override // since 2.12
+    public boolean canConvertToExactIntegral() {
+        return !Float.isNaN(_value) && !Float.isInfinite(_value)
+                && (_value == Math.round(_value));
+    }
+
     @Override
     public Number numberValue() {
         return Float.valueOf(_value);
@@ -102,6 +103,7 @@ public class FloatNode extends NumericNode
     // @since 2.9
     @Override
     public boolean isNaN() {
+        // Java 8 will have `Float.isFinite()` to combine both checks
         return Float.isNaN(_value) || Float.isInfinite(_value);
     }
 

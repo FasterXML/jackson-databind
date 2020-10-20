@@ -7,8 +7,12 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 abstract class NodeTestBase extends BaseMapTest
 {
     protected void assertNodeNumbersForNonNumeric(JsonNode n)
-    { 
+    {
         assertFalse(n.isNumber());
+        assertFalse(n.canConvertToInt()); 
+        assertFalse(n.canConvertToLong()); 
+        assertFalse(n.canConvertToExactIntegral()); 
+
         assertEquals(0, n.asInt());
         assertEquals(-42, n.asInt(-42));
         assertEquals(0, n.asLong());
@@ -16,7 +20,8 @@ abstract class NodeTestBase extends BaseMapTest
         assertEquals(0.0, n.asDouble());
         assertEquals(-19.25, n.asDouble(-19.25));
     }
-    
+
+    // Test to check conversions, coercions
     protected void assertNodeNumbers(JsonNode n, int expInt, double expDouble)
     {
         assertEquals(expInt, n.asInt());

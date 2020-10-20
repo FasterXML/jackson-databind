@@ -50,11 +50,14 @@ public class NumberNodesTest extends NodeTestBase
         assertType(result, IntNode.class);
         assertFalse(result.isLong());
         assertFalse(result.isFloatingPointNumber());
-        assertFalse(result.hasFractionalPart());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
         assertFalse(result.isTextual());
         assertFalse(result.isMissingNode());
+
+        assertTrue(result.canConvertToInt());
+        assertTrue(result.canConvertToLong());
+        assertTrue(result.canConvertToExactIntegral());
 
         assertEquals(value, result.numberValue().intValue());
         assertEquals(value, result.intValue());
@@ -123,7 +126,7 @@ public class NumberNodesTest extends NodeTestBase
 
     public void testLongViaMapper() throws Exception
     {
-        // need to use something being 32-bit value space
+        // need to use something beyond 32-bit value space
         long value = 12345678L << 32;
         JsonNode result = MAPPER.readTree(String.valueOf(value));
         assertTrue(result.isNumber());
@@ -132,7 +135,6 @@ public class NumberNodesTest extends NodeTestBase
         assertType(result, LongNode.class);
         assertFalse(result.isInt());
         assertFalse(result.isFloatingPointNumber());
-        assertFalse(result.hasFractionalPart());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
         assertFalse(result.isTextual());
@@ -142,6 +144,10 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(value, result.longValue());
         assertEquals(String.valueOf(value), result.asText());
         assertEquals((double) value, result.doubleValue());
+
+        assertFalse(result.canConvertToInt());
+        assertTrue(result.canConvertToLong());
+        assertTrue(result.canConvertToExactIntegral());
 
         // also, equality should work ok
         assertEquals(result, LongNode.valueOf(value));
@@ -187,7 +193,8 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.isNull());
         assertType(result, DoubleNode.class);
         assertTrue(result.isFloatingPointNumber());
-        assertTrue(result.hasFractionalPart());
+        assertFalse(result.isIntegralNumber());
+        assertFalse(result.canConvertToExactIntegral());
         assertTrue(result.isDouble());
         assertFalse(result.isInt());
         assertFalse(result.isLong());
@@ -215,7 +222,8 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(JsonParser.NumberType.FLOAT, n.numberType());
         assertEquals(0, n.intValue());
         assertTrue(n.isFloatingPointNumber());
-        assertTrue(n.hasFractionalPart());
+        assertFalse(n.isIntegralNumber());
+        assertFalse(n.canConvertToExactIntegral());
 
         // NOTE: conversion to double NOT as simple as with exact numbers like 0.25:
         assertEquals(0.45f, n.floatValue());
@@ -286,13 +294,16 @@ public class NumberNodesTest extends NodeTestBase
         assertType(result, DecimalNode.class);
         assertFalse(result.isInt());
         assertTrue(result.isFloatingPointNumber());
-        assertTrue(result.hasFractionalPart());
         assertTrue(result.isBigDecimal());
         assertFalse(result.isDouble());
         assertFalse(result.isNull());
         assertFalse(result.isTextual());
         assertFalse(result.isMissingNode());
 
+        assertFalse(result.canConvertToExactIntegral());
+        assertTrue(result.canConvertToInt());
+        assertTrue(result.canConvertToLong());
+        
         assertEquals(value, result.numberValue());
         assertEquals(value.toString(), result.asText());
 

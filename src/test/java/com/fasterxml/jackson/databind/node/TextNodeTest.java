@@ -18,6 +18,11 @@ public class TextNodeTest extends NodeTestBase
         long value = 127353264013893L;
         TextNode n = TextNode.valueOf(String.valueOf(value));
         assertEquals(value, n.asLong());
+
+        assertFalse(n.isNumber());
+        assertFalse(n.canConvertToInt()); 
+        assertFalse(n.canConvertToLong()); 
+        assertFalse(n.canConvertToExactIntegral()); 
         
         // and then with non-numeric input
         n = TextNode.valueOf("foobar");

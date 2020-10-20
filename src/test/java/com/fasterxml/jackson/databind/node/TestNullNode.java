@@ -36,6 +36,11 @@ public class TestNullNode extends NodeTestBase
         assertFalse(n.isPojo());
         assertFalse(n.isMissingNode());
 
+        assertFalse(n.isNumber());
+        assertFalse(n.canConvertToInt()); 
+        assertFalse(n.canConvertToLong()); 
+        assertFalse(n.canConvertToExactIntegral()); 
+
         // fallback accessors
         assertFalse(n.booleanValue());
         assertNull(n.numberValue());

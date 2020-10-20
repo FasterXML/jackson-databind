@@ -1226,6 +1226,16 @@ Swayam Raina (swayamraina@github)
   * Contributed #2761: Support multiple names in `JsonSubType.Type`
   (2.12.0)
 
+Oguzhan Unlu (oguzhanunlu@github)
+  * Requested #2855: Add `JsonNode.canConvertToExactIntegral()` to indicate whether
+    floating-point/BigDecimal values could be converted to integers losslessly
+  (2.12.0)
+
+Siavash Soleymani (siavashsoleymani@github)
+  * Contributed implementation for #2855:Add `JsonNode.canConvertToExactIntegral()` to
+    indicate whether floating-point/BigDecimal values could be converted to integers losslessly
+  (2.12.0)
+
 Ilya Golovin (ilgo0413@github)
   * Contributed #2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys
   (2.12.0)

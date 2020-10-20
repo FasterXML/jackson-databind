@@ -20,6 +20,14 @@ public class ArrayNodeTest
     public void testDirectCreation() throws IOException
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
+
+        assertFalse(n.isBoolean());
+        assertFalse(n.isTextual());
+        assertFalse(n.isNumber());
+        assertFalse(n.canConvertToInt()); 
+        assertFalse(n.canConvertToLong()); 
+        assertFalse(n.canConvertToExactIntegral()); 
+        
         assertStandardEquals(n);
         assertFalse(n.elements().hasNext());
         assertFalse(n.fieldNames().hasNext());

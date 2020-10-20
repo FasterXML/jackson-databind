@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.databind.node;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.io.NumberOutput;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.NumberOutput;
-import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
  * {@code JsonNode} implementation for efficiently containing 32-bit
@@ -58,7 +59,13 @@ public class FloatNode extends NumericNode
     @Override public boolean canConvertToLong() {
         return (_value >= Long.MIN_VALUE && _value <= Long.MAX_VALUE);
     }
-    
+
+    @Override // since 2.12
+    public boolean canConvertToExactIntegral() {
+        return !Float.isNaN(_value) && !Float.isInfinite(_value)
+                && (_value == Math.round(_value));
+    }
+
     @Override
     public Number numberValue() {
         return Float.valueOf(_value);

@@ -84,6 +84,13 @@ public class ObjectNodeTest
         assertEquals(2, root.size());
         assertFalse(root.isEmpty());
 
+        assertFalse(root.isBoolean());
+        assertFalse(root.isTextual());
+        assertFalse(root.isNumber());
+        assertFalse(root.canConvertToInt()); 
+        assertFalse(root.canConvertToLong()); 
+        assertFalse(root.canConvertToExactIntegral()); 
+        
         Iterator<JsonNode> it = root.iterator();
         assertNotNull(it);
         assertTrue(it.hasNext());

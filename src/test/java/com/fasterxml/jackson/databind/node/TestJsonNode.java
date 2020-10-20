@@ -28,6 +28,11 @@ public class TestJsonNode extends NodeTestBase
         assertEquals("false", f.asText());
         assertEquals(JsonToken.VALUE_FALSE, f.asToken());
 
+        assertFalse(f.isNumber());
+        assertFalse(f.canConvertToInt()); 
+        assertFalse(f.canConvertToLong()); 
+        assertFalse(f.canConvertToExactIntegral()); 
+
         // and ditto for true
         BooleanNode t = BooleanNode.getTrue();
         assertNotNull(t);
@@ -69,6 +74,11 @@ public class TestJsonNode extends NodeTestBase
         byte[] data = new byte[3];
         data[1] = (byte) 3;
         BinaryNode n = BinaryNode.valueOf(data, 1, 1);
+        assertFalse(n.isNumber());
+        assertFalse(n.canConvertToInt()); 
+        assertFalse(n.canConvertToLong()); 
+        assertFalse(n.canConvertToExactIntegral()); 
+
         data[2] = (byte) 3;
         BinaryNode n2 = BinaryNode.valueOf(data, 2, 1);
         assertTrue(n.equals(n2));

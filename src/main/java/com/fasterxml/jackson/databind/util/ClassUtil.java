@@ -906,7 +906,7 @@ public final class ClassUtil
      * <p>
      * If there's more than one value annotated, the first one found will be returned. Which one exactly is used is undetermined.
      *
-     * @param enumClass The Enum class to scan for a value with the given annotation
+     * @param enumClass0 The Enum class to scan for a value with the given annotation
      * @param annotationClass The annotation to look for.
      * @return the Enum value annotated with the given Annotation or {@code null} if none is found.
      *

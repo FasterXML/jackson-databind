@@ -872,3 +872,8 @@ Kaki King (kingkk9279@g)
 Jon Anderson (Jon901@github)
   * Reported #2544: java.lang.NoClassDefFoundError Thrown for compact profile1
    (2.9.10.2)
+
+Bartosz Baranowski (baranowb@github)
+  * Reported #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
+   external entity expansion in all cases
+ (2.9.10.7)

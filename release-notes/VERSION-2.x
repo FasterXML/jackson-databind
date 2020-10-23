@@ -6,6 +6,10 @@ Project: jackson-databind
 
 2.9.10.7 (not yet released)
 
+#2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
+  external entity expansion in all cases
+ (reported by Bartosz B)
+
 #2854: Block one more gadget type (javax.swing, CVE-2020-xxx)
  (reported by Yangkun(ICSL))
 

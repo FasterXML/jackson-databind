@@ -443,6 +443,34 @@ assertEquals("Hassan", person.getName());
 assertEquals(23, person.getAge().intValue());
 ```
 
+If your builder pattern implementation uses other prefixes for methods or uses other names than build() for the builder method Jackson also provide a handy way for you.
+
+For example, if you have a builder class uses the "set" prefix for its methods and use the create() method instead of build() for building the whole class, you have to annotate your class like:
+```java
+@JsonPOJOBuilder(buildMethodName = "create", withPrefix = "set")
+static class Builder {
+    String name;
+    Integer age;
+    
+    Builder setName(String name) {
+        this.name = name;
+        return this;
+    }
+    
+    Builder setAge(Integer age) {
+        this.age = age;
+        return this;
+    }
+    
+    public Person create() {
+        return new Person(name, age);
+    } 
+}
+```
+
+
+
+
 Overall, Jackson library is very powerful in deserializing objects using builder pattern.
  
 # Contribute!

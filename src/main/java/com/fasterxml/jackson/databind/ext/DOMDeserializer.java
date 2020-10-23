@@ -39,6 +39,14 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
             // 14-Jul-2016, tatu: Not sure how or why, but during code coverage runs
             //   (via Cobertura) we get `java.lang.AbstractMethodError` so... ignore that too
         }
+
+        // [databind#2589] add two more settings just in case
+        try {
+            parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        } catch (Throwable t) { } // as per previous one, nothing much to do
+        try {
+            parserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (Throwable t) { } // as per previous one, nothing much to do
         DEFAULT_PARSER_FACTORY = parserFactory;
     }
 

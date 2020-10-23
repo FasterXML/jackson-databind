@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+(not yet released)
+
+#2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
+  external entity expansion in all cases (CVE-2020-25649)
+ (reported by Bartosz B)
+
 2.10.5 (21-Jul-2020)
 
 #2787 (partial fix): NPE after add mixin for enum

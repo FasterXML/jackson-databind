@@ -89,23 +89,26 @@ public class CoerceEnumTest extends BaseMapTest
         ObjectMapper mapper;
 
         // First, coerce to null
-        mapper = newJsonMapper();
-        mapper.coercionConfigDefaults().setCoercion(shape, CoercionAction.AsNull)
-            .setAcceptBlankAsEmpty(allowEmpty);
+        mapper = _globMapper(shape, CoercionAction.AsNull, allowEmpty);
         assertNull(_verifyFromEmptyPass(mapper, json));
 
         // Then coerce as empty
-        mapper = newJsonMapper();
-        mapper.coercionConfigDefaults().setCoercion(shape, CoercionAction.AsEmpty)
-            .setAcceptBlankAsEmpty(allowEmpty);
+        mapper = _globMapper(shape, CoercionAction.AsEmpty, allowEmpty);
         EnumCoerce b = _verifyFromEmptyPass(mapper, json);
         assertEquals(ENUM_DEFAULT, b);
 
         // and finally, "try convert", which for Enums is same as "empty" (default)
-        mapper = newJsonMapper();
-        mapper.coercionConfigDefaults().setCoercion(shape, CoercionAction.TryConvert)
-            .setAcceptBlankAsEmpty(allowEmpty);
+        mapper = _globMapper(shape, CoercionAction.TryConvert, allowEmpty);
         assertEquals(ENUM_DEFAULT, _verifyFromEmptyPass(mapper, json));
+    }
+
+    private ObjectMapper _globMapper(CoercionInputShape shape, CoercionAction act,
+            Boolean allowEmpty)
+    {
+        ObjectMapper mapper = newJsonMapper();
+        mapper.coercionConfigDefaults().setCoercion(shape, act)
+            .setAcceptBlankAsEmpty(allowEmpty);
+        return mapper;
     }
 
     private void _testEnumFromEmptyLogicalTypeConfig(final CoercionInputShape shape, final String json,
@@ -113,19 +116,22 @@ public class CoerceEnumTest extends BaseMapTest
         throws Exception
     {
         ObjectMapper mapper;
+        EnumCoerce b;
 
         // First, coerce to null
-        mapper = newJsonMapper();
-        mapper.coercionConfigFor(LogicalType.Enum).setCoercion(shape, CoercionAction.AsNull)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        assertNull(_verifyFromEmptyPass(mapper, json));
+        mapper = _logMapper(LogicalType.Enum, shape, CoercionAction.AsNull, allowEmpty);
+        b = _verifyFromEmptyPass(mapper, json);
+        assertNull(b);
 
         // Then coerce as empty
-        mapper = newJsonMapper();
-        mapper.coercionConfigFor(LogicalType.Enum).setCoercion(shape, CoercionAction.AsEmpty)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        EnumCoerce b = _verifyFromEmptyPass(mapper, json);
-        assertNotNull(b);
+        mapper = _logMapper(LogicalType.Enum, shape, CoercionAction.AsEmpty, allowEmpty);
+        b = _verifyFromEmptyPass(mapper, json);
+        assertEquals(ENUM_DEFAULT, b);
+
+        // and with TryConvert (for enums same as empty)
+        mapper = _logMapper(LogicalType.Enum, shape, CoercionAction.TryConvert, allowEmpty);
+        b = _verifyFromEmptyPass(mapper, json);
+        assertEquals(ENUM_DEFAULT, b);
 
         // But also make fail again with 2-level settings
         mapper = newJsonMapper();
@@ -136,24 +142,35 @@ public class CoerceEnumTest extends BaseMapTest
         _verifyFromEmptyFail(mapper, json);
     }
 
+    private ObjectMapper _logMapper(LogicalType type, CoercionInputShape shape, CoercionAction act,
+            Boolean allowEmpty)
+    {
+        ObjectMapper mapper = newJsonMapper();
+        mapper.coercionConfigFor(type).setCoercion(shape, act)
+            .setAcceptBlankAsEmpty(allowEmpty);
+        return mapper;
+    }
+    
     private void _testEnumFromEmptyPhysicalTypeConfig(final CoercionInputShape shape, final String json,
             Boolean allowEmpty)
         throws Exception
     {
         ObjectMapper mapper;
+        EnumCoerce b;
 
         // First, coerce to null
-        mapper = newJsonMapper();
-        mapper.coercionConfigFor(EnumCoerce.class).setCoercion(shape, CoercionAction.AsNull)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        assertNull(_verifyFromEmptyPass(mapper, json));
+        mapper = _physMapper(EnumCoerce.class, shape, CoercionAction.AsNull, allowEmpty);
+        b = _verifyFromEmptyPass(mapper, json);
+        assertNull(b);
 
         // Then coerce as empty
-        mapper = newJsonMapper();
-        mapper.coercionConfigFor(EnumCoerce.class).setCoercion(shape, CoercionAction.AsEmpty)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        EnumCoerce b = _verifyFromEmptyPass(mapper, json);
-        assertNotNull(b);
+        mapper = _physMapper(EnumCoerce.class, shape, CoercionAction.AsEmpty, allowEmpty);
+        b = _verifyFromEmptyPass(mapper, json);
+        assertEquals(ENUM_DEFAULT, b);
+
+        mapper = _physMapper(EnumCoerce.class, shape, CoercionAction.TryConvert, allowEmpty);
+        b = _verifyFromEmptyPass(mapper, json);
+        assertEquals(ENUM_DEFAULT, b);
 
         // But also make fail again with 2-level settings, with physical having precedence
         mapper = newJsonMapper();
@@ -163,6 +180,15 @@ public class CoerceEnumTest extends BaseMapTest
         _verifyFromEmptyFail(mapper, json);
     }
 
+    private ObjectMapper _physMapper(Class<?> type, CoercionInputShape shape, CoercionAction act,
+            Boolean allowEmpty)
+    {
+        ObjectMapper mapper = newJsonMapper();
+        mapper.coercionConfigFor(type).setCoercion(shape, act)
+            .setAcceptBlankAsEmpty(allowEmpty);
+        return mapper;
+    }
+    
     /*
     /********************************************************
     /* Verification helper methods

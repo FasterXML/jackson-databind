@@ -18,12 +18,12 @@ Project: jackson-databind
 #2804: Throw `InvalidFormatException` instead of `MismatchedInputException`
    for ACCEPT_FLOAT_AS_INT coercion failures
  (requested by mjustin@github)
-#2855: Add `JsonNode.canConvertToExactIntegral()` to indicate whether floating-point/BigDecimal
-  values could be converted to integers losslessly
- (requested by Oguzhan U; implementation contributed by Siavash S)
 #2879: Add support for disabling special handling of "Creator properties" wrt
   alphabetic property ordering
  (contributed by Sergiy Y)
+#2885: Add `JsonNode.canConvertToExactIntegral()` to indicate whether floating-point/BigDecimal
+  values could be converted to integers losslessly
+ (requested by Oguzhan U; implementation contributed by Siavash S)
 
 2.12.0-rc1 (12-Oct-2020)
 

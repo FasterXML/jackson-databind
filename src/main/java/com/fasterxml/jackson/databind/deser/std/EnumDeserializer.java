@@ -173,16 +173,15 @@ public class EnumDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        String text;
-        JsonToken curr = p.currentToken();
-
         // Usually should just get string value:
         // 04-Sep-2020, tatu: for 2.11.3 / 2.12.0, removed "FIELD_NAME" as allowed;
         //   did not work and gave odd error message.
-        if (curr == JsonToken.VALUE_STRING) {
-            text = p.getText();
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
+            return _fromString(p, ctxt, p.getText());
+        }
+
         // But let's consider int acceptable as well (if within ordinal range)
-        } else if (curr == JsonToken.VALUE_NUMBER_INT) {
+        if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             // ... unless told not to do that
             int index = p.getIntValue();
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
@@ -203,13 +202,20 @@ public class EnumDeserializer
                         _enumsByIndex.length-1);
             }
             return null;
-        } else if (curr == JsonToken.START_OBJECT) {
-            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
-            text = ctxt.extractScalarFromObject(p, this, _valueClass);
-        } else {
-            return _deserializeOther(p, ctxt);
         }
 
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        if (p.isExpectedStartObjectToken()) {
+            return _fromString(p, ctxt,
+                    ctxt.extractScalarFromObject(p, this, _valueClass));
+        }
+        return _deserializeOther(p, ctxt);
+    }
+
+    protected Object _fromString(JsonParser p, DeserializationContext ctxt,
+            String text)
+        throws IOException
+    {
         CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 ? _getToStringLookup(ctxt) : _lookupByName;
         Object result = lookup.find(text);

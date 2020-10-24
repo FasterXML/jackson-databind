@@ -76,6 +76,84 @@ public class CoerceEnumTest extends BaseMapTest
     /********************************************************
      */
 
+    public void testEnumFromIntFailLegacy() throws Exception
+    {
+        final ObjectReader r = MAPPER.readerFor(EnumCoerce.class);
+
+        // by default, should be ok
+        EnumCoerce result = r.readValue("1");
+        assertEquals(EnumCoerce.values()[1], result);
+
+        try {
+            r.with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
+                .readValue("1");
+            fail("Should not pass");
+        } catch (Exception e) {
+            verifyException(e, "not allowed to deserialize Enum value out of");
+        }
+    }
+
+    public void testEnumFromIntAsNull() throws Exception
+    {
+        final String json = "1";
+        ObjectMapper mapper;
+
+        mapper = _globMapper(CoercionInputShape.Integer, CoercionAction.AsNull, false);
+        assertNull(_readEnumPass(mapper, json));
+        mapper = _logMapper(LogicalType.Enum,
+                CoercionInputShape.Integer, CoercionAction.AsNull, false);
+        assertNull(_readEnumPass(mapper, json));
+        mapper = _physMapper(EnumCoerce.class,
+                CoercionInputShape.Integer, CoercionAction.AsNull, false);
+        assertNull(_readEnumPass(mapper, json));
+    }
+
+    public void testEnumFromIntAsEmpty() throws Exception
+    {
+        final String json = "1";
+        ObjectMapper mapper;
+
+        mapper = _globMapper(CoercionInputShape.Integer, CoercionAction.AsEmpty, false);
+        assertEquals(ENUM_DEFAULT, _readEnumPass(mapper, json));
+        mapper = _logMapper(LogicalType.Enum,
+                CoercionInputShape.Integer, CoercionAction.AsEmpty, false);
+        assertEquals(ENUM_DEFAULT, _readEnumPass(mapper, json));
+        mapper = _physMapper(EnumCoerce.class,
+                CoercionInputShape.Integer, CoercionAction.AsEmpty, false);
+        assertEquals(ENUM_DEFAULT, _readEnumPass(mapper, json));
+    }
+
+    public void testEnumFromIntCoerce() throws Exception
+    {
+        final String json = "1";
+        ObjectMapper mapper;
+        EnumCoerce exp = EnumCoerce.B; // entry[1]
+
+        mapper = _globMapper(CoercionInputShape.Integer, CoercionAction.TryConvert, false);
+        assertEquals(exp, _readEnumPass(mapper, json));
+        mapper = _logMapper(LogicalType.Enum,
+                CoercionInputShape.Integer, CoercionAction.TryConvert, false);
+        assertEquals(exp, _readEnumPass(mapper, json));
+        mapper = _physMapper(EnumCoerce.class,
+                CoercionInputShape.Integer, CoercionAction.TryConvert, false);
+        assertEquals(exp, _readEnumPass(mapper, json));
+    }
+
+    public void testEnumFromIntFailCoercionConfig() throws Exception
+    {
+        final String json = "1";
+        ObjectMapper mapper;
+
+        mapper = _globMapper(CoercionInputShape.Integer, CoercionAction.Fail, false);
+        _verifyFromIntegerFail(mapper, json);
+        mapper = _logMapper(LogicalType.Enum,
+                CoercionInputShape.Integer, CoercionAction.Fail, false);
+        _verifyFromIntegerFail(mapper, json);
+        mapper = _physMapper(EnumCoerce.class,
+                CoercionInputShape.Integer, CoercionAction.Fail, false);
+        _verifyFromIntegerFail(mapper, json);
+    }
+
     /*
     /********************************************************
     /* Second-level helper methods
@@ -90,16 +168,16 @@ public class CoerceEnumTest extends BaseMapTest
 
         // First, coerce to null
         mapper = _globMapper(shape, CoercionAction.AsNull, allowEmpty);
-        assertNull(_verifyFromEmptyPass(mapper, json));
+        assertNull(_readEnumPass(mapper, json));
 
         // Then coerce as empty
         mapper = _globMapper(shape, CoercionAction.AsEmpty, allowEmpty);
-        EnumCoerce b = _verifyFromEmptyPass(mapper, json);
+        EnumCoerce b = _readEnumPass(mapper, json);
         assertEquals(ENUM_DEFAULT, b);
 
         // and finally, "try convert", which for Enums is same as "empty" (default)
         mapper = _globMapper(shape, CoercionAction.TryConvert, allowEmpty);
-        assertEquals(ENUM_DEFAULT, _verifyFromEmptyPass(mapper, json));
+        assertEquals(ENUM_DEFAULT, _readEnumPass(mapper, json));
     }
 
     private void _testEnumFromEmptyLogicalTypeConfig(final CoercionInputShape shape, final String json,
@@ -111,17 +189,17 @@ public class CoerceEnumTest extends BaseMapTest
 
         // First, coerce to null
         mapper = _logMapper(LogicalType.Enum, shape, CoercionAction.AsNull, allowEmpty);
-        b = _verifyFromEmptyPass(mapper, json);
+        b = _readEnumPass(mapper, json);
         assertNull(b);
 
         // Then coerce as empty
         mapper = _logMapper(LogicalType.Enum, shape, CoercionAction.AsEmpty, allowEmpty);
-        b = _verifyFromEmptyPass(mapper, json);
+        b = _readEnumPass(mapper, json);
         assertEquals(ENUM_DEFAULT, b);
 
         // and with TryConvert (for enums same as empty)
         mapper = _logMapper(LogicalType.Enum, shape, CoercionAction.TryConvert, allowEmpty);
-        b = _verifyFromEmptyPass(mapper, json);
+        b = _readEnumPass(mapper, json);
         assertEquals(ENUM_DEFAULT, b);
 
         // But also make fail again with 2-level settings
@@ -145,16 +223,16 @@ public class CoerceEnumTest extends BaseMapTest
 
         // First, coerce to null
         mapper = _physMapper(EnumCoerce.class, shape, CoercionAction.AsNull, allowEmpty);
-        b = _verifyFromEmptyPass(mapper, json);
+        b = _readEnumPass(mapper, json);
         assertNull(b);
 
         // Then coerce as empty
         mapper = _physMapper(EnumCoerce.class, shape, CoercionAction.AsEmpty, allowEmpty);
-        b = _verifyFromEmptyPass(mapper, json);
+        b = _readEnumPass(mapper, json);
         assertEquals(ENUM_DEFAULT, b);
 
         mapper = _physMapper(EnumCoerce.class, shape, CoercionAction.TryConvert, allowEmpty);
-        b = _verifyFromEmptyPass(mapper, json);
+        b = _readEnumPass(mapper, json);
         assertEquals(ENUM_DEFAULT, b);
 
         // But also make fail again with 2-level settings, with physical having precedence
@@ -215,11 +293,11 @@ public class CoerceEnumTest extends BaseMapTest
     /********************************************************
      */
 
-    private EnumCoerce _verifyFromEmptyPass(ObjectMapper m, String json) throws Exception {
-        return _verifyFromEmptyPass(m.reader(), json);
+    private EnumCoerce _readEnumPass(ObjectMapper m, String json) throws Exception {
+        return _readEnumPass(m.reader(), json);
     }
 
-    private EnumCoerce _verifyFromEmptyPass(ObjectReader r, String json) throws Exception
+    private EnumCoerce _readEnumPass(ObjectReader r, String json) throws Exception
     {
         return r.forType(EnumCoerce.class)
                 .readValue(json);
@@ -231,14 +309,21 @@ public class CoerceEnumTest extends BaseMapTest
             m.readValue(json, EnumCoerce.class);
             fail("Should not accept Empty/Blank String for Enum with passed settings");
         } catch (MismatchedInputException e) {
-            _verifyFailMessage(e);
+            verifyException(e, "Cannot coerce ");
+            verifyException(e, " empty String ", " blank String ");
+            assertValidLocation(e.getLocation());
         }
     }
 
-    private void _verifyFailMessage(JsonProcessingException e)
+    private void _verifyFromIntegerFail(ObjectMapper m, String json) throws Exception
     {
-        verifyException(e, "Cannot coerce ");
-        verifyException(e, " empty String ", " blank String ");
-        assertValidLocation(e.getLocation());
+        try {
+            m.readValue(json, EnumCoerce.class);
+            fail("Should not accept Empty/Blank String for Enum with passed settings");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot coerce Integer value (");
+            verifyException(e, "but could if coercion was enabled");
+            assertValidLocation(e.getLocation());
+        }
     }
 }

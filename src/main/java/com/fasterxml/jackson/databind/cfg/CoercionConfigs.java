@@ -194,16 +194,26 @@ public class CoercionConfigs
         }
 
         // Otherwise there are some legacy features that can provide answer
-        if (inputShape == CoercionInputShape.EmptyArray) {
+        switch (inputShape) {
+        case EmptyArray:
             // Default for setting is false
             return config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT) ?
                     CoercionAction.AsNull : CoercionAction.Fail;
-        }
-        if ((inputShape == CoercionInputShape.Float)
-                && (targetType == LogicalType.Integer)) {
-            // Default for setting in 2.x is true
-            return config.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT) ?
-                    CoercionAction.TryConvert : CoercionAction.Fail;
+        case Float:
+            if (targetType == LogicalType.Integer) {
+                // Default for setting in 2.x is true
+                return config.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT) ?
+                        CoercionAction.TryConvert : CoercionAction.Fail;
+            }
+            break;
+        case Integer:
+            if (targetType == LogicalType.Enum) {
+                if (config.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+                    return CoercionAction.Fail;
+                }
+            }
+            break;
+        default:
         }
 
         // classic scalars are numbers, booleans; but date/time also considered

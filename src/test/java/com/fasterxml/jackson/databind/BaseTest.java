@@ -483,7 +483,19 @@ public abstract class BaseTest
         return result;
     }
 
-    public String quote(String str) {
+    public String q(String str) {
         return '"'+str+'"';
+    }
+
+    public String quote(String str) {
+        return q(str);
+    }
+
+    protected static String a2q(String json) {
+        return json.replace("'", "\"");
+    }
+
+    protected static String aposToQuotes(String json) {
+        return a2q(json);
     }
 }

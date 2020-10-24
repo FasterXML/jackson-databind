@@ -189,6 +189,14 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /**
+     * Accessor for checking whether default settings for forcing property
+     * ordering is enabled.
+     */
+    public final boolean shouldPreservePropertiesOrdering() {
+        return isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING);
+    }
+
+    /**
      * Accessor for checking whether configuration indicates that
      * "root wrapping" (use of an extra property/name pair at root level)
      * is expected or not.

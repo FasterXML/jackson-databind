@@ -375,6 +375,20 @@ public enum MapperFeature implements ConfigFeature
      */
     SORT_PROPERTIES_ALPHABETICALLY(false),
 
+    /**
+     * Feature that enforces strict ordering as requested by other configuration methods
+     * for POJO fields (note: does <b>not</b> apply to {@link java.util.Map}
+     * serialization!):
+     * if enabled, ordering is preserved even if {@link com.fasterxml.jackson.annotation.JsonCreator}
+     * is present. Without this feature properties referenced by {@link com.fasterxml.jackson.annotation.JsonCreator}
+     * taking precedence over other properties even if sorting is requested.
+     *<p>
+     * Note that if ordering is not enabled using other ways, this feature has no effect.
+     *<p>
+     * Feature is disabled by default.
+     */
+    STRICT_PROPERTIES_ORDERING(false),
+
     /*
     /******************************************************
     /* Name-related features

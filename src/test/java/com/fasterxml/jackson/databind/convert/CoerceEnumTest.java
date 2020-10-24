@@ -102,17 +102,6 @@ public class CoerceEnumTest extends BaseMapTest
         assertEquals(ENUM_DEFAULT, _verifyFromEmptyPass(mapper, json));
     }
 
-    private ObjectMapper _globMapper(CoercionInputShape shape, CoercionAction act,
-            Boolean allowEmpty)
-    {
-        return jsonMapperBuilder()
-                .withCoercionConfigDefaults(h -> {
-                    h.setCoercion(shape, act)
-                        .setAcceptBlankAsEmpty(allowEmpty);
-                })
-                .build();
-    }
-
     private void _testEnumFromEmptyLogicalTypeConfig(final CoercionInputShape shape, final String json,
             Boolean allowEmpty)
         throws Exception
@@ -145,17 +134,6 @@ public class CoerceEnumTest extends BaseMapTest
                         h -> h.setCoercion(shape, CoercionAction.Fail))
                 .build();
         _verifyFromEmptyFail(mapper, json);
-    }
-
-    private ObjectMapper _logMapper(LogicalType type, CoercionInputShape shape, CoercionAction act,
-            Boolean allowEmpty)
-    {
-        return jsonMapperBuilder()
-                .withCoercionConfig(type,
-                        h -> h.setCoercion(shape, act)
-                            .setAcceptBlankAsEmpty(allowEmpty)
-                )
-                .build();
     }
 
     private void _testEnumFromEmptyPhysicalTypeConfig(final CoercionInputShape shape, final String json,
@@ -192,6 +170,34 @@ public class CoerceEnumTest extends BaseMapTest
         _verifyFromEmptyFail(mapper, json);
     }
 
+    /*
+    /********************************************************
+    /* Mapper construction helpers
+    /********************************************************
+     */
+
+    private ObjectMapper _globMapper(CoercionInputShape shape, CoercionAction act,
+            Boolean allowEmpty)
+    {
+        return jsonMapperBuilder()
+                .withCoercionConfigDefaults(h -> {
+                    h.setCoercion(shape, act)
+                        .setAcceptBlankAsEmpty(allowEmpty);
+                })
+                .build();
+    }
+
+    private ObjectMapper _logMapper(LogicalType type, CoercionInputShape shape, CoercionAction act,
+            Boolean allowEmpty)
+    {
+        return jsonMapperBuilder()
+                .withCoercionConfig(type,
+                        h -> h.setCoercion(shape, act)
+                            .setAcceptBlankAsEmpty(allowEmpty)
+                )
+                .build();
+    }
+
     private ObjectMapper _physMapper(Class<?> type, CoercionInputShape shape, CoercionAction act,
             Boolean allowEmpty)
     {
@@ -202,7 +208,7 @@ public class CoerceEnumTest extends BaseMapTest
                 )
                 .build();
     }
-    
+
     /*
     /********************************************************
     /* Verification helper methods

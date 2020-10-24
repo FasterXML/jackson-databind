@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -170,6 +171,11 @@ public class EnumDeserializer
         return LogicalType.Enum;
     }
 
+    @Override // since 2.12
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _enumDefaultValue;
+    }
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -235,13 +241,29 @@ public class EnumDeserializer
      */
     
     private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,
-            CompactStringObjectMap lookup, String name) throws IOException
+            CompactStringObjectMap lookup, String nameOrig) throws IOException
     {
-        name = name.trim();
-        if (name.length() == 0) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                return getEmptyValue(ctxt);
+        String name = nameOrig.trim();
+        if (name.length() == 0) { // empty or blank
+            CoercionAction act;
+            if (nameOrig.length() == 0) { 
+                act = _findCoercionFromEmptyString(ctxt);
+                act = _checkCoercionFail(ctxt, act, handledType(), nameOrig,
+                        "empty String (\"\")");
+            } else {
+                act = _findCoercionFromBlankString(ctxt);
+                act = _checkCoercionFail(ctxt, act, handledType(), nameOrig,
+                        "blank String (all whitespace)");
             }
+            switch (act) {
+            case AsEmpty:
+            case TryConvert:
+                return getEmptyValue(ctxt);
+            case AsNull:
+            default: // Fail already handled earlier
+            }
+            return null;
+//            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
         } else {
             // [databind#1313]: Case insensitive enum deserialization
             if (Boolean.TRUE.equals(_caseInsensitive)) {

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -188,26 +189,7 @@ public class EnumDeserializer
 
         // But let's consider int acceptable as well (if within ordinal range)
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-            // ... unless told not to do that
-            int index = p.getIntValue();
-            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-                return ctxt.handleWeirdNumberValue(_enumClass(), index,
-                        "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
-                        );
-            }
-            if (index >= 0 && index < _enumsByIndex.length) {
-                return _enumsByIndex[index];
-            }
-            if ((_enumDefaultValue != null)
-                    && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
-                return _enumDefaultValue;
-            }
-            if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                return ctxt.handleWeirdNumberValue(_enumClass(), index,
-                        "index value outside legal index range [0..%s]",
-                        _enumsByIndex.length-1);
-            }
-            return null;
+            return _fromInteger(p, ctxt, p.getIntValue());
         }
 
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
@@ -234,6 +216,51 @@ public class EnumDeserializer
         return result;
     }
 
+    protected Object _fromInteger(JsonParser p, DeserializationContext ctxt,
+            int index)
+        throws IOException
+    {
+        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                CoercionInputShape.Integer);
+
+        // First, check legacy setting for slightly different message
+        if (act == CoercionAction.Fail) {
+            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+                return ctxt.handleWeirdNumberValue(_enumClass(), index,
+                        "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
+                        );
+            }
+            // otherwise this will force failure with new setting
+            _checkCoercionFail(ctxt, act, handledType(), index,
+                    "Integer value ("+index+")");
+        }
+        switch (act) {
+        case AsNull:
+            return null;
+        case AsEmpty:
+            return getEmptyValue(ctxt);
+        case TryConvert:
+        default:
+        }
+        if (index >= 0 && index < _enumsByIndex.length) {
+            return _enumsByIndex[index];
+        }
+        if ((_enumDefaultValue != null)
+                && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+            return _enumDefaultValue;
+        }
+        if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+            return ctxt.handleWeirdNumberValue(_enumClass(), index,
+                    "index value outside legal index range [0..%s]",
+                    _enumsByIndex.length-1);
+        }
+        return null;
+    }
+        /*
+    return _checkCoercionFail(ctxt, act, rawTargetType, value,
+            "empty String (\"\")");
+            */
+    
     /*
     /**********************************************************
     /* Internal helper methods

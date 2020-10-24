@@ -213,7 +213,6 @@ public abstract class StdDeserializer<T>
         if ((inst != null) && inst.canCreateFromString()) {
             return (T) inst.createFromString(ctxt, value);
         }
-
         if (value.length() == 0) {
             final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
                     CoercionInputShape.EmptyString);

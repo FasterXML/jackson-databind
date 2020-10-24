@@ -1021,7 +1021,7 @@ public class POJOPropertiesCollector
         // Then how about explicit ordering?
         final AnnotationIntrospector intr = _annotationIntrospector;
         Boolean alpha = intr.findSerializationSortAlphabetically(_config, _classDef);
-        final boolean sort = (alpha == null)
+        final boolean sortAlpha = (alpha == null)
                 ? _config.shouldSortPropertiesAlphabetically()
                 : alpha.booleanValue();
         final boolean indexed = _anyIndexed(props.values());
@@ -1029,13 +1029,13 @@ public class POJOPropertiesCollector
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
         
         // no sorting? no need to shuffle, then
-        if (!sort && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
+        if (!sortAlpha && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
             return;
         }
         int size = props.size();
         Map<String, POJOPropertyBuilder> all;
         // Need to (re)sort alphabetically?
-        if (sort) {
+        if (sortAlpha) {
             all = new TreeMap<String,POJOPropertyBuilder>();
         } else {
             all = new LinkedHashMap<String,POJOPropertyBuilder>(size+size);
@@ -1084,14 +1084,16 @@ public class POJOPropertiesCollector
         }
 
         // Third by sorting Creator properties before other unordered properties
-        if (_creatorProperties != null) {
+        // (unless strict ordering is requested)
+        if ((_creatorProperties != null)
+                && (!sortAlpha || _config.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST))) {
             /* As per [databind#311], this is bit delicate; but if alphabetic ordering
              * is mandated, at least ensure creator properties are in alphabetic
              * order. Related question of creator vs non-creator is punted for now,
              * so creator properties still fully predate non-creator ones.
              */
             Collection<POJOPropertyBuilder> cr;
-            if (sort) {
+            if (sortAlpha) {
                 TreeMap<String, POJOPropertyBuilder> sorted =
                         new TreeMap<String,POJOPropertyBuilder>();
                 for (POJOPropertyBuilder prop : _creatorProperties) {

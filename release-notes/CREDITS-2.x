@@ -1239,3 +1239,8 @@ Siavash Soleymani (siavashsoleymani@github)
 Ilya Golovin (ilgo0413@github)
   * Contributed #2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys
   (2.12.0)
+
+Sergiy Yevtushenko (siy@github)
+  * Contributed #2879: Add support for disabling special handling of "Creator properties" wrt
+    alphabetic property ordering
+  (2.12.0)

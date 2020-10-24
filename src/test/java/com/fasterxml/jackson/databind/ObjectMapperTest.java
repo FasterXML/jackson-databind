@@ -120,27 +120,35 @@ public class ObjectMapperTest extends BaseMapTest
     // Test to ensure that we can check property ordering defaults...
     public void testConfigForPropertySorting() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         
         // sort-alphabetically is disabled by default:
         assertFalse(m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertTrue(m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
         SerializationConfig sc = m.serializationConfig();
         assertFalse(sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertFalse(sc.shouldSortPropertiesAlphabetically());
+        assertTrue(sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
         DeserializationConfig dc = m.deserializationConfig();
         assertFalse(dc.shouldSortPropertiesAlphabetically());
+        assertTrue(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
 
         // but when enabled, should be visible:
         m = jsonMapperBuilder()
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
                 .build();
+        assertTrue(m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertFalse(m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
         sc = m.serializationConfig();
         assertTrue(sc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(sc.shouldSortPropertiesAlphabetically());
+        assertFalse(sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
         dc = m.deserializationConfig();
         // and not just via SerializationConfig, but also via DeserializationConfig
         assertTrue(dc.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(dc.shouldSortPropertiesAlphabetically());
+        assertFalse(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
     }
 
     public void testDeserializationContextCache() throws Exception   

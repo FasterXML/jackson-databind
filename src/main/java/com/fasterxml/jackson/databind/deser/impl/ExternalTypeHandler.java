@@ -467,7 +467,7 @@ public class ExternalTypeHandler
         }
 
         public boolean hasDefaultType() {
-            return _typeDeserializer.getDefaultImpl() != null;
+            return _typeDeserializer.hasDefaultImpl();
         }
 
         /**

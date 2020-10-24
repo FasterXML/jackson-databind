@@ -5,6 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.LRUMap;
 
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.databind.util.LRUMap;
  */
 public class TestJDKSerialization extends BaseMapTest
 {
+    @JsonPropertyOrder({ "x", "y" })
     static class MyPojo {
         public int x;
         protected int y;
@@ -31,6 +34,7 @@ public class TestJDKSerialization extends BaseMapTest
     }
 
     // for [databind#899]
+    @JsonPropertyOrder({ "abc", "stuff" })
     static class EnumPOJO {
         public ABC abc = ABC.B;
 

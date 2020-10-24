@@ -4,7 +4,25 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.0 (not yet released)
+
+2.12.0-rc2 (not yet released)
+
+#1458: `@JsonAnyGetter` should be allowed on a field
+ (contributed by Dominik K)
+#2775: Disabling `FAIL_ON_INVALID_SUBTYPE` breaks polymorphic deserialization of Enums
+ (reported by holgerknoche@github)
+#2878: Revert change initially made to fix #2805: change in signature
+  of `ObjectMapper.treeToValue()` regarding exceptions
+#2880: Revert removal of 2.7-deprecated `PropertyNamingStrategy` constants
+ (reported by brettkail-wk@github)
+#2804: Throw `InvalidFormatException` instead of `MismatchedInputException`
+   for ACCEPT_FLOAT_AS_INT coercion failures
+ (requested by mjustin@github)
+#2855: Add `JsonNode.canConvertToExactIntegral()` to indicate whether floating-point/BigDecimal
+  values could be converted to integers losslessly
+ (requested by Oguzhan U; implementation contributed by Siavash S)
+
+2.12.0-rc1 (12-Oct-2020)
 
 #43: Add option to resolve type from multiple existing properties,
   `@JsonTypeInfo(use=DEDUCTION)`
@@ -65,7 +83,8 @@ Project: jackson-databind
  (reported by mjustin@github)
 #2800: Extract getter/setter/field name mangling from `BeanUtil` into
   pluggable `AccessorNamingStrategy`
-#2805: Remove `JsonProcessingException` from `ObjectMapper.treeToValue()`
+#2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys
+ (fix contributed by Ilya G)
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 
@@ -161,7 +180,7 @@ Project: jackson-databind
 #2587: Add `MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES` to allow blocking
   use of unsafe base type for polymorphic deserialization
 #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
-  external entity expansion in all cases
+  external entity expansion in all cases [CVE-2020-25649]
  (reported by Bartosz B)
 #2592: `ObjectMapper.setSerializationInclusion()` is ignored for `JsonAnyGetter`
  (reported by Oleksii K)

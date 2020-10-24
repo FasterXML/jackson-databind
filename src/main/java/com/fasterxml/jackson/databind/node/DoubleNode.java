@@ -58,7 +58,13 @@ public class DoubleNode
     @Override public boolean canConvertToLong() {
         return (_value >= Long.MIN_VALUE && _value <= Long.MAX_VALUE);
     }
-    
+
+    @Override // since 2.12
+    public boolean canConvertToExactIntegral() {
+        return !Double.isNaN(_value) && !Double.isInfinite(_value)
+                && (_value == Math.rint(_value));
+    }
+
     @Override
     public Number numberValue() {
         return Double.valueOf(_value);

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 // for [databind#2800]
+@SuppressWarnings("serial")
 public class AccessorNamingStrategyTest extends BaseMapTest
 {
     @JsonPropertyOrder({ "X", "x", "Z", "z" }) // since our naming strategy casings vary
@@ -34,6 +35,19 @@ public class AccessorNamingStrategyTest extends BaseMapTest
         public int x = 72;
 
         public int getY() { return 3; }
+    }
+
+    // Bean for checking optional 
+    @JsonPropertyOrder(alphabetic = true)
+    static class FirstLetterVariesBean {
+        // Do we allow lower-case letter as first letter following prefix?
+        public boolean island() { return true; }
+
+        // Do we allow non-letter 
+        public int get4Roses() { return 42; }
+
+        // But good old upper-case letter is solid always...
+        public int getValue() { return 31337; }
     }
 
     static class AccNaming2800Underscore extends AccessorNamingStrategy
@@ -71,7 +85,6 @@ public class AccessorNamingStrategyTest extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class AccNaming2800Provider extends DefaultAccessorNamingStrategy.Provider
     {
         @Override
@@ -80,7 +93,6 @@ public class AccessorNamingStrategyTest extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class BaseNamingProvider extends DefaultAccessorNamingStrategy.Provider
     {
         @Override
@@ -177,5 +189,49 @@ public class AccessorNamingStrategyTest extends BaseMapTest
 
         SetterBean2800_Y result = mapper.readValue(a2q("{'y':42}"), SetterBean2800_Y.class);
         assertEquals(42, result.yyy);
+    }
+
+    /*
+        public boolean island() { return true; }
+
+        // Do we allow non-letter 
+        public int get_lost() { return 42; }
+
+        // But good old upper-case letter is solid always...
+        public int getValue() { return 31337; }
+     */
+
+    public void testFirstLetterConfigs() throws Exception
+    {
+        final FirstLetterVariesBean input = new FirstLetterVariesBean();
+        final String STD_EXP = a2q("{'4Roses':42,'land':true,'value':31337}");
+
+        // First: vanilla? About anything goes
+        ObjectMapper mapper = newJsonMapper();
+        assertEquals(STD_EXP, mapper.writeValueAsString(input));
+
+        // also if explicitly configured as default:
+        mapper = JsonMapper.builder()
+                .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
+                        .withFirstCharAcceptance(true, true))
+                .build();
+        assertEquals(STD_EXP, mapper.writeValueAsString(input));
+
+        // But we can vary it
+        mapper = JsonMapper.builder()
+                .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
+                        // lower-case = ok; non-letter = not ok
+                        .withFirstCharAcceptance(true, false))
+                .build();
+        assertEquals(a2q("{'land':true,'value':31337}"),
+                mapper.writeValueAsString(input));
+
+        mapper = JsonMapper.builder()
+                .accessorNaming(new DefaultAccessorNamingStrategy.Provider()
+                        // lower-case = not ok; non-letter = ok
+                        .withFirstCharAcceptance(false, true))
+                .build();
+        assertEquals(a2q("{'4Roses':42,'value':31337}"),
+                mapper.writeValueAsString(input));
     }
 }

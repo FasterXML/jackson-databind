@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.util;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -21,31 +23,51 @@ public class EnumResolver implements java.io.Serializable
 
     protected final Enum<?> _defaultValue;
 
+    /**
+     * @since 2.12
+     */
+    protected final boolean _isIgnoreCase;
+
+    /**
+     * @since 2.12
+     */
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> map, Enum<?> defaultValue)
+            HashMap<String, Enum<?>> map, Enum<?> defaultValue,
+            boolean isIgnoreCase)
     {
         _enumClass = enumClass;
         _enums = enums;
         _enumsById = map;
         _defaultValue = defaultValue;
+        _isIgnoreCase = isIgnoreCase;
     }
 
     /**
      * Factory method for constructing resolver that maps from Enum.name() into
-     * Enum value
+     * Enum value.
+     *
+     * @since 2.12
      */
-    public static EnumResolver constructFor(Class<Enum<?>> enumCls, AnnotationIntrospector ai)
+    public static EnumResolver constructFor(DeserializationConfig config,
+            Class<?> enumCls) {
+        return _constructFor(enumCls, config.getAnnotationIntrospector(),
+                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected static EnumResolver _constructFor(Class<?> enumCls0,
+            AnnotationIntrospector ai, boolean isIgnoreCase)
     {
-        Enum<?>[] enumValues = enumCls.getEnumConstants();
-        if (enumValues == null) {
-            throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
-        }
-        String[] names = ai.findEnumValues(enumCls, enumValues, new String[enumValues.length]);
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        String[] names = ai.findEnumValues(enumCls, enumConstants, new String[enumConstants.length]);
         final String[][] allAliases = new String[names.length][];
-        ai.findEnumAliases(enumCls, enumValues, allAliases);
+        ai.findEnumAliases(enumCls, enumConstants, allAliases);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
-        for (int i = 0, len = enumValues.length; i < len; ++i) {
-            final Enum<?> enumValue = enumValues[i];
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            final Enum<?> enumValue = enumConstants[i];
             String name = names[i];
             if (name == null) {
                 name = enumValue.name();
@@ -62,27 +84,30 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return new EnumResolver(enumCls, enumValues, map,  ai.findDefaultEnumValue(enumCls));
-    }
-
-    /**
-     * @deprecated Since 2.8, use {@link #constructUsingToString(Class, AnnotationIntrospector)} instead
-     */
-    @Deprecated
-    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls) {
-        return constructUsingToString(enumCls, null);
+        return new EnumResolver(enumCls, enumConstants, map,
+                _enumDefault(ai, enumCls), isIgnoreCase);
     }
 
     /**
      * Factory method for constructing resolver that maps from Enum.toString() into
      * Enum value
      *
-     * @since 2.8
+     * @since 2.12
      */
-    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls,
-            AnnotationIntrospector ai)
+    public static EnumResolver constructUsingToString(DeserializationConfig config,
+            Class<?> enumCls) {
+        return _constructUsingToString(enumCls, config.getAnnotationIntrospector(),
+                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected static EnumResolver _constructUsingToString(Class<?> enumCls0,
+            AnnotationIntrospector ai, boolean isIgnoreCase)
     {
-        Enum<?>[] enumConstants = enumCls.getEnumConstants();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         final String[][] allAliases = new String[enumConstants.length][];
         ai.findEnumAliases(enumCls, enumConstants, allAliases);
@@ -102,21 +127,34 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return new EnumResolver(enumCls, enumConstants, map, ai.findDefaultEnumValue(enumCls));
+        return new EnumResolver(enumCls, enumConstants, map,
+                _enumDefault(ai, enumCls), isIgnoreCase);
     }
 
     /**
-     * @since 2.9
+     * Method used when actual String serialization is indicated using @JsonValue
+     * on a method in Enum class.
+     * 
+     * @since 2.12
      */
-    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,
-            AnnotatedMember accessor,
-            AnnotationIntrospector ai)
+    public static EnumResolver constructUsingMethod(DeserializationConfig config,
+            Class<?> enumCls, AnnotatedMember accessor) {
+        return _constructUsingMethod(enumCls, accessor, config.getAnnotationIntrospector(),
+                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+    }
+
+    /**
+     * @since 2.12
+     */
+    protected static EnumResolver _constructUsingMethod(Class<?> enumCls0,
+            AnnotatedMember accessor, AnnotationIntrospector ai, boolean isIgnoreCase)
     {
-        Enum<?>[] enumValues = enumCls.getEnumConstants();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumValues.length; --i >= 0; ) {
-            Enum<?> en = enumValues[i];
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> en = enumConstants[i];
             try {
                 Object o = accessor.getValue(en);
                 if (o != null) {
@@ -126,60 +164,133 @@ public class EnumResolver implements java.io.Serializable
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
             }
         }
-        Enum<?> defaultEnum = (ai != null) ? ai.findDefaultEnumValue(enumCls) : null;
-        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+        return new EnumResolver(enumCls, enumConstants, map,
+                _enumDefault(ai, enumCls), isIgnoreCase);
     }    
-
-    /**
-     * This method is needed because of the dynamic nature of constructing Enum
-     * resolvers.
-     */
-    @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafe(Class<?> rawEnumCls, AnnotationIntrospector ai)
-    {            
-        /* This is oh so wrong... but at least ugliness is mostly hidden in just
-         * this one place.
-         */
-        Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
-        return constructFor(enumCls, ai);
-    }
-
-    /**
-     * Method that needs to be used instead of {@link #constructUsingToString}
-     * if static type of enum is not known.
-     *
-     * @since 2.8
-     */
-    @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls,
-            AnnotationIntrospector ai)
-    {
-        // oh so wrong... not much that can be done tho
-        Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
-        return constructUsingToString(enumCls, ai);
-    }
-
-    /**
-     * Method used when actual String serialization is indicated using @JsonValue
-     * on a method.
-     *
-     * @since 2.9
-     */
-    @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls,
-            AnnotatedMember accessor,
-            AnnotationIntrospector ai)
-    {            
-        // wrong as ever but:
-        Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
-        return constructUsingMethod(enumCls, accessor, ai);
-    }
 
     public CompactStringObjectMap constructLookup() {
         return CompactStringObjectMap.construct(_enumsById);
     }
 
-    public Enum<?> findEnum(String key) { return _enumsById.get(key); }
+    @SuppressWarnings("unchecked")
+    protected static Class<Enum<?>> _enumClass(Class<?> enumCls0) {
+        return (Class<Enum<?>>) enumCls0;
+    }
+
+    protected static Enum<?>[] _enumConstants(Class<?> enumCls) {
+        final Enum<?>[] enumValues = _enumClass(enumCls).getEnumConstants();
+        if (enumValues == null) {
+            throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
+        }
+        return enumValues;
+    }
+
+    protected static Enum<?> _enumDefault(AnnotationIntrospector intr, Class<?> enumCls) {
+        return (intr != null) ? intr.findDefaultEnumValue(_enumClass(enumCls)) : null;
+    }
+
+    /*
+    /**********************************************************************
+    /* Deprecated constructors, factory methods
+    /**********************************************************************
+     */
+
+    /**
+     * @deprecated Since 2.12 (remove from 2.13+ not part of public API)
+     */
+    @Deprecated // since 2.12
+    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
+            HashMap<String, Enum<?>> map, Enum<?> defaultValue) {
+        this(enumClass, enums, map, defaultValue, false);
+    }
+
+    /**
+     * @deprecated Since 2.12
+     */
+    @Deprecated // since 2.12
+    public static EnumResolver constructFor(Class<Enum<?>> enumCls, AnnotationIntrospector ai) {
+        return _constructFor(enumCls, ai, false);
+    }
+
+    /**
+     * @deprecated Since 2.12
+     */
+    @Deprecated // since 2.12
+    public static EnumResolver constructUnsafe(Class<?> rawEnumCls, AnnotationIntrospector ai) {
+        return _constructFor(rawEnumCls, ai, false);
+    }
+
+    /**
+     * @deprecated Since 2.12
+     */
+    @Deprecated // since 2.12
+    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls,
+            AnnotationIntrospector ai) {
+        return _constructUsingToString(enumCls, ai, false);
+    }
+
+    /**
+     * @since 2.8
+     * @deprecated Since 2.12
+     */
+    @Deprecated // since 2.12
+    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls,
+            AnnotationIntrospector ai) {
+        return _constructUsingToString(rawEnumCls, ai, false);
+    }
+
+    /**
+     * @deprecated Since 2.8 (remove from 2.13 or later)
+     */
+    @Deprecated
+    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls) {
+        return _constructUsingToString(enumCls, null, false);
+    }
+
+    /**
+     * @deprecated Since 2.12
+     */
+    @Deprecated
+    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,
+            AnnotatedMember accessor, AnnotationIntrospector ai) {
+        return _constructUsingMethod(enumCls, accessor, ai, false);
+    }
+
+    /**
+     * @since 2.9
+     * @deprecated Since 2.12
+     */
+    @Deprecated
+    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls,
+            AnnotatedMember accessor, AnnotationIntrospector ai) {
+        return _constructUsingMethod(rawEnumCls, accessor, ai, false);
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API
+    /**********************************************************************
+     */
+    
+    public Enum<?> findEnum(final String key) {
+        Enum<?> en = _enumsById.get(key);
+        if (en == null) {
+            if (_isIgnoreCase) {
+                return _findEnumCaseInsensitive(key);
+            }
+        }
+        return en;
+    }
+
+    // @since 2.12
+    protected Enum<?> _findEnumCaseInsensitive(final String key) {
+        for (Map.Entry<String, Enum<?>> entry : _enumsById.entrySet()) {
+            if (key.equalsIgnoreCase(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
 
     public Enum<?> getEnum(int index) {
         if (index < 0 || index >= _enums.length) {

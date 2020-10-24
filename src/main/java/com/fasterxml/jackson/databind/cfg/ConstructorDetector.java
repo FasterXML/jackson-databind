@@ -26,7 +26,7 @@ public final class ConstructorDetector
      *<p>
      * Default choice is {@code HEURISTIC} (which is Jackson pre-2.12 always uses)
      *<p>
-     * NOTE: does NOT have any effect if explicit {@link @JsonCreator}} annotation
+     * NOTE: does NOT have any effect if explicit {@code @JsonCreator}} annotation
      * is required.
      *
      * @since 2.12
@@ -187,9 +187,10 @@ public final class ConstructorDetector
     }
 
     /**
-     * Accessor that combines calls to {@link #allowImplicitCreators} and
-     * {@link #allowJDKTypeConstructors} to determine whether implicit constructor
-     * detection should be enabled or not.
+     * Accessor that combines checks for whether implicit creators are allowed
+     * and, if so, whether JDK type constructors are allowed (if type is JDK type)
+     * to determine whether implicit constructor
+     * detection should be enabled for given type or not.
      * 
      * @param rawType Value type to consider
      *

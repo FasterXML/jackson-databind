@@ -2370,12 +2370,11 @@ factory.toString()));
                 ClassUtil.checkAndFixAccess(jsonValueAccessor.getMember(),
                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUnsafeUsingMethod(enumClass,
-                    jsonValueAccessor, config.getAnnotationIntrospector());
+            return EnumResolver.constructUsingMethod(config, enumClass, jsonValueAccessor);
         }
         // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
         //   here, but that won't do: it must be dynamically changeable...
-        return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
+        return EnumResolver.constructFor(config, enumClass);
     }
 
     /**

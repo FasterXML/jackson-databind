@@ -98,6 +98,23 @@ public class SerializationOrderTest
         public int getC() { return c; }
     }
 
+    // For [databind#2879]
+    @JsonPropertyOrder({ "a", "c" })
+    static class BeanFor2879 {
+        public int c;
+        public int b;
+        public int a;
+
+        @JsonCreator
+        public BeanFor2879(@JsonProperty("a") int a,
+                @JsonProperty("b") int b,
+                @JsonProperty("c") int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
     // We'll expect ordering of "FUBAR"
     @JsonPropertyOrder({ "f"  })
     static class OrderingByIndexBean {
@@ -164,6 +181,16 @@ public class SerializationOrderTest
     {
         assertEquals("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}",
                 ALPHA_MAPPER.writeValueAsString(new BeanFor459()));
+    }
+
+    // [databind#2879]: verify that Creator properties never override explicit
+    //   order
+    public void testCreatorVsExplicitOrdering() throws Exception
+    {
+        assertEquals(aposToQuotes("{'a':1,'c':3,'b':2}"),
+                MAPPER.writeValueAsString(new BeanFor2879(1, 2, 3)));
+        assertEquals(aposToQuotes("{'a':1,'c':3,'b':2}"),
+                ALPHA_MAPPER.writeValueAsString(new BeanFor2879(1, 2, 3)));
     }
 
     // [databind#311]

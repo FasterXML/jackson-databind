@@ -82,20 +82,19 @@ public class SerializationOrderTest
         public int getB() { return b; }
     }
 
-    static class BeanForStrictOrdering {
-        private final int a;
-        private int b;
-        private final int c;
+    // We'll expect ordering of "FUBAR"
+    @JsonPropertyOrder({ "f"  })
+    static class OrderingByIndexBean {
+        public int r;
+        public int a;
 
-        @JsonCreator
-        public BeanForStrictOrdering(@JsonProperty("c") int c, @JsonProperty("a") int a) { //b and a are out of order, although alphabetic = true
-            this.a = a;
-            this.c = c;
-        }
+        @JsonProperty(index = 1)
+        public int b;
 
-        public int getA() { return a; }
-        public int getB() { return b; }
-        public int getC() { return c; }
+        @JsonProperty(index = 0)
+        public int u;
+
+        public int f;
     }
 
     // For [databind#2879]
@@ -115,19 +114,21 @@ public class SerializationOrderTest
         }
     }
 
-    // We'll expect ordering of "FUBAR"
-    @JsonPropertyOrder({ "f"  })
-    static class OrderingByIndexBean {
-        public int r;
-        public int a;
+    // For [databind#2879]
+    static class BeanForStrictOrdering {
+        private final int a;
+        private int b;
+        private final int c;
 
-        @JsonProperty(index = 1)
-        public int b;
+        @JsonCreator
+        public BeanForStrictOrdering(@JsonProperty("c") int c, @JsonProperty("a") int a) { //b and a are out of order, although alphabetic = true
+            this.a = a;
+            this.c = c;
+        }
 
-        @JsonProperty(index = 0)
-        public int u;
-
-        public int f;
+        public int getA() { return a; }
+        public int getB() { return b; }
+        public int getC() { return c; }
     }
 
     /*
@@ -140,11 +141,6 @@ public class SerializationOrderTest
 
     private final ObjectMapper ALPHA_MAPPER = jsonMapperBuilder()
             .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
-            .build();
-
-    private final ObjectMapper STRICT_ALPHA_MAPPER = jsonMapperBuilder()
-            .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-            .enable(MapperFeature.STRICT_PROPERTIES_ORDERING)
             .build();
 
     public void testImplicitOrderByCreator() throws Exception {
@@ -209,9 +205,24 @@ public class SerializationOrderTest
                 ALPHA_MAPPER.writeValueAsString(new OrderingByIndexBean()));
     }
 
+    // [databind#2879]: allow preventing Creator properties from overriding
+    //    alphabetic ordering
     public void testStrictAlphaAndCreatorOrdering() throws Exception
     {
-        String json = STRICT_ALPHA_MAPPER.writeValueAsString(new BeanForStrictOrdering(1, 2));
-        assertEquals("{\"a\":2,\"b\":0,\"c\":1}", json);
+        // without changing defaults, creators are sorted before other properties
+        // BUT are sorted within their own category
+        assertTrue(ALPHA_MAPPER.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertTrue(ALPHA_MAPPER.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        assertEquals(a2q("{'a':3,'c':2,'b':0}"),
+                ALPHA_MAPPER.writeValueAsString(new BeanForStrictOrdering(2, 3)));
+
+        // but can change that
+        final ObjectMapper STRICT_ALPHA_MAPPER = jsonMapperBuilder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
+                .build();
+
+        assertEquals(a2q("{'a':2,'b':0,'c':1}"),
+                STRICT_ALPHA_MAPPER.writeValueAsString(new BeanForStrictOrdering(1, 2)));
     }
 }

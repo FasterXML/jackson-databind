@@ -360,9 +360,8 @@ public enum MapperFeature implements ConfigFeature
 
     /**
      * Feature that defines default property serialization order used
-     * for POJO fields (note: does <b>not</b> apply to {@link java.util.Map}
-     * serialization!):
-     * if enabled, default ordering is alphabetic (similar to
+     * for POJO properties.
+     * If enabled, default ordering is alphabetic (similar to
      * how {@link com.fasterxml.jackson.annotation.JsonPropertyOrder#alphabetic()}
      * works); if disabled, order is unspecified (based on what JDK gives
      * us, which may be declaration order, but is not guaranteed).
@@ -371,23 +370,29 @@ public enum MapperFeature implements ConfigFeature
      * explicit overrides in classes (for example with
      * {@link com.fasterxml.jackson.annotation.JsonPropertyOrder} annotation)
      *<p>
+     * Note: does <b>not</b> apply to {@link java.util.Map} serialization (since
+     * entries are not considered Bean/POJO properties.
+     *<p>
      * Feature is disabled by default.
      */
     SORT_PROPERTIES_ALPHABETICALLY(false),
 
     /**
-     * Feature that enforces strict ordering as requested by other configuration methods
-     * for POJO fields (note: does <b>not</b> apply to {@link java.util.Map}
-     * serialization!):
-     * if enabled, ordering is preserved even if {@link com.fasterxml.jackson.annotation.JsonCreator}
-     * is present. Without this feature properties referenced by {@link com.fasterxml.jackson.annotation.JsonCreator}
-     * taking precedence over other properties even if sorting is requested.
+     * Feature that defines whether Creator properties (ones passed through
+     * constructor or static factory method) should be sorted before other properties
+     * for which no explicit order is specified, in case where alphabetic
+     * ordering is to be used for such properties.
+     * Note that in either case explicit order (whether by name or by index)
+     * will have precedence over this setting.
      *<p>
-     * Note that if ordering is not enabled using other ways, this feature has no effect.
+     * Note: does <b>not</b> apply to {@link java.util.Map} serialization (since
+     * entries are not considered Bean/POJO properties.
      *<p>
-     * Feature is disabled by default.
+     * Feature is enabled by default.
+     *
+     * @since 2.12
      */
-    STRICT_PROPERTIES_ORDERING(false),
+    SORT_CREATOR_PROPERTIES_FIRST(true),
 
     /*
     /******************************************************

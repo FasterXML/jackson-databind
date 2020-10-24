@@ -278,24 +278,21 @@ public class ObjectMapperTest extends BaseMapTest
         ObjectMapper m = new ObjectMapper();
 
         // sort-alphabetically is disabled by default:
-        assertFalse(m.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
+        assertTrue(m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
         SerializationConfig sc = m.getSerializationConfig();
-        assertFalse(sc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
-        assertFalse(sc.shouldPreservePropertiesOrdering());
+        assertTrue(sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
         DeserializationConfig dc = m.getDeserializationConfig();
-        assertFalse(dc.shouldPreservePropertiesOrdering());
+        assertTrue(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
 
         // but when enabled, should be visible:
         m = jsonMapperBuilder()
-                .enable(MapperFeature.STRICT_PROPERTIES_ORDERING)
+                .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
                 .build();
         sc = m.getSerializationConfig();
-        assertTrue(sc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
-        assertTrue(sc.shouldPreservePropertiesOrdering());
+        assertFalse(sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
         dc = m.getDeserializationConfig();
         // and not just via SerializationConfig, but also via DeserializationConfig
-        assertTrue(dc.isEnabled(MapperFeature.STRICT_PROPERTIES_ORDERING));
-        assertTrue(dc.shouldPreservePropertiesOrdering());
+        assertFalse(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
     }
 
     public void testJsonFactoryLinkage()

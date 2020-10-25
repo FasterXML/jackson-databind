@@ -24,6 +24,7 @@ Project: jackson-databind
 #2885: Add `JsonNode.canConvertToExactIntegral()` to indicate whether floating-point/BigDecimal
   values could be converted to integers losslessly
  (requested by Oguzhan U; implementation contributed by Siavash S)
+#2903: Allow preventing "Enum from integer" coercion using new `CoercionConfig` system
 
 2.12.0-rc1 (12-Oct-2020)
 

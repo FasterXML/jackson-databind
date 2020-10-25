@@ -4,12 +4,15 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.7.4 (not yet released)
+2.6.7.4 (25-Oct-2020)
 
 Backported all CVE fixes up to 2.9.10.6
 
+#1279: Ensure DOM parsing defaults to not expanding external entities
 #2469: Block one more gadget type (xalan2)
 #2526: Block two more gadget types (ehcache/JNDI - CVE-2019-20330)
+#2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent external
+  entity expansion in all cases [CVE-2020-25649]
 #2620: Block one more gadget type (xbean-reflect/JNDI - CVE-2020-8840)
 #2631: Block one more gadget type (shaded-hikari-config, CVE-2020-9546)
 #2634: Block two more gadget types (ibatis-sqlmap, anteros-core; CVE-2020-9547 / CVE-2020-9548)

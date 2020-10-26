@@ -107,6 +107,11 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _anySetterField;
 
     /**
+     * Method(s) annotated with 'JsonKey' annotation
+     */
+    protected LinkedList<AnnotatedMember> _jsonKeyAccessors;
+
+    /**
      * Method(s) marked with 'JsonValue' annotation
      *<p>
      * NOTE: before 2.9, was `AnnotatedMethod`; with 2.9 allows fields too
@@ -185,6 +190,23 @@ public class POJOPropertiesCollector
             collectAll();
         }
         return _injectables;
+    }
+
+    public AnnotatedMember getJsonKeyAccessor() {
+        if (!_collected) {
+            collectAll();
+        }
+        // If @JsonKey defined, must have a single one
+        if (_jsonKeyAccessors != null) {
+            if (_jsonKeyAccessors.size() > 1) {
+                reportProblem("Multiple 'as-value' properties defined (%s vs %s)",
+                        _jsonKeyAccessors.get(0),
+                        _jsonKeyAccessors.get(1));
+            }
+            // otherwise we won't greatly care
+            return _jsonKeyAccessors.get(0);
+        }
+        return null;
     }
 
     /**
@@ -384,6 +406,13 @@ public class POJOPropertiesCollector
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
 
         for (AnnotatedField f : _classDef.fields()) {
+            // @JsonKey?
+            if (Boolean.TRUE.equals(ai.hasAsKey(f))) {
+                if (_jsonKeyAccessors == null) {
+                    _jsonKeyAccessors = new LinkedList<>();
+                }
+                _jsonKeyAccessors.add(f);
+            }
             // @JsonValue?
             if (Boolean.TRUE.equals(ai.hasAsValue(f))) {
                 if (_jsonValueAccessors == null) {
@@ -594,6 +623,14 @@ public class POJOPropertiesCollector
                 _anyGetters = new LinkedList<AnnotatedMember>();
             }
             _anyGetters.add(m);
+            return;
+        }
+        // @JsonKey?
+        if (Boolean.TRUE.equals(ai.hasAsKey(m))) {
+            if (_jsonKeyAccessors == null) {
+                _jsonKeyAccessors = new LinkedList<>();
+            }
+            _jsonKeyAccessors.add(m);
             return;
         }
         // @JsonValue?

@@ -1071,6 +1071,15 @@ public class JacksonAnnotationIntrospector
         return null;
     }
 
+    @Override
+    public Boolean hasAsKey(Annotated a) {
+        JsonKey ann = _findAnnotation(a, JsonKey.class);
+        if (ann == null) {
+            return null;
+        }
+        return ann.value();
+    }
+
     @Override // since 2.9
     public Boolean hasAsValue(Annotated a) {
         JsonValue ann = _findAnnotation(a, JsonValue.class);

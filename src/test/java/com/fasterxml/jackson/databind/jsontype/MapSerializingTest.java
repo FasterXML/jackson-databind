@@ -48,8 +48,7 @@ public class MapSerializingTest {
 			this.inner = inner;
 		}
 	}
-
-	@Ignore
+	
 	@Test
 	public void testClassAsKey() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
@@ -59,7 +58,6 @@ public class MapSerializingTest {
 		Assert.assertEquals("{\"innerKey\":\"value\"}", actual);
 	}
 
-	@Ignore
 	@Test
 	public void testClassAsValue() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
@@ -68,7 +66,6 @@ public class MapSerializingTest {
 		Assert.assertEquals("{\"key\":\"innerValue\"}", actual);
 	}
 
-	@Ignore
 	@Test
 	public void testNoKeyOuter() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();

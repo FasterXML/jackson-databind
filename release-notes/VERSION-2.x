@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.11.4 (not yet released)
 
-#2894: Fix type resolution for static methods (regression in 2.11.3)
+#2894: Fix type resolution for static methods (regression in 2.11.3 due to #2821 fix)
  (reported by Łukasz W)
 
 2.11.3 (02-Oct-2020)

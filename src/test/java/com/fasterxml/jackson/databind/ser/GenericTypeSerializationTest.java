@@ -255,7 +255,8 @@ public class GenericTypeSerializationTest extends BaseMapTest
             list = (List<Entity2821<?>>) (List<?>) foo;
         }
         Wrapper2821 val = new Wrapper2821(list);
-        // fails with com.fasterxml.jackson.databind.JsonMappingException: Strange Map type java.util.Map: cannot determine type parameters (through reference chain: com.github.lhotari.jacksonbug.JacksonBugIsolatedTest$Wrapper["entities"]->java.util.Collections$SingletonList[0]->com.github.lhotari.jacksonbug.JacksonBugIsolatedTest$Entity["attributes"])
+        // Was failing with `com.fasterxml.jackson.databind.JsonMappingException`: Strange Map
+        // type java.util.Map: cannot determine type parameters (through reference chain: ---)
         String json = MAPPER.writeValueAsString(val);
         assertNotNull(json);
     }

@@ -4,7 +4,6 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-
 2.12.0-rc2 (not yet released)
 
 #1458: `@JsonAnyGetter` should be allowed on a field
@@ -91,6 +90,11 @@ Project: jackson-databind
  (fix contributed by Ilya G)
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
+
+2.11.4 (not yet released)
+
+#2894: Fix type resolution for static methods (regression in 2.11.3 due to #2821 fix)
+ (reported by Łukasz W)
 
 2.11.3 (02-Oct-2020)
 

@@ -980,7 +980,7 @@ public abstract class AnnotationIntrospector
      *
      * @since TODO
      */
-    public Boolean hasAsKey(Annotated a) {
+    public Boolean hasAsKey(MapperConfig<?> config, Annotated a) {
         return null;
     }
 

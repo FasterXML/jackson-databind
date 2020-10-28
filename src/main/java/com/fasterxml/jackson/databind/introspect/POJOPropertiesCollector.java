@@ -6,6 +6,8 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import com.fasterxml.jackson.annotation.JsonKey;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -107,12 +109,12 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _anySetterField;
 
     /**
-     * Method(s) annotated with 'JsonKey' annotation
+     * Accessors (field or "getter" method annotated with {@link JsonKey}
      */
     protected LinkedList<AnnotatedMember> _jsonKeyAccessors;
 
     /**
-     * Method(s) marked with 'JsonValue' annotation
+     *Accessors (field or "getter" method) annotated with {@link JsonValue}
      *<p>
      * NOTE: before 2.9, was `AnnotatedMethod`; with 2.9 allows fields too
      */
@@ -199,7 +201,7 @@ public class POJOPropertiesCollector
         // If @JsonKey defined, must have a single one
         if (_jsonKeyAccessors != null) {
             if (_jsonKeyAccessors.size() > 1) {
-                reportProblem("Multiple 'as-value' properties defined (%s vs %s)",
+                reportProblem("Multiple 'as-key' properties defined (%s vs %s)",
                         _jsonKeyAccessors.get(0),
                         _jsonKeyAccessors.get(1));
             }
@@ -407,7 +409,7 @@ public class POJOPropertiesCollector
 
         for (AnnotatedField f : _classDef.fields()) {
             // @JsonKey?
-            if (Boolean.TRUE.equals(ai.hasAsKey(f))) {
+            if (Boolean.TRUE.equals(ai.hasAsKey(_config, f))) {
                 if (_jsonKeyAccessors == null) {
                     _jsonKeyAccessors = new LinkedList<>();
                 }
@@ -626,7 +628,7 @@ public class POJOPropertiesCollector
             return;
         }
         // @JsonKey?
-        if (Boolean.TRUE.equals(ai.hasAsKey(m))) {
+        if (Boolean.TRUE.equals(ai.hasAsKey(_config, m))) {
             if (_jsonKeyAccessors == null) {
                 _jsonKeyAccessors = new LinkedList<>();
             }

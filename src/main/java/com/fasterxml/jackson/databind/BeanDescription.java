@@ -182,7 +182,9 @@ public abstract class BeanDescription
      *
      * @since TODO
      */
-    public abstract AnnotatedMember findJsonKeyAccessor();
+    public AnnotatedMember findJsonKeyAccessor() {
+        return null;
+    }
 
     /**
      * Method for locating accessor (readable field, or "getter" method)

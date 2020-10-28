@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.11.4 (not yet released)
+
+#2894: Fix type resolution for static methods (regression in 2.11.3)
+ (reported by Łukasz W)
+
 2.11.3 (02-Oct-2020)
 
 #2795: Cannot detect creator arguments of mixins for JDK types

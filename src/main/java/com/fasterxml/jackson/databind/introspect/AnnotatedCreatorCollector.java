@@ -226,7 +226,12 @@ final class AnnotatedCreatorCollector
         //   passing that should not break things, it appears to... Regardless,
         //   it should not be needed or useful as those bindings are only available
         //   to non-static members
-        TypeResolutionContext typeResCtxt = new TypeResolutionContext.Empty(_typeFactory);
+
+        // 27-Oct-2020, tatu: SIGH. As per [databind#2894] there is widespread use of
+        //   incorrect bindings in the wild -- not supported (no tests) but used
+        //   nonetheless. So, for 2.11.x, put back "Bad Bindings"...
+//        final TypeResolutionContext typeResCtxt = new TypeResolutionContext.Empty(_typeFactory);
+        final TypeResolutionContext typeResCtxt = _typeContext;
 
         int factoryCount = candidates.size();
         List<AnnotatedMethod> result = new ArrayList<>(factoryCount);

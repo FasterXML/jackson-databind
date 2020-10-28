@@ -1159,3 +1159,7 @@ Nils Christian Ehmke (nils-christian@github)
 Daniel Wu (DanielYWoo@github)
   * Reported #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
   (2.11.3)
+
+Łukasz Walkiewicz (lukasz-walkiewicz@github)
+  * Reported #2894: Fix type resolution for static methods (regression in 2.11.3)
+  (2.11.4)

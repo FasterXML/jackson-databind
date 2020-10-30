@@ -213,8 +213,9 @@ public class PropertyBuilder
         case ALWAYS: // default
         default:
             // we may still want to suppress empty collections
-            if (actualType.isContainerType()
-                    && !_config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)) {
+            @SuppressWarnings("deprecation")
+            final SerializationFeature emptyJsonArrays = SerializationFeature.WRITE_EMPTY_JSON_ARRAYS;
+            if (actualType.isContainerType() && !_config.isEnabled(emptyJsonArrays)) {
                 valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
             }
             break;

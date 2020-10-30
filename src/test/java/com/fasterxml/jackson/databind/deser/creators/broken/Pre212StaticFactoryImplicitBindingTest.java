@@ -77,7 +77,7 @@ public class Pre212StaticFactoryImplicitBindingTest extends BaseMapTest
     }
 
     static class Account2895 {
-        private long id;        
+        private long id;
         private String name;
 
         @JsonCreator
@@ -109,7 +109,7 @@ public class Pre212StaticFactoryImplicitBindingTest extends BaseMapTest
         SimpleWrapper2895<Account2895> wrapper = MAPPER
                 .readerFor(new TypeReference<SimpleWrapper2895<Account2895>>() {})
                 .readValue("{\"object\":{\"id\":1,\"name\":\"name1\"}}");
-                
+
         Account2895 account = wrapper.value;
         assertEquals(1, account.getId());
         assertEquals("name1", account.getName());

@@ -5,7 +5,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 
 // Test(s) to check for handling of Static Factory Creator bindings
@@ -55,8 +57,43 @@ public class Pre212StaticFactoryImplicitBindingTest extends BaseMapTest
         }
     }
 
+    // [databind#2895]
+    static class SimpleWrapper2895<T> {
+        final T value;
+
+        SimpleWrapper2895(T value) {
+            this.value = value;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static <T> SimpleWrapper2895<T> fromJson(JsonSimpleWrapper2895<T> value) {
+            return new SimpleWrapper2895<>(value.object);
+        }
+    }
+
+    static final class JsonSimpleWrapper2895<T> {
+        @JsonProperty("object")
+        public T object;
+    }
+
+    static class Account2895 {
+        private long id;        
+        private String name;
+
+        @JsonCreator
+        public Account2895(@JsonProperty("name") String name,
+                @JsonProperty("id") long id) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public String getName() { return name; }
+        public long getId() { return id; }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    // [databind#2894]
     public void testIssue2894() throws Exception
     {
         Wrapper<Value> src = new Wrapper<>(Arrays.asList(new Value(1), new Value(2)));
@@ -64,5 +101,17 @@ public class Pre212StaticFactoryImplicitBindingTest extends BaseMapTest
         Wrapper<Value> output = MAPPER.readValue(json,
                 new TypeReference<Wrapper<Value>>() {});
         assertEquals(src.values, output.values);
+    }
+
+    // [databind#2895]
+    public void testIssue2895() throws Exception
+    {
+        SimpleWrapper2895<Account2895> wrapper = MAPPER
+                .readerFor(new TypeReference<SimpleWrapper2895<Account2895>>() {})
+                .readValue("{\"object\":{\"id\":1,\"name\":\"name1\"}}");
+                
+        Account2895 account = wrapper.value;
+        assertEquals(1, account.getId());
+        assertEquals("name1", account.getName());
     }
 }

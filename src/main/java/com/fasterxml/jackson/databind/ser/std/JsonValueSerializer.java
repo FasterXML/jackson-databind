@@ -137,26 +137,17 @@ public class JsonValueSerializer
      */
 
     @Override // since 2.12
-    public boolean isEmpty(SerializerProvider ctxt, Object value0)
+    public boolean isEmpty(SerializerProvider ctxt, Object bean)
     {
-        Object referenced = _accessor.getValue(value0);
-
+        // 31-Oct-2020, tatu: Should perhaps catch access issue here... ?
+        Object referenced = _accessor.getValue(bean);
         if (referenced == null) {
             return true;
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             try {
-                Class<?> cc = referenced.getClass();
-                ser = _dynamicSerializers.serializerFor(cc);
-                if (ser == null) {
-                    if (_valueType.hasGenericTypes()) {
-                        ser = _findAndAddDynamic(_dynamicSerializers,
-                                ctxt.constructSpecializedType(_valueType, cc), ctxt);
-                    } else {
-                        ser = _findAndAddDynamic(_dynamicSerializers, cc, ctxt);
-                    }
-                }
+                ser = _findDynamicSerializer(ctxt, referenced);
             } catch (JsonMappingException e) {
                 throw new RuntimeJsonMappingException(e);
             }
@@ -175,7 +166,7 @@ public class JsonValueSerializer
      * statically figure out what the result type must be.
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
         throws JsonMappingException
     {
@@ -185,14 +176,13 @@ public class JsonValueSerializer
             // if not, we don't really know the actual type until we get the instance.
 
             // 10-Mar-2010, tatu: Except if static typing is to be used
-            if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || _valueType.isFinal()) {
-                // false -> no need to cache
+            if (ctxt.isEnabled(MapperFeature.USE_STATIC_TYPING) || _valueType.isFinal()) {
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
                  *   serializer from value serializer; but, alas, there's no access
                  *   to serializer factory at this point... 
                  */
                 // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-                ser = provider.findPrimaryPropertySerializer(_valueType, property);
+                ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
@@ -206,7 +196,7 @@ public class JsonValueSerializer
             }
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-            ser = provider.handlePrimaryContextualization(ser, property);
+            ser = ctxt.handlePrimaryContextualization(ser, property);
             return withResolved(property, ser, _forceTypeInformation);
         }
         return this;
@@ -219,88 +209,81 @@ public class JsonValueSerializer
      */
     
     @Override
-    public void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public void serialize(Object bean, JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
+        Object value;
         try {
-            Object value = _accessor.getValue(bean);
-            if (value == null) {
-                provider.defaultSerializeNull(gen);
-                return;
-            }
-            JsonSerializer<Object> ser = _valueSerializer;
-            if (ser == null) {
-                Class<?> cc = value.getClass();
-                ser = _dynamicSerializers.serializerFor(cc);
-                if (ser == null) {
-                    if (_valueType.hasGenericTypes()) {
-                        ser = _findAndAddDynamic(_dynamicSerializers,
-                                provider.constructSpecializedType(_valueType, cc), provider);
-                    } else {
-                        ser = _findAndAddDynamic(_dynamicSerializers, cc, provider);
-                    }
-                }
-            }
-            ser.serialize(value, gen, provider);
+            value = _accessor.getValue(bean);
         } catch (Exception e) {
-            wrapAndThrow(provider, e, bean, _accessor.getName() + "()");
+            value = null;
+            wrapAndThrow(ctxt, e, bean, _accessor.getName() + "()");
         }
+
+        if (value == null) {
+            ctxt.defaultSerializeNull(gen);
+            return;
+        }
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null) {
+            ser = _findDynamicSerializer(ctxt, value);
+        }
+        ser.serialize(value, gen, ctxt);
     }
 
     @Override
-    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer0) throws IOException
     {
         // Regardless of other parts, first need to find value to serialize:
-        Object value = null;
+        Object value;
         try {
             value = _accessor.getValue(bean);
-            // and if we got null, can also just write it directly
-            if (value == null) {
-                provider.defaultSerializeNull(gen);
+        } catch (Exception e) {
+            value = null;
+            wrapAndThrow(ctxt, e, bean, _accessor.getName() + "()");
+        }
+
+        // and if we got null, can also just write it directly
+        if (value == null) {
+            ctxt.defaultSerializeNull(gen);
+            return;
+        }
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null) { // no serializer yet? Need to fetch
+            ser = _findDynamicSerializer(ctxt, value);
+        } else {
+            // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
+            //    this (note: type is for the wrapper type, not enclosed value!)
+            if (_forceTypeInformation) {
+                // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
+                WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
+                        typeSer0.typeId(bean, JsonToken.VALUE_STRING));
+                ser.serialize(value, gen, ctxt);
+                typeSer0.writeTypeSuffix(gen, typeIdDef);
+
                 return;
             }
-            JsonSerializer<Object> ser = _valueSerializer;
-            if (ser == null) { // no serializer yet? Need to fetch
-                Class<?> cc = value.getClass();
-                ser = _dynamicSerializers.serializerFor(cc);
-                if (ser == null) {
-                    if (_valueType.hasGenericTypes()) {
-                        ser = _findAndAddDynamic(_dynamicSerializers,
-                                provider.constructSpecializedType(_valueType, cc), provider);
-                    } else {
-                        ser = _findAndAddDynamic(_dynamicSerializers, cc, provider);
-                    }
-                }
-            } else {
-                // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
-                //    this (note: type is for the wrapper type, not enclosed value!)
-                if (_forceTypeInformation) {
-                    // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
-                    WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
-                            typeSer0.typeId(bean, JsonToken.VALUE_STRING));
-                    ser.serialize(value, gen, provider);
-                    typeSer0.writeTypeSuffix(gen, typeIdDef);
-
-                    return;
-                }
-            }
-            // 28-Sep-2016, tatu: As per [databind#1385], we do need to do some juggling
-            //    to use different Object for type id (logical type) and actual serialization
-            //    (delegate type).
-            TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
-            ser.serializeWithType(value, gen, provider, rr);
-        } catch (Exception e) {
-            wrapAndThrow(provider, e, bean, _accessor.getName() + "()");
         }
+        // 28-Sep-2016, tatu: As per [databind#1385], we do need to do some juggling
+        //    to use different Object for type id (logical type) and actual serialization
+        //    (delegate type).
+        TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
+        ser.serializeWithType(value, gen, ctxt, rr);
     }
-    
+
+    /*
+    /**********************************************************
+    /* Schema generation
+    /**********************************************************
+     */
+
     @SuppressWarnings("deprecation")
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public JsonNode getSchema(SerializerProvider ctxt, Type typeHint)
         throws JsonMappingException
     {
         if (_valueSerializer instanceof SchemaAware) {
-            return ((SchemaAware)_valueSerializer).getSchema(provider, null);
+            return ((SchemaAware)_valueSerializer).getSchema(ctxt, null);
         }
         return com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
     }
@@ -372,6 +355,12 @@ public class JsonValueSerializer
         return true;
     }
 
+    /*
+    /**********************************************************
+    /* Other internal helper methods
+    /**********************************************************
+     */
+
     protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, JsonSerializer<?> ser)
     {
         // First: do we have a natural type being handled?
@@ -389,36 +378,35 @@ public class JsonValueSerializer
     }
 
     // @since 2.12
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
+    protected JsonSerializer<Object> _findDynamicSerializer(SerializerProvider ctxt,
+            Object value) throws JsonMappingException
     {
-        // 31-Oct-2020, tatu: Should not get typed/root serializer, but for now has to do:
-        JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, _property);
-        PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(type, serializer);
-        // did we get a new map of serializers? If so, start using it
-        if (map != result.map) {
-            _dynamicSerializers = result.map;
+        Class<?> cc = value.getClass();
+        JsonSerializer<Object> serializer = _dynamicSerializers.serializerFor(cc);
+        if (serializer != null) {
+            return serializer;
         }
-        return serializer;
-    }
-
-    // @since 2.12
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
-    {
-        // 31-Oct-2020, tatu: Should not get typed/root serializer, but for now has to do:
-        JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, _property);
-        PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(type, serializer);
-        // did we get a new map of serializers? If so, start using it
-        if (map != result.map) {
+        if (_valueType.hasGenericTypes()) {
+            JavaType fullType = ctxt.constructSpecializedType(_valueType, cc);
+            // 31-Oct-2020, tatu: Should not get typed/root serializer, but for now has to do:
+            serializer = ctxt.findTypedValueSerializer(fullType, false, _property);
+            PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(fullType, serializer);
+            // did we get a new map of serializers? If so, start using it
             _dynamicSerializers = result.map;
+            return serializer;
+        } else {
+            // 31-Oct-2020, tatu: Should not get typed/root serializer, but for now has to do:
+            serializer = ctxt.findTypedValueSerializer(cc, false, _property);
+            PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(cc, serializer);
+            // did we get a new map of serializers? If so, start using it
+            _dynamicSerializers = result.map;
+            return serializer;
         }
-        return serializer;
     }
 
     /*
     /**********************************************************
-    /* Other methods
+    /* Standard method overrides
     /**********************************************************
      */
 

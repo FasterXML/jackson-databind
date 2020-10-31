@@ -66,7 +66,7 @@ public class ObjectArraySerializer
         _staticTyping = src._staticTyping;
         _elementSerializer = src._elementSerializer;
     }
-    
+
     @SuppressWarnings("unchecked")
     public ObjectArraySerializer(ObjectArraySerializer src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,

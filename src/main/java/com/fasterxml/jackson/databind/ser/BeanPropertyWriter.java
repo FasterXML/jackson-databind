@@ -720,9 +720,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                     serializeAsPlaceholder(bean, gen, prov);
                     return;
                 }
-            } else if (_suppressableValue.equals(value)) { // can NOT suppress
-                                                           // entries in tabular
-                                                           // output
+            } else if (_suppressableValue.equals(value)) {
+                // can NOT suppress entries in tabular output
                 serializeAsPlaceholder(bean, gen, prov);
                 return;
             }

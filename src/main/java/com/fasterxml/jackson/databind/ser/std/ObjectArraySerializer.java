@@ -57,7 +57,7 @@ public class ObjectArraySerializer
     /* Life-cycle
     /**********************************************************
      */
-    
+
     public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<Object> elementSerializer)
     {
@@ -80,7 +80,7 @@ public class ObjectArraySerializer
         _dynamicSerializers = src._dynamicSerializers;
         _elementSerializer = src._elementSerializer;
     }
-    
+
     @SuppressWarnings("unchecked")
     public ObjectArraySerializer(ObjectArraySerializer src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,

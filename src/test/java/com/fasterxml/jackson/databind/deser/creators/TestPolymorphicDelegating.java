@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestPolymorphicDelegating extends BaseMapTest
 {
-
     // For [databind#580]
     
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

@@ -43,7 +43,6 @@ public class TestPolymorphicDelegating extends BaseMapTest
         Issue580Bean input = new Issue580Bean(new Issue580Impl(13));
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(input);
-
         Issue580Bean result = mapper.readValue(json, Issue580Bean.class);
         assertNotNull(result);
         assertNotNull(result.value);

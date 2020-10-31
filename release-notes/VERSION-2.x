@@ -24,6 +24,8 @@ Project: jackson-databind
   values could be converted to integers losslessly
  (requested by Oguzhan U; implementation contributed by Siavash S)
 #2903: Allow preventing "Enum from integer" coercion using new `CoercionConfig` system
+#2909: `@JsonValue` not considered when evaluating inclusion
+ (reported by chrylis@github)
 
 2.12.0-rc1 (12-Oct-2020)
 

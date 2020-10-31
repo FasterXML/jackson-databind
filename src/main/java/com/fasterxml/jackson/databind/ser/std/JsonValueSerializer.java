@@ -7,8 +7,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -50,13 +53,28 @@ public class JsonValueSerializer
     protected final BeanProperty _property;
 
     /**
+     * Declared type of the value accessed, as declared by accessor.
+     *
+     * @since 2.12
+     */
+    protected final JavaType _valueType;
+
+    /**
      * This is a flag that is set in rare (?) cases where this serializer
      * is used for "natural" types (boolean, int, String, double); and where
      * we actually must force type information wrapping, even though
      * one would not normally be added.
      */
     protected final boolean _forceTypeInformation;
-    
+
+    /**
+     * If value type cannot be statically determined, mapping from
+     * runtime value types to serializers are cached in this object.
+     *
+     * @since 2.12
+     */
+    protected transient PropertySerializerMap _dynamicSerializers;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -77,9 +95,11 @@ public class JsonValueSerializer
     {
         super(accessor.getType());
         _accessor = accessor;
+        _valueType = accessor.getType();
         _valueSerializer = (JsonSerializer<Object>) ser;
         _property = null;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     @SuppressWarnings("unchecked")
@@ -88,9 +108,11 @@ public class JsonValueSerializer
     {
         super(_notNullClass(src.handledType()));
         _accessor = src._accessor;
+        _valueType = src._valueType;
         _valueSerializer = (JsonSerializer<Object>) ser;
         _property = property;
         _forceTypeInformation = forceTypeInfo;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     @SuppressWarnings("unchecked")
@@ -107,7 +129,41 @@ public class JsonValueSerializer
         }
         return new JsonValueSerializer(this, property, ser, forceTypeInfo);
     }
-    
+
+    /*
+    /**********************************************************
+    /* Overrides
+    /**********************************************************
+     */
+
+    @Override // since 2.12
+    public boolean isEmpty(SerializerProvider ctxt, Object value0)
+    {
+        Object referenced = _accessor.getValue(value0);
+
+        if (referenced == null) {
+            return true;
+        }
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null) {
+            try {
+                Class<?> cc = referenced.getClass();
+                ser = _dynamicSerializers.serializerFor(cc);
+                if (ser == null) {
+                    if (_valueType.hasGenericTypes()) {
+                        ser = _findAndAddDynamic(_dynamicSerializers,
+                                ctxt.constructSpecializedType(_valueType, cc), ctxt);
+                    } else {
+                        ser = _findAndAddDynamic(_dynamicSerializers, cc, ctxt);
+                    }
+                }
+            } catch (JsonMappingException e) {
+                throw new RuntimeJsonMappingException(e);
+            }
+        }
+        return ser.isEmpty(ctxt, referenced);
+    }
+
     /*
     /**********************************************************
     /* Post-processing
@@ -129,20 +185,19 @@ public class JsonValueSerializer
             // if not, we don't really know the actual type until we get the instance.
 
             // 10-Mar-2010, tatu: Except if static typing is to be used
-            JavaType t = _accessor.getType();
-            if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || t.isFinal()) {
+            if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || _valueType.isFinal()) {
                 // false -> no need to cache
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
                  *   serializer from value serializer; but, alas, there's no access
                  *   to serializer factory at this point... 
                  */
                 // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-                ser = provider.findPrimaryPropertySerializer(t, property);
+                ser = provider.findPrimaryPropertySerializer(_valueType, property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
-                boolean forceTypeInformation = isNaturalTypeWithStdHandling(t.getRawClass(), ser);
+                boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
                 return withResolved(property, ser, forceTypeInformation);
             }
             // [databind#2822]: better hold on to "property", regardless
@@ -164,27 +219,30 @@ public class JsonValueSerializer
      */
     
     @Override
-    public void serialize(Object bean, JsonGenerator gen, SerializerProvider prov) throws IOException
+    public void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
         try {
             Object value = _accessor.getValue(bean);
             if (value == null) {
-                prov.defaultSerializeNull(gen);
+                provider.defaultSerializeNull(gen);
                 return;
             }
             JsonSerializer<Object> ser = _valueSerializer;
             if (ser == null) {
-                Class<?> c = value.getClass();
-                // 10-Mar-2010, tatu: Ideally we would actually separate out type
-                //   serializer from value serializer; but, alas, there's no access
-                //   to serializer factory at this point...
-
-                // let's cache it, may be needed soon again
-                ser = prov.findTypedValueSerializer(c, true, _property);
+                Class<?> cc = value.getClass();
+                ser = _dynamicSerializers.serializerFor(cc);
+                if (ser == null) {
+                    if (_valueType.hasGenericTypes()) {
+                        ser = _findAndAddDynamic(_dynamicSerializers,
+                                provider.constructSpecializedType(_valueType, cc), provider);
+                    } else {
+                        ser = _findAndAddDynamic(_dynamicSerializers, cc, provider);
+                    }
+                }
             }
-            ser.serialize(value, gen, prov);
+            ser.serialize(value, gen, provider);
         } catch (Exception e) {
-            wrapAndThrow(prov, e, bean, _accessor.getName() + "()");
+            wrapAndThrow(provider, e, bean, _accessor.getName() + "()");
         }
     }
 
@@ -203,7 +261,16 @@ public class JsonValueSerializer
             }
             JsonSerializer<Object> ser = _valueSerializer;
             if (ser == null) { // no serializer yet? Need to fetch
-                ser = provider.findValueSerializer(value.getClass(), _property);
+                Class<?> cc = value.getClass();
+                ser = _dynamicSerializers.serializerFor(cc);
+                if (ser == null) {
+                    if (_valueType.hasGenericTypes()) {
+                        ser = _findAndAddDynamic(_dynamicSerializers,
+                                provider.constructSpecializedType(_valueType, cc), provider);
+                    } else {
+                        ser = _findAndAddDynamic(_dynamicSerializers, cc, provider);
+                    }
+                }
             } else {
                 // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
                 //    this (note: type is for the wrapper type, not enclosed value!)
@@ -219,7 +286,7 @@ public class JsonValueSerializer
             }
             // 28-Sep-2016, tatu: As per [databind#1385], we do need to do some juggling
             //    to use different Object for type id (logical type) and actual serialization
-            //    (delegat type).
+            //    (delegate type).
             TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
             ser.serializeWithType(value, gen, provider, rr);
         } catch (Exception e) {
@@ -251,7 +318,6 @@ public class JsonValueSerializer
          *    
          *    Note that meaning of JsonValue, then, is very different for Enums. Sigh.
          */
-        final JavaType type = _accessor.getType();
         Class<?> declaring = _accessor.getDeclaringClass();
         if ((declaring != null) && ClassUtil.isEnumType(declaring)) {
             if (_acceptJsonFormatVisitorForEnum(visitor, typeHint, declaring)) {
@@ -260,13 +326,13 @@ public class JsonValueSerializer
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            ser = visitor.getProvider().findTypedValueSerializer(type, false, _property);
+            ser = visitor.getProvider().findTypedValueSerializer(_valueType, false, _property);
             if (ser == null) { // can this ever occur?
                 visitor.expectAnyFormat(typeHint);
                 return;
             }
         }
-        ser.acceptJsonFormatVisitor(visitor, type);
+        ser.acceptJsonFormatVisitor(visitor, _valueType);
     }
 
     /**
@@ -320,6 +386,34 @@ public class JsonValueSerializer
             }
         }
         return isDefaultSerializer(ser);
+    }
+
+    // @since 2.12
+    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+            Class<?> type, SerializerProvider provider) throws JsonMappingException
+    {
+        // 31-Oct-2020, tatu: Should not get typed/root serializer, but for now has to do:
+        JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, _property);
+        PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(type, serializer);
+        // did we get a new map of serializers? If so, start using it
+        if (map != result.map) {
+            _dynamicSerializers = result.map;
+        }
+        return serializer;
+    }
+
+    // @since 2.12
+    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+            JavaType type, SerializerProvider provider) throws JsonMappingException
+    {
+        // 31-Oct-2020, tatu: Should not get typed/root serializer, but for now has to do:
+        JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, _property);
+        PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(type, serializer);
+        // did we get a new map of serializers? If so, start using it
+        if (map != result.map) {
+            _dynamicSerializers = result.map;
+        }
+        return serializer;
     }
 
     /*

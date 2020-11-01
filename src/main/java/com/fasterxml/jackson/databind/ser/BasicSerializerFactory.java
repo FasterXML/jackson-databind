@@ -328,7 +328,6 @@ public abstract class BasicSerializerFactory
             }
             JsonSerializer<Object> ser = findSerializerFromAnnotation(ctxt, valueAccessor);
             JavaType valueType = valueAccessor.getType();
-            // note: must get different `BeanDescription` since valueType different
             TypeSerializer vts = ctxt.findTypeSerializer(valueType);
             return new JsonValueSerializer(type, valueType, /* static typing */ false,
                     vts, ser, valueAccessor);

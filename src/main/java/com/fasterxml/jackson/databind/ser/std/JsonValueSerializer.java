@@ -79,9 +79,9 @@ public class JsonValueSerializer
     }
 
     protected JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
-            JsonSerializer<?> ser, boolean forceTypeInfo)
+            TypeSerializer vts, JsonSerializer<?> ser, boolean forceTypeInfo)
     {
-        super(src, property, src._valueTypeSerializer, ser);
+        super(src, property, vts, ser);
         _valueType = src._valueType;
         _accessor = src._accessor;
         _staticTyping = src._staticTyping;
@@ -89,15 +89,37 @@ public class JsonValueSerializer
     }
 
     public JsonValueSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> ser, boolean forceTypeInfo)
+            TypeSerializer vts, JsonSerializer<?> ser, boolean forceTypeInfo)
     {
-        if ((_property == property) && (_valueSerializer == ser)
+        if ((_property == property)
+                && (_valueTypeSerializer == vts) && (_valueSerializer == ser)
                 && (forceTypeInfo == _forceTypeInformation)) {
             return this;
         }
-        return new JsonValueSerializer(this, property, ser, forceTypeInfo);
+        return new JsonValueSerializer(this, property, vts, ser, forceTypeInfo);
     }
-    
+
+    /*
+    /**********************************************************
+    /* Overrides
+    /**********************************************************
+     */
+
+    @Override // since 2.12
+    public boolean isEmpty(SerializerProvider ctxt, Object bean) throws IOException
+    {
+        // 31-Oct-2020, tatu: Should perhaps catch access issue here... ?
+        Object referenced = _accessor.getValue(bean);
+        if (referenced == null) {
+            return true;
+        }
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null) {
+            ser = _findAndAddDynamic(ctxt, referenced.getClass());
+        }
+        return ser.isEmpty(ctxt, referenced);
+    }
+
     /*
     /**********************************************************************
     /* Post-processing
@@ -109,17 +131,21 @@ public class JsonValueSerializer
      * statically figure out what the result type must be.
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
         throws JsonMappingException
     {
+        TypeSerializer vts = _valueTypeSerializer;
+        if (vts != null) {
+            vts = vts.forProperty(ctxt, property);
+        }
         JsonSerializer<?> ser = _valueSerializer;
         if (ser == null) {
             // Can only assign serializer statically if the declared type is final:
             // if not, we don't really know the actual type until we get the instance.
 
             // 10-Mar-2010, tatu: Except if static typing is to be used
-            if (_staticTyping || provider.isEnabled(MapperFeature.USE_STATIC_TYPING)
+            if (_staticTyping || ctxt.isEnabled(MapperFeature.USE_STATIC_TYPING)
                     || _valueType.isFinal()) {
                 // false -> no need to cache
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
@@ -127,22 +153,22 @@ public class JsonValueSerializer
                  *   to serializer factory at this point... 
                  */
                 // I _think_ this can be considered a primary property...
-                ser = provider.findPrimaryPropertySerializer(_valueType, property);
+                ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(_valueType.getRawClass(), ser);
-                return withResolved(property, ser, forceTypeInformation);
+                return withResolved(property, vts, ser, forceTypeInformation);
             }
             // [databind#2822]: better hold on to "property", regardless
             if (property != _property) {
-                return withResolved(property, ser, _forceTypeInformation);
+                return withResolved(property, vts, ser, _forceTypeInformation);
             }
         } else {
             // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-            ser = provider.handlePrimaryContextualization(ser, property);
-            return withResolved(property, ser, _forceTypeInformation);
+            ser = ctxt.handlePrimaryContextualization(ser, property);
+            return withResolved(property, vts, ser, _forceTypeInformation);
         }
         return this;
     }

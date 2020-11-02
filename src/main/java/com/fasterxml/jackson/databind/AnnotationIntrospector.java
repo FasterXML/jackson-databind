@@ -969,7 +969,7 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for checking whether given method has an annotation
-     * that suggests the return value of annotated method
+     * that suggests the return value of annotated field or method
      * should be used as "the key" of the object instance; usually
      * serialized as a primitive value such as String or number.
      *
@@ -978,7 +978,7 @@ public abstract class AnnotationIntrospector
      *   accessor is definitely NOT to be used "as value"); or `null` if no
      *   information found.
      *
-     * @since TODO
+     * @since 2.12
      */
     public Boolean hasAsKey(MapperConfig<?> config, Annotated a) {
         return null;

@@ -6,10 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import com.fasterxml.jackson.annotation.JsonKey;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
-
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -114,14 +111,16 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _anySetterField;
 
     /**
-     * Accessors (field or "getter" method annotated with {@link JsonKey}
+     * Accessors (field or "getter" method annotated with
+     * {@link com.fasterxml.jackson.annotation.JsonKey}
+     *
+     * @since 2.12
      */
     protected LinkedList<AnnotatedMember> _jsonKeyAccessors;
 
     /**
-     *Accessors (field or "getter" method) annotated with {@link JsonValue}
-     *<p>
-     * NOTE: before 2.9, was `AnnotatedMethod`; with 2.9 allows fields too
+     * Accessors (field or "getter" method) annotated with
+     * {@link com.fasterxml.jackson.annotation.JsonValue}
      */
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
@@ -199,6 +198,9 @@ public class POJOPropertiesCollector
         return _injectables;
     }
 
+    /**
+     * @since 2.12
+     */
     public AnnotatedMember getJsonKeyAccessor() {
         if (!_collected) {
             collectAll();

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-@SuppressWarnings("serial")
 public class MapKeySerializationTest extends BaseMapTest
 {
     public static class KarlSerializer extends JsonSerializer<String>
@@ -52,39 +50,8 @@ public class MapKeySerializationTest extends BaseMapTest
         inner;
     }
 
-    public static class Wat
-    {
-        private final String wat;
-
-        @JsonCreator
-        Wat(String wat) {
-            this.wat = wat;
-        }
-
-        @JsonValue
-        public String getWat() {
-            return wat;
-        }
-
-        @Override
-        public String toString() {
-            return "(String)[Wat: " + wat + "]";
-        }
-    }
-
-    static class WatMap extends HashMap<Wat,Boolean> { }
-
     enum ABC {
         A, B, C
-    }
-
-    enum AbcLC {
-        A, B, C;
-
-        @JsonValue
-        public String toLC() {
-            return name().toLowerCase();
-        }
     }
 
     static class ABCMapWrapper {
@@ -97,7 +64,7 @@ public class MapKeySerializationTest extends BaseMapTest
     @JsonSerialize(keyUsing = ABCKeySerializer.class)
     public static enum ABCMixin { }
 
-    static class BAR<T>{
+    static class BAR<T> {
         T value;
 
         public BAR(T value) {
@@ -114,19 +81,6 @@ public class MapKeySerializationTest extends BaseMapTest
             return this.getClass().getSimpleName()
                     + ", value:" + value
                     ;
-        }
-    }
-
-    static class UCString {
-        private String value;
-
-        public UCString(String v) {
-            value = v.toUpperCase();
-        }
-
-        @JsonValue
-        public String asString() {
-            return value;
         }
     }
 
@@ -250,16 +204,6 @@ public class MapKeySerializationTest extends BaseMapTest
         map.put("a", "b");
         assertEquals("{\"DEFAULT:a\":\"b\"}", m.writeValueAsString(map));
     }
-    
-    // [databind#47]
-    public void testMapJsonValueKey47() throws Exception
-    {
-        WatMap input = new WatMap();
-        input.put(new Wat("3"), true);
-
-        String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'3':true}"), json);
-    }    
 
     // [databind#682]
     public void testClassKey() throws IOException
@@ -311,16 +255,7 @@ public class MapKeySerializationTest extends BaseMapTest
                 .writeValueAsString(stuff);
         assertEquals("{\"@type\":\"HashMap\",\"xxxB\":\"bar\"}", json);
     }
-    
-    // [databind#943]
-    public void testDynamicMapKeys() throws Exception
-    {
-        Map<Object,Integer> stuff = new LinkedHashMap<Object,Integer>();
-        stuff.put(AbcLC.B, Integer.valueOf(3));
-        stuff.put(new UCString("foo"), Integer.valueOf(4));
-        String json = MAPPER.writeValueAsString(stuff);
-        assertEquals(aposToQuotes("{'b':3,'FOO':4}"), json);
-    }    
+
     // [databind#1552]
     public void testMapsWithBinaryKeys() throws Exception
     {
@@ -338,5 +273,14 @@ public class MapKeySerializationTest extends BaseMapTest
         map.put(binary, "xyz");
         assertEquals(aposToQuotes("{'"+expBase64+"':'xyz'}"),
                 MAPPER.writeValueAsString(map));
+    }
+
+    // [databind#1679]
+    public void testMapKeyRecursion1679() throws Exception
+    {
+        Map<Object, Object> objectMap = new HashMap<Object, Object>();
+        objectMap.put(new Object(), "foo");
+        String json = MAPPER.writeValueAsString(objectMap);
+        assertNotNull(json);
     }
 }

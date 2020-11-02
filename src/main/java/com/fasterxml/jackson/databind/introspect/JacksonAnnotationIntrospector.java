@@ -1071,7 +1071,7 @@ public class JacksonAnnotationIntrospector
         return null;
     }
 
-    @Override
+    @Override // since 2.12
     public Boolean hasAsKey(MapperConfig<?> config, Annotated a) {
         JsonKey ann = _findAnnotation(a, JsonKey.class);
         if (ann == null) {

@@ -180,7 +180,7 @@ public abstract class BeanDescription
      * if any. If multiple ones are found,
      * an error is reported by throwing {@link IllegalArgumentException}
      *
-     * @since TODO
+     * @since 2.12
      */
     public AnnotatedMember findJsonKeyAccessor() {
         return null;

@@ -27,14 +27,14 @@ public class ExceptionSerializableTest1195 extends BaseMapTest
             MAPPER.readValue("{\"x\": \"B\"}", ClassToRead.class);
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "not a valid Integer");
+            verifyException(e, "Cannot deserialize value of type `int` from String \"B\": not a valid `int` value");
             _testSerializability(e);
         }
         try {
             MAPPER.readValue("{\"classToRead\": {\"x\": \"B\"}}", ContainerClassToRead.class);
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "not a valid Integer");
+            verifyException(e, "Cannot deserialize value of type `int` from String \"B\": not a valid `int` value");
             _testSerializability(e);
         }
     }
@@ -46,7 +46,7 @@ public class ExceptionSerializableTest1195 extends BaseMapTest
                     ContainerClassesToRead.class);
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "not a valid Integer");
+            verifyException(e, "Cannot deserialize value of type `int` from String \"B\": not a valid `int` value");
             _testSerializability(e);
         }
     }

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
 
-public class ExceptionSerializableTest1195 extends BaseMapTest
+public class ExceptionJDKSerializable1195Test extends BaseMapTest
 {
     static class ClassToRead {
         public int x;

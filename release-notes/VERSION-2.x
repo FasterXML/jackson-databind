@@ -13,6 +13,9 @@ Project: jackson-databind
 #2804: Throw `InvalidFormatException` instead of `MismatchedInputException`
    for ACCEPT_FLOAT_AS_INT coercion failures
  (requested by mjustin@github)
+#2871: Add `@JsonKey` annotation (similar to `@JsonValue`) for customizable
+  serialization of Map keys
+ (requested by CidTori@github; implementation contributed by Kevin B)
 #2878: Revert change initially made to fix #2805: change in signature
   of `ObjectMapper.treeToValue()` regarding exceptions
 #2879: Add support for disabling special handling of "Creator properties" wrt

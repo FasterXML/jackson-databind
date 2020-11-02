@@ -226,6 +226,12 @@ public class BasicBeanDescription extends BeanDescription
         return _properties();
     }
 
+    @Override // since 2.12
+    public AnnotatedMember findJsonKeyAccessor() {
+        return (_propCollector == null) ? null
+                : _propCollector.getJsonKeyAccessor();
+    }
+
     @Override // since 2.9
     public AnnotatedMember findJsonValueAccessor() {
         return (_propCollector == null) ? null

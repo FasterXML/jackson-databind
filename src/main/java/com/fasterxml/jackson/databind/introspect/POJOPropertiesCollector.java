@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.databind.*;
-
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -109,7 +108,14 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _anySetterField;
 
     /**
-     * Method(s) marked with 'JsonValue' annotation
+     * Accessors (field or "getter" method annotated with
+     * {@link com.fasterxml.jackson.annotation.JsonKey}
+     */
+    protected LinkedList<AnnotatedMember> _jsonKeyAccessors;
+
+    /**
+     * Accessors (field or "getter" method) annotated with
+     * {@link com.fasterxml.jackson.annotation.JsonValue}
      */
     protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
@@ -185,6 +191,26 @@ public class POJOPropertiesCollector
             collectAll();
         }
         return _injectables;
+    }
+
+    /**
+     * @since 2.12
+     */
+    public AnnotatedMember getJsonKeyAccessor() {
+        if (!_collected) {
+            collectAll();
+        }
+        // If @JsonKey defined, must have a single one
+        if (_jsonKeyAccessors != null) {
+            if (_jsonKeyAccessors.size() > 1) {
+                reportProblem("Multiple 'as-key' properties defined (%s vs %s)",
+                        _jsonKeyAccessors.get(0),
+                        _jsonKeyAccessors.get(1));
+            }
+            // otherwise we won't greatly care
+            return _jsonKeyAccessors.get(0);
+        }
+        return null;
     }
 
     public AnnotatedMember getJsonValueAccessor()
@@ -394,6 +420,13 @@ public class POJOPropertiesCollector
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
 
         for (AnnotatedField f : _classDef.fields()) {
+            // @JsonKey?
+            if (Boolean.TRUE.equals(ai.hasAsKey(_config, f))) {
+                if (_jsonKeyAccessors == null) {
+                    _jsonKeyAccessors = new LinkedList<>();
+                }
+                _jsonKeyAccessors.add(f);
+            }
             // @JsonValue?
             if (Boolean.TRUE.equals(ai.hasAsValue(_config, f))) {
                 if (_jsonValueAccessors == null) {
@@ -614,6 +647,14 @@ public class POJOPropertiesCollector
                 _anyGetters = new LinkedList<AnnotatedMember>();
             }
             _anyGetters.add(m);
+            return;
+        }
+        // @JsonKey?
+        if (Boolean.TRUE.equals(ai.hasAsKey(_config, m))) {
+            if (_jsonKeyAccessors == null) {
+                _jsonKeyAccessors = new LinkedList<>();
+            }
+            _jsonKeyAccessors.add(m);
             return;
         }
         // @JsonValue?

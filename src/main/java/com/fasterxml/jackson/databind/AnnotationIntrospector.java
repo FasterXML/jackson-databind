@@ -275,8 +275,6 @@ public abstract class AnnotationIntrospector
      *
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param ann Annotated entity (Class, Accessor) to introspect
-     *
-     * @since 2.12
      */
     public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated ann) {
         return JsonIncludeProperties.Value.all();
@@ -820,6 +818,21 @@ public abstract class AnnotationIntrospector
      * @return Name to use if found; null if not.
      */
     public PropertyName findNameForSerialization(MapperConfig<?> config, Annotated a) {
+        return null;
+    }
+
+    /**
+     * Method for checking whether given method has an annotation
+     * that suggests the return value of annotated field or method
+     * should be used as "the key" of the object instance; usually
+     * serialized as a primitive value such as String or number.
+     *
+     * @return {@link Boolean#TRUE} if such annotation is found and is not disabled;
+     *   {@link Boolean#FALSE} if disabled annotation (block) is found (to indicate
+     *   accessor is definitely NOT to be used "as value"); or `null` if no
+     *   information found.
+     */
+    public Boolean hasAsKey(MapperConfig<?> config, Annotated a) {
         return null;
     }
 

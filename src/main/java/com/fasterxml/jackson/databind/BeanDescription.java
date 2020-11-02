@@ -142,6 +142,19 @@ public abstract class BeanDescription
     /**
      * Method for locating accessor (readable field, or "getter" method)
      * that has
+     * {@link com.fasterxml.jackson.annotation.JsonKey} annotation,
+     * if any. If multiple ones are found,
+     * an error is reported by throwing {@link IllegalArgumentException}
+     *
+     * @since 2.12
+     */
+    public AnnotatedMember findJsonKeyAccessor() {
+        return null;
+    }
+
+    /**
+     * Method for locating accessor (readable field, or "getter" method)
+     * that has
      * {@link com.fasterxml.jackson.annotation.JsonValue} annotation,
      * if any. If multiple ones are found,
      * an error is reported by throwing {@link IllegalArgumentException}

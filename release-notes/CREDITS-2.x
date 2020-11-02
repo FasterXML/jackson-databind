@@ -1236,8 +1236,13 @@ Oguzhan Unlu (oguzhanunlu@github)
   (2.12.0)
 
 Siavash Soleymani (siavashsoleymani@github)
-  * Contributed implementation for #2855:Add `JsonNode.canConvertToExactIntegral()` to
+  * Contributed implementation for #2855: Add `JsonNode.canConvertToExactIntegral()` to
     indicate whether floating-point/BigDecimal values could be converted to integers losslessly
+  (2.12.0)
+
+Kevin Binswanger (Anusien@github)
+  * Contributed implementation for #2871: Add `@JsonKey` annotation (similar to `@JsonValue`)
+    for customizable serialization of Map keys
   (2.12.0)
 
 Ilya Golovin (ilgo0413@github)

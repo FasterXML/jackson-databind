@@ -200,26 +200,37 @@ public abstract class BasicSerializerFactory
             // [databind#2503]: Support `@Json[De]Serialize(keyUsing)` on key type too
             ser = _findKeySerializer(ctxt, beanDesc.getClassInfo());
             if (ser == null) {
+                // If no explicit serializer, see if type is JDK one for which there is
+                // explicit deserializer: if so, can avoid further annotation lookups:
                 ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
-                // As per [databind#47], also need to support @JsonValue
                 if (ser == null) {
-                    AnnotatedMember am = beanDesc.findJsonValueAccessor();
-                    if (am != null) {
-                        final Class<?> rawType = am.getRawType();
-                        JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
-                                rawType, true);
+                    // Check `@JsonKey` and `@JsonValue`, in this order
+                    AnnotatedMember keyAm = beanDesc.findJsonKeyAccessor();
+                    if (keyAm != null) {
+                        JsonSerializer<?> delegate = createKeySerializer(ctxt, keyAm.getType(), null);
                         if (config.canOverrideAccessModifiers()) {
-                            ClassUtil.checkAndFixAccess(am.getMember(),
+                            ClassUtil.checkAndFixAccess(keyAm.getMember(),
                                     config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
                         // need to pass both type of key Object (on which accessor called), and actual
                         // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
-                        ser = new JsonValueSerializer(keyType, am.getType(), false, null, delegate, am);
+                        ser = new JsonValueSerializer(keyType, keyAm.getType(), false, null, delegate, keyAm);
                     } else {
-                        // And aside from JDK defaults, use `defaultImpl` if any specified
-                        ser = defaultImpl;
-                        if (ser == null) {
-                            ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                        AnnotatedMember am = beanDesc.findJsonValueAccessor();
+                        if (am != null) {
+                            JsonSerializer<?> delegate = createKeySerializer(ctxt, am.getType(), null);
+                            if (config.canOverrideAccessModifiers()) {
+                                ClassUtil.checkAndFixAccess(am.getMember(),
+                                        config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                            }
+                            // need to pass both type of key Object (on which accessor called), and actual
+                            // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
+                            ser = new JsonValueSerializer(keyType, am.getType(), false, null, delegate, am);
+                        } else {
+                            ser = defaultImpl;
+                            if (ser == null) {
+                                ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                            }
                         }
                     }
                 }

@@ -236,7 +236,8 @@ public abstract class BasicSerializerFactory
                                 ClassUtil.checkAndFixAccess(keyAm.getMember(),
                                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                             }
-                            ser = new JsonValueSerializer(keyAm, delegate);
+                            // null -> no TypeSerializer for key-serializer use case
+                            ser = new JsonValueSerializer(keyAm, null, delegate);
                         }
                         if (ser == null) {
                             AnnotatedMember am = beanDesc.findJsonValueAccessor();
@@ -248,7 +249,7 @@ public abstract class BasicSerializerFactory
                                     ClassUtil.checkAndFixAccess(am.getMember(),
                                             config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                                 }
-                                ser = new JsonValueSerializer(am, delegate);
+                                ser = new JsonValueSerializer(am, null, delegate);
                             } else {
                                 ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                             }
@@ -412,8 +413,16 @@ public abstract class BasicSerializerFactory
                 ClassUtil.checkAndFixAccess(valueAccessor.getMember(),
                         prov.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueAccessor);
-            return new JsonValueSerializer(valueAccessor, ser);
+            final JavaType valueType = valueAccessor.getType();
+            JsonSerializer<Object> valueSerializer = findSerializerFromAnnotation(prov, valueAccessor);
+            if (valueSerializer == null) {
+                valueSerializer = valueType.getValueHandler();
+            }
+            TypeSerializer typeSerializer = valueType.getTypeHandler();
+            if (typeSerializer == null) {
+                typeSerializer = createTypeSerializer(prov.getConfig(), valueType);
+            }
+            return new JsonValueSerializer(valueAccessor, typeSerializer, valueSerializer);
         }
         // No well-known annotations...
         return null;

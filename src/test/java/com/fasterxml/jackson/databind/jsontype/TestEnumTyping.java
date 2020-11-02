@@ -5,17 +5,12 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SuppressWarnings("serial")
 public class TestEnumTyping extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     // note: As.WRAPPER_ARRAY worked initially; but as per [JACKSON-485], As.PROPERTY had issues
     @JsonTypeInfo(use=JsonTypeInfo.Id.MINIMAL_CLASS, include=JsonTypeInfo.As.PROPERTY)
     public interface EnumInterface { }
@@ -63,10 +58,23 @@ public class TestEnumTyping extends BaseMapTest
         }
     }
 
+    // [databind#2775]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME
+// work-around:
+//            , include = JsonTypeInfo.As.WRAPPER_ARRAY
+            )
+    @JsonSubTypes(@JsonSubTypes.Type(TestEnum2775.class))
+    interface Base2775 {}
+
+    @JsonTypeName("Test")
+    enum TestEnum2775 implements Base2775 {
+        VALUE;
+    }
+
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -123,5 +131,18 @@ public class TestEnumTyping extends BaseMapTest
 //      Object o = MAPPER.readerFor(EnumContaintingClass.class).readValue(json);
         Object o = MAPPER.readValue(json, EnumContaintingClass.class);
         assertNotNull(o);
+    }
+
+    // [databind#2775]
+    public void testEnumAsSubtypeNoFailOnInvalidTypeId() throws Exception
+    {
+        final Base2775 testValue = TestEnum2775.VALUE;
+        String json = MAPPER.writeValueAsString(testValue);
+//System.err.println("JSON: "+json);
+
+        Base2775 deserializedValue = MAPPER.readerFor(Base2775.class)
+                .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
+                .readValue(json);
+        assertEquals(testValue, deserializedValue);
     }
 }

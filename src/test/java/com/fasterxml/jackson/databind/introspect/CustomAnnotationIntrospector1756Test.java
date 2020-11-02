@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -89,10 +90,14 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
       }
 
       @Override
-      public boolean hasCreatorAnnotation(Annotated a) {
-        final AnnotatedConstructor ctor = (AnnotatedConstructor) a;
-        return (ctor.getParameterCount() > 0)
-                && (ctor.getParameter(0).getAnnotation(Field1756.class) != null);
+      public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated ann) {
+          final AnnotatedConstructor ctor = (AnnotatedConstructor) ann;
+          if (ctor.getParameterCount() > 0) {
+              if (ctor.getParameter(0).getAnnotation(Field1756.class) != null) {
+                  return JsonCreator.Mode.PROPERTIES;
+              }
+          }
+          return null;
       }
     }
 

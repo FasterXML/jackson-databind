@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -57,6 +58,7 @@ public class TestRootType
     }
 
     // [databind#412]
+    @JsonPropertyOrder({ "uuid", "type" })
     static class TestCommandParent {
         public String uuid;
         public int type;

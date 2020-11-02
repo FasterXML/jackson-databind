@@ -97,6 +97,40 @@ public class SerializationOrderTest
         public int f;
     }
 
+    // For [databind#2879]
+    @JsonPropertyOrder({ "a", "c" })
+    static class BeanFor2879 {
+        public int c;
+        public int b;
+        public int a;
+
+        @JsonCreator
+        public BeanFor2879(@JsonProperty("a") int a,
+                @JsonProperty("b") int b,
+                @JsonProperty("c") int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
+    // For [databind#2879]
+    static class BeanForStrictOrdering {
+        private final int a;
+        private int b;
+        private final int c;
+
+        @JsonCreator
+        public BeanForStrictOrdering(@JsonProperty("c") int c, @JsonProperty("a") int a) { //b and a are out of order, although alphabetic = true
+            this.a = a;
+            this.c = c;
+        }
+
+        public int getA() { return a; }
+        public int getB() { return b; }
+        public int getC() { return c; }
+    }
+
     /*
     /*********************************************
     /* Unit tests
@@ -145,6 +179,16 @@ public class SerializationOrderTest
                 ALPHA_MAPPER.writeValueAsString(new BeanFor459()));
     }
 
+    // [databind#2879]: verify that Creator properties never override explicit
+    //   order
+    public void testCreatorVsExplicitOrdering() throws Exception
+    {
+        assertEquals(aposToQuotes("{'a':1,'c':3,'b':2}"),
+                MAPPER.writeValueAsString(new BeanFor2879(1, 2, 3)));
+        assertEquals(aposToQuotes("{'a':1,'c':3,'b':2}"),
+                ALPHA_MAPPER.writeValueAsString(new BeanFor2879(1, 2, 3)));
+    }
+
     // [databind#311]
     public void testAlphaAndCreatorOrdering() throws Exception
     {
@@ -159,5 +203,26 @@ public class SerializationOrderTest
         // case of alphabetic-as-default
         assertEquals(aposToQuotes("{'f':0,'u':0,'b':0,'a':0,'r':0}"),
                 ALPHA_MAPPER.writeValueAsString(new OrderingByIndexBean()));
+    }
+
+    // [databind#2879]: allow preventing Creator properties from overriding
+    //    alphabetic ordering
+    public void testStrictAlphaAndCreatorOrdering() throws Exception
+    {
+        // without changing defaults, creators are sorted before other properties
+        // BUT are sorted within their own category
+        assertTrue(ALPHA_MAPPER.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertTrue(ALPHA_MAPPER.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        assertEquals(a2q("{'a':3,'c':2,'b':0}"),
+                ALPHA_MAPPER.writeValueAsString(new BeanForStrictOrdering(2, 3)));
+
+        // but can change that
+        final ObjectMapper STRICT_ALPHA_MAPPER = jsonMapperBuilder()
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
+                .build();
+
+        assertEquals(a2q("{'a':2,'b':0,'c':1}"),
+                STRICT_ALPHA_MAPPER.writeValueAsString(new BeanForStrictOrdering(1, 2)));
     }
 }

@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 public class TestConvertingSerializer
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
@@ -140,6 +142,7 @@ public class TestConvertingSerializer
     }
 
     // [databind#731]
+    @JsonPropertyOrder({ "a", "b" })
     public static class DummyBean {
         public final int a, b;
         public DummyBean(int v1, int v2) {

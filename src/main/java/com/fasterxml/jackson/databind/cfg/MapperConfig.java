@@ -601,14 +601,29 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Initially set to {@link Locale#getDefault()}.
      */
     public final Locale getLocale() { return _base.getLocale(); }
-    
+
     /**
      * Method for accessing the default {@link java.util.TimeZone} to use
      * for formatting, unless overridden by local annotations.
      * Initially set to {@link TimeZone#getDefault()}.
      */
     public final TimeZone getTimeZone() { return _base.getTimeZone(); }
-    
+
+    /**
+     * Method for checking whether a {@link java.util.TimeZone} has been explicitly
+     * set for this configuring during construction of {@code ObjectMapper}
+     * or if it still has the default timezone/offset (zero-offset, "zulu").
+     *
+     * @return {@code true} if this configuration has explicitly specified
+     *    {@link java.util.TimeZone}, or {@code false} if it uses the default
+     *    time zone
+     *
+     * @since 2.12
+     */
+    public boolean hasExplicitTimeZone() {
+        return _base.hasExplicitTimeZone();
+    }
+
     /**
      * Accessor for finding currently active view, if any (null if none)
      */

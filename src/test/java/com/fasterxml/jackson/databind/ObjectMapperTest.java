@@ -126,7 +126,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(m.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
 
         // // First: verify that handling of features is decoupled:
-        
+
         ObjectMapper m2 = m.copy();
         assertFalse(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         m2.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -215,7 +215,7 @@ public class ObjectMapperTest extends BaseMapTest
         }
     }
 
-    public void testAnnotationIntrospectorCopyin() 
+    public void testAnnotationIntrospectorCopying()
     {
         ObjectMapper m = new ObjectMapper();
         m.setAnnotationIntrospector(new MyAnnotationIntrospector());
@@ -272,6 +272,29 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(dc.shouldSortPropertiesAlphabetically());
     }
 
+    // Test to ensure that we can check forced property ordering defaults...
+    public void testConfigForForcedPropertySorting() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+
+        // sort-alphabetically is disabled by default:
+        assertTrue(m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        SerializationConfig sc = m.getSerializationConfig();
+        assertTrue(sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        DeserializationConfig dc = m.getDeserializationConfig();
+        assertTrue(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+
+        // but when enabled, should be visible:
+        m = jsonMapperBuilder()
+                .disable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
+                .build();
+        sc = m.getSerializationConfig();
+        assertFalse(sc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+        dc = m.getDeserializationConfig();
+        // and not just via SerializationConfig, but also via DeserializationConfig
+        assertFalse(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
+    }
+
     public void testJsonFactoryLinkage()
     {
         // first, implicit factory, giving implicit linkage
@@ -284,7 +307,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertSame(m, f.getCodec());
     }
 
-    public void testProviderConfig() throws Exception   
+    public void testProviderConfig() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         final String JSON = "{ \"x\" : 3 }";
@@ -332,7 +355,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals("[1,2]", m.writer().without(SerializationFeature.INDENT_OUTPUT)
                 .writeValueAsString(input));
     }
-    
+
     // For [databind#703], [databind#978]
     public void testNonSerializabilityOfObject()
     {
@@ -475,5 +498,50 @@ public class ObjectMapperTest extends BaseMapTest
             new HashSet<>(Arrays.asList("second", "third", "main")),
             objectMapper.getRegisteredModuleIds()
         );
+    }
+
+    // since 2.12
+    public void testHasExplicitTimeZone() throws Exception
+    {
+        final TimeZone DEFAULT_TZ = TimeZone.getTimeZone("UTC");
+
+        // By default, not explicitly set
+        assertFalse(MAPPER.getSerializationConfig().hasExplicitTimeZone());
+        assertFalse(MAPPER.getDeserializationConfig().hasExplicitTimeZone());
+        assertEquals(DEFAULT_TZ, MAPPER.getSerializationConfig().getTimeZone());
+        assertEquals(DEFAULT_TZ, MAPPER.getDeserializationConfig().getTimeZone());
+        assertFalse(MAPPER.reader().getConfig().hasExplicitTimeZone());
+        assertFalse(MAPPER.writer().getConfig().hasExplicitTimeZone());
+
+        final TimeZone TZ = TimeZone.getTimeZone("GMT+4");
+
+        // should be able to set it via mapper
+        ObjectMapper mapper = JsonMapper.builder()
+                .defaultTimeZone(TZ)
+                .build();
+        assertSame(TZ, mapper.getSerializationConfig().getTimeZone());
+        assertSame(TZ, mapper.getDeserializationConfig().getTimeZone());
+        assertTrue(mapper.getSerializationConfig().hasExplicitTimeZone());
+        assertTrue(mapper.getDeserializationConfig().hasExplicitTimeZone());
+        assertTrue(mapper.reader().getConfig().hasExplicitTimeZone());
+        assertTrue(mapper.writer().getConfig().hasExplicitTimeZone());
+
+        // ... as well as via ObjectReader/-Writer
+        {
+            final ObjectReader r = MAPPER.reader().with(TZ);
+            assertTrue(r.getConfig().hasExplicitTimeZone());
+            assertSame(TZ, r.getConfig().getTimeZone());
+            final ObjectWriter w = MAPPER.writer().with(TZ);
+            assertTrue(w.getConfig().hasExplicitTimeZone());
+            assertSame(TZ, w.getConfig().getTimeZone());
+
+            // but can also remove explicit definition
+            final ObjectReader r2 = r.with((TimeZone) null);
+            assertFalse(r2.getConfig().hasExplicitTimeZone());
+            assertEquals(DEFAULT_TZ, r2.getConfig().getTimeZone());
+            final ObjectWriter w2 = w.with((TimeZone) null);
+            assertFalse(w2.getConfig().hasExplicitTimeZone());
+            assertEquals(DEFAULT_TZ, w2.getConfig().getTimeZone());
+        }
     }
 }

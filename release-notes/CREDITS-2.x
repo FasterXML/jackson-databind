@@ -1164,6 +1164,10 @@ Daniel Wu (DanielYWoo@github)
   * Reported #2840: `ObjectMapper.activateDefaultTypingAsProperty()` is not using
   (2.11.3)
 
+Łukasz Walkiewicz (lukasz-walkiewicz@github)
+  * Reported #2894: Fix type resolution for static methods (regression in 2.11.3)
+  (2.11.4)
+
 Marc Carter (drekbour@github)
   * Contributed #43 implementation: Add option to resolve type from multiple existing properties,
    `@JsonTypeInfo(use=DEDUCTION)`
@@ -1178,6 +1182,10 @@ Baptiste Pernet (sp4ce@github)
     of `@JsonIgnoreProperties`)
   (2.12.0)
 
+Dominik Krebhan (dominikrebhan@github)
+  * Contributed #1458: `@JsonAnyGetter` should be allowed on a field
+  (2.12.0)
+ 
 Patrick Jungermann (pjungermann@github)
   * Requested #1852: Allow case insensitive deserialization of String value into
   `boolean`/`Boolean` (esp for Excel)
@@ -1220,4 +1228,23 @@ Jendrik Johannes (jjohannes@github)
 
 Swayam Raina (swayamraina@github)
   * Contributed #2761: Support multiple names in `JsonSubType.Type`
+  (2.12.0)
+
+Oguzhan Unlu (oguzhanunlu@github)
+  * Requested #2855: Add `JsonNode.canConvertToExactIntegral()` to indicate whether
+    floating-point/BigDecimal values could be converted to integers losslessly
+  (2.12.0)
+
+Siavash Soleymani (siavashsoleymani@github)
+  * Contributed implementation for #2855:Add `JsonNode.canConvertToExactIntegral()` to
+    indicate whether floating-point/BigDecimal values could be converted to integers losslessly
+  (2.12.0)
+
+Ilya Golovin (ilgo0413@github)
+  * Contributed #2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys
+  (2.12.0)
+
+Sergiy Yevtushenko (siy@github)
+  * Contributed #2879: Add support for disabling special handling of "Creator properties" wrt
+    alphabetic property ordering
   (2.12.0)

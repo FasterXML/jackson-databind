@@ -306,7 +306,7 @@ public abstract class BaseMapTest
         throws IOException
     {
         String str = m.writeValueAsString(value);
-        return (Map<String,Object>) m.readValue(str, Map.class);
+        return (Map<String,Object>) m.readValue(str, LinkedHashMap.class);
     }
     
     protected String serializeAsString(ObjectMapper m, Object value)
@@ -370,17 +370,5 @@ public abstract class BaseMapTest
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
-    }
-
-    protected static String aposToQuotes(String json) {
-        return json.replace("'", "\"");
-    }
-
-    protected static String a2q(String json) {
-        return json.replace("'", "\"");
-    }
-    
-    protected static String quotesToApos(String json) {
-        return json.replace("\"", "'");
     }
 }

@@ -112,9 +112,14 @@ public abstract class TypeDeserializerBase
     @Override    
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }
 
-    @Override    
+    @Override
     public Class<?> getDefaultImpl() {
         return ClassUtil.rawClass(_defaultImpl);
+    }
+
+    @Override
+    public boolean hasDefaultImpl() {
+        return (_defaultImpl != null);
     }
 
     /**
@@ -204,10 +209,9 @@ public abstract class TypeDeserializerBase
 
     protected final JsonDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt) throws IOException
     {
-        /* 06-Feb-2013, tatu: As per [databind#148], consider default implementation value of
-         *   {@link java.lang.Void} to mean "serialize as null"; as well as DeserializationFeature
-         *   to do swift mapping to null
-         */
+        // 06-Feb-2013, tatu: As per [databind#148], consider default implementation value of
+        //   {@link java.lang.Void} to mean "serialize as null"; as well as DeserializationFeature
+        //   to do swift mapping to null
         if (_defaultImpl == null) {
             if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)) {
                 return NullifyingDeserializer.instance;

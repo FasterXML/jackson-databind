@@ -453,8 +453,9 @@ public class NumberDeserializers
                 CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass, CoercionInputShape.Integer);
                 switch (act) {
                 case Fail:
-                    _checkCoercionActionFail(ctxt, act, "Integer value ("+p.getText()+")");
-                    break;
+                    _checkCoercionFail(ctxt, act, _valueClass, p.getNumberValue(),
+                            "Integer value ("+p.getText()+")");
+                    // fall-through in unlikely case of returning
                 case AsNull:
                     return getNullValue(ctxt);
                 case AsEmpty:

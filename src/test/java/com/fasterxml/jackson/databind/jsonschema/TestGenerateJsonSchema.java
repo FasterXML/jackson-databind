@@ -247,4 +247,8 @@ public class TestGenerateJsonSchema
                 +"'bigInt':{'type':'integer'}}}";
         assertEquals(EXP, json);
     }
+
+    protected static String quotesToApos(String json) {
+        return json.replace("\"", "'");
+    }
 }

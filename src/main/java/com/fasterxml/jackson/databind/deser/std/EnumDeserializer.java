@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -170,46 +172,38 @@ public class EnumDeserializer
         return LogicalType.Enum;
     }
 
+    @Override // since 2.12
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _enumDefaultValue;
+    }
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        String text;
-        JsonToken curr = p.currentToken();
-
         // Usually should just get string value:
         // 04-Sep-2020, tatu: for 2.11.3 / 2.12.0, removed "FIELD_NAME" as allowed;
         //   did not work and gave odd error message.
-        if (curr == JsonToken.VALUE_STRING) {
-            text = p.getText();
-        // But let's consider int acceptable as well (if within ordinal range)
-        } else if (curr == JsonToken.VALUE_NUMBER_INT) {
-            // ... unless told not to do that
-            int index = p.getIntValue();
-            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-                return ctxt.handleWeirdNumberValue(_enumClass(), index,
-                        "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
-                        );
-            }
-            if (index >= 0 && index < _enumsByIndex.length) {
-                return _enumsByIndex[index];
-            }
-            if ((_enumDefaultValue != null)
-                    && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
-                return _enumDefaultValue;
-            }
-            if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                return ctxt.handleWeirdNumberValue(_enumClass(), index,
-                        "index value outside legal index range [0..%s]",
-                        _enumsByIndex.length-1);
-            }
-            return null;
-        } else if (curr == JsonToken.START_OBJECT) {
-            // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
-            text = ctxt.extractScalarFromObject(p, this, _valueClass);
-        } else {
-            return _deserializeOther(p, ctxt);
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
+            return _fromString(p, ctxt, p.getText());
         }
 
+        // But let's consider int acceptable as well (if within ordinal range)
+        if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            return _fromInteger(p, ctxt, p.getIntValue());
+        }
+
+        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
+        if (p.isExpectedStartObjectToken()) {
+            return _fromString(p, ctxt,
+                    ctxt.extractScalarFromObject(p, this, _valueClass));
+        }
+        return _deserializeOther(p, ctxt);
+    }
+
+    protected Object _fromString(JsonParser p, DeserializationContext ctxt,
+            String text)
+        throws IOException
+    {
         CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 ? _getToStringLookup(ctxt) : _lookupByName;
         Object result = lookup.find(text);
@@ -222,6 +216,51 @@ public class EnumDeserializer
         return result;
     }
 
+    protected Object _fromInteger(JsonParser p, DeserializationContext ctxt,
+            int index)
+        throws IOException
+    {
+        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                CoercionInputShape.Integer);
+
+        // First, check legacy setting for slightly different message
+        if (act == CoercionAction.Fail) {
+            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+                return ctxt.handleWeirdNumberValue(_enumClass(), index,
+                        "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
+                        );
+            }
+            // otherwise this will force failure with new setting
+            _checkCoercionFail(ctxt, act, handledType(), index,
+                    "Integer value ("+index+")");
+        }
+        switch (act) {
+        case AsNull:
+            return null;
+        case AsEmpty:
+            return getEmptyValue(ctxt);
+        case TryConvert:
+        default:
+        }
+        if (index >= 0 && index < _enumsByIndex.length) {
+            return _enumsByIndex[index];
+        }
+        if ((_enumDefaultValue != null)
+                && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+            return _enumDefaultValue;
+        }
+        if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+            return ctxt.handleWeirdNumberValue(_enumClass(), index,
+                    "index value outside legal index range [0..%s]",
+                    _enumsByIndex.length-1);
+        }
+        return null;
+    }
+        /*
+    return _checkCoercionFail(ctxt, act, rawTargetType, value,
+            "empty String (\"\")");
+            */
+    
     /*
     /**********************************************************
     /* Internal helper methods
@@ -229,13 +268,29 @@ public class EnumDeserializer
      */
     
     private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,
-            CompactStringObjectMap lookup, String name) throws IOException
+            CompactStringObjectMap lookup, String nameOrig) throws IOException
     {
-        name = name.trim();
-        if (name.length() == 0) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                return getEmptyValue(ctxt);
+        String name = nameOrig.trim();
+        if (name.length() == 0) { // empty or blank
+            CoercionAction act;
+            if (nameOrig.length() == 0) { 
+                act = _findCoercionFromEmptyString(ctxt);
+                act = _checkCoercionFail(ctxt, act, handledType(), nameOrig,
+                        "empty String (\"\")");
+            } else {
+                act = _findCoercionFromBlankString(ctxt);
+                act = _checkCoercionFail(ctxt, act, handledType(), nameOrig,
+                        "blank String (all whitespace)");
             }
+            switch (act) {
+            case AsEmpty:
+            case TryConvert:
+                return getEmptyValue(ctxt);
+            case AsNull:
+            default: // Fail already handled earlier
+            }
+            return null;
+//            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
         } else {
             // [databind#1313]: Case insensitive enum deserialization
             if (Boolean.TRUE.equals(_caseInsensitive)) {
@@ -294,8 +349,7 @@ public class EnumDeserializer
         // reduce contention for the initial resolution
         if (lookup == null) {
             synchronized (this) {
-                lookup = EnumResolver.constructUnsafeUsingToString(_enumClass(),
-                        ctxt.getAnnotationIntrospector())
+                lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
                     .constructLookup();
             }
             _lookupByToString = lookup;

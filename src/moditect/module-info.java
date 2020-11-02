@@ -6,7 +6,7 @@ module com.fasterxml.jackson.databind {
     requires transitive com.fasterxml.jackson.core;
     // these types were suggested as transitive, but aren't actually
     // exposed externally (only within internal APIs)
-    requires java.sql;
+    requires static java.sql;
     requires static java.xml;
 
     exports com.fasterxml.jackson.databind;

@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.sql.Timestamp;
 import java.text.*;
 import java.util.*;
 
@@ -25,38 +24,39 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 @SuppressWarnings("serial")
 public class DateDeserializers
 {
-    private final static HashSet<String> _classNames = new HashSet<String>();
+    private final static HashSet<String> _utilClasses = new HashSet<String>();
+
+    // classes from java.sql module, this module may not be present at runtime
+    private final static HashSet<String> _sqlClasses = new HashSet<String>();
     static {
-        Class<?>[] numberTypes = new Class<?>[] {
-            Calendar.class,
-            GregorianCalendar.class,
-            java.sql.Date.class,
-            java.util.Date.class,
-            Timestamp.class,
-        };
-        for (Class<?> cls : numberTypes) {
-            _classNames.add(cls.getName());
-        }
+        _utilClasses.add("java.util.Calendar");
+        _utilClasses.add("java.util.GregorianCalendar");
+        _utilClasses.add("java.util.Date");
+
+        _sqlClasses.add("java.sql.Date");
+        _sqlClasses.add("java.sql.Timestamp");
     }
 
     public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
     {
-        if (_classNames.contains(clsName)) {
+        if (_utilClasses.contains(clsName)) {
             // Start with the most common type
-            if (rawType == Calendar.class) {
+            if (rawType == java.util.Calendar.class) {
                 return new CalendarDeserializer();
             }
             if (rawType == java.util.Date.class) {
                 return DateDeserializer.instance;
             }
+            if (rawType == java.util.GregorianCalendar.class) {
+                return new CalendarDeserializer(GregorianCalendar.class);
+            }
+        }
+        if (_sqlClasses.contains(clsName)) {
             if (rawType == java.sql.Date.class) {
                 return new SqlDateDeserializer();
             }
-            if (rawType == Timestamp.class) {
+            if (rawType == java.sql.Timestamp.class) {
                 return new TimestampDeserializer();
-            }
-            if (rawType == GregorianCalendar.class) {
-                return new CalendarDeserializer(GregorianCalendar.class);
             }
         }
         return null;
@@ -64,7 +64,7 @@ public class DateDeserializers
 
     // @since 2.11
     public static boolean hasDeserializerFor(Class<?> rawType) {
-        return _classNames.contains(rawType.getName());
+        return _utilClasses.contains(rawType.getName()) || _sqlClasses.contains(rawType.getName());
     }
 
     /*
@@ -354,9 +354,9 @@ public class DateDeserializers
      * {@link DeserializationContext#parseDate} that this basic
      * deserializer calls.
      */
-    public static class TimestampDeserializer extends DateBasedDeserializer<Timestamp>
+    public static class TimestampDeserializer extends DateBasedDeserializer<java.sql.Timestamp>
     {
-        public TimestampDeserializer() { super(Timestamp.class); }
+        public TimestampDeserializer() { super(java.sql.Timestamp.class); }
         public TimestampDeserializer(TimestampDeserializer src, DateFormat df, String formatString) {
             super(src, df, formatString);
         }
@@ -368,14 +368,14 @@ public class DateDeserializers
 
         @Override // since 2.12
         public Object getEmptyValue(DeserializationContext ctxt) {
-            return new Timestamp(0L);
+            return new java.sql.Timestamp(0L);
         }
 
         @Override
         public java.sql.Timestamp deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             Date d = _parseDate(p, ctxt);
-            return (d == null) ? null : new Timestamp(d.getTime());
+            return (d == null) ? null : new java.sql.Timestamp(d.getTime());
         }
     }
 }

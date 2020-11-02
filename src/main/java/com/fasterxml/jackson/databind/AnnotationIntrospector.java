@@ -969,6 +969,23 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for checking whether given method has an annotation
+     * that suggests the return value of annotated method
+     * should be used as "the key" of the object instance; usually
+     * serialized as a primitive value such as String or number.
+     *
+     * @return {@link Boolean#TRUE} if such annotation is found and is not disabled;
+     *   {@link Boolean#FALSE} if disabled annotation (block) is found (to indicate
+     *   accessor is definitely NOT to be used "as value"); or `null` if no
+     *   information found.
+     *
+     * @since TODO
+     */
+    public Boolean hasAsKey(MapperConfig<?> config, Annotated a) {
+        return null;
+    }
+
+    /**
+     * Method for checking whether given method has an annotation
      * that suggests that the return value of annotated method
      * should be used as "the value" of the object instance; usually
      * serialized as a primitive value such as String or number.

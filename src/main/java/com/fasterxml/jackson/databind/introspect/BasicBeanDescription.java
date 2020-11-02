@@ -240,6 +240,12 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
+    public AnnotatedMember findJsonKeyAccessor() {
+        return (_propCollector == null) ? null
+                : _propCollector.getJsonKeyAccessor();
+    }
+
+    @Override
     @Deprecated // since 2.9
     public AnnotatedMethod findJsonValueMethod() {
         return (_propCollector == null) ? null

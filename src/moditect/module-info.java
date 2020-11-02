@@ -7,7 +7,7 @@ module com.fasterxml.jackson.databind {
     // these types were suggested as transitive, but aren't actually
     // exposed externally (only within internal APIs)
     requires java.sql;
-    requires java.xml;
+    requires static java.xml;
 
     exports com.fasterxml.jackson.databind;
     exports com.fasterxml.jackson.databind.annotation;

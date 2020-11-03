@@ -203,6 +203,7 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("xxxA", key);
     }
 
+    // 02-Nov-2020, tatu: No more "default key serializer" in 3.0, hence no test
     /*
     public void testDefaultKeySerializer() throws IOException
     {

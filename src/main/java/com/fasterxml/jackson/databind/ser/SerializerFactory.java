@@ -36,14 +36,12 @@ public abstract class SerializerFactory
      * key type, and is for specified property (or, if property is null, as root value)
      * 
      * @param type Declared type for Map keys
-     * @param defaultImpl Default key serializer implementation to use, if no custom ones
-     *    are found (may be null)
      * 
      * @return Serializer to use, if factory knows it; null if not (in which case default
      *   serializer is to be used)
      */
     public abstract JsonSerializer<Object> createKeySerializer(SerializerProvider ctxt,
-            JavaType type, JsonSerializer<Object> defaultImpl)
+            JavaType type)
         throws JsonMappingException;
 
     /**

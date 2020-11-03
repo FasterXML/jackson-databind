@@ -774,7 +774,7 @@ public abstract class SerializerProvider
     {
         // 16-Mar-2018, tatu: Used to have "default key serializer" in 2.x; dropped to let/make
         //    custom code use Module interface or similar to provide key serializers
-        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType, null);
+        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType);
         // _handleContextualResolvable(ser, property):
         ser.resolve(this);
         return handleSecondaryContextualization(ser, property);

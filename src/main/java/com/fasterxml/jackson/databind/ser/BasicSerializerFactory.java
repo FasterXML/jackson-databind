@@ -179,8 +179,7 @@ public abstract class BasicSerializerFactory
 
     @Override
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> createKeySerializer(SerializerProvider ctxt,
-            JavaType keyType, JsonSerializer<Object> defaultImpl)
+    public JsonSerializer<Object> createKeySerializer(SerializerProvider ctxt, JavaType keyType)
         throws JsonMappingException
     {
         BeanDescription beanDesc = ctxt.introspectBeanDescription(keyType);
@@ -207,7 +206,7 @@ public abstract class BasicSerializerFactory
                     // Check `@JsonKey` and `@JsonValue`, in this order
                     AnnotatedMember keyAm = beanDesc.findJsonKeyAccessor();
                     if (keyAm != null) {
-                        JsonSerializer<?> delegate = createKeySerializer(ctxt, keyAm.getType(), null);
+                        JsonSerializer<?> delegate = createKeySerializer(ctxt, keyAm.getType());
                         if (config.canOverrideAccessModifiers()) {
                             ClassUtil.checkAndFixAccess(keyAm.getMember(),
                                     config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -218,7 +217,7 @@ public abstract class BasicSerializerFactory
                     } else {
                         AnnotatedMember am = beanDesc.findJsonValueAccessor();
                         if (am != null) {
-                            JsonSerializer<?> delegate = createKeySerializer(ctxt, am.getType(), null);
+                            JsonSerializer<?> delegate = createKeySerializer(ctxt, am.getType());
                             if (config.canOverrideAccessModifiers()) {
                                 ClassUtil.checkAndFixAccess(am.getMember(),
                                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -227,10 +226,7 @@ public abstract class BasicSerializerFactory
                             // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
                             ser = new JsonValueSerializer(keyType, am.getType(), false, null, delegate, am);
                         } else {
-                            ser = defaultImpl;
-                            if (ser == null) {
-                                ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
-                            }
+                            ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                         }
                     }
                 }

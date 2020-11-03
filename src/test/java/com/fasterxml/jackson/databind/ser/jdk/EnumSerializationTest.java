@@ -132,6 +132,24 @@ public class EnumSerializationTest
         A;
     }
 
+    // [databind#2871]: add `@JsonKey`
+    protected enum EnumWithJsonKey {
+        A("a"), B("b");
+        private final String name;
+        private EnumWithJsonKey(String n) {
+            name = n;
+        }
+
+        @Override
+        public String toString() { return name; }
+
+        @JsonKey
+        public String externalKey() { return "key:"+name; }
+
+        @JsonValue
+        public String externalValue() { return "value:"+name; }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -303,6 +321,20 @@ public class EnumSerializationTest
         EnumMap<EnumWithJsonProperty,String> input = new EnumMap<EnumWithJsonProperty,String>(EnumWithJsonProperty.class);
         input.put(EnumWithJsonProperty.A, "b");
         assertEquals("{\"aleph\":\"b\"}", MAPPER.writeValueAsString(input));
+    }
+
+    // [databind#2871]
+    public void testEnumWithJsonKey() throws Exception
+    {
+        // First with EnumMap
+        EnumMap<EnumWithJsonKey, EnumWithJsonKey> input1 = new EnumMap<>(EnumWithJsonKey.class);
+        input1.put(EnumWithJsonKey.A, EnumWithJsonKey.B);
+        assertEquals(a2q("{'key:a':'value:b'}"), MAPPER.writeValueAsString(input1));
+
+        // Then regular Map with Enums
+        Map<EnumWithJsonKey, EnumWithJsonKey> input2
+            = Collections.singletonMap(EnumWithJsonKey.A, EnumWithJsonKey.B);
+        assertEquals(a2q("{'key:a':'value:b'}"), MAPPER.writeValueAsString(input2));
     }
 }
 

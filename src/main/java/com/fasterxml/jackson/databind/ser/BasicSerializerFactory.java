@@ -204,30 +204,21 @@ public abstract class BasicSerializerFactory
                 ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
                 if (ser == null) {
                     // Check `@JsonKey` and `@JsonValue`, in this order
-                    AnnotatedMember keyAm = beanDesc.findJsonKeyAccessor();
-                    if (keyAm != null) {
-                        JsonSerializer<?> delegate = createKeySerializer(ctxt, keyAm.getType());
+                    AnnotatedMember acc = beanDesc.findJsonKeyAccessor();
+                    if (acc == null) {
+                        acc = beanDesc.findJsonValueAccessor();
+                    }
+                    if (acc != null) {
+                        JsonSerializer<?> delegate = createKeySerializer(ctxt, acc.getType());
                         if (config.canOverrideAccessModifiers()) {
-                            ClassUtil.checkAndFixAccess(keyAm.getMember(),
+                            ClassUtil.checkAndFixAccess(acc.getMember(),
                                     config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
                         // need to pass both type of key Object (on which accessor called), and actual
                         // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
-                        ser = new JsonValueSerializer(keyType, keyAm.getType(), false, null, delegate, keyAm);
+                        ser = new JsonValueSerializer(keyType, acc.getType(), false, null, delegate, acc);
                     } else {
-                        AnnotatedMember am = beanDesc.findJsonValueAccessor();
-                        if (am != null) {
-                            JsonSerializer<?> delegate = createKeySerializer(ctxt, am.getType());
-                            if (config.canOverrideAccessModifiers()) {
-                                ClassUtil.checkAndFixAccess(am.getMember(),
-                                        config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                            }
-                            // need to pass both type of key Object (on which accessor called), and actual
-                            // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
-                            ser = new JsonValueSerializer(keyType, am.getType(), false, null, delegate, am);
-                        } else {
-                            ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
-                        }
+                        ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                     }
                 }
             }

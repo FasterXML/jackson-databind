@@ -223,32 +223,30 @@ public abstract class BasicSerializerFactory
             // [databind#2452]: Support `@JsonSerialize(keyUsing = ...)` -- new in 2.11
             ser = _findKeySerializer(ctxt, beanDesc.getClassInfo());
             if (ser == null) {
+                // 02-Nov-2020, tatu: Handling of "default key serializer" is bit convoluted
+                //   (will be removed from 3.0) but for now it apparently needs to override
+                //   standard handlers so (for backwards compatibility)
                 ser = defaultImpl;
                 if (ser == null) {
+                    // Beyond that, we can check standard serializers as they are only for
+                    // JDK types and should not interfere with other annotations
                     ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
-                    // As per [databind#47], also need to support @JsonValue
                     if (ser == null) {
-                        AnnotatedMember keyAm = beanDesc.findJsonKeyAccessor();
-                        if (keyAm != null) {
-                            JsonSerializer<?> delegate = createKeySerializer(ctxt, keyAm.getType(), defaultImpl);
+                        AnnotatedMember acc = beanDesc.findJsonKeyAccessor();
+                        if (acc == null) {
+                            // As per [databind#47], also need to support @JsonValue
+                            acc = beanDesc.findJsonValueAccessor();
+                        }
+                        if (acc != null) {
+                            JsonSerializer<?> delegate = createKeySerializer(ctxt, acc.getType(), defaultImpl);
                             if (config.canOverrideAccessModifiers()) {
-                                ClassUtil.checkAndFixAccess(keyAm.getMember(),
+                                ClassUtil.checkAndFixAccess(acc.getMember(),
                                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                             }
                             // null -> no TypeSerializer for key-serializer use case
-                            ser = new JsonValueSerializer(keyAm, null, delegate);
+                            ser = new JsonValueSerializer(acc, null, delegate);
                         } else {
-                            AnnotatedMember am = beanDesc.findJsonValueAccessor();
-                            if (am != null) {
-                                JsonSerializer<?> delegate = createKeySerializer(ctxt, am.getType(), defaultImpl);
-                                if (config.canOverrideAccessModifiers()) {
-                                    ClassUtil.checkAndFixAccess(am.getMember(),
-                                            config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                                }
-                                ser = new JsonValueSerializer(am, null, delegate);
-                            } else {
-                                ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
-                            }
+                            ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                         }
                     }
                 }
@@ -264,7 +262,6 @@ public abstract class BasicSerializerFactory
         return (JsonSerializer<Object>) ser;
     }
 
-    // Old method: to be removed from 3.0 -- similar to above but can't look for "keyUsing"
     @Override
     @SuppressWarnings("unchecked")
     @Deprecated // since 2.11
@@ -286,19 +283,7 @@ public abstract class BasicSerializerFactory
             if (ser == null) {
                 ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
                 if (ser == null) {
-                    AnnotatedMember am = beanDesc.findJsonValueAccessor();
-                    if (am != null) {
-                        final Class<?> rawType = am.getRawType();
-                        JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
-                                rawType, true);
-                        if (config.canOverrideAccessModifiers()) {
-                            ClassUtil.checkAndFixAccess(am.getMember(),
-                                    config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                        }
-                        ser = new JsonValueSerializer(am, delegate);
-                    } else {
-                        ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
-                    }
+                    ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                 }
             }
         }

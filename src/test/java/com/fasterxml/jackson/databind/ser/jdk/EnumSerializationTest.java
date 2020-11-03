@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.io.*;
 import java.util.*;
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
-public class TestEnumSerialization
+public class EnumSerializationTest
     extends BaseMapTest
 {
     /**

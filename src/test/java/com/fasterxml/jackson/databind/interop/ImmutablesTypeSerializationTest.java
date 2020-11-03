@@ -1,28 +1,34 @@
-package com.fasterxml.jackson.databind.ser;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.junit.Test;
+package com.fasterxml.jackson.databind.interop;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 
 /**
  * Tests for serialization and deserialization of objects based on
  * <a href="https://immutables.github.io/">immutables</a>.
+ *<p>
+ * Originally to verify fix for
+ * <a href="https://github.com/FasterXML/jackson-databind/pull/2894">databind#2894</a>
+ * to guard against regression.
  */
 public class ImmutablesTypeSerializationTest
 {
-
     /*
      * Interface Definitions based on the immutables annotation processor: https://immutables.github.io/
      */
@@ -57,7 +63,7 @@ public class ImmutablesTypeSerializationTest
         private final Long id;
         private final String name;
 
-        private ImmutableAccount(Long id, String name) {
+        ImmutableAccount(Long id, String name) {
             this.id = id;
             this.name = name;
         }
@@ -143,7 +149,7 @@ public class ImmutablesTypeSerializationTest
             private Long id;
             private String name;
 
-            private Builder() {
+            Builder() {
             }
 
             public final ImmutableAccount.Builder from(ImmutablesTypeSerializationTest.Account instance) {
@@ -187,7 +193,7 @@ public class ImmutablesTypeSerializationTest
             implements ImmutablesTypeSerializationTest.Key<T> {
         private final T id;
 
-        private ImmutableKey(T id) {
+        ImmutableKey(T id) {
             this.id = id;
         }
 
@@ -252,7 +258,7 @@ public class ImmutablesTypeSerializationTest
 
             private T id;
 
-            private Builder() {
+            Builder() {
             }
 
             public final ImmutableKey.Builder<T> from(ImmutablesTypeSerializationTest.Key<T> instance) {
@@ -288,7 +294,7 @@ public class ImmutablesTypeSerializationTest
         private final K key;
         private final V value;
 
-        private ImmutableEntry(K key, V value) {
+        ImmutableEntry(K key, V value) {
             this.key = key;
             this.value = value;
         }
@@ -374,7 +380,7 @@ public class ImmutablesTypeSerializationTest
             private K key;
             private V value;
 
-            private Builder() {
+            Builder() {
             }
 
             public final ImmutableEntry.Builder<K, V> from(ImmutablesTypeSerializationTest.Entry<K, V> instance) {

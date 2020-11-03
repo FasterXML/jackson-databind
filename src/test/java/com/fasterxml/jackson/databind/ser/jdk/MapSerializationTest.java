@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.io.*;
 import java.util.*;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 @SuppressWarnings("serial")
-public class TestMapSerialization extends BaseMapTest
+public class MapSerializationTest extends BaseMapTest
 {
     @JsonSerialize(using=PseudoMapSerializer.class)    
     static class PseudoMap extends LinkedHashMap<String,String>

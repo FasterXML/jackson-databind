@@ -230,21 +230,17 @@ public abstract class BasicSerializerFactory
                     if (ser == null) {
                         AnnotatedMember keyAm = beanDesc.findJsonKeyAccessor();
                         if (keyAm != null) {
-                            final Class<?> rawType = keyAm.getRawType();
-                            JsonSerializer<?> delegate = createKeySerializer(ctxt, config.constructType(rawType), null);
+                            JsonSerializer<?> delegate = createKeySerializer(ctxt, keyAm.getType(), defaultImpl);
                             if (config.canOverrideAccessModifiers()) {
                                 ClassUtil.checkAndFixAccess(keyAm.getMember(),
                                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                             }
                             // null -> no TypeSerializer for key-serializer use case
                             ser = new JsonValueSerializer(keyAm, null, delegate);
-                        }
-                        if (ser == null) {
+                        } else {
                             AnnotatedMember am = beanDesc.findJsonValueAccessor();
                             if (am != null) {
-                                final Class<?> rawType = am.getRawType();
-                                JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
-                                        rawType, true);
+                                JsonSerializer<?> delegate = createKeySerializer(ctxt, am.getType(), defaultImpl);
                                 if (config.canOverrideAccessModifiers()) {
                                     ClassUtil.checkAndFixAccess(am.getMember(),
                                             config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));

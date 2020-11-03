@@ -264,10 +264,13 @@ public abstract class SerializerProvider
      */
 
     /**
-     * Method that can be used to specify serializer that will be
-     * used to write JSON property names matching null keys for Java
-     * Maps (which will throw an exception if try write such property
-     * name)
+     * Method that can be used to specify serializer to use for serializing
+     * all non-null JSON property names, unless more specific key serializer
+     * is found (i.e. if not custom key serializer has been registered for
+     * Java type).
+     *<p>
+     * Note that key serializer registration are different from value serializer
+     * registrations.
      */
     public void setDefaultKeySerializer(JsonSerializer<Object> ks)
     {
@@ -295,13 +298,9 @@ public abstract class SerializerProvider
     }
 
     /**
-     * Method that can be used to specify serializer to use for serializing
-     * all non-null JSON property names, unless more specific key serializer
-     * is found (i.e. if not custom key serializer has been registered for
-     * Java type).
-     *<p>
-     * Note that key serializer registration are different from value serializer
-     * registrations.
+     * Method that can be used to specify serializer that will be
+     * used to write JSON property names matching null keys for Java
+     * Maps (which will otherwise throw an exception if try write such property name)
      */
     public void setNullKeySerializer(JsonSerializer<Object> nks)
     {

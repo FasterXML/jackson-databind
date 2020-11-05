@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -43,6 +40,8 @@ public class OptionalHandlerFactory implements java.io.Serializable
     // // Since 2.7, we will assume DOM classes are always found, both due to JDK 1.6 minimum
     // // and because Android (and presumably GAE) have these classes
 
+    // // 02-Nov-2020, Xakep_SDK: java.xml module classes may be missing
+    // // in actual runtime, if module java.xml is not present
     private final static Class<?> CLASS_DOM_NODE;
     private final static Class<?> CLASS_DOM_DOCUMENT;
 
@@ -53,8 +52,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
             doc = org.w3c.dom.Document.class;
         } catch (Throwable e) {
             // not optimal but will do
-            Logger.getLogger(OptionalHandlerFactory.class.getName())
-                .log(Level.INFO, "Could not load DOM `Node` and/or `Document` classes: no DOM support");
+            // 02-Nov-2020, Xakep_SDK: Remove java.logging module dependency
+//            Logger.getLogger(OptionalHandlerFactory.class.getName())
+//                .log(Level.INFO, "Could not load DOM `Node` and/or `Document` classes: no DOM support");
         }
         CLASS_DOM_NODE = node;
         CLASS_DOM_DOCUMENT = doc;

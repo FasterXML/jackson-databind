@@ -25,8 +25,9 @@ public abstract class Java7Handlers
         } catch (Throwable t) {
             // 09-Sep-2019, tatu: Could choose not to log this, but since this is less likely
             //    to miss (than annotations), do it
-            java.util.logging.Logger.getLogger(Java7Handlers.class.getName())
-                .warning("Unable to load JDK7 types (java.nio.file.Path): no Java7 type support added");
+            // 02-Nov-2020, Xakep_SDK: Remove java.logging module dependency
+//            java.util.logging.Logger.getLogger(Java7Handlers.class.getName())
+//                .warning("Unable to load JDK7 types (java.nio.file.Path): no Java7 type support added");
         }
         IMPL = impl;
     }

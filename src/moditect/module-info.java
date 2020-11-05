@@ -1,14 +1,17 @@
 // Generated 08-Mar-2019 using Moditect maven plugin
 module com.fasterxml.jackson.databind {
-    requires java.desktop;
-    requires java.logging;
+    // required for
+    // java.beans.ConstructorProperties
+    // java.beans.Transient
+    // support
+    requires static java.desktop;
 
     requires transitive com.fasterxml.jackson.annotation;
     requires transitive com.fasterxml.jackson.core;
     // these types were suggested as transitive, but aren't actually
     // exposed externally (only within internal APIs)
-    requires java.sql;
-    requires java.xml;
+    requires static java.sql;
+    requires static java.xml;
 
     exports com.fasterxml.jackson.databind;
     exports com.fasterxml.jackson.databind.annotation;

@@ -29,6 +29,8 @@ Project: jackson-databind
 #2903: Allow preventing "Enum from integer" coercion using new `CoercionConfig` system
 #2909: `@JsonValue` not considered when evaluating inclusion
  (reported by chrylis@github)
+#2913: Make some java platform modules optional
+ (contributed by XakepSDK@github)
 - Full "LICENSE" included in jar for easier access by compliancy tools
 
 2.12.0-rc1 (12-Oct-2020)

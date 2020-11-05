@@ -976,18 +976,24 @@ David Connelly (dconnelly@github)
     no Java7 support added
    (2.10.0)
 
+XakepSDK@github
+  * Reported #2458: `Nulls` property metadata ignored for creators
+   (2.10.0)
+  * Contributed #2913: Make some java platform modules optional
+   (2.12.0)
+
 Wahey (KevynBct@github)
   * Reported #2466: Didn't find class "java.nio.file.Path" below Android api 26
-  (2.10.0)
+   (2.10.0)
 
 Martín Coll (colltoaction@github)
   * Contributed #2467: Accept `JsonTypeInfo.As.WRAPPER_ARRAY` with no second argument to
-   deserialize as "null value"
-  (2.10.0)
+    deserialize as "null value"
+   (2.10.0)
 
 Andrey Kulikov (ankulikov@github)
   * Reported #2457: Extended enum values are not handled as enums when used as Map keys
-  (2.10.1)
+   (2.10.1)
 
 João Guerra (joca-bt@github)
   * Reported #2473: Array index missing in path of `JsonMappingException` for `Collection<String>`,

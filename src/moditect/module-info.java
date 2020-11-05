@@ -1,8 +1,17 @@
 // Generated 14-Mar-2019 using Moditect maven plugin
 module com.fasterxml.jackson.databind {
-    requires java.desktop;
-    requires java.logging;
-    requires java.sql;
+    // required for
+    // java.beans.ConstructorProperties
+    // java.beans.Transient
+    // support
+    requires static java.desktop;
+
+    // these types were suggested as transitive, but aren't actually
+    // exposed externally (only within internal APIs)
+    requires static java.sql;
+
+    // 05-Nov-2020, tatu: made optional in 2.x ("static") but for simplicity
+    //    is (for now?) hard dep on 3.0. May want to change
     requires java.xml;
 
     // but we probably do want to expose streaming, annotations

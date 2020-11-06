@@ -161,7 +161,7 @@ public class CoerceContainersTest extends BaseMapTest
             fail("Should not pass");
         } catch (Exception e) {
             verifyException(e, "Cannot deserialize value of type");
-            verifyException(e, "from empty String");
+            verifyException(e, "from empty String", "from String value (token `JsonToken.VALUE_STRING`)");
         }
     }
 

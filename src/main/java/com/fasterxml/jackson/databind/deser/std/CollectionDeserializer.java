@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -246,7 +248,23 @@ _containerType,
         // there is also possibility of "auto-wrapping" of single-element arrays.
         // Hence we only accept empty String here.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _deserializeFromString(p, ctxt);
+            // 05-Nov-2020, ckozak: As per [jackson-databind#2922] string values may be handled
+            // using handleNonArray, however empty strings may result in a null or empty collection
+            // depending on configuration.
+            final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                    CoercionInputShape.EmptyString);
+            // 05-Nov-2020, ckozak: Unclear if TryConvert should return the default
+            // conversion (null) or fall through to handleNonArray.
+            if (act != null
+                    // handleNonArray may successfully deserialize the result (if
+                    // ACCEPT_SINGLE_VALUE_AS_ARRAY is enabled, for example) otherwise it
+                    // is capable of failing just as well as _deserializeFromEmptyString.
+                    && act != CoercionAction.Fail
+                    // getValueAsString call is ordered last to avoid unnecessarily building a string value.
+                    && p.getValueAsString().isEmpty()) {
+                return (Collection<Object>) _deserializeFromEmptyString(
+                        p, ctxt, act, handledType(), "empty String (\"\")");
+            }
         }
         return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }

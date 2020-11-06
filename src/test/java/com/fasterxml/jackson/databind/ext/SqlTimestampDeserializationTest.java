@@ -1,11 +1,11 @@
-package com.fasterxml.jackson.databind.deser.jdk;
+package com.fasterxml.jackson.databind.ext;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TimestampDeserializationTest
+public class SqlTimestampDeserializationTest
     extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();

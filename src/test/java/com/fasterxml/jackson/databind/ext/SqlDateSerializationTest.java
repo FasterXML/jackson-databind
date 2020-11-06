@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser.jdk;
+package com.fasterxml.jackson.databind.ext;
 
 import java.io.IOException;
 import java.util.Calendar;

@@ -13,11 +13,15 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 /**
- * Internal utility functionality to handle type resolution for method type variables based on the requested
- * result type.
+ * Internal utility functionality to handle type resolution for method type variables
+ * based on the requested result type: this is needed to work around the problem of
+ * static factory methods not being able to use class type variable bindings
+ * (see [databind#2895] for more).
+ *
+ * @since 2.12
  */
-final class MethodGenericTypeResolver {
-
+final class MethodGenericTypeResolver
+{
     /*
      * Attempt to narrow types on a generic factory method based on the expected result (requestedType).
      * If narrowing was possible, a new TypeResolutionContext is returned with the discovered TypeBindings,
@@ -30,7 +34,7 @@ final class MethodGenericTypeResolver {
      * as though the method was written with defined types:
      * @JsonCreator static Wrapper<Duck> fromJson(Duck value)
      */
-    static TypeResolutionContext narrowMethodTypeParameters(
+    public static TypeResolutionContext narrowMethodTypeParameters(
             Method candidate,
             JavaType requestedType,
             TypeFactory typeFactory,
@@ -213,9 +217,5 @@ final class MethodGenericTypeResolver {
             }
         }
         return null;
-    }
-
-    private MethodGenericTypeResolver() {
-        // Utility class
     }
 }

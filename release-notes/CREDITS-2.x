@@ -808,6 +808,9 @@ Jakub Skierbiszewski (jskierbi@github)
 Carter Kozak (cakofony@github)
   * Reported #2016: Delegating JsonCreator disregards JsonDeserialize info
    (2.9.6)
+  * Contributed #2895: Improve static factory method generic type resolution logic
+    (as well as better test coverage)
+   (2.12.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types

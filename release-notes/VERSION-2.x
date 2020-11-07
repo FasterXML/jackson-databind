@@ -26,6 +26,8 @@ Project: jackson-databind
 #2885: Add `JsonNode.canConvertToExactIntegral()` to indicate whether floating-point/BigDecimal
   values could be converted to integers losslessly
  (requested by Oguzhan U; implementation contributed by Siavash S)
+#2895: Improve static factory method generic type resolution logic
+ (contributed by Carter K)
 #2903: Allow preventing "Enum from integer" coercion using new `CoercionConfig` system
 #2909: `@JsonValue` not considered when evaluating inclusion
  (reported by chrylis@github)

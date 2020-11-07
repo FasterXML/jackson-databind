@@ -258,12 +258,13 @@ final class AnnotatedCreatorCollector
             AnnotatedMethod factory = result.get(i);
             if (factory == null) {
                 Method candidate = candidates.get(i);
-                // Apply generic type information based on the requested type
+                // 06-Nov-2020, tatu: Fix from [databind#2895] will try to resolve
+                //   nominal static method type bindings into expected target type
+                //   (if generic types involved)
                 TypeResolutionContext typeResCtxt = MethodGenericTypeResolver.narrowMethodTypeParameters(
                         candidate, type, typeFactory, emptyTypeResCtxt);
                 result.set(i,
-                        constructFactoryCreator(candidate,
-                                typeResCtxt, null));
+                        constructFactoryCreator(candidate, typeResCtxt, null));
             }
         }
         return result;

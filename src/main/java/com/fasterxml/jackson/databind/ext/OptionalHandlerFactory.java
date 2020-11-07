@@ -1,11 +1,14 @@
 package com.fasterxml.jackson.databind.ext;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used for isolating details of handling optional+external types
@@ -29,8 +32,19 @@ public class OptionalHandlerFactory
     private final static Class<?> CLASS_DOM_DOCUMENT = org.w3c.dom.Document.class;
 
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
-    
-    protected OptionalHandlerFactory() { }
+
+    // classes from java.sql module, this module may not be present at runtime
+    private final Map<String, String> _sqlClasses;
+
+    protected OptionalHandlerFactory() {
+        _sqlClasses = new HashMap<>();
+        try {
+            _sqlClasses.put("java.sql.Date",
+                    "com.fasterxml.jackson.databind.deser.std.DateDeserializers$SqlDateDeserializer");
+            _sqlClasses.put("java.sql.Timestamp",
+                    "com.fasterxml.jackson.databind.deser.std.DateDeserializers$TimestampDeserializer");
+        } catch (Throwable t) { }
+    }
 
     /*
     /**********************************************************************
@@ -68,7 +82,10 @@ public class OptionalHandlerFactory
             return new DOMDeserializer.DocumentDeserializer();
         }
         String className = rawType.getName();
-
+        final String deserName = _sqlClasses.get(className);
+        if (deserName != null) {
+            return (JsonDeserializer<?>) instantiate(deserName, type);
+        }
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
                 || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
             return CoreXMLDeserializers.findBeanDeserializer(config, type);
@@ -89,7 +106,8 @@ public class OptionalHandlerFactory
                 || hasSuperClassStartingWith(valueType, PACKAGE_PREFIX_JAVAX_XML)) {
             return CoreXMLDeserializers.hasDeserializerFor(valueType);
         }
-        return false;
+        // 06-Nov-2020, tatu: One of "java.sql" types?
+        return _sqlClasses.containsKey(className);
     }
     
     /*
@@ -97,6 +115,17 @@ public class OptionalHandlerFactory
     /* Internal helper methods
     /**********************************************************************
      */
+
+    private Object instantiate(String className, JavaType valueType)
+    {
+        try {
+            return ClassUtil.createInstance(Class.forName(className), false);
+        } catch (Throwable e) {
+            throw new IllegalStateException("Failed to create instance of `"
++className+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
++", problem: ("+e.getClass().getName()+") "+e.getMessage());
+        }
+    }
 
     /**
      * Since 2.7 we only need to check for class extension, as all implemented

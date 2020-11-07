@@ -48,19 +48,6 @@ public class StdJdkSerializers
         sers.put(Void.class, NullSerializer.instance);
         sers.put(Void.TYPE, NullSerializer.instance);
 
-        // 09-Jan-2015, tatu: As per [databind#1073], let's try to guard against possibility
-        //   of some environments missing `java.sql.` types
-        try {
-            // note: timestamps are very similar to java.util.Date, thus serialized as such
-            sers.put(java.sql.Timestamp.class, DateSerializer.instance);
-    
-            // leave some of less commonly used ones as lazy, no point in proactive construction
-            sers.put(java.sql.Date.class, SqlDateSerializer.class);
-            sers.put(java.sql.Time.class, SqlTimeSerializer.class);
-        } catch (NoClassDefFoundError e) {
-            // nothing much we can do here; could log, but probably not useful for now.
-        }
-
         return sers.entrySet();
     }
 

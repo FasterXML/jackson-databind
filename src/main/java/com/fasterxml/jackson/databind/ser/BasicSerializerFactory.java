@@ -349,7 +349,15 @@ public abstract class BasicSerializerFactory
         if (type.isTypeOrSubTypeOf(Calendar.class)) {
             return CalendarSerializer.instance;
         }
-        if (type.isTypeOrSubTypeOf(java.util.Date.class)) {
+        if (type.isTypeOrSubTypeOf(Date.class)) {
+            // 06-Nov-2020, tatu: Strange precedence challenge; need to consider
+            //   "java.sql.Date" unfortunately
+            if (!type.hasRawClass(Date.class)) {
+                JsonSerializer<?> ser = OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type);
+                if (ser != null) {
+                    return ser;
+                }
+            }
             return DateSerializer.instance;
         }
         // 19-Sep-2017, tatu: Jackson 3.x adds Java 8 types.

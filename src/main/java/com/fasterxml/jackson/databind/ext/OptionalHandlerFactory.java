@@ -7,6 +7,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ser.std.DateSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -34,16 +35,28 @@ public class OptionalHandlerFactory
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
 
     // classes from java.sql module, this module may not be present at runtime
-    private final Map<String, String> _sqlClasses;
+    private final Map<String, String> _sqlDeserializers;
+    private final Map<String, Object> _sqlSerializers;
+
+    private final static String CLS_NAME_JAVA_SQL_TIMESTAMP = "java.sql.Timestamp";
+    private final static String CLS_NAME_JAVA_SQL_DATE = "java.sql.Date";
+    private final static String CLS_NAME_JAVA_SQL_TIME = "java.sql.Time";
 
     protected OptionalHandlerFactory() {
-        _sqlClasses = new HashMap<>();
-        try {
-            _sqlClasses.put("java.sql.Date",
-                    "com.fasterxml.jackson.databind.deser.std.DateDeserializers$SqlDateDeserializer");
-            _sqlClasses.put("java.sql.Timestamp",
-                    "com.fasterxml.jackson.databind.deser.std.DateDeserializers$TimestampDeserializer");
-        } catch (Throwable t) { }
+        _sqlDeserializers = new HashMap<>();
+        _sqlDeserializers.put(CLS_NAME_JAVA_SQL_DATE,
+                "com.fasterxml.jackson.databind.deser.std.DateDeserializers$SqlDateDeserializer");
+        _sqlDeserializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP,
+                "com.fasterxml.jackson.databind.deser.std.DateDeserializers$TimestampDeserializer");
+
+        _sqlSerializers = new HashMap<>();
+        // 09-Jan-2015, tatu: As per [databind#1073], let's try to guard against possibility
+        //   of some environments missing `java.sql.` types
+
+        // note: timestamps are very similar to java.util.Date, thus serialized as such
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP, DateSerializer.instance);
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_DATE, "com.fasterxml.jackson.databind.ser.std.SqlDateSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIME, "com.fasterxml.jackson.databind.ser.std.SqlTimeSerializer");
     }
 
     /*
@@ -60,6 +73,15 @@ public class OptionalHandlerFactory
         }
 
         String className = rawType.getName();
+        Object sqlHandler = _sqlSerializers.get(className);
+
+        if (sqlHandler != null) {
+            if (sqlHandler instanceof JsonSerializer<?>) {
+                return (JsonSerializer<?>) sqlHandler;
+            }
+            // must be class name otherwise
+            return (JsonSerializer<?>) instantiate((String) sqlHandler, type);
+        }
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML) || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
             if (Duration.class.isAssignableFrom(rawType) || QName.class.isAssignableFrom(rawType)) {
                 return ToStringSerializer.instance;
@@ -82,7 +104,7 @@ public class OptionalHandlerFactory
             return new DOMDeserializer.DocumentDeserializer();
         }
         String className = rawType.getName();
-        final String deserName = _sqlClasses.get(className);
+        final String deserName = _sqlDeserializers.get(className);
         if (deserName != null) {
             return (JsonDeserializer<?>) instantiate(deserName, type);
         }
@@ -107,7 +129,7 @@ public class OptionalHandlerFactory
             return CoreXMLDeserializers.hasDeserializerFor(valueType);
         }
         // 06-Nov-2020, tatu: One of "java.sql" types?
-        return _sqlClasses.containsKey(className);
+        return _sqlDeserializers.containsKey(className);
     }
     
     /*
@@ -119,10 +141,21 @@ public class OptionalHandlerFactory
     private Object instantiate(String className, JavaType valueType)
     {
         try {
-            return ClassUtil.createInstance(Class.forName(className), false);
+            return instantiate(Class.forName(className), valueType);
+        } catch (Throwable e) {
+            throw new IllegalStateException("Failed to find class `"
++className+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
++", problem: ("+e.getClass().getName()+") "+e.getMessage());
+        }
+    }
+
+    private Object instantiate(Class<?> handlerClass, JavaType valueType)
+    {
+        try {
+            return ClassUtil.createInstance(handlerClass, false);
         } catch (Throwable e) {
             throw new IllegalStateException("Failed to create instance of `"
-+className+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
++handlerClass.getName()+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
 +", problem: ("+e.getClass().getName()+") "+e.getMessage());
         }
     }

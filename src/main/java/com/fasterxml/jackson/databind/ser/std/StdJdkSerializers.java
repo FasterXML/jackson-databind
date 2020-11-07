@@ -47,27 +47,6 @@ public class StdJdkSerializers
         if ((raw == Void.class) || (raw == Void.TYPE)) { 
             return NullSerializer.instance;
         }
-        if (raw.getName().startsWith("java.sql."))  {
-            return _findSqlType(raw);
-        }
-        return null;
-    }
-
-    private static JsonSerializer<?> _findSqlType(Class<?> raw) {
-        try {
-            // note: timestamps are very similar to java.util.Date, thus serialized as such
-            if (raw == java.sql.Timestamp.class) {
-                return DateSerializer.instance;
-            }
-            if (raw == java.sql.Date.class) {
-                return new SqlDateSerializer();
-            }
-            if (raw == java.sql.Time.class) {
-                return new SqlTimeSerializer();
-            }
-        } catch (NoClassDefFoundError e) {
-            // nothing much we can do here; could log, but probably not useful for now.
-        }
         return null;
     }
 

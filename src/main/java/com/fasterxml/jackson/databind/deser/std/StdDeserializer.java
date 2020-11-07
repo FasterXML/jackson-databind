@@ -316,16 +316,24 @@ public abstract class StdDeserializer<T>
     protected Object _deserializeFromEmptyString(JsonParser p, DeserializationContext ctxt,
             CoercionAction act, Class<?> rawTargetType, String desc) throws IOException
     {
+
         switch (act) {
         case AsEmpty:
             return getEmptyValue(ctxt);
+        case Fail:
+            // This will throw an exception
+            _checkCoercionFail(ctxt, act, rawTargetType, "", "empty String (\"\")");
+            // ... so will never fall through
         case TryConvert:
             // hmmmh... empty or null, typically? Assume "as null" for now
         case AsNull:
+        default:
             return null;
-        case Fail:
-            break;
         }
+
+        // 06-Nov-2020, tatu: This was behavior pre-2.12, giving less useful
+        //    exception
+        /*
         final ValueInstantiator inst = getValueInstantiator();
 
         // 03-Jun-2020, tatu: Should ideally call `handleUnexpectedToken()` instead, but
@@ -333,6 +341,7 @@ public abstract class StdDeserializer<T>
         return ctxt.handleMissingInstantiator(rawTargetType, inst, p,
 "Cannot deserialize value of type %s from %s (no String-argument constructor/factory method; coercion not enabled)",
                 ClassUtil.getTypeDescription(getValueType(ctxt)), desc);
+                */
     }
 
     /**

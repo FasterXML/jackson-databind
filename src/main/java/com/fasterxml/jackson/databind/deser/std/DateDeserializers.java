@@ -25,16 +25,10 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 public class DateDeserializers
 {
     private final static HashSet<String> _utilClasses = new HashSet<String>();
-
-    // classes from java.sql module, this module may not be present at runtime
-    private final static HashSet<String> _sqlClasses = new HashSet<String>();
     static {
         _utilClasses.add("java.util.Calendar");
         _utilClasses.add("java.util.GregorianCalendar");
         _utilClasses.add("java.util.Date");
-
-        _sqlClasses.add("java.sql.Date");
-        _sqlClasses.add("java.sql.Timestamp");
     }
 
     public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
@@ -51,20 +45,12 @@ public class DateDeserializers
                 return new CalendarDeserializer(GregorianCalendar.class);
             }
         }
-        if (_sqlClasses.contains(clsName)) {
-            if (rawType == java.sql.Date.class) {
-                return new SqlDateDeserializer();
-            }
-            if (rawType == java.sql.Timestamp.class) {
-                return new TimestampDeserializer();
-            }
-        }
         return null;
     }
 
     // @since 2.11
     public static boolean hasDeserializerFor(Class<?> rawType) {
-        return _utilClasses.contains(rawType.getName()) || _sqlClasses.contains(rawType.getName());
+        return _utilClasses.contains(rawType.getName());
     }
 
     /*

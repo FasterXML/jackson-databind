@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -239,7 +241,7 @@ _containerType,
         // there is also possibility of "auto-wrapping" of single-element arrays.
         // Hence we only accept empty String here.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _deserializeFromString(p, ctxt);
+            return _deserializeFromString(p, ctxt, p.getText());
         }
         return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
@@ -273,6 +275,41 @@ _containerType,
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
+    }
+
+    /**
+     * Logic extracted to deal with incoming String value.
+     *
+     * @since 2.12
+     */
+    @SuppressWarnings("unchecked")
+    protected Collection<Object> _deserializeFromString(JsonParser p, DeserializationContext ctxt,
+            String value)
+        throws IOException
+    {
+        final Class<?> rawTargetType = handledType();
+
+        // 05-Nov-2020, ckozak: As per [jackson-databind#2922] string values may be handled
+        // using handleNonArray, however empty strings may result in a null or empty collection
+        // depending on configuration.
+
+        // Start by verifying if we got empty/blank string since accessing
+        // CoercionAction may be costlier than String value we'll almost certainly
+        // need anyway
+        if (value.isEmpty()) { // ... in future may want to allow blank, too?
+            CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
+                    CoercionInputShape.EmptyString);
+            act = _checkCoercionFail(ctxt, act, rawTargetType, value,
+                    "empty String (\"\")");
+            if (act != null) {
+                    // handleNonArray may successfully deserialize the result (if
+                    // ACCEPT_SINGLE_VALUE_AS_ARRAY is enabled, for example) otherwise it
+                    // is capable of failing just as well as _deserializeFromEmptyString.
+                return (Collection<Object>) _deserializeFromEmptyString(
+                        p, ctxt, act, rawTargetType, "empty String (\"\")");
+            }
+        }
+        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     /**

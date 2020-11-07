@@ -160,8 +160,11 @@ public class CoerceContainersTest extends BaseMapTest
             VANILLA_MAPPER.readerFor(targetType).readValue(JSON_EMPTY);
             fail("Should not pass");
         } catch (Exception e) {
-            verifyException(e, "Cannot deserialize value of type");
-            verifyException(e, "from empty String");
+            // 06-Nov-2020, tatu: tests for failure get rather fragile unfortunately,
+            //   but this seems to be what we should be getting
+
+            verifyException(e, "Cannot coerce empty String");
+//            verifyException(e, "Cannot deserialize value of type");
         }
     }
 

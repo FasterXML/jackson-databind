@@ -8,20 +8,38 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class GenericTypeSerializationTest extends BaseMapTest
 {
     static class Account {
         private Long id;        
         private String name;
-        
-        public Account(String name, Long id) {
+
+        @JsonCreator
+        public Account(
+                @JsonProperty("name") String name,
+                @JsonProperty("id") Long id) {
             this.id = id;
             this.name = name;
         }
 
         public String getName() { return name; }
         public Long getId() { return id; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Account account = (Account) o;
+            return Objects.equals(id, account.id) && Objects.equals(name, account.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, name);
+        }
     }
 
     static class Key<T> {
@@ -164,6 +182,219 @@ public class GenericTypeSerializationTest extends BaseMapTest
         }
     }
 
+    @JsonSerialize(as = GenericWrapperImpl.class)
+    @JsonDeserialize(as = GenericWrapperImpl.class)
+    public interface GenericWrapper<A, AA> {
+        A first();
+        AA second();
+    }
+
+    public static final class GenericWrapperImpl<B, BB> implements GenericWrapper<B, BB> {
+
+        private final B first;
+        private final BB second;
+
+        GenericWrapperImpl(B first, BB second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public B first() {
+            return first;
+        }
+
+        @Override
+        public BB second() {
+            return second;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        // Invert the type parameter order to make things exciting!
+        public static <C, CC> GenericWrapperImpl<CC, C> fromJson(JsonGenericWrapper<CC, C> val) {
+            return new GenericWrapperImpl<>(val.first(), val.second());
+        }
+    }
+
+    @JsonDeserialize
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE)
+    public static final class JsonGenericWrapper<D, DD> implements GenericWrapper<D, DD> {
+
+        @JsonProperty("first")
+        private D first;
+
+        @JsonProperty("second")
+        private DD second;
+
+        @Override
+        @JsonProperty("first")
+        public D first() {
+            return first;
+        }
+
+        @Override
+        @JsonProperty("second")
+        public DD second() {
+            return second;
+        }
+    }
+
+    public static final class GenericSpecificityWrapper0<E, EE> {
+
+        private final E first;
+        private final EE second;
+
+        GenericSpecificityWrapper0(E first, EE second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public E first() {
+            return first;
+        }
+
+        public EE second() {
+            return second;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static <F> GenericSpecificityWrapper0<?, F> fromJson(JsonGenericWrapper<Long, F> val) {
+            return new GenericSpecificityWrapper0<>(val.first(), val.second());
+        }
+    }
+
+    public static final class GenericSpecificityWrapper1<E, EE> {
+
+        private final E first;
+        private final EE second;
+
+        GenericSpecificityWrapper1(E first, EE second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public E first() {
+            return first;
+        }
+
+        public EE second() {
+            return second;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static <F extends StringStubSubclass, FF> GenericSpecificityWrapper1<F, FF> fromJson(JsonGenericWrapper<F, FF> val) {
+            return new GenericSpecificityWrapper1<>(val.first(), val.second());
+        }
+    }
+
+    public static class StringStub {
+        private final String value;
+
+        private StringStub(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static StringStub valueOf(String value) {
+            return new StringStub(value);
+        }
+    }
+
+    public static class StringStubSubclass extends StringStub {
+
+        private StringStubSubclass(String value) {
+            super(value);
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static StringStubSubclass valueOf(String value) {
+            return new StringStubSubclass(value);
+        }
+    }
+
+    public static final class GenericSpecificityWrapper2<E, EE> {
+
+        private final E first;
+        private final EE second;
+
+        GenericSpecificityWrapper2(E first, EE second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public E first() {
+            return first;
+        }
+
+        public EE second() {
+            return second;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static <F extends Stub<StringStubSubclass>, FF> GenericSpecificityWrapper2<F, FF> fromJson(JsonGenericWrapper<F, FF> val) {
+            return new GenericSpecificityWrapper2<>(val.first(), val.second());
+        }
+    }
+
+    public static class Stub<T> {
+        private final T value;
+
+        private Stub(T value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static <T> Stub<T> valueOf(T value) {
+            return new Stub<>(value);
+        }
+    }
+
+    public static final class WildcardWrapperImpl<G, GG> {
+
+        private final G first;
+        private final GG second;
+
+        WildcardWrapperImpl(G first, GG second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public G first() {
+            return first;
+        }
+
+        public GG second() {
+            return second;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static <H, HH> WildcardWrapperImpl<H, ? extends HH> fromJson(JsonGenericWrapper<H, HH> val) {
+            return new WildcardWrapperImpl<>(val.first(), val.second());
+        }
+    }
+
+    public static class SimpleWrapper<T> {
+
+        private final T value;
+
+        SimpleWrapper(T value) {
+            this.value = value;
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static <T> SimpleWrapper<T> fromJson(JsonSimpleWrapper<T> value) {
+            return new SimpleWrapper<>(value.object);
+        }
+    }
+
+    @JsonDeserialize
+    public static final class JsonSimpleWrapper<T> {
+
+        @JsonProperty("object")
+        public T object;
+
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -259,5 +490,69 @@ public class GenericTypeSerializationTest extends BaseMapTest
         // type java.util.Map: cannot determine type parameters (through reference chain: ---)
         String json = MAPPER.writeValueAsString(val);
         assertNotNull(json);
+    }
+
+    public void testStaticDelegateDeserialization() throws Exception
+    {
+        GenericWrapper<Account, String> wrapper = MAPPER.readValue(
+                "{\"first\":{\"id\":1,\"name\":\"name\"},\"second\":\"str\"}",
+                new TypeReference<GenericWrapper<Account, String>>() {});
+        Account account = wrapper.first();
+        assertEquals(new Account("name", 1L), account);
+        String second = wrapper.second();
+        assertEquals("str", second);
+    }
+
+    public void testStaticDelegateDeserialization_factoryProvidesSpecificity0() throws Exception
+    {
+        GenericSpecificityWrapper0<Object, Account> wrapper = MAPPER.readValue(
+                "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
+                new TypeReference<GenericSpecificityWrapper0<Object, Account>>() {});
+        Object first = wrapper.first();
+        assertEquals(Long.valueOf(1L), first);
+        Account second = wrapper.second();
+        assertEquals(new Account("name", 1L), second);
+    }
+
+    public void testStaticDelegateDeserialization_factoryProvidesSpecificity1() throws Exception
+    {
+        GenericSpecificityWrapper1<StringStub, Account> wrapper = MAPPER.readValue(
+                "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
+                new TypeReference<GenericSpecificityWrapper1<StringStub, Account>>() {});
+        StringStub first = wrapper.first();
+        assertEquals("1", first.value);
+        Account second = wrapper.second();
+        assertEquals(new Account("name", 1L), second);
+    }
+
+    public void testStaticDelegateDeserialization_factoryProvidesSpecificity2() throws Exception
+    {
+        GenericSpecificityWrapper2<Stub<Object>, Account> wrapper = MAPPER.readValue(
+                "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
+                new TypeReference<GenericSpecificityWrapper2<Stub<Object>, Account>>() {});
+        Stub<Object> first = wrapper.first();
+        StringStub stringStub = (StringStub) first.value;
+        assertEquals("1", stringStub.value);
+        Account second = wrapper.second();
+        assertEquals(new Account("name", 1L), second);
+    }
+
+    public void testStaticDelegateDeserialization_wildcardInResult() throws Exception
+    {
+        WildcardWrapperImpl<Account, Account> wrapper = MAPPER.readValue(
+                "{\"first\":{\"id\":1,\"name\":\"name1\"},\"second\":{\"id\":2,\"name\":\"name2\"}}",
+                new TypeReference<WildcardWrapperImpl<Account, Account>>() {});
+        Account account1 = wrapper.first();
+        assertEquals(new Account("name1", 1L), account1);
+        Account account2 = wrapper.second();
+        assertEquals(new Account("name2", 2L), account2);
+    }
+
+    public void testSimpleStaticJsonCreator() throws Exception
+    {
+        SimpleWrapper<Account> wrapper = MAPPER.readValue("{\"object\":{\"id\":1,\"name\":\"name1\"}}",
+                new TypeReference<SimpleWrapper<Account>>() {});
+        Account account = wrapper.value;
+        assertEquals(new Account("name1", 1L), account);
     }
 }

@@ -211,7 +211,10 @@ final class AnnotatedCreatorCollector
         // 27-Oct-2020, tatu: SIGH. As per [databind#2894] there is widespread use of
         //   incorrect bindings in the wild -- not supported (no tests) but used
         //   nonetheless. So, for 2.11.x, put back "Bad Bindings"...
-        final TypeResolutionContext typeResCtxt = _typeContext;
+//        final TypeResolutionContext typeResCtxt = _typeContext;
+
+        // 03-Nov-2020, ckozak: Implement generic JsonCreator TypeVariable handling [databind#2895]
+        final TypeResolutionContext emptyTypeResCtxt = new TypeResolutionContext.Empty(typeFactory);
 
         int factoryCount = candidates.size();
         List<AnnotatedMethod> result = new ArrayList<>(factoryCount);
@@ -236,7 +239,7 @@ final class AnnotatedCreatorCollector
                     if (key.equals(methodKeys[i])) {
                         result.set(i,
                                 constructFactoryCreator(candidates.get(i),
-                                        typeResCtxt, mixinFactory));
+                                        emptyTypeResCtxt, mixinFactory));
                         break;
                     }
                 }
@@ -246,9 +249,14 @@ final class AnnotatedCreatorCollector
         for (int i = 0; i < factoryCount; ++i) {
             AnnotatedMethod factory = result.get(i);
             if (factory == null) {
+                Method candidate = candidates.get(i);
+                // 06-Nov-2020, tatu: Fix from [databind#2895] will try to resolve
+                //   nominal static method type bindings into expected target type
+                //   (if generic types involved)
+                TypeResolutionContext typeResCtxt = MethodGenericTypeResolver.narrowMethodTypeParameters(
+                        candidate, type, typeFactory, emptyTypeResCtxt);
                 result.set(i,
-                        constructFactoryCreator(candidates.get(i),
-                                typeResCtxt, null));
+                        constructFactoryCreator(candidate, typeResCtxt, null));
             }
         }
         return result;

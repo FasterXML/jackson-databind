@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.ext;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -74,8 +77,19 @@ public class OptionalHandlerFactory implements java.io.Serializable
     }
     
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
-    
-    protected OptionalHandlerFactory() { }
+
+    // classes from java.sql module, this module may not be present at runtime
+    private final Map<String, String> _sqlClasses;
+
+    protected OptionalHandlerFactory() {
+        _sqlClasses = new HashMap<>();
+        try {
+            _sqlClasses.put("java.sql.Date",
+                    "com.fasterxml.jackson.databind.deser.std.DateDeserializers$SqlDateDeserializer");
+            _sqlClasses.put("java.sql.Timestamp",
+                    "com.fasterxml.jackson.databind.deser.std.DateDeserializers$TimestampDeserializer");
+        } catch (Throwable t) { }
+    }
 
     /*
     /**********************************************************
@@ -89,7 +103,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         final Class<?> rawType = type.getRawClass();
 
         if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
-            return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE);
+            return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE, type);
         }
 
         if (_jdk7Helper != null) {
@@ -107,7 +121,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
             return null;
         }
 
-        Object ob = instantiate(factoryName);
+        Object ob = instantiate(factoryName, type);
         if (ob == null) { // could warn, if we had logging system (j.u.l?)
             return null;
         }
@@ -127,12 +141,16 @@ public class OptionalHandlerFactory implements java.io.Serializable
             }
         }
         if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
-            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_NODE);
+            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_NODE, type);
         }
         if ((CLASS_DOM_DOCUMENT != null) && CLASS_DOM_DOCUMENT.isAssignableFrom(rawType)) {
-            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_DOCUMENT);
+            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_DOCUMENT, type);
         }
         String className = rawType.getName();
+        final String deserName = _sqlClasses.get(className);
+        if (deserName != null) {
+            return (JsonDeserializer<?>) instantiate(deserName, type);
+        }
         String factoryName;
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
                 || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
@@ -140,7 +158,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         } else {
             return null;
         }
-        Object ob = instantiate(factoryName);
+        Object ob = instantiate(factoryName, type);
         if (ob == null) { // could warn, if we had logging system (j.u.l?)
             return null;
         }
@@ -159,7 +177,8 @@ public class OptionalHandlerFactory implements java.io.Serializable
                 || hasSuperClassStartingWith(valueType, PACKAGE_PREFIX_JAVAX_XML)) {
             return true;
         }
-        return false;
+        // 06-Nov-2020, tatu: One of "java.sql" types?
+        return _sqlClasses.containsKey(className);
     }
 
     /*
@@ -168,14 +187,15 @@ public class OptionalHandlerFactory implements java.io.Serializable
     /**********************************************************
      */
 
-    private Object instantiate(String className)
+    private Object instantiate(String className, JavaType valueType)
     {
         try {
             return ClassUtil.createInstance(Class.forName(className), false);
-        } catch (LinkageError e) { }
-        // too many different kinds to enumerate here:
-        catch (Exception e) { }
-        return null;
+        } catch (Throwable e) {
+            throw new IllegalStateException("Failed to create instance of `"
++className+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
++", problem: ("+e.getClass().getName()+") "+e.getMessage());
+        }
     }
 
     /**

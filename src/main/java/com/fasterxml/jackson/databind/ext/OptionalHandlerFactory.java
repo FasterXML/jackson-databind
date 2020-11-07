@@ -3,12 +3,16 @@ package com.fasterxml.jackson.databind.ext;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
-import com.fasterxml.jackson.databind.ser.std.SqlDateSerializer;
-import com.fasterxml.jackson.databind.ser.std.SqlTimeSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -88,6 +92,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
     private final static String CLS_NAME_JAVA_SQL_TIMESTAMP = "java.sql.Timestamp";
     private final static String CLS_NAME_JAVA_SQL_DATE = "java.sql.Date";
     private final static String CLS_NAME_JAVA_SQL_TIME = "java.sql.Time";
+    private final static String CLS_NAME_JAVA_SQL_BLOB = "java.sql.Blob";
+    private final static String CLS_NAME_JAVA_SQL_SERIALBLOB = "javax.sql.rowset.serial.SerialBlob";
+    
 
     protected OptionalHandlerFactory() {
         _sqlDeserializers = new HashMap<>();
@@ -95,6 +102,8 @@ public class OptionalHandlerFactory implements java.io.Serializable
                 "com.fasterxml.jackson.databind.deser.std.DateDeserializers$SqlDateDeserializer");
         _sqlDeserializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP,
                 "com.fasterxml.jackson.databind.deser.std.DateDeserializers$TimestampDeserializer");
+        _sqlDeserializers.put(CLS_NAME_JAVA_SQL_BLOB,
+                "com.fasterxml.jackson.databind.deser.std.SqlBlobDeserializer");
 
         _sqlSerializers = new HashMap<>();
         // 09-Jan-2015, tatu: As per [databind#1073], let's try to guard against possibility
@@ -104,6 +113,8 @@ public class OptionalHandlerFactory implements java.io.Serializable
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP, DateSerializer.instance);
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_DATE, "com.fasterxml.jackson.databind.ser.std.SqlDateSerializer");
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIME, "com.fasterxml.jackson.databind.ser.std.SqlTimeSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "com.fasterxml.jackson.databind.ser.std.SqlBlobSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "com.fasterxml.jackson.databind.ser.std.SqlBlobSerializer");
     }
 
     /*

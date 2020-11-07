@@ -214,7 +214,7 @@ final class AnnotatedCreatorCollector
 //        final TypeResolutionContext typeResCtxt = _typeContext;
 
         // 03-Nov-2020, ckozak: Implement generic JsonCreator TypeVariable handling [databind#2895]
-        final TypeResolutionContext emptyTypeResCtxt = new TypeResolutionContext.Empty(typeFactory);
+        final TypeResolutionContext emptyTypeResCtxt = new TypeResolutionContext.Empty(_config.getTypeFactory());
 
         int factoryCount = candidates.size();
         List<AnnotatedMethod> result = new ArrayList<>(factoryCount);
@@ -254,7 +254,7 @@ final class AnnotatedCreatorCollector
                 //   nominal static method type bindings into expected target type
                 //   (if generic types involved)
                 TypeResolutionContext typeResCtxt = MethodGenericTypeResolver.narrowMethodTypeParameters(
-                        candidate, type, typeFactory, emptyTypeResCtxt);
+                        candidate, type, _config.getTypeFactory(), emptyTypeResCtxt);
                 result.set(i,
                         constructFactoryCreator(candidate, typeResCtxt, null));
             }

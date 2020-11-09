@@ -376,7 +376,7 @@ public class JsonMappingException
             // [databind#2128]: try to avoid duplication
             String msg = ClassUtil.exceptionMessage(src);
             // Let's use a more meaningful placeholder if all we have is null
-            if (msg == null || msg.length() == 0) {
+            if (msg == null || msg.isEmpty()) {
                 msg = "(was "+src.getClass().getName()+")";
             }
             // 17-Aug-2015, tatu: Let's also pass the processor (parser/generator) along

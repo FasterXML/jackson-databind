@@ -849,7 +849,7 @@ public abstract class BeanSerializerBase
         JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
         if (ann != null) {
             String id = ann.id();
-            if (id != null && id.length() > 0) {
+            if (id != null && !id.isEmpty()) {
                 o.put("id", id);
             }
         }

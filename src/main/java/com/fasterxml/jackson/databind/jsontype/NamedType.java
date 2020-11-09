@@ -25,7 +25,7 @@ public final class NamedType implements java.io.Serializable
 
     public Class<?> getType() { return _class; }
     public String getName() { return _name; }
-    public void setName(String name) { _name = (name == null || name.length() == 0) ? null : name; }
+    public void setName(String name) { _name = (name == null || name.isEmpty()) ? null : name; }
 
     public boolean hasName() { return _name != null; }
     

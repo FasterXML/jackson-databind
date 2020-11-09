@@ -38,7 +38,7 @@ public class TextNode
         if (v == null) {
             return null;
         }
-        if (v.length() == 0) {
+        if (v.isEmpty()) {
             return EMPTY_STRING_NODE;
         }
         return new TextNode(v);

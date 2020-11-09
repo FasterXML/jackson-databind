@@ -38,8 +38,8 @@ public abstract class NameTransformer
      */
     public static NameTransformer simpleTransformer(final String prefix, final String suffix)
     {
-        boolean hasPrefix = (prefix != null) && (prefix.length() > 0);
-        boolean hasSuffix = (suffix != null) && (suffix.length() > 0);
+        boolean hasPrefix = (prefix != null) && !prefix.isEmpty();
+        boolean hasSuffix = (suffix != null) && !suffix.isEmpty();
 
         if (hasPrefix) {
             if (hasSuffix) {

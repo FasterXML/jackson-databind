@@ -34,13 +34,16 @@ public class OptionalHandlerFactory
 
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
 
-    // classes from java.sql module, this module may not be present at runtime
+    // classes from java.sql module, this module may or may not be present at runtime
+    // (is included on Java 8, but not part of JDK core for Java 9 and beyond)
     private final Map<String, String> _sqlDeserializers;
     private final Map<String, Object> _sqlSerializers;
 
     private final static String CLS_NAME_JAVA_SQL_TIMESTAMP = "java.sql.Timestamp";
     private final static String CLS_NAME_JAVA_SQL_DATE = "java.sql.Date";
     private final static String CLS_NAME_JAVA_SQL_TIME = "java.sql.Time";
+    private final static String CLS_NAME_JAVA_SQL_BLOB = "java.sql.Blob";
+    private final static String CLS_NAME_JAVA_SQL_SERIALBLOB = "javax.sql.rowset.serial.SerialBlob";
 
     protected OptionalHandlerFactory() {
         _sqlDeserializers = new HashMap<>();
@@ -48,6 +51,8 @@ public class OptionalHandlerFactory
                 "com.fasterxml.jackson.databind.deser.std.DateDeserializers$SqlDateDeserializer");
         _sqlDeserializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP,
                 "com.fasterxml.jackson.databind.deser.std.DateDeserializers$TimestampDeserializer");
+        // 09-Nov-2020, tatu: No deserializer for `java.sql.Blob` yet; would require additional
+        //    dependency and not yet requested by anyone. Add if requested
 
         _sqlSerializers = new HashMap<>();
         // 09-Jan-2015, tatu: As per [databind#1073], let's try to guard against possibility
@@ -57,6 +62,13 @@ public class OptionalHandlerFactory
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP, DateSerializer.instance);
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_DATE, "com.fasterxml.jackson.databind.ser.std.SqlDateSerializer");
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIME, "com.fasterxml.jackson.databind.ser.std.SqlTimeSerializer");
+
+        // 09-Nov-2020, tatu: Not really optimal way to deal with these, problem  being that
+        //   Blob is interface and actual instance we get is usually different. So may
+        //   need to improve if we reported bugs. But for now, do this
+        
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "com.fasterxml.jackson.databind.ext.SqlBlobSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "com.fasterxml.jackson.databind.ext.SqlBlobSerializer");
     }
 
     /*

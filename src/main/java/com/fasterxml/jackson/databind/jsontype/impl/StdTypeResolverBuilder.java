@@ -349,7 +349,7 @@ public class StdTypeResolverBuilder
      * be sub-classed, are never polymorphic) but custom implementations
      * may change the logic for some special cases.
      *
-     * @param config Currently active configuration
+     * @param ctxt Currently active context
      * @param baseType Primitive base type for property being handled
      *
      * @return True if type (de)serializer may be created even if base type is Java

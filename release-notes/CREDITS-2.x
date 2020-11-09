@@ -811,6 +811,9 @@ Carter Kozak (cakofony@github)
   * Contributed #2895: Improve static factory method generic type resolution logic
     (as well as better test coverage)
    (2.12.0)
+  * Contributed #2928: `AnnotatedCreatorCollector` should avoid processing synthetic static
+    (factory) methods
+   (2.12.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types
@@ -982,7 +985,7 @@ David Connelly (dconnelly@github)
 XakepSDK@github
   * Reported #2458: `Nulls` property metadata ignored for creators
    (2.10.0)
-  * Contributed #2913: Make some java platform modules optional
+  * Contributed #2910: Make some java platform modules optional
    (2.12.0)
 
 Wahey (KevynBct@github)
@@ -1262,3 +1265,7 @@ Sergiy Yevtushenko (siy@github)
   * Contributed #2879: Add support for disabling special handling of "Creator properties" wrt
     alphabetic property ordering
   (2.12.0)
+
+M Rizky Satrio (rsatrio@github)
+  * Contributed #2925: Add support for `java.sql.Blob`
+   (2.12.0)

@@ -62,7 +62,7 @@ public class MinimalClassNameIdResolver
     {
         if (id.startsWith(".")) {
             StringBuilder sb = new StringBuilder(id.length() + _basePackageName.length());
-            if  (_basePackageName.length() == 0) {
+            if  (_basePackageName.isEmpty()) {
                 // no package; must remove leading '.' from id
                 sb.append(id.substring(1));
             } else {

@@ -229,9 +229,9 @@ public class EnumDeserializer
             CompactStringObjectMap lookup, String nameOrig) throws IOException
     {
         String name = nameOrig.trim();
-        if (name.length() == 0) { // empty or blank
+        if (name.isEmpty()) { // empty or blank
             CoercionAction act;
-            if (nameOrig.length() == 0) { 
+            if (nameOrig.isEmpty()) {
                 act = _findCoercionFromEmptyString(ctxt);
                 act = _checkCoercionFail(ctxt, act, handledType(), nameOrig,
                         "empty String (\"\")");

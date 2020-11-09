@@ -168,7 +168,7 @@ public class AnnotatedMethodCollector
         }
     }
 
-    private boolean _isIncludableMemberMethod(Method m)
+    private static boolean _isIncludableMemberMethod(Method m)
     {
         if (Modifier.isStatic(m.getModifiers())
                 // Looks like generics can introduce hidden bridge and/or synthetic methods.

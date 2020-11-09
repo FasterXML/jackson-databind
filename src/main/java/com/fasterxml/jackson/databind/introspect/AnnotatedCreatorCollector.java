@@ -187,7 +187,7 @@ final class AnnotatedCreatorCollector
 
         // First find all potentially relevant static methods
         for (Method m : ClassUtil.getClassMethods(type.getRawClass())) {
-            if (!Modifier.isStatic(m.getModifiers())) {
+            if (!_isIncludableFactoryMethod(m)) {
                 continue;
             }
             // all factory methods are fine:
@@ -225,7 +225,7 @@ final class AnnotatedCreatorCollector
         if (primaryMixIn != null) {
             MemberKey[] methodKeys = null;
             for (Method mixinFactory : primaryMixIn.getDeclaredMethods()) {
-                if (!Modifier.isStatic(mixinFactory.getModifiers())) {
+                if (!_isIncludableFactoryMethod(mixinFactory)) {
                     continue;
                 }
                 if (methodKeys == null) {
@@ -260,6 +260,14 @@ final class AnnotatedCreatorCollector
             }
         }
         return result;
+    }
+
+    private static boolean _isIncludableFactoryMethod(Method m)
+    {
+        return Modifier.isStatic(m.getModifiers())
+                // 09-Nov-2020, ckozak: Avoid considering synthetic methods such as
+                // lambdas used within methods because they're not relevant.
+                && !m.isSynthetic();
     }
 
     protected AnnotatedConstructor constructDefaultConstructor(ClassUtil.Ctor ctor,

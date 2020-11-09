@@ -252,7 +252,7 @@ public class JacksonAnnotationIntrospector
             return null;
         }
         String ns = ann.namespace();
-        if (ns != null && ns.length() == 0) {
+        if (ns != null && ns.isEmpty()) {
             ns = null;
         }
         return PropertyName.construct(ann.value(), ns);
@@ -290,7 +290,7 @@ public class JacksonAnnotationIntrospector
         if (ann != null) {
             String id = ann.value();
             // Empty String is same as not having annotation, to allow overrides
-            if (id.length() > 0) {
+            if (!id.isEmpty()) {
                 return id;
             }
         }

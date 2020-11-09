@@ -288,7 +288,7 @@ public abstract class PropertyNamingStrategies
          */
         @Override
         public String translate(String input) {
-            if (input == null || input.length() == 0){
+            if (input == null || input.isEmpty()){
                 return input; // garbage in, garbage out
             }
             // Replace first lower-case letter with upper-case equivalent

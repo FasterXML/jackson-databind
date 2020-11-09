@@ -288,9 +288,9 @@ public class GenericTypeSerializationTest extends BaseMapTest
     }
 
     public static class StringStub {
-        private final String value;
+        final String value;
 
-        private StringStub(String value) {
+        StringStub(String value) {
             this.value = value;
         }
 
@@ -337,7 +337,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
     }
 
     public static class Stub<T> {
-        private final T value;
+        final T value;
 
         private Stub(T value) {
             this.value = value;
@@ -373,9 +373,9 @@ public class GenericTypeSerializationTest extends BaseMapTest
         }
     }
 
-    public static class SimpleWrapper<T> {
-
-        private final T value;
+    public static class SimpleWrapper<T>
+    {
+        final T value;
 
         SimpleWrapper(T value) {
             this.value = value;
@@ -388,11 +388,56 @@ public class GenericTypeSerializationTest extends BaseMapTest
     }
 
     @JsonDeserialize
-    public static final class JsonSimpleWrapper<T> {
-
+    public static final class JsonSimpleWrapper<T>
+    {
         @JsonProperty("object")
         public T object;
+    }
 
+    interface Indexed<T> {
+        T index();
+    }
+
+    public static class TestIndexed implements Indexed<String> {
+        final UUID value;
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        TestIndexed(UUID value) {
+            this.value = value;
+        }
+
+        @Override
+        public String index() {
+            return value.toString();
+        }
+    }
+
+    public static final class IndexedList<T extends Indexed<K>, K> extends AbstractList<T> {
+
+        final ArrayList<T> delegate;
+
+        private IndexedList(ArrayList<T> delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public T get(int index) {
+            return delegate.get(index);
+        }
+
+        @Override
+        public int size() {
+            return delegate.size();
+        }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static <T extends Indexed<K>, K> IndexedList<T, K> fromJson(Iterable<? extends T> values) {
+            ArrayList<T> arrayList = new ArrayList<>();
+            for (T value : values) {
+                arrayList.add(value);
+            }
+            return new IndexedList<>(arrayList);
+        }
     }
 
     /*
@@ -554,5 +599,14 @@ public class GenericTypeSerializationTest extends BaseMapTest
                 new TypeReference<SimpleWrapper<Account>>() {});
         Account account = wrapper.value;
         assertEquals(new Account("name1", 1L), account);
+    }
+
+    public void testIndexedListExample() throws Exception
+    {
+        UUID uuid = UUID.randomUUID();
+        IndexedList<TestIndexed, String> value = MAPPER.readValue(String.format("[\"%s\"]", uuid.toString()),
+                new TypeReference<IndexedList<TestIndexed, String>>() {});
+        assertEquals(1, value.size());
+        assertEquals(uuid, value.delegate.get(0).value);
     }
 }

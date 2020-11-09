@@ -786,18 +786,9 @@ public class DateDeserializationTest
 
     private String dateToString(java.util.Date value)
     {
-        /* Then from String. This is bit tricky, since JDK does not really
-         * suggest a 'standard' format. So let's try using something...
-         */
+        // Then from String. This is bit tricky, since JDK does not really
+        // suggest a 'standard' format. So let's try using something...
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         return df.format(value);
     }
-
-    private static Calendar gmtCalendar(long time)
-    {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTimeInMillis(time);
-        return c;
-    }
-
 }

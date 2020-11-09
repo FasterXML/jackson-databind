@@ -28,7 +28,7 @@ public final class StringSerializer
     @Override
     public boolean isEmpty(SerializerProvider prov, Object value) {
         String str = (String) value;
-        return str.length() == 0;
+        return str.isEmpty();
     }
 
     @Override

@@ -213,7 +213,7 @@ public abstract class StdDeserializer<T>
         if ((inst != null) && inst.canCreateFromString()) {
             return (T) inst.createFromString(ctxt, value);
         }
-        if (value.length() == 0) {
+        if (value.isEmpty()) {
             final CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
                     CoercionInputShape.EmptyString);
             return (T) _deserializeFromEmptyString(p, ctxt, act, rawTargetType,
@@ -1101,7 +1101,7 @@ public abstract class StdDeserializer<T>
     {
         try {
             // Take empty Strings to mean 'empty' Value, usually 'null':
-            if (value.length() == 0) {
+            if (value.isEmpty()) {
                 final CoercionAction act = _checkFromStringCoercion(ctxt, value);
                 switch (act) { // note: Fail handled above
                 case AsEmpty:
@@ -1211,7 +1211,7 @@ public abstract class StdDeserializer<T>
     {
         final CoercionAction act;
 
-        if (value.length() == 0) {
+        if (value.isEmpty()) {
             act = ctxt.findCoercionAction(logicalType, rawTargetType,
                     CoercionInputShape.EmptyString);
             return _checkCoercionFail(ctxt, act, rawTargetType, value,

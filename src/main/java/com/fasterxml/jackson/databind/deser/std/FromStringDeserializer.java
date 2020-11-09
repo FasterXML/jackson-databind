@@ -160,7 +160,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             text = ctxt.extractScalarFromObject(p, this, _valueClass);
         }
-        if (text.length() == 0 || (text = text.trim()).length() == 0) {
+        if (text.isEmpty() || (text = text.trim()).isEmpty()) {
             // 09-Jun-2020, tatu: Commonly `null` but may coerce to "empty" as well
             return (T) _deserializeFromEmptyString(ctxt);
         }

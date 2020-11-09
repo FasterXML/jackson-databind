@@ -32,6 +32,7 @@ public class TokenBufferDeserializer extends StdScalarDeserializer<TokenBuffer>
     }
 
     @Override
+    @SuppressWarnings("resource")
     public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         return createBufferInstance(p).deserialize(p, ctxt);
     }

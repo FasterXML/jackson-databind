@@ -35,6 +35,9 @@ Project: jackson-databind
  (contributed by XakepSDK@github)
 #2925: Add support for `java.sql.Blob`
  (contributed by M Rizky S)
+#2928: `AnnotatedCreatorCollector` should avoid processing synthetic static
+  (factory) methods
+ (contributed by Carter K)
 - Full "LICENSE" included in jar for easier access by compliancy tools
 
 2.12.0-rc1 (12-Oct-2020)

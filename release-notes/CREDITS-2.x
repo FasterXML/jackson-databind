@@ -811,6 +811,9 @@ Carter Kozak (cakofony@github)
   * Contributed #2895: Improve static factory method generic type resolution logic
     (as well as better test coverage)
    (2.12.0)
+  * Contributed #2928: `AnnotatedCreatorCollector` should avoid processing synthetic static
+    (factory) methods
+   (2.12.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types

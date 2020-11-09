@@ -11,10 +11,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * since some Java(-like) platforms do not include them: specifically, Google AppEngine
  * and Android seem to skimp on their inclusion. As such, they are dynamically loaded
  * only as needed, and need bit special handling.
- * 
- * @author tatu
  */
-public class TestCoreXMLTypes
+public class MiscJavaXMLTypesReadWriteTest
     extends BaseMapTest
 {
     /*

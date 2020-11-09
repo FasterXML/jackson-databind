@@ -3,13 +3,7 @@ package com.fasterxml.jackson.databind.ext;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
@@ -103,7 +97,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         _sqlDeserializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP,
                 "com.fasterxml.jackson.databind.deser.std.DateDeserializers$TimestampDeserializer");
         _sqlDeserializers.put(CLS_NAME_JAVA_SQL_BLOB,
-                "com.fasterxml.jackson.databind.deser.std.SqlBlobDeserializer");
+                "com.fasterxml.jackson.databind.ext.SqlBlobDeserializer");
 
         _sqlSerializers = new HashMap<>();
         // 09-Jan-2015, tatu: As per [databind#1073], let's try to guard against possibility
@@ -113,8 +107,8 @@ public class OptionalHandlerFactory implements java.io.Serializable
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP, DateSerializer.instance);
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_DATE, "com.fasterxml.jackson.databind.ser.std.SqlDateSerializer");
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIME, "com.fasterxml.jackson.databind.ser.std.SqlTimeSerializer");
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "com.fasterxml.jackson.databind.ser.std.SqlBlobSerializer");
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "com.fasterxml.jackson.databind.ser.std.SqlBlobSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "com.fasterxml.jackson.databind.ext.SqlBlobSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "com.fasterxml.jackson.databind.ext.SqlBlobSerializer");
     }
 
     /*

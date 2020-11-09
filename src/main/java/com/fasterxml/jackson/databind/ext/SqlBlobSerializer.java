@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser.std;
+package com.fasterxml.jackson.databind.ext;
 
 import java.io.IOException;
 import java.sql.Blob;
@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 /**
  * This is serializer for {@link java.sql.Blob}  into base64 String

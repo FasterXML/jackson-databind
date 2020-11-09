@@ -288,9 +288,9 @@ public class GenericTypeSerializationTest extends BaseMapTest
     }
 
     public static class StringStub {
-        private final String value;
+        final String value;
 
-        private StringStub(String value) {
+        StringStub(String value) {
             this.value = value;
         }
 
@@ -337,7 +337,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
     }
 
     public static class Stub<T> {
-        private final T value;
+        final T value;
 
         private Stub(T value) {
             this.value = value;
@@ -373,9 +373,9 @@ public class GenericTypeSerializationTest extends BaseMapTest
         }
     }
 
-    public static class SimpleWrapper<T> {
-
-        private final T value;
+    public static class SimpleWrapper<T>
+    {
+        final T value;
 
         SimpleWrapper(T value) {
             this.value = value;
@@ -388,11 +388,10 @@ public class GenericTypeSerializationTest extends BaseMapTest
     }
 
     @JsonDeserialize
-    public static final class JsonSimpleWrapper<T> {
-
+    public static final class JsonSimpleWrapper<T>
+    {
         @JsonProperty("object")
         public T object;
-
     }
 
     /*

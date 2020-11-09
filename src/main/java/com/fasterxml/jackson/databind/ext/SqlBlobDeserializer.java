@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.std;
+package com.fasterxml.jackson.databind.ext;
 
 import java.io.IOException;
 import java.sql.Blob;
@@ -10,6 +10,7 @@ import javax.sql.rowset.serial.SerialBlob;
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 

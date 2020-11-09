@@ -60,7 +60,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     static class StringListWrapperWithBuilder {
         public final List<String> values;
 
-        private StringListWrapperWithBuilder(List<String> values) {
+        StringListWrapperWithBuilder(List<String> values) {
             this.values = values;
         }
 
@@ -102,7 +102,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     static class RolesInListWithBuilder {
         public final List<Role> roles;
 
-        private RolesInListWithBuilder(List<Role> roles) {
+        RolesInListWithBuilder(List<Role> roles) {
             this.roles = roles;
         }
 
@@ -137,7 +137,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
 
     @JsonDeserialize
     static class WrapperWithStringFactory {
-        private final Role role;
+        final Role role;
 
         private WrapperWithStringFactory(Role role) {
             this.role = role;
@@ -152,7 +152,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************

@@ -8,7 +8,7 @@ import org.w3c.dom.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestDOM extends com.fasterxml.jackson.databind.BaseMapTest
+public class DOMTypeReadWriteTest extends com.fasterxml.jackson.databind.BaseMapTest
 {
     final static String SIMPLE_XML =
         "<root attr='3'><leaf>Rock &amp; Roll!</leaf><?proc instr?></root>";

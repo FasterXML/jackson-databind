@@ -88,15 +88,11 @@ public class TestPropertyConflicts extends BaseMapTest
     /**********************************************************
      */
 
-    public void testFailWithDupProps() throws Exception
+    public void testPassWithDupProps() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
-        try {
-            String json = objectWriter().writeValueAsString(bean);
-            fail("Should have failed due to conflicting accessor definitions; got JSON = "+json);
-        } catch (JsonProcessingException e) {
-            verifyException(e, "Conflicting getter definitions");
-        }
+        //only treat getX as the property, getx is a method
+        assertEquals("{\"x\":3}", objectWriter().writeValueAsString(bean));
     }        
 
     // [databind#238]: ok to have getter, "isGetter"
@@ -147,5 +143,28 @@ public class TestPropertyConflicts extends BaseMapTest
         if (!"the string".equals(data.getStr())) {
             throw new IllegalStateException("bad value for data.str");
         }
+    }
+
+    //[databind #2926]: do not treat "setting()" as a setter
+    static class BeanWithSetting
+    {
+        private String setting;
+        public BeanWithSetting setting(String value){
+            setting = value;
+            return this;
+        }
+        public void setSetting(String value){
+            setting = value;
+        }
+        public String getSetting(){
+            return setting;
+        }
+    }
+
+
+    public void testIssue2926() throws JsonProcessingException {
+        BeanWithSetting beanWithSetting = new BeanWithSetting().setting("test");
+
+        assertEquals("{\"setting\":\"test\"}", objectWriter().writeValueAsString(beanWithSetting));
     }
 }

@@ -241,6 +241,18 @@ public class BeanUtil
         char d = Character.toLowerCase(c);
         
         if (c == d) {
+
+            if(basename.length()  == offset + 1){
+                return null;
+            }
+
+            char c1 = basename.charAt(offset + 1);
+            char d1 = Character.toLowerCase(c1);
+
+            if(d1 == c1){
+                return null;
+            }
+
             return basename.substring(offset);
         }
         // otherwise, lower case initial chars. Common case first, just one char
@@ -272,6 +284,18 @@ public class BeanUtil
         char c0 = basename.charAt(offset);
         char c1 = Character.toLowerCase(c0);
         if (c0 == c1) {
+
+            if(basename.length()  == offset + 1){
+                return null;
+            }
+
+            char c2 = basename.charAt(offset + 1);
+            char c3 = Character.toLowerCase(c2);
+
+            if(c3 == c2){
+                return null;
+            }
+
             return basename.substring(offset);
         }
         // 17-Dec-2014, tatu: As per [databind#653], need to follow more

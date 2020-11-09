@@ -42,6 +42,15 @@ public class BeanUtilTest extends BaseMapTest
 
         assertEquals("url", BeanUtil.legacyManglePropertyName("getURL", 3));
         assertEquals("URL", BeanUtil.stdManglePropertyName("getURL", 3));
+
+        assertNull(BeanUtil.legacyManglePropertyName("setting", 3));
+        assertNull(BeanUtil.stdManglePropertyName("setting", 3));
+
+        assertEquals("setting", BeanUtil.legacyManglePropertyName("setSetting", 3));
+        assertEquals("setting", BeanUtil.stdManglePropertyName("setSetting", 3));
+
+        assertEquals("aField", BeanUtil.legacyManglePropertyName("setaField", 3));
+        assertEquals("aField", BeanUtil.stdManglePropertyName("setaField", 3));
     }
 
     public void testGetDefaultValue()

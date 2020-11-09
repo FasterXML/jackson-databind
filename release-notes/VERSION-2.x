@@ -33,7 +33,7 @@ Project: jackson-databind
  (reported by chrylis@github)
 #2910: Make some java platform modules optional
  (contributed by XakepSDK@github)
-#2925: Add support for `java.sql.Blob`
+#2925: Add support for serializing `java.sql.Blob`
  (contributed by M Rizky S)
 #2928: `AnnotatedCreatorCollector` should avoid processing synthetic static
   (factory) methods

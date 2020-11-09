@@ -2,22 +2,17 @@ package com.fasterxml.jackson.databind.ext;
 
 import java.io.IOException;
 import java.sql.Blob;
-import java.util.Arrays;
-import java.util.UUID;
+import java.sql.SQLException;
 
 import javax.sql.rowset.serial.SerialBlob;
 
-import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
-
-/* 
+/**
  * Deserializer from base64 string to {@link java.sql.Blob}
  */
-
 public class SqlBlobDeserializer extends FromStringDeserializer<Blob>
 {
     private static final long serialVersionUID = 1L;
@@ -27,7 +22,6 @@ public class SqlBlobDeserializer extends FromStringDeserializer<Blob>
 
     @Override 
     public Object getEmptyValue(DeserializationContext ctxt) {
-        
         return null;
     }
 
@@ -36,11 +30,9 @@ public class SqlBlobDeserializer extends FromStringDeserializer<Blob>
     {
         try {
             return new SerialBlob(ctxt.getBase64Variant().decode(data));
-        }
-        catch(Exception e)  {
+        } catch(SQLException e)  {
             throw new JsonMappingException("Failed to Decode the Base64 String into Blob");
         }
-      
     }
 
 //    @Override
@@ -51,5 +43,4 @@ public class SqlBlobDeserializer extends FromStringDeserializer<Blob>
 //        }
 //        return super._deserializeEmbedded(ob, ctxt);
 //    }
-
-  }
+}

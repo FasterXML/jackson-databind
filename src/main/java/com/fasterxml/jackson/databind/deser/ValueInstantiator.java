@@ -312,6 +312,7 @@ public abstract class ValueInstantiator
     /**********************************************************
      */
 
+    @SuppressWarnings("resource")
     public Object createFromString(DeserializationContext ctxt, String value) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),
                 "no String-argument constructor/factory method to deserialize from String value ('%s')",
@@ -419,6 +420,7 @@ public abstract class ValueInstantiator
      * @deprecated Since 2.12 should not handle coercions here
      */
     @Deprecated // since 2.12
+    @SuppressWarnings("resource")
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
             throws IOException
     {

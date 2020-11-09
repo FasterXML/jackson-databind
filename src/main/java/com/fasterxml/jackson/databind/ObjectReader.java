@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -2123,7 +2124,7 @@ public class ObjectReader
         // 26-Mar-2016, tatu: Need to allow multiple-matches at least if we have
         //    have a multiple-value read (that is, "readValues()").
         return ((_filter == null) || FilteringParserDelegate.class.isInstance(p))
-                ? p : new FilteringParserDelegate(p, _filter, false, multiValue);
+                ? p : new FilteringParserDelegate(p, _filter, Inclusion.ONLY_INCLUDE_ALL, multiValue);
     }
 
     /**

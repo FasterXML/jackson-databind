@@ -399,8 +399,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
     }
 
     public static class TestIndexed implements Indexed<String> {
-
-        private final UUID value;
+        final UUID value;
 
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         TestIndexed(UUID value) {
@@ -415,7 +414,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
 
     public static final class IndexedList<T extends Indexed<K>, K> extends AbstractList<T> {
 
-        private final ArrayList<T> delegate;
+        final ArrayList<T> delegate;
 
         private IndexedList(ArrayList<T> delegate) {
             this.delegate = delegate;

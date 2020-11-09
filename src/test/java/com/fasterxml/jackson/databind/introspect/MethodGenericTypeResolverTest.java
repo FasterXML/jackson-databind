@@ -49,7 +49,7 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
         private final String value;
 
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-        private StubA(String value) {
+        StubA(String value) {
             this.value = value;
         }
 

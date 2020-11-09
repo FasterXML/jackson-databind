@@ -499,7 +499,7 @@ public final class DeserializerCache
                     KeyDeserializer kd = ctxt.keyDeserializerInstance(a, kdDef);
                     if (kd != null) {
                         type = ((MapLikeType) type).withKeyValueHandler(kd);
-                        keyType = type.getKeyType(); // just in case it's used below
+                        // keyType = type.getKeyType(); // just in case it's used below
                     }
                 }
             }            
@@ -511,7 +511,7 @@ public final class DeserializerCache
                 if (cdDef != null) {
                     JsonDeserializer<?> cd = null;
                     if (cdDef instanceof JsonDeserializer<?>) {
-                        cdDef = (JsonDeserializer<?>) cdDef;
+                        cd = (JsonDeserializer<?>) cdDef;
                     } else {
                         Class<?> cdClass = _verifyAsClass(cdDef, "findContentDeserializer", JsonDeserializer.None.class);
                         if (cdClass != null) {

@@ -190,7 +190,10 @@ final class MethodGenericTypeResolver
             return false;
         }
         ParameterizedType parameterized = maybeGetParameterizedType(type);
-        if (parameterized != null) {
+        if (parameterized != null
+                // 09-Nov-2020, ckozak: Validate equivalent parameters if possible, however when types do not
+                // exactly match, there's not much validation we can reasonably do.
+                && Objects.equals(boundType.getRawClass(), parameterized.getRawType())) {
             Type[] typeArguments = parameterized.getActualTypeArguments();
             TypeBindings bindings = boundType.getBindings();
             if (bindings.size() != typeArguments.length) {

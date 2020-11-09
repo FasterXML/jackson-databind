@@ -96,28 +96,31 @@ public class TestArrayConversions
         // Byte overflow
         try {
             MAPPER.convertValue(new int[] { 1000 }, byte[].class);
+            fail("Expected an exception");
         } catch (IllegalArgumentException e) {
             verifyException(e, OVERFLOW_MSG_BYTE);
         }
         // Short overflow
         try {
             MAPPER.convertValue(new int[] { -99999 }, short[].class);
+            fail("Expected an exception");
         } catch (IllegalArgumentException e) {
             verifyException(e, OVERFLOW_MSG_SHORT);
         }
         // Int overflow
         try {
             MAPPER.convertValue(new long[] { Long.MAX_VALUE }, int[].class);
+            fail("Expected an exception");
         } catch (IllegalArgumentException e) {
             verifyException(e, OVERFLOW_MSG_INT);
         }
         // Longs need help of BigInteger...
-        BigInteger biggie = BigInteger.valueOf(Long.MAX_VALUE);
-        biggie.add(BigInteger.ONE);
+        BigInteger biggie = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);;
         List<BigInteger> l = new ArrayList<BigInteger>();
         l.add(biggie);
         try {
             MAPPER.convertValue(l, long[].class);
+            fail("Expected an exception");
         } catch (IllegalArgumentException e) {
             verifyException(e, OVERFLOW_MSG_LONG);
         }

@@ -233,7 +233,7 @@ public class StdTypeResolverBuilder
     @Override
     public StdTypeResolverBuilder typeProperty(String typeIdPropName) {
         // ok to have null/empty; will restore to use defaults
-        if (typeIdPropName == null || typeIdPropName.length() == 0) {
+        if (typeIdPropName == null || typeIdPropName.isEmpty()) {
             typeIdPropName = _idType.getDefaultPropertyName();
         }
         _typeProperty = typeIdPropName;

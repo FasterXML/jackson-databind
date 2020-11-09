@@ -279,7 +279,7 @@ public class AnnotationIntrospectorPair
     public String findTypeName(AnnotatedClass ac)
     {
         String name = _primary.findTypeName(ac);
-        if (name == null || name.length() == 0) {
+        if (name == null || name.isEmpty()) {
             name = _secondary.findTypeName(ac);                
         }
         return name;

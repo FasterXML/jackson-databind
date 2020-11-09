@@ -89,7 +89,7 @@ public class PropertyName
      */
     public static PropertyName construct(String simpleName)
     {
-        if (simpleName == null || simpleName.length() == 0) {
+        if (simpleName == null || simpleName.isEmpty()) {
             return USE_DEFAULT;
         }
         return new PropertyName(InternCache.instance.intern(simpleName), null);
@@ -100,7 +100,7 @@ public class PropertyName
         if (simpleName == null) {
             simpleName = "";
         }
-        if (ns == null && simpleName.length() == 0) {
+        if (ns == null && simpleName.isEmpty()) {
             return USE_DEFAULT;
         }
         return new PropertyName(InternCache.instance.intern(simpleName), ns);
@@ -108,7 +108,7 @@ public class PropertyName
 
     public PropertyName internSimpleName()
     {
-        if (_simpleName.length() == 0) { // empty String is canonical already
+        if (_simpleName.isEmpty()) { // empty String is canonical already
             return this;
         }
         String interned = InternCache.instance.intern(_simpleName);
@@ -182,7 +182,7 @@ public class PropertyName
     }
 
     public boolean hasSimpleName() {
-        return _simpleName.length() > 0;
+        return !_simpleName.isEmpty();
     }
 
     /**

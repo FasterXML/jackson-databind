@@ -423,7 +423,7 @@ public abstract class ValueInstantiator
             throws IOException
     {
         // also, empty Strings might be accepted as null Object...
-        if (value.length() == 0) {
+        if (value.isEmpty()) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return null;
             }

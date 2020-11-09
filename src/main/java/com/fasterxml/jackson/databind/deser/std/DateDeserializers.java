@@ -177,7 +177,7 @@ public class DateDeserializers
             if (_customFormat != null) {
                 if (p.hasToken(JsonToken.VALUE_STRING)) {
                     String str = p.getText().trim();
-                    if (str.length() == 0) {
+                    if (str.isEmpty()) {
                         final CoercionAction act = _checkFromStringCoercion(ctxt, str);
                         switch (act) { // note: Fail handled above
                         case AsEmpty:

@@ -35,7 +35,7 @@ public class DeserExceptionTypeTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testHandlingOfUnrecognized() throws Exception
     {
@@ -69,20 +69,17 @@ public class DeserExceptionTypeTest
         }
     }
 
-    @SuppressWarnings("resource")
     public void testExceptionWithIncomplete()
         throws Exception
     {
         BrokenStringReader r = new BrokenStringReader("[ 1, ", "TEST");
-        JsonParser p = MAPPER.createParser(r);
-        try {
+        try (JsonParser p = MAPPER.createParser(r)) {
             @SuppressWarnings("unused")
             Object ob = MAPPER.readValue(p, Object.class);
             fail("Should have gotten an exception");
         } catch (IOException e) {
-            /* For "bona fide" IO problems (due to low-level problem,
-             * thrown by reader/stream), IOException must be thrown
-             */
+            // For "bona fide" IO problems (due to low-level problem,
+            // thrown by reader/stream), IOException must be thrown
             verifyException(e, IOException.class, "TEST");
         }
     }

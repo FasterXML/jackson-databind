@@ -41,9 +41,8 @@ public abstract class JavaUtilCollectionsDeserializers
     private final static Class<?> CLASS_UNMODIFIABLE_SET;
     private final static Class<?> CLASS_UNMODIFIABLE_LIST;
 
-    /* 02-Mar-2019, tatu: for [databind#2265], need to consider possible alternate type...
-     *    which we essentially coerce into the other one
-     */
+    // 02-Mar-2019, tatu: for [databind#2265], need to consider possible alternate type...
+    //    which we essentially coerce into the other one
     private final static Class<?> CLASS_UNMODIFIABLE_LIST_ALIAS;
     private final static Class<?> CLASS_UNMODIFIABLE_MAP;
 
@@ -68,7 +67,6 @@ public abstract class JavaUtilCollectionsDeserializers
         throws JsonMappingException
     {
         JavaUtilCollectionsConverter conv;
-
         // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays` need bit of help...
         if (type.hasRawClass(CLASS_AS_ARRAYS_LIST)) {
             conv = converter(TYPE_AS_LIST, type, List.class);
@@ -185,5 +183,4 @@ public abstract class JavaUtilCollectionsDeserializers
             }
         }
     }
-    
 }

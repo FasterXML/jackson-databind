@@ -1463,7 +1463,7 @@ inputDesc, _coercedTypeDesc());
     {
         String enableDesc = state ? "enable" : "disable";
         ctxt.reportInputMismatch(this, "Cannot coerce %s to Null value as %s (%s `%s.%s` to allow)",
-            inputDesc, _coercedTypeDesc(), enableDesc, feature.getClass().getSimpleName(), feature.name());
+            inputDesc, _coercedTypeDesc(), enableDesc, feature.getDeclaringClass().getSimpleName(), feature.name());
     }
 
     /**
@@ -1524,7 +1524,7 @@ inputDesc, _coercedTypeDesc());
         MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
         if (!ctxt.isEnabled(feat)) {
             ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" to %s (enable `%s.%s` to allow)",
-                str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
+                str, _coercedTypeDesc(), feat.getDeclaringClass().getSimpleName(), feat.name());
         }
     }
 
@@ -1579,7 +1579,7 @@ inputDesc, _coercedTypeDesc());
             //   access as a String: may require re-encoding by parser which should be fine
             String valueDesc = p.getText();
             ctxt.reportInputMismatch(this, "Cannot coerce Number (%s) to %s (enable `%s.%s` to allow)",
-                valueDesc, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
+                valueDesc, _coercedTypeDesc(), feat.getDeclaringClass().getSimpleName(), feat.name());
         }
     }
 

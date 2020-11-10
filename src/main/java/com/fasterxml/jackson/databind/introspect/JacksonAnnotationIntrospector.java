@@ -183,7 +183,7 @@ public class JacksonAnnotationIntrospector
         //   reasons, including odd representation JVM uses); has to do for now
         try {
             // We know that values are actually static fields with matching name so:
-            Field f = value.getClass().getField(value.name());
+            Field f = value.getDeclaringClass().getField(value.name());
             if (f != null) {
                 JsonProperty prop = f.getAnnotation(JsonProperty.class);
                 if (prop != null) {

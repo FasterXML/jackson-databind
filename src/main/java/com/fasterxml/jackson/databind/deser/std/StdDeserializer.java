@@ -398,7 +398,7 @@ public abstract class StdDeserializer<T>
             // may accept ints too, (0 == false, otherwise true)
 
             // call returns `null`, Boolean.TRUE or Boolean.FALSE so:
-            return _coerceBooleanFromInt(p, ctxt, Boolean.TYPE) == Boolean.TRUE;
+            return Boolean.TRUE.equals(_coerceBooleanFromInt(p, ctxt, Boolean.TYPE));
         case JsonTokenId.ID_TRUE: // usually caller should have handled but:
             return true;
         case JsonTokenId.ID_FALSE:

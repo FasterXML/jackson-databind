@@ -576,9 +576,9 @@ public class JacksonAnnotationIntrospector
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
             AnnotatedMember am, JavaType baseType)
     {
-        /* As per definition of @JsonTypeInfo, should only apply to contents of container
-         * (collection, map) types, not container types themselves:
-         */
+        // As per definition of @JsonTypeInfo, should only apply to contents of container
+        // (collection, map) types, not container types themselves:
+
         // 17-Apr-2016, tatu: For 2.7.4 make sure ReferenceType also included
         if (baseType.isContainerType() || baseType.isReferenceType()) {
             return null;
@@ -591,9 +591,8 @@ public class JacksonAnnotationIntrospector
     public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
             AnnotatedMember am, JavaType containerType)
     {
-        /* First: let's ensure property is a container type: caller should have
-         * verified but just to be sure
-         */
+        // First: let's ensure property is a container type: caller should have
+        // verified but just to be sure
         if (containerType.getContentType() == null) {
             throw new IllegalArgumentException("Must call method with a container or reference type (got "+containerType+")");
         }

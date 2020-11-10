@@ -1,12 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -16,6 +11,9 @@ import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import java.io.IOException;
+import java.util.*;
+import java.util.Objects;
 
 /**
  * Basic serializer that can take JSON "Array" structure and
@@ -196,7 +194,7 @@ _containerType,
             valueTypeDeser = valueTypeDeser.forProperty(property);
         }
         NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
-        if ((unwrapSingle != _unwrapSingle)
+        if ((!Objects.equals(unwrapSingle, _unwrapSingle))
                 || (nuller != _nullProvider)
                 || (delegateDeser != _delegateDeserializer)
                 || (valueDeser != _valueDeserializer)

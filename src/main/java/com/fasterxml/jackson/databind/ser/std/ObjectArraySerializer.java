@@ -1,11 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -15,6 +11,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Generic serializer for Object arrays (<code>Object[]</code>).
@@ -109,7 +107,7 @@ public class ObjectArraySerializer
     public ObjectArraySerializer withResolved(BeanProperty prop,
             TypeSerializer vts, JsonSerializer<?> ser, Boolean unwrapSingle) {
         if ((_property == prop) && (ser == _elementSerializer)
-                && (_valueTypeSerializer == vts) && (_unwrapSingle == unwrapSingle)) {
+                && (_valueTypeSerializer == vts) && (Objects.equals(_unwrapSingle, unwrapSingle))) {
             return this;
         }
         return new ObjectArraySerializer(this, prop, vts, ser, unwrapSingle);

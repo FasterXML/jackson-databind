@@ -1,10 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
@@ -16,6 +12,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Objects;
 
 /**
  * Base class for serializers that will output contents as JSON
@@ -210,7 +209,7 @@ public abstract class AsArraySerializerBase<T>
         if ((ser != _elementSerializer)
                 || (property != _property)
                 || (_valueTypeSerializer != typeSer)
-                || (_unwrapSingle != unwrapSingle)) {
+                || (!Objects.equals(_unwrapSingle, unwrapSingle))) {
             return withResolved(property, typeSer, ser, unwrapSingle);
         }
         return this;

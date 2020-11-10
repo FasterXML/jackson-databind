@@ -1,11 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -18,6 +14,8 @@ import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
+import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -136,7 +134,7 @@ public class EnumDeserializer
      * @since 2.9
      */
     public EnumDeserializer withResolved(Boolean caseInsensitive) {
-        if (_caseInsensitive == caseInsensitive) {
+        if (Objects.equals(_caseInsensitive, caseInsensitive)) {
             return this;
         }
         return new EnumDeserializer(this, caseInsensitive);

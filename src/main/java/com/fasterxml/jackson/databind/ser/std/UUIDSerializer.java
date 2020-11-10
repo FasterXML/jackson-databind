@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
@@ -10,6 +7,9 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Specialized {@link JsonSerializer} to output {@link java.util.UUID}s.
@@ -72,7 +72,7 @@ public class UUIDSerializer
             }
             // otherwise leave as `null` meaning about same as NATURAL
         }
-        if (asBinary != _asBinary) {
+        if (!Objects.equals(asBinary, _asBinary)) {
             return new UUIDSerializer(asBinary);
         }
         return this;

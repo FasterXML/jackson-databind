@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
+import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Intermediate base class for serializers used for various
@@ -98,7 +98,7 @@ public abstract class ArraySerializerBase<T>
             JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
             if (format != null) {
                 unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
-                if (unwrapSingle != _unwrapSingle) {
+                if (!Objects.equals(unwrapSingle, _unwrapSingle)) {
                     return _withResolved(property, unwrapSingle);
                 }
             }

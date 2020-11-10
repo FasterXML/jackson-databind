@@ -248,7 +248,7 @@ public class DataFormatReaders
     /**
      * We need sub-class here as well, to be able to access efficiently.
      */
-    protected class AccessorForReader extends InputAccessor.Std
+    protected static class AccessorForReader extends InputAccessor.Std
     {
         public AccessorForReader(InputStream in, byte[] buffer) {
             super(in, buffer);

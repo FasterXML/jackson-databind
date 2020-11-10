@@ -11,8 +11,8 @@ public class Java9ListsTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .activateDefaultTypingAsProperty(
-                 new NoCheckSubTypeValidator(),
-                 ObjectMapper.DefaultTyping.NON_FINAL,
+                    NoCheckSubTypeValidator.instance,
+                    DefaultTyping.NON_FINAL,
                  "@class"
             ).build();
 

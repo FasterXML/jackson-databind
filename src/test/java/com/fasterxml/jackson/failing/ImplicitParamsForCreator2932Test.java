@@ -1,12 +1,13 @@
-package com.fasterxml.jackson.databind.deser.creators;
+package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ImplicitParamsForCreatorTest extends BaseMapTest
+public class ImplicitParamsForCreator2932Test extends BaseMapTest
 {
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
@@ -21,14 +22,16 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
         }
     }
 
-    static class XY {
-        protected int x, y;
+    // [databind#2932]
+    static class Bean2932
+    {
+        int _a, _b;
 
-        // annotation should NOT be needed with 2.6 any more (except for single-arg case)
-        //@com.fasterxml.jackson.annotation.JsonCreator
-        public XY(int x, int y) {
-            this.x = x;
-            this.y = y;
+//        @JsonCreator
+        public Bean2932(/*@com.fasterxml.jackson.annotation.JsonProperty("paramName0")*/
+                @JsonDeserialize() int a, int b) {
+            _a = a;
+            _b = b;
         }
     }
 
@@ -43,11 +46,13 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
             .annotationIntrospector(new MyParamIntrospector())
             .build();
 
-    public void testNonSingleArgCreator() throws Exception
+    // [databind#2932]
+    public void testJsonCreatorWithOtherAnnotations() throws Exception
     {
-        XY value = MAPPER.readValue(aposToQuotes("{'paramName0':1,'paramName1':2}"), XY.class);
-        assertNotNull(value);
-        assertEquals(1, value.x);
-        assertEquals(2, value.y);
+        Bean2932 bean = MAPPER.readValue(a2q("{'paramName0':1,'paramName1':2}"),
+                Bean2932.class);
+        assertNotNull(bean);
+        assertEquals(1, bean._a);
+        assertEquals(2, bean._b);
     }
 }

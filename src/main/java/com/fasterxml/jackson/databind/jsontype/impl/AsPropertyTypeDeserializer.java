@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * {@link As#WRAPPER_ARRAY} works.
  * Latter is used if JSON representation is polymorphic
  */
+@SuppressWarnings("resource")
 public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
     private static final long serialVersionUID = 1L;
@@ -68,7 +69,6 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * for may be anywhere...
      */
     @Override
-    @SuppressWarnings("resource")
     public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
@@ -113,7 +113,6 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         return _deserializeTypedUsingDefaultImpl(p, ctxt, tb);
     }
 
-    @SuppressWarnings("resource")
     protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
             TokenBuffer tb, String typeId) throws IOException {
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
@@ -137,7 +136,6 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }
 
     // off-lined to keep main method lean and mean...
-    @SuppressWarnings("resource")
     protected Object _deserializeTypedUsingDefaultImpl(JsonParser p,
             DeserializationContext ctxt, TokenBuffer tb) throws IOException
     {

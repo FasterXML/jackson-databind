@@ -1,17 +1,20 @@
 package com.fasterxml.jackson.databind.ser.std;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.Objects;
 
 /**
  * Intermediate base class for Lists, Collections and Arrays

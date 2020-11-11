@@ -38,6 +38,8 @@ Project: jackson-databind
 #2928: `AnnotatedCreatorCollector` should avoid processing synthetic static
   (factory) methods
  (contributed by Carter K)
+#2931: Add errorprone static analysis profile to detect bugs at build time
+ (contributed by Carter K)
 - Full "LICENSE" included in jar for easier access by compliancy tools
 
 2.12.0-rc1 (12-Oct-2020)

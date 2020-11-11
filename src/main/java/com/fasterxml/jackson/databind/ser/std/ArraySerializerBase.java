@@ -1,13 +1,16 @@
 package com.fasterxml.jackson.databind.ser.std;
 
+import java.io.IOException;
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
-import java.io.IOException;
-import java.util.Objects;
 
 /**
  * Intermediate base class for serializers used for various

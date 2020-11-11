@@ -1,7 +1,12 @@
 package com.fasterxml.jackson.databind.ser.std;
 
+import java.io.IOException;
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -11,8 +16,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
-import java.io.IOException;
-import java.util.Objects;
 
 /**
  * Generic serializer for Object arrays (<code>Object[]</code>).

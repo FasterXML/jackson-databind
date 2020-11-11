@@ -144,7 +144,7 @@ public class TokenBuffer
         _hasNativeTypeIds = hasNativeIds;
         _hasNativeObjectIds = hasNativeIds;
 
-        _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
+        _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
     }
 
     /**
@@ -174,7 +174,7 @@ public class TokenBuffer
         _appendAt = 0;
         _hasNativeTypeIds = p.canReadTypeId();
         _hasNativeObjectIds = p.canReadObjectId();
-        _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
+        _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
         _forceBigDecimal = (ctxt == null) ? false
                 : ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
     }
@@ -363,7 +363,7 @@ public class TokenBuffer
         if (!_hasNativeObjectIds) {
             _hasNativeObjectIds = other.canWriteObjectId();
         }
-        _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
+        _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
         
         JsonParser p = other.asParser();
         while (p.nextToken() != null) {
@@ -1465,7 +1465,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
-            _hasNativeIds = (hasNativeTypeIds | hasNativeObjectIds);
+            _hasNativeIds = (hasNativeTypeIds || hasNativeObjectIds);
         }
 
         public void setLocation(JsonLocation l) {

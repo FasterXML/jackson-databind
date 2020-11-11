@@ -2,8 +2,10 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
@@ -93,7 +95,7 @@ public class EnumSetDeserializer
      */
     public EnumSetDeserializer withResolved(JsonDeserializer<?> deser, NullValueProvider nuller,
             Boolean unwrapSingle) {
-        if ((_unwrapSingle == unwrapSingle) && (_enumDeserializer == deser) && (_nullProvider == deser)) {
+        if ((Objects.equals(_unwrapSingle, unwrapSingle)) && (_enumDeserializer == deser) && (_nullProvider == deser)) {
             return this;
         }
         return new EnumSetDeserializer(this, deser, nuller, unwrapSingle);

@@ -33,7 +33,15 @@ public class ClassUtilTest extends BaseMapTest
 
     interface SubInt extends BaseInt { }
 
-    enum TestEnum { A; }
+    enum TestEnum {
+        A,
+        B {
+            @Override
+            public String toString() {
+                return "TestEnum{B}";
+            }
+        }
+    }
 
     abstract class InnerNonStatic { }
 
@@ -203,6 +211,7 @@ public class ClassUtilTest extends BaseMapTest
     public void testFindEnumType()
     {
         assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.A));
+        assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.B));
         // different codepaths for empty and non-empty EnumSets...
         assertEquals(TestEnum.class, ClassUtil.findEnumType(EnumSet.allOf(TestEnum.class)));
         assertEquals(TestEnum.class, ClassUtil.findEnumType(EnumSet.noneOf(TestEnum.class)));

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -99,7 +100,7 @@ public class ObjectArrayDeserializer
     public ObjectArrayDeserializer withResolved(TypeDeserializer elemTypeDeser,
             JsonDeserializer<?> elemDeser, NullValueProvider nuller, Boolean unwrapSingle)
     {
-        if ((unwrapSingle == _unwrapSingle) && (nuller == _nullProvider)
+        if ((Objects.equals(unwrapSingle, _unwrapSingle)) && (nuller == _nullProvider)
                 && (elemDeser == _elementDeserializer)
                 && (elemTypeDeser == _elementTypeDeserializer)) {
             return this;

@@ -805,7 +805,7 @@ Jakub Skierbiszewski (jskierbi@github)
     `@JsonCreator` + `@JsonProperty` for same property name
    (2.9.6)
 
-Carter Kozak (cakofony@github)
+Carter Kozak (carterkozak@github)
   * Reported #2016: Delegating JsonCreator disregards JsonDeserialize info
    (2.9.6)
   * Contributed #2895: Improve static factory method generic type resolution logic
@@ -813,6 +813,8 @@ Carter Kozak (cakofony@github)
    (2.12.0)
   * Contributed #2928: `AnnotatedCreatorCollector` should avoid processing synthetic static
     (factory) methods
+   (2.12.0)
+  * Contributed #2931: Add errorprone static analysis profile to detect bugs at build time
    (2.12.0)
 
 Reinhard Prechtl (dnno@github)

@@ -874,15 +874,10 @@ public final class ClassUtil
      * class of enum instance (for "simple" enumerations), or its
      * superclass (for enums with instance fields or methods)
      */
-    @SuppressWarnings("unchecked")
     public static Class<? extends Enum<?>> findEnumType(Enum<?> en)
     {
         // enums with "body" are sub-classes of the formal type
-    	Class<?> ec = en.getClass();
-    	if (ec.getSuperclass() != Enum.class) {
-    	    ec = ec.getSuperclass();
-    	}
-    	return (Class<? extends Enum<?>>) ec;
+        return en.getDeclaringClass();
     }
 
     /**

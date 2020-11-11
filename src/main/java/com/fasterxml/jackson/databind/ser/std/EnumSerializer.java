@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -80,7 +82,7 @@ public class EnumSerializer
             Class<?> type = handledType();
             Boolean serializeAsIndex = _isShapeWrittenUsingIndex(type,
                     format, false, _serializeAsIndex);
-            if (serializeAsIndex != _serializeAsIndex) {
+            if (!Objects.equals(serializeAsIndex, _serializeAsIndex)) {
                 return new EnumSerializer(_values, serializeAsIndex);
             }
         }

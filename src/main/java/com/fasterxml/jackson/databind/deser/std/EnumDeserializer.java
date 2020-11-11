@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -94,7 +95,7 @@ public class EnumDeserializer
     }
 
     public EnumDeserializer withResolved(Boolean caseInsensitive) {
-        if (_caseInsensitive == caseInsensitive) {
+        if (Objects.equals(_caseInsensitive, caseInsensitive)) {
             return this;
         }
         return new EnumDeserializer(this, caseInsensitive);

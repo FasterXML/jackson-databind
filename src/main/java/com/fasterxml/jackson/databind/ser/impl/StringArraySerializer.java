@@ -1,14 +1,17 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.std.ArraySerializerBase;
@@ -109,7 +112,7 @@ public class StringArraySerializer
             ser = null;
         }
         // note: will never have TypeSerializer, because Strings are "natural" type
-        if ((ser == _elementSerializer) && (unwrapSingle == _unwrapSingle)) {
+        if ((ser == _elementSerializer) && (Objects.equals(unwrapSingle, _unwrapSingle))) {
             return this;
         }
         return new StringArraySerializer(this, property, ser, unwrapSingle);

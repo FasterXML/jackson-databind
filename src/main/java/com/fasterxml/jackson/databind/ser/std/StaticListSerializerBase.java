@@ -2,9 +2,12 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -73,7 +76,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {
-            if (unwrapSingle == _unwrapSingle) {
+            if (Objects.equals(unwrapSingle, _unwrapSingle)) {
                 return this;
             }
             return _withResolved(property, unwrapSingle);

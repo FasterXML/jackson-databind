@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -162,7 +164,7 @@ public abstract class AsArraySerializerBase<T>
         if ((ser != _elementSerializer)
                 || (property != _property)
                 || (_valueTypeSerializer != typeSer)
-                || (_unwrapSingle != unwrapSingle)) {
+                || (!Objects.equals(_unwrapSingle, unwrapSingle))) {
             return withResolved(property, typeSer, ser, unwrapSingle);
         }
         return this;

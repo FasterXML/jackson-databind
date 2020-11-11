@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -71,7 +72,7 @@ public class UUIDSerializer
             }
             // otherwise leave as `null` meaning about same as NATURAL
         }
-        if (asBinary != _asBinary) {
+        if (!Objects.equals(asBinary, _asBinary)) {
             return new UUIDSerializer(asBinary);
         }
         return this;

@@ -2,11 +2,10 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -189,7 +188,7 @@ _containerType,
             valueTypeDeser = valueTypeDeser.forProperty(property);
         }
         NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
-        if ((unwrapSingle != _unwrapSingle)
+        if ((!Objects.equals(unwrapSingle, _unwrapSingle))
                 || (nuller != _nullProvider)
                 || (delegateDeser != _delegateDeserializer)
                 || (valueDeser != _valueDeserializer)

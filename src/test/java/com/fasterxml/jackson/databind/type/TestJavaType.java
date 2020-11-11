@@ -183,6 +183,7 @@ public class TestJavaType
         assertFalse(enumSubT.getRawClass().isEnum());
     }
 
+    @SuppressWarnings("SelfComparison")
     public void testClassKey()
     {
         ClassKey key = new ClassKey(String.class);

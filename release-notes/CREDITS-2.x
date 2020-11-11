@@ -805,7 +805,7 @@ Jakub Skierbiszewski (jskierbi@github)
     `@JsonCreator` + `@JsonProperty` for same property name
    (2.9.6)
 
-Carter Kozak (cakofony@github)
+Carter Kozak (carterkozak@github)
   * Reported #2016: Delegating JsonCreator disregards JsonDeserialize info
    (2.9.6)
   * Contributed #2895: Improve static factory method generic type resolution logic

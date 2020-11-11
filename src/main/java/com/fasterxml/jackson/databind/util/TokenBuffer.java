@@ -161,7 +161,7 @@ public class TokenBuffer
         _hasNativeTypeIds = hasNativeIds;
         _hasNativeObjectIds = hasNativeIds;
 
-        _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
+        _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
     }
 
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)

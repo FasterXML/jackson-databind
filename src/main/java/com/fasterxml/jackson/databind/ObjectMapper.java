@@ -508,7 +508,7 @@ public class ObjectMapper
     /**********************************************************************
      */
 
-    public boolean isEnabled(JsonFactory.Feature f) {
+    public boolean isEnabled(TokenStreamFactory.Feature f) {
         return _streamFactory.isEnabled(f);
     }
 

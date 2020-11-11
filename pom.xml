@@ -280,6 +280,105 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- 10-Nov-2020, tatu: Added via [databind#2931] -->
+    <profile>
+      <id>errorprone</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <compilerArgs>
+                <arg>-XDcompilePolicy=simple</arg>
+                <arg>
+                  -Xplugin:ErrorProne
+                  <!--
+                  Disable all checks in test code. Bugs in tests can hide runtime failures,
+                  however these can be enabled later on. Many issues may require sub-optional
+                  code to reproduce failures.
+                  -->
+                  -XepExcludedPaths:.*/src/test/java/.*
+
+                  <!-- ############### -->
+                  <!-- UPGRADED CHECKS -->
+                  <!-- ############### -->
+
+                  <!-- Boxed primitive equality checks can be dangerous when presented with unexpected inputs -->
+                  -Xep:BoxedPrimitiveEquality:ERROR
+
+                  <!-- ############### -->
+                  <!-- DISABLED CHECKS -->
+                  <!-- ############### -->
+
+                  <!-- UnusedVariable is great at catching mistakes quickly, but
+                  requires a few suppressions to avoid noise. Deferring to avoid noise
+                  with the introduction of ErrorProne. -->
+                  -Xep:UnusedVariable:OFF
+                  <!--
+                  Disabled to avoid potential API changes. It's not clear if custom JsonNode types
+                  exist, and if any do implement equals without hashCode, it's likely they cause bugs.
+                  I plan to try fixing this separately.
+                  -->
+                  -Xep:EqualsHashCode:OFF
+                  <!-- Style: javadoc tag validation -->
+                  -Xep:MissingSummary:OFF
+                  -Xep:InvalidInlineTag:OFF
+                  -Xep:EmptyBlockTag:OFF
+                  -Xep:AlmostJavadoc:OFF
+                  -Xep:InvalidLink:OFF
+                  <!-- Style: low reward for enabling. -->
+                  -Xep:UnnecessaryParentheses:OFF
+                  <!-- Style: low signal -->
+                  -Xep:InconsistentCapitalization:OFF
+                  <!-- Style: requires specific comments when switch branches neither break nor return -->
+                  -Xep:FallThrough:OFF
+                  <!-- Style: disable noisy check for importing common names from nested classes -->
+                  -Xep:BadImport:OFF
+                  <!-- Style: requires a default case when not all cases are handled -->
+                  -Xep:MissingCasesInEnumSwitch:OFF
+                  <!-- Style: avoid clashes with java.lang. Possibly worth enabling, but this can be done later -->
+                  -Xep:JavaLangClash:OFF
+                  <!-- These can likely be updated from protected to private, but it's relatively low signal -->
+                  -Xep:ProtectedMembersInFinalClass:OFF
+                  <!-- These can likely be updated from public to protected, but it's relatively low signal -->
+                  -Xep:PublicConstructorForAbstractClass:OFF
+                  <!-- jackson-databind doesn't have a logger, in many cases there's no way to pre-validate inputs -->
+                  -Xep:EmptyCatch:OFF
+                  -Xep:EqualsGetClass:OFF
+                  <!-- Noisy check that's largely unnecessary unless the result is mutated.
+                  Returning only immutable collections requires additional overhead and
+                  impact must be carefully considered. -->
+                  -Xep:MixedMutabilityReturnType:OFF
+                  <!-- Noisy in jackson and libraries which must interact with generics -->
+                  -Xep:TypeParameterUnusedInFormals:OFF
+                  <!-- Check is noisy around code that's meant to handle types that are considered obsolete -->
+                  -Xep:JdkObsolete:OFF
+                  <!-- Avoid noise from tests -->
+                  -Xep:JUnit3FloatingPointComparisonWithoutDelta:OFF
+                  <!-- Disable the StringSplitter check because it requires a guava dependency -->
+                  -Xep:StringSplitter:OFF
+                  <!-- Disable checks which require custom annotations -->
+                  -Xep:AnnotateFormatMethod:OFF
+                  -Xep:GuardedBy:OFF
+                  <!-- This check is generally high signal, however it is noisy in
+                  low level projects which implement caches and interning. -->
+                  -Xep:ReferenceEquality:OFF
+                </arg>
+              </compilerArgs>
+              <annotationProcessorPaths>
+                <path>
+                  <groupId>com.google.errorprone</groupId>
+                  <artifactId>error_prone_core</artifactId>
+                  <version>2.4.0</version>
+                </path>
+              </annotationProcessorPaths>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
 </project>

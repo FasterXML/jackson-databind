@@ -186,7 +186,7 @@ public class UntypedDeserializationTest
         // and that's all folks!
     }
 
-    @SuppressWarnings("unlikely-arg-type")
+    @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
     public void testUntypedMap() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object.class

@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-import java.util.Collection;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -13,6 +10,9 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Specifically optimized version for {@link java.util.Collection}s
@@ -77,7 +77,7 @@ public final class StringCollectionDeserializer
             JsonDeserializer<?> valueDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
-        if ((_unwrapSingle == unwrapSingle) && (_nullProvider == nuller)
+        if ((Objects.equals(_unwrapSingle, unwrapSingle)) && (_nullProvider == nuller)
                 && (_valueDeserializer == valueDeser) && (_delegateDeserializer == delegateDeser)) {
             return this;
         }

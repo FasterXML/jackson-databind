@@ -112,7 +112,7 @@ public final class CompactStringObjectMap
             return null;
         }
         int hashSize = _hashMask+1;
-        int ix = hashSize + (slot>>1) << 1;
+        int ix = (hashSize + (slot>>1)) << 1;
         match = _hashArea[ix];
         if (key.equals(match)) {
             return _hashArea[ix+1];

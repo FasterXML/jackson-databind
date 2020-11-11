@@ -1,9 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
@@ -18,6 +14,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Container for deserializers used for instantiating "primitive arrays",
@@ -118,7 +118,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 nuller = NullsFailProvider.constructForProperty(property, property.getType().getContentType());
             }
         }
-        if ((unwrapSingle == _unwrapSingle) && (nuller == _nuller)) {
+        if ((Objects.equals(unwrapSingle, _unwrapSingle)) && (nuller == _nuller)) {
             return this;
         }
         return withResolved(nuller, unwrapSingle);

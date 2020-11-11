@@ -116,7 +116,7 @@ final class MethodGenericTypeResolver
                             // No way to satisfy the requested type.
                             return null;
                         }
-                        if (existingIsSubtype ^ newIsSubtype && newIsSubtype) {
+                        if ((existingIsSubtype ^ newIsSubtype) && newIsSubtype) {
                             // If the new type is more specific than the existing type, the new type replaces the old.
                             types.set(existingIndex, bindTarget);
                         }

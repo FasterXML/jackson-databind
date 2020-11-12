@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
 {
-    interface Vehicle {
-    }
+    interface Vehicle { }
 
     static class Car implements Vehicle {
         public int wheels;
@@ -27,7 +26,9 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
         public String name;
         public VehicleType vehicleType;
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "vehicleType")
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "vehicleType", defaultImpl = Car.class
+        )
         @JsonTypeIdResolver(VehicleTypeResolver.class)
         public T vehicle;
     }
@@ -44,7 +45,6 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
     }
 
     static class VehicleTypeResolver extends TypeIdResolverBase {
-
         JavaType superType;
 
         @Override
@@ -54,23 +54,25 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
 
         @Override
         public String idFromValue(DatabindContext ctxt, Object value) {
-            return null;
+            return idFromValueAndType(ctxt, value, value.getClass());
         }
 
         @Override
         public String idFromValueAndType(DatabindContext ctxt,
                 Object value, Class<?> suggestedType) {
-            return null;
+            // only to be called for default type but...
+            return suggestedType.getSimpleName().toUpperCase();
         }
 
         @Override
         public JavaType typeFromId(DatabindContext context, String id) throws IOException {
+            Class<? extends Vehicle> vehicleClass;
             try {
-                Class<? extends Vehicle> vehicleClass = VehicleType.valueOf(id).vehicleClass;
-                return context.constructSpecializedType(superType, vehicleClass);
+                vehicleClass = VehicleType.valueOf(id).vehicleClass;
             } catch (IllegalArgumentException e) {
-                return null;
+                throw new IOException(e.getMessage(), e);
             }
+            return context.constructSpecializedType(superType, vehicleClass);
         }
 
         @Override
@@ -91,7 +93,8 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
         Person<?> person = MAPPER.readValue(json, Person.class);
         assertEquals("kamil", person.name);
         assertNull(person.vehicleType);
-        assertNull(person.vehicle);        
+        assertNotNull(person.vehicle);
+        assertEquals(Car.class, person.vehicle.getClass());
     }
 
     // Passing case for comparison

@@ -143,9 +143,18 @@ public class AsArrayTypeDeserializer
             p.nextToken();
             return result;
         }
-        if (_defaultImpl != null) {
+
+        // 11-Nov-2020, tatu: I don't think this branch ever gets executed by
+        //    unit tests so do not think it would actually work; commented out
+        //    in 2.12.0
+/*        if (_defaultImpl != null) {
+            p.nextToken();
             return _idResolver.idFromBaseType(ctxt);
         }
+        */
+
+        // 11-Nov-202, tatu: points to wrong place since we don't pass JsonParser
+        //   we actually use (which is usually TokenBuffer created)... should fix
         ctxt.reportWrongTokenException(baseType(), JsonToken.VALUE_STRING,
                 "need JSON String that contains type id (for subtype of %s)", baseTypeName());
         return null;

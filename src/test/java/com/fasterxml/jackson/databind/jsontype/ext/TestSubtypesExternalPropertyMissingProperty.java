@@ -88,6 +88,8 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
         }
     }
 
+    private final ObjectReader READER = newJsonMapper().reader();
+
     /*
     /**********************************************************
     /* Mock data
@@ -102,7 +104,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
     private static final String orangeBoxMissingJson = "{\"type\":\"orange\"}}";
 
     private static final Apple apple = new Apple("Apple", 16);
-    private static Box appleBox = new Box("apple", apple);
+    private static final Box appleBox = new Box("apple", apple);
     private static final String appleBoxJson = "{\"type\":\"apple\",\"fruit\":{\"name\":\"Apple\",\"seedCount\":16}}";
     private static final String appleBoxNullJson = "{\"type\":\"apple\",\"fruit\":null}";
     private static final String appleBoxEmptyJson = "{\"type\":\"apple\",\"fruit\":{}}";
@@ -123,18 +125,13 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
      */
     @Test
     public void testDeserializationPresent() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkOrangeBox(mapper);
-        checkAppleBox(mapper);
+        ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkOrangeBox(r);
+        checkAppleBox(r);
 
-        mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-
-        checkOrangeBox(mapper);
-        checkAppleBox(mapper);
+        r = READER.with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkOrangeBox(r);
+        checkAppleBox(r);
     }
 
     /**
@@ -142,17 +139,13 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
      */
     @Test
     public void testDeserializationNull() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkOrangeBoxNull(mapper, orangeBoxNullJson);
-        checkAppleBoxNull(mapper, appleBoxNullJson);
+        ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkOrangeBoxNull(r, orangeBoxNullJson);
+        checkAppleBoxNull(r, appleBoxNullJson);
 
-        mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkOrangeBoxNull(mapper, orangeBoxNullJson);
-        checkAppleBoxNull(mapper, appleBoxNullJson);
+        r = READER.with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkOrangeBoxNull(r, orangeBoxNullJson);
+        checkAppleBoxNull(r, appleBoxNullJson);
     }
 
     /**
@@ -160,17 +153,13 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
      */
     @Test
     public void testDeserializationEmpty() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkOrangeBoxEmpty(mapper, orangeBoxEmptyJson);
-        checkAppleBoxEmpty(mapper, appleBoxEmptyJson);
+        ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkOrangeBoxEmpty(r, orangeBoxEmptyJson);
+        checkAppleBoxEmpty(r, appleBoxEmptyJson);
 
-        mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkOrangeBoxEmpty(mapper, orangeBoxEmptyJson);
-        checkAppleBoxEmpty(mapper, appleBoxEmptyJson);
+        r = READER.with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkOrangeBoxEmpty(r, orangeBoxEmptyJson);
+        checkAppleBoxEmpty(r, appleBoxEmptyJson);
     }
 
     /**
@@ -178,17 +167,13 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
      */
     @Test
     public void testDeserializationMissing() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkOrangeBoxNull(mapper, orangeBoxMissingJson);
-        checkAppleBoxNull(mapper, appleBoxMissingJson);
+        ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkOrangeBoxNull(r, orangeBoxMissingJson);
+        checkAppleBoxNull(r, appleBoxMissingJson);
 
-        mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkBoxJsonMappingException(mapper, orangeBoxMissingJson);
-        checkBoxJsonMappingException(mapper, appleBoxMissingJson);
+        r = READER.with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkBoxJsonMappingException(r, orangeBoxMissingJson);
+        checkBoxJsonMappingException(r, appleBoxMissingJson);
     }
 
     /**
@@ -196,21 +181,17 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
      */
     @Test
     public void testDeserializationMissingRequired() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkReqBoxJsonMappingException(mapper, orangeBoxMissingJson);
-        checkReqBoxJsonMappingException(mapper, appleBoxMissingJson);
+        ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkReqBoxJsonMappingException(r, orangeBoxMissingJson);
+        checkReqBoxJsonMappingException(r, appleBoxMissingJson);
 
-        mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
-                .build();
-        checkReqBoxJsonMappingException(mapper, orangeBoxMissingJson);
-        checkReqBoxJsonMappingException(mapper, appleBoxMissingJson);
+        r = READER.with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
+        checkReqBoxJsonMappingException(r, orangeBoxMissingJson);
+        checkReqBoxJsonMappingException(r, appleBoxMissingJson);
     }
 
-    private void checkOrangeBox(ObjectMapper mapper) throws Exception {
-        Box deserOrangeBox = mapper.readValue(orangeBoxJson, Box.class);
+    private void checkOrangeBox(ObjectReader r) throws Exception {
+        Box deserOrangeBox = r.forType(Box.class).readValue(orangeBoxJson);
         assertEquals(orangeBox.type, deserOrangeBox.type);
 
         Fruit deserOrange = deserOrangeBox.fruit;
@@ -219,8 +200,8 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
         assertEquals(orange.color, ((Orange) deserOrange).color);
     }
 
-    private void checkAppleBox(ObjectMapper mapper) throws Exception {
-        Box deserAppleBox = mapper.readValue(appleBoxJson, Box.class);
+    private void checkAppleBox(ObjectReader r) throws Exception {
+        Box deserAppleBox = r.forType(Box.class).readValue(appleBoxJson);
         assertEquals(appleBox.type, deserAppleBox.type);
 
         Fruit deserApple = deserAppleBox.fruit;
@@ -229,8 +210,8 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
         assertEquals(apple.seedCount, ((Apple) deserApple).seedCount);
     }
 
-    private void checkOrangeBoxEmpty(ObjectMapper mapper, String json) throws Exception {
-        Box deserOrangeBox = mapper.readValue(json, Box.class);
+    private void checkOrangeBoxEmpty(ObjectReader r, String json) throws Exception {
+        Box deserOrangeBox = r.forType(Box.class).readValue(json);
         assertEquals(orangeBox.type, deserOrangeBox.type);
 
         Fruit deserOrange = deserOrangeBox.fruit;
@@ -239,8 +220,8 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
         assertNull(((Orange) deserOrange).color);
     }
 
-    private void checkAppleBoxEmpty(ObjectMapper mapper, String json) throws Exception {
-        Box deserAppleBox = mapper.readValue(json, Box.class);
+    private void checkAppleBoxEmpty(ObjectReader r, String json) throws Exception {
+        Box deserAppleBox = r.forType(Box.class).readValue(json);
         assertEquals(appleBox.type, deserAppleBox.type);
 
         Fruit deserApple = deserAppleBox.fruit;
@@ -249,33 +230,33 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
         assertEquals(0, ((Apple) deserApple).seedCount);
     }
 
-    private void checkOrangeBoxNull(ObjectMapper mapper, String json) throws Exception {
-        Box deserOrangeBox = mapper.readValue(json, Box.class);
+    private void checkOrangeBoxNull(ObjectReader r, String json) throws Exception {
+        Box deserOrangeBox = r.forType(Box.class).readValue(json);
         assertEquals(orangeBox.type, deserOrangeBox.type);
         assertNull(deserOrangeBox.fruit);
     }
 
-    private void checkAppleBoxNull(ObjectMapper mapper, String json) throws Exception {
-        Box deserAppleBox = mapper.readValue(json, Box.class);
+    private void checkAppleBoxNull(ObjectReader r, String json) throws Exception {
+        Box deserAppleBox = r.forType(Box.class).readValue(json);
         assertEquals(appleBox.type, deserAppleBox.type);
         assertNull(deserAppleBox.fruit);
     }
 
-    private void checkBoxJsonMappingException(ObjectMapper mapper, String json) throws Exception {
+    private void checkBoxJsonMappingException(ObjectReader r, String json) throws Exception {
         try {
-            mapper.readValue(json, Box.class);
+            r.forType(Box.class).readValue(json);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+            verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
 
-    private void checkReqBoxJsonMappingException(ObjectMapper mapper, String json) throws Exception {
+    private void checkReqBoxJsonMappingException(ObjectReader r, String json) throws Exception {
         try {
-            mapper.readValue(json, ReqBox.class);
+            r.forType(ReqBox.class).readValue(json, ReqBox.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+            verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
 }    

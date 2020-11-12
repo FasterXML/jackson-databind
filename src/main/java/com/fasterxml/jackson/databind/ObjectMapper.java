@@ -3227,7 +3227,7 @@ public class ObjectMapper
     @Override
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws IllegalArgumentException,
-            JsonProcessingException // is NOT actually thrown but retained as per #2878
+            JsonProcessingException
     {
         if (n == null) {
             return null;
@@ -3255,6 +3255,8 @@ public class ObjectMapper
                 }
             }
             return readValue(treeAsTokens(n), valueType);
+        } catch (JsonProcessingException e) {
+            throw e;
         } catch (IOException e) { // should not occur, no real i/o...
             throw new IllegalArgumentException(e.getMessage(), e);
         }

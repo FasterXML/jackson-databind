@@ -295,6 +295,7 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
+
     /*
     /**********************************************************
     /* Test methods

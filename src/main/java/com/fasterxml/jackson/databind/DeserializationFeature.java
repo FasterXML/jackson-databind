@@ -266,6 +266,12 @@ public enum DeserializationFeature implements ConfigFeature
      * However, sometimes calling application may just want "raw"
      * unchecked exceptions passed as is.
      *<p>
+     * NOTE: most of the time exceptions that may or may not be wrapped are of
+     * type {@link RuntimeException}: as mentioned earlier, various
+     * {@link java.io.IOException}s (and in particular
+     * {@link com.fasterxml.jackson.core.JsonProcessingException}s) will
+     * always be passed as-is.
+     *<p>
      * Feature is enabled by default.
      */
     WRAP_EXCEPTIONS(true),

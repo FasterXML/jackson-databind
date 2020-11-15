@@ -1062,7 +1062,12 @@ public class JacksonAnnotationIntrospector
         }
         JsonProperty pann = _findAnnotation(a, JsonProperty.class);
         if (pann != null) {
-            return PropertyName.construct(pann.value());
+            // 14-Nov-2020, tatu: "namespace" added in 2.12
+            String ns = pann.namespace();
+            if (ns != null && ns.isEmpty()) {
+                ns = null;
+            }
+            return PropertyName.construct(pann.value(), ns);
         }
         if (useDefault || _hasOneOf(a, ANNOTATIONS_TO_INFER_SER)) {
             return PropertyName.USE_DEFAULT;
@@ -1310,7 +1315,12 @@ public class JacksonAnnotationIntrospector
         }
         JsonProperty pann = _findAnnotation(a, JsonProperty.class);
         if (pann != null) {
-            return PropertyName.construct(pann.value());
+            // 14-Nov-2020, tatu: "namespace" added in 2.12
+            String ns = pann.namespace();
+            if (ns != null && ns.isEmpty()) {
+                ns = null;
+            }
+            return PropertyName.construct(pann.value(), ns);
         }
         if (useDefault || _hasOneOf(a, ANNOTATIONS_TO_INFER_DESER)) {
             return PropertyName.USE_DEFAULT;

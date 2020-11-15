@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.0-rc2 (not yet released)
+2.12.0-rc2 (15-Nov-2020)
 
 #1458: `@JsonAnyGetter` should be allowed on a field
  (contributed by Dominik K)

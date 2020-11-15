@@ -263,7 +263,7 @@ public class DefaultAccessorNamingStrategy
      *  </li>
      * <li>Is-getter (for Boolean values): "is"
      *  </li>
-     * <ul>
+     *</ul>
      * and no additional restrictions on base names accepted (configurable for
      * limits using {@link BaseNameValidator}), allowing names like
      * "get_value()" and "getvalue()".

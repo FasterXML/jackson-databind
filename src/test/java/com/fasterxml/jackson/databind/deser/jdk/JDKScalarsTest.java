@@ -403,12 +403,35 @@ public class JDKScalarsTest
         double value = Double.POSITIVE_INFINITY;
         DoubleBean result = MAPPER.readValue("{\"v\":\""+value+"\"}", DoubleBean.class);
         assertEquals(value, result._v);
-        
+
         // should work with arrays too..
         double[] array = MAPPER.readValue("[ \"Infinity\" ]", double[].class);
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(Double.POSITIVE_INFINITY, array[0]);
+    }
+
+    public void testDoubleSpecialValuesWithCoercionDisabled() throws Exception
+    {
+        ObjectMapper mapper = MAPPER.copy()
+                .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS);
+        // first, simple case:
+        double value = Double.POSITIVE_INFINITY;
+        DoubleBean result = mapper.readValue("{\"v\":\""+value+"\"}", DoubleBean.class);
+        assertEquals(value, result._v);
+
+        // should work with arrays too..
+        double[] array = mapper.readValue("[ \"Infinity\" ]", double[].class);
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(Double.POSITIVE_INFINITY, array[0]);
+
+        try {
+            mapper.readValue("{\"v\":\"1.2\"}", DoubleBean.class);
+            fail("Expected a MismatchedInputException: string to double coercion should fail");
+        } catch (MismatchedInputException e) {
+            // expected
+        }
     }
     
     public void testFloatPrimitiveNonNumeric() throws Exception

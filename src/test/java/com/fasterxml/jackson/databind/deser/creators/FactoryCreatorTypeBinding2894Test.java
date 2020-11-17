@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.creators.broken;
+package com.fasterxml.jackson.databind.deser.creators;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.*;
 //
 // Work for 2.12 should find better solution than this.
 
-public class Pre212StaticFactoryImplicitBindingTest extends BaseMapTest
+public class FactoryCreatorTypeBinding2894Test extends BaseMapTest
 {
     // [databind#2894]
     static class Wrapper<T> {

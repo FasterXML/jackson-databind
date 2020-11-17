@@ -135,20 +135,20 @@ public class TestTypedContainerSerialization
 
     public void testIssue508() throws Exception
     {
-            List<List<Issue508A>> l = new ArrayList<List<Issue508A>>();
-            List<Issue508A> l2 = new ArrayList<Issue508A>();
-            l2.add(new Issue508A());
-            l.add(l2);
-            TypeReference<List<List<Issue508A>>> typeRef = new TypeReference<List<List<Issue508A>>>() {};
-            String json = mapper.writerFor(typeRef).writeValueAsString(l);
+        List<List<Issue508A>> l = new ArrayList<List<Issue508A>>();
+        List<Issue508A> l2 = new ArrayList<Issue508A>();
+        l2.add(new Issue508A());
+        l.add(l2);
+        TypeReference<List<List<Issue508A>>> typeRef = new TypeReference<List<List<Issue508A>>>() {};
+        String json = mapper.writerFor(typeRef).writeValueAsString(l);
 
-            List<?> output = mapper.readValue(json, typeRef);
-            assertEquals(1, output.size());
-            Object ob = output.get(0);
-            assertTrue(ob instanceof List<?>);
-            List<?> list2 = (List<?>) ob;
-            assertEquals(1, list2.size());
-            ob = list2.get(0);
-            assertSame(Issue508A.class, ob.getClass());
+        List<?> output = mapper.readValue(json, typeRef);
+        assertEquals(1, output.size());
+        Object ob = output.get(0);
+        assertTrue(ob instanceof List<?>);
+        List<?> list2 = (List<?>) ob;
+        assertEquals(1, list2.size());
+        ob = list2.get(0);
+        assertSame(Issue508A.class, ob.getClass());
     }
 }

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 
-public class TestCreatorNullValue extends BaseMapTest
+public class NullValueViaCreatorTest extends BaseMapTest
 {
     protected static class Container {
         Contained<String> contained;

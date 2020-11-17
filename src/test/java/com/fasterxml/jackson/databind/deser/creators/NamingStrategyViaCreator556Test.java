@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class TestCreatorWithNamingStrategy556
+public class NamingStrategyViaCreator556Test
     extends BaseMapTest
 {
     static class RenamingCtorBean

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsontype;
+package com.fasterxml.jackson.databind.jsontype.jdk;
 
 import java.util.*;
 
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class TestTypedContainerSerialization
+public class TypedContainerSerTest
 	extends BaseMapTest
 {
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")

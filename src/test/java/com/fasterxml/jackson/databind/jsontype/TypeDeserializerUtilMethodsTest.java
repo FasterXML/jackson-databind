@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 
-public class TypeDeserializerTest extends BaseMapTest
+public class TypeDeserializerUtilMethodsTest extends BaseMapTest
 {
     public void testUtilMethods() throws Exception
     {

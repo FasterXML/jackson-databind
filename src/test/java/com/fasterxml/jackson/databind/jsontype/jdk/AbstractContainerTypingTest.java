@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.*;
  * For [databind#292]
  */
 @SuppressWarnings("serial")
-public class TestAbstractContainers extends BaseMapTest
+public class AbstractContainerTypingTest extends BaseMapTest
 {
     // Polymorphic abstract Map type, wrapper
     

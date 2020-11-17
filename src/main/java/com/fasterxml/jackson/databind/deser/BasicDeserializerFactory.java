@@ -1144,7 +1144,11 @@ candidate.creator());
             final DeserializationConfig config = ctxt.getConfig();
             PropertyName name = intr.findNameForDeserialization(config, param);
             if (name != null) {
-                return name;
+                // 16-Nov-2020, tatu: One quirk, wrt [databind#2932]; may get "use implicit"
+                //    marker; should not return that
+                if (!name.isEmpty()) {
+                    return name;
+                }
             }
             // 14-Apr-2014, tatu: Need to also consider possible implicit name
             //  (for JDK8, or via paranamer)

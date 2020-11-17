@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -32,6 +34,19 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
         }
     }
 
+    // [databind#2932]
+    static class Bean2932
+    {
+        int _a, _b;
+
+//        @JsonCreator
+        public Bean2932(/*@com.fasterxml.jackson.annotation.JsonProperty("paramName0")*/
+                @JsonDeserialize() int a, int b) {
+            _a = a;
+            _b = b;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -39,7 +54,6 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
-            // important! Chain to also use standard Jackson annotations
             .annotationIntrospector(new MyParamIntrospector())
             .build();
 
@@ -49,5 +63,15 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
         assertNotNull(value);
         assertEquals(1, value.x);
         assertEquals(2, value.y);
+    }
+
+    // [databind#2932]
+    public void testJsonCreatorWithOtherAnnotations() throws Exception
+    {
+        Bean2932 bean = MAPPER.readValue(a2q("{'paramName0':1,'paramName1':2}"),
+                Bean2932.class);
+        assertNotNull(bean);
+        assertEquals(1, bean._a);
+        assertEquals(2, bean._b);
     }
 }

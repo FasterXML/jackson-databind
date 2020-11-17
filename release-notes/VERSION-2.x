@@ -103,6 +103,7 @@ Project: jackson-databind
  (contributed by Carter K)
 #2931: Add errorprone static analysis profile to detect bugs at build time
  (contributed by Carter K)
+#2932: Problem with implicit creator name detection for constructor detection
 - Add `BeanDeserializerBase.isCaseInsensitive()`
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 - Full "LICENSE" included in jar for easier access by compliancy tools

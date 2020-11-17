@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsontype;
+package com.fasterxml.jackson.databind.jsontype.jdk;
 
 import java.io.Serializable;
 import java.util.ArrayList;

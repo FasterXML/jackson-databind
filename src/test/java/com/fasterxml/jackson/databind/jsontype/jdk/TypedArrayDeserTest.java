@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class TestTypedArrayDeserialization
+public class TypedArrayDeserTest
     extends BaseMapTest
 {
     /*

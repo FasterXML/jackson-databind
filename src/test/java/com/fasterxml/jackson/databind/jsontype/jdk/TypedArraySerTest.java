@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
  * get properly serialized with types (esp. for contents, and
  * gracefully handling Lists themselves too)
  */
-public class TestTypedArraySerialization
+public class TypedArraySerTest
     extends BaseMapTest
 {
     /*
@@ -113,7 +113,7 @@ public class TestTypedArraySerialization
         // Can wrap in JSON Object for wrapped style... also, will use
         // non-qualified class name as type name, since there are no
         // annotations
-        String expName = "TestTypedArraySerialization$TypedListAsWrapper";
+        String expName = "TypedArraySerTest$TypedListAsWrapper";
         assertEquals("{\""+expName+"\":[true,null,false]}",
                 MAPPER.writeValueAsString(input));
     }

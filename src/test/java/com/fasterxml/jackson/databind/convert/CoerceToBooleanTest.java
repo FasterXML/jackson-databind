@@ -3,10 +3,14 @@ package com.fasterxml.jackson.databind.convert;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -21,7 +25,24 @@ public class CoerceToBooleanTest extends BaseMapTest
         public boolean value;
     }
 
-    private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
+    static class BooleanPrimitiveBean
+    {
+        public boolean booleanValue = true;
+    }
+    
+    static class BooleanWrapper {
+        public Boolean wrapper;
+        public boolean primitive;
+        
+        protected Boolean ctor;
+        
+        @JsonCreator
+        public BooleanWrapper(@JsonProperty("ctor") Boolean foo) {
+            ctor = foo;
+        }
+    }
+
+    private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
     private final ObjectMapper LEGACY_NONCOERCING_MAPPER = jsonMapperBuilder()
             .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
@@ -56,7 +77,29 @@ public class CoerceToBooleanTest extends BaseMapTest
 
     /*
     /**********************************************************
-    /* Unit tests: default, legacy configuration
+    /* Unit tests: default, legacy configuration, from String
+    /**********************************************************
+     */
+
+
+    // for [databind#403]
+    public void testEmptyStringFailForBooleanPrimitive() throws IOException
+    {
+        final ObjectReader reader = DEFAULT_MAPPER
+                .readerFor(BooleanPrimitiveBean.class)
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+        try {
+            reader.readValue(aposToQuotes("{'booleanValue':''}"));
+            fail("Expected failure for boolean + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Cannot coerce `null` to `boolean`");
+            verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests: default, legacy configuration, from Int
     /**********************************************************
      */
 
@@ -99,6 +142,33 @@ public class CoerceToBooleanTest extends BaseMapTest
         assertEquals(true, ab.get());
     }
 
+    // Test for verifying that Long values are coerced to boolean correctly as well
+    public void testLongToBooleanCoercionOk() throws Exception
+    {
+        long value = 1L + Integer.MAX_VALUE;
+        BooleanWrapper b = DEFAULT_MAPPER.readValue("{\"primitive\" : "+value+", \"wrapper\":"+value+", \"ctor\":"+value+"}",
+                BooleanWrapper.class);
+        assertEquals(Boolean.TRUE, b.wrapper);
+        assertTrue(b.primitive);
+        assertEquals(Boolean.TRUE, b.ctor);
+
+        // but ensure we can also get `false`
+        b = DEFAULT_MAPPER.readValue("{\"primitive\" : 0 , \"wrapper\":0, \"ctor\":0}",
+                BooleanWrapper.class);
+        assertEquals(Boolean.FALSE, b.wrapper);
+        assertFalse(b.primitive);
+        assertEquals(Boolean.FALSE, b.ctor);
+
+        boolean[] boo = DEFAULT_MAPPER.readValue("[ 0, 15, \"\", \"false\", \"True\" ]",
+                boolean[].class);
+        assertEquals(5, boo.length);
+        assertFalse(boo[0]);
+        assertTrue(boo[1]);
+        assertFalse(boo[2]);
+        assertFalse(boo[3]);
+        assertTrue(boo[4]);
+    }
+    
     public void testToBooleanCoercionFailBytes() throws Exception
     {
         _verifyBooleanCoerceFail(aposToQuotes("{'value':1}"), true, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);

@@ -148,33 +148,6 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         _verifyCoerceSuccess(quote("FALSE"), Boolean.class, Boolean.FALSE);
     }
 
-    // Test for verifying that Long values are coerced to boolean correctly as well
-    public void testLongToBooleanCoercionOk() throws Exception
-    {
-        long value = 1L + Integer.MAX_VALUE;
-        BooleanWrapper b = COERCING_MAPPER.readValue("{\"primitive\" : "+value+", \"wrapper\":"+value+", \"ctor\":"+value+"}",
-                BooleanWrapper.class);
-        assertEquals(Boolean.TRUE, b.wrapper);
-        assertTrue(b.primitive);
-        assertEquals(Boolean.TRUE, b.ctor);
-
-        // but ensure we can also get `false`
-        b = COERCING_MAPPER.readValue("{\"primitive\" : 0 , \"wrapper\":0, \"ctor\":0}",
-                BooleanWrapper.class);
-        assertEquals(Boolean.FALSE, b.wrapper);
-        assertFalse(b.primitive);
-        assertEquals(Boolean.FALSE, b.ctor);
-
-        boolean[] boo = COERCING_MAPPER.readValue("[ 0, 15, \"\", \"false\", \"True\" ]",
-                boolean[].class);
-        assertEquals(5, boo.length);
-        assertFalse(boo[0]);
-        assertTrue(boo[1]);
-        assertFalse(boo[2]);
-        assertFalse(boo[3]);
-        assertTrue(boo[4]);
-    }
-    
     public void testStringToNumbersCoercionOk() throws Exception
     {
         _verifyCoerceSuccess(quote("123"), Byte.TYPE, Byte.valueOf((byte) 123));

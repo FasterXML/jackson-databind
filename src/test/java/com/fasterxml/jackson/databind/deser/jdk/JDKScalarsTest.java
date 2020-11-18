@@ -163,14 +163,7 @@ public class JDKScalarsTest
         assertEquals(Boolean.TRUE, result);
         result = MAPPER.readValue("false", Boolean.class);
         assertEquals(Boolean.FALSE, result);
-
-        // should accept ints too, (0 == false, otherwise true)
-        result = MAPPER.readValue("0", Boolean.class);
-        assertEquals(Boolean.FALSE, result);
-        result = MAPPER.readValue("1", Boolean.class);
-        assertEquals(Boolean.TRUE, result);
     }
-
 
     /*
     /**********************************************************
@@ -495,13 +488,6 @@ public class JDKScalarsTest
     /**********************************************************
      */
 
-    // by default, should return nulls, n'est pas?
-    public void testEmptyStringForBooleanWrapper() throws IOException
-    {
-        WrappersBean bean = MAPPER.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.booleanValue);
-    }
-
     public void testEmptyStringForIntegerWrappers() throws IOException
     {
         WrappersBean bean = MAPPER.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
@@ -553,21 +539,6 @@ public class JDKScalarsTest
         assertEquals(0.0f, bean.floatValue);
         bean = MAPPER.readValue("{\"doubleValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0.0, bean.doubleValue);
-    }
-
-    // for [databind#403]
-    public void testEmptyStringFailForBooleanPrimitive() throws IOException
-    {
-        final ObjectReader reader = MAPPER
-                .readerFor(PrimitivesBean.class)
-                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
-        try {
-            reader.readValue(aposToQuotes("{'booleanValue':''}"));
-            fail("Expected failure for boolean + empty String");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Cannot coerce `null` to `boolean`");
-            verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
-        }
     }
 
     /*

@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
@@ -17,6 +19,18 @@ public class CoerceJDKScalarsTest extends BaseMapTest
 {
     static class BooleanPOJO {
         public Boolean value;
+    }
+
+    static class BooleanWrapper {
+        public Boolean wrapper;
+        public boolean primitive;
+        
+        protected Boolean ctor;
+        
+        @JsonCreator
+        public BooleanWrapper(@JsonProperty("ctor") Boolean foo) {
+            ctor = foo;
+        }
     }
 
     private final ObjectMapper COERCING_MAPPER = jsonMapperBuilder()
@@ -113,7 +127,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testStringCoercionOkBoolean() throws Exception
+    public void testStringToBooleanCoercionOk() throws Exception
     {
         // first successful coercions. Boolean has a ton...
         _verifyCoerceSuccess("1", Boolean.TYPE, Boolean.TRUE);
@@ -134,7 +148,34 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         _verifyCoerceSuccess(quote("FALSE"), Boolean.class, Boolean.FALSE);
     }
 
-    public void testStringCoercionOkNumbers() throws Exception
+    // Test for verifying that Long values are coerced to boolean correctly as well
+    public void testLongToBooleanCoercionOk() throws Exception
+    {
+        long value = 1L + Integer.MAX_VALUE;
+        BooleanWrapper b = COERCING_MAPPER.readValue("{\"primitive\" : "+value+", \"wrapper\":"+value+", \"ctor\":"+value+"}",
+                BooleanWrapper.class);
+        assertEquals(Boolean.TRUE, b.wrapper);
+        assertTrue(b.primitive);
+        assertEquals(Boolean.TRUE, b.ctor);
+
+        // but ensure we can also get `false`
+        b = COERCING_MAPPER.readValue("{\"primitive\" : 0 , \"wrapper\":0, \"ctor\":0}",
+                BooleanWrapper.class);
+        assertEquals(Boolean.FALSE, b.wrapper);
+        assertFalse(b.primitive);
+        assertEquals(Boolean.FALSE, b.ctor);
+
+        boolean[] boo = COERCING_MAPPER.readValue("[ 0, 15, \"\", \"false\", \"True\" ]",
+                boolean[].class);
+        assertEquals(5, boo.length);
+        assertFalse(boo[0]);
+        assertTrue(boo[1]);
+        assertFalse(boo[2]);
+        assertFalse(boo[3]);
+        assertTrue(boo[4]);
+    }
+    
+    public void testStringToNumbersCoercionOk() throws Exception
     {
         _verifyCoerceSuccess(quote("123"), Byte.TYPE, Byte.valueOf((byte) 123));
         _verifyCoerceSuccess(quote("123"), Byte.class, Byte.valueOf((byte) 123));
@@ -157,7 +198,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         assertTrue(ab.get());
     }
 
-    public void testStringCoercionFailBoolean() throws Exception
+    public void testStringToBooleanCoercionFail() throws Exception
     {
         _verifyRootStringCoerceFail("true", Boolean.TYPE);
         _verifyRootStringCoerceFail("true", Boolean.class);

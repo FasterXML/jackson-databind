@@ -898,6 +898,16 @@ public abstract class StdDeserializer<T>
             return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Float.TYPE), p)).floatValue();
         }
 
+        // 18-Nov-2020, tatu: Special case, Not-a-Numbers as String need to be
+        //     considered "native" representation as JSON does not allow as numbers,
+        //     and hence not bound by coercion rules
+        {
+            Float nan = _checkFloatNaN(text);
+            if (nan != null) {
+                return nan.floatValue();
+            }
+        }
+
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
                 LogicalType.Integer, Float.TYPE);
         if (act == CoercionAction.AsNull) {
@@ -920,27 +930,36 @@ public abstract class StdDeserializer<T>
     protected final float _parseFloatPrimitive(DeserializationContext ctxt, String text)
         throws IOException
     {
-        switch (text.charAt(0)) {
-        case 'I':
-            if (_isPosInf(text)) {
-                return Float.POSITIVE_INFINITY;
-            }
-            break;
-        case 'N':
-            if (_isNaN(text)) { return Float.NaN; }
-            break;
-        case '-':
-            if (_isNegInf(text)) {
-                return Float.NEGATIVE_INFINITY;
-            }
-            break;
-        }
         try {
             return Float.parseFloat(text);
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");
         return _nonNullNumber(v).floatValue();
+    }
+
+    // @since 2.12
+    protected Float _checkFloatNaN(String text)
+    {
+        if (!text.isEmpty()) {
+            switch (text.charAt(0)) {
+            case 'I':
+                if (_isPosInf(text)) {
+                    return Float.POSITIVE_INFINITY;
+                }
+                break;
+            case 'N':
+                if (_isNaN(text)) { return Float.NaN; }
+                break;
+            case '-':
+                if (_isNegInf(text)) {
+                    return Float.NEGATIVE_INFINITY;
+                }
+                break;
+            default:
+            }
+        }
+        return null;
     }
 
     protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt)
@@ -973,6 +992,16 @@ public abstract class StdDeserializer<T>
             return ((Number) ctxt.handleUnexpectedToken(ctxt.constructType(Double.TYPE), p)).doubleValue();
         }
 
+        // 18-Nov-2020, tatu: Special case, Not-a-Numbers as String need to be
+        //     considered "native" representation as JSON does not allow as numbers,
+        //     and hence not bound by coercion rules
+        {
+            Double nan = this._checkDoubleNaN(text);
+            if (nan != null) {
+                return nan.doubleValue();
+            }
+        }
+
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
                 LogicalType.Integer, Double.TYPE);
         if (act == CoercionAction.AsNull) {
@@ -992,23 +1021,6 @@ public abstract class StdDeserializer<T>
     protected final double _parseDoublePrimitive(DeserializationContext ctxt, String text)
         throws IOException
     {
-        switch (text.charAt(0)) {
-        case 'I':
-            if (_isPosInf(text)) {
-                return Double.POSITIVE_INFINITY;
-            }
-            break;
-        case 'N':
-            if (_isNaN(text)) {
-                return Double.NaN;
-            }
-            break;
-        case '-':
-            if (_isNegInf(text)) {
-                return Double.NEGATIVE_INFINITY;
-            }
-            break;
-        }
         try {
             return _parseDouble(text);
         } catch (IllegalArgumentException iae) { }
@@ -1028,6 +1040,32 @@ public abstract class StdDeserializer<T>
             return Double.MIN_NORMAL; // since 2.7; was MIN_VALUE prior
         }
         return Double.parseDouble(numStr);
+    }
+
+    // @since 2.12
+    protected Double _checkDoubleNaN(String text)
+    {
+        if (!text.isEmpty()) {
+            switch (text.charAt(0)) {
+            case 'I':
+                if (_isPosInf(text)) {
+                    return Double.POSITIVE_INFINITY;
+                }
+                break;
+            case 'N':
+                if (_isNaN(text)) {
+                    return Double.NaN;
+                }
+                break;
+            case '-':
+                if (_isNegInf(text)) {
+                    return Double.NEGATIVE_INFINITY;
+                }
+                break;
+            default:
+            }
+        }
+        return null;
     }
 
     protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)

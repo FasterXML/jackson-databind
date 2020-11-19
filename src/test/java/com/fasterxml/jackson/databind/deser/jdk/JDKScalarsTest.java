@@ -123,10 +123,6 @@ public class JDKScalarsTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    private final ObjectMapper MAPPER_NO_COERCION = jsonMapperBuilder()
-            .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
-            .build();
-
     /*
     /**********************************************************
     /* Scalar tests for boolean
@@ -439,7 +435,7 @@ public class JDKScalarsTest
             // First, as regular double value
             if (NAN_STRING != str) {
                 result = MAPPER.readValue(str, Double.class);
-               assertEquals(exp, result);
+                assertEquals(exp, result);
             }
             // and then as coerced String:
             result = MAPPER.readValue(" \""+str+"\"", Double.class);
@@ -486,56 +482,6 @@ public class JDKScalarsTest
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0d, array[0]);
-    }
-
-    public void testDoublePrimitiveNonNumeric() throws Exception
-    {
-        // first, simple case:
-        // bit tricky with binary fps but...
-        double value = Double.POSITIVE_INFINITY;
-        DoubleBean result = MAPPER.readValue("{\"v\":\""+value+"\"}", DoubleBean.class);
-        assertEquals(value, result._v);
-
-        // should work with arrays too..
-        double[] array = MAPPER.readValue("[ \"Infinity\" ]", double[].class);
-        assertNotNull(array);
-        assertEquals(1, array.length);
-        assertEquals(Double.POSITIVE_INFINITY, array[0]);
-    }
-
-    public void testDoubleSpecialValuesWithCoercionDisabled() throws Exception
-    {
-        // first, simple case:
-        double value = Double.POSITIVE_INFINITY;
-        DoubleBean result = MAPPER_NO_COERCION.readValue("{\"v\":\""+value+"\"}", DoubleBean.class);
-        assertEquals(value, result._v);
-
-        // should work with arrays too..
-        double[] array = MAPPER_NO_COERCION.readValue("[ \"Infinity\" ]", double[].class);
-        assertNotNull(array);
-        assertEquals(1, array.length);
-        assertEquals(Double.POSITIVE_INFINITY, array[0]);
-
-        try {
-            MAPPER_NO_COERCION.readValue("{\"v\":\"1.2\"}", DoubleBean.class);
-            fail("Expected a MismatchedInputException: string to double coercion should fail");
-        } catch (MismatchedInputException e) {
-            // expected
-        }
-    }
-    
-    public void testFloatPrimitiveNonNumeric() throws Exception
-    {
-        // bit tricky with binary fps but...
-        float value = Float.POSITIVE_INFINITY;
-        FloatBean result = MAPPER.readValue("{\"v\":\""+value+"\"}", FloatBean.class);
-        assertEquals(value, result._v);
-        
-        // should work with arrays too..
-        float[] array = MAPPER.readValue("[ \"Infinity\" ]", float[].class);
-        assertNotNull(array);
-        assertEquals(1, array.length);
-        assertEquals(Float.POSITIVE_INFINITY, array[0]);
     }
 
     /*
@@ -809,15 +755,7 @@ public class JDKScalarsTest
             assertEquals(1, Array.getLength(ob));
             assertEquals(defValue, Array.get(ob, 0));
 
-            final ObjectReader readerNoEmpty = MAPPER_NO_COERCION.readerFor(cls);
-            try {
-                readerNoEmpty.readValue(EMPTY_STRING_JSON);
-                fail("Should not pass");
-            } catch (JsonMappingException e) {
-                // 07-Jun-2020, tatu: during transition, two acceptable alternatives
-                verifyException(e, "Cannot coerce `null` to", "Cannot coerce empty String (\"\")");
-                verifyException(e, "element of "+SIMPLE_NAME);
-            }
+            // Note: coercion tests moved to under "com.fasterxml.jackson.databind.convert"
         }
     }
 

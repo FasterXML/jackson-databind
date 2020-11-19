@@ -32,6 +32,14 @@ public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<O
         case JsonTokenId.ID_STRING:
             {
                 String text = p.getText();
+                // 19-Nov-2020, ckozak: see jackson-databind#2942: Special case, floating point special
+                //     values as String (e.g. "NaN", "Infinity", "-Infinity" need to be considered
+                //     "native" representation as JSON does not allow as numbers, and hence not bound
+                //     by coercion rules
+                Double specialValue = _checkDoubleNaN(text);
+                if (specialValue != null) {
+                    return OptionalDouble.of(specialValue);
+                }
                 CoercionAction act = _checkFromStringCoercion(ctxt, text);
                 if (act == CoercionAction.AsNull) {
                     return (OptionalDouble) getNullValue(ctxt);

@@ -623,6 +623,15 @@ public class NumberDeserializers
                 return (Float) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
 
+            // 18-Nov-2020, tatu: Special case, Not-a-Numbers as String need to be
+            //     considered "native" representation as JSON does not allow as numbers,
+            //     and hence not bound by coercion rules
+            {
+                Float nan = _checkFloatNaN(text);
+                if (nan != null) {
+                    return nan;
+                }
+            }
             final CoercionAction act = _checkFromStringCoercion(ctxt, text);
             if (act == CoercionAction.AsNull) {
                 return (Float) getNullValue(ctxt);
@@ -634,28 +643,11 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Float) getNullValue(ctxt);
             }
-            switch (text.charAt(0)) {
-            case 'I':
-                if (_isPosInf(text)) {
-                    return Float.POSITIVE_INFINITY;
-                }
-                break;
-            case 'N':
-                if (_isNaN(text)) {
-                    return Float.NaN;
-                }
-                break;
-            case '-':
-                if (_isNegInf(text)) {
-                    return Float.NEGATIVE_INFINITY;
-                }
-                break;
-            }
             try {
                 return Float.parseFloat(text);
             } catch (IllegalArgumentException iae) { }
             return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid Float value");
+                    "not a valid `Float` value");
         }
     }
 
@@ -720,6 +712,16 @@ public class NumberDeserializers
                 return (Double) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
 
+            // 18-Nov-2020, tatu: Special case, Not-a-Numbers as String need to be
+            //     considered "native" representation as JSON does not allow as numbers,
+            //     and hence not bound by coercion rules
+            {
+                Double nan = this._checkDoubleNaN(text);
+                if (nan != null) {
+                    return nan;
+                }
+            }
+
             // Coercion from String most complicated
             final CoercionAction act = _checkFromStringCoercion(ctxt, text);
             if (act == CoercionAction.AsNull) {
@@ -732,28 +734,11 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Double) getNullValue(ctxt);
             }
-            switch (text.charAt(0)) {
-            case 'I':
-                if (_isPosInf(text)) {
-                    return Double.POSITIVE_INFINITY;
-                }
-                break;
-            case 'N':
-                if (_isNaN(text)) {
-                    return Double.NaN;
-                }
-                break;
-            case '-':
-                if (_isNegInf(text)) {
-                    return Double.NEGATIVE_INFINITY;
-                }
-                break;
-            }
             try {
                 return _parseDouble(text);
             } catch (IllegalArgumentException iae) { }
             return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid Double value");
+                    "not a valid `Double` value");
         }
     }
 

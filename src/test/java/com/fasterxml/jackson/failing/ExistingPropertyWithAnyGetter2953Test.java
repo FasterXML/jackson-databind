@@ -1,26 +1,18 @@
-package com.fasterxml.jackson.databind.jsontype;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+package com.fasterxml.jackson.failing;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class TypeInfoWithMatchingFieldTest extends BaseMapTest
-{
+import com.fasterxml.jackson.annotation.*;
 
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+// For [databind#2953], regression from 2.11 to 2.12.0-rc2
+public class ExistingPropertyWithAnyGetter2953Test extends BaseMapTest
+{
     public static final class SingleUnion {
         private final Base value;
 
@@ -79,7 +71,7 @@ public class TypeInfoWithMatchingFieldTest extends BaseMapTest
             private final String value;
 
             @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-            private FooWrapper(@JsonSetter("foo") String value) {
+            FooWrapper(@JsonSetter("foo") String value) {
                 Objects.requireNonNull(value, "foo cannot be null");
                 this.value = value;
             }
@@ -175,24 +167,23 @@ public class TypeInfoWithMatchingFieldTest extends BaseMapTest
         }
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+    
     public void testUnionSerialization_string() throws IOException {
-        ObjectMapper mapper = objectMapper();
         assertEquals(
                 aposToQuotes("{'type':'foo','foo':'string value'}"),
-                mapper.writeValueAsString(SingleUnion.foo("string value")));
+                MAPPER.writeValueAsString(SingleUnion.foo("string value")));
     }
 
     public void testUnionDeserialization_string() throws IOException {
-        ObjectMapper mapper = objectMapper();
         assertEquals(
                 SingleUnion.foo("string value"),
-                mapper.readValue(aposToQuotes("{'type':'foo','foo':'string value'}"), SingleUnion.class));
+                MAPPER.readValue(aposToQuotes("{'type':'foo','foo':'string value'}"), SingleUnion.class));
     }
 
     public void testDefaultUnknownVariant() throws IOException {
-        ObjectMapper mapper = objectMapper();
         String originalJson = aposToQuotes("{'type':'notknown','notknown':'ignored value'}");
-        SingleUnion deserialized = mapper.readValue(
+        SingleUnion deserialized = MAPPER.readValue(
                 originalJson,
                 SingleUnion.class);
         String type = deserialized.accept(new SingleUnion.Visitor<String>() {
@@ -208,7 +199,7 @@ public class TypeInfoWithMatchingFieldTest extends BaseMapTest
             }
         });
         assertEquals("notknown", type);
-        String serialized = mapper.writeValueAsString(deserialized);
+        String serialized = MAPPER.writeValueAsString(deserialized);
         assertEquals(originalJson, serialized);
     }
 }

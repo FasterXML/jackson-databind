@@ -627,7 +627,7 @@ public class NumberDeserializers
             //     considered "native" representation as JSON does not allow as numbers,
             //     and hence not bound by coercion rules
             {
-                Float nan = _checkFloatNaN(text);
+                Float nan = _checkFloatSpecialValue(text);
                 if (nan != null) {
                     return nan;
                 }
@@ -716,7 +716,7 @@ public class NumberDeserializers
             //     considered "native" representation as JSON does not allow as numbers,
             //     and hence not bound by coercion rules
             {
-                Double nan = this._checkDoubleNaN(text);
+                Double nan = this._checkDoubleSpecialValue(text);
                 if (nan != null) {
                     return nan;
                 }

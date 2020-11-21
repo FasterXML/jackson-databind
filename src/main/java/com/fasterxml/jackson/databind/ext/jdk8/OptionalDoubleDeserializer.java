@@ -36,7 +36,7 @@ public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<O
                 //     values as String (e.g. "NaN", "Infinity", "-Infinity" need to be considered
                 //     "native" representation as JSON does not allow as numbers, and hence not bound
                 //     by coercion rules
-                Double specialValue = _checkDoubleNaN(text);
+                Double specialValue = _checkDoubleSpecialValue(text);
                 if (specialValue != null) {
                     return OptionalDouble.of(specialValue);
                 }

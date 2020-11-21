@@ -902,7 +902,7 @@ public abstract class StdDeserializer<T>
         //     considered "native" representation as JSON does not allow as numbers,
         //     and hence not bound by coercion rules
         {
-            Float nan = _checkFloatNaN(text);
+            Float nan = _checkFloatSpecialValue(text);
             if (nan != null) {
                 return nan.floatValue();
             }
@@ -938,8 +938,19 @@ public abstract class StdDeserializer<T>
         return _nonNullNumber(v).floatValue();
     }
 
-    // @since 2.12
-    protected Float _checkFloatNaN(String text)
+    /**
+     * Helper method called to check whether given String value contains one of
+     * "special" values (currently, NaN ("not-a-number") and plus/minus Infinity)
+     * and if so, returns that value; otherwise returns {@code null}.
+     *
+     * @param text String value to check
+     *
+     * @return One of {@link Float} constants referring to special value decoded,
+     *   if value matched; {@code null} otherwise.
+     *
+     * @since 2.12
+     */
+    protected Float _checkFloatSpecialValue(String text)
     {
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {
@@ -996,7 +1007,7 @@ public abstract class StdDeserializer<T>
         //     considered "native" representation as JSON does not allow as numbers,
         //     and hence not bound by coercion rules
         {
-            Double nan = this._checkDoubleNaN(text);
+            Double nan = this._checkDoubleSpecialValue(text);
             if (nan != null) {
                 return nan.doubleValue();
             }
@@ -1042,8 +1053,19 @@ public abstract class StdDeserializer<T>
         return Double.parseDouble(numStr);
     }
 
-    // @since 2.12
-    protected Double _checkDoubleNaN(String text)
+    /**
+     * Helper method called to check whether given String value contains one of
+     * "special" values (currently, NaN ("not-a-number") and plus/minus Infinity)
+     * and if so, returns that value; otherwise returns {@code null}.
+     *
+     * @param text String value to check
+     *
+     * @return One of {@link Double} constants referring to special value decoded,
+     *   if value matched; {@code null} otherwise.
+     *
+     * @since 2.12
+     */
+    protected Double _checkDoubleSpecialValue(String text)
     {
         if (!text.isEmpty()) {
             switch (text.charAt(0)) {

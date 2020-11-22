@@ -170,19 +170,17 @@ public class ExistingPropertyWithAnyGetter2953Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testUnionSerialization_string() throws IOException {
-        assertEquals(
-                aposToQuotes("{'type':'foo','foo':'string value'}"),
+        assertEquals(a2q("{'type':'foo','foo':'string value'}"),
                 MAPPER.writeValueAsString(SingleUnion.foo("string value")));
     }
 
     public void testUnionDeserialization_string() throws IOException {
-        assertEquals(
-                SingleUnion.foo("string value"),
-                MAPPER.readValue(aposToQuotes("{'type':'foo','foo':'string value'}"), SingleUnion.class));
+        assertEquals(SingleUnion.foo("string value"),
+                MAPPER.readValue(a2q("{'type':'foo','foo':'string value'}"), SingleUnion.class));
     }
 
     public void testDefaultUnknownVariant() throws IOException {
-        String originalJson = aposToQuotes("{'type':'notknown','notknown':'ignored value'}");
+        String originalJson = a2q("{'type':'notknown','notknown':'ignored value'}");
         SingleUnion deserialized = MAPPER.readValue(
                 originalJson,
                 SingleUnion.class);

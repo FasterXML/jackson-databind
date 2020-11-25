@@ -224,7 +224,7 @@ public class PropertyBuilder
         if (views == null) {
             views = _beanDesc.findDefaultViews();
         }
-        BeanPropertyWriter bpw = buildWriter(propDef,
+        BeanPropertyWriter bpw = _constructPropertyWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress, views);
 
@@ -241,12 +241,18 @@ public class PropertyBuilder
         return bpw;
     }
 
-    protected BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
-                                           AnnotatedMember member, Annotations contextAnnotations,
-                                           JavaType declaredType,
-                                           JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-                                           boolean suppressNulls, Object suppressableValue,
-                                           Class<?>[] includeInViews) {
+    /**
+     * Overridable factory method for actual construction of {@link BeanPropertyWriter};
+     * often needed if subclassing {@link #buildWriter} method.
+     */
+    protected BeanPropertyWriter _constructPropertyWriter(BeanPropertyDefinition propDef,
+            AnnotatedMember member, Annotations contextAnnotations,
+            JavaType declaredType,
+            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            boolean suppressNulls, Object suppressableValue,
+            Class<?>[] includeInViews)
+        throws JsonMappingException
+    {
         return new BeanPropertyWriter(propDef,
                 member, contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue, includeInViews);

@@ -224,7 +224,7 @@ public class PropertyBuilder
         if (views == null) {
             views = _beanDesc.findDefaultViews();
         }
-        BeanPropertyWriter bpw = new BeanPropertyWriter(propDef,
+        BeanPropertyWriter bpw = buildWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress, views);
 
@@ -239,6 +239,17 @@ public class PropertyBuilder
             bpw = bpw.unwrappingWriter(unwrapper);
         }
         return bpw;
+    }
+
+    protected BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
+                                           AnnotatedMember member, Annotations contextAnnotations,
+                                           JavaType declaredType,
+                                           JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+                                           boolean suppressNulls, Object suppressableValue,
+                                           Class<?>[] includeInViews) {
+        return new BeanPropertyWriter(propDef,
+                member, contextAnnotations, declaredType,
+                ser, typeSer, serType, suppressNulls, suppressableValue, includeInViews);
     }
 
     /*

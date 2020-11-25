@@ -62,14 +62,14 @@ public class BackReference1516Test extends BaseMapTest
             this.parent = parent;
         }
     }
-    
+
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final String PARENT_CHILD_JSON = aposToQuotes(
 "{ 'id': 'abc',\n"+

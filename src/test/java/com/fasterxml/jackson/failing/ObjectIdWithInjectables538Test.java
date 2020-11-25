@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestObjectIdWithInjectables538 extends BaseMapTest
+public class ObjectIdWithInjectables538Test extends BaseMapTest
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static class A {

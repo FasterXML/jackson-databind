@@ -79,13 +79,9 @@ Project: jackson-databind
  (requested by CidTori@github; implementation contributed by Kevin B)
 #2873: `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS` should work for enum as keys
  (fix contributed by Ilya G)
-#2878: Revert change initially made to fix #2805: change in signature
-  of `ObjectMapper.treeToValue()` regarding exceptions
 #2879: Add support for disabling special handling of "Creator properties" wrt
   alphabetic property ordering
  (contributed by Sergiy Y)
-#2880: Revert removal of 2.7-deprecated `PropertyNamingStrategy` constants
- (reported by brettkail-wk@github)
 #2885: Add `JsonNode.canConvertToExactIntegral()` to indicate whether floating-point/BigDecimal
   values could be converted to integers losslessly
  (requested by Oguzhan U; implementation contributed by Siavash S)

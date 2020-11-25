@@ -10,8 +10,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// For [databind#2953], regression from 2.11 to 2.12.0-rc2
-public class ExistingPropertyWithAnyGetter2953Test extends BaseMapTest
+// For [databind#2953]: bit unclear if there is an actual bug (leaning
+// towards not, for now).
+public class ExistingPropertyWithJsonValue2953Test extends BaseMapTest
 {
     public static final class SingleUnion {
         private final Base value;
@@ -59,15 +60,17 @@ public class ExistingPropertyWithAnyGetter2953Test extends BaseMapTest
             T visitUnknown(String unknownType);
         }
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true, defaultImpl = UnknownWrapper.class)
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
+                include = JsonTypeInfo.As.EXISTING_PROPERTY,
+                visible = true, defaultImpl = UnknownWrapper.class)
         @JsonSubTypes(@JsonSubTypes.Type(FooWrapper.class))
         @JsonIgnoreProperties(ignoreUnknown = true)
-        private interface Base {
+        interface Base {
             <T> T accept(Visitor<T> visitor);
         }
 
         @JsonTypeName("foo")
-        private static final class FooWrapper implements Base {
+        static final class FooWrapper implements Base {
             private final String value;
 
             @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
@@ -106,11 +109,13 @@ public class ExistingPropertyWithAnyGetter2953Test extends BaseMapTest
             }
         }
 
+        /*
         @JsonTypeInfo(
                 use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.EXISTING_PROPERTY,
                 property = "type",
                 visible = true)
+                */
         private static final class UnknownWrapper implements Base {
             private final String type;
 

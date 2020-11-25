@@ -5,7 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
-public class ObjectWithCreator1261Test
+public class ObjectIdWithCreator1261Test
     extends BaseMapTest
 {
     static class Answer

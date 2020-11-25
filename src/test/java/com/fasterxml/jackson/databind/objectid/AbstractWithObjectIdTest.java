@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import java.util.*;
 
-public class TestAbstractWithObjectId extends BaseMapTest
+public class AbstractWithObjectIdTest extends BaseMapTest
 {
     interface BaseInterface { }
 

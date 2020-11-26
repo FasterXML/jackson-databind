@@ -403,12 +403,13 @@ public class BeanDeserializer
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
+            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             // Object Id property?
-            if (buffer.readIdProperty(propName)) {
+            if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
             }
             // creator property?
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+
             if (creatorProp != null) {
                 // Last creator property to set?
                 Object value;

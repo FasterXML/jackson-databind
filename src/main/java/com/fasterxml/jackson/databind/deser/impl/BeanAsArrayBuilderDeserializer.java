@@ -298,7 +298,11 @@ public class BeanAsArrayBuilderDeserializer
             }
             final String propName = prop.getName();
             // if not yet, maybe we got a creator property?
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            // Object Id property?
+            if (buffer.readIdProperty(propName) && creatorProp == null) {
+                continue;
+            }
             if (creatorProp != null) {
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
@@ -320,10 +324,6 @@ public class BeanAsArrayBuilderDeserializer
                                 builder.getClass().getName()));
                     }
                 }
-                continue;
-            }
-            // Object Id property?
-            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering

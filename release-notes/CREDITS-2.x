@@ -1182,6 +1182,11 @@ Daniel Wu (DanielYWoo@github)
   * Reported #2894: Fix type resolution for static methods (regression in 2.11.3)
   (2.11.4)
 
+Lucian H (symposion@github)
+  * Reported, suggested fix for #2944: `@JsonCreator` on constructor not compatible
+    with `@JsonIdentityInfo`, `PropertyGenerator`
+  (2.11.4)
+
 Marc Carter (drekbour@github)
   * Contributed #43 implementation: Add option to resolve type from multiple existing properties,
    `@JsonTypeInfo(use=DEDUCTION)`

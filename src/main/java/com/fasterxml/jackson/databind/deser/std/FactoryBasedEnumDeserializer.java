@@ -179,14 +179,15 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
     
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            if (buffer.readIdProperty(propName) && creatorProp == null) {
+                continue;
+            }
             if (creatorProp != null) {
                 buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp));
                 continue;
             }
-            if (buffer.readIdProperty(propName)) {
-                continue;
-            }
+            // 26-Nov-2020, tatu: ... what should we do here tho?
         }
         return creator.build(ctxt, buffer);
     }

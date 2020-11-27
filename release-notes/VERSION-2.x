@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #2894: Fix type resolution for static methods (regression in 2.11.3 due to #2821 fix)
  (reported by Łukasz W)
+#2944: `@JsonCreator` on constructor not compatible with `@JsonIdentityInfo`,
+  `PropertyGenerator`
+ (reported by Lucian H)
 
 2.11.3 (02-Oct-2020)
 

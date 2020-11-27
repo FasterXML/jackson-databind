@@ -1163,3 +1163,8 @@ Daniel Wu (DanielYWoo@github)
 Łukasz Walkiewicz (lukasz-walkiewicz@github)
   * Reported #2894: Fix type resolution for static methods (regression in 2.11.3)
   (2.11.4)
+
+Lucian H (symposion@github)
+  * Reported, suggested fix for #2944: `@JsonCreator` on constructor not compatible
+    with `@JsonIdentityInfo`, `PropertyGenerator`
+  (2.11.4)

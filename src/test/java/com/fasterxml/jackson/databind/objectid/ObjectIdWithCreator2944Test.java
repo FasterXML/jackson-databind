@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.objectid;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -8,22 +8,17 @@ public class ObjectIdWithCreator2944Test extends BaseMapTest
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     static class JsonBean2944 {
-
-        private final String id;
-        private final String value;
+        String _id, _value;
+        String _setterId;
 
         @JsonCreator
         public JsonBean2944(@JsonProperty("id") String id, @JsonProperty("value") String value) {
-            this.id = id;
-            this.value = value;
+            _id = id;
+            _value = value;
         }
 
-        public String getId() {
-            return id;
-        }
-
-        public String getValue() {
-            return value;
+        public void setId(String v) {
+            _setterId = v;
         }
     }
 
@@ -40,6 +35,7 @@ public class ObjectIdWithCreator2944Test extends BaseMapTest
         JsonBean2944 result = MAPPER.readValue(a2q("{'id': 'myId','value': 'myValue'}"),
                 JsonBean2944.class);
         assertNotNull(result);
-        assertEquals("myId", result.getId());
+        assertEquals("Incorrect creator-passed-id (setter id: ["+result._setterId+"])",
+                "myId", result._id);
     }
 }

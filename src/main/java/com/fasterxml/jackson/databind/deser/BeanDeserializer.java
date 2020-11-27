@@ -569,8 +569,9 @@ public class BeanDeserializer
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
+            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             // Object Id property?
-            if (buffer.readIdProperty(propName)) {
+            if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;
             }
             // [databind#1891]: possible fix
@@ -581,7 +582,6 @@ public class BeanDeserializer
             */
 
             // creator property?
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
                 Object value;
@@ -984,7 +984,11 @@ public class BeanDeserializer
             String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            // Object Id property?
+            if (buffer.readIdProperty(propName) && creatorProp == null) {
+                continue;
+            }
             if (creatorProp != null) {
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp,
@@ -1021,10 +1025,6 @@ public class BeanDeserializer
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
                 }
-                continue;
-            }
-            // Object Id property?
-            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering
@@ -1172,7 +1172,11 @@ public class BeanDeserializer
             String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+            // Object Id property?
+            if (buffer.readIdProperty(propName) && creatorProp == null) {
+                continue;
+            }
             if (creatorProp != null) {
                 // first: let's check to see if this might be part of value with external type id:
                 // 11-Sep-2015, tatu: Important; do NOT pass buffer as last arg, but null,
@@ -1205,10 +1209,6 @@ public class BeanDeserializer
                         return ext.complete(p, ctxt, bean);
                     }
                 }
-                continue;
-            }
-            // Object Id property?
-            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering

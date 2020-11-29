@@ -4,9 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.0 (not yet released)
-
-2.12.0-rc2 (15-Nov-2020)
+2.12.0 (29-Nov-2020)
 
 #43: Add option to resolve type from multiple existing properties,
   `@JsonTypeInfo(use=DEDUCTION)`

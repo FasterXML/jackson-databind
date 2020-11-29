@@ -26,7 +26,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.10.0</jackson.version>
+  <jackson.version>2.12.0</jackson.version>
   ...
 </properties>
 
@@ -56,6 +56,8 @@ download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/
 Databind jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
 With Jackson 2.10, jar will also include `module-info.class` to work as proper Java Module.
+
+Jackson 2.12 also includes additional Gradle 6 Module Metadata for version alignment with Gradle.
 
 -----
 

@@ -295,7 +295,7 @@ _containerType,
         // Start by verifying if we got empty/blank string since accessing
         // CoercionAction may be costlier than String value we'll almost certainly
         // need anyway
-        if (value.isEmpty()) { // ... in future may want to allow blank, too?
+        if (value == null || value.isEmpty()) {
             CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
                     CoercionInputShape.EmptyString);
             act = _checkCoercionFail(ctxt, act, rawTargetType, value,

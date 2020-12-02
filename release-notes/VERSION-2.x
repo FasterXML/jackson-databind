@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-(not yet released)
+2.10.5.1 (02-Dec-2020)
 
 #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent
   external entity expansion in all cases (CVE-2020-25649)

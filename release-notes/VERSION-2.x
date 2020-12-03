@@ -109,6 +109,7 @@ Project: jackson-databind
 #2944: `@JsonCreator` on constructor not compatible with `@JsonIdentityInfo`,
   `PropertyGenerator`
  (reported by Lucian H)
+- Add debug improvements wrt #2807 (`ClassUtil.getClassMethods()`)
 
 2.11.3 (02-Oct-2020)
 
@@ -228,6 +229,10 @@ Project: jackson-databind
 #2693: Add convenience methods for creating `List`, `Map` valued `ObjectReader`s
   (ObjectMapper.readerForListOf())
 - Add `SerializerProvider.findContentValueSerializer()` methods
+
+2.10.5.1 (02-Dec-2020)
+
+#2589: (see desc on 2.11.0 -- backported)
 
 2.10.5 (21-Jul-2020)
 

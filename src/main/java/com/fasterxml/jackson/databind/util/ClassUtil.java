@@ -1002,17 +1002,29 @@ public final class ClassUtil
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
             if (loader == null){
                 // Nope... this is going to end poorly
-                throw ex;
+                return _failGetClassMethods(cls, ex);
             }
             final Class<?> contextClass;
             try {
                 contextClass = loader.loadClass(cls.getName());
             } catch (ClassNotFoundException e) {
                 ex.addSuppressed(e);
-                throw ex;
+                return _failGetClassMethods(cls, ex);
             }
             return contextClass.getDeclaredMethods(); // Cross fingers
+        } catch (Throwable t) {
+            return _failGetClassMethods(cls, t);
         }
+    }
+
+    // @since 2.11.4 (see [databind#2807])
+    private static Method[] _failGetClassMethods(Class<?> cls, Throwable rootCause)
+            throws IllegalArgumentException
+    {
+        throw new IllegalArgumentException(String.format(
+"Failed on call to `getDeclaredMethods()` on class `%s`, problem: (%s) %s",
+cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
+                rootCause);
     }
     
     /**

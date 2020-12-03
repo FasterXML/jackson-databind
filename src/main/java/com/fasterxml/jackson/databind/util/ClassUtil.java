@@ -1227,7 +1227,11 @@ public final class ClassUtil
                 ex.addSuppressed(e);
                 return _failGetClassMethods(cls, ex);
             }
-            return contextClass.getDeclaredMethods(); // Cross fingers
+            try {
+                return contextClass.getDeclaredMethods(); // Cross fingers
+            } catch (Throwable t) {
+                return _failGetClassMethods(cls, t);
+            }
         } catch (Throwable t) {
             return _failGetClassMethods(cls, t);
         }

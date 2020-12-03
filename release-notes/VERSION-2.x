@@ -11,6 +11,7 @@ Project: jackson-databind
 #2944: `@JsonCreator` on constructor not compatible with `@JsonIdentityInfo`,
   `PropertyGenerator`
  (reported by Lucian H)
+- Add debug improvements wrt #2807 (`ClassUtil.getClassMethods()`)
 
 2.11.3 (02-Oct-2020)
 

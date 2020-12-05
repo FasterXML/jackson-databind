@@ -83,8 +83,7 @@ public class BuilderWithBackRef2686Test extends BaseMapTest
          }
     }
 
-    private final ObjectMapper MAPPER = sharedMapper();
-
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testBuildWithBackRefs2686() throws Exception
     {

@@ -1276,3 +1276,11 @@ Sergiy Yevtushenko (siy@github)
 M Rizky Satrio (rsatrio@github)
   * Contributed #2925: Add support for `java.sql.Blob`
    (2.12.0)
+
+Halil İbrahim Şener (hisener@github)
+  * Reported #2962: Auto-detection of constructor-based creator method skipped if there is
+   an annotated factory-based creator method (regression from 2.11)
+   (2.12.1)
+
+--- END ---
+

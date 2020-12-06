@@ -262,7 +262,12 @@ public abstract class BasicDeserializerFactory
                 final boolean findImplicit = ctorDetector.shouldIntrospectorImplicitConstructors(beanDesc.getBeanClass());
                 _addExplicitConstructorCreators(ctxt, ccState, findImplicit);
                 if (ccState.hasImplicitConstructorCandidates()
-                        && !ccState.hasExplicitFactories() && !ccState.hasExplicitConstructors()) {
+                        // 05-Dec-2020, tatu: [databind#2962] explicit annotation of
+                        //   a factory should not block implicit constructor, for backwards
+                        //   compatibility (minor regression in 2.12.0)
+                        //&& !ccState.hasExplicitFactories()
+                        //  ... explicit constructor should prevent, however
+                        && !ccState.hasExplicitConstructors()) {
                     _addImplicitConstructorCreators(ctxt, ccState, ccState.implicitConstructorCandidates());
                 }
             }

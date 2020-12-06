@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
@@ -22,15 +24,23 @@ public class NullConversionsPojoTest extends BaseMapTest
         public String nullAsEmpty = "b";
     }
 
-    static class NullsForString {
-        /*
-        String n = "foo";
+    static class NullAsEmptyCtor {
+        String _nullsOk;
 
-        public void setName(String name) {
-            n = name;
+        String _nullAsEmpty;
+
+        @JsonCreator
+        public NullAsEmptyCtor(
+                @JsonProperty("nullsOk") String nullsOk,
+                @JsonSetter(nulls=Nulls.AS_EMPTY)
+                @JsonProperty("nullAsEmpty") String nullAsEmpty)
+        {
+            _nullsOk = nullsOk;
+            _nullAsEmpty = nullAsEmpty;
         }
-        */
+    }
 
+    static class NullsForString {
         String n = "foo";
 
         public void setName(String n0) { n = n0; }
@@ -105,5 +115,18 @@ public class NullConversionsPojoTest extends BaseMapTest
                 .build();
         NullsForString named = mapper.readValue(json, NullsForString.class);
         assertEquals("", named.getName());
+    }
+
+    public void testNullsToEmptyViaCtor() throws Exception
+    {
+        NullAsEmptyCtor result = MAPPER.readValue(aposToQuotes("{'nullAsEmpty':'foo', 'nullsOk':null}"),
+                NullAsEmptyCtor.class);
+        assertEquals("foo", result._nullAsEmpty);
+        assertNull(result._nullsOk);
+
+        // and then see that nulls are not ok for non-nullable
+        result = MAPPER.readValue(aposToQuotes("{'nullAsEmpty':null}"),
+                NullAsEmptyCtor.class);
+        assertEquals("", result._nullAsEmpty);
     }
 }

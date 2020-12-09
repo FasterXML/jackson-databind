@@ -41,5 +41,4 @@ public class ProblemHandler1767Test extends BaseMapTest
         assertNotNull(result);
         assertEquals(1, result.a);
     }
-    
 }

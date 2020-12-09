@@ -869,9 +869,7 @@ public abstract class DeserializationContext
             Class<?> scalarType)
         throws IOException
     {
-        return reportInputMismatch(scalarType, String.format(
-"Cannot deserialize value of type %s from %s (token `JsonToken.START_OBJECT`)",
-ClassUtil.getClassDescription(scalarType), _shapeForToken(JsonToken.START_OBJECT)));
+        return (String) handleUnexpectedToken(scalarType, p);
     }
 
     /*

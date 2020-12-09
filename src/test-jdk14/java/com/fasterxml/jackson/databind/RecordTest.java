@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -148,17 +146,23 @@ public class RecordTest extends BaseMapTest
         assertEquals("name2", value.name());
     }
 
-    public void testSerializeJsonRenameRecord() throws Exception {
+    public void testSerializeJsonRename() throws Exception {
         String json = MAPPER.writeValueAsString(new RecordWithRename(123, "Bob"));
         final Object EXP = map("id", Integer.valueOf(123), "rename", "Bob");
         assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
-    public void testDeserializeJsonRenameRecord() throws Exception {
+    public void testDeserializeJsonRename() throws Exception {
         RecordWithRename value = MAPPER.readValue("{\"id\":123,\"rename\":\"Bob\"}",
                 RecordWithRename.class);
         assertEquals(new RecordWithRename(123, "Bob"), value);
     }
+
+    /*
+    /**********************************************************************
+    /* Internal helper methods
+    /**********************************************************************
+     */
 
     private Map<String,Object> map(String key1, Object value1,
             String key2, Object value2) {

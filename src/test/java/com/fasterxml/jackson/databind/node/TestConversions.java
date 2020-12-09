@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
@@ -326,5 +327,11 @@ public class TestConversions extends BaseMapTest
         // and vice versa
         Object pojo = MAPPER.treeToValue(n, Root.class);
         assertNull(pojo);
+
+        // [databind#2972]
+        AtomicReference<?> result = MAPPER.treeToValue(NullNode.instance,
+                AtomicReference.class);
+        assertNotNull(result);
+        assertNull(result.get());
     }
 }

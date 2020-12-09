@@ -9,6 +9,8 @@ Project: jackson-databind
 #2962: Auto-detection of constructor-based creator method skipped if there is
    an annotated factory-based creator method (regression from 2.11)
  (reported by Halil I-S)
+#2972: `ObjectMapper.treeToValue()` no longer invokes `JsonDeserializer.getNullValue()`
+ (reported by andpal@github)
 #2973: DeserializationProblemHandler is not invoked when trying to deserializing String
  (reported by zigzago@github)
 

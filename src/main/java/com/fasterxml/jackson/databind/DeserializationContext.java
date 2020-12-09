@@ -992,7 +992,7 @@ public abstract class DeserializationContext
             Class<?> scalarType)
         throws IOException
     {
-        return (String) handleUnexpectedToken(scalarType, p);
+        return (String) handleUnexpectedToken(constructType(scalarType), p);
     }
 
     /*

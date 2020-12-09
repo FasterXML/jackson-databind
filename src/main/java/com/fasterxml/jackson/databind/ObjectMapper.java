@@ -1234,10 +1234,6 @@ public class ObjectMapper
                 return (T) n;
             }
             final JsonToken tt = n.asToken();
-            // 22-Aug-2019, tatu: [databind#2430] Consider "null node" (minor optimization)
-            if (tt == JsonToken.VALUE_NULL) {
-                return null;
-            }
             // 20-Apr-2016, tatu: Another thing: for VALUE_EMBEDDED_OBJECT, assume similar
             //    short-cut coercion
             if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
@@ -1248,6 +1244,12 @@ public class ObjectMapper
                     }
                 }
             }
+            // 22-Aug-2019, tatu: [databind#2430] Consider "null node" (minor optimization)
+            // 08-Dec-2020, tatu: Alas, lead to [databind#2972], optimization gets complicated
+            //    so leave out for now...
+            /*if (tt == JsonToken.VALUE_NULL) {
+                 return null;
+            }*/
             return readValue(treeAsTokens(n), valueType);
         } catch (JsonProcessingException e) {
             // 12-Nov-2020, tatu: These can legit happen, during conversion, especially

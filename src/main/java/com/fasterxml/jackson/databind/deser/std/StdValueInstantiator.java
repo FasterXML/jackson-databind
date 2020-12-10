@@ -459,7 +459,28 @@ public class StdValueInstantiator
             }
         }
 
+        // 13-Dec-2020, ckozak: Unlike other types, BigDecimal values may be represented
+        // with less precision as doubles. When written to a TokenBuffer for polymorphic
+        // deserialization the most specific type is recorded, though a less precise
+        // floating point value may be needed.
+        if(_fromDoubleCreator != null && canConvertToDouble(value)) {
+            Object arg = value.doubleValue();
+            try {
+                return _fromDoubleCreator.call1(arg);
+            } catch (Throwable t0) {
+                return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
+                        arg, rewrapCtorProblem(ctxt, t0));
+            }
+        }
+
         return super.createFromBigDecimal(ctxt, value);
+    }
+
+    // BigDecimal cannot represent special values NaN, positive infinity, or negative infinity.
+    // When the value cannot be represented as a double, positive or negative infinity is returned.
+    static boolean canConvertToDouble(BigDecimal value) {
+        double doubleValue = value.doubleValue();
+        return !Double.isInfinite(doubleValue);
     }
 
     @Override

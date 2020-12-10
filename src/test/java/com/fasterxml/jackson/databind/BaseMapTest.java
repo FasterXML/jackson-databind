@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -56,14 +54,6 @@ public abstract class BaseMapTest
         public LongWrapper(long value) { l = value; }
     }
 
-    protected static class BigIntegerWrapper {
-        public BigInteger i;
-
-        public BigIntegerWrapper() { }
-
-        public BigIntegerWrapper(final BigInteger value) { i = value; }
-    }
-
     protected static class DoubleWrapper {
         public double d;
 
@@ -71,14 +61,6 @@ public abstract class BaseMapTest
         public DoubleWrapper(double value) { d = value; }
     }
 
-    protected static class BigDecimalWrapper {
-        public BigDecimal d;
-
-        public BigDecimalWrapper() { }
-
-        public BigDecimalWrapper(final BigDecimal value) { d = value; }
-    }
-    
     /**
      * Simple wrapper around String type, usually to test value
      * conversions or wrapping

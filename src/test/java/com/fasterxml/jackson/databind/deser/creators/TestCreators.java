@@ -5,9 +5,10 @@ import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Unit tests for verifying that it is possible to annotate
@@ -172,7 +173,7 @@ public class TestCreators
         public static NoArgFactoryBean create() { return new NoArgFactoryBean(123); }
     }
 
-    // [Issue#208]
+    // [databind#208]
     static class FromStringBean {
         protected String value;
 
@@ -185,7 +186,25 @@ public class TestCreators
             return new FromStringBean(s, false);
         }
     }
-    
+
+    // [databind#2215]
+    protected static class BigIntegerWrapper {
+        BigInteger _value;
+
+        public BigIntegerWrapper() { }
+
+        public BigIntegerWrapper(final BigInteger value) { _value = value; }
+    }
+
+    // [databind#2215]
+    protected static class BigDecimalWrapper {
+        BigDecimal _value;
+
+        public BigDecimalWrapper() { }
+
+        public BigDecimalWrapper(final BigDecimal value) { _value = value; }
+    }
+
     /*
     /**********************************************************
     /* Annotated helper classes, mixed (creator and props)
@@ -333,14 +352,28 @@ public class TestCreators
 
     public void testSimpleBigIntegerConstructor() throws Exception
     {
-        final BigIntegerWrapper result = MAPPER.readValue("17", BigIntegerWrapper.class);
-        assertEquals(new BigInteger("17"), result.i);
+        // 10-Dec-2020, tatu: Small (magnitude) values will NOT trigger path
+        //   we want; must use something outside of Long range...
+
+        BigInteger INPUT = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.TEN);
+        final BigIntegerWrapper result = MAPPER.readValue(INPUT.toString(), BigIntegerWrapper.class);
+        assertEquals(INPUT, result._value);
     }
 
     public void testSimpleBigDecimalConstructor() throws Exception
     {
-        final BigDecimalWrapper result = MAPPER.readValue("42.5", BigDecimalWrapper.class);
-        assertEquals(new BigDecimal("42.5"), result.d);
+        // 10-Dec-2020, tatu: not sure we can ever trigger this with JSON;
+        //    but should be possible to handle via TokenBuffer?
+
+        BigDecimal INPUT = new BigDecimal("42.5");
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(INPUT);
+            try (JsonParser p = buf.asParser()) {
+                final BigDecimalWrapper result = MAPPER.readValue(p,
+                        BigDecimalWrapper.class);
+                assertEquals(INPUT, result._value);
+            }
+        }
     }
 
     public void testSimpleFactory() throws Exception

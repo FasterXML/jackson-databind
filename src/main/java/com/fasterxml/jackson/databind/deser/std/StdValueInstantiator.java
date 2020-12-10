@@ -368,7 +368,7 @@ public class StdValueInstantiator
                 return _fromBigIntegerCreator.call1(arg);
             } catch (Throwable t0) {
                 return ctxt.handleInstantiationProblem(_fromBigIntegerCreator.getDeclaringClass(),
-                                                       arg, rewrapCtorProblem(ctxt, t0)
+                        arg, rewrapCtorProblem(ctxt, t0)
                 );
             }
         }
@@ -380,24 +380,23 @@ public class StdValueInstantiator
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException
     {
         if (_fromLongCreator != null) {
-            Object arg = Long.valueOf(value);
+            Long arg = Long.valueOf(value);
             try {
                 return _fromLongCreator.call1(arg);
             } catch (Throwable t0) {
                 return ctxt.handleInstantiationProblem(_fromLongCreator.getDeclaringClass(),
-                                                       arg,
-                                                       rewrapCtorProblem(ctxt, t0)
+                        arg, rewrapCtorProblem(ctxt, t0)
                 );
             }
         }
 
         if (_fromBigIntegerCreator != null) {
-            Object arg = BigInteger.valueOf(value);
+            BigInteger arg = BigInteger.valueOf(value);
             try {
                 return _fromBigIntegerCreator.call1(arg);
             } catch (Throwable t0) {
                 return ctxt.handleInstantiationProblem(_fromBigIntegerCreator.getDeclaringClass(),
-                                                       arg, rewrapCtorProblem(ctxt, t0)
+                        arg, rewrapCtorProblem(ctxt, t0)
                 );
             }
         }
@@ -408,12 +407,12 @@ public class StdValueInstantiator
     @Override
     public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws IOException
     {
-        if (_fromBigDecimalCreator != null) {
+        if (_fromBigIntegerCreator != null) {
             try {
                 return _fromBigIntegerCreator.call1(value);
             } catch (Throwable t) {
                 return ctxt.handleInstantiationProblem(_fromBigIntegerCreator.getDeclaringClass(),
-                                                       value, rewrapCtorProblem(ctxt, t)
+                        value, rewrapCtorProblem(ctxt, t)
                 );
             }
         }
@@ -425,22 +424,22 @@ public class StdValueInstantiator
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException
     {
         if(_fromDoubleCreator != null) {
-            Object arg = Double.valueOf(value);
+            Double arg = Double.valueOf(value);
             try {
                 return _fromDoubleCreator.call1(arg);
             } catch (Throwable t0) {
                 return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
-                                                       arg, rewrapCtorProblem(ctxt, t0));
+                        arg, rewrapCtorProblem(ctxt, t0));
             }
         }
 
         if (_fromBigDecimalCreator != null) {
-            Object arg = BigDecimal.valueOf(value);
+            BigDecimal arg = BigDecimal.valueOf(value);
             try {
                 return _fromBigDecimalCreator.call1(arg);
             } catch (Throwable t0) {
                 return ctxt.handleInstantiationProblem(_fromBigDecimalCreator.getDeclaringClass(),
-                                                       arg, rewrapCtorProblem(ctxt, t0));
+                        arg, rewrapCtorProblem(ctxt, t0));
             }
         }
 
@@ -455,7 +454,7 @@ public class StdValueInstantiator
                 return _fromBigDecimalCreator.call1(value);
             } catch (Throwable t) {
                 return ctxt.handleInstantiationProblem(_fromBigDecimalCreator.getDeclaringClass(),
-                                                       value, rewrapCtorProblem(ctxt, t)
+                        value, rewrapCtorProblem(ctxt, t)
                 );
             }
         }

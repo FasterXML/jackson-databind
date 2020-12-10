@@ -335,8 +335,8 @@ public abstract class ValueInstantiator
     public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws IOException
     {
         return ctxt.handleMissingInstantiator(getValueClass(),this,null,
-                                              "no BigInteger-argument constructor/factory method to deserialize from Number value (%s)",
-                                              value
+                "no BigInteger-argument constructor/factory method to deserialize from Number value (%s)",
+                value
         );
     }
 
@@ -349,8 +349,8 @@ public abstract class ValueInstantiator
     public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws IOException
     {
         return ctxt.handleMissingInstantiator(getValueClass(),this,null,
-                                              "no BigDecimal/double/Double-argument constructor/factory method to deserialize from Number value (%s)",
-                                              value
+                "no BigDecimal/double/Double-argument constructor/factory method to deserialize from Number value (%s)",
+                value
         );
     }
 

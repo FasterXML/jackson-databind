@@ -112,7 +112,7 @@ Project: jackson-databind
 - Some refactoring of `CollectionDeserializer` to solve CSV array handling issues
 - Full "LICENSE" included in jar for easier access by compliancy tools
 
-2.11.4 (not yet released)
+2.11.4 (12-Dec-2020)
 
 #2894: Fix type resolution for static methods (regression in 2.11.3 due to #2821 fix)
  (reported by Łukasz W)

@@ -343,6 +343,7 @@ public class JDKNumberDeserTest extends BaseMapTest
     public void testBigDecimalSubtypes() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .registerSubtypes(NodeParent2644.class)
                 .build();
         NodeRoot2644 root = mapper.readValue(
@@ -356,8 +357,8 @@ public class JDKNumberDeserTest extends BaseMapTest
     // [databind#2784]
     public void testBigDecimalUnwrapped() throws Exception
     {
-        final ObjectMapper mapper = newJsonMapper();
-        // mapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        final ObjectMapper mapper = newJsonMapper()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         final String JSON = "{\"value\": 5.00}";
         NestedBigDecimalHolder2784 result = mapper.readValue(JSON, NestedBigDecimalHolder2784.class);
         assertEquals(new BigDecimal("5.00"), result.holder.value);

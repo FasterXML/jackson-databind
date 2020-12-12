@@ -1220,18 +1220,32 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             case BIG_INTEGER:
                 writeNumber(p.getBigIntegerValue());
                 break;
-            default:
+            case LONG:
                 writeNumber(p.getLongValue());
+                break;
+            default:
+                throw new RuntimeException(
+                        "Internal error: unexpected VALUE_NUMBER_INT type: " + p.getNumberType());
             }
             break;
         case VALUE_NUMBER_FLOAT:
             if (_forceBigDecimal) {
                 writeNumber(p.getDecimalValue());
             } else {
-                // 09-Jul-2020, tatu: Used to just copy using most optimal method, but
-                //  issues like [databind#2644] force to use exact, not optimal type
-                final Number n = p.getNumberValueExact();
-                _appendValue(JsonToken.VALUE_NUMBER_FLOAT, n);
+                switch (p.getNumberType()) {
+                    case FLOAT:
+                        writeNumber(p.getFloatValue());
+                        break;
+                    case DOUBLE:
+                        writeNumber(p.getDoubleValue());
+                        break;
+                    case BIG_DECIMAL:
+                        writeNumber(p.getDecimalValue());
+                        break;
+                    default:
+                        throw new RuntimeException(
+                                "Internal error: unexpected VALUE_NUMBER_FLOAT type: " + p.getNumberType());
+                }
             }
             break;
         case VALUE_TRUE:

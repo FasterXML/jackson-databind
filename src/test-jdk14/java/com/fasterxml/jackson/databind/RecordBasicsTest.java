@@ -9,38 +9,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class RecordTest extends BaseMapTest
+public class RecordBasicsTest extends BaseMapTest
 {
     record SimpleRecord(int id, String name) { }
 
     record RecordOfRecord(SimpleRecord record) { }
-
-    record RecordWithCanonicalCtorOverride(int id, String name) {
-        public RecordWithCanonicalCtorOverride(int id, String name) {
-            this.id = id;
-            this.name = "name";
-        }
-    }
-
-    record RecordWithAltCtor(int id, String name) {
-        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-        public RecordWithAltCtor(@JsonProperty("id") int id) {
-            this(id, "name2");
-        }
-    }
-
-    // [databind#2980]
-    record RecordWithDelegation(String value) {
-        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-        public RecordWithDelegation(String value) {
-            this.value = "del:"+value;
-        }
-
-        @JsonValue()
-        public String getValue() {
-            return "val:"+value;
-        }
-    }
 
     record RecordWithIgnore(int id, @JsonIgnore String name) { }
 
@@ -132,35 +105,6 @@ public class RecordTest extends BaseMapTest
         SimpleRecord value = mapper.readValue("{\"id\":123,\"name\":\"Bob\"}", SimpleRecord.class);
 
         assertEquals(new SimpleRecord(123, "Bob"), value);
-    }
-
-    /*
-    /**********************************************************************
-    /* Test methods, alternate constructors
-    /**********************************************************************
-     */
-
-    public void testDeserializeWithCanonicalCtorOverride() throws Exception {
-        RecordWithCanonicalCtorOverride value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
-                RecordWithCanonicalCtorOverride.class);
-        assertEquals(123, value.id());
-        assertEquals("name", value.name());
-    }
-
-    public void testDeserializeWithAltCtor() throws Exception {
-        RecordWithAltCtor value = MAPPER.readValue("{\"id\":2812}",
-                RecordWithAltCtor.class);
-        assertEquals(2812, value.id());
-        assertEquals("name2", value.name());
-    }
-
-    // [databind#2980]
-    public void testDeserializeWithDelegatingCtor() throws Exception {
-        RecordWithDelegation value = MAPPER.readValue(q("foobar"),
-                RecordWithDelegation.class);
-        assertEquals("del:foobar", value.getValue());
-
-        assertEquals(q("val:del:foobar"), MAPPER.writeValueAsString(value));
     }
 
     /*

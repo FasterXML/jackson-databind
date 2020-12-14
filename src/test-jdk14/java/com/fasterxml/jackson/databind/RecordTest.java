@@ -29,6 +29,19 @@ public class RecordTest extends BaseMapTest
         }
     }
 
+    // [databind#2980]
+    record RecordWithDelegation(String value) {
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public RecordWithDelegation(String value) {
+            this.value = "del:"+value;
+        }
+
+        @JsonValue()
+        public String getValue() {
+            return "val:"+value;
+        }
+    }
+
     record RecordWithIgnore(int id, @JsonIgnore String name) { }
 
     record RecordWithRename(int id, @JsonProperty("rename")String name) { }
@@ -123,14 +136,9 @@ public class RecordTest extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* Test methods, reading/writing Record values with annotations
+    /* Test methods, alternate constructors
     /**********************************************************************
      */
-    
-    public void testSerializeJsonIgnoreRecord() throws Exception {
-        String json = MAPPER.writeValueAsString(new RecordWithIgnore(123, "Bob"));
-        assertEquals("{\"id\":123}", json);
-    }
 
     public void testDeserializeWithCanonicalCtorOverride() throws Exception {
         RecordWithCanonicalCtorOverride value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
@@ -144,6 +152,26 @@ public class RecordTest extends BaseMapTest
                 RecordWithAltCtor.class);
         assertEquals(2812, value.id());
         assertEquals("name2", value.name());
+    }
+
+    // [databind#2980]
+    public void testDeserializeWithDelegatingCtor() throws Exception {
+        RecordWithDelegation value = MAPPER.readValue(q("foobar"),
+                RecordWithDelegation.class);
+        assertEquals("del:foobar", value.getValue());
+
+        assertEquals(q("val:del:foobar"), MAPPER.writeValueAsString(value));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, ignorals, renames
+    /**********************************************************************
+     */
+
+    public void testSerializeJsonIgnoreRecord() throws Exception {
+        String json = MAPPER.writeValueAsString(new RecordWithIgnore(123, "Bob"));
+        assertEquals("{\"id\":123}", json);
     }
 
     public void testSerializeJsonRename() throws Exception {

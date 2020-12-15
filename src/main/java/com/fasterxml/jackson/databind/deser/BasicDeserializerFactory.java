@@ -803,7 +803,8 @@ nonAnnotatedParamIndex, ctor);
     }
 
     /**
-     * Helper method called when there is the explicit "is-creator" with mode of "properties-based"
+     * Helper method called when there is the explicit "is-creator" annotation with mode
+     * of "properties-based"
      */
     protected void _addExplicitPropertyCreator(DeserializationContext ctxt,
             BeanDescription beanDesc, CreatorCollector creators,

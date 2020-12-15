@@ -12,15 +12,17 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class TestDoubleJsonCreator extends BaseMapTest  {
-
-    public static final class UnionExample {
+// For [databind#2978]
+public class TestDoubleJsonCreator extends BaseMapTest
+{
+    static final class UnionExample {
         private final Base value;
 
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
@@ -78,7 +80,7 @@ public class TestDoubleJsonCreator extends BaseMapTest  {
             private final AliasDouble value;
 
             @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-            private DoubleWrapper(@JsonSetter("double") AliasDouble value) {
+            DoubleWrapper(@JsonSetter("double") AliasDouble value) {
                 Objects.requireNonNull(value, "double cannot be null");
                 this.value = value;
             }
@@ -176,7 +178,7 @@ public class TestDoubleJsonCreator extends BaseMapTest  {
         }
     }
 
-    public static final class AliasDouble {
+    static final class AliasDouble {
         private final double value;
 
         private AliasDouble(double value) {
@@ -211,17 +213,21 @@ public class TestDoubleJsonCreator extends BaseMapTest  {
         }
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    // [databind#2978]
     public void testDeserializationTypeFieldLast() throws IOException {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
-        UnionExample actual = objectMapper().readValue(
+        UnionExample actual = MAPPER.readValue(
                 a2q("{'double': 2.0,'type':'double'}"),
                 new TypeReference<UnionExample>() {});
         assertEquals(expected, actual);
     }
 
+    // [databind#2978]
     public void testDeserializationTypeFieldFirst() throws IOException {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
-        UnionExample actual = objectMapper().readValue(
+        UnionExample actual = MAPPER.readValue(
                 a2q("{'type':'double','double': 2.0}"),
                 new TypeReference<UnionExample>() {});
         assertEquals(expected, actual);

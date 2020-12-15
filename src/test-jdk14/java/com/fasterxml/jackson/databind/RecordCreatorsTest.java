@@ -22,7 +22,7 @@ public class RecordCreatorsTest extends BaseMapTest
 
     // [databind#2980]
     record RecordWithDelegation(String value) {
-        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public RecordWithDelegation(String value) {
             this.value = "del:"+value;
         }
@@ -31,6 +31,8 @@ public class RecordCreatorsTest extends BaseMapTest
         public String getValue() {
             return "val:"+value;
         }
+
+        public String accessValueForTest() { return value; }
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -59,7 +61,7 @@ public class RecordCreatorsTest extends BaseMapTest
     public void testDeserializeWithDelegatingCtor() throws Exception {
         RecordWithDelegation value = MAPPER.readValue(q("foobar"),
                 RecordWithDelegation.class);
-        assertEquals("del:foobar", value.getValue());
+        assertEquals("del:foobar", value.accessValueForTest());
 
         assertEquals(q("val:del:foobar"), MAPPER.writeValueAsString(value));
     }

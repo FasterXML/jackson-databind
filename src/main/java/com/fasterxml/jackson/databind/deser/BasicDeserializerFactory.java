@@ -851,7 +851,8 @@ nonAnnotatedParamIndex, ctor);
     }
 
     /**
-     * Helper method called when there is the explicit "is-creator" with mode of "properties-based"
+     * Helper method called when there is the explicit "is-creator" annotation with mode
+     * of "properties-based"
      *
      * @since 2.9.2
      */
@@ -1071,7 +1072,6 @@ candidate.creator());
             }
         }
     }
-
 
     protected boolean _handleSingleArgumentCreator(CreatorCollector creators,
             AnnotatedWithParams ctor, boolean isCreator, boolean isVisible)

@@ -463,13 +463,15 @@ public class StdValueInstantiator
         // with less precision as doubles. When written to a TokenBuffer for polymorphic
         // deserialization the most specific type is recorded, though a less precise
         // floating point value may be needed.
-        if(_fromDoubleCreator != null && canConvertToDouble(value)) {
-            Object arg = value.doubleValue();
-            try {
-                return _fromDoubleCreator.call1(arg);
-            } catch (Throwable t0) {
-                return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
-                        arg, rewrapCtorProblem(ctxt, t0));
+        if (_fromDoubleCreator != null) {
+            Double dbl = tryConvertToDouble(value);
+            if (dbl != null) {
+                try {
+                    return _fromDoubleCreator.call1(dbl);
+                } catch (Throwable t0) {
+                    return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
+                            dbl, rewrapCtorProblem(ctxt, t0));
+                }
             }
         }
 
@@ -478,9 +480,11 @@ public class StdValueInstantiator
 
     // BigDecimal cannot represent special values NaN, positive infinity, or negative infinity.
     // When the value cannot be represented as a double, positive or negative infinity is returned.
-    static boolean canConvertToDouble(BigDecimal value) {
+    //
+    // @since 2.12.1
+    static Double tryConvertToDouble(BigDecimal value) {
         double doubleValue = value.doubleValue();
-        return !Double.isInfinite(doubleValue);
+        return Double.isInfinite(doubleValue) ? null : doubleValue;
     }
 
     @Override

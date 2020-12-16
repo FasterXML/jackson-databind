@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.10.8 (not yet released)
+
+#2986: Block two more gadget types
+ (reported by Al1ex@knownsec)
+
 2.9.10.7 (02-Dec-2020)
 
 #2589: `DOMDeserializer`: setExpandEntityReferences(false) may not prevent

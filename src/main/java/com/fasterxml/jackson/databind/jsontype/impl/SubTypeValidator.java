@@ -207,6 +207,10 @@ public class SubTypeValidator
         s.add("com.nqadmin.rowset.JdbcRowSetImpl");
         s.add("org.arrah.framework.rdbms.UpdatableJdbcRowsetImpl");
 
+        // [databind#2986]: dbcp2
+        s.add("org.apache.commons.dbcp2.datasources.PerUserPoolDataSource");
+        s.add("org.apache.commons.dbcp2.datasources.SharedPoolDataSource");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

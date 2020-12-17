@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -48,21 +50,21 @@ public class CoerceToBooleanTest extends BaseMapTest
             .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 
-    private final ObjectMapper MAPPER_TO_EMPTY; {
-        MAPPER_TO_EMPTY = newJsonMapper();
-        MAPPER_TO_EMPTY.coercionConfigFor(LogicalType.Boolean)
+    private final ObjectMapper MAPPER_INT_TO_EMPTY; {
+        MAPPER_INT_TO_EMPTY = newJsonMapper();
+        MAPPER_INT_TO_EMPTY.coercionConfigFor(LogicalType.Boolean)
             .setCoercion(CoercionInputShape.Integer, CoercionAction.AsEmpty);
     }
 
-    private final ObjectMapper MAPPER_TRY_CONVERT; {
-        MAPPER_TRY_CONVERT = newJsonMapper();
-        MAPPER_TRY_CONVERT.coercionConfigFor(LogicalType.Boolean)
+    private final ObjectMapper MAPPER_INT_TRY_CONVERT; {
+        MAPPER_INT_TRY_CONVERT = newJsonMapper();
+        MAPPER_INT_TRY_CONVERT.coercionConfigFor(LogicalType.Boolean)
             .setCoercion(CoercionInputShape.Integer, CoercionAction.TryConvert);
     }
 
-    private final ObjectMapper MAPPER_TO_NULL; {
-        MAPPER_TO_NULL = newJsonMapper();
-        MAPPER_TO_NULL.coercionConfigFor(LogicalType.Boolean)
+    private final ObjectMapper MAPPER_INT_TO_NULL; {
+        MAPPER_INT_TO_NULL = newJsonMapper();
+        MAPPER_INT_TO_NULL.coercionConfigFor(LogicalType.Boolean)
             .setCoercion(CoercionInputShape.Integer, CoercionAction.AsNull);
     }
 
@@ -81,7 +83,6 @@ public class CoerceToBooleanTest extends BaseMapTest
     /**********************************************************
      */
 
-
     // for [databind#403]
     public void testEmptyStringFailForBooleanPrimitive() throws IOException
     {
@@ -97,13 +98,91 @@ public class CoerceToBooleanTest extends BaseMapTest
         }
     }
 
+    public void testStringToBooleanCoercionOk() throws Exception
+    {
+        // first successful coercions. Boolean has a ton...
+        _verifyCoerceSuccess(DEFAULT_MAPPER, "1", Boolean.TYPE, Boolean.TRUE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, "1", Boolean.class, Boolean.TRUE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("true"), Boolean.TYPE, Boolean.TRUE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("true"), Boolean.class, Boolean.TRUE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("True"), Boolean.TYPE, Boolean.TRUE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("True"), Boolean.class, Boolean.TRUE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("TRUE"), Boolean.TYPE, Boolean.TRUE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("TRUE"), Boolean.class, Boolean.TRUE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, "0", Boolean.TYPE, Boolean.FALSE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, "0", Boolean.class, Boolean.FALSE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("false"), Boolean.TYPE, Boolean.FALSE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("false"), Boolean.class, Boolean.FALSE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("False"), Boolean.TYPE, Boolean.FALSE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("False"), Boolean.class, Boolean.FALSE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("FALSE"), Boolean.TYPE, Boolean.FALSE);
+        _verifyCoerceSuccess(DEFAULT_MAPPER, q("FALSE"), Boolean.class, Boolean.FALSE);
+    }
+
+    private void _verifyCoerceSuccess(ObjectMapper mapper,
+            String input, Class<?> type, Object exp) throws IOException
+    {
+        Object result = mapper.readerFor(type)
+                .readValue(input);
+        assertEquals(exp, result);
+    }
+
+    public void testStringToBooleanCoercionFail() throws Exception
+    {
+        _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "true", Boolean.TYPE);
+        _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "true", Boolean.class);
+        _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "True", Boolean.TYPE);
+        _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "True", Boolean.class);
+        _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "TRUE", Boolean.TYPE);
+        _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "TRUE", Boolean.class);
+
+        _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "false", Boolean.TYPE);
+        _verifyRootStringCoerceFail(LEGACY_NONCOERCING_MAPPER, "false", Boolean.class);
+    }
+
+    private void _verifyRootStringCoerceFail(ObjectMapper nonCoercingMapper,
+            String unquotedValue, Class<?> type) throws IOException
+    {
+        // Test failure for root value: for both byte- and char-backed sources:
+
+        final String input = quote(unquotedValue);
+        try (JsonParser p = nonCoercingMapper.createParser(new StringReader(input))) {
+            _verifyStringCoerceFail(nonCoercingMapper, p, unquotedValue, type);
+        }
+        final byte[] inputBytes = utf8Bytes(input);
+        try (JsonParser p = nonCoercingMapper.createParser(new ByteArrayInputStream(inputBytes))) {
+            _verifyStringCoerceFail(nonCoercingMapper, p, unquotedValue, type);
+        }
+    }
+
+    private void _verifyStringCoerceFail(ObjectMapper nonCoercingMapper,
+            JsonParser p,
+            String unquotedValue, Class<?> type) throws IOException
+    {
+        try {
+            nonCoercingMapper.readerFor(type)
+                .readValue(p);
+            fail("Should not have allowed coercion");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot coerce ");
+            verifyException(e, " to `");
+            verifyException(e, "` value");
+
+            assertNotNull(e.getProcessor());
+            assertSame(p, e.getProcessor());
+
+            assertToken(JsonToken.VALUE_STRING, p.currentToken());
+            assertEquals(unquotedValue, p.getText());
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests: default, legacy configuration, from Int
     /**********************************************************
      */
 
-    public void testToBooleanCoercionSuccessPojo() throws Exception
+    public void testIntToBooleanCoercionSuccessPojo() throws Exception
     {        
         BooleanPOJO p;
         final ObjectReader r = DEFAULT_MAPPER.readerFor(BooleanPOJO.class);
@@ -119,7 +198,7 @@ public class CoerceToBooleanTest extends BaseMapTest
         assertEquals(true, p.value);
     }
 
-    public void testToBooleanCoercionSuccessRoot() throws Exception
+    public void testIntToBooleanCoercionSuccessRoot() throws Exception
     {        
         final ObjectReader br = DEFAULT_MAPPER.readerFor(Boolean.class);
 
@@ -168,21 +247,29 @@ public class CoerceToBooleanTest extends BaseMapTest
         assertFalse(boo[3]);
         assertTrue(boo[4]);
     }
-    
-    public void testToBooleanCoercionFailBytes() throws Exception
+
+    // [databind#2635], [databind#2770]
+    public void testIntToBooleanCoercionFailBytes() throws Exception
     {
         _verifyBooleanCoerceFail(aposToQuotes("{'value':1}"), true, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
 
         _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
         _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
+
+        _verifyBooleanCoerceFail("1.25", true, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1.25", true, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
     }
 
-    public void testToBooleanCoercionFailChars() throws Exception
+    // [databind#2635], [databind#2770]
+    public void testIntToBooleanCoercionFailChars() throws Exception
     {
         _verifyBooleanCoerceFail(aposToQuotes("{'value':1}"), false, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
 
         _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
         _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
+
+        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
+        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
     }
 
     /*
@@ -193,22 +280,22 @@ public class CoerceToBooleanTest extends BaseMapTest
 
     public void testIntToNullCoercion() throws Exception
     {
-        assertNull(MAPPER_TO_NULL.readValue("0", Boolean.class));
-        assertNull(MAPPER_TO_NULL.readValue("1", Boolean.class));
+        assertNull(MAPPER_INT_TO_NULL.readValue("0", Boolean.class));
+        assertNull(MAPPER_INT_TO_NULL.readValue("1", Boolean.class));
 
         // but due to coercion to `boolean`, can not return null here -- however,
         // goes "1 -> false (no null for primitive) -> Boolean.FALSE
-        assertEquals(Boolean.FALSE, MAPPER_TO_NULL.readValue("0", Boolean.TYPE));
-        assertEquals(Boolean.FALSE, MAPPER_TO_NULL.readValue("1", Boolean.TYPE));
+        assertEquals(Boolean.FALSE, MAPPER_INT_TO_NULL.readValue("0", Boolean.TYPE));
+        assertEquals(Boolean.FALSE, MAPPER_INT_TO_NULL.readValue("1", Boolean.TYPE));
 
         // As to AtomicBoolean: that type itself IS nullable since it's of LogicalType.Boolean so
-        assertNull(MAPPER_TO_NULL.readValue("0", AtomicBoolean.class));
-        assertNull(MAPPER_TO_NULL.readValue("1", AtomicBoolean.class));
+        assertNull(MAPPER_INT_TO_NULL.readValue("0", AtomicBoolean.class));
+        assertNull(MAPPER_INT_TO_NULL.readValue("1", AtomicBoolean.class));
 
         BooleanPOJO p;
-        p = MAPPER_TO_NULL.readValue(DOC_WITH_0, BooleanPOJO.class);
+        p = MAPPER_INT_TO_NULL.readValue(DOC_WITH_0, BooleanPOJO.class);
         assertFalse(p.value);
-        p = MAPPER_TO_NULL.readValue(DOC_WITH_1, BooleanPOJO.class);
+        p = MAPPER_INT_TO_NULL.readValue(DOC_WITH_1, BooleanPOJO.class);
         assertFalse(p.value);
     }
 
@@ -216,22 +303,22 @@ public class CoerceToBooleanTest extends BaseMapTest
     {
         // "empty" value for Boolean/boolean is False/false
 
-        assertEquals(Boolean.FALSE, MAPPER_TO_EMPTY.readValue("0", Boolean.class));
-        assertEquals(Boolean.FALSE, MAPPER_TO_EMPTY.readValue("1", Boolean.class));
+        assertEquals(Boolean.FALSE, MAPPER_INT_TO_EMPTY.readValue("0", Boolean.class));
+        assertEquals(Boolean.FALSE, MAPPER_INT_TO_EMPTY.readValue("1", Boolean.class));
 
-        assertEquals(Boolean.FALSE, MAPPER_TO_EMPTY.readValue("0", Boolean.TYPE));
-        assertEquals(Boolean.FALSE, MAPPER_TO_EMPTY.readValue("1", Boolean.TYPE));
+        assertEquals(Boolean.FALSE, MAPPER_INT_TO_EMPTY.readValue("0", Boolean.TYPE));
+        assertEquals(Boolean.FALSE, MAPPER_INT_TO_EMPTY.readValue("1", Boolean.TYPE));
 
         AtomicBoolean ab;
-        ab = MAPPER_TO_EMPTY.readValue("0", AtomicBoolean.class);
+        ab = MAPPER_INT_TO_EMPTY.readValue("0", AtomicBoolean.class);
         assertFalse(ab.get());
-        ab = MAPPER_TO_EMPTY.readValue("1", AtomicBoolean.class);
+        ab = MAPPER_INT_TO_EMPTY.readValue("1", AtomicBoolean.class);
         assertFalse(ab.get());
 
         BooleanPOJO p;
-        p = MAPPER_TO_EMPTY.readValue(DOC_WITH_0, BooleanPOJO.class);
+        p = MAPPER_INT_TO_EMPTY.readValue(DOC_WITH_0, BooleanPOJO.class);
         assertFalse(p.value);
-        p = MAPPER_TO_EMPTY.readValue(DOC_WITH_1, BooleanPOJO.class);
+        p = MAPPER_INT_TO_EMPTY.readValue(DOC_WITH_1, BooleanPOJO.class);
         assertFalse(p.value);
     }
         
@@ -239,22 +326,22 @@ public class CoerceToBooleanTest extends BaseMapTest
     {
         // And "TryCoerce" should do what would be typically expected
 
-        assertEquals(Boolean.FALSE, MAPPER_TRY_CONVERT.readValue("0", Boolean.class));
-        assertEquals(Boolean.TRUE, MAPPER_TRY_CONVERT.readValue("1", Boolean.class));
+        assertEquals(Boolean.FALSE, MAPPER_INT_TRY_CONVERT.readValue("0", Boolean.class));
+        assertEquals(Boolean.TRUE, MAPPER_INT_TRY_CONVERT.readValue("1", Boolean.class));
 
-        assertEquals(Boolean.FALSE, MAPPER_TRY_CONVERT.readValue("0", Boolean.TYPE));
-        assertEquals(Boolean.TRUE, MAPPER_TRY_CONVERT.readValue("1", Boolean.TYPE));
+        assertEquals(Boolean.FALSE, MAPPER_INT_TRY_CONVERT.readValue("0", Boolean.TYPE));
+        assertEquals(Boolean.TRUE, MAPPER_INT_TRY_CONVERT.readValue("1", Boolean.TYPE));
 
         AtomicBoolean ab;
-        ab = MAPPER_TRY_CONVERT.readValue("0", AtomicBoolean.class);
+        ab = MAPPER_INT_TRY_CONVERT.readValue("0", AtomicBoolean.class);
         assertFalse(ab.get());
-        ab = MAPPER_TRY_CONVERT.readValue("1", AtomicBoolean.class);
+        ab = MAPPER_INT_TRY_CONVERT.readValue("1", AtomicBoolean.class);
         assertTrue(ab.get());
 
         BooleanPOJO p;
-        p = MAPPER_TRY_CONVERT.readValue(DOC_WITH_0, BooleanPOJO.class);
+        p = MAPPER_INT_TRY_CONVERT.readValue(DOC_WITH_0, BooleanPOJO.class);
         assertFalse(p.value);
-        p = MAPPER_TRY_CONVERT.readValue(DOC_WITH_1, BooleanPOJO.class);
+        p = MAPPER_INT_TRY_CONVERT.readValue(DOC_WITH_1, BooleanPOJO.class);
         assertTrue(p.value);
     }
 
@@ -310,8 +397,7 @@ public class CoerceToBooleanTest extends BaseMapTest
     private void _verifyBooleanCoerceFailReason(MismatchedInputException e,
             JsonToken tokenType, String tokenValue) throws IOException
     {
-        verifyException(e, "Cannot coerce ");
-        verifyException(e, " to `");
+        verifyException(e, "Cannot coerce ", "Cannot deserialize value of type ");
 
         JsonParser p = (JsonParser) e.getProcessor();
 

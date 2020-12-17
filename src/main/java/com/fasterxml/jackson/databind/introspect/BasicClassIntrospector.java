@@ -174,6 +174,16 @@ public class BasicClassIntrospector
     /**********************************************************
      */
 
+    @Deprecated
+    protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
+            JavaType type, MixInResolver r, boolean forSerialization,
+            String mutatorPrefix)
+    {
+        final AnnotatedClass classDef = _resolveAnnotatedClass(config, type, r);
+        final AccessorNamingStrategy accNaming = new DefaultAccessorNamingStrategy.Provider().withSetterPrefix(mutatorPrefix).forPOJO(config, classDef);
+        return constructPropertyCollector(config, classDef, type, forSerialization, accNaming);
+    }
+
     protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
@@ -184,6 +194,13 @@ public class BasicClassIntrospector
         return constructPropertyCollector(config, classDef, type, forSerialization, accNaming);
     }
 
+    @Deprecated
+    protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
+            JavaType type, MixInResolver r, boolean forSerialization)
+    {
+        return collectPropertiesWithBuilder(config, type, r, null, forSerialization);
+    }
+
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
             JavaType type, MixInResolver r, BeanDescription valueTypeDesc,
             boolean forSerialization)
@@ -192,6 +209,17 @@ public class BasicClassIntrospector
         final AccessorNamingStrategy accNaming = config.getAccessorNaming()
                 .forBuilder(config, builderClassDef, valueTypeDesc);
         return constructPropertyCollector(config, builderClassDef, type, forSerialization, accNaming);
+    }
+
+    /**
+     * Overridable method called for creating {@link POJOPropertiesCollector} instance
+     * to use; override is needed if a custom sub-class is to be used.
+     */
+    @Deprecated
+    protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
+            AnnotatedClass ac, JavaType type, boolean forSerialization, String mutatorPrefix)
+    {
+        return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
     }
 
     // @since 2.12

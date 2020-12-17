@@ -94,6 +94,9 @@ public class JDKScalarsTest
         public long longValue = 100L;
         public float floatValue = 0.25f;
         public double doubleValue = -1.0;
+
+        public void setLongValue(long l) { longValue = l; }
+        public void setDoubleValue(double v) { doubleValue = v; }
     }
 
     static class WrappersBean
@@ -106,6 +109,9 @@ public class JDKScalarsTest
         public Long longValue;
         public Float floatValue;
         public Double doubleValue;
+
+        public void setIntValue(Integer v) { intValue = v; }
+        public void setDoubleValue(Double v) { doubleValue = v; }
     }
 
     // [databind#2101]

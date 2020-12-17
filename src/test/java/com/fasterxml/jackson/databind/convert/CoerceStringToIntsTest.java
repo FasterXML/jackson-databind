@@ -108,7 +108,7 @@ public class CoerceStringToIntsTest extends BaseMapTest
     /********************************************************
      */
 
-    public void testCoerceConfigFloatToNull() throws Exception
+    public void testCoerceConfigStringToNull() throws Exception
     {
         assertNull(MAPPER_TO_NULL.readValue(q("155"), Integer.class));
         // `null` not possible for primitives, must use empty (aka default) value
@@ -161,7 +161,7 @@ public class CoerceStringToIntsTest extends BaseMapTest
     /********************************************************
      */
 
-    public void testCoerceConfigFloatToEmpty() throws Exception
+    public void testCoerceConfigStringToEmpty() throws Exception
     {
         assertEquals(Integer.valueOf(0), MAPPER_TO_EMPTY.readValue(q("12"), Integer.class));
         assertEquals(Integer.valueOf(0), MAPPER_TO_EMPTY.readValue(q("15"), Integer.TYPE));
@@ -198,7 +198,7 @@ public class CoerceStringToIntsTest extends BaseMapTest
     /********************************************************
      */
 
-    public void testCoerceConfigFloatSuccess() throws Exception
+    public void testCoerceConfigStringConvert() throws Exception
     {
         assertEquals(Integer.valueOf(12), MAPPER_TRY_CONVERT.readValue(q("12"), Integer.class));
         assertEquals(Integer.valueOf(34), MAPPER_TRY_CONVERT.readValue(q("34"), Integer.TYPE));
@@ -235,7 +235,7 @@ public class CoerceStringToIntsTest extends BaseMapTest
     /********************************************************
      */
 
-    public void testCoerceConfigFailFromFloat() throws Exception
+    public void testCoerceConfigFailFromString() throws Exception
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Integer.class, q("15"));
         _verifyCoerceFail(MAPPER_TO_FAIL, Integer.TYPE, q("15"));

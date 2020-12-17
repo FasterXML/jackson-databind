@@ -13,6 +13,8 @@ Project: jackson-databind
  (reported by andpal@github)
 #2973: DeserializationProblemHandler is not invoked when trying to deserializing String
  (reported by zigzago@github)
+#2978: Fix failing `double` JsonCreators in jackson 2.12.0
+ (contributed by Carter K)
 
 2.12.0 (29-Nov-2020)
 

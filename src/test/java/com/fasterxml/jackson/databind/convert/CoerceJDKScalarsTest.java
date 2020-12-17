@@ -127,27 +127,6 @@ public class CoerceJDKScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testStringToBooleanCoercionOk() throws Exception
-    {
-        // first successful coercions. Boolean has a ton...
-        _verifyCoerceSuccess("1", Boolean.TYPE, Boolean.TRUE);
-        _verifyCoerceSuccess("1", Boolean.class, Boolean.TRUE);
-        _verifyCoerceSuccess(quote("true"), Boolean.TYPE, Boolean.TRUE);
-        _verifyCoerceSuccess(quote("true"), Boolean.class, Boolean.TRUE);
-        _verifyCoerceSuccess(quote("True"), Boolean.TYPE, Boolean.TRUE);
-        _verifyCoerceSuccess(quote("True"), Boolean.class, Boolean.TRUE);
-        _verifyCoerceSuccess(quote("TRUE"), Boolean.TYPE, Boolean.TRUE);
-        _verifyCoerceSuccess(quote("TRUE"), Boolean.class, Boolean.TRUE);
-        _verifyCoerceSuccess("0", Boolean.TYPE, Boolean.FALSE);
-        _verifyCoerceSuccess("0", Boolean.class, Boolean.FALSE);
-        _verifyCoerceSuccess(quote("false"), Boolean.TYPE, Boolean.FALSE);
-        _verifyCoerceSuccess(quote("false"), Boolean.class, Boolean.FALSE);
-        _verifyCoerceSuccess(quote("False"), Boolean.TYPE, Boolean.FALSE);
-        _verifyCoerceSuccess(quote("False"), Boolean.class, Boolean.FALSE);
-        _verifyCoerceSuccess(quote("FALSE"), Boolean.TYPE, Boolean.FALSE);
-        _verifyCoerceSuccess(quote("FALSE"), Boolean.class, Boolean.FALSE);
-    }
-
     public void testStringToNumbersCoercionOk() throws Exception
     {
         _verifyCoerceSuccess(quote("123"), Byte.TYPE, Byte.valueOf((byte) 123));
@@ -171,19 +150,6 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         assertTrue(ab.get());
     }
 
-    public void testStringToBooleanCoercionFail() throws Exception
-    {
-        _verifyRootStringCoerceFail("true", Boolean.TYPE);
-        _verifyRootStringCoerceFail("true", Boolean.class);
-        _verifyRootStringCoerceFail("True", Boolean.TYPE);
-        _verifyRootStringCoerceFail("True", Boolean.class);
-        _verifyRootStringCoerceFail("TRUE", Boolean.TYPE);
-        _verifyRootStringCoerceFail("TRUE", Boolean.class);
-
-        _verifyRootStringCoerceFail("false", Boolean.TYPE);
-        _verifyRootStringCoerceFail("false", Boolean.class);
-    }
-
     public void testStringCoercionFailInteger() throws Exception
     {
         _verifyRootStringCoerceFail("123", Byte.TYPE);
@@ -205,30 +171,6 @@ public class CoerceJDKScalarsTest extends BaseMapTest
 
         _verifyRootStringCoerceFail("123", BigInteger.class);
         _verifyRootStringCoerceFail("123.0", BigDecimal.class);
-    }
-
-    // [databind#2635], [databind#2770]
-    public void testToBooleanCoercionFailBytes() throws Exception
-    {
-        final String beanDoc = aposToQuotes("{'value':1}");
-        _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
-        _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
-        _verifyBooleanCoerceFail(beanDoc, true, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
-
-        _verifyBooleanCoerceFail("1.25", true, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
-        _verifyBooleanCoerceFail("1.25", true, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
-    }
-
-    // [databind#2635], [databind#2770]
-    public void testToBooleanCoercionFailChars() throws Exception
-    {
-        final String beanDoc = aposToQuotes("{'value':1}");
-        _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
-        _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
-        _verifyBooleanCoerceFail(beanDoc, false, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
-
-        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.TYPE);
-        _verifyBooleanCoerceFail("1.25", false, JsonToken.VALUE_NUMBER_FLOAT, "1.25", Boolean.class);
     }
 
     public void testMiscCoercionFail() throws Exception
@@ -297,46 +239,6 @@ public class CoerceJDKScalarsTest extends BaseMapTest
 
             assertToken(JsonToken.VALUE_STRING, p.currentToken());
             assertEquals(unquotedValue, p.getText());
-        }
-    }
-
-    private void _verifyBooleanCoerceFail(String doc, boolean useBytes,
-            JsonToken tokenType, String tokenValue, Class<?> targetType) throws IOException
-    {
-        // Test failure for root value: for both byte- and char-backed sources.
-
-        // [databind#2635]: important, need to use `readValue()` that takes content and NOT
-        // JsonParser, as this forces closing of underlying parser and exposes more issues.
-
-        final ObjectReader r = NOT_COERCING_MAPPER.readerFor(targetType);
-        try {
-            if (useBytes) {
-                r.readValue(utf8Bytes(doc));
-            } else {
-                r.readValue(doc);
-            }
-            fail("Should not have allowed coercion");
-        } catch (MismatchedInputException e) {
-            _verifyBooleanCoerceFailReason(e, tokenType, tokenValue);
-        }
-    }
-
-    private void _verifyBooleanCoerceFailReason(MismatchedInputException e,
-            JsonToken tokenType, String tokenValue) throws IOException
-    {
-        // 2 different possibilities here
-        verifyException(e, "Cannot coerce Integer value", "Cannot deserialize value of type `");
-
-        JsonParser p = (JsonParser) e.getProcessor();
-
-        assertToken(tokenType, p.currentToken());
-
-        final String text = p.getText();
-
-        if (!tokenValue.equals(text)) {
-            String textDesc = (text == null) ? "NULL" : quote(text);
-            fail("Token text ("+textDesc+") via parser of type "+p.getClass().getName()
-                    +" not as expected ("+quote(tokenValue)+"); exception message: '"+e.getMessage()+"'");
         }
     }
 }

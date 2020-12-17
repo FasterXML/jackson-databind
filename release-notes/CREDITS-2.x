@@ -816,6 +816,8 @@ Carter Kozak (carterkozak@github)
    (2.12.0)
   * Contributed #2931: Add errorprone static analysis profile to detect bugs at build time
    (2.12.0)
+  * Contributed #2978: Fix failing `double` JsonCreators in jackson 2.12.0
+   (2.12.1)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types

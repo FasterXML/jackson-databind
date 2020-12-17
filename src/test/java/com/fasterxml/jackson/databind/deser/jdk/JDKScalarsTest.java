@@ -493,7 +493,7 @@ public class JDKScalarsTest
     /**********************************************************
      */
 
-    public void testNullForPrimitives() throws IOException
+    public void testNullForPrimitivesDefault() throws IOException
     {
         // by default, ok to rely on defaults
         PrimitivesBean bean = MAPPER.readValue(
@@ -510,8 +510,10 @@ public class JDKScalarsTest
         assertEquals((byte) 0, bean.byteValue);
         assertEquals(0L, bean.longValue);
         assertEquals(0.0f, bean.floatValue);
+    }
 
-        // but not when enabled
+    public void testNullForPrimitivesNotAllowedInts() throws IOException
+    {
         final ObjectReader reader = MAPPER
                 .readerFor(PrimitivesBean.class)
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
@@ -559,7 +561,13 @@ public class JDKScalarsTest
             verifyException(e, "Cannot map `null` into type long");
             verifyPath(e, "longValue");
         }
+    }
 
+    public void testNullForPrimitivesNotAllowedFP() throws IOException
+    {
+        final ObjectReader reader = MAPPER
+                .readerFor(PrimitivesBean.class)
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         // float/double
         try {
             reader.readValue("{\"floatValue\":null}");

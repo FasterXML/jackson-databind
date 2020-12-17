@@ -23,7 +23,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class JDKScalarsTest
     extends BaseMapTest
 {
-    final static String NAN_STRING = "NaN";
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final static String NAN_STRING = "NaN";
 
     final static class BooleanBean {
         boolean _v;
@@ -126,8 +128,6 @@ public class JDKScalarsTest
     static class VoidBean {
         public Void value;
     }
-
-    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************

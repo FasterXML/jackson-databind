@@ -17,29 +17,25 @@ public class CoerceStringToIntsTest extends BaseMapTest
             .build()
             .reader();
 
-    private final ObjectMapper MAPPER_TO_EMPTY; {
-        MAPPER_TO_EMPTY = newJsonMapper();
-        MAPPER_TO_EMPTY.coercionConfigFor(LogicalType.Integer)
-            .setCoercion(CoercionInputShape.String, CoercionAction.AsEmpty);
-    }
+    private final ObjectMapper MAPPER_TO_EMPTY = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Integer, cfg ->
+            cfg.setCoercion(CoercionInputShape.String, CoercionAction.AsEmpty))
+        .build();
 
-    private final ObjectMapper MAPPER_TRY_CONVERT; {
-        MAPPER_TRY_CONVERT = newJsonMapper();
-        MAPPER_TRY_CONVERT.coercionConfigFor(LogicalType.Integer)
-            .setCoercion(CoercionInputShape.String, CoercionAction.TryConvert);
-    }
+    private final ObjectMapper MAPPER_TRY_CONVERT = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Integer, cfg ->
+            cfg.setCoercion(CoercionInputShape.String, CoercionAction.TryConvert))
+        .build();
 
-    private final ObjectMapper MAPPER_TO_NULL; {
-        MAPPER_TO_NULL = newJsonMapper();
-        MAPPER_TO_NULL.coercionConfigFor(LogicalType.Integer)
-            .setCoercion(CoercionInputShape.String, CoercionAction.AsNull);
-    }
+    private final ObjectMapper MAPPER_TO_NULL = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Integer, cfg ->
+            cfg.setCoercion(CoercionInputShape.String, CoercionAction.AsNull))
+        .build();
 
-    private final ObjectMapper MAPPER_TO_FAIL; {
-        MAPPER_TO_FAIL = newJsonMapper();
-        MAPPER_TO_FAIL.coercionConfigFor(LogicalType.Integer)
-            .setCoercion(CoercionInputShape.String, CoercionAction.Fail);
-    }
+    private final ObjectMapper MAPPER_TO_FAIL = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Integer, cfg ->
+            cfg.setCoercion(CoercionInputShape.String, CoercionAction.Fail))
+        .build();
 
     /*
     /********************************************************

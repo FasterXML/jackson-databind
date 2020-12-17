@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.convert;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -103,8 +104,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
 
         _verifyCoerceFail(READER_LEGACY_FAIL, BigInteger.class, "25236.256");
 
-        // 13-Jun-2020, tatu: No explicit deserializer for `AtomicLong` yet
-//        _verifyCoerceFail(READER_LEGACY_FAIL, AtomicLong.class, "25236.256");
+        _verifyCoerceFail(READER_LEGACY_FAIL, AtomicLong.class, "25236.256");
     }
 
     /*

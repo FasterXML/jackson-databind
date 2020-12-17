@@ -99,7 +99,8 @@ public class JDKScalarsTest
         public float floatValue = 0.25f;
         public double doubleValue = -1.0;
 
-        public void setLongValue(long l) { longValue = l; }
+        public void setIntValue(int v) { intValue = v; }
+        public void setLongValue(long v) { longValue = v; }
         public void setDoubleValue(double v) { doubleValue = v; }
     }
 

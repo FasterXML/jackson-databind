@@ -1324,12 +1324,6 @@ public abstract class DeserializationContext
 
 // 15-Sep-2019, tatu: Remove from 3.0 due to [databind#2133] adding `JavaType` overloads
 /*
-    public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
-        throws IOException
-    {
-        return handleUnexpectedToken(constructType(instClass), p.currentToken(), p, null);
-    }
-
     public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)
         throws IOException
@@ -1337,6 +1331,12 @@ public abstract class DeserializationContext
         return handleUnexpectedToken(constructType(instClass), t, p, msg, msgArgs);
     }
 */
+
+    public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
+        throws IOException
+    {
+        return handleUnexpectedToken(constructType(instClass), p.currentToken(), p, null);
+    }
 
     /**
      * Method that deserializers should call if the first token of the value to

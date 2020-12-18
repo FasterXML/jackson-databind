@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.9.10.8 (not yet released)
 
-#2986: Block two more gadget types
+#2986: Block two more gadget types (commons-dbcp2, CVE-2020-35490/CVE-2020-35491)
  (reported by Al1ex@knownsec)
 
 2.9.10.7 (02-Dec-2020)

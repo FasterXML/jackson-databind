@@ -25,13 +25,17 @@ public class CoerceToBooleanTest extends BaseMapTest
 {
     static class BooleanPOJO {
         public boolean value;
+
+        public void setValue(boolean v) { value = v; }
     }
 
     static class BooleanPrimitiveBean
     {
         public boolean booleanValue = true;
+
+        public void setBooleanValue(boolean v) { booleanValue = v; }
     }
-    
+
     static class BooleanWrapper {
         public Boolean wrapper;
         public boolean primitive;
@@ -42,6 +46,9 @@ public class CoerceToBooleanTest extends BaseMapTest
         public BooleanWrapper(@JsonProperty("ctor") Boolean foo) {
             ctor = foo;
         }
+
+        public void setWrapper(Boolean v) { wrapper = v; }
+        public void setPrimitive(boolean v) { primitive = v; }
     }
 
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();

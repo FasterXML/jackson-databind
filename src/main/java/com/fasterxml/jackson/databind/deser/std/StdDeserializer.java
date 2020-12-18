@@ -1269,8 +1269,13 @@ public abstract class StdDeserializer<T>
             LogicalType logicalType, Class<?> rawTargetType)
         throws IOException
     {
-        final CoercionAction act;
+        // 18-Dec-2020, tatu: Formats without strong typing (XML, CSV, Properties at
+        //    least) should allow from-String "coercion" since Strings are their
+        //    native type.
+        //    One open question is whether Empty/Blank String are special; they might
+        //    be so only apply short-cut to other cases, for now
 
+        final CoercionAction act;
         if (value.isEmpty()) {
             act = ctxt.findCoercionAction(logicalType, rawTargetType,
                     CoercionInputShape.EmptyString);
@@ -1281,6 +1286,10 @@ public abstract class StdDeserializer<T>
             return _checkCoercionFail(ctxt, act, rawTargetType, value,
                     "blank String (all whitespace)");
         } else {
+            // 18-Dec-2020, tatu: As per above, allow for XML, CSV, Properties
+            if (ctxt.isEnabled(StreamReadCapability.UNTYPED_SCALARS)) {
+                return CoercionAction.TryConvert;
+            }
             act = ctxt.findCoercionAction(logicalType, rawTargetType, CoercionInputShape.String);
             if (act == CoercionAction.Fail) {
                 // since it MIGHT (but might not), create desc here, do not use helper

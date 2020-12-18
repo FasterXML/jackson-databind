@@ -1284,5 +1284,10 @@ Halil İbrahim Şener (hisener@github)
    an annotated factory-based creator method (regression from 2.11)
    (2.12.1)
 
+Faron Dutton (fdutton@github)
+
+  * Contributed fix for #2990: Breaking API change in `BasicClassIntrospector` (2.12.0)
+   (2.12.1)
+
 --- END ---
 

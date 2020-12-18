@@ -174,16 +174,9 @@ public class BasicClassIntrospector
     /**********************************************************
      */
 
-    @Deprecated
-    protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
-            JavaType type, MixInResolver r, boolean forSerialization,
-            String mutatorPrefix)
-    {
-        final AnnotatedClass classDef = _resolveAnnotatedClass(config, type, r);
-        final AccessorNamingStrategy accNaming = new DefaultAccessorNamingStrategy.Provider().withSetterPrefix(mutatorPrefix).forPOJO(config, classDef);
-        return constructPropertyCollector(config, classDef, type, forSerialization, accNaming);
-    }
-
+    /**
+     * @since 2.12
+     */
     protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
@@ -194,13 +187,19 @@ public class BasicClassIntrospector
         return constructPropertyCollector(config, classDef, type, forSerialization, accNaming);
     }
 
-    @Deprecated
-    protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
-            JavaType type, MixInResolver r, boolean forSerialization)
+    @Deprecated // since 2.12
+    protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
+            JavaType type, MixInResolver r, boolean forSerialization,
+            String mutatorPrefix)
     {
-        return collectPropertiesWithBuilder(config, type, r, null, forSerialization);
+        final AnnotatedClass classDef = _resolveAnnotatedClass(config, type, r);
+        final AccessorNamingStrategy accNaming = new DefaultAccessorNamingStrategy.Provider().withSetterPrefix(mutatorPrefix).forPOJO(config, classDef);
+        return constructPropertyCollector(config, classDef, type, forSerialization, accNaming);
     }
 
+    /**
+     * @since 2.12
+     */
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
             JavaType type, MixInResolver r, BeanDescription valueTypeDesc,
             boolean forSerialization)
@@ -211,23 +210,32 @@ public class BasicClassIntrospector
         return constructPropertyCollector(config, builderClassDef, type, forSerialization, accNaming);
     }
 
+    @Deprecated // since 2.12
+    protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
+            JavaType type, MixInResolver r, boolean forSerialization)
+    {
+        return collectPropertiesWithBuilder(config, type, r, null, forSerialization);
+    }
+    
     /**
      * Overridable method called for creating {@link POJOPropertiesCollector} instance
      * to use; override is needed if a custom sub-class is to be used.
+     *
+     * @since 2.12
      */
-    @Deprecated
-    protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
-            AnnotatedClass ac, JavaType type, boolean forSerialization, String mutatorPrefix)
-    {
-        return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
-    }
-
-    // @since 2.12
     protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
             AnnotatedClass classDef, JavaType type, boolean forSerialization,
             AccessorNamingStrategy accNaming)
     {
         return new POJOPropertiesCollector(config, forSerialization, type, classDef, accNaming);
+    }
+
+    @Deprecated // since 2.12
+    protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
+            AnnotatedClass ac, JavaType type, boolean forSerialization,
+            String mutatorPrefix)
+    {
+        return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
     }
 
     /**

@@ -42,12 +42,6 @@ public class POJOPropertiesCollector
     protected final boolean _forSerialization;
 
     /**
-     * @since 2.5
-     */
-    @Deprecated
-    protected final boolean _stdBeanNaming;
-
-    /**
      * Type of POJO for which properties are being collected.
      */
     protected final JavaType _type;
@@ -66,13 +60,6 @@ public class POJOPropertiesCollector
      */
     protected final boolean _useAnnotations;
 
-    /**
-     * Prefix used by auto-detected mutators ("setters"): usually "set",
-     * but differs for builder objects ("with" by default).
-     */
-    @Deprecated
-    protected final String _mutatorPrefix;
-    
     /*
     /**********************************************************
     /* Collected property information
@@ -150,35 +137,38 @@ public class POJOPropertiesCollector
      * value injection.
      */
     protected LinkedHashMap<Object, AnnotatedMember> _injectables;
+
+    // // // Deprecated entries to remove from 3.0
     
+    /**
+     * @deprecated Since 2.12
+     */
+    @Deprecated
+    protected final boolean _stdBeanNaming;
+
+    /**
+     * @deprecated Since 2.12
+     */
+    @Deprecated
+    protected String _mutatorPrefix = "set";
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    @Deprecated
+    /**
+     * @since 2.12
+     */
     protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
-            JavaType type, AnnotatedClass classDef, String mutatorPrefix)
-    {
-        this(config, forSerialization, type, classDef, null, mutatorPrefix);
-    }
-
-    protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
-            JavaType type, AnnotatedClass classDef, AccessorNamingStrategy accessorNaming)
-    {
-        this(config, forSerialization, type, classDef, accessorNaming, null);
-    }
-
-    private POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
-            JavaType type, AnnotatedClass classDef, AccessorNamingStrategy accessorNaming, String mutatorPrefix)
+            JavaType type, AnnotatedClass classDef,
+            AccessorNamingStrategy accessorNaming)
     {
         _config = config;
-        _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
-        _mutatorPrefix = (mutatorPrefix == null) ? "set" : mutatorPrefix;
         if (config.isAnnotationProcessingEnabled()) {
             _useAnnotations = true;
             _annotationIntrospector = _config.getAnnotationIntrospector();
@@ -188,8 +178,32 @@ public class POJOPropertiesCollector
         }
         _visibilityChecker = _config.getDefaultVisibilityChecker(type.getRawClass(),
                 classDef);
-        _accessorNaming = (null != accessorNaming) ? accessorNaming :
-            new DefaultAccessorNamingStrategy.Provider().withSetterPrefix(mutatorPrefix).forPOJO(config, classDef);
+        _accessorNaming = accessorNaming;
+
+        // for backwards-compatibility only
+        _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
+    }
+
+    /**
+     * @deprecated Since 2.12
+     */
+    @Deprecated
+    protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
+            JavaType type, AnnotatedClass classDef,
+            String mutatorPrefix)
+    {
+        this(config, forSerialization, type, classDef,
+                _accessorNaming(config, classDef, mutatorPrefix));
+        _mutatorPrefix = mutatorPrefix;
+    }
+
+    private static AccessorNamingStrategy _accessorNaming(MapperConfig<?> config, AnnotatedClass classDef,
+            String mutatorPrefix) {
+        if (mutatorPrefix == null) {
+            mutatorPrefix = "set";
+        }
+        return new DefaultAccessorNamingStrategy.Provider()
+                .withSetterPrefix(mutatorPrefix).forPOJO(config, classDef);
     }
 
     /*
@@ -993,9 +1007,7 @@ public class POJOPropertiesCollector
                     old.addAll(prop);
                 }
                 // replace the creatorProperty too, if there is one
-                MonitoredList<POJOPropertyBuilder> monitored = MonitoredList.monitor(_creatorProperties);
-                _updateCreatorProperty(prop, monitored);
-                if (null != monitored && monitored.isModified()) {
+                if (_updateCreatorProperty(prop, _creatorProperties)) {
                     // [databind#2001]: New name of property was ignored previously? Remove from ignored
                     // 01-May-2018, tatu: I have a feeling this will need to be revisited at some point,
                     //   to avoid removing some types of removals, possibly. But will do for now.
@@ -1307,59 +1319,16 @@ public class POJOPropertiesCollector
                     _config.canOverrideAccessModifiers());
     }
 
-    protected void _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
-
+    protected boolean _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
         if (creatorProperties != null) {
             final String intName = prop.getInternalName();
             for (int i = 0, len = creatorProperties.size(); i < len; ++i) {
                 if (creatorProperties.get(i).getInternalName().equals(intName)) {
                     creatorProperties.set(i, prop);
-                    break;
+                    return true;
                 }
             }
         }
-    }
-
-    private static class MonitoredList<T> extends AbstractList<T> {
-        private final List<T> delegate;
-        private boolean modified;
-
-        public MonitoredList(List<T> delegate) {
-            this.delegate = delegate;
-            this.modified = false;
-        }
-
-        @Override
-        public T get(int index) {
-            return this.delegate.get(index);
-        }
-
-        @Override
-        public int size() {
-            return this.delegate.size();
-        }
-
-        public T set(int index, T element) {
-            this.modified = true;
-            return this.delegate.set(index, element);
-        }
-
-        public void add(int index, T element) {
-            this.modified = true;
-            this.delegate.add(index, element);
-        }
-
-        public T remove(int index) {
-            this.modified = true;
-            return this.delegate.remove(index);
-        }
-
-        public boolean isModified() {
-            return this.modified;
-        }
-
-        public static <T> MonitoredList<T> monitor(List<T> source) {
-            return null == source ? null : new MonitoredList<>(source);
-        }
+        return false;
     }
 }

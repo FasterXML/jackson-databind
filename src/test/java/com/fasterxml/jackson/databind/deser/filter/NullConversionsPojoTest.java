@@ -17,6 +17,17 @@ public class NullConversionsPojoTest extends BaseMapTest
         public String noNulls = "b";
     }
 
+    static class NullFailCtor {
+        String value;
+
+        @JsonCreator
+        public NullFailCtor(@JsonSetter(nulls=Nulls.FAIL)
+            @JsonProperty("noNulls") String v)
+        {
+            value = v;
+        }
+    }
+
     static class NullAsEmpty {
         public String nullsOk = "a";
 
@@ -67,6 +78,23 @@ public class NullConversionsPojoTest extends BaseMapTest
         try {
             result = MAPPER.readValue(aposToQuotes("{'noNulls':null}"),
                     NullFail.class);
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"noNulls\"");
+        }
+
+        // Ditto via constructor; first explicit
+        try {
+            /* NullFailCtor r =*/ MAPPER.readValue(aposToQuotes("{'noNulls':null}"),
+                    NullFailCtor.class);
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"noNulls\"");
+        }
+
+        // and then implicit (missing -> null)
+        try {
+            /* NullFailCtor r =*/ MAPPER.readValue("{ }", NullFailCtor.class);
             fail("Should not pass");
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
@@ -127,6 +155,10 @@ public class NullConversionsPojoTest extends BaseMapTest
         // and then see that nulls are not ok for non-nullable
         result = MAPPER.readValue(aposToQuotes("{'nullAsEmpty':null}"),
                 NullAsEmptyCtor.class);
+        assertEquals("", result._nullAsEmpty);
+
+        // and get coerced from "missing", as well
+        result = MAPPER.readValue(aposToQuotes("{}"), NullAsEmptyCtor.class);
         assertEquals("", result._nullAsEmpty);
     }
 }

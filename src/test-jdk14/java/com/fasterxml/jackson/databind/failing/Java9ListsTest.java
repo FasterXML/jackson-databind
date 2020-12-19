@@ -1,8 +1,11 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.failing;
 
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 

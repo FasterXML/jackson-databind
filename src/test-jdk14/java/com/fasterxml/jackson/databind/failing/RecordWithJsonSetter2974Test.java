@@ -1,11 +1,13 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.failing;
 
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.RecordBasicsTest.RecordWithRename;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
 public class RecordWithJsonSetter2974Test extends BaseMapTest
@@ -41,8 +43,6 @@ public class RecordWithJsonSetter2974Test extends BaseMapTest
         assertNotNull(value.agesByNames());
         assertEquals(1, value.agesByNames().size());
         assertEquals(Integer.valueOf(42), value.agesByNames().get("bob"));
-        
-        assertEquals(new RecordWithRename(123, "Bob"), value);
     }
 
     // [databind#2974]

@@ -15,6 +15,8 @@ Project: jackson-databind
  (reported by zigzago@github)
 #2978: Fix failing `double` JsonCreators in jackson 2.12.0
  (contributed by Carter K)
+#2979: Conflicting in POJOPropertiesCollector when having namingStrategy
+ (reported, fix suggested by SunYiJun)
 #2990: Breaking API change in `BasicClassIntrospector` (2.12.0)
  (reported, fix contributed by Faron D)
 

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.*;
 
 // mostly for [databind#1033]
@@ -15,18 +16,44 @@ public class SetterConflictTest extends BaseMapTest
         }
     }
 
+    // [databind#2979]
+    static class DuplicateSetterBean2979 {
+        Object value;
+
+        public void setBloop(Boolean bloop) {
+            throw new Error("Wrong setter!");
+        }
+
+        @JsonSetter
+        public void setBloop(Object bloop) {
+            value = bloop;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
     
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    // [databind#1033]
     public void testSetterPriority() throws Exception
     {
-        Issue1033Bean bean = MAPPER.readValue(aposToQuotes("{'value':42}"),
+        Issue1033Bean bean = MAPPER.readValue(a2q("{'value':42}"),
                 Issue1033Bean.class);
         assertEquals(42, bean.value);
+    }
+
+    // [databind#2979]
+    public void testConflictingSetters() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
+                .build();
+        DuplicateSetterBean2979 result = mapper.readValue(a2q("{'bloop':true}"),
+                DuplicateSetterBean2979.class);
+        assertEquals(Boolean.TRUE, result.value);
     }
 }

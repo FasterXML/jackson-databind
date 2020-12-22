@@ -1007,7 +1007,7 @@ public class POJOPropertiesCollector
                     old.addAll(prop);
                 }
                 // replace the creatorProperty too, if there is one
-                if (_updateCreatorProperty(prop, _creatorProperties)) {
+                if (_replaceCreatorProperty(prop, _creatorProperties)) {
                     // [databind#2001]: New name of property was ignored previously? Remove from ignored
                     // 01-May-2018, tatu: I have a feeling this will need to be revisited at some point,
                     //   to avoid removing some types of removals, possibly. But will do for now.
@@ -1074,7 +1074,7 @@ public class POJOPropertiesCollector
             }
 
             // replace the creatorProperty too, if there is one
-            _updateCreatorProperty(prop, _creatorProperties);
+            _replaceCreatorProperty(prop, _creatorProperties);
         }
     }
 
@@ -1319,7 +1319,12 @@ public class POJOPropertiesCollector
                     _config.canOverrideAccessModifiers());
     }
 
-    protected boolean _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
+    @Deprecated // since 2.12.1 (temporarily missing from 2.12.0)
+    protected void _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
+        _replaceCreatorProperty(prop, creatorProperties);
+    }
+
+    protected boolean _replaceCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
         if (creatorProperties != null) {
             final String intName = prop.getInternalName();
             for (int i = 0, len = creatorProperties.size(); i < len; ++i) {

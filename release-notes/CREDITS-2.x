@@ -1285,9 +1285,13 @@ Halil İbrahim Şener (hisener@github)
    (2.12.1)
 
 Faron Dutton (fdutton@github)
-
   * Contributed fix for #2990: Breaking API change in `BasicClassIntrospector` (2.12.0)
    (2.12.1)
 
---- END ---
+SunYiJun (xiaosunzhu@github)
 
+  * Reported, suggested fix for #2979: Conflicting in POJOPropertiesCollector when
+    having namingStrategy
+   (2.12.1)
+
+--- END ---

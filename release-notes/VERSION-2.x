@@ -14,6 +14,8 @@ Project: jackson-databind
  (reported by Al1ex@knownsec)
 #2998: Block 2 more gadget types (org.apache.tomcat/tomcat-dbcp)
  (reported by Al1ex@knownsec)
+#2999: Block 1 more gadget type (org.glassfish.web/javax.servlet.jsp.jstl)
+ (reported by bu5yer of Sangfor FarSight Security Lab)
 
 2.9.10.7 (02-Dec-2020)
 

@@ -216,6 +216,11 @@ public class SubTypeValidator
         s.add("com.newrelic.agent.deps.ch.qos.logback.core.db.JNDIConnectionSource");
         s.add("com.newrelic.agent.deps.ch.qos.logback.core.db.DriverManagerConnectionSource");
 
+        // [databind#2997]: tomcat/naming-factory-dbcp (embedded dbcp 1.x)
+        // (derivative of #2478)
+        s.add("org.apache.tomcat.dbcp.dbcp.datasources.PerUserPoolDataSource");
+        s.add("org.apache.tomcat.dbcp.dbcp.datasources.SharedPoolDataSource");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

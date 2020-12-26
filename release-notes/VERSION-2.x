@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #2986: Block two more gadget types (commons-dbcp2, CVE-2020-35490/CVE-2020-35491)
  (reported by Al1ex@knownsec)
+#2996: Block 2 more gadget types (placeholder)
+ (reported by Al1ex@knownsec)
 
 2.9.10.7 (02-Dec-2020)
 

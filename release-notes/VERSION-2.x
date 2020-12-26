@@ -12,6 +12,8 @@ Project: jackson-databind
  (reported by Al1ex@knownsec)
 #2997: Block 2 more gadget types (tomcat/naming-factory-dbcp)
  (reported by Al1ex@knownsec)
+#2998: Block 2 more gadget types (org.apache.tomcat/tomcat-dbcp)
+ (reported by Al1ex@knownsec)
 
 2.9.10.7 (02-Dec-2020)
 

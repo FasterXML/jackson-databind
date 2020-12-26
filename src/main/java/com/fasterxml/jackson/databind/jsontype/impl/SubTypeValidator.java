@@ -211,6 +211,11 @@ public class SubTypeValidator
         s.add("org.apache.commons.dbcp2.datasources.PerUserPoolDataSource");
         s.add("org.apache.commons.dbcp2.datasources.SharedPoolDataSource");
 
+        // [databind#2996]: newrelic-agent + embedded-logback-core
+        // (derivative of #2334 and #2389)
+        s.add("com.newrelic.agent.deps.ch.qos.logback.core.db.JNDIConnectionSource");
+        s.add("com.newrelic.agent.deps.ch.qos.logback.core.db.DriverManagerConnectionSource");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

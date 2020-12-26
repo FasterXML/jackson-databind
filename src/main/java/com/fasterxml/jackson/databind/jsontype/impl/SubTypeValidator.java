@@ -226,6 +226,10 @@ public class SubTypeValidator
         s.add("org.apache.tomcat.dbcp.dbcp2.datasources.PerUserPoolDataSource");
         s.add("org.apache.tomcat.dbcp.dbcp2.datasources.SharedPoolDataSource");
 
+        // [databind#2999]: org.glassfish.web/javax.servlet.jsp.jstl (embedded Xalan)
+        // (derivative of #2469)
+        s.add("com.oracle.wls.shaded.org.apache.xalan.lib.sql.JNDIConnectionPool");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

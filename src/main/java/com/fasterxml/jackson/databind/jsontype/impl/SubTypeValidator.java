@@ -221,6 +221,11 @@ public class SubTypeValidator
         s.add("org.apache.tomcat.dbcp.dbcp.datasources.PerUserPoolDataSource");
         s.add("org.apache.tomcat.dbcp.dbcp.datasources.SharedPoolDataSource");
 
+        // [databind#2998]: org.apache.tomcat/tomcat-dbcp (embedded dbcp 2.x)
+        // (derivative of #2478)
+        s.add("org.apache.tomcat.dbcp.dbcp2.datasources.PerUserPoolDataSource");
+        s.add("org.apache.tomcat.dbcp.dbcp2.datasources.SharedPoolDataSource");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

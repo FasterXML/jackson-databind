@@ -211,6 +211,25 @@ public class SubTypeValidator
         s.add("org.apache.commons.dbcp2.datasources.PerUserPoolDataSource");
         s.add("org.apache.commons.dbcp2.datasources.SharedPoolDataSource");
 
+        // [databind#2996]: newrelic-agent + embedded-logback-core
+        // (derivative of #2334 and #2389)
+        s.add("com.newrelic.agent.deps.ch.qos.logback.core.db.JNDIConnectionSource");
+        s.add("com.newrelic.agent.deps.ch.qos.logback.core.db.DriverManagerConnectionSource");
+
+        // [databind#2997]: tomcat/naming-factory-dbcp (embedded dbcp 1.x)
+        // (derivative of #2478)
+        s.add("org.apache.tomcat.dbcp.dbcp.datasources.PerUserPoolDataSource");
+        s.add("org.apache.tomcat.dbcp.dbcp.datasources.SharedPoolDataSource");
+
+        // [databind#2998]: org.apache.tomcat/tomcat-dbcp (embedded dbcp 2.x)
+        // (derivative of #2478)
+        s.add("org.apache.tomcat.dbcp.dbcp2.datasources.PerUserPoolDataSource");
+        s.add("org.apache.tomcat.dbcp.dbcp2.datasources.SharedPoolDataSource");
+
+        // [databind#2999]: org.glassfish.web/javax.servlet.jsp.jstl (embedded Xalan)
+        // (derivative of #2469)
+        s.add("com.oracle.wls.shaded.org.apache.xalan.lib.sql.JNDIConnectionPool");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

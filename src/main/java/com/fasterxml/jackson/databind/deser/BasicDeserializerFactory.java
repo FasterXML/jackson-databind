@@ -880,11 +880,8 @@ nonAnnotatedParamIndex, ctor);
                     */
                 }
                 name = candidate.findImplicitParamName(i);
-                // Must be injectable or have name; without either won't work
-                if ((name == null) && (injectId == null)) {
-                    ctxt.reportBadTypeDefinition(beanDesc,
-"Argument #%d has no property name, is not Injectable: can not use as Creator %s", i, candidate);
-                }
+                _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
+                        name, injectId);
             }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
         }
@@ -949,6 +946,11 @@ nonAnnotatedParamIndex, ctor);
             // 13-Sep-2020, tatu: since we are configured to prefer Properties-style,
             //    any name (explicit OR implicit does):
             paramName = candidate.paramName(0);
+            // [databind#2977]: Need better exception if name missing
+            if (paramName == null) {
+                _validateNamedPropertyParameter(ctxt, beanDesc, candidate, 0,
+                        paramName, injectId);
+            }
             break;
 
         case REQUIRE_MODE:
@@ -1124,6 +1126,24 @@ candidate.creator());
             return true;
         }
         return false;
+    }
+
+    // Helper method to check that parameter of Property-based creator either
+    // has name or is marked as Injectable
+    //
+    // @since 2.12.1
+    protected void _validateNamedPropertyParameter(DeserializationContext ctxt,
+            BeanDescription beanDesc,
+            CreatorCandidate candidate, int paramIndex,
+            PropertyName name, JacksonInject.Value injectId)
+        throws JsonMappingException
+    {
+        // Must be injectable or have name; without either won't work
+        if ((name == null) && (injectId == null)) {
+            ctxt.reportBadTypeDefinition(beanDesc,
+"Argument #%d of constructor %s has no property name (and is not Injectable): can not use as property-based Creator",
+paramIndex, candidate);
+        }
     }
 
     // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing

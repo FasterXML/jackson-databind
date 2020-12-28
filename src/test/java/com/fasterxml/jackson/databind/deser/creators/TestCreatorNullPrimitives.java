@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -39,7 +40,7 @@ public class TestCreatorNullPrimitives extends BaseMapTest {
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = sharedMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2101]: ensure that the property is included in the path
     public void testCreatorNullPrimitive() throws IOException {

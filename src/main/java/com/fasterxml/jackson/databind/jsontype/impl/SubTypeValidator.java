@@ -187,6 +187,8 @@ public class SubTypeValidator
 
         // [databind#2688]: apache/drill
         s.add("oadd.org.apache.xalan.lib.sql.JNDIConnectionPool");
+        s.add("oadd.org.apache.commons.dbcp.datasources.PerUserPoolDataSource");
+        s.add("oadd.org.apache.commons.dbcp.datasources.SharedPoolDataSource");
 
         // [databind#2698]: weblogic w/ oracle/aq-jms
         // (note: dependency not available via Maven Central, but as part of

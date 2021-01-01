@@ -118,9 +118,12 @@ public class SubTypeValidator
         // [databind#2704]: xalan2
         s.add("com.sun.org.apache.xalan.internal.lib.sql.JNDIConnectionPool");
 
-        // [databind#2478]: comons-dbcp, p6spy
+        // [databind#2478]: commons-dbcp 1.x, p6spy
+        // [databind#3004]: commons-dbcp 1.x
+        s.add("org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS");
         s.add("org.apache.commons.dbcp.datasources.PerUserPoolDataSource");
         s.add("org.apache.commons.dbcp.datasources.SharedPoolDataSource");
+
         s.add("com.p6spy.engine.spy.P6DataSource");
 
         // [databind#2498]: log4j-extras (1.2)
@@ -185,8 +188,9 @@ public class SubTypeValidator
         // [databind#2682]: commons-jelly
         s.add("org.apache.commons.jelly.impl.Embedded");
 
-        // [databind#2688]: apache/drill
+        // [databind#2688], [databind#3004]: apache/drill
         s.add("oadd.org.apache.xalan.lib.sql.JNDIConnectionPool");
+        s.add("oadd.org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS");
         s.add("oadd.org.apache.commons.dbcp.datasources.PerUserPoolDataSource");
         s.add("oadd.org.apache.commons.dbcp.datasources.SharedPoolDataSource");
 
@@ -209,22 +213,25 @@ public class SubTypeValidator
         s.add("com.nqadmin.rowset.JdbcRowSetImpl");
         s.add("org.arrah.framework.rdbms.UpdatableJdbcRowsetImpl");
 
-        // [databind#2986]: dbcp2
+        // [databind#2986], [databind#3004]: dbcp2
         s.add("org.apache.commons.dbcp2.datasources.PerUserPoolDataSource");
         s.add("org.apache.commons.dbcp2.datasources.SharedPoolDataSource");
+        s.add("org.apache.commons.dbcp2.cpdsadapter.DriverAdapterCPDS");
 
         // [databind#2996]: newrelic-agent + embedded-logback-core
         // (derivative of #2334 and #2389)
         s.add("com.newrelic.agent.deps.ch.qos.logback.core.db.JNDIConnectionSource");
         s.add("com.newrelic.agent.deps.ch.qos.logback.core.db.DriverManagerConnectionSource");
 
-        // [databind#2997]: tomcat/naming-factory-dbcp (embedded dbcp 1.x)
+        // [databind#2997]/[databind#3004]: tomcat/naming-factory-dbcp (embedded dbcp 1.x)
         // (derivative of #2478)
+        s.add("org.apache.tomcat.dbcp.dbcp.cpdsadapter.DriverAdapterCPDS");
         s.add("org.apache.tomcat.dbcp.dbcp.datasources.PerUserPoolDataSource");
         s.add("org.apache.tomcat.dbcp.dbcp.datasources.SharedPoolDataSource");
 
-        // [databind#2998]: org.apache.tomcat/tomcat-dbcp (embedded dbcp 2.x)
+        // [databind#2998]/[databind#3004]: org.apache.tomcat/tomcat-dbcp (embedded dbcp 2.x)
         // (derivative of #2478)
+        s.add("org.apache.tomcat.dbcp.dbcp2.cpdsadapter.DriverAdapterCPDS");
         s.add("org.apache.tomcat.dbcp.dbcp2.datasources.PerUserPoolDataSource");
         s.add("org.apache.tomcat.dbcp.dbcp2.datasources.SharedPoolDataSource");
 
@@ -232,9 +239,9 @@ public class SubTypeValidator
         // (derivative of #2469)
         s.add("com.oracle.wls.shaded.org.apache.xalan.lib.sql.JNDIConnectionPool");
 
-        // [databind#303]: another case of embedded Xalan (derivative of #2469)
+        // [databind#3003]: another case of embedded Xalan (derivative of #2469)
         s.add("org.docx4j.org.apache.xalan.lib.sql.JNDIConnectionPool");
-
+        
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

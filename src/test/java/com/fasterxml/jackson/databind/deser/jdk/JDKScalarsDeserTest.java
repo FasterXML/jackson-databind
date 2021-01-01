@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Unit tests for verifying handling of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
-public class JDKScalarsTest
+public class JDKScalarsDeserTest
     extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();

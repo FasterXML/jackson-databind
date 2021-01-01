@@ -232,6 +232,9 @@ public class SubTypeValidator
         // (derivative of #2469)
         s.add("com.oracle.wls.shaded.org.apache.xalan.lib.sql.JNDIConnectionPool");
 
+        // [databind#303]: another case of embedded Xalan (derivative of #2469)
+        s.add("org.docx4j.org.apache.xalan.lib.sql.JNDIConnectionPool");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

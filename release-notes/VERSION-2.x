@@ -16,6 +16,7 @@ Project: jackson-databind
  (reported by Al1ex@knownsec)
 #2999: Block 1 more gadget type (org.glassfish.web/javax.servlet.jsp.jstl, CVE-2020-35728)
  (reported by bu5yer of Sangfor FarSight Security Lab)
+#3003: Block one more gadget type (xxx, CVE to be allocated)
 
 2.9.10.7 (02-Dec-2020)
 

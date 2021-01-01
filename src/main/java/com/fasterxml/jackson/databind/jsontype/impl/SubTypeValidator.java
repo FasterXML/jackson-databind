@@ -187,6 +187,8 @@ public class SubTypeValidator
 
         // [databind#2688]: apache/drill
         s.add("oadd.org.apache.xalan.lib.sql.JNDIConnectionPool");
+        s.add("oadd.org.apache.commons.dbcp.datasources.PerUserPoolDataSource");
+        s.add("oadd.org.apache.commons.dbcp.datasources.SharedPoolDataSource");
 
         // [databind#2698]: weblogic w/ oracle/aq-jms
         // (note: dependency not available via Maven Central, but as part of
@@ -229,6 +231,9 @@ public class SubTypeValidator
         // [databind#2999]: org.glassfish.web/javax.servlet.jsp.jstl (embedded Xalan)
         // (derivative of #2469)
         s.add("com.oracle.wls.shaded.org.apache.xalan.lib.sql.JNDIConnectionPool");
+
+        // [databind#303]: another case of embedded Xalan (derivative of #2469)
+        s.add("org.docx4j.org.apache.xalan.lib.sql.JNDIConnectionPool");
 
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }

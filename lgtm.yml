@@ -1,0 +1,8 @@
+
+# Let's exclude certain queries, rationales:
+#
+# - equals() vs hashCode(): either hashCode() never used, or (more likely) base impl is
+#   already fine as-is, even if equality check changed
+#
+queries:
+  - exclude: java/inconsistent-equals-and-hashcode

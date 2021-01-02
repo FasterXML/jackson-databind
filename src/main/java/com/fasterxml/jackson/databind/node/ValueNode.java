@@ -23,9 +23,9 @@ public abstract class ValueNode
 
     @Override
     protected JsonNode _at(JsonPointer ptr) {
-        // will only allow direct matches, but no traversal through
-        // (base class checks for direct match)
-        return MissingNode.getInstance();
+        // 02-Jan-2020, tatu: As per [databind#3003] must return `null` and NOT
+        //    "missing node"
+        return null;
     }
 
     /**

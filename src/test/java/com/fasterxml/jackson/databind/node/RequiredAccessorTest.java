@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class RequiredAccessorTest
     extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = sharedMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final JsonNode TEST_OBJECT, TEST_ARRAY;
 
@@ -24,7 +24,7 @@ public class RequiredAccessorTest
     }
 
     public void testIMPORTANT() {
-        _checkRequiredAt(TEST_OBJECT, "/data/weird/and/more", "/weird/and/more");
+        _checkRequiredAtFail(TEST_OBJECT, "/data/weird/and/more", "/weird/and/more");
     }
     
     public void testRequiredAtObjectOk() throws Exception {
@@ -42,26 +42,30 @@ public class RequiredAccessorTest
         assertNotNull(TEST_ARRAY.requiredAt("/1/data/vector/1"));
     }
 
-    public void testRequiredAtFailOnObject() throws Exception {
-        _checkRequiredAt(TEST_OBJECT, "/0", "/0");
-        _checkRequiredAt(TEST_OBJECT, "/bogus", "/bogus");
-        _checkRequiredAt(TEST_OBJECT, "/data/weird/and/more", "/weird/and/more");
+    public void testRequiredAtFailOnObjectBasic() throws Exception {
+        _checkRequiredAtFail(TEST_OBJECT, "/0", "/0");
+        _checkRequiredAtFail(TEST_OBJECT, "/bogus", "/bogus");
+        _checkRequiredAtFail(TEST_OBJECT, "/data/weird/and/more", "/weird/and/more");
 
-        _checkRequiredAt(TEST_OBJECT, "/data/vector/other/3", "/other/3");
+        _checkRequiredAtFail(TEST_OBJECT, "/data/vector/other/3", "/other/3");
+
+        _checkRequiredAtFail(TEST_OBJECT, "/data/primary/more", "/more");
     }
 
     public void testRequiredAtFailOnArray() throws Exception {
-        _checkRequiredAt(TEST_ARRAY, "/1/data/vector/25", "/25");
+        _checkRequiredAtFail(TEST_ARRAY, "/1/data/vector/25", "/25");
+        _checkRequiredAtFail(TEST_ARRAY, "/0/data/x", "/data/x");
     }
 
-    private void _checkRequiredAt(JsonNode doc, String fullPath, String mismatchPart) {
+    private void _checkRequiredAtFail(JsonNode doc, String fullPath, String mismatchPart) {
         try {
-            doc.requiredAt(fullPath);
+            JsonNode n = doc.requiredAt(fullPath);
+            fail("Should NOT pass: got node ("+n.getClass().getSimpleName()+") -> {"+n+"}");
         } catch (IllegalArgumentException e) {
             verifyException(e, "No node at '"+fullPath+"' (unmatched part: '"+mismatchPart+"')");
         }
     }
-    
+
     public void testSimpleRequireOk() throws Exception {
         // first basic working accessors on node itself
         assertSame(TEST_OBJECT, TEST_OBJECT.require());
@@ -97,6 +101,18 @@ public class RequiredAccessorTest
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "Node of type `ArrayNode` has no fields");
+        }
+    }
+
+    // [databind#3005]
+    public void testRequiredAtFailOnObjectScalar3005() throws Exception
+    {
+        JsonNode n = MAPPER.readTree("{\"simple\":5}");
+        try {
+            JsonNode match = n.requiredAt("/simple/property");
+            fail("Should NOT pass: got node ("+match.getClass().getSimpleName()+") -> {"+match+"}");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "No node at '/simple/property' (unmatched part: '/property')");
         }
     }
 }

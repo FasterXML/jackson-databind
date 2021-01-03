@@ -19,7 +19,7 @@ Project: jackson-databind
  (reported, fix suggested by SunYiJun)
 #2990: Breaking API change in `BasicClassIntrospector` (2.12.0)
  (reported, fix contributed by Faron D)
-#3003: `JsonNode.requiredAt()` does NOT fail on some path expressions
+#3005: `JsonNode.requiredAt()` does NOT fail on some path expressions
 
 2.12.0 (29-Nov-2020)
 

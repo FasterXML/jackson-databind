@@ -17,6 +17,7 @@ Project: jackson-databind
 #2999: Block 1 more gadget type (org.glassfish.web/javax.servlet.jsp.jstl, CVE-2020-35728)
  (reported by bu5yer of Sangfor FarSight Security Lab)
 #3003: Block one more gadget type (xxx, CVE to be allocated)
+ (reported by differ (of Zorelworld iLab team))
 #3004: Block one more DBCP-related potential gadget class
  (reported by Al1ex@knownsec)
 

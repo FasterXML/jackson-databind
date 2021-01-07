@@ -127,7 +127,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
     {
         final Class<?> rawType = type.getRawClass();
 
-        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
+        if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
             return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE, type);
         }
 
@@ -175,10 +175,10 @@ public class OptionalHandlerFactory implements java.io.Serializable
                 return deser;
             }
         }
-        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
+        if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
             return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_NODE, type);
         }
-        if ((CLASS_DOM_DOCUMENT != null) && CLASS_DOM_DOCUMENT.isAssignableFrom(rawType)) {
+        if (_IsXOfY(rawType, CLASS_DOM_DOCUMENT)) {
             return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_DOCUMENT, type);
         }
         String className = rawType.getName();
@@ -201,10 +201,10 @@ public class OptionalHandlerFactory implements java.io.Serializable
     }
 
     public boolean hasDeserializerFor(Class<?> valueType) {
-        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(valueType)) {
+        if (_IsXOfY(valueType, CLASS_DOM_NODE)) {
             return true;
         }
-        if ((CLASS_DOM_DOCUMENT != null) && CLASS_DOM_DOCUMENT.isAssignableFrom(valueType)) {
+        if (_IsXOfY(valueType, CLASS_DOM_DOCUMENT)) {
             return true;
         }
         String className = valueType.getName();
@@ -214,6 +214,11 @@ public class OptionalHandlerFactory implements java.io.Serializable
         }
         // 06-Nov-2020, tatu: One of "java.sql" types?
         return _sqlDeserializers.containsKey(className);
+    }
+
+    // @since 2.12.1
+    private boolean _IsXOfY(Class<?> valueType, Class<?> expType) {
+        return (expType != null) && expType.isAssignableFrom(valueType);
     }
 
     /*

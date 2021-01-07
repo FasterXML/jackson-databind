@@ -401,7 +401,7 @@ _containerType,
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
         } catch (Exception e) {
-            boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+            boolean wrap = ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
             if (!wrap) {
                 ClassUtil.throwIfRTE(e);
             }

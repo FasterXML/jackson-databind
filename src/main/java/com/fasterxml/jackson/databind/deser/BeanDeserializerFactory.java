@@ -613,12 +613,11 @@ ClassUtil.name(propName)));
                 // but let's call a method just to allow custom builders to be aware...
                 final String name = propDef.getName();
                 CreatorProperty cprop = null;
-                if (creatorProps != null) {
-                    for (SettableBeanProperty cp : creatorProps) {
-                        if (name.equals(cp.getName()) && (cp instanceof CreatorProperty)) {
-                            cprop = (CreatorProperty) cp;
-                            break;
-                        }
+
+                for (SettableBeanProperty cp : creatorProps) {
+                    if (name.equals(cp.getName()) && (cp instanceof CreatorProperty)) {
+                        cprop = (CreatorProperty) cp;
+                        break;
                     }
                 }
                 if (cprop == null) {

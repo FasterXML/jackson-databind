@@ -80,7 +80,7 @@ public class OptionalHandlerFactory
     public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type)
     {
         final Class<?> rawType = type.getRawClass();
-        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
+        if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
             return new DOMSerializer();
         }
 
@@ -109,10 +109,10 @@ public class OptionalHandlerFactory
         throws JsonMappingException
     {
         final Class<?> rawType = type.getRawClass();
-        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
+        if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
             return new DOMDeserializer.NodeDeserializer();
         }
-        if ((CLASS_DOM_DOCUMENT != null) && CLASS_DOM_DOCUMENT.isAssignableFrom(rawType)) {
+        if (_IsXOfY(rawType, CLASS_DOM_DOCUMENT)) {
             return new DOMDeserializer.DocumentDeserializer();
         }
         String className = rawType.getName();
@@ -128,10 +128,10 @@ public class OptionalHandlerFactory
     }
 
     public boolean hasDeserializerFor(Class<?> valueType) {
-        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(valueType)) {
+        if (_IsXOfY(valueType, CLASS_DOM_NODE)) {
             return true;
         }
-        if ((CLASS_DOM_DOCUMENT != null) && CLASS_DOM_DOCUMENT.isAssignableFrom(valueType)) {
+        if (_IsXOfY(valueType, CLASS_DOM_DOCUMENT)) {
             return true;
         }
         String className = valueType.getName();
@@ -143,7 +143,11 @@ public class OptionalHandlerFactory
         // 06-Nov-2020, tatu: One of "java.sql" types?
         return _sqlDeserializers.containsKey(className);
     }
-    
+
+    private boolean _IsXOfY(Class<?> valueType, Class<?> expType) {
+        return (expType != null) && expType.isAssignableFrom(valueType);
+    }
+
     /*
     /**********************************************************************
     /* Internal helper methods

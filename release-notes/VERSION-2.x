@@ -8,17 +8,17 @@ Project: jackson-databind
 
 #2986: Block two more gadget types (commons-dbcp2, CVE-2020-35490/CVE-2020-35491)
  (reported by Al1ex@knownsec)
-#2996: Block 2 more gadget types (newrelic-agent)
+#2996: Block 2 more gadget types (newrelic-agent, CVE-2020-36188/CVE-2020-36189)
  (reported by Al1ex@knownsec)
-#2997: Block 2 more gadget types (tomcat/naming-factory-dbcp)
+#2997: Block 2 more gadget types (tomcat/naming-factory-dbcp, CVE-2020-36186/CVE-2020-36187)
  (reported by Al1ex@knownsec)
-#2998: Block 2 more gadget types (org.apache.tomcat/tomcat-dbcp)
+#2998: Block 2 more gadget types (org.apache.tomcat/tomcat-dbcp, CVE-2020-36184/CVE-2020-36185)
  (reported by Al1ex@knownsec)
 #2999: Block 1 more gadget type (org.glassfish.web/javax.servlet.jsp.jstl, CVE-2020-35728)
  (reported by bu5yer of Sangfor FarSight Security Lab)
-#3003: Block one more gadget type (xxx, CVE to be allocated)
+#3003: Block one more gadget type (org.docx4j.org.apache:xalan-interpretive, CVE-2020-36183)
  (reported by differ (of Zorelworld iLab team))
-#3004: Block one more DBCP-related potential gadget class
+#3004: Block some more DBCP-related potential gadget classes (CVE-2020-36179 - CVE-2020-36182)
  (reported by Al1ex@knownsec)
 
 2.9.10.7 (02-Dec-2020)

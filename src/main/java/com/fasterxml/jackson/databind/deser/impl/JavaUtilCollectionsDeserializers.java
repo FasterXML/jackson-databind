@@ -2,10 +2,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.util.*;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdConvertingDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -28,7 +25,15 @@ public abstract class JavaUtilCollectionsDeserializers
     private final static int TYPE_UNMODIFIABLE_LIST = 5;
     private final static int TYPE_UNMODIFIABLE_MAP = 6;
 
-    public final static int TYPE_AS_LIST = 7;
+    // 2.12.1
+    private final static int TYPE_SYNC_SET = 7;
+    private final static int TYPE_SYNC_COLLECTION = 8;
+    private final static int TYPE_SYNC_LIST = 9;
+    private final static int TYPE_SYNC_MAP = 10;
+
+    public final static int TYPE_AS_LIST = 11;
+
+    private final static String PREFIX_JAVA_UTIL_COLLECTIONS = "java.util.Collections$";
 
     // 10-Jan-2018, tatu: There are a few "well-known" special containers in JDK too:
 
@@ -67,6 +72,7 @@ public abstract class JavaUtilCollectionsDeserializers
         throws JsonMappingException
     {
         JavaUtilCollectionsConverter conv;
+        
         // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays` need bit of help...
         if (type.hasRawClass(CLASS_AS_ARRAYS_LIST)) {
             conv = converter(TYPE_AS_LIST, type, List.class);
@@ -80,7 +86,17 @@ public abstract class JavaUtilCollectionsDeserializers
         } else if (type.hasRawClass(CLASS_UNMODIFIABLE_SET)) {
             conv = converter(TYPE_UNMODIFIABLE_SET, type, Set.class);
         } else {
-            return null;
+            final String utilName = _findUtilSyncTypeName(type.getRawClass());
+            // [databind#3009]: synchronized, too
+            if (utilName.endsWith("Set")) {
+                conv = converter(TYPE_SYNC_SET, type, Set.class);
+            } else if (utilName.endsWith("List")) {
+                conv = converter(TYPE_SYNC_LIST, type, List.class);
+            } else if (utilName.endsWith("Collection")) {
+                conv = converter(TYPE_SYNC_COLLECTION, type, Collection.class);
+            } else {
+                return null;
+            }
         }
         return new StdConvertingDeserializer<Object>(conv);
     }
@@ -97,7 +113,13 @@ public abstract class JavaUtilCollectionsDeserializers
         } else if (type.hasRawClass(CLASS_UNMODIFIABLE_MAP)) {
             conv = converter(TYPE_UNMODIFIABLE_MAP, type, Map.class);
         } else {
-            return null;
+            final String utilName = _findUtilSyncTypeName(type.getRawClass());
+            // [databind#3009]: synchronized, too
+            if (utilName.endsWith("Map")) {
+                conv = converter(TYPE_SYNC_MAP, type, Map.class);
+            } else {
+                return null;
+            }
         }
         return new StdConvertingDeserializer<Object>(conv);
     }
@@ -108,6 +130,24 @@ public abstract class JavaUtilCollectionsDeserializers
         return new JavaUtilCollectionsConverter(kind, concreteType.findSuperType(rawSuper));
     }
 
+    private static String _findUtilSyncTypeName(Class<?> raw) {
+        String clsName = _findUtilCollectionsTypeName(raw);
+        if (clsName != null) {
+            if (clsName.startsWith("Synchronized")) {
+                return clsName.substring(12);
+            }
+        }
+        return "";
+    }
+
+    private static String _findUtilCollectionsTypeName(Class<?> raw) {
+        final String clsName = raw.getName();
+        if (clsName.startsWith(PREFIX_JAVA_UTIL_COLLECTIONS)) {
+            return clsName.substring(PREFIX_JAVA_UTIL_COLLECTIONS.length());
+        }
+        return "";
+    }
+    
     /**
      * Implementation used for converting from various generic container
      * types ({@link java.util.Set}, {@link java.util.List}, {@link java.util.Map})
@@ -158,6 +198,15 @@ public abstract class JavaUtilCollectionsDeserializers
             case TYPE_UNMODIFIABLE_MAP:
                 return Collections.unmodifiableMap((Map<?,?>) value);
 
+            case TYPE_SYNC_SET:
+                return Collections.synchronizedSet((Set<?>) value);
+            case TYPE_SYNC_LIST:
+                return Collections.synchronizedList((List<?>) value);
+            case TYPE_SYNC_COLLECTION:
+                return Collections.synchronizedCollection((Collection<?>) value);
+            case TYPE_SYNC_MAP:
+                return Collections.synchronizedMap((Map<?,?>) value);
+                
             case TYPE_AS_LIST:
             default:
                 // Here we do not actually care about impl type, just return List as-is:

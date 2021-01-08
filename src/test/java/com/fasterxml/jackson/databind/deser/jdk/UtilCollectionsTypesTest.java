@@ -93,6 +93,60 @@ public class UtilCollectionsTypesTest extends BaseMapTest
 
     /*
     /**********************************************************
+    /* Unit tests, "synchronized" types, [databind#3009]
+    /**********************************************************
+     */
+
+    // [databind#3009]
+    public void testSynchronizedCollection() throws Exception
+    {
+        // 07-Jan-2021, tatu: Some oddities, need to inline checking:
+        final Collection<?> input = Collections.synchronizedCollection(
+                Arrays.asList("first", "second"));
+        final Collection<?> output = _writeReadCollection(input);
+        final Class<?> actType = output.getClass();
+        if (!Collection.class.isAssignableFrom(actType)) {
+            fail("Should be subtype of java.util.Collection, is: "+actType.getName());
+        }
+
+        // And for some reason iteration order varies or something: direct equality
+        // check fails, so simply check contents:
+        assertEquals(input.size(), output.size());
+        assertEquals(new ArrayList<>(input),
+                new ArrayList<>(output));
+    }
+
+    // [databind#3009]
+    public void testSynchronizedSet() throws Exception {
+        Set<String> input = new LinkedHashSet<>(Arrays.asList("first", "second"));
+        _verifyCollection(Collections.synchronizedSet(input));
+    }
+
+    // [databind#3009]
+    public void testSynchronizedListRandomAccess() throws Exception {
+        _verifyCollection(Collections.synchronizedList(
+                Arrays.asList("first", "second")));
+    }
+
+    // [databind#3009]
+    public void testSynchronizedListLinked() throws Exception {
+        final List<String> linked = new LinkedList<>();
+        linked.add("first");
+        linked.add("second");
+        _verifyApproxCollection(Collections.synchronizedList(linked),
+                List.class);
+    }
+
+    // [databind#3009]
+    public void testSynchronizedMap() throws Exception {
+        Map<String,String> input = new LinkedHashMap<>();
+        input.put("a", "b");
+        input.put("c", "d");
+        _verifyMap(Collections.synchronizedMap(input));
+    }
+    
+    /*
+    /**********************************************************
     /* Unit tests, other
     /**********************************************************
      */
@@ -119,6 +173,17 @@ public class UtilCollectionsTypesTest extends BaseMapTest
         assertEquals(exp.getClass(), act.getClass());
     }
 
+    protected void _verifyApproxCollection(Collection<?> exp,
+            Class<?> expType) throws Exception
+    {
+        Collection<?> act = _writeReadCollection(exp);
+        assertEquals(exp, act);
+        final Class<?> actType = act.getClass();
+        if (!expType.isAssignableFrom(actType)) {
+            fail("Should be subtype of "+expType.getName()+", is: "+actType.getName());
+        }
+    }
+    
     protected Collection<?> _writeReadCollection(Collection<?> input) throws Exception {
         final String json = DEFAULT_MAPPER.writeValueAsString(input);
         return DEFAULT_MAPPER.readValue(json, Collection.class);

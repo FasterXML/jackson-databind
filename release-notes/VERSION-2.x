@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.1 (not yet released)
+2.12.1 (08-Jan-2021)
 
 #2962: Auto-detection of constructor-based creator method skipped if there is
    an annotated factory-based creator method (regression from 2.11)

@@ -37,14 +37,11 @@
   </scm>
 
   <properties>
-    <!-- With Jackson 2.10 baseline is JDK 7 (except for annotations/streaming),
-         and new language features (diamond pattern) may be used.
-         JDK classes are still loaded dynamically since there isn't much downside
-         (small number of types); this allows use on JDK 6 platforms still (including
-         Android)
+    <!-- Until Jackson 2.11 (inclusive) baseline is JDK 7 (except for annotations/streaming),
+         with 2.12 baseline became JDK8
       -->
-    <javac.src.version>1.7</javac.src.version>
-    <javac.target.version>1.7</javac.target.version>
+    <javac.src.version>1.8</javac.src.version>
+    <javac.target.version>1.8</javac.target.version>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>

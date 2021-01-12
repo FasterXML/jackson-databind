@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -64,7 +65,7 @@ public abstract class DeserializationProblemHandler
      */
     public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
             JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)
-        throws IOException
+        throws JacksonException
     {
         return false;
     }
@@ -94,7 +95,7 @@ public abstract class DeserializationProblemHandler
     public Object handleWeirdKey(DeserializationContext ctxt,
             Class<?> rawKeyType, String keyValue,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -126,7 +127,7 @@ public abstract class DeserializationProblemHandler
     public Object handleWeirdStringValue(DeserializationContext ctxt,
             Class<?> targetType, String valueToConvert,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -157,7 +158,7 @@ public abstract class DeserializationProblemHandler
      */
     public Object handleWeirdNumberValue(DeserializationContext ctxt,
             Class<?> targetType, Number valueToConvert, String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -183,7 +184,7 @@ public abstract class DeserializationProblemHandler
      */
     public Object handleWeirdNativeValue(DeserializationContext ctxt,
             JavaType targetType, Object valueToConvert, JsonParser p)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -216,7 +217,7 @@ public abstract class DeserializationProblemHandler
     public Object handleUnexpectedToken(DeserializationContext ctxt,
             JavaType targetType, JsonToken t, JsonParser p,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -248,7 +249,7 @@ public abstract class DeserializationProblemHandler
      */
     public Object handleInstantiationProblem(DeserializationContext ctxt,
             Class<?> instClass, Object argument, Throwable t)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -280,7 +281,7 @@ public abstract class DeserializationProblemHandler
     public Object handleMissingInstantiator(DeserializationContext ctxt,
             Class<?> instClass, ValueInstantiator valueInsta, JsonParser p,
             String msg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -316,7 +317,7 @@ public abstract class DeserializationProblemHandler
     public JavaType handleUnknownTypeId(DeserializationContext ctxt,
             JavaType baseType, String subTypeId, TypeIdResolver idResolver,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return null;
     }
@@ -350,7 +351,7 @@ public abstract class DeserializationProblemHandler
     public JavaType handleMissingTypeId(DeserializationContext ctxt,
             JavaType baseType, TypeIdResolver idResolver,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return null;
     }

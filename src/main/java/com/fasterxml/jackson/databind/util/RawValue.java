@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
+
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * {@link com.fasterxml.jackson.core.JsonGenerator#writeRawValue(String)}.
  * It may be stored in {@link TokenBuffer}, as well as in Tree Model
  * ({@link com.fasterxml.jackson.databind.JsonNode})
- * 
- * @since 2.6
  */
 public class RawValue
     implements JsonSerializable
@@ -58,7 +56,7 @@ public class RawValue
     }
     
     @Override
-    public void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException
+    public void serialize(JsonGenerator gen, SerializerProvider serializers) throws JacksonException
     {
         if (_value instanceof JsonSerializable) {
             ((JsonSerializable) _value).serialize(gen, serializers);
@@ -69,7 +67,7 @@ public class RawValue
 
     @Override
     public void serializeWithType(JsonGenerator gen, SerializerProvider serializers,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer) throws JacksonException
     {
         if (_value instanceof JsonSerializable) {
             ((JsonSerializable) _value).serializeWithType(gen, serializers, typeSer);
@@ -81,7 +79,7 @@ public class RawValue
         }
     }
 
-    public void serialize(JsonGenerator gen) throws IOException
+    public void serialize(JsonGenerator gen) throws JacksonException
     {
         if (_value instanceof JsonSerializable) {
             // No SerializerProvider passed, must go via generator, callback
@@ -91,7 +89,7 @@ public class RawValue
         }
     }
 
-    protected void _serialize(JsonGenerator gen) throws IOException
+    protected void _serialize(JsonGenerator gen) throws JacksonException
     {
         if (_value instanceof SerializableString) {
             gen.writeRawValue((SerializableString) _value);

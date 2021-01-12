@@ -234,7 +234,8 @@ public class TokenBuffer
      * return b;
      *</pre>
      */
-    public static TokenBuffer asCopyOfValue(JsonParser p) throws IOException {
+    public static TokenBuffer asCopyOfValue(JsonParser p)
+    {
         TokenBuffer b = new TokenBuffer(p, null);
         b.copyCurrentStructure(p);
         return b;
@@ -302,7 +303,7 @@ public class TokenBuffer
      *  return p;
      *</pre>
      */
-    public JsonParser asParserOnFirstToken() throws IOException {
+    public JsonParser asParserOnFirstToken() throws JacksonException {
         JsonParser p = asParser();
         p.nextToken();
         return p;
@@ -355,7 +356,7 @@ public class TokenBuffer
      * @return This buffer
      */
     @SuppressWarnings("resource")
-    public TokenBuffer append(TokenBuffer other) throws IOException
+    public TokenBuffer append(TokenBuffer other)
     {
         // Important? If source has native ids, need to store
         if (!_hasNativeTypeIds) {  
@@ -383,7 +384,7 @@ public class TokenBuffer
      * references (from core to mapper package); and as such we also
      * cannot take second argument.
      */
-    public void serialize(JsonGenerator gen) throws IOException
+    public void serialize(JsonGenerator gen) throws JacksonException
     {
         Segment segment = _first;
         int ptr = -1;
@@ -516,7 +517,7 @@ public class TokenBuffer
     /**
      * Helper method used by standard deserializer.
      */
-    public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         if (!p.hasToken(JsonToken.FIELD_NAME)) {
             copyCurrentStructure(p);
@@ -1497,7 +1498,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /******************************************************************
          */
         
-        public JsonToken peekNextToken() throws IOException
+        public JsonToken peekNextToken()
         {
             // closed? nothing more to peek, either
             if (_closed) return null;

@@ -99,7 +99,7 @@ public class ArrayDeserializationTest
     static class CustomNonDeserArrayDeserializer extends JsonDeserializer<NonDeserializable[]>
     {
         @Override
-        public NonDeserializable[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public NonDeserializable[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
             List<NonDeserializable> list = new ArrayList<NonDeserializable>();
             while (p.nextToken() != JsonToken.END_ARRAY) {

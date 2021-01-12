@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.NumberInput;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -144,7 +144,7 @@ public abstract class StdDeserializer<T>
      */
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException {
+            TypeDeserializer typeDeserializer) throws JacksonException {
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 
@@ -169,7 +169,7 @@ public abstract class StdDeserializer<T>
      * {@link #deserialize(JsonParser, DeserializationContext)}.
      */
     @SuppressWarnings("unchecked")
-    protected T _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected T _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         final CoercionAction act = _findCoercionFromEmptyArray(ctxt);
         final boolean unwrap = ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -204,7 +204,7 @@ public abstract class StdDeserializer<T>
      */
     @SuppressWarnings("unchecked")
     protected T _deserializeFromString(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
         final ValueInstantiator inst = getValueInstantiator();
         final Class<?> rawTargetType = handledType();
@@ -263,7 +263,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected Object _deserializeFromEmptyString(JsonParser p, DeserializationContext ctxt,
-            CoercionAction act, Class<?> rawTargetType, String desc) throws IOException
+            CoercionAction act, Class<?> rawTargetType, String desc) throws JacksonException
     {
 
         switch (act) {
@@ -299,7 +299,7 @@ public abstract class StdDeserializer<T>
      * {@link #deserialize(JsonParser, DeserializationContext)},
      * but handling may be overridden.
      */
-    protected T _deserializeWrappedValue(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected T _deserializeWrappedValue(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // 23-Mar-2017, tatu: Let's specifically block recursive resolution to avoid
         //   either supporting nested arrays, or to cause infinite looping.
@@ -328,7 +328,7 @@ public abstract class StdDeserializer<T>
      * @param p Underlying parser
      */
     protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -439,7 +439,7 @@ public abstract class StdDeserializer<T>
      */
     protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt,
             Class<?> targetType)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -495,7 +495,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final byte _parseBytePrimitive(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -563,7 +563,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final short _parseShortPrimitive(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -629,7 +629,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -682,7 +682,7 @@ public abstract class StdDeserializer<T>
         return _parseIntPrimitive(ctxt, text);
     }
 
-    protected final int _parseIntPrimitive(DeserializationContext ctxt, String text) throws IOException
+    protected final int _parseIntPrimitive(DeserializationContext ctxt, String text) throws JacksonException
     {
         try {
             if (text.length() > 9) {
@@ -708,7 +708,7 @@ public abstract class StdDeserializer<T>
      */
     protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
             Class<?> targetType)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -753,7 +753,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -806,7 +806,7 @@ public abstract class StdDeserializer<T>
         return _parseLongPrimitive(ctxt, text);
     }
 
-    protected final long _parseLongPrimitive(DeserializationContext ctxt, String text) throws IOException
+    protected final long _parseLongPrimitive(DeserializationContext ctxt, String text) throws JacksonException
     {
         try {
             return NumberInput.parseLong(text);
@@ -823,7 +823,7 @@ public abstract class StdDeserializer<T>
      */
     protected final Long _parseLong(JsonParser p, DeserializationContext ctxt,
             Class<?> targetType)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -869,7 +869,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -928,7 +928,7 @@ public abstract class StdDeserializer<T>
      * @since 2.9
      */
     protected final float _parseFloatPrimitive(DeserializationContext ctxt, String text)
-        throws IOException
+        throws JacksonException
     {
         try {
             return Float.parseFloat(text);
@@ -974,7 +974,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -1030,7 +1030,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final double _parseDoublePrimitive(DeserializationContext ctxt, String text)
-        throws IOException
+        throws JacksonException
     {
         try {
             return _parseDouble(text);
@@ -1091,7 +1091,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         String text;
         switch (p.currentTokenId()) {
@@ -1128,7 +1128,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected java.util.Date _parseDateFromArray(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
         final CoercionAction act = _findCoercionFromEmptyArray(ctxt);
         final boolean unwrap = ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -1157,7 +1157,7 @@ public abstract class StdDeserializer<T>
      * @since 2.8
      */
     protected java.util.Date _parseDate(String value, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         try {
             // Take empty Strings to mean 'empty' Value, usually 'null':
@@ -1188,7 +1188,7 @@ public abstract class StdDeserializer<T>
      * Helper method used for accessing String value, if possible, doing
      * necessary conversion or throwing exception as necessary.
      */
-    protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return p.getText();
@@ -1257,7 +1257,7 @@ public abstract class StdDeserializer<T>
      * @since 2.12
      */
     protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value)
-        throws IOException
+        throws JacksonException
     {
         return _checkFromStringCoercion(ctxt, value, logicalType(), handledType());
     }
@@ -1267,7 +1267,7 @@ public abstract class StdDeserializer<T>
      */
     protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value,
             LogicalType logicalType, Class<?> rawTargetType)
-        throws IOException
+        throws JacksonException
     {
         // 18-Dec-2020, tatu: Formats without strong typing (XML, CSV, Properties at
         //    least) should allow from-String "coercion" since Strings are their
@@ -1306,7 +1306,7 @@ value, _coercedTypeDesc());
      */
     protected CoercionAction _checkFloatToIntCoercion(JsonParser p, DeserializationContext ctxt,
             Class<?> rawTargetType)
-        throws IOException
+        throws JacksonException
     {
         final CoercionAction act = ctxt.findCoercionAction(LogicalType.Integer,
                 rawTargetType, CoercionInputShape.Float);
@@ -1322,7 +1322,7 @@ value, _coercedTypeDesc());
      */
     protected Boolean _coerceBooleanFromInt(JsonParser p, DeserializationContext ctxt,
             Class<?> rawTargetType)
-        throws IOException
+        throws JacksonException
     {
         CoercionAction act = ctxt.findCoercionAction(LogicalType.Boolean, rawTargetType, CoercionInputShape.Integer);
         switch (act) {
@@ -1352,7 +1352,7 @@ value, _coercedTypeDesc());
     protected CoercionAction _checkCoercionFail(DeserializationContext ctxt,
             CoercionAction act, Class<?> targetType, Object inputValue,
             String inputDesc)
-        throws IOException
+        throws JacksonException
     {
         if (act == CoercionAction.Fail) {
             ctxt.reportBadCoercion(this, targetType, inputValue,
@@ -1398,7 +1398,7 @@ inputDesc, _coercedTypeDesc());
      *
      * @since 2.6
      */
-    protected Object _coerceIntegral(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _coerceIntegral(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         int feats = ctxt.getDeserializationFeatures();
         if (DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.enabledIn(feats)) {
@@ -1778,7 +1778,7 @@ inputDesc, _coercedTypeDesc());
      */
     protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt,
             Object instanceOrClass, String propName)
-        throws IOException
+        throws JacksonException
     {
         if (instanceOrClass == null) {
             instanceOrClass = handledType();
@@ -1793,7 +1793,7 @@ inputDesc, _coercedTypeDesc());
     }
 
     protected void handleMissingEndArrayForSingle(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
 "Attempted to unwrap '%s' value from an array (with `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`) but it contains more than one value",
@@ -1802,7 +1802,7 @@ handledType().getName());
         //     but for now just fall through
     }
 
-    protected void _verifyEndArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected void _verifyEndArrayForSingle(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         JsonToken t = p.nextToken();
         if (t != JsonToken.END_ARRAY) {

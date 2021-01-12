@@ -145,7 +145,7 @@ public abstract class JsonDeserializer<T>
      * @return Deserialized value
      */
     public abstract T deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+        throws JacksonException;
 
     /**
      * Alternate deserialization method (compared to the most commonly
@@ -164,7 +164,7 @@ public abstract class JsonDeserializer<T>
      * update-existing-value operation (esp. immutable types)
      */
     public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue)
-        throws IOException
+        throws JacksonException
     {
         ctxt.handleBadMerge(this);
         return deserialize(p, ctxt);

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
@@ -29,13 +28,13 @@ public class ValueInjector
     }
 
     public Object findValue(DeserializationContext context, Object beanInstance)
-        throws JsonMappingException
+        throws JacksonException
     {
         return context.findInjectableValue(_valueId, this, beanInstance);
     }
 
     public void inject(DeserializationContext context, Object beanInstance)
-        throws IOException
+        throws JacksonException
     {
         _member.setValue(beanInstance, findValue(context, beanInstance));
     }

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -70,7 +69,7 @@ public abstract class ArraySerializerBase<T>
     @Override
     public final void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
@@ -81,7 +80,7 @@ public abstract class ArraySerializerBase<T>
     }
 
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException;
+        throws JacksonException;
 
     protected final boolean _shouldUnwrapSingle(SerializerProvider provider) {
         if (_unwrapSingle == null) {

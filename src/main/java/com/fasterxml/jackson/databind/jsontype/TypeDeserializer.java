@@ -1,14 +1,11 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-
 
 /**
  * Interface for deserializing type information from JSON content, to
@@ -91,7 +88,8 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws IOException;
+    public abstract Object deserializeTypedFromObject(JsonParser p,
+            DeserializationContext ctxt) throws JacksonException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -102,7 +100,7 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt) throws IOException;
+    public abstract Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -114,7 +112,7 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt) throws IOException;
+    public abstract Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt) throws JacksonException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -125,7 +123,7 @@ public abstract class TypeDeserializer
      * using JSON node representation, or "untyped" Java object
      * (which may be Map, Collection, wrapper/primitive etc).
      */
-    public abstract Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws IOException;
+    public abstract Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws JacksonException;
 
     /*
     /**********************************************************
@@ -138,13 +136,13 @@ public abstract class TypeDeserializer
      * a "natural" value, and one that would be acceptable as the
      * result value (compatible with declared base type)
      */
-    public static Object deserializeIfNatural(JsonParser p, DeserializationContext ctxt, JavaType baseType) throws IOException {
+    public static Object deserializeIfNatural(JsonParser p, DeserializationContext ctxt, JavaType baseType) throws JacksonException {
         return deserializeIfNatural(p, ctxt, baseType.getRawClass());
     }
 
     @SuppressWarnings("incomplete-switch")
     public static Object deserializeIfNatural(JsonParser p, DeserializationContext ctxt,
-            Class<?> base) throws IOException
+            Class<?> base) throws JacksonException
     {
         JsonToken t = p.currentToken();
         if (t == null) {

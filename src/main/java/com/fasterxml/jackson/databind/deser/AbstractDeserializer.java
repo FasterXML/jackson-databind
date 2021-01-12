@@ -248,7 +248,7 @@ handledType().getName()));
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // 16-Oct-2016, tatu: Let's pass non-null value instantiator so that we will
         //    get proper exception type; needed to establish there are no creators

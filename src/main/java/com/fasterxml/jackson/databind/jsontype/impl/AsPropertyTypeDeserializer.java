@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -61,7 +62,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * for may be anywhere...
      */
     @Override
-    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
         if (p.canReadTypeId()) {
@@ -106,7 +108,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }
 
     protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
-            TokenBuffer tb, String typeId) throws IOException {
+            TokenBuffer tb, String typeId)
+        throws JacksonException
+    {
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         if (_typeIdVisible) { // need to merge id back in JSON input?
             if (tb == null) {
@@ -129,7 +133,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     // off-lined to keep main method lean and mean...
     protected Object _deserializeTypedUsingDefaultImpl(JsonParser p,
-            DeserializationContext ctxt, TokenBuffer tb) throws IOException
+            DeserializationContext ctxt, TokenBuffer tb)
+        throws JacksonException
     {
         // May have default implementation to use
         // 13-Oct-2020, tatu: As per [databind#2775], need to be careful to
@@ -185,7 +190,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * no negative side effects (at least within existing unit test suite).
      */
     @Override
-    public Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         // Sometimes, however, we get an array wrapper; specifically
         // when an array or list has been serialized with type information.
         if (p.hasToken(JsonToken.START_ARRAY)) {

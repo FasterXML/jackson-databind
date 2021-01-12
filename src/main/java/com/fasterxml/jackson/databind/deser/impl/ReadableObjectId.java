@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -52,7 +52,7 @@ public class ReadableObjectId
      * Method called to assign actual POJO to which ObjectId refers to: will
      * also handle referring properties, if any, by assigning POJO.
      */
-    public void bindItem(Object ob) throws IOException
+    public void bindItem(Object ob) throws JacksonException
     {
         _resolver.bindItem(_key, ob);
         _item = ob;
@@ -142,7 +142,8 @@ public class ReadableObjectId
         public JsonLocation getLocation() { return _reference.getLocation(); }
         public Class<?> getBeanType() { return _beanType; }
 
-        public abstract void handleResolvedForwardReference(Object id, Object value) throws IOException;
+        public abstract void handleResolvedForwardReference(Object id, Object value)
+            throws JacksonException;
         public boolean hasId(Object id) {
             return id.equals(_reference.getUnresolvedId());
         }

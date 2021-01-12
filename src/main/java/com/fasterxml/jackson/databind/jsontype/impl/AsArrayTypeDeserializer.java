@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -43,26 +43,26 @@ public class AsArrayTypeDeserializer
      * Method called when actual object is serialized as JSON Array.
      */
     @Override
-    public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserialize(jp, ctxt);
+    public Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        return _deserialize(p, ctxt);
     }
 
     /**
      * Method called when actual object is serialized as JSON Object
      */
     @Override
-    public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserialize(jp, ctxt);
+    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        return _deserialize(p, ctxt);
     }
     
     @Override
-    public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserialize(jp, ctxt);
+    public Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        return _deserialize(p, ctxt);
     }    
 
     @Override
-    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserialize(jp, ctxt);
+    public Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        return _deserialize(p, ctxt);
     }    
     
     /*
@@ -77,7 +77,8 @@ public class AsArrayTypeDeserializer
      * deserialization.
      */
     @SuppressWarnings("resource")
-    protected Object _deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
         if (p.canReadTypeId()) {
@@ -124,7 +125,7 @@ public class AsArrayTypeDeserializer
         return value;
     }    
     
-    protected String _locateTypeId(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected String _locateTypeId(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         if (!p.isExpectedStartArrayToken()) {
             // Need to allow even more customized handling, if something unexpected seen...
@@ -160,9 +161,6 @@ public class AsArrayTypeDeserializer
         return null;
     }
 
-    /**
-     * @since 2.5
-     */
     protected boolean _usesExternalId() {
         return false;
     }

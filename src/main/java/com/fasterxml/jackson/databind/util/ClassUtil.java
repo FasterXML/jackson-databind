@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.StreamWriteFeature;
@@ -280,9 +281,9 @@ public final class ClassUtil
      * Helper method that will check if argument is an {@link IOException},
      * and if so, (re)throw it; otherwise just return
      */
-    public static Throwable throwIfIOE(Throwable t) throws IOException {
-        if (t instanceof IOException) {
-            throw (IOException) t;
+    public static Throwable throwIfJacksonE(Throwable t) throws JacksonException {
+        if (t instanceof JacksonException) {
+            throw (JacksonException) t;
         }
         return t;
     }
@@ -310,7 +311,7 @@ public final class ClassUtil
      * either throwing it (if instanceof {@link IOException}), or return.
      */
     public static Throwable throwRootCauseIfIOE(Throwable t) throws IOException {
-        return throwIfIOE(getRootCause(t));
+        return throwIfJacksonE(getRootCause(t));
     }
 
     /**
@@ -381,7 +382,7 @@ public final class ClassUtil
         } catch (Exception e) {
             fail.addSuppressed(e);
         }
-        throwIfIOE(fail);
+        throwIfJacksonE(fail);
         throwIfRTE(fail);
         throw new RuntimeException(fail);
     }
@@ -412,7 +413,7 @@ public final class ClassUtil
                 fail.addSuppressed(e);
             }
         }
-        throwIfIOE(fail);
+        throwIfJacksonE(fail);
         throwIfRTE(fail);
         throw new RuntimeException(fail);
     }

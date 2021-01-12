@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -125,7 +123,7 @@ public abstract class TypeSerializer
      * @param typeId Details of what type id is to be written, how.
      */
     public abstract WritableTypeId writeTypePrefix(JsonGenerator g,
-            SerializerProvider ctxt, WritableTypeId typeId) throws IOException;
+            SerializerProvider ctxt, WritableTypeId typeId) throws JacksonException;
 
     /**
      * Method called to write the "closing" part of type information for given
@@ -137,5 +135,5 @@ public abstract class TypeSerializer
      * @param typeId Details of what type id is to be written, how.
      */
     public abstract WritableTypeId writeTypeSuffix(JsonGenerator g,
-            SerializerProvider ctxt, WritableTypeId typeId) throws IOException;
+            SerializerProvider ctxt, WritableTypeId typeId) throws JacksonException;
 }

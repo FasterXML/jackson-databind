@@ -141,21 +141,13 @@ public abstract class BaseJsonNode
 
    @Override
    public String toString() {
-       try {
-           return JsonMapper.shared().writeValueAsString(this);
-       } catch (IOException e) { // should never occur
-           throw new RuntimeException(e);
-       }
+       return JsonMapper.shared().writeValueAsString(this);
    }
 
    @Override
    public String toPrettyString() {
-       try {
-           return JsonMapper.shared()
-                   .writerWithDefaultPrettyPrinter()
-                   .writeValueAsString(this);
-       } catch (IOException e) { // should never occur
-           throw new RuntimeException(e);
-       }
+       return JsonMapper.shared()
+               .writerWithDefaultPrettyPrinter()
+               .writeValueAsString(this);
    }
 }

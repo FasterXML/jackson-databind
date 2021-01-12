@@ -32,7 +32,7 @@ public class TestBlocking extends BaseMapTest
         // and should fail only now:
         try {
             jp.nextToken();
-        } catch (IOException ioe) {
+        } catch (JacksonException ioe) {
             verifyException(ioe, "Unexpected end-of-input: expected close marker for ARRAY");
         }
         jp.close();

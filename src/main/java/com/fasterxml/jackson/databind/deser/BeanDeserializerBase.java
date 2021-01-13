@@ -1498,7 +1498,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                 return bean;
             }
         }
-        // TODO: maybe add support for ValueInstantiator, embedded?
 
         // 26-Jul-2017, tatu: related to [databind#1711], let's actually verify assignment
         //    compatibility before returning. Bound to catch misconfigured cases and produce

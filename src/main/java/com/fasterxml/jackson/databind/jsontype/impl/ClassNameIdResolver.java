@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import com.fasterxml.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -49,11 +50,11 @@ public class ClassNameIdResolver
     }
 
     @Override
-    public JavaType typeFromId(DatabindContext ctxt, String id) throws IOException {
+    public JavaType typeFromId(DatabindContext ctxt, String id) throws JacksonException {
         return _typeFromId(ctxt, id);
     }
 
-    protected JavaType _typeFromId(DatabindContext ctxt, String id) throws IOException
+    protected JavaType _typeFromId(DatabindContext ctxt, String id) throws JacksonException
     {
         // 24-Apr-2019, tatu: [databind#2195] validate as well as resolve:
         JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);
@@ -68,9 +69,9 @@ public class ClassNameIdResolver
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected String _idFrom(DatabindContext ctxt, Object value, Class<?> cls)

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -390,8 +389,6 @@ public class MapDeserializer
      * It is also possible that some other settings could make deserializers
      * un-cacheable; but on the other hand, caching can make a big positive
      * difference with performance... so it's a hard choice.
-     * 
-     * @since 2.4.4
      */
     @Override
     public boolean isCachable() {
@@ -411,7 +408,8 @@ public class MapDeserializer
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Map<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         if (_propertyBasedCreator != null) {
             return _deserializeUsingCreator(p, ctxt);
@@ -451,7 +449,7 @@ public class MapDeserializer
     @Override
     public Map<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result)
-        throws IOException
+        throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.setCurrentValue(result);
@@ -473,7 +471,7 @@ public class MapDeserializer
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(p, ctxt);
@@ -497,7 +495,7 @@ public class MapDeserializer
      */
 
     protected final void _readAndBind(JsonParser p, DeserializationContext ctxt,
-            Map<Object,Object> result) throws IOException
+            Map<Object,Object> result) throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
@@ -564,7 +562,7 @@ public class MapDeserializer
      * specified.
      */
     protected final void _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
-            Map<Object,Object> result) throws IOException
+            Map<Object,Object> result) throws JacksonException
     {
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
@@ -622,7 +620,8 @@ public class MapDeserializer
     }
     
     @SuppressWarnings("unchecked") 
-    public Map<Object,Object> _deserializeUsingCreator(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Map<Object,Object> _deserializeUsingCreator(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for Maps (yet?)
@@ -700,11 +699,8 @@ public class MapDeserializer
     /**********************************************************
      */
 
-    /**
-     * @since 2.9
-     */
     protected final void _readAndUpdate(JsonParser p, DeserializationContext ctxt,
-            Map<Object,Object> result) throws IOException
+            Map<Object,Object> result) throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
@@ -770,11 +766,9 @@ public class MapDeserializer
      * Optimized method used when keys can be deserialized as plain old
      * {@link java.lang.String}s, and there is no custom deserializer
      * specified.
-     *
-     * @since 2.9
      */
     protected final void _readAndUpdateStringKeyMap(JsonParser p, DeserializationContext ctxt,
-            Map<Object,Object> result) throws IOException
+            Map<Object,Object> result) throws JacksonException
     {
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
@@ -842,7 +836,7 @@ public class MapDeserializer
     private void handleUnresolvedReference(DeserializationContext ctxt,
             MapReferringAccumulator accumulator,
             Object key, UnresolvedForwardReference reference)
-        throws JsonMappingException
+        throws JacksonException
     {
         if (accumulator == null) {
             ctxt.reportInputMismatch(this,
@@ -882,7 +876,7 @@ public class MapDeserializer
             return id;
         }
 
-        public void resolveForwardReference(Object id, Object value) throws IOException
+        public void resolveForwardReference(Object id, Object value) throws JacksonException
         {
             Iterator<MapReferring> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This means either:
@@ -925,7 +919,7 @@ public class MapDeserializer
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws IOException {
+        public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(id, value);
         }
     }

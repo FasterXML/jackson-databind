@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -38,7 +38,7 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     
     @Override
     public void serialize(byte[] value, JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         g.writeBinary(provider.getConfig().getBase64Variant(),
                 value, 0, value.length);
@@ -47,7 +47,7 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     @Override
     public void serializeWithType(byte[] value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         // most likely scalar
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,

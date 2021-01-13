@@ -40,9 +40,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public String asText() { return ""; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods reset as abstract to force real implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -55,9 +55,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public abstract JsonNode get(String fieldName);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonNodeCreator implementation, Enumerated/singleton types
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -72,9 +72,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public final NullNode nullNode() { return _nodeFactory.nullNode(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonNodeCreator implementation, just dispatch to real creator
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -149,9 +149,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public final ValueNode rawValueNode(RawValue value) { return _nodeFactory.rawValueNode(value); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Common mutators
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -144,7 +144,7 @@ public class SettableAnyProperty
     }
 
     @SuppressWarnings("unchecked")
-    public void set(Object instance, Object propName, Object value) throws IOException
+    public void set(Object instance, Object propName, Object value) throws JacksonException
     {
         try {
             // if annotation in the field (only map is supported now)
@@ -196,7 +196,7 @@ public class SettableAnyProperty
             }
             throw new JsonMappingException(null, msg.toString(), e);
         }
-        ClassUtil.throwIfIOE(e);
+        ClassUtil.throwIfJacksonE(e);
         ClassUtil.throwIfRTE(e);
         // let's wrap the innermost problem
         Throwable t = ClassUtil.getRootCause(e);
@@ -223,7 +223,7 @@ public class SettableAnyProperty
 
         @Override
         public void handleResolvedForwardReference(Object id, Object value)
-            throws IOException
+            throws JacksonException
         {
             if (!hasId(id)) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id.toString()

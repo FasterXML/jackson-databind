@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
@@ -107,7 +108,8 @@ class FactoryBasedEnumDeserializer
     public ValueInstantiator getValueInstantiator() { return _valueInstantiator; }
 
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         Object value;
         if (_deser != null) {
@@ -164,7 +166,9 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
     }
 
     @Override
-    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
+            throws JacksonException
+    {
         if (_deser == null) { // String never has type info
             return deserialize(p, ctxt);
         }
@@ -173,7 +177,7 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
     
     // Method to deserialize the Enum using property based methodology
     protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
-    		final PropertyBasedCreator creator) throws IOException
+    		final PropertyBasedCreator creator) throws JacksonException
     {
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
     
@@ -198,7 +202,7 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
     // ************ Got the below methods from BeanDeserializer ********************//
 
     protected final Object _deserializeWithErrorWrapping(JsonParser p, DeserializationContext ctxt,
-            SettableBeanProperty prop) throws IOException
+            SettableBeanProperty prop) throws JacksonException
     {
         try {
             return prop.deserialize(p, ctxt);
@@ -208,12 +212,13 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
     }
 
     protected Object wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
         throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
     }
 
-    private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) throws IOException
+    private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)
+            throws JacksonException
     {
         t = ClassUtil.getRootCause(t);
         // Errors to be passed as is

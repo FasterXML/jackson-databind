@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -26,9 +25,9 @@ public class DecimalNode
     final protected BigDecimal _value;
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     public DecimalNode(BigDecimal v) { _value = v; }
@@ -36,9 +35,9 @@ public class DecimalNode
     public static DecimalNode valueOf(BigDecimal d) { return new DecimalNode(d); }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* BaseJsonNode extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
@@ -46,10 +45,10 @@ public class DecimalNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_DECIMAL; }
 
-    /* 
-    /**********************************************************
-    /* Overrridden JsonNode methods
-    /**********************************************************
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
      */
 
     @Override
@@ -103,7 +102,8 @@ public class DecimalNode
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+            throws JacksonException
     {
         g.writeNumber(_value);
     }

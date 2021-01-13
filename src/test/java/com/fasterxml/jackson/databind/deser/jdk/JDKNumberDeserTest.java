@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -86,7 +85,6 @@ public class JDKNumberDeserTest extends BaseMapTest
     {
         @Override
         public MyBeanValue deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException
         {
             return new MyBeanValue(jp.getDecimalValue());
         }

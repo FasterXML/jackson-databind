@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -52,13 +53,14 @@ public final class BooleanSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+    public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+            throws JacksonException {
         g.writeBoolean(Boolean.TRUE.equals(value));
     }
 
     @Override
     public final void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer) throws JacksonException
     {
         g.writeBoolean(Boolean.TRUE.equals(value));
     }
@@ -87,7 +89,8 @@ public final class BooleanSerializer
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+                throws JacksonException {
             g.writeNumber((Boolean.FALSE.equals(value)) ? 0 : 1);
         }
 

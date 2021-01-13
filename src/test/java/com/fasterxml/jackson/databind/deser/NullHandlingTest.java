@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +9,9 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -19,7 +20,7 @@ public class NullHandlingTest extends BaseMapTest
     static class FunnyNullDeserializer extends JsonDeserializer<String>
     {
         @Override
-        public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        public String deserialize(JsonParser jp, DeserializationContext ctxt) {
             return "text";
         }
 

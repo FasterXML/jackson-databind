@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -104,7 +103,8 @@ public class DoubleNode
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+            throws JacksonException {
         g.writeNumber(_value);
     }
 

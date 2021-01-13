@@ -173,7 +173,7 @@ public abstract class BaseMapTest
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
         }
     }

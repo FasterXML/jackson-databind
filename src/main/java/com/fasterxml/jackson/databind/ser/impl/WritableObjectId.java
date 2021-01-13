@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 
@@ -29,7 +27,8 @@ public final class WritableObjectId
         this.generator = generator;
     }
 
-    public boolean writeAsId(JsonGenerator gen, SerializerProvider provider, ObjectIdWriter w) throws IOException
+    public boolean writeAsId(JsonGenerator gen, SerializerProvider provider, ObjectIdWriter w)
+        throws JacksonException
     {
         if ((id != null) && (idWritten || w.alwaysAsId)) {
             // 03-Aug-2013, tatu: Prefer Native Object Ids if available
@@ -57,7 +56,7 @@ public final class WritableObjectId
      * Method called to output Object Id as specified.
      */
     public void writeAsField(JsonGenerator gen, SerializerProvider provider,
-            ObjectIdWriter w) throws IOException
+            ObjectIdWriter w) throws JacksonException
     {
         idWritten = true;
 

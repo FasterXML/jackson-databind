@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -67,7 +66,6 @@ public class TestValueAnnotations
 
         @Override
         public RootString deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 return new RootStringImpl(p.getText());

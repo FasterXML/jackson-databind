@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Objects;
 
@@ -225,7 +224,7 @@ _containerType,
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_delegateDeserializer != null) {
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
@@ -245,12 +244,9 @@ _containerType,
         return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
-    /**
-     * @since 2.9
-     */
     @SuppressWarnings("unchecked")
     protected Collection<Object> createDefaultInstance(DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         return (Collection<Object>) _valueInstantiator.createUsingDefault(ctxt);
     }
@@ -258,7 +254,7 @@ _containerType,
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)
-        throws IOException
+        throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (p.isExpectedStartArrayToken()) {
@@ -270,7 +266,7 @@ _containerType,
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
@@ -284,7 +280,7 @@ _containerType,
     @SuppressWarnings("unchecked")
     protected Collection<Object> _deserializeFromString(JsonParser p, DeserializationContext ctxt,
             String value)
-        throws IOException
+        throws JacksonException
     {
         final Class<?> rawTargetType = handledType();
 
@@ -316,7 +312,7 @@ _containerType,
      */
     protected Collection<Object> _deserializeFromArray(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)
-        throws IOException
+        throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(result);
@@ -367,7 +363,7 @@ _containerType,
     @SuppressWarnings("unchecked")
     protected final Collection<Object> handleNonArray(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)
-        throws IOException
+        throws JacksonException
     {
         // Implicit arrays from single values?
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
@@ -408,7 +404,7 @@ _containerType,
 
     protected Collection<Object> _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)
-        throws IOException
+        throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
@@ -486,7 +482,7 @@ _containerType,
             return id;
         }
 
-        public void resolveForwardReference(Object id, Object value) throws IOException
+        public void resolveForwardReference(Object id, Object value) throws JacksonException
         {
             Iterator<CollectionReferring> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This mean either:
@@ -526,7 +522,7 @@ _containerType,
         }
         
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws IOException {
+        public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(id, value);
         }
     }

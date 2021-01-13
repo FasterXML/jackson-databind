@@ -36,7 +36,7 @@ public class TestEmptyClass
     static class NonZeroSerializer extends JsonSerializer<NonZero>
     {
         @Override
-        public void serialize(NonZero value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public void serialize(NonZero value, JsonGenerator jgen, SerializerProvider provider)
         {
             jgen.writeNumber(value.nr);
         }

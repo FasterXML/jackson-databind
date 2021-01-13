@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.*;
@@ -43,7 +42,7 @@ public abstract class ValueNode
     @Override
     public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(this, asToken()));

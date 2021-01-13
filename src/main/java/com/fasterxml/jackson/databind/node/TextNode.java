@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -145,7 +143,8 @@ e.getMessage()),
      */
     
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
         if (_value == null) {
             g.writeNull();

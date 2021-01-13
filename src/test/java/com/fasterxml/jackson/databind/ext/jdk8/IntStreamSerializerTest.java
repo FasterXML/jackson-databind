@@ -63,11 +63,6 @@ public class IntStreamSerializerTest extends StreamTestBase
     }
 
     private int[] roundTrip(IntStream stream) {
-        try {
-            return objectMapper.readValue(objectMapper.writeValueAsBytes(stream), int[].class);
-        } catch (IOException e) {
-            sneakyThrow(e);
-            return null;
-        }
+        return objectMapper.readValue(objectMapper.writeValueAsBytes(stream), int[].class);
     }
 }

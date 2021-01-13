@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.module;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -37,7 +36,6 @@ public class SimpleModuleTest extends BaseMapTest
 
         @Override
         public void serialize(CustomBean value, JsonGenerator g, SerializerProvider provider)
-            throws IOException, JsonProcessingException
         {
             // We will write it as a String, with '|' as delimiter
             g.writeString(value.str + "|" + value.num);
@@ -48,12 +46,11 @@ public class SimpleModuleTest extends BaseMapTest
     {
         @Override
         public CustomBean deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             String text = p.getText();
             int ix = text.indexOf('|');
             if (ix < 0) {
-                throw new IOException("Failed to parse String value of \""+text+"\"");
+                throw new JsonParseException(p, "Failed to parse String value of \""+text+"\"");
             }
             String str = text.substring(0, ix);
             int num = Integer.parseInt(text.substring(ix+1));
@@ -67,7 +64,6 @@ public class SimpleModuleTest extends BaseMapTest
 
         @Override
         public void serialize(SimpleEnum value, JsonGenerator g, SerializerProvider provider)
-            throws IOException
         {
             g.writeString(value.name().toLowerCase());
         }
@@ -77,7 +73,6 @@ public class SimpleModuleTest extends BaseMapTest
     {
         @Override
         public SimpleEnum deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             return SimpleEnum.valueOf(p.getText().toUpperCase());
         }
@@ -102,7 +97,7 @@ public class SimpleModuleTest extends BaseMapTest
         public BaseSerializer() { super(Base.class); }
         
         @Override
-        public void serialize(Base value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        public void serialize(Base value, JsonGenerator g, SerializerProvider provider) {
             g.writeString("Base:"+value.getText());
         }
     }
@@ -174,7 +169,7 @@ public class SimpleModuleTest extends BaseMapTest
         try {
             mapper.writeValueAsString(new CustomBean("foo", 3));
             fail("Should have caused an exception");
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             verifyException(e, "No serializer found");
         }
 

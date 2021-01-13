@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -13,12 +12,12 @@ public class TestJsonSerialize3 extends BaseMapTest
     // [JACKSON-829]
     static class FooToBarSerializer extends JsonSerializer<String> {
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider)
-               throws IOException {
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
+        {
             if ("foo".equals(value)) {
-                jgen.writeString("bar");
+                g.writeString("bar");
             } else {
-                jgen.writeString(value);
+                g.writeString(value);
             }
         }
     }

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -23,7 +21,7 @@ public class ErrorThrowingDeserializer extends JsonDeserializer<Object>
     }
 
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public Object deserialize(JsonParser jp, DeserializationContext ctxt) {
         throw _cause;
     }
 }

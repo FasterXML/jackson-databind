@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -100,10 +99,10 @@ public class BigIntegerNode
     }
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
-        jg.writeNumber(_value);
+        g.writeNumber(_value);
     }
 
     @Override

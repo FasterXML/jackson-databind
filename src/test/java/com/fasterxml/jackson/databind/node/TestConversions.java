@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -53,7 +52,7 @@ public class TestConversions extends BaseMapTest
     static class Issue467Serializer extends JsonSerializer<Issue467Bean> {
         @Override
         public void serialize(Issue467Bean value, JsonGenerator g,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             g.writeObject(new Issue467TmpBean(value.i));
         }
     }    
@@ -61,7 +60,7 @@ public class TestConversions extends BaseMapTest
     static class Issue467TreeSerializer extends JsonSerializer<Issue467Tree> {
         @Override
         public void serialize(Issue467Tree value, JsonGenerator g,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             g.writeTree(BooleanNode.TRUE);
         }
     }    
@@ -91,14 +90,14 @@ public class TestConversions extends BaseMapTest
         }
     
         @Override
-        public void serialize(final JsonGenerator jgen, final SerializerProvider provider) throws IOException
+        public void serialize(final JsonGenerator jgen, final SerializerProvider provider)
         {
             jgen.writeTree(node);
         }
 
         @Override
         public void serializeWithType(JsonGenerator g,
-                SerializerProvider ctxt, TypeSerializer typeSer) throws IOException
+                SerializerProvider ctxt, TypeSerializer typeSer)
         {
             WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.START_OBJECT);
             typeSer.writeTypePrefix(g, ctxt, typeIdDef);
@@ -146,7 +145,6 @@ public class TestConversions extends BaseMapTest
     {
         @Override
         public Leaf deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
         {
             JsonNode tree = (JsonNode) jp.readValueAsTree();
             Leaf leaf = new Leaf();

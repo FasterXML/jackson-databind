@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.*;
 import java.lang.annotation.*;
 import java.util.*;
 
@@ -35,7 +34,6 @@ public class TestCustomDeserializers
 
         @Override
         public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             // need to skip, if structured...
             p.skipChildren();
@@ -62,7 +60,7 @@ public class TestCustomDeserializers
     static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
     {
         @Override
-        public CustomBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public CustomBean deserialize(JsonParser p, DeserializationContext ctxt)
         {
             int a = 0, b = 0;
             JsonToken t = p.currentToken();
@@ -126,14 +124,14 @@ public class TestCustomDeserializers
      
     static class CustomKeySerializer extends JsonSerializer<CustomKey> {
         @Override
-        public void serialize(CustomKey value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        public void serialize(CustomKey value, JsonGenerator g, SerializerProvider provider) {
             g.writeFieldName(String.valueOf(value.getId()));
         }
     }
 
     static class CustomKeyDeserializer extends KeyDeserializer {
         @Override
-        public CustomKey deserializeKey(String key, DeserializationContext ctxt) throws IOException {
+        public CustomKey deserializeKey(String key, DeserializationContext ctxt) {
             return new CustomKey(Integer.valueOf(key));
         }
     }
@@ -172,14 +170,14 @@ public class TestCustomDeserializers
         }
 
         @Override
-        public Bean375Outer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException,
-                JsonProcessingException {
+        public Bean375Outer deserialize(JsonParser p, DeserializationContext ctxt)
+        {
             Object ob = ctxt.readPropertyValue(p, prop, Bean375Inner.class);
             return new Bean375Outer((Bean375Inner) ob);
         }
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
+        {
             return new Bean375OuterDeserializer(property);
         }
     }
@@ -196,7 +194,7 @@ public class TestCustomDeserializers
 
         @Override
         public Bean375Inner deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
+        {
             int x = p.getIntValue();
             if (negative) {
                 x = -x;
@@ -235,7 +233,7 @@ public class TestCustomDeserializers
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+        {
             Object parent = p.getCurrentValue();
             String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
             return "prop/"+ desc;
@@ -247,7 +245,7 @@ public class TestCustomDeserializers
 
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+        {
             return p.getText().toUpperCase();
         }
     }
@@ -293,7 +291,6 @@ public class TestCustomDeserializers
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             Object ob = _delegatee.deserialize(p, ctxt);
             return "MY:"+ob;
@@ -305,7 +302,7 @@ public class TestCustomDeserializers
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+        {
             return ctxt.readTree(p);
         }
     }
@@ -389,7 +386,7 @@ public class TestCustomDeserializers
         module.addDeserializer(Immutable.class,
             new StdNodeBasedDeserializer<Immutable>(Immutable.class) {
                 @Override
-                public Immutable convert(JsonNode root, DeserializationContext ctxt) throws IOException {
+                public Immutable convert(JsonNode root, DeserializationContext ctxt) {
                     int x = root.path("x").asInt();
                     int y = root.path("y").asInt();
                     return new Immutable(x, y);

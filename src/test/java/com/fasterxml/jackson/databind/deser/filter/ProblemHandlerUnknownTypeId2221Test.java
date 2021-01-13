@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import java.io.*;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -88,7 +87,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .addHandler(new DeserializationProblemHandler() {
                     @Override
-                    public JavaType handleUnknownTypeId(DeserializationContext ctxt, JavaType baseType, String subTypeId, TypeIdResolver idResolver, String failureMsg) throws IOException {
+                    public JavaType handleUnknownTypeId(DeserializationContext ctxt, JavaType baseType, String subTypeId, TypeIdResolver idResolver, String failureMsg) {
                         return ctxt.constructType(Void.class);
                     }
                 })

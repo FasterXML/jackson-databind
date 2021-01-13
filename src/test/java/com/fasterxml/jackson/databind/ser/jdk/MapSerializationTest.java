@@ -29,7 +29,7 @@ public class MapSerializationTest extends BaseMapTest
     {
         @Override
         public void serialize(Map<String,String> value,
-                JsonGenerator gen, SerializerProvider provider) throws IOException
+                JsonGenerator gen, SerializerProvider provider)
         {
             // just use standard Map.toString(), output as JSON String
             gen.writeString(value.toString());

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.*;
@@ -480,8 +479,6 @@ public abstract class SettableBeanProperty
      *
      * @return True if (and only if) property has injector that is also defined NOT
      *    to bind from input.
-     *
-     * @since 2.11
      */
     public boolean isInjectionOnly() { return false; } // overridden by CreatorProperty
 
@@ -499,18 +496,16 @@ public abstract class SettableBeanProperty
      * scalars, multiple for Objects and Arrays).
      */
     public abstract void deserializeAndSet(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException;
+    		DeserializationContext ctxt, Object instance) throws JacksonException;
 
 	/**
 	 * Alternative to {@link #deserializeAndSet} that returns
 	 * either return value of setter method called (if one is),
 	 * or null to indicate that no return value is available.
 	 * Mostly used to support Builder style deserialization.
-	 *
-	 * @since 2.0
 	 */
     public abstract Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException;
+    		DeserializationContext ctxt, Object instance) throws JacksonException;
 
     /**
      * Method called to assign given value to this property, on
@@ -520,7 +515,7 @@ public abstract class SettableBeanProperty
      * implementations, creator-backed properties for example do not
      * support this method.
      */
-    public abstract void set(Object instance, Object value) throws IOException;
+    public abstract void set(Object instance, Object value);
 
     /**
      * Method called to assign given value to this property, on
@@ -531,8 +526,8 @@ public abstract class SettableBeanProperty
      * implementations, creator-backed properties for example do not
      * support this method.
      */
-    public abstract Object setAndReturn(Object instance, Object value) throws IOException;
-    
+    public abstract Object setAndReturn(Object instance, Object value);
+
     /**
      * This method is needed by some specialized bean deserializers,
      * and also called by some {@link #deserializeAndSet} implementations.
@@ -546,7 +541,7 @@ public abstract class SettableBeanProperty
      * this method should also not be called directly unless you really know
      * what you are doing (and probably not even then).
      */
-    public final Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public final Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         if (p.hasToken(JsonToken.VALUE_NULL)) {
             return _nullProvider.getNullValue(ctxt);
@@ -562,11 +557,8 @@ public abstract class SettableBeanProperty
         return value;
     }
 
-    /**
-     * @since 2.9
-     */
     public final Object deserializeWith(JsonParser p, DeserializationContext ctxt,
-            Object toUpdate) throws IOException
+            Object toUpdate) throws JacksonException
     {
         // 20-Oct-2016, tatu: Not 100% sure what to do; probably best to simply return
         //   null value and let caller decide what to do.
@@ -601,10 +593,7 @@ public abstract class SettableBeanProperty
     /**********************************************************
      */
 
-    /**
-     * Method that takes in exception of any type, and casts or wraps it
-     * to an IOException or its subclass.
-     */
+    /*
     protected void _throwAsIOE(JsonParser p, Exception e, Object value) throws IOException
     {
         if (e instanceof IllegalArgumentException) {
@@ -641,6 +630,7 @@ public abstract class SettableBeanProperty
     protected void _throwAsIOE(Exception e, Object value) throws IOException {
         _throwAsIOE((JsonParser) null, e, value);
     }
+    */
 
     @Override public String toString() { return "[property '"+getName()+"']"; }
 
@@ -779,24 +769,27 @@ public abstract class SettableBeanProperty
 
         @Override
         public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-                Object instance) throws IOException {
+                Object instance)
+            throws JacksonException
+        {
             delegate.deserializeAndSet(p, ctxt, instance);
         }
 
         @Override
         public Object deserializeSetAndReturn(JsonParser p,
-                DeserializationContext ctxt, Object instance) throws IOException
+                DeserializationContext ctxt, Object instance)
+            throws JacksonException
         {
             return delegate.deserializeSetAndReturn(p, ctxt, instance);
         }
 
         @Override
-        public void set(Object instance, Object value) throws IOException {
+        public void set(Object instance, Object value) {
             delegate.set(instance, value);
         }
 
         @Override
-        public Object setAndReturn(Object instance, Object value) throws IOException {
+        public Object setAndReturn(Object instance, Object value) {
             return delegate.setAndReturn(instance, value);
         }
     }

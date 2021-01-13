@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.convert;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -59,7 +58,8 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         }
 
         @Override
-        public DataA deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public DataA deserialize(JsonParser p, DeserializationContext ctxt)
+        {
             if (p.currentToken() != JsonToken.START_OBJECT) {
                 ctxt.reportInputMismatch(DataA.class,
                         "Wrong current token, expected START_OBJECT, got: "
@@ -97,14 +97,16 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         }
 
         @Override
-        public AnimalWrapper deserialize(JsonParser json, DeserializationContext context) throws IOException {
+        public AnimalWrapper deserialize(JsonParser json, DeserializationContext context)
+        {
             AnimalWrapper msg = new AnimalWrapper();
             msg.setAnimal(json.readValueAs(AbstractAnimal.class));
             return msg;
         }
 
         @Override
-        public AnimalWrapper deserialize(JsonParser json, DeserializationContext context, AnimalWrapper intoValue) throws IOException {
+        public AnimalWrapper deserialize(JsonParser json, DeserializationContext context, AnimalWrapper intoValue)
+        {
             intoValue.setAnimal(json.readValueAs(AbstractAnimal.class));
             return intoValue;
         }
@@ -116,7 +118,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testBeanUpdate() throws Exception
     {
@@ -213,7 +215,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#744]
-    public void testIssue744() throws IOException
+    public void testIssue744() throws Exception
     {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(DataA.class, new DataADeserializer());
@@ -255,7 +257,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#1831]
-    public void test1831UsingNode() throws IOException {
+    public void test1831UsingNode() throws Exception {
         String catJson = MAPPER.writeValueAsString(new Cat());
         JsonNode jsonNode = MAPPER.readTree(catJson);
         AnimalWrapper optionalCat = new AnimalWrapper();
@@ -264,7 +266,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         assertSame(optionalCat, result);
     }
 
-    public void test1831UsingString() throws IOException {
+    public void test1831UsingString() throws Exception {
         String catJson = MAPPER.writeValueAsString(new Cat());
         AnimalWrapper optionalCat = new AnimalWrapper();
         AnimalWrapper result = MAPPER.readerForUpdating(optionalCat).readValue(catJson);

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -117,7 +116,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) throws JacksonException {
             gen.writeNumber(((Short) value).shortValue());
         }
     }
@@ -137,7 +136,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) throws JacksonException {
             gen.writeNumber(((Integer) value).intValue());
         }
 
@@ -145,7 +144,7 @@ public class NumberSerializers {
         @Override
         public void serializeWithType(Object value, JsonGenerator gen,
                 SerializerProvider provider, TypeSerializer typeSer)
-                throws IOException {
+                throws JacksonException {
             // no type info, just regular serialization
             serialize(value, gen, provider);
         }
@@ -166,7 +165,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) throws JacksonException {
             gen.writeNumber(((Number) value).intValue());
         }
     }
@@ -179,7 +178,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) throws JacksonException {
             gen.writeNumber(((Long) value).longValue());
         }
     }
@@ -194,7 +193,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) throws JacksonException {
             gen.writeNumber(((Float) value).floatValue());
         }
     }
@@ -214,7 +213,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) throws JacksonException {
             gen.writeNumber(((Double) value).doubleValue());
         }
 
@@ -222,7 +221,8 @@ public class NumberSerializers {
         @Override
         public void serializeWithType(Object value, JsonGenerator g,
                 SerializerProvider ctxt, TypeSerializer typeSer)
-                throws IOException {
+                throws JacksonException
+        {
             // no type info, just regular serialization
             // 08-Feb-2018, tatu: Except that as per [databind#2236], NaN values need
             //    special handling

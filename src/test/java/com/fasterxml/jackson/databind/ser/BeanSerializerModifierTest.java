@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -138,7 +137,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
 
         @Override
         public void serialize(Object value, JsonGenerator g,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             g.writeNumber(_value);
         }
     }
@@ -194,7 +193,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
                 ArrayType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeNumber(123);
                 }
             };
@@ -206,7 +205,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         public JsonSerializer<?> modifyCollectionSerializer(SerializationConfig config,
                 CollectionType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeNumber(123);
                 }
             };
@@ -218,7 +217,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         public JsonSerializer<?> modifyMapSerializer(SerializationConfig config,
                 MapType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeNumber(123);
                 }
             };
@@ -230,7 +229,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         public JsonSerializer<?> modifyEnumSerializer(SerializationConfig config,
                 JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeNumber(123);
                 }
             };
@@ -242,7 +241,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         public JsonSerializer<?> modifyKeySerializer(SerializationConfig config,
                 JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
-                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+                @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeFieldName("foo");
                 }
             };

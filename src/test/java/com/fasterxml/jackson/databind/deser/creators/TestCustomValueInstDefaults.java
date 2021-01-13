@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
@@ -337,7 +335,8 @@ public class TestCustomValueInstDefaults extends BaseTest
         }
 
         @Override
-        public Object createFromObjectWith(DeserializationContext ctxt, SettableBeanProperty[] props, PropertyValueBuffer buffer) throws IOException {
+        public Object createFromObjectWith(DeserializationContext ctxt, SettableBeanProperty[] props, PropertyValueBuffer buffer)
+        {
             for (SettableBeanProperty prop : props) {
                 assertTrue("prop " + prop.getName() + " was expected to have buffer.hasParameter(prop) be true but was false", buffer.hasParameter(prop));
             }

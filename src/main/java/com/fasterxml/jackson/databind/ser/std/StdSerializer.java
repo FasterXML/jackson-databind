@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.IdentityHashMap;
@@ -86,7 +85,7 @@ public abstract class StdSerializer<T>
 
     @Override
     public abstract void serialize(T value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException;
+        throws JacksonException;
 
     /*
     /**********************************************************************
@@ -230,7 +229,7 @@ public abstract class StdSerializer<T>
     /**
      * Method that will modify caught exception (passed in as argument)
      * as necessary to include reference information, and to ensure it
-     * is a subtype of {@link IOException}, or an unchecked exception.
+     * is a subtype of {@link JacksonException}, or an unchecked exception.
      *<p>
      * Rules for wrapping and unwrapping are bit complicated; essentially:
      *<ul>
@@ -241,7 +240,7 @@ public abstract class StdSerializer<T>
      */
     public void wrapAndThrow(SerializerProvider provider,
             Throwable t, Object bean, String fieldName)
-        throws IOException
+        throws JacksonException
     {
         /* 05-Mar-2009, tatu: But one nasty edge is when we get
          *   StackOverflow: usually due to infinite loop. But that
@@ -254,10 +253,8 @@ public abstract class StdSerializer<T>
         ClassUtil.throwIfError(t);
         // Ditto for IOExceptions... except for mapping exceptions!
         boolean wrap = (provider == null) || provider.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
-        if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonMappingException)) {
-                throw (IOException) t;
-            }
+        if (t instanceof JacksonException) {
+            throw (JacksonException) t;
         } else if (!wrap) {
             ClassUtil.throwIfRTE(t);
         }
@@ -267,7 +264,7 @@ public abstract class StdSerializer<T>
 
     public void wrapAndThrow(SerializerProvider provider,
             Throwable t, Object bean, int index)
-        throws IOException
+        throws JacksonException
     {
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
@@ -276,10 +273,8 @@ public abstract class StdSerializer<T>
         ClassUtil.throwIfError(t);
         // Ditto for IOExceptions... except for mapping exceptions!
         boolean wrap = (provider == null) || provider.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
-        if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonMappingException)) {
-                throw (IOException) t;
-            }
+        if (t instanceof JacksonException) {
+            throw (JacksonException) t;
         } else if (!wrap) {
             ClassUtil.throwIfRTE(t);
         }

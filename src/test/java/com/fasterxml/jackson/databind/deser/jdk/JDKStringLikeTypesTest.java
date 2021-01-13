@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectReadContext;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -51,7 +51,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         
         @Override
         public StackTraceElement deserialize(JsonParser jp,
-                DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                DeserializationContext ctxt) {
             jp.skipChildren();
             return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
         }

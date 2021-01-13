@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -217,7 +216,7 @@ handledType().getName()));
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // Hmmh. One tricky question; for scalar, is it an Object Id, or "Natural" type?
         // for now, prefer Object Id:
@@ -264,7 +263,8 @@ handledType().getName()));
     /**********************************************************
      */
 
-    protected Object _deserializeIfNatural(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeIfNatural(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         /* There is a chance we might be "natural" types
          * (String, Boolean, Integer, Double), which do not include any type information...
@@ -306,7 +306,8 @@ handledType().getName()));
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object _deserializeFromObjectId(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeFromObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         Object id = _objectIdReader.readObjectReference(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);

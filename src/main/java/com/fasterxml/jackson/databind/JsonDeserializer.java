@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
@@ -186,7 +185,7 @@ public abstract class JsonDeserializer<T>
      */
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // We could try calling 
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
@@ -197,12 +196,10 @@ public abstract class JsonDeserializer<T>
      * but called when merging value. Considered "bad merge" by default implementation,
      * but if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled will simple delegate to
      * {@link #deserializeWithType(JsonParser, DeserializationContext, TypeDeserializer)}.
-     *
-     * @since 2.10
      */
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer, T intoValue)
-        throws IOException
+        throws JacksonException
     {
         ctxt.handleBadMerge(this);
         return deserializeWithType(p, ctxt, typeDeserializer);

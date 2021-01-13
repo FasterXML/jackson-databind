@@ -68,7 +68,6 @@ public class ArrayDeserializationTest
 
         @Override
         public void serialize(JsonGenerator gen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
         {
             gen.writeString(_desc);
         }
@@ -83,8 +82,7 @@ public class ArrayDeserializationTest
 
         @Override
         public void serializeWithType(JsonGenerator gen,
-                SerializerProvider provider, TypeSerializer typeSer)
-                throws IOException, JsonProcessingException {
+                SerializerProvider provider, TypeSerializer typeSer) {
         }
     }	
 

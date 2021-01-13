@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -1296,7 +1295,8 @@ public abstract class SerializerProvider
         return InvalidTypeIdException.from(null, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 
-    protected void _reportIncompatibleRootType(Object value, JavaType rootType) throws IOException
+    protected void _reportIncompatibleRootType(Object value, JavaType rootType)
+        throws JacksonException
     {
         // One special case: allow primitive/wrapper type coercion
         if (rootType.isPrimitive()) {

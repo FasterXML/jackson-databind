@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -33,7 +31,7 @@ public class DelegatingCreatorAnnotations2021Test extends BaseMapTest
 
         @Override
         public Number deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             p.skipChildren();
             return DelegatingWithCustomDeser2021.DEFAULT;

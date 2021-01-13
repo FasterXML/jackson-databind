@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -90,8 +88,6 @@ public class ObjectIdReader
      * and used to determine whether Object Ids handled by the underlying
      * generator may be in form of (JSON) Objects.
      * Used for optimizing handling in cases where method returns false.
-     * 
-     * @since 2.5
      */
     public boolean maySerializeAsObject() {
         return generator.maySerializeAsObject();
@@ -105,8 +101,6 @@ public class ObjectIdReader
      * and used to determine whether Object Ids handled by the underlying
      * generator may be in form of (JSON) Objects.
      * Used for optimizing handling in cases where method returns false.
-     * 
-     * @since 2.5
      */
     public boolean isValidReferencePropertyName(String name, JsonParser parser) {
         return generator.isValidReferencePropertyName(name, parser);
@@ -115,10 +109,10 @@ public class ObjectIdReader
     /**
      * Method called to read value that is expected to be an Object Reference
      * (that is, value of an Object Id used to refer to another object).
-     * 
-     * @since 2.3
      */
-    public Object readObjectReference(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserializer.deserialize(jp, ctxt);
+    public Object readObjectReference(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        return _deserializer.deserialize(p, ctxt);
     }
 }

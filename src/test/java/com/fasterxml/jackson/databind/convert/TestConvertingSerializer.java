@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.convert;
 
-import java.io.IOException;
 import java.util.*;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -9,8 +10,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
-
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 public class TestConvertingSerializer
     extends com.fasterxml.jackson.databind.BaseMapTest
@@ -136,8 +135,8 @@ public class TestConvertingSerializer
     static class TargetSerializer extends JsonSerializer<Target>
     {
         @Override
-        public void serialize(Target a, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
-            jsonGenerator.writeString("Target");
+        public void serialize(Target a, JsonGenerator g, SerializerProvider provider) {
+            g.writeString("Target");
         }
     }
 

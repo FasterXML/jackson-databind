@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
@@ -117,7 +118,7 @@ public final class MethodProperty
 
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
+            Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -146,7 +147,7 @@ public final class MethodProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -176,7 +177,7 @@ public final class MethodProperty
     }
 
     @Override
-    public final void set(Object instance, Object value) throws IOException
+    public final void set(Object instance, Object value) throws JacksonException
     {
         try {
             _setter.invoke(instance, value);
@@ -187,7 +188,7 @@ public final class MethodProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value) throws JacksonException
     {
         try {
             Object result = _setter.invoke(instance, value);

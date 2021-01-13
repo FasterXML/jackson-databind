@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -43,10 +42,10 @@ public class TestConcurrency extends BaseMapTest
         protected volatile boolean resolved = false;
         
         @Override
-        public Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Bean deserialize(JsonParser p, DeserializationContext ctxt)
         {
             if (!resolved) {
-                throw new IOException("Deserializer not yet completely resolved");
+                throw new JsonMappingException(p, "Deserializer not yet completely resolved");
             }
             Bean b = new Bean();
             b.value = 13;

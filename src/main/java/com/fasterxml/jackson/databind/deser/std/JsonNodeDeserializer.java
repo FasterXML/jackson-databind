@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.*;
@@ -61,7 +60,7 @@ public class JsonNodeDeserializer
      * Overridden by typed sub-classes for more thorough checking
      */
     @Override
-    public JsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public JsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -89,7 +88,7 @@ public class JsonNodeDeserializer
         public static ObjectDeserializer getInstance() { return _instance; }
 
         @Override
-        public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (p.isExpectedStartObjectToken()) {
                 return deserializeObject(p, ctxt, ctxt.getNodeFactory());
@@ -110,7 +109,7 @@ public class JsonNodeDeserializer
          */
         @Override
         public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt,
-                ObjectNode node) throws IOException
+                ObjectNode node) throws JacksonException
         {
             if (p.isExpectedStartObjectToken() || p.hasToken(JsonToken.FIELD_NAME)) {
                 return (ObjectNode) updateObject(p, ctxt, (ObjectNode) node);
@@ -129,7 +128,8 @@ public class JsonNodeDeserializer
         public static ArrayDeserializer getInstance() { return _instance; }
 
         @Override
-        public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
         {
             if (p.isExpectedStartArrayToken()) {
                 return deserializeArray(p, ctxt, ctxt.getNodeFactory());
@@ -142,7 +142,7 @@ public class JsonNodeDeserializer
          */
         @Override
         public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt,
-                ArrayNode node) throws IOException
+                ArrayNode node) throws JacksonException
         {
             if (p.isExpectedStartArrayToken()) {
                 return (ArrayNode) updateArray(p, ctxt, (ArrayNode) node);
@@ -169,7 +169,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // Output can be as JSON Object, Array or scalar: no way to know a priori:
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
@@ -252,7 +252,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
      * node to modify.
      */
     protected final ObjectNode deserializeObject(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws IOException
+            final JsonNodeFactory nodeFactory) throws JacksonException
     {
         final ObjectNode node = nodeFactory.objectNode();
 
@@ -350,7 +350,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
      * FIELD_NAME and not START_OBJECT.
      */
     protected final ObjectNode deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws IOException
+            final JsonNodeFactory nodeFactory) throws JacksonException
     {
         final ObjectNode node = nodeFactory.objectNode();
         String key = p.currentName();
@@ -399,7 +399,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
      * if possible.
      */
     protected final JsonNode updateObject(JsonParser p, DeserializationContext ctxt,
-        final ObjectNode node) throws IOException
+        final ObjectNode node) throws JacksonException
     {
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -475,7 +475,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final ArrayNode deserializeArray(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws IOException
+            final JsonNodeFactory nodeFactory) throws JacksonException
     {
         final ArrayNode node = nodeFactory.arrayNode();
         // 13-Dec-2017, tatu: Unrolling is a mysterious optimization. Looks like doing TWO
@@ -550,7 +550,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
      * if possible.
      */
     protected final JsonNode updateArray(JsonParser p, DeserializationContext ctxt,
-        final ArrayNode node) throws IOException
+        final ArrayNode node) throws JacksonException
     {
         final JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
         while (true) {
@@ -590,7 +590,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
     
     protected final JsonNode deserializeAny(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws IOException
+            final JsonNodeFactory nodeFactory) throws JacksonException
     {
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this?
@@ -631,7 +631,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final JsonNode _fromInt(JsonParser p, DeserializationContext ctxt,
-            JsonNodeFactory nodeFactory) throws IOException
+            JsonNodeFactory nodeFactory) throws JacksonException
     {
         JsonParser.NumberType nt;
         int feats = ctxt.getDeserializationFeatures();
@@ -656,7 +656,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final JsonNode _fromFloat(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws IOException
+            final JsonNodeFactory nodeFactory) throws JacksonException
     {
         JsonParser.NumberType nt = p.getNumberType();
         if (nt == JsonParser.NumberType.BIG_DECIMAL) {
@@ -677,7 +677,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final JsonNode _fromEmbedded(JsonParser p, DeserializationContext ctxt,
-            JsonNodeFactory nodeFactory) throws IOException
+            JsonNodeFactory nodeFactory) throws JacksonException
     {
         Object ob = p.getEmbeddedObject();
         if (ob == null) { // should this occur?

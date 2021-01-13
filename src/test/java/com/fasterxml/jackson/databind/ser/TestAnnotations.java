@@ -134,10 +134,9 @@ public class TestAnnotations
     {
         public BogusSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeBoolean(true);
+            g.writeBoolean(true);
         }
     }
 
@@ -145,10 +144,9 @@ public class TestAnnotations
     {
         public StringSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString("X"+value+"X");
+            g.writeString("X"+value+"X");
         }
 
     }

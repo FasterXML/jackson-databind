@@ -1,14 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.tree.ArrayTreeNode;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.util.RawValue;
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -16,6 +7,14 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.tree.ArrayTreeNode;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Node class that represents Arrays mapped from JSON content.
@@ -163,7 +162,8 @@ public class ArrayNode
      */
 
     @Override
-    public void serialize(JsonGenerator f, SerializerProvider provider) throws IOException
+    public void serialize(JsonGenerator f, SerializerProvider provider)
+        throws JacksonException
     {
         final List<JsonNode> c = _children;
         final int size = c.size();
@@ -178,7 +178,7 @@ public class ArrayNode
 
     @Override
     public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(this, JsonToken.START_ARRAY));

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -181,7 +182,8 @@ public final class PropertyBasedCreator
         return new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
     }
 
-    public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
+    public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer)
+        throws JacksonException
     {
         Object bean = _valueInstantiator.createFromObjectWith(ctxt,
                 _propertiesInOrder, buffer);

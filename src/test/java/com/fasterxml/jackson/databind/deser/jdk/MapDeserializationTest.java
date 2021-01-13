@@ -36,7 +36,6 @@ public class MapDeserializationTest
         public CustomMapDeserializer() { super(CustomMap.class); }
         @Override
         public CustomMap deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             CustomMap result = new CustomMap();
             result.put("x", p.getText());

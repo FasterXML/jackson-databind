@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.jdk;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -89,7 +88,7 @@ public class TypeRefinementForMapTest extends BaseMapTest
     static class CompoundKeySerializer extends StdSerializer<CompoundKey> {
         public CompoundKeySerializer() { super(CompoundKey.class); }
         @Override
-        public void serialize(CompoundKey compoundKey, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(CompoundKey compoundKey, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
             jsonGenerator.writeFieldName(compoundKey.getPart0() + '|' + compoundKey.getPart1());
         }
     }

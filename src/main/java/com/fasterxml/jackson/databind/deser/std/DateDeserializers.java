@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.text.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -168,7 +168,7 @@ public class DateDeserializers
 
         @Override
         protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             if (_customFormat != null) {
                 if (p.hasToken(JsonToken.VALUE_STRING)) {
@@ -244,7 +244,7 @@ public class DateDeserializers
         }
 
         @Override
-        public Calendar deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Calendar deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             Date d = _parseDate(p, ctxt);
             if (d == null) {
@@ -295,7 +295,7 @@ public class DateDeserializers
         }
         
         @Override
-        public java.util.Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public java.util.Date deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             return _parseDate(p, ctxt);
         }
     }
@@ -323,7 +323,7 @@ public class DateDeserializers
         }
 
         @Override
-        public java.sql.Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public java.sql.Date deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             Date d = _parseDate(p, ctxt);
             return (d == null) ? null : new java.sql.Date(d.getTime());
         }
@@ -354,7 +354,8 @@ public class DateDeserializers
         }
 
         @Override
-        public java.sql.Timestamp deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public java.sql.Timestamp deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
         {
             Date d = _parseDate(p, ctxt);
             return (d == null) ? null : new java.sql.Timestamp(d.getTime());

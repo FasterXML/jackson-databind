@@ -126,22 +126,12 @@ public class StreamSerializerTest extends StreamTestBase
     }
 
     private <T, R> R[] roundTrip(Stream<T> stream, Class<R[]> clazz) {
-        try {
-            String json = objectMapper.writeValueAsString(stream);
-            return objectMapper.readValue(json, clazz);
-        } catch (IOException e) {
-            sneakyThrow(e);
-            return null;
-        }
+        String json = objectMapper.writeValueAsString(stream);
+        return objectMapper.readValue(json, clazz);
     }
 
     private <T, R> R roundTrip(Stream<T> stream, TypeReference<R> tr) {
-        try {
-            return objectMapper.readValue(objectMapper.writeValueAsString(stream), tr);
-        } catch (IOException e) {
-            sneakyThrow(e);
-            return null;
-        }
+        return objectMapper.readValue(objectMapper.writeValueAsString(stream), tr);
     }
 
     /**

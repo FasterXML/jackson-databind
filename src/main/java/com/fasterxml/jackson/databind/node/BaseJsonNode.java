@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializable;
@@ -123,7 +121,8 @@ public abstract class BaseJsonNode
      * Method called to serialize node instances using given generator.
      */
     @Override
-    public abstract void serialize(JsonGenerator jgen, SerializerProvider provider) throws IOException;
+    public abstract void serialize(JsonGenerator jgen, SerializerProvider provider)
+        throws JacksonException;
 
     /**
      * Type information is needed, even if JsonNode instances are "plain" JSON,
@@ -131,7 +130,8 @@ public abstract class BaseJsonNode
      */
     @Override
     public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)  throws IOException;
+            TypeSerializer typeSer)
+        throws JacksonException;
 
     /*
    /**********************************************************

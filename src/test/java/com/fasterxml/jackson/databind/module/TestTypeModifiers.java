@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.module;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -80,8 +79,8 @@ public class TestTypeModifiers extends BaseMapTest
     {
         public XxxSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            jgen.writeString("xxx:"+value);
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+            g.writeString("xxx:"+value);
         }
     }
     
@@ -135,7 +134,8 @@ public class TestTypeModifiers extends BaseMapTest
         }
         
         @Override
-        public void serialize(MapMarker<?,?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(MapMarker<?,?> value, JsonGenerator jgen, SerializerProvider provider)
+        {
             jgen.writeStartObject();
             if (_keySerializer == null) {
                 jgen.writeFieldName((String) value.getKey());
@@ -153,13 +153,14 @@ public class TestTypeModifiers extends BaseMapTest
     static class MyMapDeserializer extends JsonDeserializer<MapMarker<?,?>>
     {
         @Override
-        public MapMarker<?,?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            if (p.currentToken() != JsonToken.START_OBJECT) throw new IOException("Wrong token: "+p.currentToken());
-            if (p.nextToken() != JsonToken.FIELD_NAME) throw new IOException("Wrong token: "+p.currentToken());
+        public MapMarker<?,?> deserialize(JsonParser p, DeserializationContext ctxt)
+        {
+            if (p.currentToken() != JsonToken.START_OBJECT) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.FIELD_NAME) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
             String key = p.currentName();
-            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
             int value = p.getIntValue();
-            if (p.nextToken() != JsonToken.END_OBJECT) throw new IOException("Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.END_OBJECT) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
             return new MyMapLikeType(key, value);
         }        
     }
@@ -168,7 +169,7 @@ public class TestTypeModifiers extends BaseMapTest
     {
         public MyCollectionSerializer() { super(MyCollectionLikeType.class); }
         @Override
-        public void serialize(MyCollectionLikeType value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        public void serialize(MyCollectionLikeType value, JsonGenerator g, SerializerProvider provider) {
             g.writeStartArray();
             g.writeNumber(value.value);
             g.writeEndArray();
@@ -177,11 +178,11 @@ public class TestTypeModifiers extends BaseMapTest
     static class MyCollectionDeserializer extends JsonDeserializer<MyCollectionLikeType>
     {
         @Override
-        public MyCollectionLikeType deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            if (p.currentToken() != JsonToken.START_ARRAY) throw new IOException("Wrong token: "+p.currentToken());
-            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+p.currentToken());
+        public MyCollectionLikeType deserialize(JsonParser p, DeserializationContext ctxt) {
+            if (p.currentToken() != JsonToken.START_ARRAY) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
             int value = p.getIntValue();
-            if (p.nextToken() != JsonToken.END_ARRAY) throw new IOException("Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.END_ARRAY) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
             return new MyCollectionLikeType(value);
         }        
     }

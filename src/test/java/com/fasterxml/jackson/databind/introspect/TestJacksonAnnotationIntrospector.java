@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
@@ -94,10 +92,9 @@ public class TestJacksonAnnotationIntrospector
     public static class QNameSerializer extends JsonSerializer<QName> {
 
         @Override
-        public void serialize(QName value, JsonGenerator jgen, SerializerProvider provider)
-                throws IOException, JsonProcessingException
+        public void serialize(QName value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString(value.toString());
+            g.writeString(value.toString());
         }
     }
 
@@ -106,10 +103,9 @@ public class TestJacksonAnnotationIntrospector
     {
         public QNameDeserializer() { super(QName.class); }
         @Override
-        public QName deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
+        public QName deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return QName.valueOf(jp.readValueAs(String.class));
+            return QName.valueOf(p.readValueAs(String.class));
         }
     }
 

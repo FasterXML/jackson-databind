@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
@@ -11,8 +10,10 @@ import org.w3c.dom.Element;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -34,7 +35,7 @@ public class TestCustomSerializers extends BaseMapTest
     {
         public ElementSerializer() { super(Element.class); }
         @Override
-        public void serialize(Element value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        public void serialize(Element value, JsonGenerator gen, SerializerProvider provider) {
             gen.writeString("element");
         }
     }
@@ -120,7 +121,7 @@ public class TestCustomSerializers extends BaseMapTest
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             Object parent = gen.getCurrentValue();
             String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
             gen.writeString(desc+"/"+value);
@@ -133,7 +134,7 @@ public class TestCustomSerializers extends BaseMapTest
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
         }
     }
@@ -216,7 +217,6 @@ public class TestCustomSerializers extends BaseMapTest
         module.addSerializer(Collection.class, new JsonSerializer<Collection>() {
             @Override
             public void serialize(Collection value, JsonGenerator gen, SerializerProvider provider)
-                    throws IOException
             {
                 if (value.size() != 0) {
                     collectionSerializer.serialize(value, gen, provider);

@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -30,8 +28,7 @@ public abstract class PropertyValue
      * Method called to assign stored value of this property to specified
      * bean instance
      */
-    public abstract void assign(Object bean)
-        throws IOException, JsonProcessingException;
+    public abstract void assign(Object bean) throws JacksonException;
 
     /*
     /**********************************************************
@@ -56,8 +53,7 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void assign(Object bean)
-            throws IOException, JsonProcessingException
+        public void assign(Object bean) throws JacksonException
         {
             _property.set(bean, value);
         }
@@ -85,8 +81,7 @@ public abstract class PropertyValue
         }
 
         @Override
-        public void assign(Object bean)
-            throws IOException, JsonProcessingException
+        public void assign(Object bean) throws JacksonException
         {
             _property.set(bean, _propertyName, value);
         }
@@ -109,8 +104,7 @@ public abstract class PropertyValue
 
         @SuppressWarnings("unchecked") 
         @Override
-        public void assign(Object bean)
-            throws IOException, JsonProcessingException
+        public void assign(Object bean) throws JacksonException
         {
             ((java.util.Map<Object,Object>) bean).put(_key, value);
         }

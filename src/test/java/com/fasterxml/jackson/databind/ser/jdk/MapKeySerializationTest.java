@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
-import java.io.IOException;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,7 +25,7 @@ public class MapKeySerializationTest extends BaseMapTest
     static class KarlSerializer extends JsonSerializer<String>
     {
         @Override
-        public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(String value, JsonGenerator gen, SerializerProvider provider) {
             gen.writeFieldName("Karl");
         }
     }
@@ -89,7 +88,7 @@ public class MapKeySerializationTest extends BaseMapTest
     static class ABCKeySerializer extends JsonSerializer<ABC> {
         @Override
         public void serialize(ABC value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeFieldName("xxx"+value);
         }
     }
@@ -99,7 +98,7 @@ public class MapKeySerializationTest extends BaseMapTest
         private String _null;
         public NullKeySerializer(String s) { _null = s; }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) {
             gen.writeFieldName(_null);
         }
     }
@@ -109,7 +108,7 @@ public class MapKeySerializationTest extends BaseMapTest
         private String _null;
         public NullValueSerializer(String s) { _null = s; }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) {
             gen.writeString(_null);
         }
     }
@@ -117,7 +116,7 @@ public class MapKeySerializationTest extends BaseMapTest
     static class DefaultKeySerializer extends JsonSerializer<Object>
     {
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
             g.writeFieldName("DEFAULT:"+value);
         }
     }
@@ -130,18 +129,18 @@ public class MapKeySerializationTest extends BaseMapTest
 
     final private ObjectMapper MAPPER = objectMapper();
 
-    public void testNotKarl() throws IOException {
+    public void testNotKarl() throws Exception {
         final String serialized = MAPPER.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", serialized);
     }
 
-    public void testKarl() throws IOException {
+    public void testKarl() throws Exception {
         final String serialized = MAPPER.writeValueAsString(new KarlBean());
         assertEquals("{\"map\":{\"Karl\":1}}", serialized);
     }
 
     // [databind#75]: caching of KeySerializers
-    public void testBoth() throws IOException
+    public void testBoth() throws Exception
     {
         // Let's NOT use shared one, to ensure caching starts from clean slate
         final ObjectMapper mapper = new ObjectMapper();
@@ -152,7 +151,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // Test custom key serializer for enum
-    public void testCustomForEnum() throws IOException
+    public void testCustomForEnum() throws Exception
     {
         // cannot use shared mapper as we are registering a module
         SimpleModule mod = new SimpleModule("test");
@@ -165,7 +164,7 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
     }
 
-    public void testCustomNullSerializers() throws IOException
+    public void testCustomNullSerializers() throws Exception
     {
         final SimpleModule mod = new SimpleModule()
                 .setDefaultNullKeySerializer(new NullKeySerializer("NULL-KEY"))
@@ -222,7 +221,7 @@ public class MapKeySerializationTest extends BaseMapTest
     */
 
     // [databind#682]
-    public void testClassKey() throws IOException
+    public void testClassKey() throws Exception
     {
         Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
         map.put(String.class, 2);

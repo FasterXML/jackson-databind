@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.contextual;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -20,7 +19,6 @@ public class TestContextAttributeWithSer extends BaseMapTest
         @Override
         public void serialize(String value, JsonGenerator jgen,
                 SerializerProvider provider)
-            throws IOException
         {
             Integer I = (Integer) provider.getAttribute(KEY);
             if (I == null) {

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -23,13 +21,13 @@ public class NullifyingDeserializer
     /**********************************************************
      */
 
-    @Override // since 2.9
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.FALSE;
     }
 
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // 29-Jan-2016, tatu: Simple skipping for all other tokens, but FIELD_NAME bit
         //    special unfortunately
@@ -49,7 +47,7 @@ public class NullifyingDeserializer
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException
+            TypeDeserializer typeDeserializer) throws JacksonException
     {
         // Not sure if we need to bother but:
 

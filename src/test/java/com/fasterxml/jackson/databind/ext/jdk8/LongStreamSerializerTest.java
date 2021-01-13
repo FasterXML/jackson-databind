@@ -72,11 +72,6 @@ public class LongStreamSerializerTest extends StreamTestBase
     }
 
     private long[] roundTrip(LongStream stream) {
-        try {
-            return objectMapper.readValue(objectMapper.writeValueAsBytes(stream), long[].class);
-        } catch (IOException e) {
-            sneakyThrow(e);
-            return null;
-        }
+        return objectMapper.readValue(objectMapper.writeValueAsBytes(stream), long[].class);
     }
 }

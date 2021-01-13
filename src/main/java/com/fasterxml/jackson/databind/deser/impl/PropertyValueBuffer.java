@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.BitSet;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -225,7 +226,7 @@ public class PropertyValueBuffer
      * Helper method called to see if given non-creator property is the "id property";
      * and if so, handle appropriately.
      */
-    public boolean readIdProperty(String propName) throws IOException
+    public boolean readIdProperty(String propName) throws JacksonException
     {
         if ((_objectIdReader != null) && propName.equals(_objectIdReader.propertyName.getSimpleName())) {
             _idValue = _objectIdReader.readObjectReference(_parser, _context);
@@ -237,7 +238,7 @@ public class PropertyValueBuffer
     /**
      * Helper method called to handle Object Id value collected earlier, if any
      */
-    public Object handleIdValue(final DeserializationContext ctxt, Object bean) throws IOException
+    public Object handleIdValue(final DeserializationContext ctxt, Object bean) throws JacksonException
     {
         if (_objectIdReader != null) {
             if (_idValue != null) {

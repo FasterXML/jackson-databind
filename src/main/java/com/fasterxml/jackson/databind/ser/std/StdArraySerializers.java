@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.*;
@@ -132,7 +131,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(boolean[] value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public final void serialize(boolean[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -146,7 +145,7 @@ public class StdArraySerializers
 
         @Override
         public void serializeContents(boolean[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException
+            throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeBoolean(value[i]);
@@ -201,7 +200,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(short[] value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public final void serialize(short[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -215,7 +214,7 @@ public class StdArraySerializers
 
         @Override
         public void serializeContents(short[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException
+            throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber((int)value[i]);
@@ -249,7 +248,7 @@ public class StdArraySerializers
         
         @Override
         public void serialize(char[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException
+            throws JacksonException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
@@ -264,7 +263,7 @@ public class StdArraySerializers
         @Override
         public void serializeWithType(char[] value, JsonGenerator g, SerializerProvider ctxt,
                 TypeSerializer typeSer)
-            throws IOException
+            throws JacksonException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             final boolean asArray = ctxt.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS);
@@ -282,7 +281,7 @@ public class StdArraySerializers
         }
 
         private final void _writeArrayContents(JsonGenerator g, char[] value)
-            throws IOException
+            throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeString(value, i, 1);
@@ -347,7 +346,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(int[] value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public final void serialize(int[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -360,7 +359,7 @@ public class StdArraySerializers
 
         @Override
         public void serializeContents(int[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException
+            throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);
@@ -414,7 +413,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(long[] value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public final void serialize(long[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -427,7 +426,7 @@ public class StdArraySerializers
         
         @Override
         public void serializeContents(long[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException
+            throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);
@@ -484,7 +483,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(float[] value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public final void serialize(float[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -498,7 +497,7 @@ public class StdArraySerializers
         
         @Override
         public void serializeContents(float[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException
+            throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);
@@ -565,7 +564,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(double[] value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public final void serialize(double[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
         {
             final int len = value.length;
             if ((len == 1) && _shouldUnwrapSingle(provider)) {
@@ -577,7 +576,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public void serializeContents(double[] value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public void serializeContents(double[] value, JsonGenerator g, SerializerProvider provider) throws JacksonException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);

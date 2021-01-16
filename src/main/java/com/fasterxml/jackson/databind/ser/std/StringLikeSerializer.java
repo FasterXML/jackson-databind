@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
@@ -73,7 +72,7 @@ public class StringLikeSerializer
 
     @Override
     public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         String str;
 
@@ -114,7 +113,7 @@ public class StringLikeSerializer
     @Override
     public void serializeWithType(Object value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         // 15-Feb-2018, tatu: Note! In some cases `handledType` is base type, and not necessarily
         //    actual specific value type (f.ex. nio.Path)
@@ -125,7 +124,7 @@ public class StringLikeSerializer
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         visitStringFormat(visitor, typeHint);
     }

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -137,7 +136,7 @@ public class EnumDeserializer
     }
 
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // Usually should just get string value:
         // 04-Sep-2020, tatu: for 2.11.3 / 2.12.0, removed "FIELD_NAME" as allowed;
@@ -161,7 +160,7 @@ public class EnumDeserializer
 
     protected Object _fromString(JsonParser p, DeserializationContext ctxt,
             String text)
-        throws IOException
+        throws JacksonException
     {
         CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 ? _getToStringLookup(ctxt) : _lookupByName;
@@ -177,7 +176,7 @@ public class EnumDeserializer
 
     protected Object _fromInteger(JsonParser p, DeserializationContext ctxt,
             int index)
-        throws IOException
+        throws JacksonException
     {
         final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                 CoercionInputShape.Integer);
@@ -227,7 +226,8 @@ public class EnumDeserializer
      */
     
     private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,
-            CompactStringObjectMap lookup, String nameOrig) throws IOException
+            CompactStringObjectMap lookup, String nameOrig)
+        throws JacksonException
     {
         String name = nameOrig.trim();
         if (name.isEmpty()) { // empty or blank
@@ -288,7 +288,8 @@ public class EnumDeserializer
         return null;
     }
 
-    protected Object _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeOther(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         // [databind#381]
         if (p.hasToken(JsonToken.START_ARRAY)) {

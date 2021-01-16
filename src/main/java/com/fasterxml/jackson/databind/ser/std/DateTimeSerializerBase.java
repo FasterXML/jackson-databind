@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,7 +8,7 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -158,7 +157,7 @@ df0.getClass().getName()));
 
     @Override
     public abstract void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
-        throws IOException;
+        throws JacksonException;
 
     /*
     /**********************************************************
@@ -192,10 +191,8 @@ df0.getClass().getName()));
         }
     }
 
-    /**
-     * @since 2.9
-     */
-    protected void _serializeAsString(Date value, JsonGenerator g, SerializerProvider provider) throws IOException
+    protected void _serializeAsString(Date value, JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
         if (_customFormat == null) {
             provider.defaultSerializeDateValue(value, g);

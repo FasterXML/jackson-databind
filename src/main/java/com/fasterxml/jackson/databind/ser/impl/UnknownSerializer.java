@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -21,7 +20,7 @@ public class UnknownSerializer
     }
     
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws JacksonException
     {
         // 27-Nov-2009, tatu: As per [JACKSON-201] may or may not fail...
         if (provider.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
@@ -34,7 +33,7 @@ public class UnknownSerializer
 
     @Override
     public final void serializeWithType(Object value, JsonGenerator gen, SerializerProvider ctxt,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer) throws JacksonException
     {
         if (ctxt.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
             failForEmpty(ctxt, value);

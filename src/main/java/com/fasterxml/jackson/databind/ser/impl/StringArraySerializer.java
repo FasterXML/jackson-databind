@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -152,7 +151,7 @@ public class StringArraySerializer
     
     @Override
     public final void serialize(String[] value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         final int len = value.length;
         if (len == 1) {
@@ -170,7 +169,7 @@ public class StringArraySerializer
     
     @Override
     public void serializeContents(String[] value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         final int len = value.length;
         if (len == 0) {
@@ -191,7 +190,7 @@ public class StringArraySerializer
     }
 
     private void serializeContentsSlow(String[] value, JsonGenerator gen, SerializerProvider provider, JsonSerializer<Object> ser)
-        throws IOException
+        throws JacksonException
     {
         for (int i = 0, len = value.length; i < len; ++i) {
             String str = value[i];
@@ -204,7 +203,7 @@ public class StringArraySerializer
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         visitArrayFormat(visitor, typeHint, JsonFormatTypes.STRING);
     }

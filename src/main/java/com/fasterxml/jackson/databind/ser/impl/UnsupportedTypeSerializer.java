@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JavaType;
@@ -29,7 +27,7 @@ public class UnsupportedTypeSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator g, SerializerProvider ctxt) throws IOException {
+    public void serialize(Object value, JsonGenerator g, SerializerProvider ctxt) throws JacksonException {
         ctxt.reportBadDefinition(_type, _message);
     }
 }

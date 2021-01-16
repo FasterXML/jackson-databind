@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
@@ -36,7 +36,8 @@ public class CalendarSerializer
     }
 
     @Override
-    public void serialize(Calendar value, JsonGenerator g, SerializerProvider provider) throws IOException
+    public void serialize(Calendar value, JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
         if (_asTimestamp(provider)) {
             g.writeNumber(_timestamp(value));

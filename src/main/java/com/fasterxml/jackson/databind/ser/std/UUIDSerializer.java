@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -29,16 +28,11 @@ public class UUIDSerializer
      * Configuration setting that indicates if serialization as binary
      * (native or Base64-encoded) has been forced; {@code null} means
      * "use default heuristic"
-     *
-     * @since 2.11.3
      */
     protected final Boolean _asBinary;
 
     public UUIDSerializer() { this(null); }
 
-    /**
-     * @since 2.11.3
-     */
     protected UUIDSerializer(Boolean asBinary) {
         super(UUID.class);
         _asBinary = asBinary;
@@ -57,7 +51,7 @@ public class UUIDSerializer
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider serializers,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(serializers,
                 property, handledType());
@@ -80,7 +74,7 @@ public class UUIDSerializer
 
     @Override
     public void serialize(UUID value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         // First: perhaps we could serialize it as raw binary data?
         if (_writeAsBinary(gen)) {
@@ -110,7 +104,6 @@ public class UUIDSerializer
         gen.writeString(ch, 0, 36);
     }
 
-    // @since 2.11.3
     protected boolean _writeAsBinary(JsonGenerator g)
     {
         if (_asBinary != null) {

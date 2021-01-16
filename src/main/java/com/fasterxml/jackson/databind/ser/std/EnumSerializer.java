@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Objects;
@@ -105,7 +104,7 @@ public class EnumSerializer
     
     @Override
     public final void serialize(Enum<?> en, JsonGenerator g, SerializerProvider ctxt)
-        throws IOException
+        throws JacksonException
     {
         // Serialize as index?
         if (_serializeAsIndex(ctxt)) {

@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -89,32 +89,8 @@ public final class BooleanSerializer
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
-                throws JacksonException {
-            g.writeNumber((Boolean.FALSE.equals(value)) ? 0 : 1);
-        }
-
-        @Override
-        public final void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
-                TypeSerializer typeSer) throws IOException
-        {
-            // 27-Mar-2017, tatu: Actually here we CAN NOT serialize as number without type,
-            //    since with natural types that would map to number, not boolean. So choice
-            //    comes to between either add type id, or serialize as boolean. Choose
-            //    latter at this point
-            g.writeBoolean(Boolean.TRUE.equals(value));
-        }
-
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
-            // 27-Mar-2017, tatu: As usual, bit tricky but... seems like we should call
-            //    visitor for actual representation
-            visitIntFormat(visitor, typeHint, NumberType.INT);
-        }
-
-        @Override
         public JsonSerializer<?> createContextual(SerializerProvider serializers,
-                BeanProperty property) throws JsonMappingException
+                BeanProperty property)
         {
             JsonFormat.Value format = findFormatOverrides(serializers,
                     property, Boolean.class);
@@ -125,6 +101,32 @@ public final class BooleanSerializer
                 }
             }
             return this;
+        }
+
+        @Override
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+                throws JacksonException
+        {
+            g.writeNumber((Boolean.FALSE.equals(value)) ? 0 : 1);
+        }
+
+        @Override
+        public final void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
+                TypeSerializer typeSer)
+            throws JacksonException
+        {
+            // 27-Mar-2017, tatu: Actually here we CAN NOT serialize as number without type,
+            //    since with natural types that would map to number, not boolean. So choice
+            //    comes to between either add type id, or serialize as boolean. Choose
+            //    latter at this point
+            g.writeBoolean(Boolean.TRUE.equals(value));
+        }
+
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
+            // 27-Mar-2017, tatu: As usual, bit tricky but... seems like we should call
+            //    visitor for actual representation
+            visitIntFormat(visitor, typeHint, NumberType.INT);
         }
     }
 }

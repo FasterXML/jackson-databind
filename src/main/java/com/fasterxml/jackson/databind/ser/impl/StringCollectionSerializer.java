@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -64,7 +64,7 @@ public class StringCollectionSerializer
     
     @Override
     public void serialize(Collection<String> value, JsonGenerator g,
-            SerializerProvider provider) throws IOException
+            SerializerProvider provider) throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
@@ -83,7 +83,7 @@ public class StringCollectionSerializer
     @Override
     public void serializeWithType(Collection<String> value, JsonGenerator g,
             SerializerProvider ctxt, TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
@@ -94,7 +94,7 @@ public class StringCollectionSerializer
 
     private final void serializeContents(Collection<String> value, JsonGenerator g,
             SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         int i = 0;
 

@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
+import java.util.Set;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -7,9 +10,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
-
-import java.io.IOException;
-import java.util.Set;
 
 public class UnwrappingBeanSerializer
     extends BeanSerializerBase
@@ -122,7 +122,7 @@ public class UnwrappingBeanSerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws JacksonException
     {
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, false);
@@ -145,7 +145,7 @@ public class UnwrappingBeanSerializer
 
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
-    		TypeSerializer typeSer) throws IOException
+    		TypeSerializer typeSer) throws JacksonException
     {
         if (provider.isEnabled(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)) {
             provider.reportBadDefinition(handledType(),

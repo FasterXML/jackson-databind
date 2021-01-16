@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.ser.impl.BeanAsArraySerializer;
@@ -158,7 +159,7 @@ public class UnrolledBeanSerializer
 
     @Override
     public void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         // NOTE! We have ensured that "JSON Filter" and "Object Id" cases
         // always use "vanilla" BeanSerializer, so no need to check here
@@ -174,7 +175,7 @@ public class UnrolledBeanSerializer
     }
 
     protected void serializeNonFiltered(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         gen.writeStartObject(bean);
 

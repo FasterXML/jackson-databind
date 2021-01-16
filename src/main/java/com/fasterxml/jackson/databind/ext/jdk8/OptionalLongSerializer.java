@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.ext.jdk8;
 
-import java.io.IOException;
 import java.util.OptionalLong;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
@@ -20,7 +20,6 @@ public class OptionalLongSerializer extends StdScalarSerializer<OptionalLong>
         super(OptionalLong.class);
     }
 
-    // @since 2.6
     @Override
     public boolean isEmpty(SerializerProvider provider, OptionalLong value) {
         return (value == null) || !value.isPresent();
@@ -28,7 +27,8 @@ public class OptionalLongSerializer extends StdScalarSerializer<OptionalLong>
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor,
-            JavaType typeHint) throws JsonMappingException {
+            JavaType typeHint)
+    {
         JsonIntegerFormatVisitor v2 = visitor
                 .expectIntegerFormat(typeHint);
         if (v2 != null) {
@@ -38,7 +38,7 @@ public class OptionalLongSerializer extends StdScalarSerializer<OptionalLong>
 
     @Override
     public void serialize(OptionalLong value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         if (value.isPresent()) {
             jgen.writeNumber(value.getAsLong());

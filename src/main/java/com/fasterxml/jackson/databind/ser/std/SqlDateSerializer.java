@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.text.DateFormat;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -38,7 +38,7 @@ public class SqlDateSerializer
     
     @Override
     public void serialize(java.sql.Date value, JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         if (_asTimestamp(provider)) {
             g.writeNumber(_timestamp(value));

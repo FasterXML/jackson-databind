@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -156,7 +156,7 @@ public class UnrolledBeanAsArraySerializer
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen,
             SerializerProvider ctxt, TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
         typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
@@ -172,7 +172,7 @@ public class UnrolledBeanAsArraySerializer
      */
     @Override
     public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(provider)) {
@@ -201,7 +201,7 @@ public class UnrolledBeanAsArraySerializer
 
     protected final void serializeNonFiltered(Object bean, JsonGenerator gen,
             SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         BeanPropertyWriter prop = null;
         try {

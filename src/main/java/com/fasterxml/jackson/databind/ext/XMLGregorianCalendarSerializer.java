@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.io.IOException;
 import java.util.Calendar;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
@@ -39,19 +39,20 @@ public class XMLGregorianCalendarSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, XMLGregorianCalendar value) throws IOException {
+    public boolean isEmpty(SerializerProvider provider, XMLGregorianCalendar value) {
         return _delegate.isEmpty(provider, _convert(value));
     }
 
     @Override
     public void serialize(XMLGregorianCalendar value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+        throws JacksonException
+    {
         _delegate.serialize(_convert(value), gen, provider);
     }
 
     @Override
     public void serializeWithType(XMLGregorianCalendar value, JsonGenerator gen, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer) throws JacksonException
     {
         _delegate.serializeWithType(_convert(value), gen, provider, typeSer);
     }

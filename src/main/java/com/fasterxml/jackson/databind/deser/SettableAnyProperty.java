@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.*;
@@ -115,7 +114,7 @@ public class SettableAnyProperty
      */
     public final void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance, String propName)
-        throws IOException
+        throws JacksonException
     {
         try {
             Object key = (_keyDeserializer == null) ? propName
@@ -131,7 +130,7 @@ public class SettableAnyProperty
         }
     }
 
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) {
@@ -181,7 +180,7 @@ public class SettableAnyProperty
      * @param value Value of the property
      */
     protected void _throwAsIOE(Exception e, Object propName, Object value)
-        throws IOException
+        throws JacksonException
     {
         if (e instanceof IllegalArgumentException) {
             String actType = ClassUtil.classNameOf(value);

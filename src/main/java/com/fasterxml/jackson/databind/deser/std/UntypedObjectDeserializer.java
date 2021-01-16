@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -216,7 +215,7 @@ public class UntypedObjectDeserializer
     }
 
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
@@ -283,7 +282,7 @@ public class UntypedObjectDeserializer
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException
+            TypeDeserializer typeDeserializer) throws JacksonException
     {
         switch (p.currentTokenId()) {
         // First: does it look like we had type id wrapping of some kind?
@@ -338,7 +337,7 @@ public class UntypedObjectDeserializer
     @SuppressWarnings("unchecked")
     @Override // since 2.9 (to support deep merge)
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
-        throws IOException
+        throws JacksonException
     {
         if (_nonMerging) {
             return deserialize(p, ctxt);
@@ -416,7 +415,7 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Array into a Java value.
      */
-    protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
         if (p.nextToken()  == JsonToken.END_ARRAY) {
@@ -457,7 +456,7 @@ public class UntypedObjectDeserializer
     }
 
     protected Object mapArray(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result) throws IOException
+            Collection<Object> result) throws JacksonException
     {
         // we start by pointing to START_ARRAY. Also, no real merging; array/Collection
         // just appends always
@@ -470,7 +469,7 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Object into a Java value.
      */
-    protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         String key1;
 
@@ -538,7 +537,7 @@ public class UntypedObjectDeserializer
     // @since 2.12 (wrt [databind#2733]
     protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
             final Map<String, Object> result, String key,
-            Object oldValue, Object newValue, String nextKey) throws IOException
+            Object oldValue, Object newValue, String nextKey) throws JacksonException
     {
         final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
 
@@ -577,7 +576,7 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Array into a Java Object array (Object[]).
      */
-    protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
         if (p.nextToken()  == JsonToken.END_ARRAY) {
@@ -598,7 +597,7 @@ public class UntypedObjectDeserializer
     }
 
     protected Object mapObject(JsonParser p, DeserializationContext ctxt,
-            Map<Object,Object> m) throws IOException
+            Map<Object,Object> m) throws JacksonException
     {
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -676,7 +675,7 @@ public class UntypedObjectDeserializer
         }
 
         @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_START_OBJECT:
@@ -739,7 +738,7 @@ public class UntypedObjectDeserializer
         }
 
         @Override
-        public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
+        public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws JacksonException
         {
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_START_ARRAY:
@@ -779,7 +778,7 @@ public class UntypedObjectDeserializer
         @SuppressWarnings("unchecked")
         @Override // since 2.9 (to support deep merge)
         public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
-            throws IOException
+            throws JacksonException
         {
             if (_nonMerging) {
                 return deserialize(p, ctxt);
@@ -842,7 +841,7 @@ public class UntypedObjectDeserializer
             return deserialize(p, ctxt);
         }
 
-        protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException
+        protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             Object value = deserialize(p, ctxt);
             if (p.nextToken()  == JsonToken.END_ARRAY) {
@@ -881,7 +880,7 @@ public class UntypedObjectDeserializer
         /**
          * Method called to map a JSON Array into a Java Object array (Object[]).
          */
-        protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException {
+        protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             ObjectBuffer buffer = ctxt.leaseObjectBuffer();
             Object[] values = buffer.resetAndStart();
             int ptr = 0;
@@ -899,7 +898,7 @@ public class UntypedObjectDeserializer
         /**
          * Method called to map a JSON Object into a Java value.
          */
-        protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
+        protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             // will point to FIELD_NAME at this point, guaranteed
             String key1 = p.getText();
@@ -949,7 +948,7 @@ public class UntypedObjectDeserializer
         // @since 2.12 (wrt [databind#2733]
         protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
                 final Map<String, Object> result, String key,
-                Object oldValue, Object newValue, String nextKey) throws IOException
+                Object oldValue, Object newValue, String nextKey) throws JacksonException
         {
             final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
 

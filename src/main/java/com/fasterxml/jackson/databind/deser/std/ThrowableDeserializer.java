@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.*;
@@ -21,9 +19,9 @@ public class ThrowableDeserializer
     protected final static String PROP_NAME_MESSAGE = "message";
 
     /*
-    /************************************************************
+    /**********************************************************************
     /* Construction
-    /************************************************************
+    /**********************************************************************
      */
 
     public ThrowableDeserializer(BeanDeserializer baseDeserializer) {
@@ -61,13 +59,13 @@ public class ThrowableDeserializer
     }
 
     /*
-    /************************************************************
+    /**********************************************************************
     /* Overridden methods
-    /************************************************************
+    /**********************************************************************
      */
 
     @Override
-    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // 30-Sep-2010, tatu: Need to allow use of @JsonCreator, so:
         if (_propertyBasedCreator != null) { // proper @JsonCreator

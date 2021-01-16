@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -28,7 +27,7 @@ public class UnsupportedTypeDeserializer extends StdDeserializer<Object>
     }
     
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         ctxt.reportBadDefinition(_type, _message);
         return null;
     }

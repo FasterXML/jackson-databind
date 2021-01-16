@@ -31,10 +31,7 @@ public final class MethodProperty
      */
     protected final transient Method _setter;
 
-    /**
-     * @since 2.9
-     */
-    final protected boolean _skipNulls;
+    protected final boolean _skipNulls;
     
     public MethodProperty(BeanPropertyDefinition propDef,
             JavaType type, TypeDeserializer typeDeser,

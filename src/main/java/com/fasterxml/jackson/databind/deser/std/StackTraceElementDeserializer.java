@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -14,7 +13,8 @@ public class StackTraceElementDeserializer
     public StackTraceElementDeserializer() { super(StackTraceElement.class); }
 
     @Override
-    public StackTraceElement deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public StackTraceElement deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         JsonToken t = p.currentToken();
         // Must get an Object

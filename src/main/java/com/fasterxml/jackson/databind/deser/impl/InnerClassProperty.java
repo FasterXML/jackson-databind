@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 
 import com.fasterxml.jackson.core.*;
@@ -70,7 +69,7 @@ public final class InnerClassProperty
 
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object bean)
-        throws IOException
+        throws JacksonException
     {
         JsonToken t = p.currentToken();
         Object value;
@@ -94,14 +93,14 @@ _creator.getDeclaringClass().getName(), e.getMessage()));
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance)
-        throws IOException
+        throws JacksonException
     {
         return setAndReturn(instance, deserialize(p, ctxt));
     }
 
 // these are fine with defaults
-//    public final void set(Object instance, Object value) throws IOException { }
-//    public Object setAndReturn(Object instance, Object value) throws IOException { }
+//    public final void set(Object instance, Object value) { }
+//    public Object setAndReturn(Object instance, Object value) { }
 
     /*
     /**********************************************************

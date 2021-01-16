@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -172,7 +171,7 @@ public abstract class ReferenceTypeDeserializer<T>
      */
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         // 23-Oct-2016, tatu: ValueInstantiator only defined for non-vanilla instances,
         //    but do check... might work
         if (_valueInstantiator != null) {
@@ -187,7 +186,7 @@ public abstract class ReferenceTypeDeserializer<T>
     }
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt, T reference) throws IOException
+    public T deserialize(JsonParser p, DeserializationContext ctxt, T reference) throws JacksonException
     {
         Object contents;
         // 26-Oct-2016, tatu: first things first; see if we should be able to merge:
@@ -215,7 +214,8 @@ public abstract class ReferenceTypeDeserializer<T>
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException
+            TypeDeserializer typeDeserializer)
+        throws JacksonException
     {
         final JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) { // can this actually happen?

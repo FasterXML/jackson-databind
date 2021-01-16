@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -70,7 +70,7 @@ public abstract class JDKValueInstantiators
         public boolean canCreateUsingDefault() {  return true; }
 
         @Override
-        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+        public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
             return new ArrayList<>();
         }
     }
@@ -91,7 +91,7 @@ public abstract class JDKValueInstantiators
         public boolean canCreateUsingDefault() {  return true; }
 
         @Override
-        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+        public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
             return new HashMap<>();
         }
     }
@@ -112,7 +112,7 @@ public abstract class JDKValueInstantiators
         public boolean canCreateUsingDefault() {  return true; }
 
         @Override
-        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+        public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
             return new LinkedHashMap<>();
         }
     }
@@ -134,7 +134,7 @@ public abstract class JDKValueInstantiators
         public boolean canCreateUsingDefault() {  return true; }
 
         @Override
-        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+        public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
             return _value;
         }
     }

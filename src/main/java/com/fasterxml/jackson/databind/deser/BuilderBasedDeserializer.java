@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -216,7 +215,7 @@ public class BuilderBasedDeserializer
      */
 
     protected Object finishBuild(DeserializationContext ctxt, Object builder)
-            throws IOException
+            throws JacksonException
     {
         // As per [databind#777], allow returning builder itself
         if (null == _buildMethod) {
@@ -234,7 +233,7 @@ public class BuilderBasedDeserializer
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // common case first:
         if (p.isExpectedStartObjectToken()) { 
@@ -276,7 +275,7 @@ public class BuilderBasedDeserializer
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
-    		Object value) throws IOException
+    		Object value) throws JacksonException
     {
         // 26-Oct-2016, tatu: I cannot see any of making this actually
         //    work correctly, so let's indicate problem right away
@@ -305,7 +304,7 @@ public class BuilderBasedDeserializer
      * features are enabled.
      */
     private final Object _vanillaDeserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
         while (true) {
@@ -338,7 +337,7 @@ public class BuilderBasedDeserializer
      */
     @Override
     public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_nonStandardCreation) {
             if (_unwrappedPropertyHandler != null) {
@@ -393,7 +392,7 @@ public class BuilderBasedDeserializer
     @Override
     protected Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     { 
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
@@ -484,7 +483,7 @@ public class BuilderBasedDeserializer
     }
 
     protected final Object _deserialize(JsonParser p,
-            DeserializationContext ctxt, Object builder) throws IOException
+            DeserializationContext ctxt, Object builder) throws JacksonException
     {        
         if (_injectables != null) {
             injectValues(ctxt, builder);
@@ -531,7 +530,7 @@ public class BuilderBasedDeserializer
     }
 
     @Override
-    protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // note: cannot call `_delegateDeserializer()` since order reversed here:
         JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
@@ -579,7 +578,7 @@ public class BuilderBasedDeserializer
 
     protected final Object deserializeWithView(JsonParser p, DeserializationContext ctxt,
             Object bean, Class<?> activeView)
-        throws IOException
+        throws JacksonException
     {
         for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
             if (ix >= 0) {
@@ -620,7 +619,7 @@ public class BuilderBasedDeserializer
      */
     @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
@@ -684,7 +683,7 @@ public class BuilderBasedDeserializer
 
     protected Object deserializeWithUnwrapped(JsonParser p,
             DeserializationContext ctxt, Object builder, TokenBuffer tokens)
-        throws IOException
+        throws JacksonException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
@@ -729,7 +728,7 @@ public class BuilderBasedDeserializer
     @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser p,
     		DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
@@ -802,7 +801,7 @@ public class BuilderBasedDeserializer
      */
 
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithExternalTypeId(p, ctxt);
@@ -812,7 +811,7 @@ public class BuilderBasedDeserializer
 
     protected Object deserializeWithExternalTypeId(JsonParser p,
     		DeserializationContext ctxt, Object bean)
-        throws IOException
+        throws JacksonException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
@@ -871,7 +870,7 @@ public class BuilderBasedDeserializer
 
     protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser p,
     		DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // !!! 04-Mar-2012, TODO: Need to fix -- will not work as is...
         JavaType t = _targetType;
@@ -893,7 +892,7 @@ public class BuilderBasedDeserializer
      * @since 3.0
      */
     protected Object _handleUnexpectedWithin(JsonParser p,
-            DeserializationContext ctxt, Object beanOrBuilder) throws IOException
+            DeserializationContext ctxt, Object beanOrBuilder) throws JacksonException
     {
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

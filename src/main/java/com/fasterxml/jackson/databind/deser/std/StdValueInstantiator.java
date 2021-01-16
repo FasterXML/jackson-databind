@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
@@ -266,7 +266,7 @@ public class StdValueInstantiator
      */
 
     @Override
-    public Object createUsingDefault(DeserializationContext ctxt) throws IOException
+    public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException
     {
         if (_defaultCreator == null) { // sanity-check; caller should check
             return super.createUsingDefault(ctxt);
@@ -279,7 +279,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException
+    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws JacksonException
     {
         if (_withArgsCreator == null) { // sanity-check; caller should check
             return super.createFromObjectWith(ctxt, args);
@@ -292,7 +292,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException
+    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException
     {
         // 04-Oct-2016, tatu: Need delegation to work around [databind#1392]...
         if (_delegateCreator == null) {
@@ -304,7 +304,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException
+    public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException
     {
         if (_arrayDelegateCreator == null) {
             if (_delegateCreator != null) { // sanity-check; caller should check
@@ -322,7 +322,7 @@ public class StdValueInstantiator
      */
 
     @Override
-    public Object createFromString(DeserializationContext ctxt, String value) throws IOException
+    public Object createFromString(DeserializationContext ctxt, String value) throws JacksonException
     {
         if (_fromStringCreator != null) {
             try {
@@ -336,7 +336,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromInt(DeserializationContext ctxt, int value) throws IOException
+    public Object createFromInt(DeserializationContext ctxt, int value) throws JacksonException
     {
         // First: "native" int methods work best:
         if (_fromIntCreator != null) {
@@ -374,7 +374,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromLong(DeserializationContext ctxt, long value) throws IOException
+    public Object createFromLong(DeserializationContext ctxt, long value) throws JacksonException
     {
         if (_fromLongCreator != null) {
             Long arg = Long.valueOf(value);
@@ -402,7 +402,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws IOException
+    public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws JacksonException
     {
         if (_fromBigIntegerCreator != null) {
             try {
@@ -418,7 +418,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException
+    public Object createFromDouble(DeserializationContext ctxt, double value) throws JacksonException
     {
         if(_fromDoubleCreator != null) {
             Double arg = Double.valueOf(value);
@@ -444,7 +444,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws IOException
+    public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws JacksonException
     {
         if (_fromBigDecimalCreator != null) {
             try {
@@ -485,7 +485,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException
+    public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws JacksonException
     {
         if (_fromBooleanCreator == null) {
             return super.createFromBoolean(ctxt, value);
@@ -577,7 +577,7 @@ public class StdValueInstantiator
     private Object _createUsingDelegate(AnnotatedWithParams delegateCreator,
             SettableBeanProperty[] delegateArguments,
             DeserializationContext ctxt, Object delegate)
-                    throws IOException
+        throws JacksonException
     {
         if (delegateCreator == null) { // sanity-check; caller should check
             throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());

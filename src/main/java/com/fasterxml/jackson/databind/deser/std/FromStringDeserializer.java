@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import static java.lang.Character.isLetter;
-
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -9,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
@@ -148,7 +147,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 
     @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // Let's get textual value, possibly via coercion from other scalar types
         String text = p.getValueAsString();
@@ -170,7 +169,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             //    indicated error; but that seems wrong. Should be able to return
             //    `null` as value.
             return _deserialize(text, ctxt);
-        } catch (IllegalArgumentException | MalformedURLException e) {
+        } catch (IllegalArgumentException | MalformedURLException | UnknownHostException e) {
             cause = e;
         }
         // note: `cause` can't be null
@@ -189,11 +188,12 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
      * Main method from trying to deserialize actual value from non-empty
      * String.
      */
-    protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;
+    protected abstract T _deserialize(String value, DeserializationContext ctxt)
+        throws JacksonException, MalformedURLException, UnknownHostException;
 
     // @since 2.12
     protected Object _deserializeFromOther(JsonParser p, DeserializationContext ctxt,
-            JsonToken t) throws IOException
+            JsonToken t) throws JacksonException
     {
         // [databind#381]
         if (t == JsonToken.START_ARRAY) {
@@ -218,7 +218,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
      * {@code null} nor directly assignable to target type.
      * Used, for example, by {@link UUIDDeserializer} to coerce from {@code byte[]}.
      */
-    protected T _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws IOException {
+    protected T _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws JacksonException {
         // default impl: error out
         ctxt.reportInputMismatch(this,
                 "Don't know how to convert embedded Object of type %s into %s",
@@ -226,7 +226,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         return null;
     }
 
-    protected Object _deserializeFromEmptyString(DeserializationContext ctxt) throws IOException {
+    protected Object _deserializeFromEmptyString(DeserializationContext ctxt) throws JacksonException {
         CoercionAction act = ctxt.findCoercionAction(logicalType(), _valueClass,
                 CoercionInputShape.EmptyString);
         if (act == CoercionAction.Fail) {
@@ -248,7 +248,7 @@ _coercedTypeDesc());
     /**
      * @since 2.12
      */
-    protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) throws IOException {
+    protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) throws JacksonException {
         // by default, "as-null", but overridable by sub-classes
         return getNullValue(ctxt);
     }
@@ -289,7 +289,9 @@ _coercedTypeDesc());
         }
 
         @Override
-        protected Object _deserialize(String value, DeserializationContext ctxt) throws IOException
+        protected Object _deserialize(String value, DeserializationContext ctxt)
+            throws JacksonException,
+                MalformedURLException, UnknownHostException
         {
             switch (_kind) {
             case STD_FILE:
@@ -381,7 +383,7 @@ _coercedTypeDesc());
         }
 
         @Override
-        protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) throws IOException {
+        protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) throws JacksonException {
             // 09-Jun-2020, tatu: For backwards compatibility deserialize "as-empty"
             //    as URI and Locale did that in 2.11 (and StringBuilder probably ought to).
             //   But doing this here instead of super-class lets UUID return "as-null" instead
@@ -421,7 +423,7 @@ _coercedTypeDesc());
         }
 
         @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             String text = p.getValueAsString();
             if (text != null) {
@@ -432,7 +434,7 @@ _coercedTypeDesc());
 
         @Override
         protected Object _deserialize(String value, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             return new StringBuilder(value);
         }
@@ -444,7 +446,7 @@ _coercedTypeDesc());
             boolean isWindowsRootFound = false;
             for (File file : File.listRoots()) {
                 String path = file.getPath();
-                if (path.length() >= 2 && isLetter(path.charAt(0)) && path.charAt(1) == ':') {
+                if (path.length() >= 2 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':') {
                     isWindowsRootFound = true;
                     break;
                 }
@@ -452,7 +454,7 @@ _coercedTypeDesc());
             areWindowsFilePathsSupported = isWindowsRootFound;
         }
 
-        public static Path deserialize(DeserializationContext ctxt, String value) throws IOException {
+        public static Path deserialize(DeserializationContext ctxt, String value) throws JacksonException {
             // If someone gives us an input with no : at all, treat as local path, instead of failing
             // with invalid URI.
             if (value.indexOf(':') < 0) {
@@ -460,7 +462,7 @@ _coercedTypeDesc());
             }
 
             if (areWindowsFilePathsSupported) {
-                if (value.length() >= 2 && isLetter(value.charAt(0)) && value.charAt(1) == ':') {
+                if (value.length() >= 2 && Character.isLetter(value.charAt(0)) && value.charAt(1) == ':') {
                     return Paths.get(value);
                 }
             }

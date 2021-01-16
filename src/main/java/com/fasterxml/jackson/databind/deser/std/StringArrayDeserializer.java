@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -131,7 +130,7 @@ public final class StringArrayDeserializer
     }
 
     @Override
-    public String[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public String[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
@@ -181,7 +180,7 @@ public final class StringArrayDeserializer
      * Offlined version used when we do not use the default deserialization method.
      */
     protected final String[] _deserializeCustom(JsonParser p, DeserializationContext ctxt,
-            String[] old) throws IOException
+            String[] old) throws JacksonException
     {
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         int ix;
@@ -238,13 +237,13 @@ public final class StringArrayDeserializer
     }
 
     @Override
-    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws JacksonException {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
     @Override
     public String[] deserialize(JsonParser p, DeserializationContext ctxt,
-            String[] intoValue) throws IOException
+            String[] intoValue) throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
@@ -297,7 +296,7 @@ public final class StringArrayDeserializer
         return result;
     }
 
-    private final String[] handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    private final String[] handleNonArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // implicit arrays from single values?
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -35,7 +33,7 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     }
 
     @Override
-    public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public String deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return p.getText();
@@ -77,7 +75,8 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     // (is it an error to even call this version?)
     @Override
     public String deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException {
+            TypeDeserializer typeDeserializer) throws JacksonException
+    {
         return deserialize(p, ctxt);
     }
 }

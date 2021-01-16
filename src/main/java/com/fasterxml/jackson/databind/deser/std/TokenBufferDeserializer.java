@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -15,11 +14,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * Note that we use scalar deserializer base just because we claim
  * to be of scalar for type information inclusion purposes; actual
  * underlying content can be of any (Object, Array, scalar) type.
- *<p>
- * Since 2.3, another important thing is that possible native ids
- * (type id, object id) should be properly copied even when converting
- * with {@link TokenBuffer}. Such ids are supported if (and only if!)
- * source {@link JsonParser} supports them.
  */
 @JacksonStdImpl
 public class TokenBufferDeserializer extends StdScalarDeserializer<TokenBuffer>
@@ -33,7 +27,9 @@ public class TokenBufferDeserializer extends StdScalarDeserializer<TokenBuffer>
 
     @Override
     @SuppressWarnings("resource")
-    public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         return createBufferInstance(p).deserialize(p, ctxt);
     }
 

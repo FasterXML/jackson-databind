@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -126,7 +127,7 @@ public final class FieldProperty
 
     @Override
     public void deserializeAndSet(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -155,7 +156,7 @@ public final class FieldProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -184,7 +185,7 @@ public final class FieldProperty
     }
 
     @Override
-    public void set(Object instance, Object value) throws IOException
+    public void set(Object instance, Object value)
     {
         try {
             _field.set(instance, value);
@@ -195,7 +196,7 @@ public final class FieldProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value)
     {
         try {
             _field.set(instance, value);

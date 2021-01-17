@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
@@ -150,7 +149,7 @@ public final class FieldProperty
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            _throwAsIOE(p, e, value);
+            _throwAsJacksonE(p, e, value);
         }
     }
 
@@ -179,7 +178,7 @@ public final class FieldProperty
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            _throwAsIOE(p, e, value);
+            _throwAsJacksonE(p, e, value);
         }
         return instance;
     }
@@ -191,7 +190,7 @@ public final class FieldProperty
             _field.set(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsIOE(e, value);
+            _throwAsJacksonE(e, value);
         }
     }
 
@@ -202,7 +201,7 @@ public final class FieldProperty
             _field.set(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsIOE(e, value);
+            _throwAsJacksonE(e, value);
         }
         return instance;
     }

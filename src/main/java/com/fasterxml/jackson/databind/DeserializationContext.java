@@ -1782,7 +1782,8 @@ trailingToken, ClassUtil.nameOf(targetType)
      * @param msgBase Message that describes specific problem
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass,
-            String msgBase) {
+            String msgBase)
+    {
         final String msg = String.format("Cannot deserialize value of type %s from String %s: %s",
                 ClassUtil.nameOf(instClass), _quotedString(value), msgBase);
         return InvalidFormatException.from(_parser, msg, value, instClass);

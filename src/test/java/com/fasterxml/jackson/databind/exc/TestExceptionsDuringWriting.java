@@ -63,7 +63,7 @@ public class TestExceptionsDuringWriting
             l.add(b);
             mapper.writeValue(sw, l);
             fail("Should have gotten an exception");
-        } catch (WrappedIOException e) {
+        } catch (JsonMappingException e) {
             // should contain original message somewhere
             verifyException(e, "test string");
             Throwable root = e.getCause();
@@ -89,9 +89,16 @@ public class TestExceptionsDuringWriting
             mapper.writeValue(sw, createLongObject());
             fail("Should have gotten an exception");
         } catch (WrappedIOException e) {
-            verifyException(e, IOException.class, "TEST");
+            verifyException(e, WrappedIOException.class, "TEST");
+            Throwable root = e.getCause();
+            assertNotNull(root);
+
+            if (!(root instanceof IOException)) {
+                fail("Wrapped exception not IOException, but "+root.getClass());
+            }
         }
     }
+
     /*
     /**********************************************************
     /* Helper methods

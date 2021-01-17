@@ -1722,27 +1722,29 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     public JacksonException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws JacksonException
     {
-        // Need to add reference information
-        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
+        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt),
+                bean, fieldName);
     }
 
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) 
         throws JacksonException
     {
-        /* 05-Mar-2009, tatu: But one nasty edge is when we get
-         *   StackOverflow: usually due to infinite loop. But that
-         *   often gets hidden within an InvocationTargetException...
-         */
+        // 05-Mar-2009, tatu: But one nasty edge is when we get
+        //   StackOverflow: usually due to infinite loop. But that
+        //   often gets hidden within an InvocationTargetException...
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }
         // Errors to be passed as is
         ClassUtil.throwIfError(t);
-        ClassUtil.throwIfJacksonE(t);
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-
-        if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
-            ClassUtil.throwIfRTE(t);
+        // but note: JacksonExceptions are to be wrapped (except not JsonMappingException
+        // but caller takes care of dealing with those)
+        if ((t instanceof RuntimeException)
+                && !(t instanceof JacksonException)) {
+            boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+            if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+                throw (RuntimeException) t;
+            }
         }
         return t;
     }

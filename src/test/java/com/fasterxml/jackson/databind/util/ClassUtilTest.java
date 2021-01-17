@@ -264,7 +264,7 @@ public class ClassUtilTest extends BaseMapTest
         final Exception testExc1 = new IllegalArgumentException("test");
         // First: without any actual stuff, with an RTE
         try {
-            ClassUtil.closeOnFailAndThrowAsIOE(null, null, testExc1);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(null, null, testExc1);
             fail("Should not pass");
         } catch (Exception e) {
             assertSame(testExc1, e);
@@ -276,7 +276,7 @@ public class ClassUtilTest extends BaseMapTest
         JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
         final Exception testExc2 = new Exception("test");
         try {
-            ClassUtil.closeOnFailAndThrowAsIOE(gen, bytes, testExc2);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, bytes, testExc2);
             fail("Should not pass");
         } catch (Exception e) {
             assertEquals(RuntimeException.class, e.getClass());

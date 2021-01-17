@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JacksonException;

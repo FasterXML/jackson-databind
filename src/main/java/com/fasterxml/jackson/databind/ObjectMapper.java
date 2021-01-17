@@ -1728,7 +1728,7 @@ public class ObjectMapper
         try {
             prov.serializeValue(g, value);
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(g, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
             return;
         }
         g.close();
@@ -1749,7 +1749,7 @@ public class ObjectMapper
             toClose = null;
             tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(g, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, toClose, e);
             return;
         }
         g.close();
@@ -1769,10 +1769,14 @@ public class ObjectMapper
                 g.flush();
             }
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(null, toClose, e);
             return;
         }
-        toClose.close();
+        try {
+            toClose.close();
+        } catch (IOException e) {
+            throw WrappedIOException.construct(e);
+        }
     }
 
     /*

@@ -29,7 +29,7 @@ public class DoubleStreamSerializer extends StdSerializer<DoubleStream>
     public void serialize(DoubleStream stream, JsonGenerator g, SerializerProvider provider)
         throws JacksonException
     {
-        try (DoubleStream ds = stream) {
+        try (final DoubleStream ds = stream) {
             g.writeStartArray(ds);
             ds.forEach(value -> {
                 g.writeNumber(value);

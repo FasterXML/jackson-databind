@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
@@ -122,7 +121,7 @@ public final class SetterlessProperty
         try {
             toModify = _getter.invoke(instance, (Object[]) null);
         } catch (Exception e) {
-            _throwAsIOE(p, e);
+            _throwAsJacksonE(p, e);
             return; // never gets here
         }
         // Note: null won't work, since we can't then inject anything in. At least

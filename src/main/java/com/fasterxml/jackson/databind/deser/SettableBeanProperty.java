@@ -73,11 +73,10 @@ public abstract class SettableBeanProperty
     protected final NullValueProvider _nullProvider;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration that is not yet immutable; generally assigned
-    /* during initialization process but cannot be passed to
-    /* constructor.
-    /**********************************************************
+    /* during initialization process but cannot be passed to constructor.
+    /**********************************************************************
      */
 
     /**
@@ -115,9 +114,9 @@ public abstract class SettableBeanProperty
     protected int _propertyIndex = -1;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle (construct & configure)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected SettableBeanProperty(BeanPropertyDefinition propDef,
@@ -302,9 +301,6 @@ public abstract class SettableBeanProperty
         return (n == _propName) ? this : withName(n);
     }
 
-    /**
-     * @since 2.9
-     */
     public abstract SettableBeanProperty withNullProvider(NullValueProvider nva);
 
     public void setManagedReferenceName(String n) {
@@ -339,27 +335,19 @@ public abstract class SettableBeanProperty
      * Method called to ensure that the mutator has proper access rights to
      * be called, as per configuration. Overridden by implementations that
      * have mutators that require access, fields and setters.
-     *
-     * @since 2.8.3
      */
     public void fixAccess(DeserializationConfig config) {
         ;
     }
 
-    /**
-     * @since 2.9.4
-     */
     public void markAsIgnorable() { }
 
-    /**
-     * @since 2.9.4
-     */
     public boolean isIgnorable() { return false; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* BeanProperty impl
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -404,9 +392,9 @@ public abstract class SettableBeanProperty
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Class<?> getDeclaringClass() {
@@ -433,9 +421,6 @@ public abstract class SettableBeanProperty
 
     public TypeDeserializer getValueTypeDeserializer() { return _valueTypeDeserializer; }
 
-    /**
-     * @since 2.9
-     */
     public NullValueProvider getNullValueProvider() { return _nullProvider; }
 
     public boolean visibleInView(Class<?> activeView) {
@@ -456,8 +441,6 @@ public abstract class SettableBeanProperty
     /**
      * Method for accessing index of the creator property: for other
      * types of properties will simply return -1.
-     * 
-     * @since 2.1
      */
     public int getCreatorIndex() {
         // changed from 'return -1' in 2.7.9 / 2.8.7
@@ -483,9 +466,9 @@ public abstract class SettableBeanProperty
     public boolean isInjectionOnly() { return false; } // overridden by CreatorProperty
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -588,13 +571,13 @@ public abstract class SettableBeanProperty
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /*
-    protected void _throwAsIOE(JsonParser p, Exception e, Object value) throws IOException
+    protected void _throwAsJacksonE(JsonParser p, Exception e, Object value)
+        throws JacksonException
     {
         if (e instanceof IllegalArgumentException) {
             String actType = ClassUtil.classNameOf(value);
@@ -613,13 +596,13 @@ public abstract class SettableBeanProperty
             }
             throw JsonMappingException.from(p, msg.toString(), e);
         }
-        _throwAsIOE(p, e);
+        _throwAsJacksonE(p, e);
     }
 
-    protected IOException _throwAsIOE(JsonParser p, Exception e) throws IOException
+    protected void _throwAsJacksonE(JsonParser p, Exception e) throws JacksonException
     {
-        ClassUtil.throwIfIOE(e);
         ClassUtil.throwIfRTE(e);
+        ClassUtil.throwIfJacksonE(e);
         // let's wrap the innermost problem
         Throwable th = ClassUtil.getRootCause(e);
         throw JsonMappingException.from(p, ClassUtil.exceptionMessage(th), th);
@@ -627,17 +610,16 @@ public abstract class SettableBeanProperty
 
     // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining
     //   callers cannot actually provide a JsonParser
-    protected void _throwAsIOE(Exception e, Object value) throws IOException {
-        _throwAsIOE((JsonParser) null, e, value);
+    protected void _throwAsJacksonE(Exception e, Object value) throws JacksonException {
+        _throwAsJacksonE((JsonParser) null, e, value);
     }
-    */
 
     @Override public String toString() { return "[property '"+getName()+"']"; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -697,9 +679,9 @@ public abstract class SettableBeanProperty
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Accessors
-        /**********************************************************
+        /******************************************************************
          */
 
         @Override
@@ -752,9 +734,9 @@ public abstract class SettableBeanProperty
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Extended API
-        /**********************************************************
+        /******************************************************************
          */
 
         public SettableBeanProperty getDelegate() {
@@ -762,9 +744,9 @@ public abstract class SettableBeanProperty
         }
 
         /*
-        /**********************************************************
+        /******************************************************************
         /* Actual mutators
-        /**********************************************************
+        /******************************************************************
          */
 
         @Override

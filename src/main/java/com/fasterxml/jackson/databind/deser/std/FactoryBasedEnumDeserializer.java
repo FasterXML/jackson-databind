@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
@@ -146,14 +145,14 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
             try {
                 return _factory.call();
             } catch (Exception e) {
-                Throwable t = ClassUtil.throwRootCauseIfIOE(e);
+                Throwable t = ClassUtil.throwRootCauseIfJacksonE(e);
                 return ctxt.handleInstantiationProblem(_valueClass, null, t);
             }
         }
         try {
             return _factory.callOnWith(_valueClass, value);
         } catch (Exception e) {
-            Throwable t = ClassUtil.throwRootCauseIfIOE(e);
+            Throwable t = ClassUtil.throwRootCauseIfJacksonE(e);
             // [databind#1642]:
             if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL) &&
                     t instanceof IllegalArgumentException) {
@@ -222,12 +221,7 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
         // Errors to be passed as is
         ClassUtil.throwIfError(t);
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        // Ditto for IOExceptions; except we may want to wrap JSON exceptions
-        if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonProcessingException)) {
-                throw (IOException) t;
-            }
-        } else if (!wrap) {
+        if (!wrap) {
             ClassUtil.throwIfRTE(t);
         }
         return t;

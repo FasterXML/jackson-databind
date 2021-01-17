@@ -835,7 +835,7 @@ public class ObjectWriter
                     g.flush();
                 }
             } catch (Exception e) {
-                ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
+                ClassUtil.closeOnFailAndThrowAsJacksonE(null, toClose, e);
                 return;
             }
             toClose.close();
@@ -973,7 +973,7 @@ public class ObjectWriter
         try {
             _prefetch.serialize(gen, value, ctxt);
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(gen, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
             return;
         }
         gen.close();
@@ -993,7 +993,7 @@ public class ObjectWriter
             toClose = null;
             tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(gen, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, toClose, e);
             return;
         }
         gen.close();

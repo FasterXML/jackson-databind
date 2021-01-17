@@ -28,7 +28,7 @@ public class IntStreamSerializer extends StdSerializer<IntStream>
     }
 
     @Override
-    public void serialize(IntStream stream, JsonGenerator g, SerializerProvider provider)
+    public void serialize(IntStream stream, JsonGenerator g, SerializerProvider ctxt)
         throws JacksonException
     {
         try (IntStream is = stream) {
@@ -36,8 +36,11 @@ public class IntStreamSerializer extends StdSerializer<IntStream>
             is.forEach(value -> {
                 g.writeNumber(value);
             });
-            
             g.writeEndArray();
+        } catch (Exception e) {
+            // For most regular serializers we won't both handling but streams are typically
+            // root values so 
+            wrapAndThrow(ctxt, e, stream, g.getOutputContext().getCurrentIndex());
         }
     }
 }

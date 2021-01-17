@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.BrokenStringWriter;
@@ -88,8 +88,8 @@ public class TestExceptionsDuringWriting
             BrokenStringWriter sw = new BrokenStringWriter("TEST");
             mapper.writeValue(sw, createLongObject());
             fail("Should have gotten an exception");
-        } catch (WrappedIOException e) {
-            verifyException(e, WrappedIOException.class, "TEST");
+        } catch (JsonMappingException e) {
+            verifyException(e, JsonMappingException.class, "TEST");
             Throwable root = e.getCause();
             assertNotNull(root);
 

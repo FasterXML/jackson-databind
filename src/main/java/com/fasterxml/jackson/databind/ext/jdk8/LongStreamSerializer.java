@@ -25,7 +25,7 @@ public class LongStreamSerializer extends StdSerializer<LongStream>
     }
 
     @Override
-    public void serialize(LongStream stream, JsonGenerator g, SerializerProvider provider)
+    public void serialize(LongStream stream, JsonGenerator g, SerializerProvider ctxt)
         throws JacksonException
     {
         try (LongStream ls = stream) {
@@ -34,6 +34,10 @@ public class LongStreamSerializer extends StdSerializer<LongStream>
                 g.writeNumber(value);
             });
             g.writeEndArray();
+        } catch (Exception e) {
+            // For most regular serializers we won't both handling but streams are typically
+            // root values so 
+            wrapAndThrow(ctxt, e, stream, g.getOutputContext().getCurrentIndex());
         }
     }
 }

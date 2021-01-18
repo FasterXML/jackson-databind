@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.IdentityHashMap;
@@ -456,5 +457,10 @@ public abstract class StdSerializer<T>
 
     protected final static boolean _nonEmpty(Collection<?> c) {
         return (c != null) && !c.isEmpty();
+    }
+
+    // @since 3.0
+    protected JacksonException _wrapIOFailure(IOException e) {
+        return WrappedIOException.construct(e);
     }
 }

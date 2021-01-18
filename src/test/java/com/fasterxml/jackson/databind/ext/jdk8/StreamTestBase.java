@@ -11,7 +11,6 @@ import org.hamcrest.core.Is;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -34,9 +34,9 @@ public abstract class PropertyWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Metadata access
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -86,16 +86,14 @@ public abstract class PropertyWriter
      * Method for accessing annotations declared in context of the property that this
      * writer is associated with; usually this means annotations on enclosing class
      * for property.
-     * 
-     * @since 2.5
      */
     @Override
     public abstract <A extends Annotation> A getContextAnnotation(Class<A> acls);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization methods, regular output
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -113,9 +111,9 @@ public abstract class PropertyWriter
         throws Exception;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization methods, explicit positional/tabular formats
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -140,9 +138,9 @@ public abstract class PropertyWriter
         throws Exception;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Schema-related
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -151,6 +149,5 @@ public abstract class PropertyWriter
      */
     @Override
     public abstract void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-            SerializerProvider provider)
-        throws JsonMappingException;
+            SerializerProvider provider);
 }

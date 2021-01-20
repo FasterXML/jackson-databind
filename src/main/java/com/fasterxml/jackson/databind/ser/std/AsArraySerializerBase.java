@@ -198,7 +198,7 @@ public abstract class AsArraySerializerBase<T>
     // variant that passes size of array to output, which is helpful with some data formats
     /*
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider ctxt) throws IOException
+    public void serialize(T value, JsonGenerator gen, SerializerProvider ctxt) throws JacksonException
     {
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(value)) {

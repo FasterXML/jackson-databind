@@ -19,9 +19,9 @@ public class TokenBufferReadContext extends TokenStreamContext
 //    protected JsonReadContext _child;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Location/state information (minus source reference)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected String _currentName;
@@ -76,9 +76,9 @@ public class TokenBufferReadContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static TokenBufferReadContext createRootContext(TokenStreamContext origContext) {
@@ -119,9 +119,9 @@ public class TokenBufferReadContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract method implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public String currentName() { return _currentName; }
@@ -130,14 +130,14 @@ public class TokenBufferReadContext extends TokenStreamContext
 
     @Override public TokenStreamContext getParent() { return _parent; }
 
-    public void setCurrentName(String name) throws JsonProcessingException {
+    public void setCurrentName(String name) {
         _currentName = name;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended support for context updates
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void updateForValue() {

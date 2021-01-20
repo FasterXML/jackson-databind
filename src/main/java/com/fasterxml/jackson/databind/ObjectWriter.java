@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -211,7 +212,7 @@ public class ObjectWriter
     @SuppressWarnings("resource")
     protected final SequenceWriter _newSequenceWriter(DefaultSerializerProvider ctxt,
             boolean wrapInArray, JsonGenerator gen, boolean managedInput)
-        throws IOException
+        throws JacksonException
     {
         return new SequenceWriter(ctxt, gen, managedInput, _prefetch)
             .init(wrapInArray);
@@ -513,7 +514,7 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(OutputStream target) throws IOException {
+    public JsonGenerator createGenerator(OutputStream target) {
         _assertNotNull("target", target);
         return _generatorFactory.createGenerator(_serializerProvider(), target);
     }
@@ -526,7 +527,7 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(OutputStream target, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(OutputStream target, JsonEncoding enc) {
         _assertNotNull("target", target);
         return _generatorFactory.createGenerator(_serializerProvider(), target, enc);
     }
@@ -539,7 +540,7 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(Writer target) throws IOException {
+    public JsonGenerator createGenerator(Writer target) {
         _assertNotNull("target", target);
         return _generatorFactory.createGenerator(_serializerProvider(), target);
     }
@@ -552,7 +553,7 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(File target, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(File target, JsonEncoding enc) {
         _assertNotNull("target", target);
         return _generatorFactory.createGenerator(_serializerProvider(), target, enc);
     }
@@ -565,7 +566,7 @@ public class ObjectWriter
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(DataOutput target) throws IOException {
+    public JsonGenerator createGenerator(DataOutput target) {
         _assertNotNull("target", target);
         return _generatorFactory.createGenerator(_serializerProvider(), target);
     }
@@ -601,7 +602,9 @@ public class ObjectWriter
      *
      * @param target Target file to write value sequence to.
      */
-    public SequenceWriter writeValues(File target) throws IOException {
+    public SequenceWriter writeValues(File target)
+        throws JacksonException
+    {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, false,
@@ -621,7 +624,9 @@ public class ObjectWriter
      * @param g Low-level generator caller has already constructed that will
      *   be used for actual writing of token stream.
      */
-    public SequenceWriter writeValues(JsonGenerator g) throws IOException {
+    public SequenceWriter writeValues(JsonGenerator g)
+        throws JacksonException
+    {
         _assertNotNull("target", g);
         return _newSequenceWriter(_serializerProvider(), false, g, false);
     }
@@ -637,7 +642,7 @@ public class ObjectWriter
      *
      * @param target Target writer to use for writing the token stream
      */
-    public SequenceWriter writeValues(Writer target) throws IOException {
+    public SequenceWriter writeValues(Writer target) throws JacksonException {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, false,
@@ -655,14 +660,14 @@ public class ObjectWriter
      *
      * @param target Physical output stream to use for writing the token stream
      */
-    public SequenceWriter writeValues(OutputStream target) throws IOException {
+    public SequenceWriter writeValues(OutputStream target) throws JacksonException {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
-    public SequenceWriter writeValues(DataOutput target) throws IOException {
+    public SequenceWriter writeValues(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, false,
@@ -682,7 +687,9 @@ public class ObjectWriter
      *
      * @param target File to write token stream to
      */
-    public SequenceWriter writeValuesAsArray(File target) throws IOException {
+    public SequenceWriter writeValuesAsArray(File target)
+        throws JacksonException
+    {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, true,
@@ -703,7 +710,9 @@ public class ObjectWriter
      *
      * @param g Underlying generator to use for writing the token stream
      */
-    public SequenceWriter writeValuesAsArray(JsonGenerator g) throws IOException {
+    public SequenceWriter writeValuesAsArray(JsonGenerator g)
+        throws JacksonException
+    {
         _assertNotNull("g", g);
         return _newSequenceWriter(_serializerProvider(), true, g, false);
     }
@@ -721,7 +730,7 @@ public class ObjectWriter
      *
      * @param target Writer to use for writing the token stream
      */
-    public SequenceWriter writeValuesAsArray(Writer target) throws IOException {
+    public SequenceWriter writeValuesAsArray(Writer target) throws JacksonException {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, true,
@@ -741,14 +750,14 @@ public class ObjectWriter
      *
      * @param target Physical output stream to use for writing the token stream
      */
-    public SequenceWriter writeValuesAsArray(OutputStream target) throws IOException {
+    public SequenceWriter writeValuesAsArray(OutputStream target) throws JacksonException {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
-    public SequenceWriter writeValuesAsArray(DataOutput target) throws IOException {
+    public SequenceWriter writeValuesAsArray(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, true,
@@ -822,12 +831,13 @@ public class ObjectWriter
      * Method that can be used to serialize any Java value as
      * JSON output, using provided {@link JsonGenerator}.
      */
-    public void writeValue(JsonGenerator g, Object value) throws IOException
+    public void writeValue(JsonGenerator g, Object value)
+        throws JacksonException
     {
         _assertNotNull("g", g);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
-                && (value instanceof Closeable)) {
-
+                && (value instanceof Closeable))
+        {
             Closeable toClose = (Closeable) value;
             try {
                 _prefetch.serialize(g, value, _serializerProvider());
@@ -838,7 +848,11 @@ public class ObjectWriter
                 ClassUtil.closeOnFailAndThrowAsJacksonE(null, toClose, e);
                 return;
             }
-            toClose.close();
+            try {
+                toClose.close();
+            } catch (IOException e) {
+                throw WrappedIOException.construct(e);
+            }
         } else {
             _prefetch.serialize(g, value, _serializerProvider());
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
@@ -858,7 +872,7 @@ public class ObjectWriter
      * JSON output, written to File provided.
      */
     public void writeValue(File target, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws JacksonException
     {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
@@ -877,7 +891,7 @@ public class ObjectWriter
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).
      */
-    public void writeValue(OutputStream target, Object value) throws IOException
+    public void writeValue(OutputStream target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
@@ -895,7 +909,7 @@ public class ObjectWriter
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).
      */
-    public void writeValue(Writer target, Object value) throws IOException
+    public void writeValue(Writer target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
@@ -903,7 +917,7 @@ public class ObjectWriter
                 _generatorFactory.createGenerator(ctxt, target), value);
     }
 
-    public void writeValue(DataOutput target, Object value) throws IOException
+    public void writeValue(DataOutput target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
         DefaultSerializerProvider ctxt = _serializerProvider();
@@ -917,20 +931,13 @@ public class ObjectWriter
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
      */
-    public String writeValueAsString(Object value)
-        throws JsonProcessingException
+    public String writeValueAsString(Object value) throws JacksonException
     {        
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
         DefaultSerializerProvider ctxt = _serializerProvider();
-        try {
-            _configAndWriteValue(ctxt,
-                    _generatorFactory.createGenerator(ctxt, sw), value);
-        } catch (JsonProcessingException e) {
-            throw e;
-        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw JsonMappingException.fromUnexpectedIOE(e);
-        }
+        _configAndWriteValue(ctxt,
+                _generatorFactory.createGenerator(ctxt, sw), value);
         return sw.getAndClear();
     }
 
@@ -941,19 +948,12 @@ public class ObjectWriter
      * and getting bytes, but more efficient.
      * Encoding used will be UTF-8.
      */
-    public byte[] writeValueAsBytes(Object value)
-        throws JsonProcessingException
+    public byte[] writeValueAsBytes(Object value) throws JacksonException
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_generatorFactory._getBufferRecycler());
         DefaultSerializerProvider ctxt = _serializerProvider();
-        try {
-            _configAndWriteValue(ctxt,
-                    _generatorFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
-        } catch (JsonProcessingException e) { // to support [JACKSON-758]
-            throw e;
-        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw JsonMappingException.fromUnexpectedIOE(e);
-        }
+        _configAndWriteValue(ctxt,
+                _generatorFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
         byte[] result = bb.toByteArray();
         bb.release();
         return result;
@@ -964,7 +964,7 @@ public class ObjectWriter
      * call write functionality
      */
     protected final void _configAndWriteValue(DefaultSerializerProvider ctxt,
-            JsonGenerator gen, Object value) throws IOException
+            JsonGenerator gen, Object value) throws JacksonException
     {
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseable(gen, value);
@@ -984,7 +984,7 @@ public class ObjectWriter
      * method is to be called right after serialization has been called
      */
     private final void _writeCloseable(JsonGenerator gen, Object value)
-        throws IOException
+        throws JacksonException
     {
         Closeable toClose = (Closeable) value;
         try {
@@ -1168,7 +1168,7 @@ public class ObjectWriter
         }
 
         public void serialize(JsonGenerator gen, Object value, DefaultSerializerProvider ctxt)
-            throws IOException
+            throws JacksonException
         {
             if (typeSerializer != null) {
                 ctxt.serializePolymorphic(gen, value, rootType, valueSerializer, typeSerializer);

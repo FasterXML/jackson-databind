@@ -105,7 +105,7 @@ public class StdDelegatingSerializer
      */
 
     @Override
-    public void resolve(SerializerProvider ctxt) throws JsonMappingException
+    public void resolve(SerializerProvider ctxt)
     {
         if (_delegateSerializer != null) {
             _delegateSerializer.resolve(ctxt);
@@ -114,7 +114,6 @@ public class StdDelegatingSerializer
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<?> delSer = _delegateSerializer;
         JavaType delegateType = _delegateType;
@@ -254,7 +253,6 @@ public class StdDelegatingSerializer
      * based on actual value type.
      */
     protected JsonSerializer<Object> _findSerializer(Object value, SerializerProvider ctxt)
-        throws JsonMappingException
     {
         // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
         // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...

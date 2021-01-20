@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.Snapshottable;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 
@@ -91,6 +90,5 @@ public interface PropertyFilter
      * 	processing
      */
     public void depositSchemaProperty(PropertyWriter writer, JsonObjectFormatVisitor objectVisitor,
-            SerializerProvider provider)
-        throws JsonMappingException;
+            SerializerProvider provider);
 }

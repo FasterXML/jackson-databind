@@ -1,13 +1,12 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -35,9 +34,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * this is to reduce likelihood of data corruption and synchronization issues.
  */
 @JacksonStdImpl
-public class BeanPropertyWriter extends PropertyWriter // which extends
-                                                       // `ConcreteBeanPropertyBase`
-        implements java.io.Serializable
+public class BeanPropertyWriter
+    extends PropertyWriter // which extends `ConcreteBeanPropertyBase`
 {
     private static final long serialVersionUID = 3L;
 
@@ -47,9 +45,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* Basic property metadata: name, type, other
-    /***********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -98,9 +96,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     protected final transient Annotations _contextAnnotations;
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* Settings for accessing property value to serialize
-    /***********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -126,9 +124,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     protected transient Field _field;
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* Serializers needed
-    /***********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -159,9 +157,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     protected transient PropertySerializerMap _dynamicSerializers;
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* Filtering
-    /***********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -185,23 +183,20 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     protected final Class<?>[] _includeInViews;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Opaqueinternal data that bean serializer factory and
     /* bean serializers can add.
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected transient HashMap<Object, Object> _internalSettings;
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* Construction, configuration
-    /***********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.9 (added `includeInViews` since 2.8)
-     */
     @SuppressWarnings("unchecked")
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
@@ -281,8 +276,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     protected BeanPropertyWriter(BeanPropertyWriter base, PropertyName name) {
         super(base);
-        /*
-         * 02-Dec-2014, tatu: This is a big mess, alas, what with dependency to
+        /* 02-Dec-2014, tatu: This is a big mess, alas, what with dependency to
          * MapperConfig to encode, and Afterburner having heart-burn for
          * SerializableString (vs SerializedString).
          */
@@ -416,9 +410,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     }
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* JDK Serializability
-    /***********************************************************
+    /**********************************************************************
      */
 
     /*
@@ -441,9 +435,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     }
 
     /*
-    /************************************************************
+    /**********************************************************************
     /* BeanProperty impl
-    /***********************************************************
+    /**********************************************************************
      */
 
     // Note: also part of 'PropertyWriter'
@@ -486,17 +480,16 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         return _member;
     }
 
-    // @since 2.3 -- needed so it can be overridden by unwrapping writer
     protected void _depositSchemaProperty(ObjectNode propertiesNode,
             JsonNode schemaNode) {
         propertiesNode.set(getName(), schemaNode);
     }
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* Managing and accessing of opaque internal settings
     /* (used by extensions)
-    /***********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -620,7 +613,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsField(Object bean, JsonGenerator gen,
-            SerializerProvider prov) throws Exception {
+            SerializerProvider prov)
+        throws Exception
+    {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
                 : _accessorMethod.invoke(bean, (Object[]) null);
@@ -672,12 +667,12 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Method called to indicate that serialization of a field was omitted due
      * to filtering, in cases where backend data format does not allow basic
      * omission.
-     * 
-     * @since 2.3
      */
     @Override
     public void serializeAsOmittedField(Object bean, JsonGenerator gen,
-            SerializerProvider prov) throws Exception {
+            SerializerProvider prov)
+        throws Exception
+    {
         if (!gen.canOmitFields()) {
             gen.writeOmittedField(_name.getValue());
         }
@@ -690,7 +685,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     @Override
     public void serializeAsElement(Object bean, JsonGenerator gen,
-            SerializerProvider prov) throws Exception {
+            SerializerProvider prov)
+        throws Exception
+    {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
                 : _accessorMethod.invoke(bean, (Object[]) null);
@@ -744,12 +741,12 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * value is not to be included (is filtered out), but when we need an entry
      * so that field indexes will not be off. Typically this should output null
      * or empty String, depending on datatype.
-     * 
-     * @since 2.1
      */
     @Override
     public void serializeAsPlaceholder(Object bean, JsonGenerator gen,
-            SerializerProvider prov) throws Exception {
+            SerializerProvider prov)
+        throws Exception
+    {
         if (_nullSerializer != null) {
             _nullSerializer.serialize(null, gen, prov);
         } else {
@@ -758,9 +755,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     }
 
     /*
-    /***********************************************************
+    /**********************************************************************
     /* PropertyWriter methods (schema generation)
-    /***********************************************************
+    /**********************************************************************
      */
 
     // Also part of BeanProperty implementation
@@ -830,7 +827,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     protected boolean _handleSelfReference(Object bean, JsonGenerator gen,
             SerializerProvider prov, JsonSerializer<?> ser)
-        throws IOException
+        throws JacksonException
     {
         if (!ser.usesObjectId()) {
             if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {

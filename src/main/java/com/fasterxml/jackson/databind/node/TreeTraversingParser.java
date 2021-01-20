@@ -237,7 +237,7 @@ public class TreeTraversingParser
     /**********************************************************************
      */
 
-    //public byte getByteValue() throws IOException
+    //public byte getByteValue();
 
     @Override
     public NumberType getNumberType() {
@@ -376,7 +376,6 @@ public class TreeTraversingParser
     }
 
     protected JsonNode currentNumericNode(int targetNumType)
-        throws JsonParseException
     {
         JsonNode n = currentNode();
         if (n == null || !n.isNumber()) {
@@ -387,7 +386,7 @@ public class TreeTraversingParser
     }
 
     @Override
-    protected void _handleEOF() throws JsonParseException {
+    protected void _handleEOF() {
         _throwInternal(); // should never get called
     }
 }

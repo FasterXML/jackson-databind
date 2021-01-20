@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -48,8 +49,8 @@ public class StdKeyDeserializer extends KeyDeserializer
     public final static int TYPE_CURRENCY = 16;
     public final static int TYPE_BYTE_ARRAY = 17; // since 2.9
 
-    final protected int _kind;
-    final protected Class<?> _keyClass;
+    protected final int _kind;
+    protected final Class<?> _keyClass;
 
     /**
      * Some types that are deserialized using a helper deserializer.
@@ -132,6 +133,8 @@ public class StdKeyDeserializer extends KeyDeserializer
             if (result != null) {
                 return result;
             }
+        } catch (JacksonException e) {
+            throw e;
         } catch (Exception re) {
             return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation, problem: (%s) %s",
                     re.getClass().getName(),
@@ -146,7 +149,9 @@ public class StdKeyDeserializer extends KeyDeserializer
 
     public Class<?> getKeyClass() { return _keyClass; }
 
-    protected Object _parse(String key, DeserializationContext ctxt) throws Exception
+    // NOTE: throws plain `Exception` for convenience, handled by caller
+    protected Object _parse(String key, DeserializationContext ctxt)
+        throws Exception
     {
         switch (_kind) {
         case TYPE_BOOLEAN:
@@ -194,13 +199,13 @@ public class StdKeyDeserializer extends KeyDeserializer
         case TYPE_LOCALE:
             try {
                 return _deser._deserialize(key, ctxt);
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | IOException e) {
                 return _weirdKey(ctxt, key, e);
             }
         case TYPE_CURRENCY:
             try {
                 return _deser._deserialize(key, ctxt);
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | IOException e) {
                 return _weirdKey(ctxt, key, e);
             }
         case TYPE_DATE:

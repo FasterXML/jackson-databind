@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -59,16 +58,10 @@ public class MapProperty extends PropertyWriter
         return String.valueOf(_key);
     }
 
-    /**
-     * @since 2.9
-     */
     public Object getValue() {
         return _value;
     }
 
-    /**
-     * @since 2.9
-     */
     public void setValue(Object v) {
         _value = v;
     }
@@ -90,7 +83,7 @@ public class MapProperty extends PropertyWriter
     
     @Override
     public void serializeAsField(Object map, JsonGenerator gen,
-            SerializerProvider provider) throws IOException
+            SerializerProvider provider)
     {
         _keySerializer.serialize(_key, gen, provider);
         if (_typeSerializer == null) {
@@ -102,7 +95,7 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void serializeAsOmittedField(Object map, JsonGenerator gen,
-            SerializerProvider provider) throws Exception
+            SerializerProvider provider)
     {
         if (!gen.canOmitFields()) {
             gen.writeOmittedField(getName());
@@ -111,7 +104,7 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public void serializeAsElement(Object map, JsonGenerator gen,
-            SerializerProvider provider) throws Exception
+            SerializerProvider provider)
     {
         if (_typeSerializer == null) {
             _valueSerializer.serialize(_value, gen, provider);
@@ -122,15 +115,15 @@ public class MapProperty extends PropertyWriter
     
     @Override
     public void serializeAsPlaceholder(Object value, JsonGenerator gen,
-            SerializerProvider provider) throws Exception
+            SerializerProvider provider)
     {
         gen.writeNull();
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Rest of BeanProperty, nop
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override

@@ -101,7 +101,6 @@ public abstract class StdSerializer<T>
      */
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         visitor.expectAnyFormat(typeHint);
     }
@@ -132,8 +131,7 @@ public abstract class StdSerializer<T>
      * Helper method that calls necessary visit method(s) to indicate that the
      * underlying JSON type is JSON String.
      */
-    protected void visitStringFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException {
+    protected void visitStringFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
         /*JsonStringFormatVisitor v2 =*/ visitor.expectStringFormat(typeHint);
     }
 
@@ -141,12 +139,9 @@ public abstract class StdSerializer<T>
      * Helper method that calls necessary visit method(s) to indicate that the
      * underlying JSON type is JSON String, but that there is a more refined
      * logical type
-     *
-     * @since 2.7
      */
     protected void visitStringFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             JsonValueFormat format)
-        throws JsonMappingException
     {
         JsonStringFormatVisitor v2 = visitor.expectStringFormat(typeHint);
         if (v2 != null) {
@@ -160,7 +155,6 @@ public abstract class StdSerializer<T>
      */
     protected void visitIntFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             NumberType numberType)
-        throws JsonMappingException
     {
         JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
         if (_neitherNull(v2, numberType)) {
@@ -175,7 +169,6 @@ public abstract class StdSerializer<T>
      */
     protected void visitIntFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             NumberType numberType, JsonValueFormat format)
-        throws JsonMappingException
     {
         JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
         if (v2 != null) {
@@ -194,7 +187,6 @@ public abstract class StdSerializer<T>
      */
     protected void visitFloatFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             NumberType numberType)
-        throws JsonMappingException
     {
         JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
         if (v2 != null) {
@@ -204,7 +196,6 @@ public abstract class StdSerializer<T>
 
     protected void visitArrayFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             JsonSerializer<?> itemSerializer, JavaType itemType)
-        throws JsonMappingException
     {
         JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
         if (_neitherNull(v2, itemSerializer)) {
@@ -214,7 +205,6 @@ public abstract class StdSerializer<T>
 
     protected void visitArrayFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
             JsonFormatTypes itemType)
-        throws JsonMappingException
     {
         JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
         if (v2 != null) {
@@ -303,7 +293,6 @@ public abstract class StdSerializer<T>
      */
     protected JsonSerializer<?> findContextualConvertingSerializer(SerializerProvider provider,
             BeanProperty prop, JsonSerializer<?> existingSerializer)
-        throws JsonMappingException
     {
         // 08-Dec-2016, tatu: to fix [databind#357], need to prevent recursive calls for
         //     same property
@@ -336,7 +325,6 @@ public abstract class StdSerializer<T>
 
     private JsonSerializer<?> _findConvertingContentSerializer(SerializerProvider provider,
             AnnotationIntrospector intr, BeanProperty prop, JsonSerializer<?> existingSerializer)
-        throws JsonMappingException
     {
         AnnotatedMember m = prop.getMember();
         if (m != null) {
@@ -360,7 +348,6 @@ public abstract class StdSerializer<T>
      */
     protected PropertyFilter findPropertyFilter(SerializerProvider provider,
             Object filterId, Object valueToFilter)
-        throws JsonMappingException
     {
         FilterProvider filters = provider.getFilterProvider();
         // Not ok to miss the provider, if a filter is declared to be needed.
@@ -421,7 +408,6 @@ public abstract class StdSerializer<T>
      */
     protected JsonSerializer<?> findAnnotatedContentSerializer(SerializerProvider serializers,
             BeanProperty property)
-        throws JsonMappingException
     {
         if (property != null) {
             // First: if we have a property, may have property-annotation overrides

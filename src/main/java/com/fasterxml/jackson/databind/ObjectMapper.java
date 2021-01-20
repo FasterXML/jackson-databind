@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -876,7 +877,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
     @SuppressWarnings("unchecked")
@@ -931,7 +932,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -954,7 +955,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -976,7 +977,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -995,7 +996,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -1076,7 +1077,7 @@ public class ObjectMapper
      * If a low-level I/O problem (missing input, network error) occurs,
      * a {@link IOException} will be thrown.
      * If a parsing problem occurs (invalid JSON),
-     * {@link JsonParseException} will be thrown.
+     * {@link StreamReadException} will be thrown.
      * If no content is found from input (end-of-input), Java
      * <code>null</code> will be returned.
      * 
@@ -1089,7 +1090,7 @@ public class ObjectMapper
      *   as a non-null {@link JsonNode} (one that returns <code>true</code>
      *   for {@link JsonNode#isNull()}
      *   
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
     public JsonNode readTree(InputStream in) throws JacksonException
@@ -1214,13 +1215,6 @@ public class ObjectMapper
      *<pre>
      *   objectMapper.convertValue(n, valueClass);
      *</pre>
-     *<p>
-     * Note: inclusion of {@code throws JsonProcessingException} is not accidental
-     * since while there can be no input decoding problems, it is possible that content
-     * does not match target type: in such case various {@link JsonMappingException}s
-     * are possible. In addition {@link IllegalArgumentException} is possible in some
-     * cases, depending on whether {@link DeserializationFeature#WRAP_EXCEPTIONS}
-     * is enabled or not.
      */
     @SuppressWarnings("unchecked")
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
@@ -1316,7 +1310,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -1337,7 +1331,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -1358,7 +1352,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -1384,7 +1378,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -1429,7 +1423,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -1451,7 +1445,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -1472,7 +1466,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -2489,7 +2483,7 @@ public class ObjectMapper
      *
      * @throws WrappedIOException if the underlying input source has problems during
      *   parsing
-     * @throws JsonParseException if parser has problems parsing content
+     * @throws StreamReadException if parser has problems parsing content
      * @throws JsonMappingException if the parser does not have any more
      *   content to map (note: Json "null" value is considered content;
      *   enf-of-stream not)

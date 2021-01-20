@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -25,8 +24,8 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     }
 
     @Override
-    public AsWrapperTypeSerializer forProperty(SerializerProvider ctxt,
-            BeanProperty prop) {
+    public AsWrapperTypeSerializer forProperty(SerializerProvider ctxt, BeanProperty prop)
+    {
         return (_property == prop) ? this : new AsWrapperTypeSerializer(_idResolver, prop);
     }
     
@@ -34,9 +33,9 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     public As getTypeInclusion() { return As.WRAPPER_OBJECT; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -47,7 +46,8 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
         return ClassUtil.nonNullString(typeId);
     }
 
-    protected final void _writeTypeId(JsonGenerator g, String typeId) throws IOException
+    protected final void _writeTypeId(JsonGenerator g, String typeId)
+        throws JacksonException
     {
         if (typeId != null) {
             g.writeTypeId(typeId);

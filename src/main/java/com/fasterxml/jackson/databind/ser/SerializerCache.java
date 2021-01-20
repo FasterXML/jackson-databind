@@ -163,7 +163,6 @@ public final class SerializerCache
 
     public void addAndResolveNonTypedSerializer(Class<?> type, JsonSerializer<Object> ser,
             SerializerProvider provider)
-        throws JsonMappingException
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
@@ -180,7 +179,6 @@ public final class SerializerCache
 
     public void addAndResolveNonTypedSerializer(JavaType type, JsonSerializer<Object> ser,
             SerializerProvider provider)
-        throws JsonMappingException
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
@@ -202,7 +200,6 @@ public final class SerializerCache
     public void addAndResolveNonTypedSerializer(Class<?> rawType, JavaType fullType,
             JsonSerializer<Object> ser,
             SerializerProvider provider)
-        throws JsonMappingException
     {
         synchronized (this) {
             Object ob1 = _sharedMap.put(new TypeKey(rawType, false), ser);

@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -50,30 +50,30 @@ public class AsExternalTypeSerializer extends TypeSerializerBase
      */
 
     // nothing to wrap it with:
-    protected final void _writeScalarPrefix(Object value, JsonGenerator g) throws IOException { }
+    protected final void _writeScalarPrefix(Object value, JsonGenerator g) throws JacksonException { }
 
-    protected final void _writeObjectPrefix(Object value, JsonGenerator g) throws IOException {
+    protected final void _writeObjectPrefix(Object value, JsonGenerator g) throws JacksonException {
         g.writeStartObject();
     }
 
-    protected final void _writeArrayPrefix(Object value, JsonGenerator g) throws IOException {
+    protected final void _writeArrayPrefix(Object value, JsonGenerator g) throws JacksonException {
         g.writeStartArray();
     }
    
-    protected final void _writeScalarSuffix(Object value, JsonGenerator g, String typeId) throws IOException {
+    protected final void _writeScalarSuffix(Object value, JsonGenerator g, String typeId) throws JacksonException {
         if (typeId != null) {
             g.writeStringField(_typePropertyName, typeId);
         }
     }
    
-    protected final void _writeObjectSuffix(Object value, JsonGenerator g, String typeId) throws IOException {
+    protected final void _writeObjectSuffix(Object value, JsonGenerator g, String typeId) throws JacksonException {
         g.writeEndObject();
         if (typeId != null) {
             g.writeStringField(_typePropertyName, typeId);
         }
     }
 
-    protected final void _writeArraySuffix(Object value, JsonGenerator g, String typeId) throws IOException {
+    protected final void _writeArraySuffix(Object value, JsonGenerator g, String typeId) throws JacksonException {
         g.writeEndArray();
         if (typeId != null) {
             g.writeStringField(_typePropertyName, typeId);

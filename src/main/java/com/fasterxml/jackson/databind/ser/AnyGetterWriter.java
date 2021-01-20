@@ -37,9 +37,6 @@ public class AnyGetterWriter
         }
     }
 
-    /**
-     * @since 2.8.3
-     */
     public void fixAccess(SerializationConfig config) {
         _accessor.fixAccess(
                 config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -65,9 +62,6 @@ public class AnyGetterWriter
         _serializer.serialize(value, gen, provider);
     }
 
-    /**
-     * @since 2.3
-     */
     public void getAndFilter(Object bean, JsonGenerator gen, SerializerProvider provider,
             PropertyFilter filter)
         throws Exception

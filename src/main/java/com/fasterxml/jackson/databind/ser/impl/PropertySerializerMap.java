@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -53,7 +52,6 @@ public abstract class PropertySerializerMap
      */
     public final SerializerAndMapResult findAndAddPrimarySerializer(JavaType type,
             SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
@@ -67,7 +65,6 @@ public abstract class PropertySerializerMap
      */
     public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
             SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
@@ -75,7 +72,6 @@ public abstract class PropertySerializerMap
 
     public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
             SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
@@ -90,7 +86,6 @@ public abstract class PropertySerializerMap
      */
     public final SerializerAndMapResult findAndAddRootValueSerializer(Class<?> type,
             SerializerProvider provider)
-        throws JsonMappingException
     {
         JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
@@ -98,7 +93,6 @@ public abstract class PropertySerializerMap
 
     public final SerializerAndMapResult findAndAddRootValueSerializer(JavaType type,
             SerializerProvider provider)
-        throws JsonMappingException
     {
         JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
@@ -112,7 +106,6 @@ public abstract class PropertySerializerMap
      */
     public final SerializerAndMapResult findAndAddKeySerializer(Class<?> type,
             SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<Object> serializer = provider.findKeySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));

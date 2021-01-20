@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.JacksonException;
 
 /**
  * Abstract class that defines API used for deserializing JSON content
@@ -25,7 +25,7 @@ public abstract class KeyDeserializer
      * @param ctxt Context to use for accessing configuration, resolving
      *    secondary deserializers
      */
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
+    public void resolve(DeserializationContext ctxt) throws JacksonException {
         // Default implementation does nothing
     }
 
@@ -39,7 +39,7 @@ public abstract class KeyDeserializer
      * Method called to deserialize a {@link java.util.Map} key from JSON property name.
      */
     public abstract Object deserializeKey(String key, DeserializationContext ctxt)
-        throws IOException;
+        throws JacksonException;
 
     /**
      * This marker class is only to be used with annotations, to

@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.databind.ext.jdk8;
 
+import java.util.stream.IntStream;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.stream.IntStream;
 
 /**
  * {@link IntStream} serializer
@@ -30,21 +28,19 @@ public class IntStreamSerializer extends StdSerializer<IntStream>
     }
 
     @Override
-    public void serialize(IntStream stream, JsonGenerator g, SerializerProvider provider) throws IOException {
-
-        try(IntStream is = stream) {
+    public void serialize(IntStream stream, JsonGenerator g, SerializerProvider ctxt)
+        throws JacksonException
+    {
+        try (IntStream is = stream) {
             g.writeStartArray(is);
             is.forEach(value -> {
-                try {
-                    g.writeNumber(value);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
+                g.writeNumber(value);
             });
-            
             g.writeEndArray();
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
+        } catch (Exception e) {
+            // For most regular serializers we won't both handling but streams are typically
+            // root values so 
+            wrapAndThrow(ctxt, e, stream, g.getOutputContext().getCurrentIndex());
         }
     }
 }

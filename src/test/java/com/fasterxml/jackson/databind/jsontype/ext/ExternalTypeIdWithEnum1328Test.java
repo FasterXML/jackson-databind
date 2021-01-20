@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.ext;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class ExternalTypeIdWithEnum1328Test extends BaseMapTest
         }
 
         @Override
-        public JavaType typeFromId(DatabindContext context, String id) throws IOException {
+        public JavaType typeFromId(DatabindContext context, String id) {
             if (AnimalType.Dog.toString().equals(id)) {
                 return context.constructType(Dog.class);
             }

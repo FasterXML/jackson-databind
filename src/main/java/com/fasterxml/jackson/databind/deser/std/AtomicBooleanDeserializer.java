@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -14,7 +14,9 @@ public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoole
     public AtomicBooleanDeserializer() { super(AtomicBoolean.class); }
 
     @Override
-    public AtomicBoolean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public AtomicBoolean deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_TRUE) {
             return new AtomicBoolean(true);

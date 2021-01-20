@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -34,19 +32,21 @@ public class SerializableSerializer
     }
 
     @Override
-    public void serialize(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers)
+        throws JacksonException
+    {
         value.serialize(gen, serializers);
     }
 
     @Override
     public final void serializeWithType(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers,
-            TypeSerializer typeSer) throws IOException {
+            TypeSerializer typeSer) throws JacksonException
+    {
         value.serializeWithType(gen, serializers, typeSer);
     }
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         visitor.expectAnyFormat(typeHint);
     }

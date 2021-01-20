@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -93,7 +92,7 @@ public abstract class SerializerProvider
      * View used for currently active serialization, if any.
      */
     final protected Class<?> _activeView;
-    
+
     /*
     /**********************************************************************
     /* Configuration, serializer access
@@ -255,7 +254,7 @@ public abstract class SerializerProvider
     }
 
     @Override
-    public void writeValue(JsonGenerator gen, Object value) throws IOException
+    public void writeValue(JsonGenerator gen, Object value) throws JacksonException
     {
         // Let's keep track of active generator; useful mostly for error reporting...
         JsonGenerator prevGen = _generator;
@@ -277,7 +276,7 @@ public abstract class SerializerProvider
     }
 
     @Override
-    public void writeTree(JsonGenerator gen, TreeNode tree) throws IOException
+    public void writeTree(JsonGenerator gen, TreeNode tree) throws JacksonException
     {
         // 05-Oct-2017, tatu: Should probably optimize or something? Or not?
         writeValue(gen, tree);
@@ -1101,7 +1100,7 @@ public abstract class SerializerProvider
      * @deprecated Use {@link #writeValue(JsonGenerator, Object)} instead
      */
     @Deprecated // since 3.0
-    public final void defaultSerializeValue(Object value, JsonGenerator gen) throws IOException {
+    public final void defaultSerializeValue(Object value, JsonGenerator gen) throws JacksonException {
         writeValue(gen, value);
     }
 
@@ -1111,7 +1110,7 @@ public abstract class SerializerProvider
      * null) using standard serializer locating functionality.
      */
     public final void defaultSerializeField(String fieldName, Object value, JsonGenerator gen)
-        throws IOException
+        throws JacksonException
     {
         gen.writeFieldName(fieldName);
         writeValue(gen, value);
@@ -1125,7 +1124,7 @@ public abstract class SerializerProvider
      * Java convention (and not date-only values like in SQL)
      */
     public final void defaultSerializeDateValue(long timestamp, JsonGenerator gen)
-        throws IOException
+        throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             gen.writeNumber(timestamp);
@@ -1141,7 +1140,8 @@ public abstract class SerializerProvider
      * Note: date here means "full" date, that is, date AND time, as per
      * Java convention (and not date-only values like in SQL)
      */
-    public final void defaultSerializeDateValue(Date date, JsonGenerator gen) throws IOException
+    public final void defaultSerializeDateValue(Date date, JsonGenerator gen)
+        throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             gen.writeNumber(date.getTime());
@@ -1155,7 +1155,8 @@ public abstract class SerializerProvider
      * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
-    public void defaultSerializeDateKey(long timestamp, JsonGenerator gen) throws IOException
+    public void defaultSerializeDateKey(long timestamp, JsonGenerator gen)
+        throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             gen.writeFieldName(String.valueOf(timestamp));
@@ -1169,7 +1170,7 @@ public abstract class SerializerProvider
      * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
-    public void defaultSerializeDateKey(Date date, JsonGenerator gen) throws IOException
+    public void defaultSerializeDateKey(Date date, JsonGenerator gen) throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             gen.writeFieldName(String.valueOf(date.getTime()));
@@ -1185,7 +1186,7 @@ public abstract class SerializerProvider
      *
      * @since 3.0 (in 2.x was called <code>defaultSerializeNull</code>)
      */
-    public final void defaultSerializeNullValue(JsonGenerator gen) throws IOException
+    public final void defaultSerializeNullValue(JsonGenerator gen) throws JacksonException
     {
         if (_stdNullValueSerializer) { // minor perf optimization
             gen.writeNull();
@@ -1223,7 +1224,8 @@ public abstract class SerializerProvider
      * Default behavior is to construct and throw a {@link JsonMappingException}.
      */
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
-            String message, Object... msgArgs) throws JsonMappingException {
+            String message, Object... msgArgs) throws JsonMappingException
+    {
         message = _format(message, msgArgs);
         String propName = "N/A";
         if (prop != null) {
@@ -1293,7 +1295,8 @@ public abstract class SerializerProvider
         return InvalidTypeIdException.from(null, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 
-    protected void _reportIncompatibleRootType(Object value, JavaType rootType) throws IOException
+    protected void _reportIncompatibleRootType(Object value, JavaType rootType)
+        throws JacksonException
     {
         // One special case: allow primitive/wrapper type coercion
         if (rootType.isPrimitive()) {

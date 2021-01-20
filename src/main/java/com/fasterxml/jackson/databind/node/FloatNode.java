@@ -1,13 +1,14 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * {@code JsonNode} implementation for efficiently containing 32-bit
@@ -20,9 +21,9 @@ public class FloatNode extends NumericNode
     protected final float _value;
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     public FloatNode(float v) { _value = v; }
@@ -30,9 +31,9 @@ public class FloatNode extends NumericNode
     public static FloatNode valueOf(float v) { return new FloatNode(v); }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* BaseJsonNode extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
@@ -41,9 +42,9 @@ public class FloatNode extends NumericNode
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.FLOAT; }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Overrridden JsonNode methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -105,7 +106,8 @@ public class FloatNode extends NumericNode
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+            throws JacksonException {
         g.writeNumber(_value);
     }
 

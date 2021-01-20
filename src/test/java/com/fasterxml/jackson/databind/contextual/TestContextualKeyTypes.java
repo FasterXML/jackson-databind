@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.databind.contextual;
 
-import java.io.IOException;
 import java.util.*;
 
-
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -35,7 +33,7 @@ public class TestContextualKeyTypes extends BaseMapTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider)
         {
             if (_prefix != null) {
                 value = _prefix + value;
@@ -63,7 +61,6 @@ public class TestContextualKeyTypes extends BaseMapTest
 
         @Override
         public Object deserializeKey(String key, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
         {
             return _prefix + ":" + key;
         }

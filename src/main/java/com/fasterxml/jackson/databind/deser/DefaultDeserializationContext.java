@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -9,6 +8,7 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 
 import com.fasterxml.jackson.core.FormatSchema;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TokenStreamFactory;
@@ -260,7 +260,7 @@ public abstract class DefaultDeserializationContext
 
     public Object readRootValue(JsonParser p, JavaType valueType,
             JsonDeserializer<Object> deser, Object valueToUpdate)
-        throws IOException
+        throws JacksonException
     {
         if (_config.useRootWrapping()) {
             return _unwrapAndDeserialize(p, valueType, deser, valueToUpdate);
@@ -274,7 +274,7 @@ public abstract class DefaultDeserializationContext
     protected Object _unwrapAndDeserialize(JsonParser p,
             JavaType rootType, JsonDeserializer<Object> deser,
             Object valueToUpdate)
-        throws IOException
+        throws JacksonException
     {
         PropertyName expRootName = findRootName(rootType);
         // 12-Jun-2015, tatu: Should try to support namespaces etc but...

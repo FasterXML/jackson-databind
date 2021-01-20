@@ -6,14 +6,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.StreamWriteFeature;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.util.Named;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
@@ -280,9 +280,9 @@ public final class ClassUtil
      * Helper method that will check if argument is an {@link IOException},
      * and if so, (re)throw it; otherwise just return
      */
-    public static Throwable throwIfIOE(Throwable t) throws IOException {
-        if (t instanceof IOException) {
-            throw (IOException) t;
+    public static Throwable throwIfJacksonE(Throwable t) throws JacksonException {
+        if (t instanceof JacksonException) {
+            throw (JacksonException) t;
         }
         return t;
     }
@@ -309,8 +309,8 @@ public final class ClassUtil
      * Method that works like by calling {@link #getRootCause} and then
      * either throwing it (if instanceof {@link IOException}), or return.
      */
-    public static Throwable throwRootCauseIfIOE(Throwable t) throws IOException {
-        return throwIfIOE(getRootCause(t));
+    public static Throwable throwRootCauseIfJacksonE(Throwable t) throws JacksonException {
+        return throwIfJacksonE(getRootCause(t));
     }
 
     /**
@@ -333,8 +333,10 @@ public final class ClassUtil
         throw new IllegalArgumentException(msg, t);
     }
 
+    /*// since 3.0 / [databind#2177]
     public static <T> T throwAsMappingException(DeserializationContext ctxt,
-            IOException e0) throws JsonMappingException {
+            IOException e0) throws JsonMappingException
+    {
         if (e0 instanceof JsonMappingException) {
             throw (JsonMappingException) e0;
         }
@@ -369,9 +371,15 @@ public final class ClassUtil
      * error conditions tend to be hard to diagnose. However, it is often the
      * case that output state may be corrupt so we need to be prepared for
      * secondary exception without masking original one.
+     *<p>
+     * Note that exception is thrown as-is if unchecked (likely case); if it is
+     * checked, however, {@link RuntimeException} is thrown (except for
+     * {@link IOException} which will be wrapped as {@link WrappedIOException}.
+     *
+     * @since 3.0 (with this name)
      */
-    public static void closeOnFailAndThrowAsIOE(JsonGenerator g, Exception fail)
-        throws IOException
+    public static void closeOnFailAndThrowAsJacksonE(JsonGenerator g, Exception fail)
+        throws JacksonException
     {
         // 04-Mar-2014, tatu: Let's try to prevent auto-closing of
         //    structures, which typically causes more damage.
@@ -381,8 +389,11 @@ public final class ClassUtil
         } catch (Exception e) {
             fail.addSuppressed(e);
         }
-        throwIfIOE(fail);
+        throwIfJacksonE(fail);
         throwIfRTE(fail);
+        if (fail instanceof IOException) {
+            throw WrappedIOException.construct((IOException) fail);
+        }
         throw new RuntimeException(fail);
     }
 
@@ -393,9 +404,9 @@ public final class ClassUtil
      * case that output state may be corrupt so we need to be prepared for
      * secondary exception without masking original one.
      */
-    public static void closeOnFailAndThrowAsIOE(JsonGenerator g,
+    public static void closeOnFailAndThrowAsJacksonE(JsonGenerator g,
             Closeable toClose, Exception fail)
-        throws IOException
+        throws JacksonException
     {
         if (g != null) {
             g.configure(StreamWriteFeature.AUTO_CLOSE_CONTENT, false);
@@ -412,8 +423,11 @@ public final class ClassUtil
                 fail.addSuppressed(e);
             }
         }
-        throwIfIOE(fail);
+        throwIfJacksonE(fail);
         throwIfRTE(fail);
+        if (fail instanceof IOException) {
+            throw WrappedIOException.construct((IOException) fail);
+        }
         throw new RuntimeException(fail);
     }
 

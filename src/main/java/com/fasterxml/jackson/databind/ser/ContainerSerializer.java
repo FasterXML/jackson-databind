@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -113,7 +111,7 @@ public abstract class ContainerSerializer<T>
      */
 
     @Override
-    public abstract boolean isEmpty(SerializerProvider prov, T value) throws IOException;
+    public abstract boolean isEmpty(SerializerProvider prov, T value);
 
     /**
      * Method called to determine if the given value (of type handled by
@@ -147,7 +145,6 @@ public abstract class ContainerSerializer<T>
      * @since 3.0
      */
     protected JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
-            throws JsonMappingException
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
@@ -162,7 +159,6 @@ public abstract class ContainerSerializer<T>
      * @since 3.0
      */
     protected JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
-            throws JsonMappingException
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);

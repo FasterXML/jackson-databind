@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.ext.jdk8;
 
+import java.util.stream.Stream;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.stream.Stream;
 
 /**
  * Common typed stream serializer
@@ -49,7 +48,6 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
-            throws JsonMappingException
     {
         if (!elemType.hasRawClass(Object.class)
                 && (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || elemType.isFinal())) {
@@ -62,26 +60,24 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
     }
 
     @Override
-    public void serialize(Stream<?> stream, JsonGenerator g, SerializerProvider provider)
-            throws IOException
+    public void serialize(Stream<?> stream, JsonGenerator g, SerializerProvider ctxt)
+        throws JacksonException
     {
-        try(Stream<?> s = stream) {
+        try (Stream<?> s = stream) {
             g.writeStartArray(s);
             
             s.forEach(elem -> {
-                try {
-                    if (elemSerializer == null) {
-                        provider.writeValue(g, elem);
-                    } else {
-                        elemSerializer.serialize(elem, g, provider);
-                    }
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                if (elemSerializer == null) {
+                    ctxt.writeValue(g, elem);
+                } else {
+                    elemSerializer.serialize(elem, g, ctxt);
                 }
             });
             g.writeEndArray();
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
+        } catch (Exception e) {
+            // For most regular serializers we won't both handling but streams are typically
+            // root values so 
+            wrapAndThrow(ctxt, e, stream, g.getOutputContext().getCurrentIndex());
         }
     }
 }

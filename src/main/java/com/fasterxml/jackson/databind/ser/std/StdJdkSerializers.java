@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -62,12 +61,12 @@ public class StdJdkSerializers
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
     
         @Override
-        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
             gen.writeBoolean(value.get());
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
             visitor.expectBooleanFormat(typeHint);
         }
     }
@@ -78,12 +77,12 @@ public class StdJdkSerializers
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
     
         @Override
-        public void serialize(AtomicInteger value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(AtomicInteger value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
             gen.writeNumber(value.get());
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
             visitIntFormat(visitor, typeHint, JsonParser.NumberType.INT);
         }
@@ -95,13 +94,12 @@ public class StdJdkSerializers
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
     
         @Override
-        public void serialize(AtomicLong value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(AtomicLong value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
             gen.writeNumber(value.get());
         }
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             visitIntFormat(visitor, typeHint, JsonParser.NumberType.LONG);
         }

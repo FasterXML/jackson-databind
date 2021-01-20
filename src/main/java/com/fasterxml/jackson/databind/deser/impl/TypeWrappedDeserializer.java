@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.Collection;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
@@ -66,14 +67,14 @@ public final class TypeWrappedDeserializer
     }
     
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         return _deserializer.deserializeWithType(p, ctxt, _typeDeserializer);
     }
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-        TypeDeserializer typeDeserializer) throws IOException
+        TypeDeserializer typeDeserializer) throws JacksonException
     {
         // should never happen? (if it can, could call on that object)
         throw new IllegalStateException("Type-wrapped deserializer's deserializeWithType should never get called");
@@ -81,7 +82,7 @@ public final class TypeWrappedDeserializer
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
-            Object intoValue) throws IOException
+            Object intoValue) throws JacksonException
     {
         /* 01-Mar-2013, tatu: Hmmh. Tough call as to what to do... need
          *   to delegate, but will this work reliably? Let's just hope so:

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -168,7 +167,7 @@ public final class StringCollectionDeserializer
     @SuppressWarnings("unchecked")
     @Override
     public Collection<String> deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_delegateDeserializer != null) {
             return (Collection<String>) _valueInstantiator.createUsingDelegate(ctxt,
@@ -181,7 +180,7 @@ public final class StringCollectionDeserializer
     @Override
     public Collection<String> deserialize(JsonParser p, DeserializationContext ctxt,
             Collection<String> result)
-        throws IOException
+        throws JacksonException
     {
         // Ok: must point to START_ARRAY
         if (!p.isExpectedStartArrayToken()) {
@@ -220,7 +219,7 @@ public final class StringCollectionDeserializer
     }
     
     private Collection<String> deserializeUsingCustom(JsonParser p, DeserializationContext ctxt,
-            Collection<String> result, final JsonDeserializer<String> deser) throws IOException
+            Collection<String> result, final JsonDeserializer<String> deser) throws JacksonException
     {
         try {
             while (true) {
@@ -257,7 +256,7 @@ public final class StringCollectionDeserializer
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException {
+            TypeDeserializer typeDeserializer) throws JacksonException {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
@@ -269,7 +268,7 @@ public final class StringCollectionDeserializer
      */
     @SuppressWarnings("unchecked")
     private final Collection<String> handleNonArray(JsonParser p, DeserializationContext ctxt,
-            Collection<String> result) throws IOException
+            Collection<String> result) throws JacksonException
     {
         // implicit arrays from single values?
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||

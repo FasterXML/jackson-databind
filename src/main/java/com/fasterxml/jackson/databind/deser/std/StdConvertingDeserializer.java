@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -167,7 +166,7 @@ public class StdConvertingDeserializer<T>
      */
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         Object delegateValue = _delegateDeserializer.deserialize(p, ctxt);
         if (delegateValue == null) {
@@ -178,7 +177,7 @@ public class StdConvertingDeserializer<T>
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException
+            TypeDeserializer typeDeserializer) throws JacksonException
     {
         /* 12-Apr-2016, tatu: As predicted, earlier handling does not work
          *   (see [databind#1189] for details). There does not seem to be any compelling
@@ -201,7 +200,7 @@ public class StdConvertingDeserializer<T>
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
-        throws IOException
+        throws JacksonException
     {
         if (_delegateType.getRawClass().isAssignableFrom(intoValue.getClass())){
             return (T) _delegateDeserializer.deserialize(p, ctxt, intoValue);
@@ -218,7 +217,7 @@ public class StdConvertingDeserializer<T>
      * exact usage and constraints.
      */
     protected Object _handleIncompatibleUpdateValue(JsonParser p, DeserializationContext ctxt, Object intoValue)
-        throws IOException
+        throws JacksonException
     {
         throw new UnsupportedOperationException(String.format
                 ("Cannot update object of type %s (using deserializer for type %s)"

@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.json.JsonFactory;
@@ -575,7 +576,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(File src) throws IOException {
+    public JsonParser createParser(File src) throws JacksonException {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
@@ -589,7 +590,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(URL src) throws IOException {
+    public JsonParser createParser(URL src) throws JacksonException {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
@@ -603,7 +604,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(InputStream in) throws IOException {
+    public JsonParser createParser(InputStream in) throws JacksonException {
         _assertNotNull("in", in);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, in));
@@ -617,7 +618,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(Reader r) throws IOException {
+    public JsonParser createParser(Reader r) throws JacksonException {
         _assertNotNull("r", r);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, r));
@@ -631,7 +632,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(byte[] content) throws IOException {
+    public JsonParser createParser(byte[] content) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
@@ -645,7 +646,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
+    public JsonParser createParser(byte[] content, int offset, int len) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content, offset, len));
@@ -659,7 +660,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(String content) throws IOException {
+    public JsonParser createParser(String content) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
@@ -673,7 +674,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(char[] content) throws IOException {
+    public JsonParser createParser(char[] content) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
@@ -687,7 +688,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+    public JsonParser createParser(char[] content, int offset, int len) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content, offset, len));
@@ -701,7 +702,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createParser(DataInput content) throws IOException {
+    public JsonParser createParser(DataInput content) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
@@ -715,7 +716,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonParser createNonBlockingByteArrayParser() throws IOException {
+    public JsonParser createNonBlockingByteArrayParser() throws JacksonException {
         DefaultDeserializationContext ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteArrayParser(ctxt));
     }
@@ -735,7 +736,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(OutputStream out) throws IOException {
+    public JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         _assertNotNull("out", out);
         return _streamFactory.createGenerator(_serializerProvider(), out);
     }
@@ -748,7 +749,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws JacksonException {
         _assertNotNull("out", out);
         return _streamFactory.createGenerator(_serializerProvider(), out, enc);
     }
@@ -761,7 +762,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(Writer w) throws IOException {
+    public JsonGenerator createGenerator(Writer w) throws JacksonException {
         _assertNotNull("w", w);
         return _streamFactory.createGenerator(_serializerProvider(), w);
     }
@@ -774,7 +775,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws JacksonException {
         _assertNotNull("f", f);
         return _streamFactory.createGenerator(_serializerProvider(), f, enc);
     }
@@ -787,7 +788,7 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(DataOutput out) throws IOException {
+    public JsonGenerator createGenerator(DataOutput out) throws JacksonException {
         _assertNotNull("out", out);
         return _streamFactory.createGenerator(_serializerProvider(), out);
     }
@@ -871,7 +872,7 @@ public class ObjectMapper
      *   as a non-null {@link JsonNode} (one that returns <code>true</code>
      *   for {@link JsonNode#isNull()}
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -880,7 +881,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     @Override
-    public JsonNode readTree(JsonParser p) throws IOException
+    public JsonNode readTree(JsonParser p) throws JacksonException
     {
         _assertNotNull("p", p);
         // Must check for EOF here before calling readValue(), since that'll choke on it otherwise
@@ -900,7 +901,7 @@ public class ObjectMapper
     }
 
     @Override
-    public void writeTree(JsonGenerator g, TreeNode rootNode) throws IOException
+    public void writeTree(JsonGenerator g, TreeNode rootNode) throws JacksonException
     {
         _assertNotNull("g", g);
         SerializationConfig config = serializationConfig();
@@ -926,7 +927,7 @@ public class ObjectMapper
      * The reason is that due to type erasure, key and value types
      * cannot be introspected when using this method.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -936,7 +937,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException
+    public <T> T readValue(JsonParser p, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("p", p);
         return (T) _readValue(_deserializationContext(p), p, _typeFactory.constructType(valueType));
@@ -949,7 +950,7 @@ public class ObjectMapper
      * and specifically needs to be used if the root type is a 
      * parameterized (generic) container type.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -959,7 +960,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("p", p);
         return (T) _readValue(_deserializationContext(p), p, _typeFactory.constructType(valueTypeRef));
@@ -971,7 +972,7 @@ public class ObjectMapper
      * Jackson specific type; instance of which can be constructed using
      * {@link TypeFactory}.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -981,7 +982,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public final <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException
+    public final <T> T readValue(JsonParser p, ResolvedType valueType) throws JacksonException
     {
         _assertNotNull("p", p);
         return (T) _readValue(_deserializationContext(p), p, (JavaType) valueType);
@@ -990,7 +991,7 @@ public class ObjectMapper
     /**
      * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, Class)}.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1000,7 +1001,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, JavaType valueType) throws IOException
+    public <T> T readValue(JsonParser p, JavaType valueType) throws JacksonException
     {
         _assertNotNull("p", p);
         return (T) _readValue(_deserializationContext(p), p, valueType);
@@ -1024,7 +1025,8 @@ public class ObjectMapper
      *<p>
      * Note that {@link ObjectReader} has more complete set of variants.
      */
-    public <T> MappingIterator<T> readValues(JsonParser p, JavaType valueType) throws IOException
+    public <T> MappingIterator<T> readValues(JsonParser p, JavaType valueType)
+        throws JacksonException
     {
         _assertNotNull("p", p);
         DeserializationContext ctxt = _deserializationContext(p);
@@ -1042,14 +1044,16 @@ public class ObjectMapper
      *<p>
      * Type-safe overload of {@link #readValues(JsonParser, JavaType)}.
      */
-    public <T> MappingIterator<T> readValues(JsonParser p, Class<T> valueType) throws IOException
+    public <T> MappingIterator<T> readValues(JsonParser p, Class<T> valueType)
+        throws JacksonException
     {
         _assertNotNull("p", p);
         return readValues(p, _typeFactory.constructType(valueType));
     }
 
     // Used by Kotlin module
-    public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<T> valueType) throws IOException
+    public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<T> valueType)
+        throws JacksonException
     {
         _assertNotNull("p", p);
         return readValues(p, _typeFactory.constructType(valueType));
@@ -1088,7 +1092,7 @@ public class ObjectMapper
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
-    public JsonNode readTree(InputStream in) throws IOException
+    public JsonNode readTree(InputStream in) throws JacksonException
     {
         _assertNotNull("in", in);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1099,7 +1103,7 @@ public class ObjectMapper
      * Same as {@link #readTree(InputStream)} except content accessed through
      * passed-in {@link Reader}
      */
-    public JsonNode readTree(Reader r) throws IOException {
+    public JsonNode readTree(Reader r) throws JacksonException {
         _assertNotNull("r", r);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, r));
@@ -1109,7 +1113,7 @@ public class ObjectMapper
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link String}
      */
-    public JsonNode readTree(String content) throws IOException {
+    public JsonNode readTree(String content) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
@@ -1119,7 +1123,7 @@ public class ObjectMapper
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in byte array.
      */
-    public JsonNode readTree(byte[] content) throws IOException {
+    public JsonNode readTree(byte[] content) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
@@ -1129,7 +1133,7 @@ public class ObjectMapper
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in byte array.
      */
-    public JsonNode readTree(byte[] content, int offset, int len) throws IOException {
+    public JsonNode readTree(byte[] content, int offset, int len) throws JacksonException {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content, offset, len));
@@ -1139,7 +1143,7 @@ public class ObjectMapper
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link File}.
      */
-    public JsonNode readTree(File file) throws IOException
+    public JsonNode readTree(File file) throws JacksonException
     {
         _assertNotNull("file", file);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1156,7 +1160,7 @@ public class ObjectMapper
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
      */
-    public JsonNode readTree(URL src) throws IOException {
+    public JsonNode readTree(URL src) throws JacksonException {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, src));
@@ -1173,7 +1177,7 @@ public class ObjectMapper
      * Method that can be used to serialize any Java value as
      * JSON output, using provided {@link JsonGenerator}.
      */
-    public void writeValue(JsonGenerator g, Object value) throws IOException
+    public void writeValue(JsonGenerator g, Object value) throws JacksonException
     {
         _assertNotNull("g", g);
         SerializationConfig config = serializationConfig();
@@ -1220,44 +1224,35 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
-        throws IllegalArgumentException,
-            JsonProcessingException
+        throws JacksonException
     {
         if (n == null) {
             return null;
         }
-        try {
-            // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
-            // Simple cast when we just want to cast to, say, ObjectNode
-            if (TreeNode.class.isAssignableFrom(valueType)
-                    && valueType.isAssignableFrom(n.getClass())) {
-                return (T) n;
-            }
-            final JsonToken tt = n.asToken();
-            // 20-Apr-2016, tatu: Another thing: for VALUE_EMBEDDED_OBJECT, assume similar
-            //    short-cut coercion
-            if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
-                if (n instanceof POJONode) {
-                    Object ob = ((POJONode) n).getPojo();
-                    if ((ob == null) || valueType.isInstance(ob)) {
-                        return (T) ob;
-                    }
+        // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
+        // Simple cast when we just want to cast to, say, ObjectNode
+        if (TreeNode.class.isAssignableFrom(valueType)
+                && valueType.isAssignableFrom(n.getClass())) {
+            return (T) n;
+        }
+        final JsonToken tt = n.asToken();
+        // 20-Apr-2016, tatu: Another thing: for VALUE_EMBEDDED_OBJECT, assume similar
+        //    short-cut coercion
+        if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
+            if (n instanceof POJONode) {
+                Object ob = ((POJONode) n).getPojo();
+                if ((ob == null) || valueType.isInstance(ob)) {
+                    return (T) ob;
                 }
             }
-            // 22-Aug-2019, tatu: [databind#2430] Consider "null node" (minor optimization)
-            // 08-Dec-2020, tatu: Alas, lead to [databind#2972], optimization gets complicated
-            //    so leave out for now...
-            /*if (tt == JsonToken.VALUE_NULL) {
-                 return null;
-            }*/
-            return readValue(treeAsTokens(n), valueType);
-        } catch (JsonProcessingException e) {
-            // 12-Nov-2020, tatu: These can legit happen, during conversion, especially
-            //   with things like Builders that validate arguments.
-            throw e;
-        } catch (IOException e) { // should not occur, no real i/o...
-            throw new IllegalArgumentException(e.getMessage(), e);
         }
+        // 22-Aug-2019, tatu: [databind#2430] Consider "null node" (minor optimization)
+        // 08-Dec-2020, tatu: Alas, lead to [databind#2972], optimization gets complicated
+        //    so leave out for now...
+        /*if (tt == JsonToken.VALUE_NULL) {
+             return null;
+        }*/
+        return readValue(treeAsTokens(n), valueType);
     }
 
     /**
@@ -1284,7 +1279,7 @@ public class ObjectMapper
      */
     @SuppressWarnings({ "unchecked", "resource" })
     public <T extends JsonNode> T valueToTree(Object fromValue)
-        throws IllegalArgumentException
+        throws JacksonException
     {
         // [databind#2430]: `null` should become "null node":
         if (fromValue == null) {
@@ -1300,18 +1295,12 @@ public class ObjectMapper
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
-        JsonNode result;
-        try {
-            // Equivalent to `writeValue()`, basically:
-            prov.serializeValue(buf, fromValue);
-            // 11-Apr-2019, tatu: Should we create "real" DeserializationContext or is this ok?
-            JsonParser p = buf.asParser(ObjectReadContext.empty());
-            result = readTree(p);
-            p.close();
-        } catch (IOException e) { // should not occur, no real i/o...
-            throw new IllegalArgumentException(e.getMessage(), e);
+        // Equivalent to `writeValue()`, basically:
+        prov.serializeValue(buf, fromValue);
+        // 11-Apr-2019, tatu: Should we create "real" DeserializationContext or is this ok?
+        try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+            return (T) readTree(p);
         }
-        return (T) result;
     }
 
     /*
@@ -1323,7 +1312,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given file into given Java type.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1333,7 +1322,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(File src, Class<T> valueType) throws IOException
+    public <T> T readValue(File src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1344,7 +1333,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given file into given Java type.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1354,7 +1343,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(File src, TypeReference<T> valueTypeRef) throws IOException
+    public <T> T readValue(File src, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1365,7 +1354,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given file into given Java type.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1375,7 +1364,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(File src, JavaType valueType) throws IOException
+    public <T> T readValue(File src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1391,7 +1380,7 @@ public class ObjectMapper
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1401,7 +1390,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(URL src, Class<T> valueType) throws IOException
+    public <T> T readValue(URL src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1413,7 +1402,7 @@ public class ObjectMapper
      * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link TypeReference}.
      */
     @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(URL src, TypeReference<T> valueTypeRef) throws IOException
+    public <T> T readValue(URL src, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1425,7 +1414,7 @@ public class ObjectMapper
      * Same as {@link #readValue(java.net.URL, Class)} except that target specified by {@link JavaType}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(URL src, JavaType valueType) throws IOException
+    public <T> T readValue(URL src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1436,7 +1425,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1447,7 +1436,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(String content, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1458,7 +1447,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1468,7 +1457,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(String content, TypeReference<T> valueTypeRef) throws IOException
+    public <T> T readValue(String content, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1479,7 +1468,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      * 
-     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1489,7 +1478,7 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(String content, JavaType valueType) throws IOException
+    public <T> T readValue(String content, JavaType valueType) throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1498,7 +1487,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(Reader src, Class<T> valueType) throws IOException
+    public <T> T readValue(Reader src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1507,7 +1496,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(Reader src, TypeReference<T> valueTypeRef) throws IOException
+    public <T> T readValue(Reader src, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1516,7 +1505,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(Reader src, JavaType valueType) throws IOException
+    public <T> T readValue(Reader src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1525,7 +1514,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(InputStream src, Class<T> valueType) throws IOException
+    public <T> T readValue(InputStream src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1534,7 +1523,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef) throws IOException
+    public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1543,7 +1532,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(InputStream src, JavaType valueType) throws IOException
+    public <T> T readValue(InputStream src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1552,7 +1541,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] content, Class<T> valueType) throws IOException
+    public <T> T readValue(byte[] content, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1561,7 +1550,8 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] content, int offset, int len, Class<T> valueType) throws IOException
+    public <T> T readValue(byte[] content, int offset, int len, Class<T> valueType)
+        throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1570,7 +1560,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(byte[] content, TypeReference<T> valueTypeRef) throws IOException
+    public <T> T readValue(byte[] content, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1579,7 +1569,8 @@ public class ObjectMapper
     }
 
     @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(byte[] content, int offset, int len, TypeReference<T> valueTypeRef) throws IOException
+    public <T> T readValue(byte[] content, int offset, int len, TypeReference<T> valueTypeRef)
+        throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1589,7 +1580,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] content, JavaType valueType) throws IOException
+    public <T> T readValue(byte[] content, JavaType valueType) throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1598,8 +1589,8 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] content, int offset, int len,
-                           JavaType valueType) throws IOException
+    public <T> T readValue(byte[] content, int offset, int len, JavaType valueType)
+                    throws JacksonException
     {
         _assertNotNull("content", content);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1608,7 +1599,7 @@ public class ObjectMapper
     } 
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(DataInput src, Class<T> valueType) throws IOException
+    public <T> T readValue(DataInput src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1617,7 +1608,7 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(DataInput src, JavaType valueType) throws IOException
+    public <T> T readValue(DataInput src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DefaultDeserializationContext ctxt = _deserializationContext();
@@ -1635,7 +1626,7 @@ public class ObjectMapper
      * Method that can be used to serialize any Java value as
      * JSON output, written to File provided.
      */
-    public void writeValue(File file, Object value) throws IOException
+    public void writeValue(File file, Object value) throws JacksonException
     {
         _assertNotNull("file", file);
         DefaultSerializerProvider prov = _serializerProvider();
@@ -1654,7 +1645,7 @@ public class ObjectMapper
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).
      */
-    public void writeValue(OutputStream out, Object value) throws IOException
+    public void writeValue(OutputStream out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
         DefaultSerializerProvider prov = _serializerProvider();
@@ -1662,7 +1653,7 @@ public class ObjectMapper
                 _streamFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
     }
 
-    public void writeValue(DataOutput out, Object value) throws IOException
+    public void writeValue(DataOutput out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
         DefaultSerializerProvider prov = _serializerProvider();
@@ -1680,8 +1671,7 @@ public class ObjectMapper
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).
      */
-    public void writeValue(Writer w, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+    public void writeValue(Writer w, Object value) throws JacksonException
     {
         _assertNotNull("w", w);
         DefaultSerializerProvider prov = _serializerProvider();
@@ -1695,19 +1685,12 @@ public class ObjectMapper
      * and constructing String, but more efficient.
      */
     @SuppressWarnings("resource")
-    public String writeValueAsString(Object value)
-        throws JsonProcessingException
+    public String writeValueAsString(Object value) throws JacksonException
     {
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_streamFactory._getBufferRecycler());
         DefaultSerializerProvider prov = _serializerProvider();
-        try {
-            _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
-        } catch (JsonProcessingException e) {
-            throw e;
-        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw JsonMappingException.fromUnexpectedIOE(e);
-        }
+        _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
         return sw.getAndClear();
     }
 
@@ -1719,19 +1702,12 @@ public class ObjectMapper
      * Encoding used will be UTF-8.
      */
     @SuppressWarnings("resource")
-    public byte[] writeValueAsBytes(Object value)
-        throws JsonProcessingException
+    public byte[] writeValueAsBytes(Object value) throws JacksonException
     {
         DefaultSerializerProvider prov = _serializerProvider();
         ByteArrayBuilder bb = new ByteArrayBuilder(_streamFactory._getBufferRecycler());
-        try {
-            _configAndWriteValue(prov,
-                    _streamFactory.createGenerator(prov, bb, JsonEncoding.UTF8), value);
-        } catch (JsonProcessingException e) {
-            throw e;
-        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw JsonMappingException.fromUnexpectedIOE(e);
-        }
+        _configAndWriteValue(prov,
+                _streamFactory.createGenerator(prov, bb, JsonEncoding.UTF8), value);
         byte[] result = bb.toByteArray();
         bb.release();
         return result;
@@ -1743,7 +1719,7 @@ public class ObjectMapper
      */
     protected final void _configAndWriteValue(DefaultSerializerProvider prov,
             JsonGenerator g, Object value)
-        throws IOException
+        throws JacksonException
     {
         if (prov.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _configAndWriteCloseable(prov, g, value);
@@ -1752,7 +1728,7 @@ public class ObjectMapper
         try {
             prov.serializeValue(g, value);
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(g, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, e);
             return;
         }
         g.close();
@@ -1764,7 +1740,7 @@ public class ObjectMapper
      */
     private final void _configAndWriteCloseable(DefaultSerializerProvider prov,
             JsonGenerator g, Object value)
-        throws IOException
+        throws JacksonException
     {
         Closeable toClose = (Closeable) value;
         try {
@@ -1773,7 +1749,7 @@ public class ObjectMapper
             toClose = null;
             tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(g, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(g, toClose, e);
             return;
         }
         g.close();
@@ -1784,7 +1760,7 @@ public class ObjectMapper
      * method is to be called right after serialization has been called
      */
     protected final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
-        throws IOException
+        throws JacksonException
     {
         Closeable toClose = (Closeable) value;
         try {
@@ -1793,10 +1769,14 @@ public class ObjectMapper
                 g.flush();
             }
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(null, toClose, e);
             return;
         }
-        toClose.close();
+        try {
+            toClose.close();
+        } catch (IOException e) {
+            throw WrappedIOException.construct(e);
+        }
     }
 
     /*
@@ -2213,7 +2193,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("resource")
     protected Object _convert(Object fromValue, JavaType toValueType)
-        throws IllegalArgumentException
+        throws JacksonException
     {
         // 25-Jan-2019, tatu: [databind#2220] Let's NOT try to short-circuit anything
 
@@ -2227,31 +2207,27 @@ public class ObjectMapper
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
-        try {
-            // no need to check for closing of TokenBuffer
-            prov.serializeValue(buf, fromValue);
+        // no need to check for closing of TokenBuffer
+        prov.serializeValue(buf, fromValue);
 
-            // then matching read, inlined 'readValue' with minor mods:
-            DefaultDeserializationContext readCtxt = _deserializationContext();
-            final JsonParser p = buf.asParser(readCtxt);
-            readCtxt.assignParser(p);
-            Object result;
-            // ok to pass in existing feature flags; unwrapping handled by mapper
-            JsonToken t = _initForReading(p, toValueType);
-            if (t == JsonToken.VALUE_NULL) {
-                result = _findRootDeserializer(readCtxt, toValueType).getNullValue(readCtxt);
-            } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-                result = null;
-            } else { // pointing to event other than null
-                JsonDeserializer<Object> deser = _findRootDeserializer(readCtxt, toValueType);
-                // note: no handling of unwrapping
-                result = deser.deserialize(p, readCtxt);
-            }
-            p.close();
-            return result;
-        } catch (IOException e) { // should not occur, no real i/o...
-            throw new IllegalArgumentException(e.getMessage(), e);
+        // then matching read, inlined 'readValue' with minor mods:
+        DefaultDeserializationContext readCtxt = _deserializationContext();
+        final JsonParser p = buf.asParser(readCtxt);
+        readCtxt.assignParser(p);
+        Object result;
+        // ok to pass in existing feature flags; unwrapping handled by mapper
+        JsonToken t = _initForReading(p, toValueType);
+        if (t == JsonToken.VALUE_NULL) {
+            result = _findRootDeserializer(readCtxt, toValueType).getNullValue(readCtxt);
+        } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+            result = null;
+        } else { // pointing to event other than null
+            JsonDeserializer<Object> deser = _findRootDeserializer(readCtxt, toValueType);
+            // note: no handling of unwrapping
+            result = deser.deserialize(p, readCtxt);
         }
+        p.close();
+        return result;
     }
 
     /**
@@ -2285,11 +2261,11 @@ public class ObjectMapper
      *     creating new instance that is result of "merging" values (for example, "updating" a
      *     Java array will create a new array)
      *
-     * @throws JsonMappingException if there are structural incompatibilities that prevent update.
+     * @throws JacksonException if there are structural incompatibilities that prevent update.
      */
     @SuppressWarnings("resource")
     public <T> T updateValue(T valueToUpdate, Object overrides)
-        throws JsonMappingException
+        throws JacksonException
     {
         if ((valueToUpdate == null) || (overrides == null)) {
             return valueToUpdate;
@@ -2302,21 +2278,11 @@ public class ObjectMapper
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
-        T result;
-        try {
-            prov.serializeValue(buf, overrides);
-            // 11-Apr-2019, tatu: Should we create "real" DeserializationContext or is this ok?
-            JsonParser p = buf.asParser(ObjectReadContext.empty());
-            result = readerForUpdating(valueToUpdate).readValue(p);
-            p.close();
-        } catch (IOException e) { // should not occur, no real i/o...
-            if (e instanceof JsonMappingException) {
-                throw (JsonMappingException) e;
-            }
-            // 17-Mar-2017, tatu: Really ought not happen...
-            throw JsonMappingException.fromUnexpectedIOE(e);
+        prov.serializeValue(buf, overrides);
+        // 11-Apr-2019, tatu: Should we create "real" DeserializationContext or is this ok?
+        try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
+            return readerForUpdating(valueToUpdate).readValue(p);
         }
-        return result;
     }
 
     /*
@@ -2402,7 +2368,7 @@ public class ObjectMapper
      */
     protected Object _readValue(DefaultDeserializationContext ctxt, JsonParser p,
             JavaType valueType)
-        throws IOException
+        throws JacksonException
     {
         // First: may need to read the next token, to initialize
         // state (either before first read from parser, or after
@@ -2428,7 +2394,7 @@ public class ObjectMapper
 
     protected Object _readMapAndClose(DefaultDeserializationContext ctxt,
             JsonParser p0, JavaType valueType)
-        throws IOException
+        throws JacksonException
     {
         ctxt.assignParser(p0);
         try (JsonParser p = p0) {
@@ -2455,7 +2421,7 @@ public class ObjectMapper
      * Similar to {@link #_readMapAndClose} but specialized for <code>JsonNode</code> reading.
      */
     protected JsonNode _readTreeAndClose(DefaultDeserializationContext ctxt,
-            JsonParser p0) throws IOException
+            JsonParser p0) throws JacksonException
     {
         try (JsonParser p = ctxt.assignAndReturnParser(p0)) {
             
@@ -2521,14 +2487,15 @@ public class ObjectMapper
      *  can never be null as exception will be thrown if parser cannot
      *  provide more tokens.
      *
-     * @throws IOException if the underlying input source has problems during
+     * @throws WrappedIOException if the underlying input source has problems during
      *   parsing
      * @throws JsonParseException if parser has problems parsing content
      * @throws JsonMappingException if the parser does not have any more
      *   content to map (note: Json "null" value is considered content;
      *   enf-of-stream not)
      */
-    protected JsonToken _initForReading(JsonParser p, JavaType targetType) throws IOException
+    protected JsonToken _initForReading(JsonParser p, JavaType targetType)
+        throws JacksonException
     {
         // First: must point to a token; if not pointing to one, advance.
         // This occurs before first read from JsonParser, as well as
@@ -2549,7 +2516,7 @@ public class ObjectMapper
 
     protected final void _verifyNoTrailingTokens(JsonParser p, DeserializationContext ctxt,
             JavaType bindType)
-        throws IOException
+        throws JacksonException
     {
         JsonToken t = p.nextToken();
         if (t != null) {
@@ -2618,7 +2585,7 @@ public class ObjectMapper
      */
     protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
             JavaType valueType)
-        throws JsonMappingException
+        throws JacksonException
     {
         // First: have we already seen it?
         JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);

@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonpCharacterEscapes;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -54,7 +53,7 @@ public class JSONPObject
 
     @Override
     public void serializeWithType(JsonGenerator gen, SerializerProvider provider, TypeSerializer typeSer)
-            throws IOException
+        throws JacksonException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
         serialize(gen, provider);
@@ -62,7 +61,7 @@ public class JSONPObject
 
     @Override
     public void serialize(JsonGenerator gen, SerializerProvider provider)
-            throws IOException
+        throws JacksonException
     {
         // First, wrapping:
         gen.writeRaw(_function);

@@ -72,12 +72,7 @@ public class DoubleStreamSerializerTest extends StreamTestBase
     }
 
     private double[] roundTrip(DoubleStream stream) {
-        try {
-            String json = objectMapper.writeValueAsString(stream);
-            return objectMapper.readValue(json, double[].class);
-        } catch (IOException e) {
-            sneakyThrow(e);
-            return null;
-        }
+        String json = objectMapper.writeValueAsString(stream);
+        return objectMapper.readValue(json, double[].class);
     }
 }

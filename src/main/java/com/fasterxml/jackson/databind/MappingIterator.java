@@ -1,17 +1,14 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.exc.RuntimeJsonMappingException;
 
 /**
  * Iterator exposed by {@link ObjectMapper} when binding sequence of
- * objects. Extension is done to allow more convenient exposing of
- * {@link IOException} (which basic {@link Iterator} does not expose)
+ * objects. Extension is done to allow more convenient access
+ * (in Jackson 2.x exception handling required it, too, but not in 3.x)
  */
 public class MappingIterator<T> implements Iterator<T>, Closeable
 {
@@ -167,8 +164,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Method for getting an "empty" iterator instance: one that never
      * has more values; may be freely shared.
-     *
-     * @since 2.10 Existed earlier but {@code public} since 2.10
      */
     @SuppressWarnings("unchecked")
     public static <T> MappingIterator<T> emptyIterator() {
@@ -184,25 +179,13 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     @Override
     public boolean hasNext()
     {
-        try {
-            return hasNextValue();
-        } catch (JsonMappingException e) {
-            return (Boolean) _handleMappingException(e);
-        } catch (IOException e) {
-            return (Boolean) _handleIOException(e);
-        }
+        return hasNextValue();
     }
 
     @Override
     public T next()
     {
-        try {
-            return nextValue();
-        } catch (JsonMappingException e) {
-            return _handleMappingException(e);
-        } catch (IOException e) {
-            return _handleIOException(e);
-        }
+        return nextValue();
     }
 
     @Override
@@ -211,7 +194,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     }
     
     @Override
-    public void close() throws IOException {
+    public void close() {
         if (_state != STATE_CLOSED) {
             _state = STATE_CLOSED;
             if (_parser != null) {
@@ -230,7 +213,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * Equivalent of {@link #next} but one that may throw checked
      * exceptions from Jackson due to invalid input.
      */
-    public boolean hasNextValue() throws IOException
+    public boolean hasNextValue() throws JacksonException
     {
         switch (_state) {
         case STATE_CLOSED:
@@ -259,7 +242,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         return true;
     }
 
-    public T nextValue() throws IOException
+    public T nextValue() throws JacksonException
     {
         switch (_state) {
         case STATE_CLOSED:
@@ -299,7 +282,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * 
      * @return List of entries read
      */
-    public List<T> readAll() throws IOException {
+    public List<T> readAll() throws JacksonException {
         return readAll(new ArrayList<T>());
     }
 
@@ -309,7 +292,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * 
      * @return List of entries read (same as passed-in argument)
      */
-    public <L extends List<? super T>> L readAll(L resultList) throws IOException
+    public <L extends List<? super T>> L readAll(L resultList) throws JacksonException
     {
         while (hasNextValue()) {
             resultList.add(nextValue());
@@ -321,7 +304,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * Convenience method for reading all entries accessible via
      * this iterator
      */
-    public <C extends Collection<? super T>> C readAll(C results) throws IOException
+    public <C extends Collection<? super T>> C readAll(C results) throws JacksonException
     {
         while (hasNextValue()) {
             results.add(nextValue());
@@ -369,7 +352,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**********************************************************************
      */
 
-    protected void _resync() throws IOException
+    protected void _resync() throws JacksonException
     {
         final JsonParser p = _parser;
         // First, a quick check to see if we might have been lucky and no re-sync needed
@@ -394,13 +377,5 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
 
     protected <R> R _throwNoSuchElement() {
         throw new NoSuchElementException();
-    }
-    
-    protected <R> R _handleMappingException(JsonMappingException e) {
-        throw new RuntimeJsonMappingException(e.getMessage(), e);
-    }
-
-    protected <R> R _handleIOException(IOException e) {
-        throw new UncheckedIOException(e.getMessage(), e);
     }
 }

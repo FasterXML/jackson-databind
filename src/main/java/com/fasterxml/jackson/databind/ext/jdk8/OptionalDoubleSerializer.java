@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.ext.jdk8;
 
-import java.io.IOException;
 import java.util.OptionalDouble;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
@@ -27,7 +27,8 @@ public class OptionalDoubleSerializer extends StdScalarSerializer<OptionalDouble
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor,
-            JavaType typeHint) throws JsonMappingException {
+            JavaType typeHint)
+    {
         JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
         if (v2 != null) {
             v2.numberType(JsonParser.NumberType.DOUBLE);
@@ -36,7 +37,7 @@ public class OptionalDoubleSerializer extends StdScalarSerializer<OptionalDouble
 
     @Override
     public void serialize(OptionalDouble value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         if (value.isPresent()) {
             gen.writeNumber(value.getAsDouble());

@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -90,8 +90,9 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
     }
 
     @Override
-    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws IOException {
-
+    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();

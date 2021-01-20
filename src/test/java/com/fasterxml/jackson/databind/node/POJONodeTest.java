@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -22,7 +21,8 @@ public class POJONodeTest extends NodeTestBase
         }
 
         @Override
-        public void serialize(Data value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(Data value, JsonGenerator gen, SerializerProvider provider)
+        {
             String attrStr = (String) provider.getAttribute("myAttr");
             gen.writeStartObject();
             gen.writeStringField("aStr", "The value is: " + (attrStr == null ? "NULL" : attrStr));

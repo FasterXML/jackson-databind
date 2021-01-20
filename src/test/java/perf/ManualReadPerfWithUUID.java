@@ -1,9 +1,7 @@
 package perf;
 
-import java.io.IOException;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
@@ -26,7 +24,6 @@ public class ManualReadPerfWithUUID extends ObjectReaderTestBase
 
         @Override
         protected UUID _deserialize(String id, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
         {
             return UUID.fromString(id);
         }

@@ -1,11 +1,9 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -26,7 +24,7 @@ public class TokenBufferSerializer
 
     @Override
     public void serialize(TokenBuffer value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         value.serialize(jgen);
     }
@@ -42,8 +40,9 @@ public class TokenBufferSerializer
      * than doing introspection on both serialization and deserialization.
      */
     @Override
-    public final void serializeWithType(TokenBuffer value, JsonGenerator g,
-            SerializerProvider ctxt, TypeSerializer typeSer) throws IOException
+    public final void serializeWithType(TokenBuffer value, JsonGenerator g, SerializerProvider ctxt,
+            TypeSerializer typeSer)
+        throws JacksonException
     {
         // 28-Jun-2017, tatu: As per javadoc, not sure what to report as likely shape. Could
         //    even look into first actual token inside... but, for now let's keep it simple
@@ -55,7 +54,6 @@ public class TokenBufferSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         // Not 100% sure what we should say here: type is basically not known.
         // This seems like closest approximation

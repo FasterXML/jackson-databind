@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Deserializer for {@link EnumMap} values.
@@ -218,7 +216,7 @@ public class EnumMapDeserializer
     
     @Override
     public EnumMap<?,?> deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_propertyBasedCreator != null) {
             return _deserializeUsingProperties(p, ctxt);
@@ -247,7 +245,7 @@ public class EnumMapDeserializer
     @Override
     public EnumMap<?,?> deserialize(JsonParser p, DeserializationContext ctxt,
             EnumMap result)
-        throws IOException
+        throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.setCurrentValue(result);
@@ -311,7 +309,7 @@ public class EnumMapDeserializer
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(p, ctxt);
@@ -321,19 +319,16 @@ public class EnumMapDeserializer
         if (_valueInstantiator == null) {
             return new EnumMap(_enumClass);
         }
-        try {
-            if (!_valueInstantiator.canCreateUsingDefault()) {
-                return (EnumMap<?,?>) ctxt.handleMissingInstantiator(handledType(),
-                        getValueInstantiator(), null,
-                        "no default constructor found");
-            }
-            return (EnumMap<?,?>) _valueInstantiator.createUsingDefault(ctxt);
-        } catch (IOException e) {
-            return ClassUtil.throwAsMappingException(ctxt, e);
+        if (!_valueInstantiator.canCreateUsingDefault()) {
+            return (EnumMap<?,?>) ctxt.handleMissingInstantiator(handledType(),
+                    getValueInstantiator(), null,
+                    "no default constructor found");
         }
+        return (EnumMap<?,?>) _valueInstantiator.createUsingDefault(ctxt);
     }
 
-    public EnumMap<?,?> _deserializeUsingProperties(JsonParser p, DeserializationContext ctxt) throws IOException
+    public EnumMap<?,?> _deserializeUsingProperties(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         // null -> no ObjectIdReader for EnumMaps

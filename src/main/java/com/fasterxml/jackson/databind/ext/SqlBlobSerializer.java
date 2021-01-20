@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -40,7 +40,7 @@ extends StdScalarSerializer<Blob>
 
     @Override
     public void serialize(Blob value, JsonGenerator gen, SerializerProvider ctxt)
-            throws IOException {
+            throws JacksonException {
         _writeValue(value, gen, ctxt);
     }
 
@@ -48,7 +48,7 @@ extends StdScalarSerializer<Blob>
     @Override
     public void serializeWithType(Blob value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         // most likely scalar
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
@@ -58,7 +58,7 @@ extends StdScalarSerializer<Blob>
     }
 
     protected void _writeValue(Blob value, JsonGenerator gen, SerializerProvider ctxt)
-            throws IOException
+            throws JacksonException
     {
         InputStream in = null;
         try {
@@ -73,7 +73,6 @@ extends StdScalarSerializer<Blob>
     // Copied from `com.fasterxml.jackson.databind.ser.std.ByteArraySerializer`
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         // 08-Nov-2020, tatu: Same problem as for `byte[]`... should
         //    make work either as String/base64, or array of numbers,

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.*;
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
@@ -109,10 +107,9 @@ public class TestBasicAnnotations
     {
         public IntsDeserializer() { super(int[].class); }
         @Override
-        public int[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public int[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return new int[] { jp.getIntValue() };
+            return new int[] { p.getIntValue() };
         }
     }
 

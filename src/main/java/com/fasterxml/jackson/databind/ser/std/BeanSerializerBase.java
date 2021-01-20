@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -622,13 +621,13 @@ public abstract class BeanSerializerBase
     // Main serialization method left unimplemented
     @Override
     public abstract void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException;
+        throws JacksonException;
 
     // Type-info-augmented case implemented as it does not usually differ between impls
     @Override
     public void serializeWithType(Object bean,
             JsonGenerator gen, SerializerProvider ctxt, TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, ctxt, typeSer);
@@ -645,7 +644,8 @@ public abstract class BeanSerializerBase
     }
 
     protected final void _serializeWithObjectId(Object bean, JsonGenerator gen,
-            SerializerProvider provider, boolean startEndObject) throws IOException
+            SerializerProvider provider, boolean startEndObject)
+        throws JacksonException
     {
         gen.setCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
@@ -675,7 +675,8 @@ public abstract class BeanSerializerBase
     }
     
     protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer)
+        throws JacksonException
     {
         gen.setCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
@@ -695,7 +696,8 @@ public abstract class BeanSerializerBase
 
     protected  void _serializeObjectId(Object bean,
             JsonGenerator g, SerializerProvider ctxt,
-            TypeSerializer typeSer, WritableObjectId objectId) throws IOException
+            TypeSerializer typeSer, WritableObjectId objectId)
+        throws JacksonException
     {
         final ObjectIdWriter w = _objectIdWriter;
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
@@ -738,7 +740,7 @@ public abstract class BeanSerializerBase
      */
     protected void _serializeFieldsNoView(Object bean, JsonGenerator gen,
             SerializerProvider provider, BeanPropertyWriter[] props)
-        throws IOException
+        throws JacksonException
     {
         int i = 0;
         int left = props.length;
@@ -793,7 +795,7 @@ public abstract class BeanSerializerBase
      */
     protected void _serializeFieldsMaybeView(Object bean, JsonGenerator gen,
             SerializerProvider provider, BeanPropertyWriter[] props)
-        throws IOException
+        throws JacksonException
     {
         int i = 0;
         int left = props.length;
@@ -869,7 +871,7 @@ public abstract class BeanSerializerBase
      */
     protected void _serializeFieldsFiltered(Object bean, JsonGenerator gen,
             SerializerProvider provider, Object filterId)
-        throws IOException
+        throws JacksonException
     {
         final BeanPropertyWriter[] props;
         final PropertyFilter filter = findPropertyFilter(provider, filterId, bean);
@@ -913,7 +915,7 @@ public abstract class BeanSerializerBase
     }
 
     protected void _serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         // NOTE: only called from places where FilterId (JsonView) already checked.
         if (_filteredProps != null && provider.getActiveView() != null) {

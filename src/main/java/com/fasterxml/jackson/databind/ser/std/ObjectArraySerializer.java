@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -181,7 +180,8 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public final void serialize(Object[] value, JsonGenerator g, SerializerProvider ctxt) throws IOException
+    public final void serialize(Object[] value, JsonGenerator g, SerializerProvider ctxt)
+        throws JacksonException
     {
         final int len = value.length;
         if (len == 1) {
@@ -198,7 +198,8 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public void serializeContents(Object[] value, JsonGenerator g, SerializerProvider ctxt) throws IOException
+    public void serializeContents(Object[] value, JsonGenerator g, SerializerProvider ctxt)
+        throws JacksonException
     {
         final int len = value.length;
         if (len == 0) {
@@ -239,7 +240,7 @@ public class ObjectArraySerializer
     }
 
     public void serializeContentsUsing(Object[] value, JsonGenerator g, SerializerProvider provider,
-            JsonSerializer<Object> ser) throws IOException
+            JsonSerializer<Object> ser) throws JacksonException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -264,7 +265,8 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeTypedContents(Object[] value, JsonGenerator g, SerializerProvider ctxt) throws IOException
+    public void serializeTypedContents(Object[] value, JsonGenerator g, SerializerProvider ctxt)
+        throws JacksonException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;

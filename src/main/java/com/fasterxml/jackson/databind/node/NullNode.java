@@ -1,11 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 
 /**
  * This singleton value class is used to contain explicit JSON null
@@ -56,7 +53,7 @@ public class NullNode
     
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         provider.defaultSerializeNullValue(g);
     }

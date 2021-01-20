@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.Collection;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
@@ -92,7 +92,7 @@ public abstract class DelegatingDeserializer
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         return _delegatee.deserialize(p,  ctxt);
     }
@@ -101,7 +101,7 @@ public abstract class DelegatingDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
             Object intoValue)
-        throws IOException
+        throws JacksonException
     {
         return ((JsonDeserializer<Object>)_delegatee).deserialize(p, ctxt, intoValue);
     }
@@ -109,7 +109,7 @@ public abstract class DelegatingDeserializer
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         return _delegatee.deserializeWithType(p, ctxt, typeDeserializer);
     }

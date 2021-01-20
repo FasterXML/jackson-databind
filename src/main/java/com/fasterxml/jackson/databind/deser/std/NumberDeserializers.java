@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashSet;
@@ -201,7 +200,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public Boolean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Boolean deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_TRUE) {
@@ -221,7 +220,7 @@ public class NumberDeserializers
         @Override
         public Boolean deserializeWithType(JsonParser p, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer)
-            throws IOException
+            throws JacksonException
         {
             JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_TRUE) {
@@ -250,7 +249,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public Byte deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Byte deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (p.isExpectedNumberIntToken()) {
                 return p.getByteValue();
@@ -262,7 +261,7 @@ public class NumberDeserializers
         }
 
         protected Byte _parseByte(JsonParser p, DeserializationContext ctxt)
-                throws IOException
+                throws JacksonException
         {
             String text;
 
@@ -337,7 +336,7 @@ public class NumberDeserializers
 
         @Override
         public Short deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             if (p.isExpectedNumberIntToken()) {
                 return p.getShortValue();
@@ -349,7 +348,7 @@ public class NumberDeserializers
         }
 
         protected Short _parseShort(JsonParser p, DeserializationContext ctxt)
-                throws IOException
+                throws JacksonException
         {
             String text;
             switch (p.currentTokenId()) {
@@ -423,7 +422,7 @@ public class NumberDeserializers
 
         @Override
         public Character deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             String text;
             switch (p.currentTokenId()) {
@@ -501,7 +500,7 @@ public class NumberDeserializers
         public boolean isCachable() { return true; }
 
         @Override
-        public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             if (p.isExpectedNumberIntToken()) {
                 return p.getIntValue();
             }
@@ -515,7 +514,7 @@ public class NumberDeserializers
         // (is it an error to even call this version?)
         @Override
         public Integer deserializeWithType(JsonParser p, DeserializationContext ctxt,
-                TypeDeserializer typeDeserializer) throws IOException
+                TypeDeserializer typeDeserializer) throws JacksonException
         {
             if (p.isExpectedNumberIntToken()) {
                 return p.getIntValue();
@@ -542,7 +541,7 @@ public class NumberDeserializers
         public boolean isCachable() { return true; }
         
         @Override
-        public Long deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Long deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             if (p.isExpectedNumberIntToken()) {
                 return p.getLongValue();
             }
@@ -565,7 +564,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public Float deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Float deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
                 return p.getFloatValue();
@@ -577,7 +576,7 @@ public class NumberDeserializers
         }
 
         protected final Float _parseFloat(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             String text;
             switch (p.currentTokenId()) {
@@ -639,7 +638,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public Double deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Double deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
                 return p.getDoubleValue();
             }
@@ -653,7 +652,7 @@ public class NumberDeserializers
         // (is it an error to even call this version?)
         @Override
         public Double deserializeWithType(JsonParser p, DeserializationContext ctxt,
-                TypeDeserializer typeDeserializer) throws IOException
+                TypeDeserializer typeDeserializer) throws JacksonException
         {
             if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
                 return p.getDoubleValue();
@@ -664,7 +663,7 @@ public class NumberDeserializers
             return _parseDouble(p, ctxt);
         }
 
-        protected final Double _parseDouble(JsonParser p, DeserializationContext ctxt) throws IOException
+        protected final Double _parseDouble(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             String text;
             switch (p.currentTokenId()) {
@@ -743,7 +742,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             String text;
             switch (p.currentTokenId()) {
@@ -829,7 +828,7 @@ public class NumberDeserializers
         @Override
         public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer)
-            throws IOException
+            throws JacksonException
         {
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
@@ -871,7 +870,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public BigInteger deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public BigInteger deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (p.isExpectedNumberIntToken()) {
                 return p.getBigIntegerValue();
@@ -942,7 +941,7 @@ public class NumberDeserializers
 
         @Override
         public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             String text;
             switch (p.currentTokenId()) {

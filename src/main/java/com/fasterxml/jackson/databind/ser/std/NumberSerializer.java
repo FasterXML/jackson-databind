@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.StreamWriteFeature;
@@ -63,7 +62,7 @@ public class NumberSerializer
     }
 
     @Override
-    public void serialize(Number value, JsonGenerator g, SerializerProvider provider) throws IOException
+    public void serialize(Number value, JsonGenerator g, SerializerProvider provider) throws JacksonException
     {
         // should mostly come in as one of these two:
         if (value instanceof BigDecimal) {
@@ -127,7 +126,7 @@ public class NumberSerializer
 
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
+            throws JacksonException
         {
             final String text;
             if (gen.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
@@ -155,7 +154,7 @@ public class NumberSerializer
         }
 
         // 24-Aug-2016, tatu: [core#315] prevent possible DoS vector, so we need this
-        protected boolean _verifyBigDecimalRange(JsonGenerator gen, BigDecimal value) throws IOException {
+        protected boolean _verifyBigDecimalRange(JsonGenerator gen, BigDecimal value) {
             int scale = value.scale();
             return ((scale >= -MAX_BIG_DECIMAL_SCALE) && (scale <= MAX_BIG_DECIMAL_SCALE));
         }

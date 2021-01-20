@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -73,20 +72,18 @@ public class TestWithGenerics extends BaseMapTest
         public CustomJsonSerializer( JsonSerializer<Object> beanSerializer ) { this.beanSerializer = beanSerializer; }
     
         @Override
-        public void serialize( Object value, JsonGenerator jgen, SerializerProvider provider )
-            throws IOException, JsonProcessingException
+        public void serialize( Object value, JsonGenerator g, SerializerProvider provider )
         {
-            beanSerializer.serialize( value, jgen, provider );
+            beanSerializer.serialize(value, g, provider);
         }
     
         @Override
         public Class<?> handledType() { return beanSerializer.handledType(); }
     
         @Override
-        public void serializeWithType( Object value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer )
-            throws IOException, JsonProcessingException
+        public void serializeWithType( Object value, JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer )
         {
-            beanSerializer.serializeWithType( value, jgen, provider, typeSer );
+            beanSerializer.serializeWithType(value, g, provider, typeSer);
         }
 
         @Override

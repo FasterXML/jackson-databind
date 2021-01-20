@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Objects;
@@ -131,7 +130,7 @@ public abstract class PrimitiveArrayDeserializers<T>
     protected abstract T _concat(T oldValue, T newValue);
 
     protected abstract T handleSingleElementUnwrapped(JsonParser p,
-            DeserializationContext ctxt) throws IOException;
+            DeserializationContext ctxt) throws JacksonException;
 
     /**
      * @since 2.9
@@ -175,7 +174,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException
+            TypeDeserializer typeDeserializer) throws JacksonException
     {
         // Should there be separate handling for base64 stuff?
         // for now this should be enough:
@@ -183,7 +182,7 @@ public abstract class PrimitiveArrayDeserializers<T>
     }
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt, T existing) throws IOException
+    public T deserialize(JsonParser p, DeserializationContext ctxt, T existing) throws JacksonException
     {
         T newValue = deserialize(p, ctxt);
         if (existing == null) {
@@ -203,7 +202,7 @@ public abstract class PrimitiveArrayDeserializers<T>
      */
 
     @SuppressWarnings("unchecked")
-    protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // Empty String can become null...
         if (p.hasToken(JsonToken.VALUE_STRING)) {
@@ -218,7 +217,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
-    protected void _failOnNull(DeserializationContext ctxt) throws IOException
+    protected void _failOnNull(DeserializationContext ctxt) throws JacksonException
     {
         throw InvalidNullException.from(ctxt, null, ctxt.constructType(_valueClass));
     }
@@ -251,7 +250,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         }
 
         @Override
-        public char[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public char[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             /* Won't take arrays, must get a String (could also
              * convert other tokens to Strings... but let's not bother
@@ -313,7 +312,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         protected char[] handleSingleElementUnwrapped(JsonParser p,
-                DeserializationContext ctxt) throws IOException {
+                DeserializationContext ctxt) throws JacksonException {
             // not sure how this should work...
             return (char[]) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -356,7 +355,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         public boolean[] deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             if (!p.isExpectedStartArrayToken()) {
                 return handleNonArray(p, ctxt);
@@ -397,7 +396,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         protected boolean[] handleSingleElementUnwrapped(JsonParser p,
-                DeserializationContext ctxt) throws IOException {
+                DeserializationContext ctxt) throws JacksonException {
             return new boolean[] { _parseBooleanPrimitive(p, ctxt) };
         }
 
@@ -443,7 +442,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         }
         
         @Override
-        public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             JsonToken t = p.currentToken();
             
@@ -511,7 +510,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         protected byte[] handleSingleElementUnwrapped(JsonParser p,
-                DeserializationContext ctxt) throws IOException
+                DeserializationContext ctxt) throws JacksonException
         {
             byte value;
             JsonToken t = p.currentToken();
@@ -564,7 +563,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         }
 
         @Override
-        public short[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public short[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (!p.isExpectedStartArrayToken()) {
                 return handleNonArray(p, ctxt);
@@ -601,7 +600,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         protected short[] handleSingleElementUnwrapped(JsonParser p,
-                DeserializationContext ctxt) throws IOException {
+                DeserializationContext ctxt) throws JacksonException {
             return new short[] { _parseShortPrimitive(p, ctxt) };
         }
 
@@ -638,7 +637,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         }
 
         @Override
-        public int[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public int[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (!p.isExpectedStartArrayToken()) {
                 return handleNonArray(p, ctxt);
@@ -677,7 +676,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         protected int[] handleSingleElementUnwrapped(JsonParser p,
-                DeserializationContext ctxt) throws IOException {
+                DeserializationContext ctxt) throws JacksonException {
             return new int[] { _parseIntPrimitive(p, ctxt) };
         }
 
@@ -714,7 +713,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         }
 
         @Override
-        public long[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public long[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (!p.isExpectedStartArrayToken()) {
                 return handleNonArray(p, ctxt);
@@ -753,7 +752,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         protected long[] handleSingleElementUnwrapped(JsonParser p,
-                DeserializationContext ctxt) throws IOException {
+                DeserializationContext ctxt) throws JacksonException {
             return new long[] { _parseLongPrimitive(p, ctxt) };
         }
 
@@ -788,7 +787,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         }
 
         @Override
-        public float[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public float[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (!p.isExpectedStartArrayToken()) {
                 return handleNonArray(p, ctxt);
@@ -822,7 +821,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         protected float[] handleSingleElementUnwrapped(JsonParser p,
-                DeserializationContext ctxt) throws IOException {
+                DeserializationContext ctxt) throws JacksonException {
             return new float[] { _parseFloatPrimitive(p, ctxt) };
         }
 
@@ -857,7 +856,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         }
 
         @Override
-        public double[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public double[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             if (!p.isExpectedStartArrayToken()) {
                 return handleNonArray(p, ctxt);
@@ -890,7 +889,9 @@ public abstract class PrimitiveArrayDeserializers<T>
 
         @Override
         protected double[] handleSingleElementUnwrapped(JsonParser p,
-                DeserializationContext ctxt) throws IOException {
+                DeserializationContext ctxt)
+            throws JacksonException
+        {
             return new double[] { _parseDoublePrimitive(p, ctxt) };
         }
 

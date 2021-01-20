@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.contextual;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -18,8 +17,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         }
 
         @Override
-        public String deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
+        public String deserialize(JsonParser p, DeserializationContext ctxt)
         {
             Integer I = (Integer) ctxt.getAttribute(KEY);
             if (I == null) {
@@ -27,7 +25,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
             }
             int i = I.intValue();
             ctxt.setAttribute(KEY, Integer.valueOf(i + 1));
-            return jp.getText()+"/"+i;
+            return p.getText()+"/"+i;
         }
 
     }

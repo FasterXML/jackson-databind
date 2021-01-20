@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
@@ -251,7 +252,7 @@ public class TestBeanConversions
         try {
             m = MAPPER.convertValue(plaino, Map.class);
             fail("Conversion should have failed");
-        } catch (IllegalArgumentException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "no properties discovered");
         }
         

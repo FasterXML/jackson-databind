@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.*;
@@ -13,13 +12,16 @@ public class TimeZoneSerializer extends StdScalarSerializer<TimeZone>
     public TimeZoneSerializer() { super(TimeZone.class); }
 
     @Override
-    public void serialize(TimeZone value, JsonGenerator g, SerializerProvider provider) throws IOException {
+    public void serialize(TimeZone value, JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
+    {
         g.writeString(value.getID());
     }
 
     @Override
-    public void serializeWithType(TimeZone value, JsonGenerator g,
-            SerializerProvider ctxt, TypeSerializer typeSer) throws IOException
+    public void serializeWithType(TimeZone value, JsonGenerator g, SerializerProvider ctxt,
+            TypeSerializer typeSer)
+        throws JacksonException
     {
         // Better ensure we don't use specific sub-classes:
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,

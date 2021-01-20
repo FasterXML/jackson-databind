@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
 import java.util.Iterator;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -55,7 +55,8 @@ public class IteratorSerializer
 
     @Override
     public final void serialize(Iterator<?> value, JsonGenerator gen,
-            SerializerProvider provider) throws IOException
+            SerializerProvider provider)
+        throws JacksonException
     {
         // 02-Dec-2016, tatu: As per comments above, can't determine single element so...
         /*
@@ -75,7 +76,8 @@ public class IteratorSerializer
     
     @Override
     public void serializeContents(Iterator<?> value, JsonGenerator g,
-            SerializerProvider provider) throws IOException
+            SerializerProvider provider)
+        throws JacksonException
     {
         if (!value.hasNext()) {
             return;
@@ -99,7 +101,8 @@ public class IteratorSerializer
     }
     
     protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
-            SerializerProvider ctxt) throws IOException
+            SerializerProvider ctxt)
+        throws JacksonException
     {
         final TypeSerializer typeSer = _valueTypeSerializer;
         do {

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -26,7 +24,9 @@ public class FailingSerializer
     }
     
     @Override
-    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+    public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
+    {
         provider.reportMappingProblem(_msg);
     }
 }

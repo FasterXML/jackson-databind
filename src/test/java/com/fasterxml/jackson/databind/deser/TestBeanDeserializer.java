@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -90,7 +89,6 @@ public class TestBeanDeserializer extends BaseMapTest
         
         @Override
         public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
         {
             return new Bean(a, b);
         }
@@ -165,7 +163,8 @@ public class TestBeanDeserializer extends BaseMapTest
         }
 
         @Override
-        public Issue1912Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Issue1912Bean deserialize(JsonParser p, DeserializationContext ctxt)
+        {
             // this is need on some cases, this populate _propertyBasedCreator
             defaultDeserializer.resolve(ctxt);
 
@@ -178,18 +177,20 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
 
-    public static class Issue1912CustomPropertyDeserializer extends JsonDeserializer<Issue1912SubBean> {
-
+    public static class Issue1912CustomPropertyDeserializer extends JsonDeserializer<Issue1912SubBean>
+    {
         @Override
-        public Issue1912SubBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Issue1912SubBean deserialize(JsonParser p, DeserializationContext ctxt)
+        {
             p.nextFieldName(); // read "a"
             Issue1912SubBean object = new Issue1912SubBean(p.nextTextValue() + "_custom");
             p.nextToken();
             return object;
         }
     }
-    public static class Issue1912UseAddOrReplacePropertyDeserializerModifier extends BeanDeserializerModifier {
 
+    public static class Issue1912UseAddOrReplacePropertyDeserializerModifier extends BeanDeserializerModifier
+    {
         @Override
         public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             if (beanDesc.getBeanClass() == Issue1912Bean.class) {
@@ -291,8 +292,7 @@ public class TestBeanDeserializer extends BaseMapTest
             return new KeyDeserializer() {
                 @Override
                 public Object deserializeKey(String key,
-                        DeserializationContext ctxt) throws IOException,
-                        JsonProcessingException {
+                        DeserializationContext ctxt) {
                     return "foo";
                 }
             };
@@ -309,8 +309,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
 
         @Override
-        public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
             Object ob = _deser.deserialize(p, ctxt);
             return String.valueOf(ob).toUpperCase();
         }

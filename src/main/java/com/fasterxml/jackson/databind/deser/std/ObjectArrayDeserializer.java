@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Objects;
@@ -166,8 +165,8 @@ public class ObjectArrayDeserializer
     }
 
     // need to override as we can't expose ValueInstantiator
-    @Override // since 2.9
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
         // 03-Jul-2020, tatu: Must be assignment-compatible; can not just return `new Object[0]`
         //   if element type is different
         return _emptyValue;
@@ -181,7 +180,7 @@ public class ObjectArrayDeserializer
     
     @Override
     public Object[] deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
@@ -233,7 +232,7 @@ public class ObjectArrayDeserializer
     @Override
     public Object[] deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // Should there be separate handling for base64 stuff?
         // for now this should be enough:
@@ -242,7 +241,7 @@ public class ObjectArrayDeserializer
 
     @Override
     public Object[] deserialize(JsonParser p, DeserializationContext ctxt,
-            Object[] intoValue) throws IOException
+            Object[] intoValue) throws JacksonException
     {
         if (!p.isExpectedStartArrayToken()) {
             Object[] arr = handleNonArray(p, ctxt);
@@ -303,7 +302,7 @@ public class ObjectArrayDeserializer
      */
     
     protected Byte[] deserializeFromBase64(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // First same as what PrimitiveArrayDeserializers.ByteDeser does:
         byte[] b = p.getBinaryValue(ctxt.getBase64Variant());
@@ -316,7 +315,7 @@ public class ObjectArrayDeserializer
     }
 
     protected Object[] handleNonArray(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // Can we do implicit coercion to a single-element array still?
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||

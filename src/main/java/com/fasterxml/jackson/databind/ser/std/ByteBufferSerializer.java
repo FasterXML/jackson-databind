@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.*;
 import java.nio.ByteBuffer;
 
 import com.fasterxml.jackson.core.*;
@@ -15,7 +14,8 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
     public ByteBufferSerializer() { super(ByteBuffer.class); }
 
     @Override
-    public void serialize(ByteBuffer bbuf, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public void serialize(ByteBuffer bbuf, JsonGenerator gen, SerializerProvider provider)
+        throws JacksonException
     {
         // first, simple case when wrapping an array...
         if (bbuf.hasArray()) {
@@ -29,9 +29,9 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
         if (copy.position() > 0) {
             copy.rewind();
         }
-        InputStream in = new ByteBufferBackedInputStream(copy);
-        gen.writeBinary(in, copy.remaining());
-        in.close();
+        try (ByteBufferBackedInputStream in = new ByteBufferBackedInputStream(copy)) {
+            gen.writeBinary(in, copy.remaining());
+        }
     }
 
     @Override // since 2.9

@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -40,7 +41,6 @@ public class ProblemHandlerTest extends BaseMapTest
         public Object handleWeirdKey(DeserializationContext ctxt,
                 Class<?> rawKeyType, String keyValue,
                 String failureMsg)
-            throws IOException
         {
             return key;
         }
@@ -59,7 +59,6 @@ public class ProblemHandlerTest extends BaseMapTest
         public Object handleWeirdNumberValue(DeserializationContext ctxt,
                 Class<?> targetType, Number n,
                 String failureMsg)
-            throws IOException
         {
             return value;
         }
@@ -78,7 +77,6 @@ public class ProblemHandlerTest extends BaseMapTest
         public Object handleWeirdStringValue(DeserializationContext ctxt,
                 Class<?> targetType, String v,
                 String failureMsg)
-            throws IOException
         {
             return value;
         }
@@ -96,7 +94,6 @@ public class ProblemHandlerTest extends BaseMapTest
         @Override
         public Object handleInstantiationProblem(DeserializationContext ctxt,
                 Class<?> instClass, Object argument, Throwable t)
-            throws IOException
         {
             if (!(t instanceof ValueInstantiationException)) {
                 throw new IllegalArgumentException("Should have gotten `ValueInstantiationException`, instead got: "+t);
@@ -117,7 +114,6 @@ public class ProblemHandlerTest extends BaseMapTest
         @Override
         public Object handleMissingInstantiator(DeserializationContext ctxt,
                 Class<?> instClass, ValueInstantiator inst, JsonParser p, String msg)
-            throws IOException
         {
             p.skipChildren();
             return value;
@@ -137,7 +133,6 @@ public class ProblemHandlerTest extends BaseMapTest
         public Object handleUnexpectedToken(DeserializationContext ctxt,
                 JavaType targetType, JsonToken t, JsonParser p,
                 String failureMsg)
-            throws IOException
         {
             return value;
         }
@@ -154,7 +149,6 @@ public class ProblemHandlerTest extends BaseMapTest
         public JavaType handleUnknownTypeId(DeserializationContext ctxt,
                 JavaType baseType, String subTypeId, TypeIdResolver idResolver,
                 String failureMsg)
-            throws IOException
         {
             return ctxt.constructType(raw);
         }
@@ -171,7 +165,6 @@ public class ProblemHandlerTest extends BaseMapTest
         public JavaType handleMissingTypeId(DeserializationContext ctxt,
                 JavaType baseType, TypeIdResolver idResolver,
                 String failureMsg)
-            throws IOException
         {
             return ctxt.constructType(raw);
         }

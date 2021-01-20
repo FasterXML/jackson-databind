@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.contextual;
 
-import java.io.IOException;
 import java.lang.annotation.*;
 import java.util.*;
 
@@ -124,9 +123,9 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString(_prefix + value);
+            g.writeString(_prefix + value);
         }
 
         @Override
@@ -163,9 +162,9 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString("contextual="+isContextual+",resolved="+isResolved);
+            g.writeString("contextual="+isContextual+",resolved="+isResolved);
         }
 
         @Override
@@ -193,7 +192,7 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
         {
             g.writeString(desc+"/"+value);
         }

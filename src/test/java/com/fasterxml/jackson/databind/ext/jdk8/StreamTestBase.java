@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ext.jdk8;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.BaseStream;
@@ -61,22 +60,20 @@ public abstract class StreamTestBase
     <T, S extends BaseStream<T, S>> void assertClosesOnIoException(String exceptionMessage, Consumer<S> roundTrip,
             S baseStream) {
         AtomicBoolean closed = new AtomicBoolean();
-        initExpectedExceptionIoException(exceptionMessage,closed);
+        this.expectedException.expect(new IsClosedMatcher(closed));
+        this.expectedException.expect(Is.isA(JsonMappingException.class));
+        this.expectedException.expectMessage(exceptionMessage);
         roundTrip.accept(baseStream.onClose(() -> closed.set(true)));
     }
 
     <T, S extends BaseStream<T, S>> void assertClosesOnWrappedIoException(String exceptionMessage,
             Consumer<S> roundTrip, S baseStream) {
         AtomicBoolean closed = new AtomicBoolean();
-        final String actualMessage = "Unexpected IOException (of type java.io.IOException): " + exceptionMessage;
-        initExpectedExceptionIoException(actualMessage,closed);
-        roundTrip.accept(baseStream.onClose(() -> closed.set(true)));
-    }
-
-    void initExpectedExceptionIoException(final String exceptionMessage, AtomicBoolean closed) {
+        final String actualMessage = exceptionMessage;
         this.expectedException.expect(new IsClosedMatcher(closed));
-        this.expectedException.expect(Is.isA(IOException.class));
-        this.expectedException.expectMessage(exceptionMessage);
+        this.expectedException.expect(Is.isA(JsonMappingException.class));
+        this.expectedException.expectMessage(actualMessage);
+        roundTrip.accept(baseStream.onClose(() -> closed.set(true)));
     }
 
     void initExpectedException(Class<? extends Throwable> cause, final String exceptionMessage, AtomicBoolean closed) {

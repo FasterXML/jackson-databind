@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -65,7 +65,7 @@ public class IterableSerializer
 
     @Override
     public final void serialize(Iterable<?> value, JsonGenerator g,
-        SerializerProvider ctxt) throws IOException
+        SerializerProvider ctxt) throws JacksonException
     {
         if (((_unwrapSingle == null) &&
                 ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
@@ -82,7 +82,7 @@ public class IterableSerializer
 
     @Override
     public void serializeContents(Iterable<?> value, JsonGenerator g,
-        SerializerProvider ctxt) throws IOException
+        SerializerProvider ctxt) throws JacksonException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {

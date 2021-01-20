@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.databind.ext.jdk8;
 
-import java.io.IOException;
 import java.util.OptionalInt;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.JsonTokenId;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -23,7 +24,9 @@ public class OptionalIntDeserializer extends BaseScalarOptionalDeserializer<Opti
     public LogicalType logicalType() { return LogicalType.Integer; }
 
     @Override
-    public OptionalInt deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public OptionalInt deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         // minor optimization, first, for common case
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
             return OptionalInt.of(p.getIntValue());

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -25,7 +23,8 @@ public interface JsonSerializable
      * Serialization method called when no additional type information is
      * to be included in serialization.
      */
-    public void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException;
+    public void serialize(JsonGenerator gen, SerializerProvider serializers)
+        throws JacksonException;
 
     /**
      * Serialization method called when additional type information is
@@ -41,7 +40,8 @@ public interface JsonSerializable
      * Double and Boolean) never include type information.
      */
     public void serializeWithType(JsonGenerator gen, SerializerProvider serializers,
-            TypeSerializer typeSer) throws IOException;
+            TypeSerializer typeSer)
+        throws JacksonException;
 
     /**
      * Base class with minimal implementation, as well as couple of extension methods

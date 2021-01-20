@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -135,7 +134,9 @@ public abstract class StdKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+            throws JacksonException
+        {
             switch (_typeId) {
             case TYPE_DATE:
                 provider.defaultSerializeDateKey((Date)value, g);
@@ -203,7 +204,7 @@ public abstract class StdKeySerializers
 
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
-                throws IOException
+            throws JacksonException
         {
             Class<?> cls = value.getClass();
             PropertySerializerMap m = _dynamicSerializers;
@@ -248,7 +249,9 @@ public abstract class StdKeySerializers
         public StringKeySerializer() { super(String.class); }
 
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+            throws JacksonException
+        {
             g.writeFieldName((String) value);
         }
     }
@@ -273,7 +276,7 @@ public abstract class StdKeySerializers
         
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider serializers)
-                throws IOException
+            throws JacksonException
         {
             if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
                 g.writeFieldName(value.toString());

@@ -1,21 +1,19 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
-// @since 2.12
 public class AtomicIntegerDeserializer extends StdScalarDeserializer<AtomicInteger>
 {
     public AtomicIntegerDeserializer() { super(AtomicInteger.class); }
 
     @Override
-    public AtomicInteger deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public AtomicInteger deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         if (p.isExpectedNumberIntToken()) {
             return new AtomicInteger(p.getIntValue());
         }
@@ -28,8 +26,8 @@ public class AtomicIntegerDeserializer extends StdScalarDeserializer<AtomicInteg
     @Override
     public LogicalType logicalType() { return LogicalType.Integer; }
 
-    @Override // @since 2.12
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return new AtomicInteger();
     }
 }

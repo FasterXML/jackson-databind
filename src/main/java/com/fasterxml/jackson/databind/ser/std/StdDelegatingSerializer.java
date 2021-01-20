@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -163,7 +162,8 @@ public class StdDelegatingSerializer
      */
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider ctxt) throws IOException
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider ctxt)
+        throws JacksonException
     {
         Object delegateValue = convertValue(value);
         // should we accept nulls?
@@ -181,11 +181,11 @@ public class StdDelegatingSerializer
 
     @Override
     public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider ctxt,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer)
+        throws JacksonException
     {
-        /* 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
-         *    let's give it a chance?
-         */
+        // 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
+        //    let's give it a chance?
         Object delegateValue = convertValue(value);
         JsonSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
@@ -195,7 +195,7 @@ public class StdDelegatingSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider ctxt, Object value) throws IOException
+    public boolean isEmpty(SerializerProvider ctxt, Object value)
     {
         Object delegateValue = convertValue(value);
         if (delegateValue == null) {
@@ -216,11 +216,10 @@ public class StdDelegatingSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
-        /* 03-Sep-2012, tatu: Not sure if this can be made to really work
-         *    properly... but for now, try this:
-         */
+        // 03-Sep-2012, tatu: Not sure if this can be made to really work
+        //    properly... but for now, try this:
+
         // 02-Apr-2015, tatu: For dynamic case, very little we can do
         if (_delegateSerializer != null) {
             _delegateSerializer.acceptJsonFormatVisitor(visitor, typeHint);

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -77,7 +76,8 @@ public class CollectionSerializer
      */
 
     @Override
-    public final void serialize(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
+    public final void serialize(Collection<?> value, JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
@@ -94,7 +94,8 @@ public class CollectionSerializer
     }
     
     @Override
-    public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider ctxt) throws IOException
+    public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider ctxt)
+        throws JacksonException
     {
         if (_elementSerializer != null) {
             serializeContentsUsing(value, g, ctxt, _elementSerializer);
@@ -138,7 +139,8 @@ public class CollectionSerializer
     }
 
     public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
-            JsonSerializer<Object> ser) throws IOException
+            JsonSerializer<Object> ser)
+        throws JacksonException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -50,7 +49,6 @@ public class UnknownPropertyDeserTest
         public boolean handleUnknownProperty(DeserializationContext ctxt,
                 JsonParser jp, JsonDeserializer<?> deserializer,
                 Object bean, String propertyName)
-            throws IOException, JsonProcessingException
         {
             // very simple, just to verify that we do see correct token type
             ((TestBean) bean).markUnknown(propertyName+":"+jp.currentToken().toString());
@@ -135,7 +133,7 @@ public class UnknownPropertyDeserTest
     public void testUnknownHandlingDefault() throws Exception
     {
         try {
-            MAPPER.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
+            MAPPER.readValue(JSON_UNKNOWN_FIELD, TestBean.class);
         } catch (UnrecognizedPropertyException jex) {
             verifyException(jex, "Unrecognized property \"foo\"");
         }
@@ -150,7 +148,7 @@ public class UnknownPropertyDeserTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addHandler(new MyHandler())
                 .build();
-        TestBean result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
+        TestBean result = mapper.readValue(JSON_UNKNOWN_FIELD, TestBean.class);
         assertNotNull(result);
         assertEquals(1, result._a);
         assertEquals(-1, result._b);
@@ -165,7 +163,7 @@ public class UnknownPropertyDeserTest
     {
         ObjectMapper mapper = newJsonMapper();
         TestBean result = mapper.readerFor(TestBean.class).withHandler(new MyHandler())
-                .readValue(new StringReader(JSON_UNKNOWN_FIELD));
+                .readValue(JSON_UNKNOWN_FIELD);
         assertNotNull(result);
         assertEquals(1, result._a);
         assertEquals(-1, result._b);
@@ -183,7 +181,7 @@ public class UnknownPropertyDeserTest
                 .build();
         TestBean result = null;
         try {
-            result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
+            result = mapper.readValue(JSON_UNKNOWN_FIELD, TestBean.class);
         } catch (JsonMappingException jex) {
             fail("Did not expect a problem, got: "+jex.getMessage());
         }
@@ -276,7 +274,7 @@ public class UnknownPropertyDeserTest
                 .addHandler(new DeserializationProblemHandler() {
                     @Override
                     public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-                            JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
+                            JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
                         p.skipChildren();
                         return true;
                     }

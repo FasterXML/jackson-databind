@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -26,13 +25,13 @@ public final class TypeWrappedSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws JacksonException {
         _serializer.serializeWithType(value, g, provider, _typeSerializer);
     }
 
     @Override
     public void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer) throws JacksonException
     {
         // Is this an erroneous call? For now, let's assume it is not, and
         // that type serializer is just overridden if so

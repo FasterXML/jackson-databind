@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
@@ -75,7 +75,7 @@ public class ArrayBlockingQueueDeserializer
 
     @Override
     protected Collection<Object> createDefaultInstance(DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // 07-Nov-2016, tatu: Important: cannot create using default ctor (one
         //    does not exist); and also need to know exact size. Hence, return
@@ -83,11 +83,10 @@ public class ArrayBlockingQueueDeserializer
         return null;
     }
 
-    // NOTE: implementation changed between 2.11 and 2.12
     @Override
     protected Collection<Object> _deserializeFromArray(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result0)
-        throws IOException
+        throws JacksonException
     {
         if (result0 == null) { // usual case
             result0 = new ArrayList<>();
@@ -100,7 +99,9 @@ public class ArrayBlockingQueueDeserializer
     }
 
     @Override
-    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
+        throws JacksonException
+    {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }

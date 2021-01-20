@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Objects;
 
@@ -171,7 +170,7 @@ public class EnumSetDeserializer
      */
 
     @Override
-    public EnumSet<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public EnumSet<?> deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         EnumSet result = constructSet();
         // Ok: must point to START_ARRAY (or equivalent)
@@ -183,7 +182,7 @@ public class EnumSetDeserializer
 
     @Override
     public EnumSet<?> deserialize(JsonParser p, DeserializationContext ctxt,
-            EnumSet<?> result) throws IOException
+            EnumSet<?> result) throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
@@ -194,7 +193,7 @@ public class EnumSetDeserializer
     
     @SuppressWarnings("unchecked") 
     protected final EnumSet<?> _deserialize(JsonParser p, DeserializationContext ctxt,
-            EnumSet result) throws IOException
+            EnumSet result) throws JacksonException
     {
         JsonToken t;
 
@@ -225,7 +224,7 @@ public class EnumSetDeserializer
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws JacksonException
     {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
@@ -239,7 +238,7 @@ public class EnumSetDeserializer
     @SuppressWarnings("unchecked") 
     protected EnumSet<?> handleNonArray(JsonParser p, DeserializationContext ctxt,
             EnumSet result)
-        throws IOException
+        throws JacksonException
     {
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
                 ((_unwrapSingle == null) &&

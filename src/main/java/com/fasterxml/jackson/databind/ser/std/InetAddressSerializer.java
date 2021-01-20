@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.net.InetAddress;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -54,7 +53,8 @@ public class InetAddressSerializer
     }
 
     @Override
-    public void serialize(InetAddress value, JsonGenerator g, SerializerProvider provider) throws IOException
+    public void serialize(InetAddress value, JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
         String str;
 
@@ -77,7 +77,7 @@ public class InetAddressSerializer
 
     @Override
     public void serializeWithType(InetAddress value, JsonGenerator g,
-            SerializerProvider ctxt, TypeSerializer typeSer) throws IOException
+            SerializerProvider ctxt, TypeSerializer typeSer) throws JacksonException
     {
         // Better ensure we don't use specific sub-classes...
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,

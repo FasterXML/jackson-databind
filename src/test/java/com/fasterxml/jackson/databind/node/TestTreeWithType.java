@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -35,7 +35,7 @@ public class TestTreeWithType extends BaseMapTest
     public class SavedCookieDeserializer extends JsonDeserializer<SavedCookie> {
         @Override
         public SavedCookie deserialize(JsonParser jsonParser, DeserializationContext ctxt)
-                throws IOException {
+        {
            ObjectReadContext oc = jsonParser.getObjectReadContext();
            JsonNode node = oc.readTree(jsonParser);
            return new SavedCookie(node.path("name").textValue(),
@@ -45,7 +45,6 @@ public class TestTreeWithType extends BaseMapTest
         @Override
         public SavedCookie deserializeWithType(JsonParser jp, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
         {
             return (SavedCookie) typeDeserializer.deserializeTypedFromObject(jp, ctxt);
         }

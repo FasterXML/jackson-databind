@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -42,22 +42,22 @@ public class AsWrapperTypeDeserializer
      * Deserializing type id enclosed using WRAPPER_OBJECT style is straightforward
      */
     @Override
-    public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(jp, ctxt);
     }    
 
     @Override
-    public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(jp, ctxt);
     }
 
     @Override
-    public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(jp, ctxt);
     }
 
     @Override
-    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(jp, ctxt);
     }
     
@@ -73,7 +73,8 @@ public class AsWrapperTypeDeserializer
      * deserialization.
      */
     @SuppressWarnings("resource")
-    protected Object _deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
         if (p.canReadTypeId()) {

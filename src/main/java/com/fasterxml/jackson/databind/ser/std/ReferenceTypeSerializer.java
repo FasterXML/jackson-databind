@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -277,7 +275,7 @@ public abstract class ReferenceTypeSerializer<T>
      */
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, T value) throws IOException
+    public boolean isEmpty(SerializerProvider provider, T value) throws JacksonException
     {
         // First, absent value (note: null check is just sanity check here)
         if (!_isValuePresent(value)) {
@@ -317,7 +315,7 @@ public abstract class ReferenceTypeSerializer<T>
 
     @Override
     public void serialize(T ref, JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         Object value = _getReferencedIfPresent(ref);
         if (value == null) {
@@ -338,9 +336,9 @@ public abstract class ReferenceTypeSerializer<T>
     }
 
     @Override
-    public void serializeWithType(T ref,
-            JsonGenerator g, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+    public void serializeWithType(T ref, JsonGenerator g, SerializerProvider provider,
+            TypeSerializer typeSer)
+        throws JacksonException
     {
         Object value = _getReferencedIfPresent(ref);
         if (value == null) {

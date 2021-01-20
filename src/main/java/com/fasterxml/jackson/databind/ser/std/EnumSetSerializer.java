@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -45,7 +44,7 @@ public class EnumSetSerializer
 
     @Override
     public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
-            SerializerProvider provider) throws IOException
+            SerializerProvider provider) throws JacksonException
     {
         final int len = value.size();
         if (len == 1) {
@@ -64,7 +63,7 @@ public class EnumSetSerializer
     @Override
     public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
             SerializerProvider ctxt)
-        throws IOException
+        throws JacksonException
     {
         JsonSerializer<Object> enumSer = _elementSerializer;
         // Need to dynamically find instance serializer; unfortunately that seems

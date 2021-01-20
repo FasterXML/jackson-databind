@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ext.jdk8;
 
-import java.io.IOException;
 import java.util.OptionalDouble;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.JsonTokenId;
@@ -23,7 +23,9 @@ public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<O
     public LogicalType logicalType() { return LogicalType.Float; }
 
     @Override
-    public OptionalDouble deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public OptionalDouble deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         // minor optimization, first, for common case
         if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
             return OptionalDouble.of(p.getDoubleValue());

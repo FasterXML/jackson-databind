@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -24,7 +22,7 @@ public class NullSerializer
     private NullSerializer() { super(Object.class); }
     
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
         gen.writeNull();
     }
 
@@ -37,13 +35,15 @@ public class NullSerializer
     @Override
     public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider serializers,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         gen.writeNull();
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
+    {
         visitor.expectNullFormat(typeHint);
     }
 }

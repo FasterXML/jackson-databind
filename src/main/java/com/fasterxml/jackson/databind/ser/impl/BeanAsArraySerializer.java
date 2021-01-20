@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -143,7 +143,7 @@ public class BeanAsArraySerializer
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen,
             SerializerProvider ctxt, TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         // 10-Dec-2014, tatu: Not sure if this can be made to work reliably;
         //   but for sure delegating to default implementation will not work. So:
@@ -155,8 +155,11 @@ public class BeanAsArraySerializer
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
         typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
         final boolean filtered = (_filteredProps != null && ctxt.getActiveView() != null);
-        if (filtered) serializeFiltered(bean, gen, ctxt);
-        else serializeNonFiltered(bean, gen, ctxt);
+        if (filtered) {
+            serializeFiltered(bean, gen, ctxt);
+        } else {
+            serializeNonFiltered(bean, gen, ctxt);
+        }
         typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
@@ -167,7 +170,7 @@ public class BeanAsArraySerializer
      */
     @Override
     public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         final boolean filtered = (_filteredProps != null && provider.getActiveView() != null);
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
@@ -198,7 +201,7 @@ public class BeanAsArraySerializer
 
     protected final void serializeNonFiltered(Object bean, JsonGenerator gen,
             SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         final BeanPropertyWriter[] props = _props;
         int i = 0;
@@ -245,7 +248,7 @@ public class BeanAsArraySerializer
     }
 
     protected final void serializeFiltered(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         final BeanPropertyWriter[] props = _filteredProps;
         int i = 0;

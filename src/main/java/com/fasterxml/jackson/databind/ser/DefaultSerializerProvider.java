@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.TokenStreamFactory;
 
@@ -219,7 +219,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      * this provider has access to (via caching and/or creating new serializers
      * as need be).
      */
-    public void serializeValue(JsonGenerator gen, Object value) throws IOException
+    public void serializeValue(JsonGenerator gen, Object value) throws JacksonException
     {
         _generator = gen;
         if (value == null) {
@@ -253,7 +253,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
-    public void serializeValue(JsonGenerator gen, Object value, JavaType rootType) throws IOException
+    public void serializeValue(JsonGenerator gen, Object value, JavaType rootType) throws JacksonException
     {
         _generator = gen;
         if (value == null) {
@@ -290,7 +290,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      * @param ser Root Serializer to use, if not null
      */
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType,
-            JsonSerializer<Object> ser) throws IOException
+            JsonSerializer<Object> ser) throws JacksonException
     {
         _generator = gen;
         if (value == null) {
@@ -327,7 +327,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      */
     public void serializePolymorphic(JsonGenerator gen, Object value, JavaType rootType,
             JsonSerializer<Object> valueSer, TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         _generator = gen;
         if (value == null) {
@@ -367,63 +367,36 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
             gen.writeStartObject();
             gen.writeFieldName(rootName.getSimpleName());
         }
-        try {
-            valueSer.serializeWithType(value, gen, this, typeSer);
-            if (wrap) {
-                gen.writeEndObject();
-            }
-        } catch (Exception e) {
-            throw _wrapAsIOE(gen, e);
+        valueSer.serializeWithType(value, gen, this, typeSer);
+        if (wrap) {
+            gen.writeEndObject();
         }
     }
 
     private final void _serialize(JsonGenerator gen, Object value,
             JsonSerializer<Object> ser, PropertyName rootName)
-        throws IOException
+        throws JacksonException
     {
-        try {
-            gen.writeStartObject();
-            gen.writeFieldName(rootName.simpleAsEncoded(_config));
-            ser.serialize(value, gen, this);
-            gen.writeEndObject();
-        } catch (Exception e) {
-            throw _wrapAsIOE(gen, e);
-        }
+        gen.writeStartObject();
+        gen.writeFieldName(rootName.simpleAsEncoded(_config));
+        ser.serialize(value, gen, this);
+        gen.writeEndObject();
     }
 
     private final void _serialize(JsonGenerator gen, Object value,
             JsonSerializer<Object> ser)
-        throws IOException
+        throws JacksonException
     {
-        try {
-            ser.serialize(value, gen, this);
-        } catch (Exception e) {
-            throw _wrapAsIOE(gen, e);
-        }
+        ser.serialize(value, gen, this);
     }
 
     /**
      * Helper method called when root value to serialize is null
      */
-    protected void _serializeNull(JsonGenerator gen) throws IOException
+    protected void _serializeNull(JsonGenerator gen) throws JacksonException
     {
         JsonSerializer<Object> ser = getDefaultNullValueSerializer();
-        try {
-            ser.serialize(null, gen, this);
-        } catch (Exception e) {
-            throw _wrapAsIOE(gen, e);
-        }
-    }
-
-    private IOException _wrapAsIOE(JsonGenerator g, Exception e) {
-        if (e instanceof IOException) {
-            return (IOException) e;
-        }
-        String msg = ClassUtil.exceptionMessage(e);
-        if (msg == null) {
-            msg = "[no message for "+e.getClass().getName()+"]";
-        }
-        return new JsonMappingException(g, msg, e);
+        ser.serialize(null, gen, this);
     }
 
     /*

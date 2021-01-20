@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
@@ -83,13 +83,13 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     }
 
     @Override
-    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance) throws IOException {
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance) throws JacksonException {
         deserializeSetAndReturn(p, ctxt, instance);
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
+            Object instance) throws JacksonException
     {
         try {
             return setAndReturn(instance, deserialize(p, ctxt));
@@ -105,12 +105,12 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     }
 
     @Override
-    public void set(Object instance, Object value) throws IOException {
+    public void set(Object instance, Object value) throws JacksonException {
         _forward.set(instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException {
+    public Object setAndReturn(Object instance, Object value) throws JacksonException {
         return _forward.setAndReturn(instance, value);
     }
 
@@ -127,7 +127,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws IOException
+        public void handleResolvedForwardReference(Object id, Object value) throws JacksonException
         {
             if (!hasId(id)) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id

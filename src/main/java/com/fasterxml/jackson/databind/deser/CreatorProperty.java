@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -215,7 +215,7 @@ public class CreatorProperty
 
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
+            Object instance) throws JacksonException
     {
         _verifySetter();
         _fallbackSetter.set(instance, deserialize(p, ctxt));
@@ -223,21 +223,21 @@ public class CreatorProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-            DeserializationContext ctxt, Object instance) throws IOException
+            DeserializationContext ctxt, Object instance) throws JacksonException
     {
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
     }
     
     @Override
-    public void set(Object instance, Object value) throws IOException
+    public void set(Object instance, Object value)
     {
         _verifySetter();
         _fallbackSetter.set(instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value)
     {
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, value);
@@ -285,13 +285,14 @@ public class CreatorProperty
     /**********************************************************************
      */
 
-    private final void _verifySetter() throws IOException {
+    private final void _verifySetter() throws JacksonException {
         if (_fallbackSetter == null) {
             _reportMissingSetter(null, null);
         }
     }
 
-    private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt) throws IOException
+    private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
     {
         final String msg = "No fallback setter/field defined for creator property "+ClassUtil.name(getName());
         // Hmmmh. Should we return quietly (NOP), or error?

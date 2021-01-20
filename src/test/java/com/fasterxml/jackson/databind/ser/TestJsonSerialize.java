@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -111,10 +110,10 @@ public class TestJsonSerialize
     {
         public Bar294Serializer() { super(Bar294.class); }
         @Override
-        public void serialize(Bar294 bar, JsonGenerator jgen,
-            SerializerProvider provider) throws IOException
+        public void serialize(Bar294 bar, JsonGenerator g,
+            SerializerProvider provider)
         {
-            jgen.writeString(bar.id);
+            g.writeString(bar.id);
         }
     }
 

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.*;
 
@@ -41,7 +40,8 @@ public class DateSerializer
     }
 
     @Override
-    public void serialize(Date value, JsonGenerator g, SerializerProvider provider) throws IOException
+    public void serialize(Date value, JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
         if (_asTimestamp(provider)) {
             g.writeNumber(_timestamp(value));

@@ -14,7 +14,6 @@ import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.cfg.SerializationContexts;
-import com.fasterxml.jackson.databind.exc.RuntimeJsonMappingException;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -836,7 +835,7 @@ public class ObjectWriter
                     g.flush();
                 }
             } catch (Exception e) {
-                ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
+                ClassUtil.closeOnFailAndThrowAsJacksonE(null, toClose, e);
                 return;
             }
             toClose.close();
@@ -974,7 +973,7 @@ public class ObjectWriter
         try {
             _prefetch.serialize(gen, value, ctxt);
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(gen, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, e);
             return;
         }
         gen.close();
@@ -994,7 +993,7 @@ public class ObjectWriter
             toClose = null;
             tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(gen, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, toClose, e);
             return;
         }
         gen.close();
@@ -1130,15 +1129,7 @@ public class ObjectWriter
             // have `TypeSerializer` to use
             if (newType.isJavaLangObject()) {
                 DefaultSerializerProvider ctxt = parent._serializerProvider();
-                TypeSerializer typeSer;
-
-                try {
-                    typeSer = ctxt.findTypeSerializer(newType);
-                } catch (JsonMappingException e) {
-                    // Unlike with value serializer pre-fetch, let's not allow exception
-                    // for TypeSerializer be swallowed
-                    throw new RuntimeJsonMappingException(e);
-                }
+                TypeSerializer typeSer = ctxt.findTypeSerializer(newType);
                 return new Prefetch(null, null, typeSer);
             }
 

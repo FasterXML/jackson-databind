@@ -55,7 +55,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 
     static class TestEnumSerializer extends JsonSerializer<TestEnum> {
         @Override
-        public void serialize(TestEnum languageCode, JsonGenerator g, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(TestEnum languageCode, JsonGenerator g, SerializerProvider serializerProvider) {
             g.writeString(languageCode.code());
         }
 
@@ -67,7 +67,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 
     static class TestEnumKeyDeserializer extends KeyDeserializer {
         @Override
-        public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
+        public Object deserializeKey(String key, DeserializationContext ctxt) {
             try {
                 return TestEnum.lookup(key);
             } catch (IllegalArgumentException e) {
@@ -82,7 +82,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         }
 
         @Override
-        public TestEnum deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public TestEnum deserialize(JsonParser p, DeserializationContext ctxt) {
             String code = p.getText();
             try {
                 return TestEnum.lookup(code);
@@ -95,7 +95,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 
     static class TestEnumKeySerializer extends JsonSerializer<TestEnum> {
         @Override
-        public void serialize(TestEnum test, JsonGenerator g, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(TestEnum test, JsonGenerator g, SerializerProvider serializerProvider) {
             g.writeFieldName(test.code());
         }
 
@@ -209,7 +209,6 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         simpleModule.addDeserializer(SuperTypeEnum.class, new JsonDeserializer<SuperTypeEnum>() {
             @Override
             public SuperTypeEnum deserialize(JsonParser p, DeserializationContext deserializationContext)
-                    throws IOException
             {
                 return SuperTypeEnum.valueOf(p.getText());
             }
@@ -236,7 +235,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
                     final JsonDeserializer<?> deserializer) {
                 return new JsonDeserializer<Enum>() {
                     @Override
-                    public Enum deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    public Enum deserialize(JsonParser p, DeserializationContext ctxt) {
                         Class<? extends Enum> rawClass = (Class<Enum<?>>) type.getRawClass();
                         final String str = p.getValueAsString().toLowerCase();
                         return KeyEnum.valueOf(rawClass, str);
@@ -254,7 +253,6 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
                 return new KeyDeserializer() {
                     @Override
                     public Object deserializeKey(String key, DeserializationContext ctxt)
-                            throws IOException
                     {
                         Class<? extends Enum> rawClass = (Class<Enum<?>>) type.getRawClass();
                         return Enum.valueOf(rawClass, key.toLowerCase());

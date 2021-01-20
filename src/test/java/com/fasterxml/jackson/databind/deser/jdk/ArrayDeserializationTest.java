@@ -68,7 +68,6 @@ public class ArrayDeserializationTest
 
         @Override
         public void serialize(JsonGenerator gen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
         {
             gen.writeString(_desc);
         }
@@ -83,8 +82,7 @@ public class ArrayDeserializationTest
 
         @Override
         public void serializeWithType(JsonGenerator gen,
-                SerializerProvider provider, TypeSerializer typeSer)
-                throws IOException, JsonProcessingException {
+                SerializerProvider provider, TypeSerializer typeSer) {
         }
     }	
 
@@ -99,7 +97,7 @@ public class ArrayDeserializationTest
     static class CustomNonDeserArrayDeserializer extends JsonDeserializer<NonDeserializable[]>
     {
         @Override
-        public NonDeserializable[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public NonDeserializable[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
             List<NonDeserializable> list = new ArrayList<NonDeserializable>();
             while (p.nextToken() != JsonToken.END_ARRAY) {

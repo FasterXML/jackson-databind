@@ -44,7 +44,7 @@ public class ObjectMapperTest extends BaseMapTest
         }
 
         @Override
-        public void writeArrayValueSeparator(JsonGenerator g) throws IOException
+        public void writeArrayValueSeparator(JsonGenerator g)
         {
             g.writeRaw(" , ");
         }

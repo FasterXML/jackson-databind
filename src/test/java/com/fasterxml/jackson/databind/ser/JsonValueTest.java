@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -191,7 +190,7 @@ public class JsonValueTest
 
         @Override
         public void serialize(Bean838 value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeNumber(42);
         }
     }

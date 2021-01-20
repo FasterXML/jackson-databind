@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
-import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -67,16 +66,15 @@ public class EnumSerializationTest
         private SerializableEnum() { }
 
         @Override
-        public void serializeWithType(JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
-                throws IOException, JsonProcessingException
+        public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
         {
-            serialize(jgen, provider);
+            serialize(g, provider);
         }
 
         @Override
-        public void serialize(JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException
+        public void serialize(JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString("foo");
+            g.writeString("foo");
         }
     }
 
@@ -113,9 +111,9 @@ public class EnumSerializationTest
     {
         public LowerCasingEnumSerializer() { super(Enum.class); }
         @Override
-        public void serialize(Enum value, JsonGenerator jgen,
-                SerializerProvider provider) throws IOException {
-            jgen.writeString(value.name().toLowerCase());
+        public void serialize(Enum value, JsonGenerator g,
+                SerializerProvider provider) {
+            g.writeString(value.name().toLowerCase());
         }
     }
 

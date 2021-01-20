@@ -988,14 +988,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return AccessPattern.DYNAMIC;
     }
     
-    @Override // since 2.9
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
-        // alas, need to promote exception, if any:
-        try {
-            return _valueInstantiator.createUsingDefault(ctxt);
-        } catch (IOException e) {
-            return ClassUtil.throwAsMappingException(ctxt, e);
-        }
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) throws JacksonException {
+        return _valueInstantiator.createUsingDefault(ctxt);
     }
 
     /*
@@ -1179,12 +1174,12 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * features.
      */
     public abstract Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
-        throws IOException;
+        throws JacksonException;
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // 16-Feb-2012, tatu: ObjectId may be used as well... need to check that first
         if (_objectIdReader != null) {
@@ -1223,7 +1218,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     protected Object _handleTypedObjectId(JsonParser p, DeserializationContext ctxt,
             Object pojo, Object rawId)
-        throws IOException
+        throws JacksonException
     {
         // One more challenge: type of id may not be type of property we are expecting
         // later on; specifically, numeric ids vs Strings.
@@ -1257,7 +1252,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     @SuppressWarnings("resource") // TokenBuffers don't need close, nor parser thereof
     protected Object _convertObjectId(JsonParser p, DeserializationContext ctxt,
-            Object rawId, JsonDeserializer<Object> idDeser) throws IOException
+            Object rawId, JsonDeserializer<Object> idDeser) throws JacksonException
     {
         TokenBuffer buf = TokenBuffer.forInputBuffering(p, ctxt);
         if (rawId instanceof String) {
@@ -1287,7 +1282,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
      */
-    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws IOException {
+    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return deserializeFromObject(p, ctxt);
     }
 
@@ -1295,7 +1290,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object deserializeFromObjectId(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object deserializeFromObjectId(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         Object id = _objectIdReader.readObjectReference(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
@@ -1310,7 +1305,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     protected Object deserializeFromObjectUsingNonDefault(JsonParser p,
-            DeserializationContext ctxt) throws IOException
+            DeserializationContext ctxt) throws JacksonException
     {
         final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
@@ -1337,10 +1332,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,
-            final DeserializationContext ctxt) throws IOException;
+            final DeserializationContext ctxt) throws JacksonException;
 
     public Object deserializeFromNumber(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
@@ -1393,7 +1388,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     public Object deserializeFromString(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
@@ -1419,7 +1414,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Method called to deserialize POJO value from a JSON floating-point
      * number.
      */
-    public Object deserializeFromDouble(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromDouble(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         NumberType t = p.getNumberType();
         // no separate methods for taking float...
@@ -1461,7 +1456,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     /**
      * Method called to deserialize POJO value from a JSON boolean value (true, false)
      */
-    public Object deserializeFromBoolean(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromBoolean(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
@@ -1479,7 +1474,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     public Object deserializeFromEmbedded(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // First things first: id Object Id is used, most likely that's it; specifically,
         // true for UUIDs when written as binary (with Smile, other binary formats)
@@ -1527,7 +1522,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
 
     protected void injectValues(DeserializationContext ctxt, Object bean)
-        throws IOException
+        throws JacksonException
     {
         for (ValueInjector injector : _injectables) {
             injector.inject(ctxt, bean);
@@ -1541,7 +1536,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     protected Object handleUnknownProperties(DeserializationContext ctxt,
             Object bean, TokenBuffer unknownTokens)
-        throws IOException
+        throws JacksonException
     {
         // First: add closing END_OBJECT as marker
         unknownTokens.writeEndObject();
@@ -1567,7 +1562,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     protected void handleUnknownVanilla(JsonParser p, DeserializationContext ctxt,
             Object beanOrBuilder, String propName)
-        throws IOException
+        throws JacksonException
     {
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
@@ -1591,7 +1586,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     @Override
     protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt,
             Object beanOrClass, String propName)
-        throws IOException
+        throws JacksonException
     {
         if (_ignoreAllUnknown) {
             p.skipChildren();
@@ -1611,7 +1606,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     protected void handleIgnoredProperty(JsonParser p, DeserializationContext ctxt,
             Object beanOrClass, String propName)
-        throws IOException
+        throws JacksonException
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)) {
             throw IgnoredPropertyException.from(p, beanOrClass, propName, getKnownPropertyNames());
@@ -1632,7 +1627,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     protected Object handlePolymorphic(JsonParser p, DeserializationContext ctxt,                                          
             Object bean, TokenBuffer unknownTokens)
-        throws IOException
+        throws JacksonException
     {  
         // First things first: maybe there is a more specific deserializer available?
         JsonDeserializer<Object> subDeser = _findSubclassDeserializer(ctxt, bean, unknownTokens);
@@ -1667,7 +1662,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     protected JsonDeserializer<Object> _findSubclassDeserializer(DeserializationContext ctxt,
             Object bean, TokenBuffer unknownTokens)
-        throws IOException
+        throws JacksonException
     {  
         JsonDeserializer<Object> subDeser;
 
@@ -1723,49 +1718,45 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * this method throw an exception; otherwise they would be required
      * to return.
      */
-    public IOException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-        throws IOException
+    public JacksonException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+        throws JacksonException
     {
-        // Need to add reference information
-        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
+        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt),
+                bean, fieldName);
     }
 
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) 
-        throws IOException
+        throws JacksonException
     {
-        /* 05-Mar-2009, tatu: But one nasty edge is when we get
-         *   StackOverflow: usually due to infinite loop. But that
-         *   often gets hidden within an InvocationTargetException...
-         */
+        // 05-Mar-2009, tatu: But one nasty edge is when we get
+        //   StackOverflow: usually due to infinite loop. But that
+        //   often gets hidden within an InvocationTargetException...
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }
         // Errors to be passed as is
         ClassUtil.throwIfError(t);
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        // Ditto for IOExceptions; except we may want to wrap JSON exceptions
-        if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonProcessingException)) {
-                throw (IOException) t;
+        // but note: JacksonExceptions are to be wrapped (except not JsonMappingException
+        // but caller takes care of dealing with those)
+        if ((t instanceof RuntimeException)
+                && !(t instanceof JacksonException)) {
+            boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+            if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+                throw (RuntimeException) t;
             }
-        } else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
-            ClassUtil.throwIfRTE(t);
         }
         return t;
     }
 
     protected Object wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }
         // Errors and "plain" IOExceptions to be passed as is
         ClassUtil.throwIfError(t);
-        if (t instanceof IOException) {
-            // Since we have no more information to add, let's not actually wrap..
-            throw (IOException) t;
-        }
+        ClassUtil.throwIfJacksonE(t);
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
         if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
             ClassUtil.throwIfRTE(t);

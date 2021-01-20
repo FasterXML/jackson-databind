@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -299,7 +298,7 @@ public class ObjectNode
      */
     @Override
     public void serialize(JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         @SuppressWarnings("deprecation")
         boolean trimEmptyArray = (provider != null) &&
@@ -328,7 +327,7 @@ public class ObjectNode
     @Override
     public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         @SuppressWarnings("deprecation")
         boolean trimEmptyArray = (ctxt != null) &&

@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -50,7 +50,7 @@ public abstract class TypeIdResolverBase
     }
 
     @Override
-    public JavaType typeFromId(DatabindContext context, String id)  throws IOException {
+    public JavaType typeFromId(DatabindContext context, String id)  throws JacksonException {
         // 22-Dec-2015, tatu: Must be overridden by sub-classes, so let's throw
         //    an exception if not
         throw new IllegalStateException("Sub-class "+getClass().getName()+" MUST implement "

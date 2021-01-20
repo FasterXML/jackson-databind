@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.io.IOException;
 import java.util.*;
 
 import javax.xml.datatype.*;
@@ -82,7 +81,7 @@ public class CoreXMLDeserializers
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             // For most types, use super impl; but GregorianCalendar also allows
             // integer value (timestamp), which needs separate handling
@@ -96,7 +95,7 @@ public class CoreXMLDeserializers
 
         @Override
         protected Object _deserialize(String value, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             switch (_kind) {
             case TYPE_DURATION:

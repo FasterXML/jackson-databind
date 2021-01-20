@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -62,7 +62,7 @@ public final class IndexedListSerializer
 
     @Override
     public final void serialize(Object value0, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         final List<?> value = (List<?>) value0;
         final int len = value.size();
@@ -81,7 +81,7 @@ public final class IndexedListSerializer
     
     @Override
     public void serializeContents(Object value0, JsonGenerator g, SerializerProvider ctxt)
-        throws IOException
+        throws JacksonException
     {
         final List<?> value = (List<?>) value0;
         if (_elementSerializer != null) {
@@ -124,7 +124,7 @@ public final class IndexedListSerializer
     
     public void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser)
-        throws IOException
+        throws JacksonException
     {
         final int len = value.size();
         if (len == 0) {
@@ -149,7 +149,7 @@ public final class IndexedListSerializer
     }
 
     public void serializeTypedContents(List<?> value, JsonGenerator g, SerializerProvider ctxt)
-        throws IOException
+        throws JacksonException
     {
         final int len = value.size();
         if (len == 0) {

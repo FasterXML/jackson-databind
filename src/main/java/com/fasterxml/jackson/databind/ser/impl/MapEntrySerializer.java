@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -250,7 +249,7 @@ public class MapEntrySerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider ctxt, Entry<?, ?> entry)  throws IOException
+    public boolean isEmpty(SerializerProvider ctxt, Entry<?, ?> entry)
     {
         Object value = entry.getValue();
         if (value == null) {
@@ -283,7 +282,7 @@ public class MapEntrySerializer
 
     @Override
     public void serialize(Map.Entry<?, ?> value, JsonGenerator g, SerializerProvider ctxt)
-        throws IOException
+        throws JacksonException
     {
         g.writeStartObject(value);
         serializeDynamic(value, g, ctxt);
@@ -292,7 +291,8 @@ public class MapEntrySerializer
 
     @Override
     public void serializeWithType(Map.Entry<?, ?> value, JsonGenerator g,
-            SerializerProvider ctxt, TypeSerializer typeSer) throws IOException
+            SerializerProvider ctxt, TypeSerializer typeSer)
+        throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         g.setCurrentValue(value);
@@ -304,7 +304,7 @@ public class MapEntrySerializer
 
     protected void serializeDynamic(Map.Entry<?, ?> value, JsonGenerator gen,
             SerializerProvider ctxt)
-        throws IOException
+        throws JacksonException
     {
         final TypeSerializer vts = _valueTypeSerializer;
         final Object keyElem = value.getKey();

@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -42,7 +41,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
 
     @Override
     public WritableTypeId writeTypePrefix(JsonGenerator g, SerializerProvider ctxt,
-            WritableTypeId idMetadata) throws IOException
+            WritableTypeId idMetadata) throws JacksonException
     {
         _generateTypeId(ctxt, idMetadata);
         return g.writeTypePrefix(idMetadata);
@@ -50,15 +49,13 @@ public abstract class TypeSerializerBase extends TypeSerializer
 
     @Override
     public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializerProvider ctxt,
-            WritableTypeId idMetadata) throws IOException
+            WritableTypeId idMetadata) throws JacksonException
     {
         return g.writeTypeSuffix(idMetadata);
     }
 
     /**
      * Helper method that will generate type id to use, if not already passed.
-     *
-     * @since 2.9
      */
     protected void _generateTypeId(DatabindContext ctxt, WritableTypeId idMetadata) {
         Object id = idMetadata.id;

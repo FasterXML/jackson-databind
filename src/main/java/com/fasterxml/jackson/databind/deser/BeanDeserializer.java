@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -197,7 +196,7 @@ public class BeanDeserializer
      * Main deserialization method for bean-based objects (POJOs).
      */
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // common case first
         if (p.isExpectedStartObjectToken()) {
@@ -216,7 +215,7 @@ public class BeanDeserializer
     }
 
     protected final Object _deserializeOther(JsonParser p, DeserializationContext ctxt,
-            JsonToken t) throws IOException
+            JsonToken t) throws JacksonException
     {
         // and then others, generally requiring use of @JsonCreator
         if (t != null) {
@@ -258,7 +257,7 @@ public class BeanDeserializer
      * after collecting some or all of the properties to set.
      */
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean) throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
@@ -324,7 +323,7 @@ public class BeanDeserializer
      * is {@link JsonToken#START_OBJECT} (or equivalent).
      */
     private final Object _vanillaDeserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
@@ -393,7 +392,7 @@ public class BeanDeserializer
      */
     private final Object _vanillaDeserialize(JsonParser p,
     		DeserializationContext ctxt, JsonToken t)
-        throws IOException
+        throws JacksonException
     {
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
@@ -437,7 +436,7 @@ public class BeanDeserializer
     }
 
     private final Object _vanillaDeserializeWithUnknown(JsonParser p,
-            DeserializationContext ctxt, Object bean, String propName) throws IOException
+            DeserializationContext ctxt, Object bean, String propName) throws JacksonException
     {
         p.nextToken();
         handleUnknownVanilla(p, ctxt, bean, propName);
@@ -468,7 +467,7 @@ public class BeanDeserializer
      * General version used when handling needs more advanced features.
      */
     @Override
-    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         /* 09-Dec-2014, tatu: As per [databind#622], we need to allow Object Id references
          *   to come in as JSON Objects as well; but for now assume they will
@@ -557,7 +556,7 @@ public class BeanDeserializer
      */
     @Override
     protected Object _deserializeUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
@@ -700,7 +699,7 @@ public class BeanDeserializer
 
     protected final Object _deserializeWithErrorWrapping(JsonParser p,
             DeserializationContext ctxt, SettableBeanProperty prop)
-        throws IOException
+        throws JacksonException
     {
         try {
             return prop.deserialize(p, ctxt);
@@ -716,7 +715,7 @@ public class BeanDeserializer
      * as such, and should be handled same as empty Object.
      */
     protected Object deserializeFromNull(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // 17-Dec-2015, tatu: Highly specialized case, mainly to support polymorphic
         //   "empty" POJOs deserialized from XML, where empty XML tag synthesizes a
@@ -739,7 +738,7 @@ public class BeanDeserializer
     }
 
     @Override
-    protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // note: cannot call `_delegateDeserializer()` since order reversed here:
         JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
@@ -787,7 +786,7 @@ public class BeanDeserializer
 
     protected final Object deserializeWithView(JsonParser p, DeserializationContext ctxt,
             Object bean, Class<?> activeView)
-        throws IOException
+        throws JacksonException
     {
         for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
             if (ix >= 0) {
@@ -828,7 +827,7 @@ public class BeanDeserializer
      */
     @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
@@ -904,7 +903,7 @@ public class BeanDeserializer
     @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser p, DeserializationContext ctxt,
             Object bean)
-        throws IOException
+        throws JacksonException
     {
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -967,7 +966,7 @@ public class BeanDeserializer
 
     @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // 01-Dec-2016, tatu: Note: This IS legal to call, but only when unwrapped
         //    value itself is NOT passed via `CreatorProperty` (which isn't supported).
@@ -1080,7 +1079,7 @@ public class BeanDeserializer
      */
 
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithExternalTypeId(p, ctxt);
@@ -1100,7 +1099,7 @@ public class BeanDeserializer
 
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt,
             Object bean)
-        throws IOException
+        throws JacksonException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
@@ -1159,7 +1158,7 @@ public class BeanDeserializer
 
     @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         final PropertyBasedCreator creator = _propertyBasedCreator;
@@ -1264,7 +1263,7 @@ public class BeanDeserializer
      * @since 3.0
      */
     protected Object _handleUnexpectedWithin(JsonParser p,
-            DeserializationContext ctxt, Object bean) throws IOException
+            DeserializationContext ctxt, Object bean) throws JacksonException
     {
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
@@ -1288,7 +1287,7 @@ public class BeanDeserializer
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws IOException
+        public void handleResolvedForwardReference(Object id, Object value)
         {
             if (_bean == null) {
                 _context.reportInputMismatch(_prop,

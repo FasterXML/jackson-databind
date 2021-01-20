@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
-import java.io.*;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -23,7 +21,6 @@ public class NullSerializationTest
         public NullSerializer() { super(Object.class); }
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
         {
             gen.writeString("foobar");
         }

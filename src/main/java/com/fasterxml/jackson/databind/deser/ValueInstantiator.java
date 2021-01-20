@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
@@ -221,7 +221,7 @@ public abstract class ValueInstantiator
      * This method is called if {@link #getFromObjectArguments} returns
      * null or empty List.
      */
-    public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+    public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no default no-arguments constructor found");
     }
@@ -234,7 +234,7 @@ public abstract class ValueInstantiator
      * This method is called if {@link #getFromObjectArguments} returns
      * a non-empty List of arguments.
      */
-    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
+    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws JacksonException {
         // sanity check; shouldn't really get called if no Creator specified
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no creator with arguments specified");
@@ -258,7 +258,7 @@ public abstract class ValueInstantiator
      */
     public Object createFromObjectWith(DeserializationContext ctxt,
             SettableBeanProperty[] props, PropertyValueBuffer buffer)
-        throws IOException
+        throws JacksonException
     {
         return createFromObjectWith(ctxt, buffer.getParameters(props));
     }
@@ -267,7 +267,7 @@ public abstract class ValueInstantiator
      * Method to called to create value instance from JSON Object using
      * an intermediate "delegate" value to pass to createor method
      */
-    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
+    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no delegate creator specified");
     }
@@ -276,7 +276,7 @@ public abstract class ValueInstantiator
      * Method to called to create value instance from JSON Array using
      * an intermediate "delegate" value to pass to createor method
      */
-    public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
+    public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no array delegate creator specified");
     }
@@ -287,26 +287,26 @@ public abstract class ValueInstantiator
     /**********************************************************************
      */
 
-    public Object createFromString(DeserializationContext ctxt, String value) throws IOException {
+    public Object createFromString(DeserializationContext ctxt, String value) throws JacksonException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),
                 "no String-argument constructor/factory method to deserialize from String value ('%s')",
                 value);
 
     }
 
-    public Object createFromInt(DeserializationContext ctxt, int value) throws IOException {
+    public Object createFromInt(DeserializationContext ctxt, int value) throws JacksonException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no int/Int-argument constructor/factory method to deserialize from Number value (%s)",
                 value);
     }
 
-    public Object createFromLong(DeserializationContext ctxt, long value) throws IOException {
+    public Object createFromLong(DeserializationContext ctxt, long value) throws JacksonException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no long/Long-argument constructor/factory method to deserialize from Number value (%s)",
                 value);
     }
 
-    public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws IOException
+    public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws JacksonException
     {
         return ctxt.handleMissingInstantiator(getValueClass(),this,null,
                 "no BigInteger-argument constructor/factory method to deserialize from Number value (%s)",
@@ -314,13 +314,13 @@ public abstract class ValueInstantiator
         );
     }
 
-    public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException {
+    public Object createFromDouble(DeserializationContext ctxt, double value) throws JacksonException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no double/Double-argument constructor/factory method to deserialize from Number value (%s)",
                 value);
     }
 
-    public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws IOException
+    public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws JacksonException
     {
         return ctxt.handleMissingInstantiator(getValueClass(),this,null,
                 "no BigDecimal/double/Double-argument constructor/factory method to deserialize from Number value (%s)",
@@ -328,7 +328,7 @@ public abstract class ValueInstantiator
         );
     }
 
-    public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException {
+    public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws JacksonException {
         return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no boolean/Boolean-argument constructor/factory method to deserialize from boolean value (%s)",
                 value);
@@ -501,64 +501,64 @@ public abstract class ValueInstantiator
          */
 
         @Override
-        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+        public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
             return delegate().createUsingDefault(ctxt);
         }
 
         @Override
-        public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
+        public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws JacksonException {
             return delegate().createFromObjectWith(ctxt, args);
         }
 
         @Override
         public Object createFromObjectWith(DeserializationContext ctxt,
                 SettableBeanProperty[] props, PropertyValueBuffer buffer)
-            throws IOException {
+            throws JacksonException {
             return delegate().createFromObjectWith(ctxt, props, buffer);
         }
 
         @Override
-        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
+        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException {
             return delegate().createUsingDelegate(ctxt, delegate);
         }
 
         @Override
-        public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
+        public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException {
             return delegate().createUsingArrayDelegate(ctxt, delegate);
         }
 
         @Override
-        public Object createFromString(DeserializationContext ctxt, String value) throws IOException {
+        public Object createFromString(DeserializationContext ctxt, String value) throws JacksonException {
             return delegate().createFromString(ctxt, value);
         }
 
         @Override
-        public Object createFromInt(DeserializationContext ctxt, int value) throws IOException {
+        public Object createFromInt(DeserializationContext ctxt, int value) throws JacksonException {
             return delegate().createFromInt(ctxt, value);
         }
 
         @Override
-        public Object createFromLong(DeserializationContext ctxt, long value) throws IOException {
+        public Object createFromLong(DeserializationContext ctxt, long value) throws JacksonException {
             return delegate().createFromLong(ctxt, value);
         }
 
         @Override
-        public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws IOException {
+        public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws JacksonException {
             return delegate().createFromBigInteger(ctxt, value);
         }
 
         @Override
-        public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException {
+        public Object createFromDouble(DeserializationContext ctxt, double value) throws JacksonException {
             return delegate().createFromDouble(ctxt, value);
         }
 
         @Override
-        public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws IOException {
+        public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws JacksonException {
             return delegate().createFromBigDecimal(ctxt, value);
         }
 
         @Override
-        public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException {
+        public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws JacksonException {
             return delegate().createFromBoolean(ctxt, value);
         }
 

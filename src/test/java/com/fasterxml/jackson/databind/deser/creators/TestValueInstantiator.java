@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -326,7 +325,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
         
         @Override
-        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
+        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) {
             return new AnnotatedBeanDelegating(delegate, false);
         }
     }

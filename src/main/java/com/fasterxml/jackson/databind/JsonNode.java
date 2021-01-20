@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -454,7 +453,7 @@ public abstract class JsonNode
      * @return Binary data this node contains, iff it is a binary
      *   node; null otherwise
      */
-    public byte[] binaryValue() throws IOException {
+    public byte[] binaryValue() {
         return null;
     }
 

@@ -1,21 +1,20 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
-// @since 2.12
 public class AtomicLongDeserializer extends StdScalarDeserializer<AtomicLong>
 {
     public AtomicLongDeserializer() { super(AtomicLong.class); }
 
     @Override
-    public AtomicLong deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public AtomicLong deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         if (p.isExpectedNumberIntToken()) {
             return new AtomicLong(p.getLongValue());
         }

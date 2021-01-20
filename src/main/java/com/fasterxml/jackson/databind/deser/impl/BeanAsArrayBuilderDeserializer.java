@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
@@ -115,7 +114,7 @@ public class BeanAsArrayBuilderDeserializer
      */
 
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
-        throws IOException
+        throws JacksonException
     {
         try {
             return _buildMethod.getMember().invoke(builder, (Object[]) null);
@@ -126,7 +125,7 @@ public class BeanAsArrayBuilderDeserializer
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // Let's delegate just in case we got a JSON Object (could error out, alternatively?)
         if (!p.isExpectedStartArrayToken()) {
@@ -175,7 +174,7 @@ public class BeanAsArrayBuilderDeserializer
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object value)
-        throws IOException
+        throws JacksonException
     {
         // 26-Oct-2016, tatu: Will fail, but let the original deserializer provide message
         return _delegate.deserialize(p, ctxt, value);
@@ -183,7 +182,8 @@ public class BeanAsArrayBuilderDeserializer
 
     // needed since 2.1
     @Override
-    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         return _deserializeFromNonArray(p, ctxt);
     }
@@ -202,7 +202,7 @@ public class BeanAsArrayBuilderDeserializer
      * @return Builder object in use.
      */
     protected Object _deserializeNonVanilla(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_nonStandardCreation) {
             return deserializeFromObjectUsingNonDefault(p, ctxt);
@@ -262,7 +262,7 @@ public class BeanAsArrayBuilderDeserializer
     @Override
     protected final Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
@@ -343,7 +343,7 @@ public class BeanAsArrayBuilderDeserializer
      */
 
     protected Object _deserializeFromNonArray(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // Let's start with failure
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p,

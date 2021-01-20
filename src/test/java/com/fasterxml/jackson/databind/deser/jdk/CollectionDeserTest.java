@@ -27,7 +27,6 @@ public class CollectionDeserTest
 
         @Override
         public CustomList deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
         {
             CustomList result = new CustomList();
             result.add(jp.getText());
@@ -64,7 +63,7 @@ public class CollectionDeserTest
         public List<Key> keys;
     }
 
-    // [Issue#828]
+    // [databind#828]
     @JsonDeserialize(using=SomeObjectDeserializer.class)
     static class SomeObject {}
 
@@ -72,8 +71,7 @@ public class CollectionDeserTest
         public SomeObjectDeserializer() { super(SomeObject.class); }
 
         @Override
-        public SomeObject deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+        public SomeObject deserialize(JsonParser p, DeserializationContext ctxt) {
             throw new RuntimeException("I want to catch this exception");
         }
     }

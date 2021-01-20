@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
@@ -455,7 +454,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         ObjectMapper mapper = JsonMapper.builder().addHandler(new DeserializationProblemHandler(){
             @Override
-            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException {
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
                 p.readValueAsTree();
                 return true;
             }

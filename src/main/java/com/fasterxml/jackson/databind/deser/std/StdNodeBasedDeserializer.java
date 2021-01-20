@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -53,7 +51,8 @@ public abstract class StdNodeBasedDeserializer<T>
     /**********************************************************************
      */
 
-    public abstract T convert(JsonNode root, DeserializationContext ctxt) throws IOException;
+    public abstract T convert(JsonNode root, DeserializationContext ctxt)
+        throws JacksonException;
 
     /*
     /**********************************************************************
@@ -62,7 +61,7 @@ public abstract class StdNodeBasedDeserializer<T>
      */
     
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         JsonNode n = (JsonNode) _treeDeserializer.deserialize(p, ctxt);
         return convert(n, ctxt);
     }
@@ -70,7 +69,7 @@ public abstract class StdNodeBasedDeserializer<T>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer td)
-        throws IOException
+        throws JacksonException
     {
         // 19-Nov-2014, tatu: Quite likely we'd have some issues but... let's
         //   try, just in case.

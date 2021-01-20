@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -39,17 +39,17 @@ public class TestJsonSerialize2
 
     static class SimpleKeySerializer extends JsonSerializer<SimpleKey> {
         @Override
-        public void serialize(SimpleKey key, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException {
-            jgen.writeFieldName("key "+key.key);
+        public void serialize(SimpleKey key, JsonGenerator g, SerializerProvider provider)
+        {
+            g.writeFieldName("key "+key.key);
         }
     }
 
     static class SimpleValueSerializer extends JsonSerializer<SimpleValue> {
         @Override
-        public void serialize(SimpleValue value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException {
-            jgen.writeString("value "+value.value);
+        public void serialize(SimpleValue value, JsonGenerator g, SerializerProvider provider)
+        {
+            g.writeString("value "+value.value);
         }
     }
 

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -59,9 +57,11 @@ public class TextNode
      * Method for accessing textual contents assuming they were
      * base64 encoded; if so, they are decoded and resulting binary
      * data is returned.
+     *
+     * @throws JacksonException if textual contents are not valid Base64 content
      */
     @SuppressWarnings("resource")
-    public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
+    public byte[] getBinaryValue(Base64Variant b64variant) throws JacksonException
     {
         final String str = _value.trim();
         // 04-Sep-2020, tatu: Let's limit the size of the initial block to 64k,
@@ -74,7 +74,8 @@ public class TextNode
         try {
             b64variant.decode(str, builder);
         } catch (IllegalArgumentException e) {
-            throw InvalidFormatException.from(null,
+            throw InvalidFormatException.from(
+                    null, /* Alas, no processor to pass */
                     String.format(
 "Cannot access contents of TextNode as binary due to broken Base64 encoding: %s",
 e.getMessage()),
@@ -84,14 +85,14 @@ e.getMessage()),
     }
 
     @Override
-    public byte[] binaryValue() throws IOException {
+    public byte[] binaryValue() throws JacksonException {
         return getBinaryValue(Base64Variants.getDefaultVariant());
     }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* General type coercions
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -135,14 +136,15 @@ e.getMessage()),
         return NumberInput.parseAsDouble(_value, defaultValue);
     }
     
-    /* 
-    /**********************************************************
+    /*
+    /**********************************************************************
     /* Serialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
         if (_value == null) {
             g.writeNull();
@@ -152,9 +154,9 @@ e.getMessage()),
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden standard methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override

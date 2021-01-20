@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -63,7 +62,7 @@ public class UnwrappedPropertyHandler
     @SuppressWarnings("resource")
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered)
-        throws IOException
+        throws JacksonException
     {
         for (int i = 0, len = _properties.size(); i < len; ++i) {
             SettableBeanProperty prop = _properties.get(i);

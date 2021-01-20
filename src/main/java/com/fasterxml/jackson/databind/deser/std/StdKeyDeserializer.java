@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -9,9 +8,11 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.NumberInput;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -121,7 +122,7 @@ public class StdKeyDeserializer extends KeyDeserializer
 
     @Override
     public Object deserializeKey(String key, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (key == null) { // is this even legal call?
             return null;
@@ -260,7 +261,7 @@ public class StdKeyDeserializer extends KeyDeserializer
     }
 
     // @since 2.9
-    protected Object _weirdKey(DeserializationContext ctxt, String key, Exception e) throws IOException {
+    protected Object _weirdKey(DeserializationContext ctxt, String key, Exception e) throws JacksonException {
         return ctxt.handleWeirdKey(_keyClass, key, "problem: %s",
                 ClassUtil.exceptionMessage(e));
     }
@@ -291,7 +292,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         }
 
         @Override
-        public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Object deserializeKey(String key, DeserializationContext ctxt) throws JacksonException, JsonProcessingException {
             return key;
         }
     }    
@@ -322,7 +323,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         @SuppressWarnings("resource")
         @Override
         public final Object deserializeKey(String key, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             if (key == null) { // is this even legal call?
                 return null;
@@ -371,7 +372,8 @@ public class StdKeyDeserializer extends KeyDeserializer
         }
 
         @Override
-        public Object _parse(String key, DeserializationContext ctxt) throws IOException
+        public Object _parse(String key, DeserializationContext ctxt)
+            throws JacksonException
         {
             if (_factory != null) {
                 try {

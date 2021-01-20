@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -207,7 +206,7 @@ public abstract class JsonSerializer<T>
      *   serializing Objects value contains, if any.
      */
     public abstract void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
-        throws IOException;
+        throws JacksonException;
 
     /**
      * Method that can be called to ask implementation to serialize
@@ -238,7 +237,7 @@ public abstract class JsonSerializer<T>
      */
     public void serializeWithType(T value, JsonGenerator gen, SerializerProvider serializers,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         Class<?> clz = handledType();
         if (clz == null) {
@@ -321,9 +320,7 @@ public abstract class JsonSerializer<T>
      *<p>
      * Default implementation will consider only null values to be empty.
      */
-    public boolean isEmpty(SerializerProvider provider, T value)
-        throws IOException
-    {
+    public boolean isEmpty(SerializerProvider provider, T value) {
         return (value == null);
     }
 

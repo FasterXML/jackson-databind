@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -171,7 +170,8 @@ public class MapEntryDeserializer
 
     @SuppressWarnings("unchecked")
     @Override
-    public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
         JsonToken t = p.currentToken();
@@ -233,7 +233,7 @@ public class MapEntryDeserializer
 
     @Override
     public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt,
-            Map.Entry<Object,Object> result) throws IOException
+            Map.Entry<Object,Object> result) throws JacksonException
     {
         throw new IllegalStateException("Cannot update Map.Entry values");
     }
@@ -241,7 +241,7 @@ public class MapEntryDeserializer
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(p, ctxt);

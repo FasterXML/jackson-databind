@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.*;
@@ -67,8 +66,8 @@ public final class MissingNode
     */
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
         /* Nothing to output... should we signal an error tho?
          * Chances are, this is an erroneous call. For now, let's
@@ -76,13 +75,13 @@ public final class MissingNode
          * cannot just omit a value as JSON Object field name may have
          * been written out.
          */
-        jg.writeNull();
+        g.writeNull();
     }
 
     @Override
     public void serializeWithType(JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws JacksonException
     {
         g.writeNull();
     }

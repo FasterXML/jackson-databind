@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -106,7 +105,7 @@ public class JsonValueSerializer
      */
 
     @Override // since 2.12
-    public boolean isEmpty(SerializerProvider ctxt, Object bean) throws IOException
+    public boolean isEmpty(SerializerProvider ctxt, Object bean)
     {
         // 31-Oct-2020, tatu: Should perhaps catch access issue here... ?
         Object referenced = _accessor.getValue(bean);
@@ -180,7 +179,8 @@ public class JsonValueSerializer
      */
 
     @Override
-    public void serialize(Object bean, JsonGenerator gen, SerializerProvider ctxt) throws IOException
+    public void serialize(Object bean, JsonGenerator gen, SerializerProvider ctxt)
+        throws JacksonException
     {
         Object value;
         try {
@@ -212,7 +212,7 @@ public class JsonValueSerializer
 
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider ctxt,
-            TypeSerializer typeSer0) throws IOException
+            TypeSerializer typeSer0) throws JacksonException
     {
         // Regardless of other parts, first need to find value to serialize:
         Object value;
@@ -390,7 +390,8 @@ public class JsonValueSerializer
 
         @Override
         public WritableTypeId writeTypePrefix(JsonGenerator g, SerializerProvider ctxt,
-                WritableTypeId typeId) throws IOException {
+                WritableTypeId typeId) throws JacksonException
+        {
             // 28-Jun-2017, tatu: Important! Need to "override" value
             typeId.forValue = _forObject;
             return _typeSerializer.writeTypePrefix(g, ctxt, typeId);
@@ -398,7 +399,8 @@ public class JsonValueSerializer
 
         @Override
         public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializerProvider ctxt,
-                WritableTypeId typeId) throws IOException {
+                WritableTypeId typeId) throws JacksonException
+        {
             // NOTE: already overwrote value object so:
             return _typeSerializer.writeTypeSuffix(g, ctxt, typeId);
         }

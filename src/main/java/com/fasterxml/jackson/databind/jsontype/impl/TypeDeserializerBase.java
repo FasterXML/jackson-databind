@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -144,7 +143,7 @@ public abstract class TypeDeserializerBase
      */
 
     protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt,
-            String typeId) throws IOException
+            String typeId)
     {
         JsonDeserializer<Object> deser = _deserializers.get(typeId);
         if (deser == null) {
@@ -204,7 +203,7 @@ public abstract class TypeDeserializerBase
         return deser;
     }
 
-    protected final JsonDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt) throws IOException
+    protected final JsonDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt)
     {
         // 06-Feb-2013, tatu: As per [databind#148], consider default implementation value of
         //   {@link java.lang.Void} to mean "serialize as null"; as well as DeserializationFeature
@@ -234,7 +233,7 @@ public abstract class TypeDeserializerBase
      * so-called native type ids, and such type id has been found.
      */
     protected Object _deserializeWithNativeTypeId(JsonParser p, DeserializationContext ctxt, Object typeId)
-        throws IOException
+        throws JacksonException
     {
         JsonDeserializer<Object> deser;
         if (typeId == null) {
@@ -264,7 +263,7 @@ public abstract class TypeDeserializerBase
      *   the problem.
      */
     protected JavaType _handleUnknownTypeId(DeserializationContext ctxt, String typeId)
-        throws IOException
+        throws JacksonException
     {
         String extraDesc = _idResolver.getDescForKnownTypeIds();
         if (extraDesc == null) {
@@ -279,11 +278,8 @@ public abstract class TypeDeserializerBase
         return ctxt.handleUnknownTypeId(_baseType, typeId, _idResolver, extraDesc);
     }
 
-    /**
-     * @since 2.9
-     */
     protected JavaType _handleMissingTypeId(DeserializationContext ctxt, String extraDesc)
-        throws IOException
+        throws JacksonException
     {
         return ctxt.handleMissingTypeId(_baseType, _idResolver, extraDesc);
     }

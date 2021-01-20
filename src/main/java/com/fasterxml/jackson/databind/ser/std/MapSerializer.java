@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -468,7 +467,7 @@ public class MapSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Map<?,?> value) throws IOException
+    public boolean isEmpty(SerializerProvider prov, Map<?,?> value)
     {
         if (value.isEmpty()) {
             return true;
@@ -556,7 +555,7 @@ public class MapSerializer
 
     @Override
     public void serialize(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         gen.writeStartObject(value);
         serializeWithoutTypeInfo(value, gen, provider);
@@ -566,7 +565,7 @@ public class MapSerializer
     @Override
     public void serializeWithType(Map<?,?> value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);
@@ -588,7 +587,9 @@ public class MapSerializer
      *<p>
      * Public since it also is called by {@code AnyGetterWriter}.
      */
-    public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializerProvider ctxt) throws IOException {
+    public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializerProvider ctxt)
+        throws JacksonException
+    {
         if (!value.isEmpty()) {
             if (_sortKeys || ctxt.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value, gen, ctxt);
@@ -618,7 +619,7 @@ public class MapSerializer
      * we do know that no value suppression is needed (which simplifies processing a bit)
      */
     public void serializeFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
@@ -663,7 +664,7 @@ public class MapSerializer
      */
     public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             Object suppressableValue)
-        throws IOException
+        throws JacksonException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
@@ -726,7 +727,7 @@ public class MapSerializer
      */
     public void serializeFieldsUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             JsonSerializer<Object> ser)
-        throws IOException
+        throws JacksonException
     {
         final JsonSerializer<Object> keySerializer = _keySerializer;
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -765,8 +766,8 @@ public class MapSerializer
      */
     public void serializeFilteredFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             PropertyFilter filter,
-            Object suppressableValue) // since 2.5
-        throws IOException
+            Object suppressableValue)
+        throws JacksonException
     {
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
@@ -821,8 +822,8 @@ public class MapSerializer
     }
 
     public void serializeTypedFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
-            Object suppressableValue) // since 2.5
-        throws IOException
+            Object suppressableValue)
+        throws JacksonException
     {
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
@@ -881,7 +882,7 @@ public class MapSerializer
     public void serializeFilteredAnyProperties(SerializerProvider provider, JsonGenerator gen,
             Object bean, Map<?,?> value, PropertyFilter filter,
             Object suppressableValue)
-        throws IOException
+        throws JacksonException
     {
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
@@ -963,7 +964,7 @@ public class MapSerializer
      */
 
     protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
-            SerializerProvider provider) throws IOException
+            SerializerProvider provider) throws JacksonException
     {
         // minor optimization: may already be sorted?
         if (input instanceof SortedMap<?,?>) {
@@ -1002,7 +1003,7 @@ public class MapSerializer
     }
     
     protected void _writeNullKeyedEntry(JsonGenerator g, SerializerProvider ctxt,
-            Object value) throws IOException
+            Object value) throws JacksonException
     {
         JsonSerializer<Object> keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
         JsonSerializer<Object> valueSer;
@@ -1035,7 +1036,7 @@ public class MapSerializer
     }
 
     private final JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
-            Object value) throws JsonMappingException
+            Object value)
     {
         final Class<?> cc = value.getClass();
         JsonSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);

@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
@@ -96,7 +96,7 @@ public class BeanAsArrayDeserializer
     
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // Let's delegate just in case we got a JSON Object (could error out, alternatively?)
         if (!p.isExpectedStartArrayToken()) {
@@ -244,7 +244,7 @@ public class BeanAsArrayDeserializer
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean)
-        throws IOException
+        throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
@@ -299,7 +299,7 @@ public class BeanAsArrayDeserializer
     // needed since 2.1
     @Override
     public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         return _deserializeFromNonArray(p, ctxt);
     }
@@ -315,7 +315,7 @@ public class BeanAsArrayDeserializer
      * aspects than the "vanilla" processing.
      */
     protected Object _deserializeNonVanilla(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         if (_nonStandardCreation) {
             return deserializeFromObjectUsingNonDefault(p, ctxt);
@@ -377,7 +377,7 @@ public class BeanAsArrayDeserializer
      */
     @Override
     protected final Object _deserializeUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
@@ -463,7 +463,7 @@ public class BeanAsArrayDeserializer
      */
 
     protected Object _deserializeFromNonArray(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p,
                 "Cannot deserialize a POJO (of type %s) from non-Array representation (token: %s): "

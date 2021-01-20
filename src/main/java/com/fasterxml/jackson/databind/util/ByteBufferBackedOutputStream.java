@@ -14,4 +14,6 @@ public class ByteBufferBackedOutputStream extends OutputStream {
 
     @Override public void write(int b) throws IOException { _b.put((byte) b); }
     @Override public void write(byte[] bytes, int off, int len) throws IOException { _b.put(bytes, off, len); }
+
+    @Override public void close() { }
 }

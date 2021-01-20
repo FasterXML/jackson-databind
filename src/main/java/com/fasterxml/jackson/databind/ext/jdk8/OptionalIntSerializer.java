@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.ext.jdk8;
 
-import java.io.IOException;
 import java.util.OptionalInt;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
@@ -25,7 +25,8 @@ public class OptionalIntSerializer extends StdScalarSerializer<OptionalInt>
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor,
-            JavaType typeHint) throws JsonMappingException {
+            JavaType typeHint)
+    {
         JsonIntegerFormatVisitor v2 = visitor
                 .expectIntegerFormat(typeHint);
         if (v2 != null) {
@@ -35,7 +36,7 @@ public class OptionalIntSerializer extends StdScalarSerializer<OptionalInt>
     
     @Override
     public void serialize(OptionalInt value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         if (value.isPresent()) {
             gen.writeNumber(value.getAsInt());

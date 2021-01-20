@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.Base64Variants;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -30,7 +29,7 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
     }
 
     @Override
-    protected UUID _deserialize(String id, DeserializationContext ctxt) throws IOException
+    protected UUID _deserialize(String id, DeserializationContext ctxt) throws JacksonException
     {
         // Adapted from java-uuid-generator (https://github.com/cowtowncoder/java-uuid-generator)
         // which is 5x faster than UUID.fromString(value), as oper "ManualReadPerfWithUUID"
@@ -66,7 +65,7 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
     }
 
     @Override
-    protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws IOException
+    protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws JacksonException
     {
         if (ob instanceof byte[]) {
             return _fromBytes((byte[]) ob, ctxt);
@@ -75,7 +74,7 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
     }
 
     private UUID _badFormat(String uuidStr, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         return (UUID) ctxt.handleWeirdStringValue(handledType(), uuidStr,
                 "UUID has to be represented by standard 36-char representation");

@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -25,14 +24,14 @@ public class RawSerializer<T>
     }
 
     @Override
-    public void serialize(T value, JsonGenerator g, SerializerProvider ctxt) throws IOException {
+    public void serialize(T value, JsonGenerator g, SerializerProvider ctxt) throws JacksonException {
         g.writeRawValue(value.toString());
     }
 
     @Override
     public void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
@@ -41,7 +40,7 @@ public class RawSerializer<T>
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         // type not really known, but since it is a JSON string:
         visitStringFormat(visitor, typeHint);

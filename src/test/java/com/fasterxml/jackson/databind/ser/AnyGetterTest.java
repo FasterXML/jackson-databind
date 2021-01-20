@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -87,7 +86,7 @@ public class AnyGetterTest extends BaseMapTest
 
         @Override
         public void serialize(Object value, JsonGenerator jgen,
-                SerializerProvider provider) throws IOException
+                SerializerProvider provider)
         {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<?,?> entry : ((Map<?,?>) value).entrySet()) {
@@ -125,7 +124,7 @@ public class AnyGetterTest extends BaseMapTest
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
         }
     }

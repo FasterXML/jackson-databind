@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.contextual;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -8,8 +7,10 @@ import java.lang.annotation.Target;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -96,7 +97,7 @@ public class TestContextualDeserialization extends BaseMapTest
         }
 
         @Override
-        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt)
         {
             return new StringValue(""+_fieldName+"="+jp.getText());
         }
@@ -125,7 +126,7 @@ public class TestContextualDeserialization extends BaseMapTest
         }
     
         @Override
-        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt)
         {
             return new StringValue(""+_fieldName+"="+jp.getText());
         }

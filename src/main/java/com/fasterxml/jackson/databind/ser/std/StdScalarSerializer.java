@@ -1,11 +1,9 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -46,7 +44,8 @@ public abstract class StdScalarSerializer<T>
      */
     @Override
     public void serializeWithType(T value, JsonGenerator g, SerializerProvider ctxt,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer)
+        throws JacksonException
     {
         // NOTE: need not really be string; just indicates "scalar of some kind"
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,ctxt,
@@ -57,7 +56,6 @@ public abstract class StdScalarSerializer<T>
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         // 13-Sep-2013, tatu: Let's assume it's usually a String, right?
         visitStringFormat(visitor, typeHint);

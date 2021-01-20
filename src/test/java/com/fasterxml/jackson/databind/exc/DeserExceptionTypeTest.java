@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.exc;
 
-import java.io.*;
-
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.BrokenStringReader;
 
@@ -77,10 +75,10 @@ public class DeserExceptionTypeTest
             @SuppressWarnings("unused")
             Object ob = MAPPER.readValue(p, Object.class);
             fail("Should have gotten an exception");
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             // For "bona fide" IO problems (due to low-level problem,
             // thrown by reader/stream), IOException must be thrown
-            verifyException(e, IOException.class, "TEST");
+            verifyException(e, WrappedIOException.class, "TEST");
         }
     }
 
@@ -95,7 +93,7 @@ public class DeserExceptionTypeTest
         try {
             I = MAPPER.readValue(p, Integer.class);
             fail("Should have gotten an exception");
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             verifyException(e, MismatchedInputException.class, "No content");
         }
         // also: should have no current token after end-of-input

@@ -173,7 +173,7 @@ public abstract class BaseMapTest
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
         }
     }
@@ -183,8 +183,7 @@ public abstract class BaseMapTest
         public LowerCasingDeserializer() { super(String.class); }
 
         @Override
-        public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
             return p.getText().toLowerCase();
         }
     }

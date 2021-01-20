@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -34,11 +33,11 @@ public class IntNode
      */
     protected final int _value;
 
-    /* 
-    ************************************************
-    * Construction
-    ************************************************
-    */
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
 
     public IntNode(int v) { _value = v; }
 
@@ -48,9 +47,9 @@ public class IntNode
     }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* BaseJsonNode extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
@@ -59,9 +58,9 @@ public class IntNode
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Overrridden JsonNode methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -111,10 +110,10 @@ public class IntNode
     }
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
-        jg.writeNumber(_value);
+        g.writeNumber(_value);
     }
 
     @Override

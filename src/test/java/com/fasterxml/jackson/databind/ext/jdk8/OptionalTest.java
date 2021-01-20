@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -99,7 +98,7 @@ public class OptionalTest extends BaseMapTest
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
         }
     }
@@ -110,7 +109,7 @@ public class OptionalTest extends BaseMapTest
 
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
+        {
             return p.getText().toLowerCase();
         }
     }

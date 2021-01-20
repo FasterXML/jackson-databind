@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -332,7 +331,7 @@ public abstract class DeserializationContext
 
     @SuppressWarnings("unchecked")
     @Override
-    public JsonNode readTree(JsonParser p) throws IOException {
+    public JsonNode readTree(JsonParser p) throws JacksonException {
         // NOTE: inlined version of `_bindAsTree()` from `ObjectReader`
         JsonToken t = p.currentToken();
         if (t == null) {
@@ -358,17 +357,17 @@ public abstract class DeserializationContext
      * this method does not allow use of contextual annotations.
      */
     @Override
-    public <T> T readValue(JsonParser p, Class<T> type) throws IOException {
+    public <T> T readValue(JsonParser p, Class<T> type) throws JacksonException {
         return readValue(p, getTypeFactory().constructType(type));
     }
 
     @Override
-    public <T> T readValue(JsonParser p, TypeReference<T> refType) throws IOException {
+    public <T> T readValue(JsonParser p, TypeReference<T> refType) throws JacksonException {
         return readValue(p, getTypeFactory().constructType(refType));
     }
 
     @Override
-    public <T> T readValue(JsonParser p, ResolvedType type) throws IOException {
+    public <T> T readValue(JsonParser p, ResolvedType type) throws JacksonException {
         if (!(type instanceof JavaType)) {
             throw new UnsupportedOperationException(
 "Only support `JavaType` implementation of `ResolvedType`, not: "+type.getClass().getName());
@@ -377,7 +376,7 @@ public abstract class DeserializationContext
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, JavaType type) throws IOException {
+    public <T> T readValue(JsonParser p, JavaType type) throws JacksonException {
         JsonDeserializer<Object> deser = findRootValueDeserializer(type);
         if (deser == null) {
             reportBadDefinition(type,
@@ -985,12 +984,12 @@ public abstract class DeserializationContext
      * @return String value found; not {@code null} (exception should be thrown if no suitable
      *     value found)
      *
-     * @throws IOException If there are problems either reading content (underlying parser
+     * @throws JacksonException If there are problems either reading content (underlying parser
      *    problem) or finding expected scalar value
      */
     public String extractScalarFromObject(JsonParser p, JsonDeserializer<?> deser,
             Class<?> scalarType)
-        throws IOException
+        throws JacksonException
     {
         return (String) handleUnexpectedToken(constructType(scalarType), p);
     }
@@ -1007,12 +1006,16 @@ public abstract class DeserializationContext
      * annotations that the property (passed to this method -- usually property that
      * has custom serializer that called this method) has.
      */
-    public <T> T readPropertyValue(JsonParser p, BeanProperty prop, Class<T> type) throws IOException {
+    public <T> T readPropertyValue(JsonParser p, BeanProperty prop, Class<T> type)
+        throws JacksonException
+    {
         return readPropertyValue(p, prop, getTypeFactory().constructType(type));
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readPropertyValue(JsonParser p, BeanProperty prop, JavaType type) throws IOException {
+    public <T> T readPropertyValue(JsonParser p, BeanProperty prop, JavaType type)
+        throws JacksonException
+    {
         JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
         if (deser == null) {
             return reportBadDefinition(type, String.format(
@@ -1039,7 +1042,7 @@ public abstract class DeserializationContext
      */
     public boolean handleUnknownProperty(JsonParser p, JsonDeserializer<?> deser,
             Object instanceOrClass, String propName)
-        throws IOException
+        throws JacksonException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
@@ -1075,11 +1078,11 @@ public abstract class DeserializationContext
      *
      * @return Key value to use
      *
-     * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
+     * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>
      */
     public Object handleWeirdKey(Class<?> keyClass, String keyValue,
             String msg, Object... msgArgs)
-        throws IOException
+        throws JacksonException
     {
         // but if not handled, just throw exception
         msg = _format(msg, msgArgs);
@@ -1119,11 +1122,11 @@ public abstract class DeserializationContext
      *
      * @return Property value to use
      *
-     * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
+     * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>
      */
     public Object handleWeirdStringValue(Class<?> targetClass, String value,
             String msg, Object... msgArgs)
-        throws IOException
+        throws JacksonException
     {
         // but if not handled, just throw exception
         msg = _format(msg, msgArgs);
@@ -1163,11 +1166,11 @@ public abstract class DeserializationContext
      *
      * @return Property value to use
      *
-     * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
+     * @throws JacksonException To indicate unrecoverable problem, usually based on <code>msg</code>
      */
     public Object handleWeirdNumberValue(Class<?> targetClass, Number value,
             String msg, Object... msgArgs)
-        throws IOException
+        throws JacksonException
     {
         msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
@@ -1192,7 +1195,7 @@ public abstract class DeserializationContext
 
     public Object handleWeirdNativeValue(JavaType targetType, Object badValue,
             JsonParser p)
-        throws IOException
+        throws JacksonException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         final Class<?> raw = targetType.getRawClass();
@@ -1232,7 +1235,7 @@ public abstract class DeserializationContext
     @SuppressWarnings("resource")
     public Object handleMissingInstantiator(Class<?> instClass, ValueInstantiator valueInst,
             JsonParser p, String msg, Object... msgArgs)
-        throws IOException
+        throws JacksonException
     {
         if (p == null) {
             p = getParser();
@@ -1294,7 +1297,7 @@ public abstract class DeserializationContext
      */
     public Object handleInstantiationProblem(Class<?> instClass, Object argument,
             Throwable t)
-        throws IOException
+        throws JacksonException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
@@ -1314,7 +1317,7 @@ public abstract class DeserializationContext
             h = h.next();
         }
         // 18-May-2016, tatu: Only wrap if not already a valid type to throw
-        ClassUtil.throwIfIOE(t);
+        ClassUtil.throwIfJacksonE(t);
         // [databind#2164]: but see if wrapping is desired
         if (!isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
             ClassUtil.throwIfRTE(t);
@@ -1326,14 +1329,14 @@ public abstract class DeserializationContext
 /*
     public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)
-        throws IOException
+        throws JacksonException
     {
         return handleUnexpectedToken(constructType(instClass), t, p, msg, msgArgs);
     }
 */
 
     public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
-        throws IOException
+        throws JacksonException
     {
         return handleUnexpectedToken(constructType(instClass), p.currentToken(), p, null);
     }
@@ -1351,7 +1354,7 @@ public abstract class DeserializationContext
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
      */
     public Object handleUnexpectedToken(JavaType targetType, JsonParser p)
-        throws IOException
+        throws JacksonException
     {
         return handleUnexpectedToken(targetType, p.currentToken(), p, null);
     }
@@ -1371,7 +1374,7 @@ public abstract class DeserializationContext
      */
     public Object handleUnexpectedToken(JavaType targetType, JsonToken t,
             JsonParser p, String msg, Object... msgArgs)
-        throws IOException
+        throws JacksonException
     {
         msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
@@ -1423,11 +1426,11 @@ public abstract class DeserializationContext
      *
      * @return {@link JavaType} that id resolves to
      *
-     * @throws IOException To indicate unrecoverable problem, if resolution cannot
+     * @throws JacksonException To indicate unrecoverable problem, if resolution cannot
      *    be made to work
      */
     public JavaType handleUnknownTypeId(JavaType baseType, String id,
-            TypeIdResolver idResolver, String extraDesc) throws IOException
+            TypeIdResolver idResolver, String extraDesc) throws JacksonException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
@@ -1455,7 +1458,7 @@ public abstract class DeserializationContext
     }
 
     public JavaType handleMissingTypeId(JavaType baseType,
-            TypeIdResolver idResolver, String extraDesc) throws IOException
+            TypeIdResolver idResolver, String extraDesc) throws JacksonException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
@@ -1779,7 +1782,8 @@ trailingToken, ClassUtil.nameOf(targetType)
      * @param msgBase Message that describes specific problem
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass,
-            String msgBase) {
+            String msgBase)
+    {
         final String msg = String.format("Cannot deserialize value of type %s from String %s: %s",
                 ClassUtil.nameOf(instClass), _quotedString(value), msgBase);
         return InvalidFormatException.from(_parser, msg, value, instClass);

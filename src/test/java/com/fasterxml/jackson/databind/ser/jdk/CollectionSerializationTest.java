@@ -54,7 +54,6 @@ public class CollectionSerializationTest
 
         @Override
         public void serialize(List<String> value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
         {
             // just use standard List.toString(), output as JSON String
             gen.writeString(value.toString());

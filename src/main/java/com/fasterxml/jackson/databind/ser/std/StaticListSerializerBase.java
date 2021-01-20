@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -114,5 +113,5 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     // just to make sure it gets implemented:
     @Override
     public abstract void serializeWithType(T value, JsonGenerator g,
-            SerializerProvider provider, TypeSerializer typeSer) throws IOException;
+            SerializerProvider provider, TypeSerializer typeSer) throws JacksonException;
 }

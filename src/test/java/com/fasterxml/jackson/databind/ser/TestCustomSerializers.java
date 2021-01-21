@@ -32,7 +32,7 @@ public class TestCustomSerializers extends BaseMapTest
     static class ElementSerializer extends JsonSerializer<Element>
     {
         @Override
-        public void serialize(Element value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        public void serialize(Element value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeString("element");
         }
     }

@@ -274,7 +274,7 @@ public abstract class BaseTest
      */
 
     protected JsonParser createParserUsingReader(String input)
-        throws IOException, JsonParseException
+        throws IOException
     {
         return createParserUsingReader(new JsonFactory(), input);
     }
@@ -365,7 +365,7 @@ public abstract class BaseTest
      * returning them
      */
     protected String getAndVerifyText(JsonParser jp)
-        throws IOException, JsonParseException
+        throws IOException
     {
         // Ok, let's verify other accessors
         int actLen = jp.getTextLength();

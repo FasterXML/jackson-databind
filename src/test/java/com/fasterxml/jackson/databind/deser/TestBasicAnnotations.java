@@ -111,7 +111,7 @@ public class TestBasicAnnotations
         public IntsDeserializer() { super(int[].class); }
         @Override
         public int[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             return new int[] { jp.getIntValue() };
         }

@@ -38,7 +38,7 @@ public class SimpleModuleTest extends BaseMapTest
 
         @Override
         public void serialize(CustomBean value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             // We will write it as a String, with '|' as delimiter
             jgen.writeString(value.str + "|" + value.num);
@@ -54,7 +54,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         @Override
         public CustomBean deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             String text = jp.getText();
             int ix = text.indexOf('|');
@@ -73,7 +73,7 @@ public class SimpleModuleTest extends BaseMapTest
 
         @Override
         public void serialize(SimpleEnum value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             jgen.writeString(value.name().toLowerCase());
         }
@@ -88,7 +88,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         @Override
         public SimpleEnum deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             return SimpleEnum.valueOf(jp.getText().toUpperCase());
         }

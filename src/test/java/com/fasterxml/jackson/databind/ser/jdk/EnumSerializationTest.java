@@ -68,13 +68,13 @@ public class EnumSerializationTest
 
         @Override
         public void serializeWithType(JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
-                throws IOException, JsonProcessingException
+                throws IOException
         {
             serialize(jgen, provider);
         }
 
         @Override
-        public void serialize(JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException
+        public void serialize(JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
             jgen.writeString("foo");
         }

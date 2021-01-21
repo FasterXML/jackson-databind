@@ -173,8 +173,8 @@ public class TestCustomDeserializers
         }
 
         @Override
-        public Bean375Outer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException,
-                JsonProcessingException {
+        public Bean375Outer deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException {
             Object ob = ctxt.readPropertyValue(p, prop, Bean375Inner.class);
             return new Bean375Outer((Bean375Inner) ob);
         }
@@ -198,7 +198,8 @@ public class TestCustomDeserializers
 
         @Override
         public Bean375Inner deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
+                throws IOException
+        {
             int x = p.getIntValue();
             if (negative) {
                 x = -x;

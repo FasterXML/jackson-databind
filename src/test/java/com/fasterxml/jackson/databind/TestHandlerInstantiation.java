@@ -72,7 +72,7 @@ public class TestHandlerInstantiation extends BaseMapTest
         
         @Override
         public MyBean deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
+                throws IOException
         {
             return new MyBean(_prefix+jp.getText());
         }
@@ -84,7 +84,7 @@ public class TestHandlerInstantiation extends BaseMapTest
         
         @Override
         public Object deserializeKey(String key, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
+                throws IOException
         {
             return "KEY";
         }
@@ -100,7 +100,7 @@ public class TestHandlerInstantiation extends BaseMapTest
         
         @Override
         public void serialize(MyBean value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             jgen.writeString(_prefix + value.value);
         }

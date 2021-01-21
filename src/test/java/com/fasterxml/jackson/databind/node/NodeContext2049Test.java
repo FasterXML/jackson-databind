@@ -66,7 +66,7 @@ public class NodeContext2049Test extends BaseMapTest
         }
 
         @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
              Object retValue = super.deserialize(jp, ctxt);
              if (retValue instanceof HasParent) {
                   HasParent obj = (HasParent) retValue;
@@ -118,7 +118,7 @@ public class NodeContext2049Test extends BaseMapTest
         }
 
         @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
              // TODO Auto-generated method stub
              return null;
         }

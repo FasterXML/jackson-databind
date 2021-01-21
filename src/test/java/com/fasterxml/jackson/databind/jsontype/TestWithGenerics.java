@@ -79,7 +79,7 @@ public class TestWithGenerics extends BaseMapTest
     
         @Override
         public void serialize( Object value, JsonGenerator jgen, SerializerProvider provider )
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             beanSerializer.serialize( value, jgen, provider );
         }
@@ -89,7 +89,7 @@ public class TestWithGenerics extends BaseMapTest
     
         @Override
         public void serializeWithType( Object value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer )
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             beanSerializer.serializeWithType( value, jgen, provider, typeSer );
         }

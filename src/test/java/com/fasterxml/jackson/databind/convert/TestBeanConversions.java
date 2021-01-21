@@ -4,8 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -142,7 +142,7 @@ public class TestBeanConversions
         // First: unknown property
         try {
             MAPPER.readValue("{\"unknownProp\":true}", BooleanBean.class);
-        } catch (JsonProcessingException e) {
+        } catch (JsonMappingException e) {
             verifyException(e, "unknownProp");
         }
 

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
@@ -98,7 +97,7 @@ public class TestJacksonAnnotationIntrospector
 
         @Override
         public void serialize(QName value, JsonGenerator jgen, SerializerProvider provider)
-                throws IOException, JsonProcessingException
+                throws IOException
         {
             jgen.writeString(value.toString());
         }
@@ -110,7 +109,7 @@ public class TestJacksonAnnotationIntrospector
         public QNameDeserializer() { super(QName.class); }
         @Override
         public QName deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
+                throws IOException
         {
             return QName.valueOf(jp.readValueAs(String.class));
         }

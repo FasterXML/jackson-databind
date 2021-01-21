@@ -3,9 +3,7 @@ package com.fasterxml.jackson.databind.contextual;
 import java.io.IOException;
 import java.util.*;
 
-
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
@@ -65,7 +63,7 @@ public class TestContextualKeyTypes extends BaseMapTest
 
         @Override
         public Object deserializeKey(String key, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
+                throws IOException
         {
             return _prefix + ":" + key;
         }

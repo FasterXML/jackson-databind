@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -47,7 +47,7 @@ public class DisablingCreatorsTest extends BaseMapTest
           try {
                /*ConflictingCreators value =*/ mapper.readValue(quote("abc"), ConflictingCreators.class);
                fail("Should have failed with JsonCreator conflict");
-          } catch (JsonProcessingException e) {
+          } catch (JsonMappingException e) {
                verifyException(e, "Conflicting property-based creators");
           }
      }

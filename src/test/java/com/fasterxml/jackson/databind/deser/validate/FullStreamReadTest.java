@@ -2,8 +2,9 @@ package com.fasterxml.jackson.databind.deser.validate;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -91,14 +92,14 @@ public class FullStreamReadTest extends BaseMapTest
         try {
             strict.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class);
             fail("Should not have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
         try {
             strict.readTree(JSON_OK_ARRAY_WITH_COMMENT);
             fail("Should not have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
@@ -142,14 +143,14 @@ public class FullStreamReadTest extends BaseMapTest
         try {
             strict.readValue(JSON_OK_NULL_WITH_COMMENT, Object.class);
             fail("Should not have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
         try {
             strict.readTree(JSON_OK_NULL_WITH_COMMENT);
             fail("Should not have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
@@ -217,14 +218,14 @@ public class FullStreamReadTest extends BaseMapTest
         try {
             strictRForList.readValue(JSON_OK_ARRAY_WITH_COMMENT);
             fail("Should not have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
         try {
             strictR.readTree(JSON_OK_ARRAY_WITH_COMMENT);
             fail("Should not have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
@@ -266,14 +267,14 @@ public class FullStreamReadTest extends BaseMapTest
         try {
             strictRForList.readValue(JSON_OK_NULL_WITH_COMMENT);
             fail("Should not have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }
         try {
             strictR.readTree(JSON_OK_NULL_WITH_COMMENT);
             fail("Should not have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
             verifyException(e, "maybe a (non-standard) comment");
         }

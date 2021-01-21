@@ -139,7 +139,7 @@ public class TestAnnotations
     {
         @Override
         public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             jgen.writeBoolean(true);
         }
@@ -149,7 +149,7 @@ public class TestAnnotations
     {
         @Override
         public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             jgen.writeString("X"+value+"X");
         }

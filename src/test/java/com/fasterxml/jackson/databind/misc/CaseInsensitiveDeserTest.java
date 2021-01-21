@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
@@ -135,7 +133,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
             mapper.readValue(JSON, Issue476Bean.class);
             
             fail("Should not accept improper case properties by default");
-        } catch (JsonProcessingException e) {
+        } catch (JsonMappingException e) {
             verifyException(e, "Unrecognized field");
             assertValidLocation(e.getLocation());
         }

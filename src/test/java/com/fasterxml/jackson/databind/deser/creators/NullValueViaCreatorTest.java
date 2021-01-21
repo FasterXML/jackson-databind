@@ -27,7 +27,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
 
     protected static class ContainedDeserializer extends JsonDeserializer<Contained<?>> {
         @Override
-        public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws JsonProcessingException {
+        public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return null;
         }
 

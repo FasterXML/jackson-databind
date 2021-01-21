@@ -187,7 +187,7 @@ public abstract class BaseMapTest
 
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
+                throws IOException {
             return p.getText().toLowerCase();
         }
     }

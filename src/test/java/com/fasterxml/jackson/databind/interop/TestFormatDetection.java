@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.interop;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.*;
 
 public class TestFormatDetection extends BaseMapTest
@@ -79,7 +78,7 @@ public class TestFormatDetection extends BaseMapTest
         try {
             detecting.readValue(utf8Bytes("<POJO><x>1</x></POJO>"));
             fail("Should have failed");
-        } catch (JsonProcessingException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Cannot detect format from input");
         }
     }

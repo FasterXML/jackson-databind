@@ -45,7 +45,7 @@ public class TestTreeWithType extends BaseMapTest
         @Override
         public SavedCookie deserializeWithType(JsonParser jp, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             return (SavedCookie) typeDeserializer.deserializeTypedFromObject(jp, ctxt);
         }

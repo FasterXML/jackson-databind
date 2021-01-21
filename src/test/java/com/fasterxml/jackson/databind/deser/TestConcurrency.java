@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -41,7 +40,7 @@ public class TestConcurrency extends BaseMapTest
         protected volatile boolean resolved = false;
         
         @Override
-        public Bean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException
+        public Bean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             if (!resolved) {
                 throw new IOException("Deserializer not yet completely resolved");

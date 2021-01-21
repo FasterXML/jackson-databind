@@ -2,9 +2,8 @@ package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Unit tests verifying handling of potential and actual
@@ -94,7 +93,7 @@ public class TestPropertyConflicts extends BaseMapTest
         try {
             String json = objectWriter().writeValueAsString(bean);
             fail("Should have failed due to conflicting accessor definitions; got JSON = "+json);
-        } catch (JsonProcessingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Conflicting getter definitions");
         }
     }        

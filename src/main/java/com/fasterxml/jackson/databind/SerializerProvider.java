@@ -1422,8 +1422,8 @@ public abstract class SerializerProvider
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those
             // are what caller is expected to handle
+            reportBadDefinition(fullType, ClassUtil.exceptionMessage(iae));
             ser = null; // doesn't matter but compiler whines otherwise
-            reportMappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
 
         if (ser != null) {

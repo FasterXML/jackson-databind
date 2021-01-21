@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
@@ -127,7 +128,8 @@ public class ObjectReaderTest extends BaseMapTest
         try {
             reader.without(JsonReadFeature.ALLOW_JAVA_COMMENTS).readValue(JSON);
             fail("Should not have passed");
-        } catch (JsonProcessingException e) {
+        } catch (JsonMappingException e) {
+            // mapping exception since it gets wrapped
             verifyException(e, "foo");
         }
     }
@@ -143,7 +145,7 @@ public class ObjectReaderTest extends BaseMapTest
         try {
             result = MAPPER.readValue(JSON, Map.class);
             fail("Should not pass with defaylt settings");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Illegal unquoted character");
         }
 

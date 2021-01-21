@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.CollectionType;
@@ -90,7 +91,7 @@ public class TestBeanDeserializer extends BaseMapTest
         
         @Override
         public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
+            throws IOException
         {
             return new Bean(a, b);
         }
@@ -165,7 +166,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
 
         @Override
-        public Issue1912Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Issue1912Bean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             // this is need on some cases, this populate _propertyBasedCreator
             defaultDeserializer.resolve(ctxt);
 
@@ -181,7 +182,7 @@ public class TestBeanDeserializer extends BaseMapTest
     public static class Issue1912CustomPropertyDeserializer extends JsonDeserializer<Issue1912SubBean> {
 
         @Override
-        public Issue1912SubBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Issue1912SubBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             p.nextFieldName(); // read "a"
             Issue1912SubBean object = new Issue1912SubBean(p.nextTextValue() + "_custom");
             p.nextToken();
@@ -291,8 +292,8 @@ public class TestBeanDeserializer extends BaseMapTest
             return new KeyDeserializer() {
                 @Override
                 public Object deserializeKey(String key,
-                        DeserializationContext ctxt) throws IOException,
-                        JsonProcessingException {
+                        DeserializationContext ctxt) throws IOException
+                 {
                     return "foo";
                 }
             };
@@ -334,7 +335,7 @@ public class TestBeanDeserializer extends BaseMapTest
         try {
             MAPPER.readValue("{ \"x\" : 3 }", Abstract.class);
             fail("Should fail on trying to deserialize abstract type");
-        } catch (JsonProcessingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot construct");
         }
     }    

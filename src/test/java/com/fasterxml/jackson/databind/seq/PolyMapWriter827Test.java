@@ -7,7 +7,6 @@ import java.util.Map;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -26,7 +25,7 @@ public class PolyMapWriter827Test extends BaseMapTest
 
     public class CustomKeySerializer extends JsonSerializer<CustomKey> {
         @Override
-        public void serialize(CustomKey key, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
+        public void serialize(CustomKey key, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeFieldName(key.a + "," + key.b);
         }
     }

@@ -5,9 +5,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
-import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class TestAutoDetect
     extends BaseMapTest
@@ -132,7 +131,7 @@ public class TestAutoDetect
         try {
             m.readValue("\"abc\"", PrivateBean.class);
             fail("Expected exception for missing constructor");
-        } catch (JsonProcessingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "no String-argument constructor/factory");
         }
     }

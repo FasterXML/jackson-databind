@@ -147,7 +147,7 @@ public class TestConversions extends BaseMapTest
     {
         @Override
         public Leaf deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
+                throws IOException
         {
             JsonNode tree = (JsonNode) jp.readValueAsTree();
             Leaf leaf = new Leaf();

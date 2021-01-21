@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.convert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JacksonException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
@@ -179,7 +180,7 @@ public class CoercePojosTest extends BaseMapTest
         }
     }
 
-    private void _verifyFailMessage(JsonProcessingException e)
+    private void _verifyFailMessage(JacksonException e)
     {
         // 06-Nov-2020, tatu: tests for failure get rather fragile unfortunately,
         //   but this seems to be what we should be getting

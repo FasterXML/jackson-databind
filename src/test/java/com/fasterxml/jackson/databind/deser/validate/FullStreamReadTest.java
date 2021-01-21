@@ -27,14 +27,14 @@ public class FullStreamReadTest extends BaseMapTest
     private final static String JSON_FAIL_NULL = JSON_OK_NULL + " false";
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, config
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testMapperAcceptTrailing() throws Exception
+    public void testMapperAcceptTrailing()
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
@@ -59,7 +59,7 @@ public class FullStreamReadTest extends BaseMapTest
         assertNull(MAPPER.readValue(JSON_FAIL_NULL, Object.class));
     }
 
-    public void testMapperFailOnTrailing() throws Exception
+    public void testMapperFailOnTrailing()
     {
         // but things change if we enforce checks
         final JsonMapper strict = JsonMapper.builder()
@@ -111,7 +111,7 @@ public class FullStreamReadTest extends BaseMapTest
                 .readValue(JSON_OK_ARRAY_WITH_COMMENT));
     }
 
-    public void testMapperFailOnTrailingWithNull() throws Exception
+    public void testMapperFailOnTrailingWithNull()
     {
         final JsonMapper strict = JsonMapper.builder()
                 .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
@@ -167,7 +167,7 @@ public class FullStreamReadTest extends BaseMapTest
         assertNull(ob);
     }
     
-    public void testReaderAcceptTrailing() throws Exception
+    public void testReaderAcceptTrailing()
     {
         ObjectReader R = MAPPER.reader();
         assertFalse(R.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
@@ -181,7 +181,7 @@ public class FullStreamReadTest extends BaseMapTest
         _verifyCollection((List<?>)rColl.readValue(JSON_FAIL_ARRAY));
     }
 
-    public void testReaderFailOnTrailing() throws Exception
+    public void testReaderFailOnTrailing()
     {
         ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         ObjectReader strictRForList = strictR.forType(List.class);
@@ -239,7 +239,7 @@ public class FullStreamReadTest extends BaseMapTest
         _verifyArray(strictRWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));
     }
 
-    public void testReaderFailOnTrailingWithNull() throws Exception
+    public void testReaderFailOnTrailingWithNull()
     {
         ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
         ObjectReader strictRForList = strictR.forType(List.class);
@@ -287,13 +287,13 @@ public class FullStreamReadTest extends BaseMapTest
         assertNull(ob);
     }
     
-    private void _verifyArray(JsonNode n) throws Exception
+    private void _verifyArray(JsonNode n)
     {
         assertTrue(n.isArray());
         assertEquals(3, n.size());
     }
 
-    private void _verifyCollection(List<?> coll) throws Exception
+    private void _verifyCollection(List<?> coll)
     {
         assertEquals(3, coll.size());
         assertEquals(Integer.valueOf(1), coll.get(0));

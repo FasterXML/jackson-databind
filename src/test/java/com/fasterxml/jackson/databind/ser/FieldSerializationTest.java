@@ -73,10 +73,10 @@ public class FieldSerializationTest
 
     public static class DupFieldBean2
     {
-        public int z = 1;
+        public int z = 3;
 
         @JsonProperty("z")
-        public int _z = 2;
+        public int _z = 4;
     }
 
     @SuppressWarnings("hiding")
@@ -217,17 +217,10 @@ public class FieldSerializationTest
         }
     }
 
-    // !!! 21-Jan-2021, tatu: Appears to have been failing for a while?
-/*    
-    public void testFailureDueToDupField2() throws Exception
+    public void testResolvedDuplicate() throws Exception
     {
-        try {
-            final String json = MAPPER.writeValueAsString(new DupFieldBean2());
-            fail("Should not pass, got: "+json);
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Multiple fields representing");
-        }
+        String json = MAPPER.writeValueAsString(new DupFieldBean2());
+        assertEquals(json, a2q("{'z':4}"));
     }
-    */
 }
 

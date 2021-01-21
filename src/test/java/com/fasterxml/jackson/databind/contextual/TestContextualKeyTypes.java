@@ -45,7 +45,6 @@ public class TestContextualKeyTypes extends BaseMapTest
 
         @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-            throws JsonMappingException
         {
             return new ContextualKeySerializer(_prefix+":");
         }
@@ -70,7 +69,7 @@ public class TestContextualKeyTypes extends BaseMapTest
 
         @Override
         public KeyDeserializer createContextual(DeserializationContext ctxt,
-                BeanProperty property) throws JsonMappingException
+                BeanProperty property)
         {
             return new ContextualDeser((property == null) ? "ROOT" : property.getName());
         }

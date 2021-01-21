@@ -130,7 +130,7 @@ public class NewSchemaTest extends BaseMapTest
 
                 @Override
                 public void optionalProperty(String name, JsonFormatVisitable handler,
-                        JavaType propertyTypeHint) throws JsonMappingException { }
+                        JavaType propertyTypeHint) { }
 
                 private void _visit(BeanProperty prop) throws JsonMappingException
                 {
@@ -315,7 +315,7 @@ public class NewSchemaTest extends BaseMapTest
                         ser.acceptJsonFormatVisitor(new JsonFormatVisitorWrapper.Base() {
                             @Override
                             public JsonNumberFormatVisitor expectNumberFormat(
-                                    JavaType t) throws JsonMappingException {
+                                    JavaType t) {
                                 return new JsonNumberFormatVisitor() {
                                     @Override
                                     public void format(JsonValueFormat format) {
@@ -333,7 +333,7 @@ public class NewSchemaTest extends BaseMapTest
                             }
 
                             @Override
-                            public JsonIntegerFormatVisitor expectIntegerFormat(JavaType t) throws JsonMappingException {
+                            public JsonIntegerFormatVisitor expectIntegerFormat(JavaType t) {
                                 return new JsonIntegerFormatVisitor() {
                                     @Override
                                     public void format(JsonValueFormat format) {

@@ -113,13 +113,13 @@ public class ExceptionSerializationTest
     }
 
     // [databind#1368]
-    public void testJsonMappingExceptionSerialization() throws IOException {
+    public void testDatabindExceptionSerialization() throws IOException {
         Exception e = null;
         // cant deserialize due to unexpected constructor
         try {
             MAPPER.readValue( "{ \"val\": \"foo\" }", NoSerdeConstructor.class );
             fail("Should not pass");
-        } catch (JsonMappingException e0) {
+        } catch (MismatchedInputException e0) {
             verifyException(e0, "cannot deserialize from Object");
             e = e0;
         }

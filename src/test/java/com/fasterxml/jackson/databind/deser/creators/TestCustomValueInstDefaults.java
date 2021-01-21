@@ -19,7 +19,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * and {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} methods.
  */
 @SuppressWarnings("serial")
-public class TestCustomValueInstDefaults extends BaseTest
+public class TestCustomValueInstDefaults
+    extends BaseMapTest
 {
     static class Bucket
     {
@@ -119,10 +120,9 @@ public class TestCustomValueInstDefaults extends BaseTest
         }
 
         @Override
-        public Object createFromObjectWith(
-                DeserializationContext ctxt,
-                SettableBeanProperty[] props,
-                PropertyValueBuffer buffer) throws JsonMappingException
+        public Object createFromObjectWith(DeserializationContext ctxt,
+                SettableBeanProperty[] props, PropertyValueBuffer buffer)
+            throws IOException
         {
             int a = Bucket.DEFAULT_A;
             int b = Bucket.DEFAULT_B;
@@ -153,10 +153,9 @@ public class TestCustomValueInstDefaults extends BaseTest
         }
 
         @Override
-        public Object createFromObjectWith(
-                DeserializationContext ctxt,
-                SettableBeanProperty[] props,
-                PropertyValueBuffer buffer) throws JsonMappingException
+        public Object createFromObjectWith(DeserializationContext ctxt,
+                SettableBeanProperty[] props, PropertyValueBuffer buffer)
+            throws IOException
         {
             int i01 = BigBucket.DEFAULT_I;
             int i02 = BigBucket.DEFAULT_I;

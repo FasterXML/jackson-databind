@@ -11,12 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  */
 public class TestConcurrency extends BaseMapTest
 {
-    /*
-    /**********************************************
-    /* Helper beans
-    /**********************************************
-     */
-
     @JsonDeserialize(using=CustomBeanDeserializer.class)
     static class Bean
     {
@@ -51,7 +45,7 @@ public class TestConcurrency extends BaseMapTest
         }
 
         @Override
-        public void resolve(DeserializationContext ctxt) throws JsonMappingException
+        public void resolve(DeserializationContext ctxt)
         {
             try {
                 Thread.sleep(100L);

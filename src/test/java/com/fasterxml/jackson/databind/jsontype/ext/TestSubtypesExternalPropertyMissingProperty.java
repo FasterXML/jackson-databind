@@ -167,8 +167,8 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
         checkAppleBoxNull(r, appleBoxMissingJson);
 
         r = READER.with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
-        checkBoxJsonMappingException(r, orangeBoxMissingJson);
-        checkBoxJsonMappingException(r, appleBoxMissingJson);
+        checkBoxDatabindException(r, orangeBoxMissingJson);
+        checkBoxDatabindException(r, appleBoxMissingJson);
     }
 
     /**
@@ -177,12 +177,12 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
     @Test
     public void testDeserializationMissingRequired() throws Exception {
         ObjectReader r = READER.without(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
-        checkReqBoxJsonMappingException(r, orangeBoxMissingJson);
-        checkReqBoxJsonMappingException(r, appleBoxMissingJson);
+        checkReqBoxDatabindException(r, orangeBoxMissingJson);
+        checkReqBoxDatabindException(r, appleBoxMissingJson);
 
         r = READER.with(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
-        checkReqBoxJsonMappingException(r, orangeBoxMissingJson);
-        checkReqBoxJsonMappingException(r, appleBoxMissingJson);
+        checkReqBoxDatabindException(r, orangeBoxMissingJson);
+        checkReqBoxDatabindException(r, appleBoxMissingJson);
     }
 
     private void checkOrangeBox(ObjectReader r) throws Exception {
@@ -237,7 +237,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
         assertNull(deserAppleBox.fruit);
     }
 
-    private void checkBoxJsonMappingException(ObjectReader r, String json) throws Exception {
+    private void checkBoxDatabindException(ObjectReader r, String json) throws Exception {
         try {
             r.forType(Box.class).readValue(json);
             fail("Should not pass");
@@ -246,7 +246,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
         }
     }
 
-    private void checkReqBoxJsonMappingException(ObjectReader r, String json) throws Exception {
+    private void checkReqBoxDatabindException(ObjectReader r, String json) throws Exception {
         try {
             r.forType(ReqBox.class).readValue(json, ReqBox.class);
             fail("Should not pass");

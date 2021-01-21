@@ -180,7 +180,7 @@ public class TestCustomDeserializers
         }
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
+        {
             return new Bean375OuterDeserializer(property);
         }
     }
@@ -211,7 +211,7 @@ public class TestCustomDeserializers
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
+        {
             if (property != null) {
                 Negative n = property.getAnnotation(Negative.class);
                 if (n != null) {

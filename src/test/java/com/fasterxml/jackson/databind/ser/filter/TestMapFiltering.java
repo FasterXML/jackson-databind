@@ -92,13 +92,12 @@ public class TestMapFiltering extends BaseMapTest
         @Override
         @Deprecated
         public void depositSchemaProperty(PropertyWriter writer,
-                ObjectNode propertiesNode, SerializerProvider provider)
-            throws JsonMappingException { }
+                ObjectNode propertiesNode, SerializerProvider provider) { }
 
         @Override
         public void depositSchemaProperty(PropertyWriter writer,
                 JsonObjectFormatVisitor objectVisitor,
-                SerializerProvider provider) throws JsonMappingException { }
+                SerializerProvider provider) { }
     }
 
     // [databind#527]

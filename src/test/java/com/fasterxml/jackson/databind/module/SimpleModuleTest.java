@@ -45,7 +45,7 @@ public class SimpleModuleTest extends BaseMapTest
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return null;
         }
     }
@@ -79,7 +79,7 @@ public class SimpleModuleTest extends BaseMapTest
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return null;
         }
     }

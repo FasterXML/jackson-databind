@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -14,9 +15,9 @@ public class TestSerializerProvider
     static class NoPropsBean {
     }
     
-    public void testFindExplicit() throws JsonMappingException
+    public void testFindExplicit() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         SerializationConfig config = mapper.getSerializationConfig();
         SerializerFactory f = new BeanSerializerFactory(null);
         DefaultSerializerProvider prov = new DefaultSerializerProvider.Impl().createInstance(config, f);

@@ -97,7 +97,8 @@ public class NodeContext2049Test extends BaseMapTest
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                  throws JsonMappingException {
+            throws JsonMappingException
+        {
              JavaType propertyType = property.getType();
              JavaType contentType = propertyType;
              if (propertyType.isCollectionLikeType()) {

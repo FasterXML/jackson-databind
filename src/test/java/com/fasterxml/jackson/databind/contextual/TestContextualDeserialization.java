@@ -105,7 +105,6 @@ public class TestContextualDeserialization extends BaseMapTest
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
-            throws JsonMappingException
         {
             String name = (property == null) ? "NULL" : property.getName();
             return new MyContextualDeserializer(name);
@@ -134,7 +133,6 @@ public class TestContextualDeserialization extends BaseMapTest
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
-            throws JsonMappingException
         {
             Name ann = property.getAnnotation(Name.class);
             if (ann == null) {

@@ -14,12 +14,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  */
 public class TestConcurrency extends BaseMapTest
 {
-    /*
-    /**********************************************
-    /* Helper beans
-    /**********************************************
-     */
-
     @JsonDeserialize(using=TestBeanDeserializer.class)
     static class Bean
     {

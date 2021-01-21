@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.std.EnumDeserializer;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -103,7 +104,8 @@ public class EnumCreatorTest extends BaseMapTest
     static class DelegatingDeserializers extends Deserializers.Base
     {
         @Override
-        public JsonDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc) throws JsonMappingException {
+        public JsonDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc)
+        {
             final Collection<AnnotatedMethod> factoryMethods = beanDesc.getFactoryMethods();
             if (factoryMethods != null) {
                 for (AnnotatedMethod am : factoryMethods) {
@@ -261,7 +263,7 @@ public class EnumCreatorTest extends BaseMapTest
         try {
             /*TestEnum324 e =*/ MAPPER.readValue(quote("xyz"), TestEnum324.class);
             fail("Should throw exception");
-        } catch (JsonMappingException e) {
+        } catch (ValueInstantiationException e) {
             verifyException(e, "foobar");
         }
     }

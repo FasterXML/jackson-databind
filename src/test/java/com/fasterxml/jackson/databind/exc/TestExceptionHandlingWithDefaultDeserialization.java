@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
+public class TestExceptionHandlingWithDefaultDeserialization
+    extends BaseMapTest
 {
     static class Foo {
         private Bar bar;
@@ -38,7 +39,7 @@ public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
         }
     }
 
-    public void testShouldThrowJsonMappingExceptionWithPathReference() throws IOException {
+    public void testShouldThrowExceptionWithPathReference() throws IOException {
         // given
         ObjectMapper mapper = new ObjectMapper();
         String input = "{\"bar\":{\"baz\":{qux:\"quxValue\"))}";

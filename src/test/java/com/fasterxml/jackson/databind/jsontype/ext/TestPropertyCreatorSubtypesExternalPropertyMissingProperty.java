@@ -177,8 +177,8 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
         checkOrangeBoxNull(BOX_READER_PASS, orangeBoxMissingJson);
         checkAppleBoxNull(BOX_READER_PASS, appleBoxMissingJson);
 
-        checkBoxJsonMappingException(BOX_READER_FAIL, orangeBoxMissingJson);
-        checkBoxJsonMappingException(BOX_READER_FAIL, appleBoxMissingJson);
+        checkBoxException(BOX_READER_FAIL, orangeBoxMissingJson);
+        checkBoxException(BOX_READER_FAIL, appleBoxMissingJson);
     }
 
     private void checkOrangeBox(ObjectReader reader) throws Exception {
@@ -233,7 +233,7 @@ public class TestPropertyCreatorSubtypesExternalPropertyMissingProperty
         assertNull(deserAppleBox.getFruit());
     }
 
-    private void checkBoxJsonMappingException(ObjectReader reader, String json) throws Exception {
+    private void checkBoxException(ObjectReader reader, String json) throws Exception {
         try {
             reader.readValue(json);
             fail("Should not pass");

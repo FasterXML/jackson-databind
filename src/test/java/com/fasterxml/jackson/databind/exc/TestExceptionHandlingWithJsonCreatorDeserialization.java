@@ -8,7 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMapTest
+public class TestExceptionHandlingWithJsonCreatorDeserialization
+    extends BaseMapTest
 {
     static class Foo {
         private Bar bar;
@@ -49,7 +50,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMap
         }
     }
 
-    public void testShouldThrowJsonMappingExceptionWithPathReference() throws IOException {
+    public void testShouldThrowExceptionWithPathReference() throws IOException {
         // given
         ObjectMapper mapper = new ObjectMapper();
         String input = "{\"bar\":{\"baz\":{qux:\"quxValue\"))}";

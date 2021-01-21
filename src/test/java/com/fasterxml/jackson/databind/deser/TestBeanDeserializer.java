@@ -110,7 +110,8 @@ public class TestBeanDeserializer extends BaseMapTest
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-                BeanProperty property) throws JsonMappingException {
+                BeanProperty property)
+        {
             super.createContextual(ctxt, property);
             propCount++;
             return this;

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
 public class NullValueViaCreatorTest extends BaseMapTest
 {
@@ -40,7 +41,6 @@ public class NullValueViaCreatorTest extends BaseMapTest
         @Override
         public JsonDeserializer<?> findBeanDeserializer(JavaType type,
                 DeserializationConfig config, BeanDescription beanDesc)
-            throws JsonMappingException
         {
             if (!Contained.class.isAssignableFrom(type.getRawClass())) {
                 return null;
@@ -115,7 +115,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
         try {
             objectMapper.readValue(json, JsonEntity.class);
             fail("Should not have succeeded");
-        } catch (JsonMappingException e) {
+        } catch (ValueInstantiationException e) {
             verifyException(e, "JSON creator returned null");
         }
     }    

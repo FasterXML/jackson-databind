@@ -42,7 +42,7 @@ public class SimpleModuleTest extends BaseMapTest
             g.writeString(value.str + "|" + value.num);
         }
     }
-    
+
     static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
     {
         @Override

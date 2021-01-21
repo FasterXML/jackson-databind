@@ -95,9 +95,10 @@ public class TestMapFiltering extends BaseMapTest
         }
 
         @Override
+
         public void depositSchemaProperty(PropertyWriter writer,
                 JsonObjectFormatVisitor objectVisitor,
-                SerializerProvider provider) throws JsonMappingException { }
+                SerializerProvider provider) { }
     }
 
     // [databind#527]

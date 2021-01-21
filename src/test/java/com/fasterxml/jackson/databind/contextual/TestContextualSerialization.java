@@ -130,7 +130,6 @@ public class TestContextualSerialization extends BaseMapTest
 
         @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-                throws JsonMappingException
         {
             String prefix = "UNKNOWN";
             Prefix ann = null;
@@ -169,7 +168,6 @@ public class TestContextualSerialization extends BaseMapTest
 
         @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-                throws JsonMappingException
         {
             return new ContextualAndResolvable(isResolved, isContextual+1);
         }
@@ -199,7 +197,6 @@ public class TestContextualSerialization extends BaseMapTest
 
         @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-                throws JsonMappingException
         {
             if (property == null) {
                 return new AccumulatingContextual(desc+"/ROOT");

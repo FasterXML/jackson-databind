@@ -214,8 +214,8 @@ public class JsonMappingException
         super(msg, problem);
         _processor = processor;
         // 31-Jan-2020: [databind#2482] Retain original location
-        if (problem instanceof JsonProcessingException) {
-            _location = ((JsonProcessingException) problem).getLocation();
+        if (problem instanceof JacksonException) {
+            _location = ((JacksonException) problem).getLocation();
         } else if (processor instanceof JsonParser) {
             _location = ((JsonParser) processor).getTokenLocation();
         }
@@ -321,8 +321,8 @@ public class JsonMappingException
             }
             // 17-Aug-2015, tatu: Let's also pass the processor (parser/generator) along
             Closeable proc = null;
-            if (src instanceof JsonProcessingException) {
-                Object proc0 = ((JsonProcessingException) src).getProcessor();
+            if (src instanceof JacksonException) {
+                Object proc0 = ((JacksonException) src).getProcessor();
                 if (proc0 instanceof Closeable) {
                     proc = (Closeable) proc0;
                 }

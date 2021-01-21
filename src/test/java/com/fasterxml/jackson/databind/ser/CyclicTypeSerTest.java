@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Simple unit tests to verify that it is possible to handle
@@ -79,7 +80,7 @@ public class CyclicTypeSerTest
         Bean[] wrapper = new Bean[] { first };
         try {
             writeAndMap(MAPPER, wrapper);
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Direct self-reference leading to cycle");
         }
     }

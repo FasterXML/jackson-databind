@@ -306,7 +306,7 @@ public abstract class StdSerializer<T>
         // Ditto for IOExceptions... except for mapping exceptions!
         boolean wrap = (provider == null) || provider.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
         if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonMappingException)) {
+            if (!wrap || !(t instanceof JacksonException)) {
                 throw (IOException) t;
             }
         } else if (!wrap) {
@@ -328,7 +328,7 @@ public abstract class StdSerializer<T>
         // Ditto for IOExceptions... except for mapping exceptions!
         boolean wrap = (provider == null) || provider.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
         if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonMappingException)) {
+            if (!wrap || !(t instanceof JacksonException)) {
                 throw (IOException) t;
             }
         } else if (!wrap) {

@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.ResolvedType;
@@ -3106,7 +3107,7 @@ public class ObjectMapper
      */
     @Override
     public void writeValue(JsonGenerator g, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException, StreamWriteException, JsonMappingException
     {
         _assertNotNull("g", g);
         SerializationConfig config = getSerializationConfig();
@@ -3679,7 +3680,7 @@ public class ObjectMapper
      * JSON output, written to File provided.
      */
     public void writeValue(File resultFile, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException, StreamWriteException, JsonMappingException
     {
         _writeValueAndClose(createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
@@ -3696,7 +3697,7 @@ public class ObjectMapper
      * is closed).
      */
     public void writeValue(OutputStream out, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException, StreamWriteException, JsonMappingException
     {
         _writeValueAndClose(createGenerator(out, JsonEncoding.UTF8), value);
     }
@@ -3720,7 +3721,7 @@ public class ObjectMapper
      * is closed).
      */
     public void writeValue(Writer w, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException, StreamWriteException, JsonMappingException
     {
         _writeValueAndClose(createGenerator(w), value);
     }

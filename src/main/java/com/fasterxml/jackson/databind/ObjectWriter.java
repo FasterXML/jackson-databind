@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -1021,7 +1022,7 @@ public class ObjectWriter
      * JSON output, written to File provided.
      */
     public void writeValue(File resultFile, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException, StreamWriteException, JsonMappingException
     {
         _writeValueAndClose(createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
@@ -1038,7 +1039,7 @@ public class ObjectWriter
      * is closed).
      */
     public void writeValue(OutputStream out, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException, StreamWriteException, JsonMappingException
     {
         _writeValueAndClose(createGenerator(out, JsonEncoding.UTF8), value);
     }
@@ -1054,7 +1055,7 @@ public class ObjectWriter
      * is closed).
      */
     public void writeValue(Writer w, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException, StreamWriteException, JsonMappingException
     {
         _writeValueAndClose(createGenerator(w), value);
     }
@@ -1063,7 +1064,7 @@ public class ObjectWriter
      * @since 2.8
      */
     public void writeValue(DataOutput out, Object value)
-        throws IOException
+        throws IOException, StreamWriteException, JsonMappingException
     {
         _writeValueAndClose(createGenerator(out), value);
     }

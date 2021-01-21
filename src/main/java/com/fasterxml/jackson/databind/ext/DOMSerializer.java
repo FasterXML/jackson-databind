@@ -33,7 +33,7 @@ public class DOMSerializer extends StdSerializer<Node>
     
     @Override
     public void serialize(Node value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         if (_domImpl == null) throw new IllegalStateException("Could not find DOM LS");    	
         LSSerializer writer = _domImpl.createLSSerializer();

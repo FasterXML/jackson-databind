@@ -797,11 +797,10 @@ public abstract class BeanSerializerBase
      */
     protected void serializeFieldsFiltered(Object bean, JsonGenerator gen,
             SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
-        /* note: almost verbatim copy of "serializeFields"; copied (instead of merged)
-         * so that old method need not add check for existence of filter.
-         */
+        // note: almost verbatim copy of "serializeFields"; copied (instead of merged)
+        // so that old method need not add check for existence of filter.
         final BeanPropertyWriter[] props;
         if (_filteredProps != null && provider.getActiveView() != null) {
             props = _filteredProps;

@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -155,12 +155,12 @@ public class TestTypeModifiers extends BaseMapTest
         @Override
         public MapMarker<?,?> deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            if (p.currentToken() != JsonToken.START_OBJECT) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
-            if (p.nextToken() != JsonToken.FIELD_NAME) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
+            if (p.currentToken() != JsonToken.START_OBJECT) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.FIELD_NAME) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             String key = p.currentName();
-            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             int value = p.getIntValue();
-            if (p.nextToken() != JsonToken.END_OBJECT) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.END_OBJECT) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             return new MyMapLikeType(key, value);
         }        
     }
@@ -179,10 +179,10 @@ public class TestTypeModifiers extends BaseMapTest
     {
         @Override
         public MyCollectionLikeType deserialize(JsonParser p, DeserializationContext ctxt) {
-            if (p.currentToken() != JsonToken.START_ARRAY) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
-            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
+            if (p.currentToken() != JsonToken.START_ARRAY) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             int value = p.getIntValue();
-            if (p.nextToken() != JsonToken.END_ARRAY) throw new JsonParseException(p, "Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.END_ARRAY) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             return new MyCollectionLikeType(value);
         }        
     }

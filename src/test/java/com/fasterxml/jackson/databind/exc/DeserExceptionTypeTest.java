@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.testutil.BrokenStringReader;
  * Unit test for verifying that exceptions are properly handled (caught,
  * re-thrown or wrapped, depending) with Object deserialization,
  * including using concrete subtypes of {@link JsonMappingException}
- * (or, for low-level parsing, {@link JsonParseException}).
+ * (and streaming-level equivalents).
  */
 public class DeserExceptionTypeTest
     extends BaseMapTest

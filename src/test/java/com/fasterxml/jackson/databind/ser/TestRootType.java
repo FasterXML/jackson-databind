@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -139,7 +140,7 @@ public class TestRootType
         try {
             w.writeValueAsString(bean);
             fail("Should have failed due to incompatible type");
-        } catch (JsonProcessingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Incompatible types");
         }
 
@@ -147,7 +148,7 @@ public class TestRootType
         try {
             w.writeValueAsBytes(bean);
             fail("Should have failed due to incompatible type");
-        } catch (JsonProcessingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Incompatible types");
         }
     }

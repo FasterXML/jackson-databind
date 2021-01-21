@@ -447,7 +447,6 @@ public abstract class BaseTest
      * returning them
      */
     protected String getAndVerifyText(JsonParser p)
-        throws IOException, JsonParseException
     {
         // Ok, let's verify other accessors
         int actLen = p.getTextLength();

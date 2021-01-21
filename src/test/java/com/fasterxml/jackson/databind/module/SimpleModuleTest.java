@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.module;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
@@ -50,7 +51,7 @@ public class SimpleModuleTest extends BaseMapTest
             String text = p.getText();
             int ix = text.indexOf('|');
             if (ix < 0) {
-                throw new JsonParseException(p, "Failed to parse String value of \""+text+"\"");
+                throw new StreamReadException(p, "Failed to parse String value of \""+text+"\"");
             }
             String str = text.substring(0, ix);
             int num = Integer.parseInt(text.substring(ix+1));

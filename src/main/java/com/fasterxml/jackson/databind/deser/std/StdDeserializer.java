@@ -1105,9 +1105,7 @@ public abstract class StdDeserializer<T>
                 long ts;
                 try {
                     ts = p.getLongValue();
-                // 16-Jan-2019, tatu: 2.10 uses InputCoercionException, earlier JsonParseException
-                //     (but leave both until 3.0)
-                } catch (JsonParseException | InputCoercionException e) {
+                } catch (InputCoercionException e) {
                     Number v = (Number) ctxt.handleWeirdNumberValue(_valueClass, p.getNumberValue(),
                             "not a valid 64-bit `long` for creating `java.util.Date`");
                     ts = v.longValue();

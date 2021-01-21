@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.*;
@@ -27,7 +26,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
 
     protected static class ContainedDeserializer extends JsonDeserializer<Contained<?>> {
         @Override
-        public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws JsonProcessingException {
+        public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) {
             return null;
         }
 
@@ -109,7 +108,8 @@ public class NullValueViaCreatorTest extends BaseMapTest
     }
 
     // [databind#597]: ensure that a useful exception is thrown
-    public void testCreatorReturningNull() throws IOException {
+    public void testCreatorReturningNull()
+    {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
         try {

@@ -103,7 +103,7 @@ public class TreeTraversingParser extends ParserMinimalBase
      */
 
     @Override
-    public JsonToken nextToken() throws IOException, JsonParseException
+    public JsonToken nextToken() throws IOException
     {
         _currToken = _nodeCursor.nextToken();
         if (_currToken == null) {
@@ -218,17 +218,17 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     @Override
-    public char[] getTextCharacters() throws IOException, JsonParseException {
+    public char[] getTextCharacters() throws IOException {
         return getText().toCharArray();
     }
 
     @Override
-    public int getTextLength() throws IOException, JsonParseException {
+    public int getTextLength() throws IOException {
         return getText().length();
     }
 
     @Override
-    public int getTextOffset() throws IOException, JsonParseException {
+    public int getTextOffset() throws IOException {
         return 0;
     }
 
@@ -332,7 +332,7 @@ public class TreeTraversingParser extends ParserMinimalBase
 
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant)
-        throws IOException, JsonParseException
+        throws IOException
     {
         // Multiple possibilities...
         JsonNode n = currentNode();
@@ -351,7 +351,7 @@ public class TreeTraversingParser extends ParserMinimalBase
 
     @Override
     public int readBinaryValue(Base64Variant b64variant, OutputStream out)
-            throws IOException, JsonParseException
+        throws IOException
     {
         byte[] data = getBinaryValue(b64variant);
         if (data != null) {
@@ -375,7 +375,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     protected JsonNode currentNumericNode()
-        throws JsonParseException
+        throws JacksonException
     {
         JsonNode n = currentNode();
         if (n == null || !n.isNumber()) {
@@ -386,7 +386,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     @Override
-    protected void _handleEOF() throws JsonParseException {
+    protected void _handleEOF() {
         _throwInternal(); // should never get called
     }
 }

@@ -1935,7 +1935,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         @Override
         @SuppressWarnings("resource")
-        public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException
+        public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
         {
             // First: maybe we some special types?
             if (_currToken == JsonToken.VALUE_EMBEDDED_OBJECT) {
@@ -2010,7 +2010,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return _segment.get(_segmentPtr);
         }
 
-        protected final void _checkIsNumber() throws JsonParseException
+        protected final void _checkIsNumber() throws JacksonException
         {
             if (_currToken == null || !_currToken.isNumeric()) {
                 throw _constructError("Current token ("+_currToken+") not numeric, cannot use numeric value accessors");
@@ -2018,7 +2018,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        protected void _handleEOF() throws JsonParseException {
+        protected void _handleEOF() {
             _throwInternal();
         }
     }

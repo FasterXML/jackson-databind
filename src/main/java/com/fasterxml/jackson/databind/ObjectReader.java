@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter;
@@ -135,7 +136,7 @@ public class ObjectReader
      * {@link Reader} or {@link String} input <b>will fail with exception</b>,
      * because format-detection only works on byte-sources. Also, if format
      * cannot be detect reliably (as per detector settings),
-     * a {@link JsonParseException} will be thrown).
+     * a {@link StreamReadException} will be thrown).
      * 
      * @since 2.1
      */
@@ -2258,7 +2259,7 @@ public class ObjectReader
         return new FileInputStream(f);
     }
 
-    protected void _reportUndetectableSource(Object src) throws JsonParseException
+    protected void _reportUndetectableSource(Object src) throws StreamReadException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
         throw new JsonParseException(null, "Cannot use source of type "

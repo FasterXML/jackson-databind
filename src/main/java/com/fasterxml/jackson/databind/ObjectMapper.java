@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.ResolvedType;
@@ -2784,7 +2785,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -2792,7 +2793,7 @@ public class ObjectMapper
     @Override
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueType));
@@ -2809,7 +2810,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -2817,7 +2818,7 @@ public class ObjectMapper
     @Override
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueTypeRef));
@@ -2833,7 +2834,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -2841,7 +2842,7 @@ public class ObjectMapper
     @Override
     @SuppressWarnings("unchecked")
     public final <T> T readValue(JsonParser p, ResolvedType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, (JavaType) valueType);
@@ -2854,14 +2855,14 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, valueType);
@@ -2887,7 +2888,7 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
     @Override
@@ -3001,7 +3002,7 @@ public class ObjectMapper
      * If a low-level I/O problem (missing input, network error) occurs,
      * a {@link IOException} will be thrown.
      * If a parsing problem occurs (invalid JSON),
-     * {@link JsonParseException} will be thrown.
+     * {@link StreamReadException} will be thrown.
      * If no content is found from input (end-of-input), Java
      * <code>null</code> will be returned.
      * 
@@ -3014,7 +3015,7 @@ public class ObjectMapper
      *   as a non-null {@link JsonNode} (one that returns <code>true</code>
      *   for {@link JsonNode#isNull()}
      *   
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
     public JsonNode readTree(InputStream in) throws IOException
@@ -3401,14 +3402,14 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3421,14 +3422,14 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(File src, TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3441,14 +3442,14 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3467,14 +3468,14 @@ public class ObjectMapper
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3485,7 +3486,7 @@ public class ObjectMapper
      */
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(URL src, TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3496,7 +3497,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3505,7 +3506,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      *
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -3520,7 +3521,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      *
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -3535,7 +3536,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      *
-     * @throws JsonParseException if underlying input contains invalid content
+     * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
@@ -3556,7 +3557,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(Reader src, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3564,7 +3565,7 @@ public class ObjectMapper
 
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(Reader src, TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3572,7 +3573,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(Reader src, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3580,7 +3581,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3588,7 +3589,7 @@ public class ObjectMapper
 
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3596,7 +3597,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3604,7 +3605,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3613,7 +3614,7 @@ public class ObjectMapper
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, int offset, int len, 
                                Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueType));
@@ -3621,16 +3622,15 @@ public class ObjectMapper
 
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(byte[] src, TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
     
     @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(byte[] src, int offset, int len,
-                           TypeReference<T> valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
+    public <T> T readValue(byte[] src, int offset, int len, TypeReference<T> valueTypeRef)
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueTypeRef));
@@ -3638,16 +3638,15 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] src, int offset, int len,
-                           JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+    public <T> T readValue(byte[] src, int offset, int len, JavaType valueType)
+        throws IOException, StreamReadException, JsonMappingException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), valueType);
@@ -4667,10 +4666,6 @@ public class ObjectMapper
      *
      * @throws IOException if the underlying input source has problems during
      *   parsing
-     * @throws JsonParseException if parser has problems parsing content
-     * @throws JsonMappingException if the parser does not have any more
-     *   content to map (note: Json "null" value is considered content;
-     *   enf-of-stream not)
      */
     protected JsonToken _initForReading(JsonParser p, JavaType targetType) throws IOException
     {
@@ -4691,11 +4686,6 @@ public class ObjectMapper
             }
         }
         return t;
-    }
-
-    @Deprecated // since 2.9, use method that takes JavaType too
-    protected JsonToken _initForReading(JsonParser p) throws IOException {
-        return _initForReading(p, null);
     }
 
     /**

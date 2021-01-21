@@ -11,7 +11,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.*;
@@ -297,7 +296,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         }
 
         @Override
-        public Object deserializeKey(String key, DeserializationContext ctxt) throws JacksonException, JsonProcessingException {
+        public Object deserializeKey(String key, DeserializationContext ctxt) throws JacksonException {
             return key;
         }
     }    

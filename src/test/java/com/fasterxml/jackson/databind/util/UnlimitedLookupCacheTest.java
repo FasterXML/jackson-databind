@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.junit.Test;
@@ -25,7 +24,8 @@ public class UnlimitedLookupCacheTest {
     }
 
     @Test
-    public void testCompatibility() throws JsonProcessingException {
+    public void testCompatibility()
+    {
         UnlimitedLookupCache<Object, JavaType> cache = new UnlimitedLookupCache<>(4);
         TypeFactory tf = TypeFactory.defaultInstance().withCache(cache);
         assertNotNull(tf); // just to get rid of warning

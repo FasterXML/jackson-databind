@@ -73,8 +73,6 @@ public enum DeserializationFeature implements ConfigFeature
      * If enabled, such values will be deserialized as {@link java.lang.Long};
      * if disabled, they will be deserialized as "smallest" available type,
      * {@link Integer}.
-     * In addition, if enabled, trying to bind values that do not fit in {@link java.lang.Long}
-     * will throw a {@link com.fasterxml.jackson.core.JsonProcessingException}.
      *<p>
      * Note: if {@link #USE_BIG_INTEGER_FOR_INTS} is enabled, it has precedence
      * over this setting, forcing use of {@link java.math.BigInteger} for all
@@ -122,7 +120,7 @@ public enum DeserializationFeature implements ConfigFeature
     /**
      * Feature that determines whether encountering of JSON null
      * is an error when deserializing into Java primitive types
-     * (like 'int' or 'double'). If it is, a JsonProcessingException
+     * (like 'int' or 'double'). If it is, a {@link JsonMappingException}
      * is thrown to indicate this; if not, default value is used
      * (0 for 'int', 0.0 for double, same defaulting as what JVM uses).
      *<p>
@@ -255,22 +253,14 @@ public enum DeserializationFeature implements ConfigFeature
     
     /**
      * Feature that determines whether Jackson code should catch
-     * and wrap {@link Exception}s (but never {@link Error}s!)
+     * and wrap non-Jackson {@link Exception}s (but never {@link Error}s!)
      * to add additional information about
      * location (within input) of problem or not. If enabled,
-     * most exceptions will be caught and re-thrown (exception
-     * specifically being that {@link java.io.IOException}s may be passed
-     * as is, since they are declared as throwable); this can be
+     * most exceptions will be caught and re-thrown; this can be
      * convenient both in that all exceptions will be checked and
      * declared, and so there is more contextual information.
      * However, sometimes calling application may just want "raw"
      * unchecked exceptions passed as is.
-     *<p>
-     * NOTE: most of the time exceptions that may or may not be wrapped are of
-     * type {@link RuntimeException}: as mentioned earlier, various
-     * {@link java.io.IOException}s (and in particular
-     * {@link com.fasterxml.jackson.core.JsonProcessingException}s) will
-     * always be passed as-is.
      *<p>
      * Feature is enabled by default.
      */

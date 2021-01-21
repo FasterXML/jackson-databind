@@ -885,7 +885,8 @@ public abstract class SerializerProvider
             ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those are what caller is expected to handle
-            throw _mappingProblem(iae, ClassUtil.exceptionMessage(iae));
+            reportBadTypeDefinition(beanDesc, ClassUtil.exceptionMessage(iae));
+            ser = null; // never gets here
         }
         // Always cache -- and in this case both for raw and full type
         _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
@@ -1245,9 +1246,6 @@ public abstract class SerializerProvider
         throw InvalidDefinitionException.from(getGenerator(), msg, type);
     }
 
-    /**
-     * @since 2.9
-     */
     public <T> T reportBadDefinition(JavaType type, String msg, Throwable cause)
             throws JsonMappingException {
         InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, type);
@@ -1255,9 +1253,6 @@ public abstract class SerializerProvider
         throw e;
     }
 
-    /**
-     * @since 2.9
-     */
     public <T> T reportBadDefinition(Class<?> raw, String msg, Throwable cause)
             throws JsonMappingException {
         InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, constructType(raw));

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.CollectionType;
@@ -333,7 +334,7 @@ public class TestBeanDeserializer extends BaseMapTest
         try {
             MAPPER.readValue("{ \"x\" : 3 }", Abstract.class);
             fail("Should fail on trying to deserialize abstract type");
-        } catch (JsonProcessingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot construct");
         }
     }    

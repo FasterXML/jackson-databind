@@ -1932,8 +1932,10 @@ public class ObjectReader
                     _rootDeserializers.put(valueType, deser);
                 }
                 return deser;
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 // need to swallow?
+                // 20-Jan-2021, tatu: Not 100% sure actually... but was that way in 2.x
+                //    so leaving for now
             }
         }
         return deser;

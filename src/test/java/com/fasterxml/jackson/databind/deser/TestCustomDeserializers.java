@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.deser.std.*;
@@ -73,7 +73,7 @@ public class TestCustomDeserializers
                 final String fieldName = p.currentName();
                 t = p.nextToken();
                 if (t != JsonToken.VALUE_NUMBER_INT) {
-                    throw new JsonParseException(p, "expecting number got "+ t);
+                    throw new StreamReadException(p, "expecting number got "+ t);
                 }
                 if (fieldName.equals("a")) {
                     a = p.getIntValue();

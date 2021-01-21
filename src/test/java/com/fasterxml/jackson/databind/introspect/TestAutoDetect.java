@@ -121,7 +121,7 @@ public class TestAutoDetect
         try {
             m.readValue("\"abc\"", ProtectedBean.class);
             fail("Expected exception for missing constructor");
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             verifyException(e, InvalidDefinitionException.class, "no String-argument constructor/factory");
         }
     }
@@ -137,7 +137,7 @@ public class TestAutoDetect
         try {
             m.readValue("\"abc\"", PrivateBeanNonAnnotated.class);
             fail("Expected exception for missing constructor");
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             verifyException(e, InvalidDefinitionException.class, "no String-argument constructor/factory");
         }
 

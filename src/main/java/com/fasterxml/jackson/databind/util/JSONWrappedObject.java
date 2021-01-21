@@ -67,7 +67,7 @@ public class JSONWrappedObject implements JsonSerializable
 
     @Override
     public void serializeWithType(JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
-            throws IOException, JsonProcessingException
+        throws IOException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
         serialize(jgen, provider);
@@ -75,7 +75,7 @@ public class JSONWrappedObject implements JsonSerializable
 
     @Override
     public void serialize(JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
+        throws IOException
     {
         // First, wrapping:
     	if (_prefix != null) jgen.writeRaw(_prefix);

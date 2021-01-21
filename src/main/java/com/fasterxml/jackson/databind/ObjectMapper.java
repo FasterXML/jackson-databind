@@ -2892,7 +2892,7 @@ public class ObjectMapper
      */
     @Override
     public <T extends TreeNode> T readTree(JsonParser p)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         _assertNotNull("p", p);
         // Must check for EOF here before calling readValue(), since that'll choke on it otherwise
@@ -2934,7 +2934,7 @@ public class ObjectMapper
      */
     @Override
     public <T> MappingIterator<T> readValues(JsonParser p, ResolvedType valueType)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         return readValues(p, (JavaType) valueType);
     }
@@ -2948,7 +2948,7 @@ public class ObjectMapper
      * Type-safe overload of {@link #readValues(JsonParser, ResolvedType)}.
      */
     public <T> MappingIterator<T> readValues(JsonParser p, JavaType valueType)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         _assertNotNull("p", p);
         DeserializationConfig config = getDeserializationConfig();
@@ -2969,7 +2969,7 @@ public class ObjectMapper
      */
     @Override
     public <T> MappingIterator<T> readValues(JsonParser p, Class<T> valueType)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         return readValues(p, _typeFactory.constructType(valueType));
     }
@@ -2979,7 +2979,7 @@ public class ObjectMapper
      */
     @Override
     public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         return readValues(p, _typeFactory.constructType(valueTypeRef));
     }
@@ -3036,7 +3036,8 @@ public class ObjectMapper
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link String}
      */
-    public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
+    public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException
+    {
         _assertNotNull("content", content);
         try { // since 2.10 remove "impossible" IOException as per [databind#1675]
             return _readTreeAndClose(_jsonFactory.createParser(content));
@@ -3069,8 +3070,7 @@ public class ObjectMapper
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link File}.
      */
-    public JsonNode readTree(File file)
-        throws IOException, JsonProcessingException
+    public JsonNode readTree(File file) throws IOException
     {
         _assertNotNull("file", file);
         return _readTreeAndClose(_jsonFactory.createParser(file));
@@ -3086,7 +3086,8 @@ public class ObjectMapper
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
      */
-    public JsonNode readTree(URL source) throws IOException {
+    public JsonNode readTree(URL source) throws IOException
+    {
         _assertNotNull("source", source);
         return _readTreeAndClose(_jsonFactory.createParser(source));
     }
@@ -3138,7 +3139,7 @@ public class ObjectMapper
 
     @Override
     public void writeTree(JsonGenerator g, TreeNode rootNode)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         _assertNotNull("g", g);
         SerializationConfig config = getSerializationConfig();
@@ -3153,7 +3154,7 @@ public class ObjectMapper
      * provided.
      */
     public void writeTree(JsonGenerator g, JsonNode rootNode)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         _assertNotNull("g", g);
         SerializationConfig config = getSerializationConfig();

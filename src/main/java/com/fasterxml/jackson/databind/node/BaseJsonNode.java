@@ -114,7 +114,7 @@ public abstract class BaseJsonNode
      */
     @Override
     public abstract void serialize(JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonProcessingException;
+        throws IOException;
 
     /**
      * Type information is needed, even if JsonNode instances are "plain" JSON,
@@ -123,7 +123,7 @@ public abstract class BaseJsonNode
    @Override
     public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException;
+        throws IOException;
 
    /*
    /**********************************************************

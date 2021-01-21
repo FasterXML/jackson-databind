@@ -248,7 +248,7 @@ public class EnumSetDeserializer
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }

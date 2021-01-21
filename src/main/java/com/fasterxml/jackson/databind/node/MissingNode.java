@@ -79,7 +79,7 @@ public final class MissingNode
     
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         /* Nothing to output... should we signal an error tho?
          * Chances are, this is an erroneous call. For now, let's
@@ -93,7 +93,7 @@ public final class MissingNode
     @Override
     public void serializeWithType(JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         g.writeNull();
     }

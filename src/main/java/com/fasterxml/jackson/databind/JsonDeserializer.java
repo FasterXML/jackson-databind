@@ -105,7 +105,7 @@ public abstract class JsonDeserializer<T>
      * @return Deserialized value
      */
     public abstract T deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+        throws IOException, JacksonException;
 
     /**
      * Alternate deserialization method (compared to the most commonly
@@ -124,7 +124,7 @@ public abstract class JsonDeserializer<T>
      * update-existing-value operation (esp. immutable types)
      */
     public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue)
-        throws IOException
+        throws IOException, JacksonException
     {
         ctxt.handleBadMerge(this);
         return deserialize(p, ctxt);
@@ -146,7 +146,7 @@ public abstract class JsonDeserializer<T>
      */
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws IOException, JacksonException
     {
         // We could try calling 
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
@@ -162,7 +162,7 @@ public abstract class JsonDeserializer<T>
      */
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer, T intoValue)
-        throws IOException
+        throws IOException, JacksonException
     {
         ctxt.handleBadMerge(this);
         return deserializeWithType(p, ctxt, typeDeserializer);

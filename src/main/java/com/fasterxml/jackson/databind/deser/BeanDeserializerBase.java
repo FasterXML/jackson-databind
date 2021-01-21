@@ -1822,7 +1822,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
         // Ditto for IOExceptions; except we may want to wrap JSON exceptions
         if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonProcessingException)) {
+            if (!wrap || !(t instanceof JacksonException)) {
                 throw (IOException) t;
             }
         } else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions

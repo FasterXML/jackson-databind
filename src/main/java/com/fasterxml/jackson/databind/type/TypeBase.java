@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -176,7 +177,7 @@ public abstract class TypeBase
 
     @Override
     public void serialize(JsonGenerator gen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
+        throws IOException
     {
         gen.writeString(toCanonical());
     } 

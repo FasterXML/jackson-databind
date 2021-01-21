@@ -224,7 +224,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             JsonNodeFactory nodeFactory,
             String fieldName, ObjectNode objectNode,
             JsonNode oldValue, JsonNode newValue)
-        throws JsonProcessingException
+        throws IOException
     {
         // [databind#237]: Report an error if asked to do so:
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {

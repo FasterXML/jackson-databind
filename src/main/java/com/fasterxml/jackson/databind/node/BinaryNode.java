@@ -91,7 +91,7 @@ public class BinaryNode
 
     @Override
     public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         jg.writeBinary(provider.getConfig().getBase64Variant(),
                 _data, 0, _data.length);

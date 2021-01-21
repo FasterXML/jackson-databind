@@ -6,8 +6,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -816,7 +817,7 @@ public final class ClassUtil
 
     /**
      * Helper method that returns {@link Throwable#getMessage()} for all other exceptions
-     * except for {@link JsonProcessingException}, for which {@code getOriginalMessage()} is
+     * except for {@link JacksonException}, for which {@code getOriginalMessage()} is
      * returned instead.
      * Method is used to avoid accidentally including trailing location information twice
      * in message when wrapping exceptions.
@@ -824,12 +825,12 @@ public final class ClassUtil
      * @since 2.9.7
      */
     public static String exceptionMessage(Throwable t) {
-        if (t instanceof JsonProcessingException) {
-            return ((JsonProcessingException) t).getOriginalMessage();
+        if (t instanceof JacksonException) {
+            return ((JacksonException) t).getOriginalMessage();
         }
         return t.getMessage();
     }
-    
+
     /*
     /**********************************************************
     /* Primitive type support

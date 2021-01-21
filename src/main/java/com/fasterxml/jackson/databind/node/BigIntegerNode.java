@@ -99,10 +99,10 @@ public class BigIntegerNode
     }
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+        throws IOException
     {
-        jg.writeNumber(_value);
+        g.writeNumber(_value);
     }
 
     @Override

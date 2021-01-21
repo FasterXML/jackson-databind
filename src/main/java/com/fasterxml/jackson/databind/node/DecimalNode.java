@@ -103,7 +103,7 @@ public class DecimalNode
 
     @Override
     public final void serialize(JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // 07-Jul-2013, tatu: Should be handled by propagating setting to JsonGenerator
         //    so this should not be needed:

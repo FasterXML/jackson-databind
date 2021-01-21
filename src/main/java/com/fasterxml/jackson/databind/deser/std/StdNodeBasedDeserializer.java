@@ -76,11 +76,10 @@ public abstract class StdNodeBasedDeserializer<T>
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer td)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
-        /* 19-Nov-2014, tatu: Quite likely we'd have some issues but... let's
-         *   try, just in case.
-         */
+        // 19-Nov-2014, tatu: Quite likely we'd have some issues but... let's
+        //   try, just in case.
         JsonNode n = (JsonNode) _treeDeserializer.deserializeWithType(jp, ctxt, td);
         return convert(n, ctxt);
     }

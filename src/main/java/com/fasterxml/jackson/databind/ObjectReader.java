@@ -2210,7 +2210,7 @@ public class ObjectReader
      * of given input
      */
     protected void _reportUnkownFormat(DataFormatReaders detector, DataFormatReaders.Match match)
-        throws JsonProcessingException
+        throws IOException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
         throw new JsonParseException(null, "Cannot detect format from input, does not look like any of detectable formats "
@@ -2342,7 +2342,7 @@ public class ObjectReader
                     _rootDeserializers.put(valueType, deser);
                 }
                 return deser;
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 // need to swallow?
             }
         }

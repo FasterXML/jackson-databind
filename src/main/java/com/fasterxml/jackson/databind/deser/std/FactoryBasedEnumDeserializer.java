@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
@@ -227,7 +227,7 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
         // Ditto for IOExceptions; except we may want to wrap JSON exceptions
         if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonProcessingException)) {
+            if (!wrap || !(t instanceof JacksonException)) {
                 throw (IOException) t;
             }
         } else if (!wrap) {

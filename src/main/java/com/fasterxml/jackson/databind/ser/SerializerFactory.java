@@ -27,8 +27,7 @@ public abstract class SerializerFactory
      * @since 3.0 (last argument added)
      */
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider ctxt,
-            JavaType baseType, BeanDescription beanDesc, JsonFormat.Value formatOverride)
-        throws JsonMappingException;
+            JavaType baseType, BeanDescription beanDesc, JsonFormat.Value formatOverride);
 
     /**
      * Method called to create serializer to use for serializing JSON property names (which must
@@ -41,8 +40,7 @@ public abstract class SerializerFactory
      *   serializer is to be used)
      */
     public abstract JsonSerializer<Object> createKeySerializer(SerializerProvider ctxt,
-            JavaType type)
-        throws JsonMappingException;
+            JavaType type);
 
     /**
      * Returns serializer used to (try to) output a null key, due to an entry of
@@ -100,7 +98,6 @@ public abstract class SerializerFactory
      */
     @Deprecated // since 3.0
     public JsonSerializer<Object> createSerializer(SerializerProvider ctxt, JavaType baseType)
-        throws JsonMappingException
     {
         BeanDescription beanDesc = ctxt.introspectBeanDescription(baseType);
         return createSerializer(ctxt, baseType, beanDesc, null);

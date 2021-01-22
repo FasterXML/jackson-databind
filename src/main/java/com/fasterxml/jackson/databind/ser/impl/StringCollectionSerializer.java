@@ -46,13 +46,13 @@ public class StringCollectionSerializer
         return new StringCollectionSerializer(this, unwrapSingle);
     }
 
-    @Override protected JsonNode contentSchema() {
+    @Override
+    protected JsonNode contentSchema() {
         return createSchemaNode("string", true);
     }
     
     @Override
-    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) throws JsonMappingException
-    {
+    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) {
         visitor.itemsFormat(JsonFormatTypes.STRING);
     }
 

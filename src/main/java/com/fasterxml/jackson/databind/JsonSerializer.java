@@ -71,7 +71,7 @@ public abstract class JsonSerializer<T>
      * @param provider Provider that has constructed serializer this method
      *   is called on.
      */
-    public void resolve(SerializerProvider provider) throws JsonMappingException {
+    public void resolve(SerializerProvider provider) {
         // Default implementation does nothing
     }
 
@@ -99,7 +99,7 @@ public abstract class JsonSerializer<T>
      *   may be this instance or a new instance.
      */
     public JsonSerializer<?> createContextual(SerializerProvider prov,
-            BeanProperty property) throws JsonMappingException {
+            BeanProperty property) {
         // default implementation returns instance unmodified
         return this;
     }
@@ -335,7 +335,6 @@ public abstract class JsonSerializer<T>
      */
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType type)
-        throws JsonMappingException
     {
         visitor.expectAnyFormat(type);
     }

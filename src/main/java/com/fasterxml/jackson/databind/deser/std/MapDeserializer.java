@@ -252,7 +252,7 @@ public class MapDeserializer
      */
 
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    public void resolve(DeserializationContext ctxt)
     {
         // May need to resolve types for delegate- and/or property-based creators:
         if (_valueInstantiator.canCreateUsingDelegate()) {
@@ -291,7 +291,7 @@ public class MapDeserializer
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         KeyDeserializer keyDeser = _keyDeserializer;
         if (keyDeser == null) {

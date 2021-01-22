@@ -98,7 +98,6 @@ public final class PropertyBasedCreator
     public static PropertyBasedCreator construct(DeserializationContext ctxt,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps,
             BeanPropertyMap allProperties)
-        throws JsonMappingException
     {
         final int len = srcCreatorProps.length;
         SettableBeanProperty[] creatorProps = new SettableBeanProperty[len];
@@ -129,7 +128,6 @@ public final class PropertyBasedCreator
     public static PropertyBasedCreator construct(DeserializationContext ctxt,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps,
             boolean caseInsensitive)
-        throws JsonMappingException
     {
         final int len = srcCreatorProps.length;
         SettableBeanProperty[] creatorProps = new SettableBeanProperty[len];

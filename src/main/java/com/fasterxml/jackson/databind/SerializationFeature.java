@@ -74,7 +74,7 @@ public enum SerializationFeature implements ConfigFeature
     /**
      * Feature that determines what happens when a direct self-reference
      * is detected by a POJO (and no Object Id handling is enabled for it):
-     * either a {@link JsonMappingException} is
+     * either a {@link DatabindException} is
      * thrown (if true), or reference is normally processed (false).
      *<p>
      * Feature is enabled by default.

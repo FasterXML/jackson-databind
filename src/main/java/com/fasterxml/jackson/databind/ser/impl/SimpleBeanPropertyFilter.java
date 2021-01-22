@@ -21,9 +21,9 @@ public class SimpleBeanPropertyFilter
         // sub-classes must also implement java.io.Serializable
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected SimpleBeanPropertyFilter() { }
@@ -69,9 +69,9 @@ public class SimpleBeanPropertyFilter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -100,9 +100,9 @@ public class SimpleBeanPropertyFilter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* PropertyFilter implementation
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -130,7 +130,7 @@ public class SimpleBeanPropertyFilter
     @Override
     public void depositSchemaProperty(PropertyWriter writer,
             JsonObjectFormatVisitor objectVisitor,
-            SerializerProvider provider) throws JsonMappingException 
+            SerializerProvider provider)
     {
         if (include(writer)) {
             writer.depositSchemaProperty(objectVisitor, provider);
@@ -138,9 +138,9 @@ public class SimpleBeanPropertyFilter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

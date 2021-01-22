@@ -76,7 +76,6 @@ public class CreatorCollector
     }
 
     public ValueInstantiator constructValueInstantiator(DeserializationContext ctxt)
-        throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
         final JavaType delegateType = _computeDelegateType(ctxt,
@@ -225,7 +224,6 @@ public class CreatorCollector
 
     private JavaType _computeDelegateType(DeserializationContext ctxt,
             AnnotatedWithParams creator, SettableBeanProperty[] delegateArgs)
-        throws JsonMappingException
     {
         if (!_hasNonDefaultCreator || (creator == null)) {
             return null;

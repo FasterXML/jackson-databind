@@ -34,9 +34,8 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
         }
     }
 
-    @Override // since 2.9
+    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         // 31-Mar-2017, tatu: Use same type as `ByteArraySerializer`: not optimal but has to do
         JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);

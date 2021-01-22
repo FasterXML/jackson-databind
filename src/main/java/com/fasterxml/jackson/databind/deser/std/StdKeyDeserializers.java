@@ -45,7 +45,6 @@ public class StdKeyDeserializers
     
     public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
-        throws JsonMappingException
     {
         // We don't need full deserialization information, just need to know creators.
         BeanDescription beanDesc = ctxt.introspectBeanDescription(type);
@@ -79,7 +78,7 @@ public class StdKeyDeserializers
     
     @Override
     public KeyDeserializer findKeyDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription beanDesc) throws JsonMappingException
+            DeserializationConfig config, BeanDescription beanDesc)
     {
         Class<?> raw = type.getRawClass();
         // 23-Apr-2013, tatu: Map primitive types, just in case one was given

@@ -40,11 +40,11 @@ public class UnrolledBeanAsArraySerializer
     protected BeanPropertyWriter _prop4;
     protected BeanPropertyWriter _prop5;
     protected BeanPropertyWriter _prop6;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public UnrolledBeanAsArraySerializer(BeanSerializerBase src) {    
@@ -91,9 +91,9 @@ public class UnrolledBeanAsArraySerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: factory methods, fluent factories
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -140,16 +140,16 @@ public class UnrolledBeanAsArraySerializer
     }
 
     @Override
-    public void resolve(SerializerProvider provider) throws JsonMappingException
+    public void resolve(SerializerProvider provider)
     {
         super.resolve(provider);
         _calcUnrolled();
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonSerializer implementation that differs between impls
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Re-defined from base class, due to differing prefixes
@@ -190,9 +190,9 @@ public class UnrolledBeanAsArraySerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Field serialization methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private boolean hasSingleElement(SerializerProvider provider) {

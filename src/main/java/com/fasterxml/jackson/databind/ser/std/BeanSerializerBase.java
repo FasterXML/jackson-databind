@@ -929,7 +929,6 @@ public abstract class BeanSerializerBase
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         //deposit your output format 
         if (visitor == null) {

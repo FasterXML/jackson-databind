@@ -5,8 +5,8 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -34,9 +34,9 @@ public class UnwrappingBeanPropertyWriter
     protected final NameTransformer _nameTransformer;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public UnwrappingBeanPropertyWriter(BeanPropertyWriter base, NameTransformer unwrapper) {
@@ -71,9 +71,9 @@ public class UnwrappingBeanPropertyWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides, public methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -146,14 +146,14 @@ public class UnwrappingBeanPropertyWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides: schema generation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public void depositSchemaProperty(final JsonObjectFormatVisitor visitor,
-            SerializerProvider provider) throws JsonMappingException
+            SerializerProvider provider)
     {
         JsonSerializer<Object> ser = provider
                 .findPrimaryPropertySerializer(getType(), this)
@@ -164,8 +164,7 @@ public class UnwrappingBeanPropertyWriter
                 // an unwrapping serializer will always expect ObjectFormat,
                 // hence, the other cases do not have to be implemented
                 @Override
-                public JsonObjectFormatVisitor expectObjectFormat(JavaType type)
-                        throws JsonMappingException {
+                public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
                     return visitor;
                 }
             }, getType());
@@ -193,15 +192,15 @@ public class UnwrappingBeanPropertyWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides: internal, other
-    /**********************************************************
+    /**********************************************************************
      */
     
     // need to override as we must get unwrapping instance...
     @Override
     protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
+            Class<?> type, SerializerProvider provider)
     {
         JsonSerializer<Object> serializer;
         if (_nonTrivialBaseType != null) {

@@ -672,10 +672,10 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization: general annotations
-    /**********************************************************
-    */
+    /**********************************************************************
+     */
 
     @Override
     public Object findSerializer(MapperConfig<?> config, Annotated a)
@@ -772,14 +772,14 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization: type refinements
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public JavaType refineSerializationType(final MapperConfig<?> config,
-            final Annotated a, final JavaType baseType) throws JsonMappingException
+            final Annotated a, final JavaType baseType)
     {
         JavaType type = baseType;
         final TypeFactory tf = config.getTypeFactory();
@@ -896,9 +896,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization: class annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1013,9 +1013,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization: property annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1074,9 +1074,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization: general annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1135,14 +1135,14 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization: type modifications
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public JavaType refineDeserializationType(final MapperConfig<?> config,
-            final Annotated a, final JavaType baseType) throws JsonMappingException
+            final Annotated a, final JavaType baseType)
     {
         JavaType type = baseType;
         final TypeFactory tf = config.getTypeFactory();
@@ -1202,9 +1202,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization: Class annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1228,11 +1228,11 @@ public class JacksonAnnotationIntrospector
         JsonPOJOBuilder ann = _findAnnotation(ac, JsonPOJOBuilder.class);
         return (ann == null) ? null : new JsonPOJOBuilder.Value(ann);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserialization: property annotations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1305,9 +1305,9 @@ public class JacksonAnnotationIntrospector
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected boolean _isIgnorable(Annotated a)

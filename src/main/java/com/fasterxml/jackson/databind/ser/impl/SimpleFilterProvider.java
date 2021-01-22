@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.util.*;
 
 import com.fasterxml.jackson.core.util.Snapshottable;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -126,7 +126,7 @@ public class SimpleFilterProvider
 
     @Override
     public PropertyFilter findPropertyFilter(SerializerProvider ctxt,
-            Object filterId, Object valueToFilter) throws JsonMappingException
+            Object filterId, Object valueToFilter)
     {
         PropertyFilter f = _filtersById.get(filterId);
         if (f == null) {

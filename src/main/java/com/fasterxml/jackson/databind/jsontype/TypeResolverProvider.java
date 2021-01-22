@@ -50,7 +50,6 @@ public class TypeResolverProvider
      */
     public TypeSerializer findTypeSerializer(SerializerProvider ctxt,
             JavaType baseType, AnnotatedClass classInfo)
-        throws JsonMappingException
     {
         final SerializationConfig config = ctxt.getConfig();
         TypeResolverBuilder<?> b = _findTypeResolver(config, classInfo, baseType);
@@ -72,7 +71,6 @@ public class TypeResolverProvider
 
     public TypeDeserializer findTypeDeserializer(DeserializationContext ctxt,
             JavaType baseType, AnnotatedClass classInfo)
-        throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
         TypeResolverBuilder<?> b = _findTypeResolver(config, classInfo, baseType);
@@ -107,7 +105,6 @@ public class TypeResolverProvider
 
     public TypeSerializer findPropertyTypeSerializer(SerializerProvider ctxt,
             AnnotatedMember accessor, JavaType baseType)
-        throws JsonMappingException
     {
         TypeResolverBuilder<?> b = null;
         final SerializationConfig config = ctxt.getConfig();
@@ -128,7 +125,6 @@ public class TypeResolverProvider
 
     public TypeDeserializer findPropertyTypeDeserializer(DeserializationContext ctxt,
             AnnotatedMember accessor, JavaType baseType)
-        throws JsonMappingException
     {
         TypeResolverBuilder<?> b = null;
         final DeserializationConfig config = ctxt.getConfig();
@@ -155,7 +151,6 @@ public class TypeResolverProvider
 
     public TypeSerializer findPropertyContentTypeSerializer(SerializerProvider ctxt,
             AnnotatedMember accessor, JavaType containerType)
-        throws JsonMappingException
     {
         final JavaType contentType = containerType.getContentType();
         // First: let's ensure property is a container type: caller should have
@@ -177,7 +172,6 @@ public class TypeResolverProvider
 
     public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationContext ctxt,
             AnnotatedMember accessor, JavaType containerType)
-        throws JsonMappingException
     {
         final JavaType contentType = containerType.getContentType();
         final DeserializationConfig config = ctxt.getConfig();

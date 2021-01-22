@@ -93,7 +93,6 @@ public class DateDeserializers
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
-           throws JsonMappingException
         {
             final JsonFormat.Value format = findFormatOverrides(ctxt, property,
                     handledType());

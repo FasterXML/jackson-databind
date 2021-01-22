@@ -106,7 +106,7 @@ public class UntypedObjectDeserializer
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    public void resolve(DeserializationContext ctxt)
     {
         JavaType obType = ctxt.constructType(Object.class);
         JavaType stringType = ctxt.constructType(String.class);
@@ -147,7 +147,6 @@ public class UntypedObjectDeserializer
     }
 
     protected JsonDeserializer<Object> _findCustomDeser(DeserializationContext ctxt, JavaType type)
-        throws JsonMappingException
     {
         // Since we are calling from `resolve`, we should NOT try to contextualize yet;
         // contextualization will only occur at a later point
@@ -164,7 +163,7 @@ public class UntypedObjectDeserializer
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         // 14-Jun-2017, tatu: [databind#1625]: may want to block merging, for root value
         boolean preventMerge = (property == null)

@@ -102,7 +102,7 @@ public final class StringCollectionDeserializer
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         // May need to resolve types for delegate-based creators:
         JsonDeserializer<Object> delegate = null;

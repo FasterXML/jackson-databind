@@ -140,7 +140,7 @@ public class CollectionDeserializer
      */
     @Override
     public CollectionDeserializer createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         // May need to resolve types for delegate-based creators:
         JsonDeserializer<Object> delegateDeser = null;
@@ -341,7 +341,7 @@ _containerType,
 
                 /* 17-Dec-2017, tatu: should not occur at this level...
             } catch (UnresolvedForwardReference reference) {
-                throw JsonMappingException
+                throw DatabindException
                     .from(p, "Unresolved forward reference but no identity info", reference);
                 */
             } catch (Exception e) {

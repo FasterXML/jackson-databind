@@ -7,7 +7,6 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Helper class used to encapsulate rules that determine subtypes that
@@ -257,7 +256,7 @@ public class SubTypeValidator
     public static SubTypeValidator instance() { return instance; }
 
     public void validateSubType(DeserializationContext ctxt, JavaType type,
-            BeanDescription beanDesc) throws JsonMappingException
+            BeanDescription beanDesc)
     {
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.

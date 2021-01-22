@@ -26,8 +26,7 @@ public class NullsAsEmptyProvider
     }
 
     @Override
-    public Object getNullValue(DeserializationContext ctxt)
-            throws JsonMappingException {
+    public Object getNullValue(DeserializationContext ctxt) {
         return _deserializer.getEmptyValue(ctxt);
     }
 }

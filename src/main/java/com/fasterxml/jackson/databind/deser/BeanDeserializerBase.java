@@ -450,7 +450,7 @@ public abstract class BeanDeserializerBase
      * This is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    public void resolve(DeserializationContext ctxt)
     {
         ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
@@ -640,7 +640,6 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
     @SuppressWarnings("unchecked")
     private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt,
             JavaType delegateType, AnnotatedWithParams delegateCreator)
-                    throws JsonMappingException
     {
         // Need to create a temporary property to allow contextual deserializers:
         BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
@@ -675,7 +674,6 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
      */
     protected JsonDeserializer<Object> _findConvertingDeserializer(DeserializationContext ctxt,
             SettableBeanProperty prop)
-        throws JsonMappingException
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
@@ -701,7 +699,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         ObjectIdReader oir = _objectIdReader;
 
@@ -782,7 +780,7 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
     protected BeanDeserializerBase _handleByNameInclusion(DeserializationContext ctxt,
             AnnotationIntrospector intr,
             BeanDeserializerBase contextual,
-            AnnotatedMember accessor) throws JsonMappingException
+            AnnotatedMember accessor)
     {
         final DeserializationConfig config = ctxt.getConfig();
         JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, accessor);
@@ -825,7 +823,6 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
      */
     protected SettableBeanProperty _resolveManagedReferenceProperty(DeserializationContext ctxt,
             SettableBeanProperty prop)
-        throws JsonMappingException
     {
         String refName = prop.getManagedReferenceName();
         if (refName == null) {
@@ -856,7 +853,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * in case where object id resolution is required.
      */
     protected SettableBeanProperty _resolvedObjectIdProperty(DeserializationContext ctxt,
-            SettableBeanProperty prop) throws JsonMappingException
+            SettableBeanProperty prop)
     {
         ObjectIdInfo objectIdInfo = prop.getObjectIdInfo();
         JsonDeserializer<Object> valueDeser = prop.getValueDeserializer();
@@ -873,7 +870,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     protected NameTransformer _findPropertyUnwrapper(DeserializationContext ctxt,
             SettableBeanProperty prop)
-        throws JsonMappingException
     {
         AnnotatedMember am = prop.getMember();
         if (am != null) {
@@ -933,7 +929,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
 
     protected SettableBeanProperty _resolveMergeAndNullSettings(DeserializationContext ctxt,
             SettableBeanProperty prop, PropertyMetadata propMetadata)
-        throws JsonMappingException
     {
         PropertyMetadata.MergeInfo merge = propMetadata.getMergeInfo();
         // First mergeability
@@ -1709,7 +1704,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      *<ul>
      * <li>Errors are to be passed as is (if uncovered via unwrapping)
      * <li>"Plain" IOExceptions (ones that are not of type
-     *   {@link JsonMappingException} are to be passed as is
+     *   {@link DatabindException} are to be passed as is
      *</ul>
      * The method always throws but declares its return type as
      * {@link IOException} in order to allow callers to invoke method as
@@ -1719,7 +1714,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * to return.
      */
     public JacksonException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-        throws JacksonException
     {
         throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt),
                 bean, fieldName);
@@ -1736,8 +1730,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
         // Errors to be passed as is
         ClassUtil.throwIfError(t);
-        // but note: JacksonExceptions are to be wrapped (except not JsonMappingException
-        // but caller takes care of dealing with those)
+        // but note: JacksonExceptions are to be wrapped (except not DatabindException
+        // but method called takes care of dealing with those)
         if ((t instanceof RuntimeException)
                 && !(t instanceof JacksonException)) {
             boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);

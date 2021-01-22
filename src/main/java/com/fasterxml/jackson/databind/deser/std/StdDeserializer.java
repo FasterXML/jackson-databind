@@ -1366,11 +1366,8 @@ inputDesc, _coercedTypeDesc());
      * Method called when otherwise unrecognized String value is encountered for
      * a non-primitive type: should see if it is String value {@code "null"}, and if so,
      * whether it is acceptable according to configuration or not
-     *
-     * @since 2.12
      */
     protected boolean _checkTextualNull(DeserializationContext ctxt, String text)
-            throws JsonMappingException
     {
         if (_hasTextualNull(text)) {
             if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
@@ -1415,10 +1412,9 @@ inputDesc, _coercedTypeDesc());
      * for primitive (unboxed) target type. It should NOT be called if {@code null}
      * was received by other means (coerced due to configuration, or even from
      * optionally acceptable String {@code "null"} token).
-     *
-     * @since 2.9
      */
-    protected final void _verifyNullForPrimitive(DeserializationContext ctxt) throws JsonMappingException
+    protected final void _verifyNullForPrimitive(DeserializationContext ctxt)
+        throws DatabindException
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
             ctxt.reportInputMismatch(this,
@@ -1432,10 +1428,9 @@ inputDesc, _coercedTypeDesc());
      * for primitive (unboxed) target type. It should not be called if actual
      * {@code null} token was received, or if null is a result of coercion from
      * Some other input type.
-     *
-     * @since 2.9
      */
-    protected final void _verifyNullForPrimitiveCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
+    protected final void _verifyNullForPrimitiveCoercion(DeserializationContext ctxt, String str)
+        throws DatabindException
     {
         Enum<?> feat;
         boolean enable;
@@ -1454,7 +1449,8 @@ inputDesc, _coercedTypeDesc());
     }
 
     protected void _reportFailedNullCoerce(DeserializationContext ctxt, boolean state, Enum<?> feature,
-            String inputDesc) throws JsonMappingException
+            String inputDesc)
+        throws DatabindException
     {
         String enableDesc = state ? "enable" : "disable";
         ctxt.reportInputMismatch(this, "Cannot coerce %s to Null value as %s (%s `%s.%s` to allow)",
@@ -1467,8 +1463,6 @@ inputDesc, _coercedTypeDesc());
      * on coerce failure.
      *
      * @return Message with backtick-enclosed name of type this deserializer supports
-     *
-     * @since 2.9
      */
     protected String _coercedTypeDesc() {
         boolean structured;
@@ -1515,7 +1509,6 @@ inputDesc, _coercedTypeDesc());
      */
     protected JsonDeserializer<Object> findDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)
-        throws JsonMappingException
     {
         return ctxt.findContextualValueDeserializer(type, property);
     }
@@ -1571,7 +1564,6 @@ inputDesc, _coercedTypeDesc());
      */
     protected JsonDeserializer<?> findConvertingContentDeserializer(DeserializationContext ctxt,
             BeanProperty prop, JsonDeserializer<?> existingDeserializer)
-        throws JsonMappingException
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (_neitherNull(intr, prop)) {
@@ -1639,7 +1631,6 @@ inputDesc, _coercedTypeDesc());
      */
     protected final NullValueProvider findValueNullProvider(DeserializationContext ctxt,
             SettableBeanProperty prop, PropertyMetadata propMetadata)
-        throws JsonMappingException
     {
         if (prop != null) {
             return _findNullProvider(ctxt, prop, propMetadata.getValueNulls(),
@@ -1656,7 +1647,6 @@ inputDesc, _coercedTypeDesc());
      */
     protected NullValueProvider findContentNullProvider(DeserializationContext ctxt,
             BeanProperty prop, JsonDeserializer<?> valueDeser)
-        throws JsonMappingException
     {
         final Nulls nulls = findContentNullStyle(ctxt, prop);
         if (nulls == Nulls.SKIP) {
@@ -1684,7 +1674,6 @@ inputDesc, _coercedTypeDesc());
     }
 
     protected Nulls findContentNullStyle(DeserializationContext ctxt, BeanProperty prop)
-        throws JsonMappingException
     {
         if (prop != null) {
             return prop.getMetadata().getContentNulls();
@@ -1694,7 +1683,6 @@ inputDesc, _coercedTypeDesc());
 
     protected final NullValueProvider _findNullProvider(DeserializationContext ctxt,
             BeanProperty prop, Nulls nulls, JsonDeserializer<?> valueDeser)
-        throws JsonMappingException
     {
         if (nulls == Nulls.FAIL) {
             if (prop == null) {

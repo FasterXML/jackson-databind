@@ -99,7 +99,6 @@ public class StdConvertingDeserializer<T>
     // if so, caller must ensure delegating deserializer is properly resolve()d.
     @Override
     public void resolve(DeserializationContext ctxt)
-        throws JsonMappingException
     {
         if (_delegateDeserializer != null) {
             _delegateDeserializer.resolve(ctxt);
@@ -108,7 +107,6 @@ public class StdConvertingDeserializer<T>
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-        throws JsonMappingException
     {
         // First: if already got deserializer to delegate to, contextualize it:
         if (_delegateDeserializer != null) {

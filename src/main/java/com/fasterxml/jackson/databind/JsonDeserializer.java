@@ -56,7 +56,7 @@ public abstract class JsonDeserializer<T>
      * @param ctxt Context to use for accessing configuration, resolving
      *    secondary deserializers
      */
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
+    public void resolve(DeserializationContext ctxt) {
         // Default implementation does nothing
     }
 
@@ -77,11 +77,9 @@ public abstract class JsonDeserializer<T>
      * 
      * @return Deserializer to use for deserializing values of specified property;
      *   may be this instance or a new instance.
-     * 
-     * @throws JsonMappingException
      */
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException {
+            BeanProperty property) {
         // default implementation returns instance unmodified
         return this;
     }
@@ -331,7 +329,7 @@ public abstract class JsonDeserializer<T>
      * Default implementation simply returns null.
      */
     @Override
-    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getNullValue(DeserializationContext ctxt) {
         return null;
     }
 
@@ -383,7 +381,7 @@ public abstract class JsonDeserializer<T>
      * Default implementation simply calls {@link #getNullValue} and
      * returns value.
      */
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return getNullValue(ctxt);
     }
 

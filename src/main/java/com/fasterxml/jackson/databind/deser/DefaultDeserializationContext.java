@@ -178,7 +178,6 @@ public abstract class DefaultDeserializationContext
     @SuppressWarnings("unchecked")
     @Override
     public JsonDeserializer<Object> deserializerInstance(Annotated ann, Object deserDef)
-        throws JsonMappingException
     {
         if (deserDef == null) {
             return null;
@@ -215,7 +214,6 @@ public abstract class DefaultDeserializationContext
 
     @Override
     public final KeyDeserializer keyDeserializerInstance(Annotated ann, Object deserDef)
-        throws JsonMappingException
     {
         if (deserDef == null) {
             return null;

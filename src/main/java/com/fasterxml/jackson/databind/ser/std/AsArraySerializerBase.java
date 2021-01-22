@@ -124,7 +124,6 @@ public abstract class AsArraySerializerBase<T>
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
-        throws JsonMappingException
     {
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {

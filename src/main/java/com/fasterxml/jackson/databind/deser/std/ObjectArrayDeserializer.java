@@ -116,14 +116,14 @@ public class ObjectArrayDeserializer
         return (_elementDeserializer == null) && (_elementTypeDeserializer == null);
     }
 
-    @Override // since 2.12
+    @Override
     public LogicalType logicalType() {
         return LogicalType.Array;
     }
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         JsonDeserializer<?> valueDeser = _elementDeserializer;
         // 07-May-2020, tatu: Is the argument `containerType.getRawClass()` right here?

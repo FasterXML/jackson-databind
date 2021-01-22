@@ -49,7 +49,7 @@ public abstract class ArraySerializerBase<T>
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider serializers,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         Boolean unwrapSingle = null;
 

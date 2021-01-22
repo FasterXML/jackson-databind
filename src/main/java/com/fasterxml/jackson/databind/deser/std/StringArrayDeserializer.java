@@ -39,8 +39,6 @@ public final class StringArrayDeserializer
 
     /**
      * Handler we need for dealing with nulls.
-     *
-     * @since 2.9
      */
     protected final NullValueProvider _nullProvider;
 
@@ -85,14 +83,14 @@ public final class StringArrayDeserializer
         return Boolean.TRUE;
     }
 
-    @Override // since 2.9
+    @Override
     public AccessPattern getEmptyAccessPattern() {
         // immutable, shareable so:
         return AccessPattern.CONSTANT;
     }
 
-    @Override // since 2.9
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return NO_STRINGS;
     }
 
@@ -102,7 +100,6 @@ public final class StringArrayDeserializer
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-            throws JsonMappingException
     {
         JsonDeserializer<?> deser = _elementDeserializer;
         // May have a content converter

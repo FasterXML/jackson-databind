@@ -94,7 +94,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         Boolean unwrapSingle = findFormatFeature(ctxt, property, _valueClass,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
@@ -163,8 +163,8 @@ public abstract class PrimitiveArrayDeserializers<T>
         return AccessPattern.CONSTANT;
     }
     
-    @Override // since 2.9
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
         Object empty = _emptyValue;
         if (empty == null) {
             _emptyValue = empty = _constructEmpty();
@@ -174,7 +174,8 @@ public abstract class PrimitiveArrayDeserializers<T>
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws JacksonException
+            TypeDeserializer typeDeserializer)
+        throws JacksonException
     {
         // Should there be separate handling for base64 stuff?
         // for now this should be enough:

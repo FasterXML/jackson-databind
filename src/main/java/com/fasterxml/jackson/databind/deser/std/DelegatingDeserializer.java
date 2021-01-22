@@ -49,7 +49,7 @@ public abstract class DelegatingDeserializer
      */
 
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
+    public void resolve(DeserializationContext ctxt) {
         if (_delegatee != null) {
             _delegatee.resolve(ctxt);
         }
@@ -58,7 +58,6 @@ public abstract class DelegatingDeserializer
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
-        throws JsonMappingException
     {
         JavaType vt = ctxt.constructType(_delegatee.handledType());
         JsonDeserializer<?> del = ctxt.handleSecondaryContextualization(_delegatee,
@@ -131,16 +130,16 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
-    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getNullValue(DeserializationContext ctxt) {
         return _delegatee.getNullValue(ctxt);
     }
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return _delegatee.getEmptyValue(ctxt);
     }
 
-    @Override // since 2.12
+    @Override
     public LogicalType logicalType() {
         return _delegatee.logicalType();
     }

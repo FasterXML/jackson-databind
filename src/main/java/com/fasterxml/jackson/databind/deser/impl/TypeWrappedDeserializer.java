@@ -57,24 +57,26 @@ public final class TypeWrappedDeserializer
     }
 
     @Override
-    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getNullValue(DeserializationContext ctxt) {
         return _deserializer.getNullValue(ctxt);
     }
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt){
         return _deserializer.getEmptyValue(ctxt);
     }
     
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         return _deserializer.deserializeWithType(p, ctxt, _typeDeserializer);
     }
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-        TypeDeserializer typeDeserializer) throws JacksonException
+            TypeDeserializer typeDeserializer)
+        throws JacksonException
     {
         // should never happen? (if it can, could call on that object)
         throw new IllegalStateException("Type-wrapped deserializer's deserializeWithType should never get called");
@@ -82,11 +84,11 @@ public final class TypeWrappedDeserializer
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
-            Object intoValue) throws JacksonException
+            Object intoValue)
+        throws JacksonException
     {
-        /* 01-Mar-2013, tatu: Hmmh. Tough call as to what to do... need
-         *   to delegate, but will this work reliably? Let's just hope so:
-         */
+        // 01-Mar-2013, tatu: Hmmh. Tough call as to what to do... need
+        //   to delegate, but will this work reliably? Let's just hope so:
         return _deserializer.deserialize(p,  ctxt, intoValue);
     }
 }

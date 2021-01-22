@@ -124,17 +124,17 @@ public class EnumSetDeserializer
         return LogicalType.Collection;
     }
 
-    @Override // since 2.9
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
     }
 
-    @Override // since 2.10.1
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return constructSet();
     }
 
-    @Override // since 2.10.1
+    @Override
     public AccessPattern getEmptyAccessPattern() {
         return AccessPattern.DYNAMIC;
     }
@@ -147,7 +147,7 @@ public class EnumSetDeserializer
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         // 07-May-2020, tatu: Is the argument `EnumSet.class` correct here?
         //    In a way seems like it should rather refer to value class... ?

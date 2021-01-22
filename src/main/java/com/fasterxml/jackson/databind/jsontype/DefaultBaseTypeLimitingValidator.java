@@ -5,7 +5,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -32,7 +31,6 @@ public class DefaultBaseTypeLimitingValidator
 
     @Override
     public Validity validateBaseType(DatabindContext ctxt, JavaType baseType)
-            throws JsonMappingException
     {
         // Immediately block potentially unsafe base types
         if (isUnsafeBaseType(ctxt, baseType)) {

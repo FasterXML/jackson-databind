@@ -79,14 +79,14 @@ public class DefaultTypeResolverBuilder
 
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationContext ctxt,
-            JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
+            JavaType baseType, Collection<NamedType> subtypes)
     {
         return useForType(baseType) ? super.buildTypeDeserializer(ctxt, baseType, subtypes) : null;
     }
 
     @Override
     public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
-            JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
+            JavaType baseType, Collection<NamedType> subtypes)
     {
         return useForType(baseType) ? super.buildTypeSerializer(ctxt, baseType, subtypes) : null;            
     }

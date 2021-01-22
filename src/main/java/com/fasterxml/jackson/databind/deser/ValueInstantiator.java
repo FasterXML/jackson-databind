@@ -61,13 +61,10 @@ public abstract class ValueInstantiator
      *
      * @return This instance, if no change, or newly constructed instance
      *
-     * @throws JsonMappingException If there are issues with contextualization
-     *
      * @since 3.0
      */
     public abstract ValueInstantiator createContextual(DeserializationContext ctxt,
-            BeanDescription beanDesc)
-        throws JsonMappingException;
+            BeanDescription beanDesc);
 
     /*
     /**********************************************************************
@@ -408,7 +405,6 @@ public abstract class ValueInstantiator
         @Override
         public ValueInstantiator createContextual(DeserializationContext ctxt,
                 BeanDescription beanDesc)
-            throws JsonMappingException
         {
             return this;
         }
@@ -443,7 +439,6 @@ public abstract class ValueInstantiator
 
         @Override
         public ValueInstantiator createContextual(DeserializationContext ctxt,  BeanDescription beanDesc)
-                throws JsonMappingException
         {
             ValueInstantiator d = _delegate.createContextual(ctxt, beanDesc);
             return (d == _delegate) ? this : new Delegating(d);

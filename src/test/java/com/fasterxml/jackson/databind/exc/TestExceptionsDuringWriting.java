@@ -83,7 +83,7 @@ public class TestExceptionsDuringWriting
     public void testExceptionWithSimpleMapper()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         try {
             BrokenStringWriter sw = new BrokenStringWriter("TEST");
             mapper.writeValue(sw, createLongObject());

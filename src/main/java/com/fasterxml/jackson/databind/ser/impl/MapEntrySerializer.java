@@ -137,7 +137,7 @@ public class MapEntrySerializer
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         JsonSerializer<?> ser = null;
         JsonSerializer<?> keySer = null;

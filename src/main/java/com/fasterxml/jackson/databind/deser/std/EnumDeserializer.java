@@ -102,7 +102,7 @@ public class EnumDeserializer
     
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         Boolean caseInsensitive = findFormatFeature(ctxt, property, handledType(),
                 JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
@@ -125,18 +125,19 @@ public class EnumDeserializer
     @Override
     public boolean isCachable() { return true; }
 
-    @Override // since 2.12
+    @Override
     public LogicalType logicalType() {
         return LogicalType.Enum;
     }
 
-    @Override // since 2.12
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return _enumDefaultValue;
     }
 
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         // Usually should just get string value:
         // 04-Sep-2020, tatu: for 2.11.3 / 2.12.0, removed "FIELD_NAME" as allowed;

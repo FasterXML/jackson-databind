@@ -31,8 +31,6 @@ class FactoryBasedEnumDeserializer
 
     /**
      * Lazily instantiated property-based creator.
-     *
-     * @since 2.8
      */
     private transient PropertyBasedCreator _propCreator;
     
@@ -78,7 +76,6 @@ class FactoryBasedEnumDeserializer
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
-        throws JsonMappingException
     {
         if ((_deser == null) && (_inputType != null) && (_creatorProps == null)) {
             return new FactoryBasedEnumDeserializer(this,
@@ -87,17 +84,16 @@ class FactoryBasedEnumDeserializer
         return this;
     }
 
-    @Override // since 2.9
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.FALSE;
     }
 
-    @Override // since 2.12
+    @Override
     public LogicalType logicalType() {
         return LogicalType.Enum;
     }
 
-    // since 2.9.7: should have been the case earlier but
     @Override
     public boolean isCachable() { return true; }
 

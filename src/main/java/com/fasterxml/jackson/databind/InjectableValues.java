@@ -28,7 +28,7 @@ public abstract class InjectableValues
      *    if available; null if bean has not yet been constructed.
      */
     public abstract Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-            BeanProperty forProperty, Object beanInstance) throws JsonMappingException;
+            BeanProperty forProperty, Object beanInstance);
 
     /*
     /**********************************************************
@@ -76,7 +76,7 @@ public abstract class InjectableValues
 
         @Override
         public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-                BeanProperty forProperty, Object beanInstance) throws JsonMappingException
+                BeanProperty forProperty, Object beanInstance)
         {
             if (!(valueId instanceof String)) {
                 ctxt.reportBadDefinition(ClassUtil.classOf(valueId),

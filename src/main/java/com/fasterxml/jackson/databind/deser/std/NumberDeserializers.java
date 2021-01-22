@@ -159,7 +159,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public final T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        public final T getNullValue(DeserializationContext ctxt) {
             // 01-Mar-2017, tatu: Alas, not all paths lead to `_coerceNull()`, as `SettableBeanProperty`
             //    short-circuits `null` handling. Hence need this check as well.
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
@@ -171,7 +171,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        public Object getEmptyValue(DeserializationContext ctxt) {
             return _emptyValue;
         }
 

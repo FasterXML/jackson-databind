@@ -496,7 +496,7 @@ public class AnnotationIntrospectorPair
 
     @Override
     public JavaType refineSerializationType(MapperConfig<?> config,
-            Annotated a, JavaType baseType) throws JsonMappingException
+            Annotated a, JavaType baseType)
     {
         JavaType t = _secondary.refineSerializationType(config, a, baseType);
         return _primary.refineSerializationType(config, a, t);
@@ -631,7 +631,7 @@ public class AnnotationIntrospectorPair
 
     @Override
     public JavaType refineDeserializationType(MapperConfig<?> config,
-            Annotated a, JavaType baseType) throws JsonMappingException
+            Annotated a, JavaType baseType)
     {
         JavaType t = _secondary.refineDeserializationType(config, a, baseType);
         return _primary.refineDeserializationType(config, a, t);

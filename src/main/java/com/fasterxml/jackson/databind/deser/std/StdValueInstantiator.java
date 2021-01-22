@@ -112,7 +112,6 @@ public class StdValueInstantiator
     @Override
     public ValueInstantiator createContextual(DeserializationContext ctxt,
             BeanDescription beanDesc)
-        throws JsonMappingException
     {
         return this;
     }
@@ -533,16 +532,16 @@ public class StdValueInstantiator
 
     /**
      * Helper method that will return given {@link Throwable} case as
-     * a {@link JsonMappingException} (if it is of that type), or call
+     * a {@link DatabindException} (if it is of that type), or call
      * {@link DeserializationContext#instantiationException(Class, Throwable)} to
-     * produce and return suitable {@link JsonMappingException}.
+     * produce and return suitable {@link DatabindException}.
      */
-    protected JsonMappingException wrapAsJsonMappingException(DeserializationContext ctxt,
+    protected DatabindException wrapAsDatabindException(DeserializationContext ctxt,
             Throwable t)
     {
-        // 05-Nov-2015, tatu: Only avoid wrapping if already a JsonMappingException
-        if (t instanceof JsonMappingException) {
-            return (JsonMappingException) t;
+        // 05-Nov-2015, tatu: Only avoid wrapping if already a DatabindException
+        if (t instanceof DatabindException) {
+            return (DatabindException) t;
         }
         return ctxt.instantiationException(getValueClass(), t);
     }
@@ -550,9 +549,9 @@ public class StdValueInstantiator
     /**
      * Method that subclasses may call for standard handling of an exception thrown when
      * calling constructor or factory method. Will unwrap {@link ExceptionInInitializerError}
-     * and {@link InvocationTargetException}s, then call {@link #wrapAsJsonMappingException}.
+     * and {@link InvocationTargetException}s, then call {@link #wrapAsDatabindException}.
      */
-    protected JsonMappingException rewrapCtorProblem(DeserializationContext ctxt,
+    protected DatabindException rewrapCtorProblem(DeserializationContext ctxt,
             Throwable t)
     {
         // 05-Nov-2015, tatu: Seems like there are really only 2 useless wrapper errors/exceptions,
@@ -565,7 +564,7 @@ public class StdValueInstantiator
                 t = cause;
             }
         }
-        return wrapAsJsonMappingException(ctxt, t);
+        return wrapAsDatabindException(ctxt, t);
     }
 
     /*

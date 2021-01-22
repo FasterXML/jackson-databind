@@ -179,7 +179,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             msg = msg + ", problem: "+m2;
         }
         // 05-May-2016, tatu: Unlike most usage, this seems legit, so...
-        JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
+        DatabindException e = ctxt.weirdStringException(text, _valueClass, msg);
         e.initCause(cause);
         throw e;
     }
@@ -369,7 +369,6 @@ _coercedTypeDesc());
 
         @Override // since 2.12
         public Object getEmptyValue(DeserializationContext ctxt)
-            throws JsonMappingException
         {
             switch (_kind) {
             case STD_URI:
@@ -416,9 +415,7 @@ _coercedTypeDesc());
         }
 
         @Override
-        public Object getEmptyValue(DeserializationContext ctxt)
-            throws JsonMappingException
-        {
+        public Object getEmptyValue(DeserializationContext ctxt) {
             return new StringBuilder();
         }
 

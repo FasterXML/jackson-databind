@@ -763,7 +763,7 @@ public class BeanPropertyWriter
     // Also part of BeanProperty implementation
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor v,
-            SerializerProvider provider) throws JsonMappingException
+            SerializerProvider provider)
     {
         if (v != null) {
             if (isRequired()) {
@@ -781,7 +781,7 @@ public class BeanPropertyWriter
      */
 
     protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> rawType, SerializerProvider provider) throws JsonMappingException
+            Class<?> rawType, SerializerProvider provider)
     {
         JavaType t;
         if (_nonTrivialBaseType != null) {
@@ -814,15 +814,15 @@ public class BeanPropertyWriter
     /**
      * Method called to handle a direct self-reference through this property.
      * Method can choose to indicate an error by throwing
-     * {@link JsonMappingException}; fully handle serialization (and return
+     * {@link DatabindException}; fully handle serialization (and return
      * true); or indicate that it should be serialized normally (return false).
      * <p>
-     * Default implementation will throw {@link JsonMappingException} if
+     * Default implementation will throw {@link DatabindException} if
      * {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} is enabled; or
      * return <code>false</code> if it is disabled.
      *
      * @return True if method fully handled self-referential value; false if not
-     *         (caller is to handle it) or {@link JsonMappingException} if there
+     *         (caller is to handle it) or {@link DatabindException} if there
      *         is no way handle it
      */
     protected boolean _handleSelfReference(Object bean, JsonGenerator gen,

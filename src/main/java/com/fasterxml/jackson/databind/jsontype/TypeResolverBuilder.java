@@ -63,8 +63,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *    handle; super type of all types it will be used for.
      */
     public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
-            JavaType baseType, Collection<NamedType> subtypes)
-        throws JsonMappingException;
+            JavaType baseType, Collection<NamedType> subtypes);
 
     /**
      * Method for building type deserializer based on current configuration
@@ -75,9 +74,8 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * @param subtypes Known subtypes of the base type.
      */
     public TypeDeserializer buildTypeDeserializer(DeserializationContext ctxt,
-            JavaType baseType, Collection<NamedType> subtypes)
-        throws JsonMappingException;
-    
+            JavaType baseType, Collection<NamedType> subtypes);
+
     /*
     /**********************************************************************
     /* Initialization method(s) that must be called before other configuration

@@ -106,8 +106,7 @@ public class CoreXMLDeserializers
                 Date d;
                 try {
                     d = _parseDate(value, ctxt);
-                }
-                catch (JsonMappingException e) {
+                } catch (DatabindException e) {
                     // try to parse from native XML Schema 1.0 lexical representation String,
                     // which includes time-only formats not handled by parseXMLGregorianCalendarFromJacksonFormat(...)
                     return _dataTypeFactory.newXMLGregorianCalendar(value);

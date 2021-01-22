@@ -39,11 +39,11 @@ public class UnrolledBeanSerializer
     protected BeanPropertyWriter _prop4;
     protected BeanPropertyWriter _prop5;
     protected BeanPropertyWriter _prop6;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -101,9 +101,9 @@ public class UnrolledBeanSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: factory methods, fluent factories
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -145,16 +145,16 @@ public class UnrolledBeanSerializer
     }
 
     @Override
-    public void resolve(SerializerProvider provider) throws JsonMappingException
+    public void resolve(SerializerProvider provider)
     {
         super.resolve(provider);
         _calcUnrolled();
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonSerializer implementation that differs between impls
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

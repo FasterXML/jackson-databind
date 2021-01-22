@@ -22,19 +22,19 @@ import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 public class BeanDeserializerBuilder
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
-    final protected DeserializationConfig _config;
+    protected final DeserializationConfig _config;
 
-    final protected DeserializationContext _context;
+    protected final DeserializationContext _context;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General information about POJO
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -43,9 +43,9 @@ public class BeanDeserializerBuilder
     final protected BeanDescription _beanDesc;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accumulated information about properties
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -112,9 +112,9 @@ public class BeanDeserializerBuilder
     protected JsonPOJOBuilder.Value _builderConfig;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     public BeanDeserializerBuilder(BeanDescription beanDesc,
@@ -162,9 +162,9 @@ public class BeanDeserializerBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: state modification (adders, setters)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -294,9 +294,9 @@ public class BeanDeserializerBuilder
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public accessors
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -347,17 +347,14 @@ public class BeanDeserializerBuilder
         return _builderConfig;
     }
 
-    /**
-     * @since 2.9.4
-     */
     public boolean hasIgnorable(String name) {
         return IgnorePropertiesUtil.shouldIgnore(name, _ignorableProps, _includableProps);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Build method(s)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -394,7 +391,6 @@ public class BeanDeserializerBuilder
      * additional external Builder object during data binding.
      */
     public JsonDeserializer<?> buildBuilderBased(JavaType valueType, String expBuildMethodName)
-        throws JsonMappingException
     {
         // First: validation; must have build method that returns compatible type
         if (_buildMethod == null) {
@@ -445,9 +441,9 @@ public class BeanDeserializerBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper method(s)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void _fixAccess(Collection<SettableBeanProperty> mainProps)

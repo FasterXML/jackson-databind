@@ -5,10 +5,7 @@ import java.util.BitSet;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -120,7 +117,7 @@ public class PropertyValueBuffer
      * other customized behavior for missing properties.
      */
     public Object getParameter(SettableBeanProperty prop)
-        throws JsonMappingException
+        throws DatabindException
     {
         Object value;
         if (hasParameter(prop)) {
@@ -144,7 +141,7 @@ public class PropertyValueBuffer
      * then whole JSON Object has been processed,
      */
     public Object[] getParameters(SettableBeanProperty[] props)
-        throws JsonMappingException
+        throws DatabindException
     {
         // quick check to see if anything else is needed
         if (_paramsNeeded > 0) {
@@ -178,7 +175,7 @@ public class PropertyValueBuffer
         return _creatorParameters;
     }
 
-    protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException
+    protected Object _findMissing(SettableBeanProperty prop)
     {
         // First: do we have injectable value?
         Object injectableValueId = prop.getInjectableValueId();

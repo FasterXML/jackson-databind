@@ -22,13 +22,13 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     public boolean isCachable() { return true; }
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return "";
     }
 
     // Since default `getNullValue()` would just call `getEmptyValue()`, need to override
     @Override
-    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getNullValue(DeserializationContext ctxt) {
         return null;
     }
 

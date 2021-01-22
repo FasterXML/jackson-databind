@@ -155,7 +155,7 @@ public class ThrowableDeserializer
             //
             //   Should probably allow use of default constructor, too...
 
-            //throw new JsonMappingException("No 'message' property found: could not deserialize "+_beanType);
+            //throw new XxxException("No 'message' property found: could not deserialize "+_beanType);
             if (hasStringCreator) {
                 throwable = _valueInstantiator.createFromString(ctxt, null);
             } else {

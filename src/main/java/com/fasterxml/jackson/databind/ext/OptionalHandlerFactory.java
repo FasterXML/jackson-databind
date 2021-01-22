@@ -106,7 +106,6 @@ public class OptionalHandlerFactory
     }
 
     public JsonDeserializer<?> findDeserializer(DeserializationConfig config, JavaType type)
-        throws JsonMappingException
     {
         final Class<?> rawType = type.getRawClass();
         if (_IsXOfY(rawType, CLASS_DOM_NODE)) {

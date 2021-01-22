@@ -118,7 +118,7 @@ public class MapEntryDeserializer
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {

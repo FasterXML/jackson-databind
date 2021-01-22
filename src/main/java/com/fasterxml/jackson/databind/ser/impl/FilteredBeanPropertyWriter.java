@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -14,7 +14,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  */
 public abstract class FilteredBeanPropertyWriter
 {    
-    public static BeanPropertyWriter constructViewBased(BeanPropertyWriter base, Class<?>[] viewsToIncludeIn)
+    public static BeanPropertyWriter constructViewBased(BeanPropertyWriter base,
+            Class<?>[] viewsToIncludeIn)
     {
         if (viewsToIncludeIn.length == 1) {
             return new SingleView(base, viewsToIncludeIn[0]);
@@ -23,9 +24,9 @@ public abstract class FilteredBeanPropertyWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Concrete sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static class SingleView
@@ -86,7 +87,7 @@ public abstract class FilteredBeanPropertyWriter
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
-                SerializerProvider provider) throws JsonMappingException
+                SerializerProvider provider)
         {
             Class<?> activeView = provider.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
@@ -150,7 +151,7 @@ public abstract class FilteredBeanPropertyWriter
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
-                SerializerProvider provider) throws JsonMappingException
+                SerializerProvider provider)
         {
             if (_inView(provider.getActiveView())) {
                 super.depositSchemaProperty(v, provider);

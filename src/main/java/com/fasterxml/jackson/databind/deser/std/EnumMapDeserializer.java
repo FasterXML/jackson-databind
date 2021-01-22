@@ -51,14 +51,11 @@ public class EnumMapDeserializer
     protected PropertyBasedCreator _propertyBasedCreator;    
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.9
-     */
     public EnumMapDeserializer(JavaType mapType, ValueInstantiator valueInst,
             KeyDeserializer keyDeser, JsonDeserializer<?> valueDeser, TypeDeserializer vtd,
             NullValueProvider nuller)
@@ -71,9 +68,6 @@ public class EnumMapDeserializer
         _valueInstantiator = valueInst;
     }
 
-    /**
-     * @since 2.9
-     */
     protected EnumMapDeserializer(EnumMapDeserializer base,
             KeyDeserializer keyDeser, JsonDeserializer<?> valueDeser, TypeDeserializer vtd,
             NullValueProvider nuller)
@@ -102,13 +96,13 @@ public class EnumMapDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Validation, post-processing (ResolvableDeserializer)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    public void resolve(DeserializationContext ctxt)
     {
         // May need to resolve types for delegate- and/or property-based creators:
         if (_valueInstantiator != null) {
@@ -147,7 +141,7 @@ public class EnumMapDeserializer
      * when it is known for which property deserializer is needed for.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
         // note: instead of finding key deserializer, with enums we actually
         // work with regular deserializers (less code duplication; but not
@@ -188,9 +182,9 @@ public class EnumMapDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ContainerDeserializerBase API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -203,15 +197,15 @@ public class EnumMapDeserializer
         return _valueInstantiator;
     }
 
-    @Override // since 2.9
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return constructMap(ctxt);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual deserialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -315,7 +309,7 @@ public class EnumMapDeserializer
         return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
 
-    protected EnumMap<?,?> constructMap(DeserializationContext ctxt) throws JsonMappingException {
+    protected EnumMap<?,?> constructMap(DeserializationContext ctxt) {
         if (_valueInstantiator == null) {
             return new EnumMap(_enumClass);
         }

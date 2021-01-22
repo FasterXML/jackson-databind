@@ -41,7 +41,7 @@ public abstract class StdNodeBasedDeserializer<T>
     }
 
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
+    public void resolve(DeserializationContext ctxt) {
         _treeDeserializer = ctxt.findRootValueDeserializer(ctxt.constructType(JsonNode.class));
     }
 

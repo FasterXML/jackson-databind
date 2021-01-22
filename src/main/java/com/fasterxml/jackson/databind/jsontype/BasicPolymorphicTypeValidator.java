@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 
 /**
@@ -418,7 +417,6 @@ public class BasicPolymorphicTypeValidator
     @Override
     public Validity validateSubClassName(DatabindContext ctxt, JavaType baseType,
             String subClassName)
-        throws JsonMappingException
     {
 //System.err.println("validateSubClassName('"+subClassName+"')");
         if (_subTypeNameMatchers != null)  {
@@ -434,7 +432,6 @@ public class BasicPolymorphicTypeValidator
 
     @Override
     public Validity validateSubType(DatabindContext ctxt, JavaType baseType, JavaType subType)
-            throws JsonMappingException
     {
         if (_subClassMatchers != null)  {
             final Class<?> subClass = subType.getRawClass();

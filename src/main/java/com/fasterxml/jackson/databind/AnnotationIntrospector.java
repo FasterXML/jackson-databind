@@ -764,7 +764,7 @@ public abstract class AnnotationIntrospector
      * key and/or content type, if type has those.
      */
     public JavaType refineSerializationType(final MapperConfig<?> config,
-            final Annotated a, final JavaType baseType) throws JsonMappingException
+            final Annotated a, final JavaType baseType)
     {
         return baseType;
     }
@@ -1008,7 +1008,7 @@ public abstract class AnnotationIntrospector
      * for deserialization.
      */
     public JavaType refineDeserializationType(MapperConfig<?> config,
-            final Annotated a, final JavaType baseType) throws JsonMappingException
+            final Annotated a, final JavaType baseType)
     {
         return baseType;
     }

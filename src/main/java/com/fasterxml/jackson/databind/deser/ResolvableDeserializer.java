@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /*
  * Interface used to indicate deserializers that want to do post-processing
@@ -38,6 +37,5 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 @Deprecated
 public interface ResolvableDeserializer
 {
-    public abstract void resolve(DeserializationContext ctxt)
-        throws JsonMappingException;
+    public abstract void resolve(DeserializationContext ctxt);
 }

@@ -92,8 +92,7 @@ public abstract class PolymorphicTypeValidator
      *    (caller will usually throw an exception); otherwise (return {@link Validity#INDETERMINATE})
      *    per sub-type validation calls are made for each new subclass encountered.
      */
-    public abstract Validity validateBaseType(DatabindContext ctxt, JavaType baseType)
-            throws JsonMappingException;
+    public abstract Validity validateBaseType(DatabindContext ctxt, JavaType baseType);
 
     /**
      * Method called after intended class name for subtype has been read (and in case of minimal
@@ -104,7 +103,7 @@ public abstract class PolymorphicTypeValidator
      * {@link Validity#DENIED}) or, if not able to, can defer validation to actual
      * resolved type by returning {@link Validity#INDETERMINATE}.
      *<p>
-     * Validator may also choose to indicate denial by throwing a {@link JsonMappingException}
+     * Validator may also choose to indicate denial by throwing a {@link DatabindException}
      * (such as {@link com.fasterxml.jackson.databind.exc.InvalidTypeIdException})
      *
      * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
@@ -117,8 +116,7 @@ public abstract class PolymorphicTypeValidator
      *   should NOT return {@code null}
      */
     public abstract Validity validateSubClassName(DatabindContext ctxt, JavaType baseType,
-            String subClassName)
-        throws JsonMappingException;
+            String subClassName);
 
     /**
      * Method called after class name has been resolved to actual type, in cases where previous
@@ -126,7 +124,7 @@ public abstract class PolymorphicTypeValidator
      * Validator should be able to determine validity and return appropriate {@link Validity}
      * value, although it may also
      *<p>
-     * Validator may also choose to indicate denial by throwing a {@link JsonMappingException}
+     * Validator may also choose to indicate denial by throwing a {@link DatabindException}
      * (such as {@link com.fasterxml.jackson.databind.exc.InvalidTypeIdException})
      *
      * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
@@ -138,7 +136,7 @@ public abstract class PolymorphicTypeValidator
      *   should NOT return {@code null}
      */
     public abstract Validity validateSubType(DatabindContext ctxt, JavaType baseType,
-            JavaType subType) throws JsonMappingException;
+            JavaType subType);
 
     /**
      * Shared base class with partial implementation (with all validation calls returning
@@ -153,19 +151,19 @@ public abstract class PolymorphicTypeValidator
 
         @Override
         public Validity validateBaseType(DatabindContext ctxt, JavaType baseType)
-                throws JsonMappingException {
+        {
             return Validity.INDETERMINATE;
         }
     
         @Override
         public Validity validateSubClassName(DatabindContext ctxt, JavaType baseType, String subClassName)
-                throws JsonMappingException {
+        {
             return Validity.INDETERMINATE;
         }
     
         @Override
         public Validity validateSubType(DatabindContext ctxt, JavaType baseType, JavaType subType)
-                throws JsonMappingException {
+        {
             return Validity.INDETERMINATE;
         }
     }

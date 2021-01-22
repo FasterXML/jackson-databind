@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 /*
  * Interface used to indicate serializers that want to do post-processing
@@ -16,6 +16,5 @@ import com.fasterxml.jackson.databind.*;
 @Deprecated
 public interface ResolvableSerializer
 {
-    public abstract void resolve(SerializerProvider provider)
-        throws JsonMappingException;
+    public abstract void resolve(SerializerProvider provider);
 }

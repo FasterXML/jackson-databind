@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Interface {@link com.fasterxml.jackson.databind.JsonSerializer} implements
@@ -14,6 +13,5 @@ public interface JsonFormatVisitable
      * 
      * @param typeHint Type of element (entity like property) being visited
      */
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException;
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint);
 }

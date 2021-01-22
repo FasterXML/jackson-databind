@@ -52,9 +52,8 @@ public abstract class DeserializerFactory
      * for the bean type to deserialize.
      */
     public abstract ValueInstantiator findValueInstantiator(DeserializationContext ctxt,
-            BeanDescription beanDesc)
-        throws JsonMappingException;
-    
+            BeanDescription beanDesc);
+
     /**
      * Method called to create (or, for completely immutable deserializers,
      * reuse) a deserializer that can convert JSON content into values of
@@ -68,8 +67,7 @@ public abstract class DeserializerFactory
      * @param type Type to be deserialized
      */
     public abstract JsonDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException;
+            JavaType type, BeanDescription beanDesc);
 
     /**
      * Method called to create a deserializer that will use specified Builder
@@ -77,26 +75,21 @@ public abstract class DeserializerFactory
      */
     public abstract JsonDeserializer<Object> createBuilderBasedDeserializer(
     		DeserializationContext ctxt, JavaType type, BeanDescription beanDesc,
-    		Class<?> builderClass)
-        throws JsonMappingException;
-
+    		Class<?> builderClass);
 
     public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException;
+            JavaType type, BeanDescription beanDesc);
 
     public abstract JsonDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
-            ReferenceType type, BeanDescription beanDesc)
-        throws JsonMappingException;
-    
+            ReferenceType type, BeanDescription beanDesc);
+
     /**
      * Method called to create and return a deserializer that can construct
      * JsonNode(s) from JSON content.
      */
     public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
-            JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException;
-    
+            JavaType type, BeanDescription beanDesc);
+
     /**
      * Method called to create (or, for completely immutable deserializers,
      * reuse) a deserializer that can convert JSON content into values of
@@ -105,24 +98,19 @@ public abstract class DeserializerFactory
      * @param type Type to be deserialized
      */
     public abstract JsonDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
-            ArrayType type, BeanDescription beanDesc)
-        throws JsonMappingException;
+            ArrayType type, BeanDescription beanDesc);
 
     public abstract JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
-            CollectionType type, BeanDescription beanDesc)
-        throws JsonMappingException;
+            CollectionType type, BeanDescription beanDesc);
 
     public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
-            CollectionLikeType type, BeanDescription beanDesc)
-        throws JsonMappingException;
+            CollectionLikeType type, BeanDescription beanDesc);
 
     public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
-            MapType type, BeanDescription beanDesc)
-        throws JsonMappingException;
+            MapType type, BeanDescription beanDesc);
 
     public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
-            MapLikeType type, BeanDescription beanDesc)
-        throws JsonMappingException;
+            MapLikeType type, BeanDescription beanDesc);
 
     /**
      * Method called to find if factory knows how to create a key deserializer
@@ -133,8 +121,7 @@ public abstract class DeserializerFactory
      *   (and default key deserializer should be used)
      */
     public abstract KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
-            JavaType type)
-        throws JsonMappingException;
+            JavaType type);
 
     /**
      * Method that can be used to check if databind module has explicitly declared deserializer

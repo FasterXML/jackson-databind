@@ -25,9 +25,9 @@ public final class IndexedStringListSerializer
     public final static IndexedStringListSerializer instance = new IndexedStringListSerializer();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected IndexedStringListSerializer() {
@@ -47,14 +47,14 @@ public final class IndexedStringListSerializer
     @Override protected JsonNode contentSchema() { return createSchemaNode("string", true); }
 
     @Override
-    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) throws JsonMappingException {
+    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) {
         visitor.itemsFormat(JsonFormatTypes.STRING);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

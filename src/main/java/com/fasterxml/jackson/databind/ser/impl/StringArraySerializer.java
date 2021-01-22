@@ -78,7 +78,6 @@ public class StringArraySerializer
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
-        throws JsonMappingException
     {
         // 29-Sep-2012, tatu: Actually, we need to do much more contextual
         //    checking here since we finally know for sure the property,

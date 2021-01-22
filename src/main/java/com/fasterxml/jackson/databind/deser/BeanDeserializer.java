@@ -689,7 +689,7 @@ public class BeanDeserializer
     private BeanReferring handleUnresolvedReference(DeserializationContext ctxt,
             SettableBeanProperty prop, PropertyValueBuffer buffer,
             UnresolvedForwardReference reference)
-        throws JsonMappingException
+        throws DatabindException
     {
         BeanReferring referring = new BeanReferring(ctxt, reference,
                 prop.getType(), buffer, prop);
@@ -699,7 +699,7 @@ public class BeanDeserializer
 
     protected final Object _deserializeWithErrorWrapping(JsonParser p,
             DeserializationContext ctxt, SettableBeanProperty prop)
-        throws JacksonException
+        throws DatabindException
     {
         try {
             return prop.deserialize(p, ctxt);

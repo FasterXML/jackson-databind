@@ -63,7 +63,6 @@ public class DefaultSerializerProvider
     
     @Override
     public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef)
-            throws JsonMappingException
     {
         if (serDef == null) {
             return null;
@@ -117,7 +116,7 @@ public class DefaultSerializerProvider
     }
 
     @Override
-    public boolean includeFilterSuppressNulls(Object filter) throws JsonMappingException
+    public boolean includeFilterSuppressNulls(Object filter)
     {
         if (filter == null) {
             return true;
@@ -413,7 +412,6 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      * @param visitor the visitor to accept the format
      */
     public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor)
-        throws JsonMappingException
     {
         if (javaType == null) {
             throw new IllegalArgumentException("A class must be provided");

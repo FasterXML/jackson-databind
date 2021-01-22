@@ -8,6 +8,5 @@ import com.fasterxml.jackson.databind.*;
 @Deprecated
 public interface ContextualSerializer
 {
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-        throws JsonMappingException;
+    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property);
 }

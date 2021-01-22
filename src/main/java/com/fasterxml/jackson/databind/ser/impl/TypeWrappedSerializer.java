@@ -49,7 +49,6 @@ public final class TypeWrappedSerializer
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
         // 13-Mar-2017, tatu: Should we call `TypeSerializer.forProperty()`?
         JsonSerializer<?> ser = _serializer;

@@ -1224,14 +1224,15 @@ public abstract class SerializerProvider
     }
 
     public <T> T reportBadDefinition(JavaType type, String msg, Throwable cause)
-            throws JsonMappingException {
+        throws DatabindException
+    {
         InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, type);
         e.initCause(cause);
         throw e;
     }
 
     public <T> T reportBadDefinition(Class<?> raw, String msg, Throwable cause)
-            throws DatabindException
+        throws DatabindException
     {
         InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, constructType(raw));
         e.initCause(cause);
@@ -1240,7 +1241,7 @@ public abstract class SerializerProvider
 
     /**
      * Helper method called to indicate problem; default behavior is to construct and
-     * throw a {@link JsonMappingException}, but in future may collect more than one
+     * throw a {@link DatabindException}, but in future may collect more than one
      * and only throw after certain number, or at the end of serialization.
      */
     public void reportMappingProblem(Throwable t, String message, Object... msgArgs)
@@ -1249,15 +1250,14 @@ public abstract class SerializerProvider
         throw _mappingProblem(t, message, msgArgs);
     }
 
-    protected JsonMappingException _mappingProblem(Throwable t, String message, Object... msgArgs)
-        throws DatabindException
+    protected DatabindException _mappingProblem(Throwable t, String message, Object... msgArgs)
     {
         return JsonMappingException.from(getGenerator(), _format(message, msgArgs), t);
     }
-    
+
     /**
      * Helper method called to indicate problem; default behavior is to construct and
-     * throw a {@link JsonMappingException}, but in future may collect more than one
+     * throw a {@link DatabindException}, but in future may collect more than one
      * and only throw after certain number, or at the end of serialization.
      */
     public void reportMappingProblem(String message, Object... msgArgs)

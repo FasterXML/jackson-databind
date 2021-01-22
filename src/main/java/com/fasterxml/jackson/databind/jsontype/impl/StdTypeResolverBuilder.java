@@ -37,11 +37,11 @@ public class StdTypeResolverBuilder
     // Objects
     
     protected TypeIdResolver _customIdResolver;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, initialization, actual building
-    /**********************************************************
+    /**********************************************************************
      */
 
     public StdTypeResolverBuilder() { }
@@ -58,9 +58,6 @@ public class StdTypeResolverBuilder
         }
     }
 
-    /**
-     * @since 2.9
-     */
     public StdTypeResolverBuilder(JsonTypeInfo.Id idType,
             JsonTypeInfo.As idAs, String propName)
     {
@@ -108,7 +105,7 @@ public class StdTypeResolverBuilder
 
     @Override
     public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
-            JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
+            JavaType baseType, Collection<NamedType> subtypes)
     {
         if (_idType == JsonTypeInfo.Id.NONE) { return null; }
         // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
@@ -145,7 +142,7 @@ public class StdTypeResolverBuilder
 
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationContext ctxt,
-            JavaType baseType, Collection<NamedType> subtypes) throws JsonMappingException
+            JavaType baseType, Collection<NamedType> subtypes)
     {
         if (_idType == JsonTypeInfo.Id.NONE) { return null; }
         // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
@@ -230,9 +227,9 @@ public class StdTypeResolverBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -242,9 +239,9 @@ public class StdTypeResolverBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public Class<?> getDefaultImpl() { return _defaultImpl; }
@@ -253,9 +250,9 @@ public class StdTypeResolverBuilder
     public boolean isTypeIdVisible() { return _typeIdVisible; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal/subtype factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -286,9 +283,9 @@ public class StdTypeResolverBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal/subtype factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -308,7 +305,7 @@ public class StdTypeResolverBuilder
      * Currently limits are verified for class name - based methods only.
      */
     protected PolymorphicTypeValidator verifyBaseTypeValidity(DatabindContext ctxt,
-            JavaType baseType) throws JsonMappingException
+            JavaType baseType)
     {
         final PolymorphicTypeValidator ptv = subTypeValidator(ctxt);
         if (_idType == JsonTypeInfo.Id.CLASS || _idType == JsonTypeInfo.Id.MINIMAL_CLASS) {
@@ -327,7 +324,7 @@ public class StdTypeResolverBuilder
     }
 
     protected PolymorphicTypeValidator reportInvalidBaseType(DatabindContext ctxt,
-            JavaType baseType, PolymorphicTypeValidator ptv) throws JsonMappingException
+            JavaType baseType, PolymorphicTypeValidator ptv)
     {
         return ctxt.reportBadDefinition(baseType, String.format(
 "Configured `PolymorphicTypeValidator` (of type %s) denied resolution of all subtypes of base type %s",
@@ -336,9 +333,9 @@ public class StdTypeResolverBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -55,7 +55,7 @@ public abstract class DateTimeSerializerBase<T>
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider serializers,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         // Note! Should not skip if `property` null since that'd skip check
         // for config overrides, in case of root value
@@ -144,7 +144,7 @@ df0.getClass().getName()));
     protected abstract long _timestamp(T value);
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         _acceptJsonFormatVisitor(visitor, typeHint, _asTimestamp(visitor.getProvider()));
     }
@@ -181,7 +181,7 @@ df0.getClass().getName()));
     }
 
     protected void _acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint,
-		boolean asNumber) throws JsonMappingException
+		boolean asNumber)
     {
         if (asNumber) {
             visitIntFormat(visitor, typeHint,

@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  * from {@code java.util.Collections} and {@code java.util.Arrays}. This is needed
  * because they do not have usable no-arguments constructor: however, are easy enough
  * to deserialize using delegating deserializer.
- *
- * @since 2.9.4
  */
 public abstract class JavaUtilCollectionsDeserializers
 {
@@ -69,7 +67,6 @@ public abstract class JavaUtilCollectionsDeserializers
 
     public static JsonDeserializer<?> findForCollection(DeserializationContext ctxt,
             JavaType type)
-        throws JsonMappingException
     {
         JavaUtilCollectionsConverter conv;
         
@@ -103,7 +100,6 @@ public abstract class JavaUtilCollectionsDeserializers
 
     public static JsonDeserializer<?> findForMap(DeserializationContext ctxt,
             JavaType type)
-        throws JsonMappingException
     {
         JavaUtilCollectionsConverter conv;
 

@@ -1,18 +1,12 @@
 package com.fasterxml.jackson.databind.objectid;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.IOException;
@@ -104,7 +98,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
           }
           JsonNode n = node.get(REF_KEY);
           if (n == null) {
-              throw new JsonMappingException(p, "Could not find key '"+REF_KEY
+              ctx.reportInputMismatch(JSOGRef.class, "Could not find key '"+REF_KEY
                       +"' from ("+node.getClass().getName()+"): "+node);
           }
           return new JSOGRef(n.asInt());

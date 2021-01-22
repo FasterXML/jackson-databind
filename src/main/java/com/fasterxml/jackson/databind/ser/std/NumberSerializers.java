@@ -72,7 +72,7 @@ public class NumberSerializers {
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor,
-                JavaType typeHint) throws JsonMappingException
+                JavaType typeHint)
         {
             if (_isInt) {
                 visitIntFormat(visitor, typeHint, _numberType);
@@ -83,7 +83,7 @@ public class NumberSerializers {
 
         @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov,
-                BeanProperty property) throws JsonMappingException
+                BeanProperty property)
         {
             JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
             if (format != null) {

@@ -129,7 +129,6 @@ public class MapProperty extends PropertyWriter
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
             SerializerProvider provider)
-        throws JsonMappingException
     {
         _property.depositSchemaProperty(objectVisitor, provider);
     }

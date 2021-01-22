@@ -44,7 +44,7 @@ public class NumberSerializer
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
         if (format != null) {
@@ -87,7 +87,7 @@ public class NumberSerializer
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         if (_isInt) {
             visitIntFormat(visitor, typeHint, JsonParser.NumberType.BIG_INTEGER);

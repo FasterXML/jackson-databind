@@ -73,7 +73,7 @@ public class EnumSerializer
      */
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(ctxt,
                 property, handledType());
@@ -127,7 +127,6 @@ public class EnumSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         SerializerProvider serializers = visitor.getProvider();
         if (_serializeAsIndex(serializers)) {

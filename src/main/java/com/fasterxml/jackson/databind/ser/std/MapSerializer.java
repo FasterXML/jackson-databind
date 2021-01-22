@@ -322,7 +322,6 @@ public class MapSerializer
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<?> ser = null;
         JsonSerializer<?> keySer = null;
@@ -507,12 +506,7 @@ public class MapSerializer
                 }
                 return false;
             }
-            try {
-                valueSer = _findSerializer(prov, elemValue);
-            } catch (JsonMappingException e) { // Ugh... cannot just throw as-is, so...
-                // 05-Nov-2015, tatu: For now, probably best not to assume empty then
-                return false;
-            }
+            valueSer = _findSerializer(prov, elemValue);
             if (checkEmpty) {
                 if (!valueSer.isEmpty(prov, elemValue)) {
                     return false;
@@ -944,7 +938,6 @@ public class MapSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         JsonMapFormatVisitor v2 = visitor.expectMapFormat(typeHint);        
         if (v2 != null) {

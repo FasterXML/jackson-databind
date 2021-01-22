@@ -5,8 +5,8 @@ import java.net.InetAddress;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -36,7 +36,7 @@ public class InetAddressSerializer
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         boolean asNumeric = false;

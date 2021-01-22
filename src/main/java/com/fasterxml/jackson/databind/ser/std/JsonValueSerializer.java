@@ -132,7 +132,6 @@ public class JsonValueSerializer
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
-        throws JsonMappingException
     {
         TypeSerializer vts = _valueTypeSerializer;
         if (vts != null) {
@@ -265,7 +264,6 @@ public class JsonValueSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         /* 27-Apr-2015, tatu: First things first; for JSON Schema introspection,
          *    Enum types that use `@JsonValue` are special (but NOT necessarily
@@ -303,7 +301,6 @@ public class JsonValueSerializer
      */
     protected boolean _acceptJsonFormatVisitorForEnum(JsonFormatVisitorWrapper visitor,
             JavaType typeHint, Class<?> enumType)
-        throws JsonMappingException
     {
         // Copied from EnumSerializer#acceptJsonFormatVisitor
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);

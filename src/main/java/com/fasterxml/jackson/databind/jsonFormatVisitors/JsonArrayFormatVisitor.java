@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerProvider
@@ -13,8 +12,7 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerP
      * @param handler Serializer used, to allow for further callbacks
      * @param elementType Type of elements in JSON array value
      */
-    void itemsFormat(JsonFormatVisitable handler, JavaType elementType)
-        throws JsonMappingException;
+    void itemsFormat(JsonFormatVisitable handler, JavaType elementType);
     
     /**
      * Visit method that is called if the content type is a simple
@@ -22,8 +20,7 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerP
      * for structured types like {@link JsonFormatTypes#OBJECT} since
      * they would be missing type information).
      */
-    void itemsFormat(JsonFormatTypes format)
-        throws JsonMappingException;
+    void itemsFormat(JsonFormatTypes format);
 
     /**
      * Default "empty" implementation, useful as the base to start on;
@@ -43,13 +40,10 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerP
         public void setProvider(SerializerProvider p) { _provider = p; }
 
         @Override
-        public void itemsFormat(JsonFormatVisitable handler, JavaType elementType)
-            throws JsonMappingException { }
+        public void itemsFormat(JsonFormatVisitable handler, JavaType elementType) { }
 
         @Override
-        public void itemsFormat(JsonFormatTypes format)
-            throws JsonMappingException { }
+        public void itemsFormat(JsonFormatTypes format) { }
     }
-
 }
 

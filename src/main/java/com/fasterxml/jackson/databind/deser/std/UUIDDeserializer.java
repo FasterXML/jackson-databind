@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JacksonException;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 public class UUIDDeserializer extends FromStringDeserializer<UUID>
@@ -80,18 +80,18 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
                 "UUID has to be represented by standard 36-char representation");
     }
 
-    int intFromChars(String str, int index, DeserializationContext ctxt) throws JsonMappingException {
+    int intFromChars(String str, int index, DeserializationContext ctxt) {
         return (byteFromChars(str, index, ctxt) << 24)
                 + (byteFromChars(str, index+2, ctxt) << 16)
                 + (byteFromChars(str, index+4, ctxt) << 8)
                 + byteFromChars(str, index+6, ctxt);
     }
     
-    int shortFromChars(String str, int index, DeserializationContext ctxt) throws JsonMappingException {
+    int shortFromChars(String str, int index, DeserializationContext ctxt) {
         return (byteFromChars(str, index, ctxt) << 8) + byteFromChars(str, index+2, ctxt);
     }
     
-    int byteFromChars(String str, int index, DeserializationContext ctxt) throws JsonMappingException
+    int byteFromChars(String str, int index, DeserializationContext ctxt)
     {
         final char c1 = str.charAt(index);
         final char c2 = str.charAt(index+1);
@@ -108,7 +108,7 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
         return _badChar(str, index+1, ctxt, c2);
     }
 
-    int _badChar(String uuidStr, int index, DeserializationContext ctxt, char c) throws JsonMappingException {
+    int _badChar(String uuidStr, int index, DeserializationContext ctxt, char c) {
         // 15-May-2016, tatu: Ideally should not throw, but call `handleWeirdStringValue`...
         //   however, control flow is gnarly here, so for now just throw
         throw ctxt.weirdStringException(uuidStr, handledType(),
@@ -117,7 +117,7 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
                 c, Integer.toHexString(c)));
     }
 
-    private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) throws JsonMappingException {
+    private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) {
         if (bytes.length != 16) {
             throw InvalidFormatException.from(ctxt.getParser(),
                     "Can only construct UUIDs from byte[16]; got "+bytes.length+" bytes",

@@ -277,7 +277,6 @@ public abstract class BeanSerializerBase
      */
     @Override
     public void resolve(SerializerProvider provider)
-        throws JsonMappingException
     {
         int filteredCount = (_filteredProps == null) ? 0 : _filteredProps.length;
         for (int i = 0, len = _props.length; i < len; ++i) {
@@ -361,7 +360,6 @@ public abstract class BeanSerializerBase
      */
     protected JsonSerializer<Object> findConvertingSerializer(SerializerProvider provider,
             BeanPropertyWriter prop)
-        throws JsonMappingException
     {
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null) {
@@ -384,7 +382,6 @@ public abstract class BeanSerializerBase
     @SuppressWarnings("incomplete-switch")
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
-        throws JsonMappingException
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final AnnotatedMember accessor = _neitherNull(property, intr)
@@ -906,7 +903,6 @@ public abstract class BeanSerializerBase
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
             // Minimize call depth since we are close to fail:
-            //JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
             JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
             mapE.prependPath(new JsonMappingException.Reference(bean, name));

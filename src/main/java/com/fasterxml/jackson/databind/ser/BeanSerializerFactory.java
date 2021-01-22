@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.databind.*;
@@ -122,7 +123,6 @@ public class BeanSerializerFactory
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> createSerializer(SerializerProvider ctxt, JavaType origType,
             BeanDescription beanDesc, JsonFormat.Value formatOverrides)
-        throws JsonMappingException
     {
         // Very first thing, let's check if there is explicit serializer annotation:
         JsonSerializer<?> ser = findSerializerFromAnnotation(ctxt, beanDesc.getClassInfo());
@@ -140,7 +140,7 @@ public class BeanSerializerFactory
         } else {
             try {
                 type = intr.refineSerializationType(config, beanDesc.getClassInfo(), origType);
-            } catch (JsonMappingException e) {
+            } catch (JacksonException e) {
                 return ctxt.reportBadTypeDefinition(beanDesc, e.getMessage());
             }
         }
@@ -176,7 +176,6 @@ public class BeanSerializerFactory
     protected JsonSerializer<?> _createSerializer2(SerializerProvider ctxt,
             BeanDescription beanDesc, JavaType type, JsonFormat.Value formatOverrides,
             boolean staticTyping)
-        throws JsonMappingException
     {
         JsonSerializer<?> ser = null;
         final SerializationConfig config = ctxt.getConfig();
@@ -265,7 +264,6 @@ public class BeanSerializerFactory
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> constructBeanOrAddOnSerializer(SerializerProvider ctxt,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value format, boolean staticTyping)
-        throws JsonMappingException
     {
         // 13-Oct-2010, tatu: quick sanity check: never try to create bean serializer for plain Object
         // 05-Jul-2012, tatu: ... but we should be able to just return "unknown type" serializer, right?
@@ -386,7 +384,6 @@ public class BeanSerializerFactory
 
     protected ObjectIdWriter constructObjectIdHandler(SerializerProvider ctxt,
             BeanDescription beanDesc, List<BeanPropertyWriter> props)
-        throws JsonMappingException
     {
         ObjectIdInfo objectIdInfo = beanDesc.getObjectIdInfo();
         if (objectIdInfo == null) {
@@ -479,7 +476,6 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
      */
     protected List<BeanPropertyWriter> findBeanProperties(SerializerProvider ctxt,
             BeanDescription beanDesc, BeanSerializerBuilder builder)
-        throws JsonMappingException
     {
         List<BeanPropertyDefinition> properties = beanDesc.findProperties();
         final SerializationConfig config = ctxt.getConfig();
@@ -698,7 +694,6 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
     protected BeanPropertyWriter _constructWriter(SerializerProvider ctxt,
             BeanPropertyDefinition propDef,
             PropertyBuilder pb, boolean staticTyping, AnnotatedMember accessor)
-        throws JsonMappingException
     {
         final PropertyName name = propDef.getFullName();
         JavaType type = accessor.getType();
@@ -729,7 +724,6 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
 
     protected JsonSerializer<?> _findUnsupportedTypeSerializer(SerializerProvider ctxt,
             JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException
     {
         // 05-May-2020, tatu: Should we check for possible Shape override to "POJO"?
         //   (to let users force 'serialize-as-POJO'?

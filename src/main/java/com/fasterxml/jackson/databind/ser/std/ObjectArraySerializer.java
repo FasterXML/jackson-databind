@@ -108,7 +108,6 @@ public class ObjectArraySerializer
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
-        throws JsonMappingException
     {
         TypeSerializer vts = _valueTypeSerializer;
         if (vts != null) { // need to contextualize
@@ -293,7 +292,6 @@ public class ObjectArraySerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         JsonArrayFormatVisitor arrayVisitor = visitor.expectArrayFormat(typeHint);
         if (arrayVisitor != null) {

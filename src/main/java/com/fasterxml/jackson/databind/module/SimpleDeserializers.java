@@ -78,7 +78,6 @@ public class SimpleDeserializers
     public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         return _find(type);
     }
@@ -86,7 +85,6 @@ public class SimpleDeserializers
     @Override
     public JsonDeserializer<?> findBeanDeserializer(JavaType type,
             DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
     {
         return _find(type);
     }
@@ -96,7 +94,6 @@ public class SimpleDeserializers
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         return _find(type);
     }
@@ -106,7 +103,6 @@ public class SimpleDeserializers
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         return _find(type);
     }
@@ -114,7 +110,6 @@ public class SimpleDeserializers
     @Override
     public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
             DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
     {
         if (_classMappings == null) {
             return null;
@@ -135,7 +130,6 @@ public class SimpleDeserializers
     @Override
     public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
             DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
     {
         if (_classMappings == null) {
             return null;
@@ -147,7 +141,7 @@ public class SimpleDeserializers
     public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
-        throws JsonMappingException {
+    {
         // 21-Oct-2015, tatu: Unlikely this will really get used (reference types need more
         //    work, simple registration probably not sufficient). But whatever.
         return _find(refType);
@@ -159,7 +153,6 @@ public class SimpleDeserializers
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         return _find(type);
     }
@@ -170,19 +163,20 @@ public class SimpleDeserializers
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         return _find(type);
     }
 
-    @Override // since 2.11
+    @Override
     public boolean hasDeserializerFor(DeserializationConfig config,
-            Class<?> valueType) {
+            Class<?> valueType)
+    {
         return (_classMappings != null)
                 && _classMappings.containsKey(new ClassKey(valueType));
     }
 
-    private final JsonDeserializer<?> _find(JavaType type) {
+    private final JsonDeserializer<?> _find(JavaType type)
+    {
         if (_classMappings == null) {
             return null;
         }

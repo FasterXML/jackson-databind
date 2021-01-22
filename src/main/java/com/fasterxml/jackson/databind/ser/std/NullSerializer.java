@@ -22,7 +22,9 @@ public class NullSerializer
     private NullSerializer() { super(Object.class); }
     
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
+        throws JacksonException
+    {
         gen.writeNull();
     }
 
@@ -42,7 +44,6 @@ public class NullSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         visitor.expectNullFormat(typeHint);
     }

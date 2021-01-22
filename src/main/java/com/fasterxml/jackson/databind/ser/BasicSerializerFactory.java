@@ -180,7 +180,6 @@ public abstract class BasicSerializerFactory
     @Override
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> createKeySerializer(SerializerProvider ctxt, JavaType keyType)
-        throws JsonMappingException
     {
         BeanDescription beanDesc = ctxt.introspectBeanDescription(keyType);
         final SerializationConfig config = ctxt.getConfig();
@@ -265,7 +264,6 @@ public abstract class BasicSerializerFactory
      */    
     public TypeSerializer findPropertyContentTypeSerializer(SerializerProvider ctxt,
             JavaType containerType, AnnotatedMember accessor)
-        throws JsonMappingException
     {
         return ctxt.getConfig().getTypeResolverProvider()
                 .findPropertyContentTypeSerializer(ctxt, accessor, containerType);
@@ -310,7 +308,6 @@ public abstract class BasicSerializerFactory
      */
     protected final JsonSerializer<?> findSerializerByAnnotations(SerializerProvider ctxt, 
             JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
         // First: JsonSerializable?
@@ -344,7 +341,6 @@ public abstract class BasicSerializerFactory
     protected final JsonSerializer<?> findSerializerByPrimaryType(SerializerProvider ctxt, 
             JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping)
-        throws JsonMappingException
     {
         if (type.isTypeOrSubTypeOf(Calendar.class)) {
             return CalendarSerializer.instance;
@@ -440,7 +436,7 @@ public abstract class BasicSerializerFactory
      */
     protected final JsonSerializer<?> findSerializerByAddonType(SerializerProvider ctxt, 
             JavaType javaType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            boolean staticTyping) throws JsonMappingException
+            boolean staticTyping)
     {
         final TypeFactory tf = ctxt.getTypeFactory();
         if (javaType.isTypeOrSubTypeOf(Iterator.class)) {
@@ -469,7 +465,6 @@ public abstract class BasicSerializerFactory
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> findSerializerFromAnnotation(SerializerProvider ctxt,
             Annotated a)
-        throws JsonMappingException
     {
         Object serDef = ctxt.getAnnotationIntrospector().findSerializer(ctxt.getConfig(), a);
         if (serDef == null) {
@@ -488,7 +483,6 @@ public abstract class BasicSerializerFactory
      */
     protected JsonSerializer<?> findConvertingSerializer(SerializerProvider ctxt,
             Annotated a, JsonSerializer<?> ser)
-        throws JsonMappingException
     {
         Converter<Object,Object> conv = findConverter(ctxt, a);
         if (conv == null) {
@@ -500,7 +494,6 @@ public abstract class BasicSerializerFactory
 
     protected Converter<Object,Object> findConverter(SerializerProvider ctxt,
             Annotated a)
-        throws JsonMappingException
     {
         Object convDef = ctxt.getAnnotationIntrospector().findSerializationConverter(ctxt.getConfig(), a);
         if (convDef == null) {
@@ -518,7 +511,6 @@ public abstract class BasicSerializerFactory
     protected JsonSerializer<?> buildContainerSerializer(SerializerProvider ctxt,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping)
-        throws JsonMappingException
     {
         // [databind#23], 15-Mar-2013, tatu: must force static handling of root value type,
         //   with just one important exception: if value type is "untyped", let's
@@ -620,7 +612,6 @@ public abstract class BasicSerializerFactory
             CollectionType type, BeanDescription beanDesc,  JsonFormat.Value formatOverrides,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
-        throws JsonMappingException
     {
         SerializationConfig config = ctxt.getConfig();
         JsonSerializer<?> ser = null;
@@ -727,7 +718,6 @@ public abstract class BasicSerializerFactory
             MapType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping, JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
-        throws JsonMappingException
     {
         JsonFormat.Value format = _calculateEffectiveFormat(beanDesc, Map.class, formatOverrides);
 
@@ -787,7 +777,6 @@ public abstract class BasicSerializerFactory
      */
     protected MapSerializer _checkMapContentInclusion(SerializerProvider ctxt,
             BeanDescription beanDesc, MapSerializer mapSer)
-        throws JsonMappingException
     {
         final JavaType contentType = mapSer.getContentType();
         JsonInclude.Value inclV = _findInclusionWithContent(ctxt, beanDesc,
@@ -842,7 +831,6 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription beanDesc,  JsonFormat.Value effectiveFormat,
             boolean staticTyping,
             JavaType keyType, JavaType valueType)
-        throws JsonMappingException
     {
         // [databind#865]: Allow serialization "as POJO" -- note: to undo, declare
         //   serialization as `Shape.NATURAL` instead; that's JSON Object too.
@@ -911,7 +899,6 @@ public abstract class BasicSerializerFactory
     protected JsonInclude.Value _findInclusionWithContent(SerializerProvider ctxt,
             BeanDescription beanDesc,
             JavaType contentType, Class<?> configType)
-        throws JsonMappingException
     {
         final SerializationConfig config = ctxt.getConfig();
 
@@ -955,7 +942,6 @@ public abstract class BasicSerializerFactory
             ArrayType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
-        throws JsonMappingException
     {
         // 25-Jun-2015, tatu: Note that unlike with Collection(Like) and Map(Like) types, array
         //   types cannot be annotated (in theory I guess we could have mix-ins but... ?)
@@ -1006,7 +992,6 @@ public abstract class BasicSerializerFactory
     public JsonSerializer<?> findReferenceSerializer(SerializerProvider ctxt,
             ReferenceType refType, BeanDescription beanDesc, JsonFormat.Value format,
             boolean staticTyping)
-        throws JsonMappingException
     {
         JavaType contentType = refType.getContentType(); 
         TypeSerializer contentTypeSerializer = contentType.getTypeHandler();
@@ -1047,7 +1032,6 @@ public abstract class BasicSerializerFactory
     protected JsonSerializer<?> _buildReferenceSerializer(SerializerProvider ctxt, Class<?> baseType,
             ReferenceType refType, BeanDescription beanDesc, boolean staticTyping,
             TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentSerializer)
-        throws JsonMappingException
     {
         final JavaType contentType = refType.getReferencedType();
         JsonInclude.Value inclV = _findInclusionWithContent(ctxt, beanDesc,
@@ -1114,7 +1098,6 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping,
             JavaType valueType)
-        throws JsonMappingException
     {
         return new IteratorSerializer(valueType, staticTyping,
                 ctxt.findTypeSerializer(valueType));
@@ -1124,7 +1107,6 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription beanDesc, JsonFormat.Value effectiveFormat,
             boolean staticTyping,
             JavaType valueType)
-        throws JsonMappingException
     {
         return new IterableSerializer(valueType, staticTyping,
                 ctxt.findTypeSerializer(valueType));
@@ -1132,9 +1114,7 @@ public abstract class BasicSerializerFactory
 
     protected JsonSerializer<?> buildEnumSerializer(SerializerProvider ctxt,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value effectiveFormat)
-        throws JsonMappingException
     {
-
         // As per [databind#24], may want to use alternate shape, serialize as JSON Object.
         // Challenge here is that EnumSerializer does not know how to produce
         // POJO style serialization, so we must handle that special case separately;
@@ -1187,7 +1167,6 @@ public abstract class BasicSerializerFactory
      */
     protected JsonSerializer<Object> _findKeySerializer(SerializerProvider ctxt,
             Annotated a)
-        throws JsonMappingException
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         Object serDef = intr.findKeySerializer(ctxt.getConfig(), a);
@@ -1201,7 +1180,6 @@ public abstract class BasicSerializerFactory
      */
     protected JsonSerializer<Object> _findContentSerializer(SerializerProvider ctxt,
             Annotated a)
-        throws JsonMappingException
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         Object serDef = intr.findContentSerializer(ctxt.getConfig(), a);

@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class ExceptionJDKSerializable1195Test extends BaseMapTest
 {
@@ -26,14 +27,14 @@ public class ExceptionJDKSerializable1195Test extends BaseMapTest
         try {
             MAPPER.readValue("{\"x\": \"B\"}", ClassToRead.class);
             fail("Should not have passed");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize value of type `int` from String \"B\": not a valid `int` value");
             _testSerializability(e);
         }
         try {
             MAPPER.readValue("{\"classToRead\": {\"x\": \"B\"}}", ContainerClassToRead.class);
             fail("Should not have passed");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize value of type `int` from String \"B\": not a valid `int` value");
             _testSerializability(e);
         }
@@ -45,7 +46,7 @@ public class ExceptionJDKSerializable1195Test extends BaseMapTest
             MAPPER.readValue("{\"classesToRead\": [{\"x\": 1}, {\"x\": \"B\"}]}",
                     ContainerClassesToRead.class);
             fail("Should not have passed");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize value of type `int` from String \"B\": not a valid `int` value");
             _testSerializability(e);
         }

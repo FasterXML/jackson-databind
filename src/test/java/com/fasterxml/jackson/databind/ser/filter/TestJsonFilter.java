@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.TokenStreamContext;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.*;
@@ -111,7 +112,7 @@ public class TestJsonFilter extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSimpleInclusionFilter() throws Exception
     {
@@ -146,7 +147,7 @@ public class TestJsonFilter extends BaseMapTest
         try {
             MAPPER.writeValueAsString(new Bean());
             fail("Should have failed without configured filter");
-        } catch (JsonMappingException e) { // should be resolved to a MappingException (internally may be something else)
+        } catch (InvalidDefinitionException e) { // should be resolved to this (internally may be something else)
             verifyException(e, "Cannot resolve PropertyFilter with id 'RootFilter'");
         }
         
@@ -168,16 +169,15 @@ public class TestJsonFilter extends BaseMapTest
     // [databind#89] combining @JsonIgnore, @JsonProperty
     public void testIssue89() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         Pod pod = new Pod();
         pod.username = "Bob";
         pod.userPassword = "s3cr3t!";
 
-        String json = mapper.writeValueAsString(pod);
+        String json = MAPPER.writeValueAsString(pod);
 
         assertEquals("{\"username\":\"Bob\"}", json);
 
-        Pod pod2 = mapper.readValue("{\"username\":\"Bill\",\"user_password\":\"foo!\"}", Pod.class);
+        Pod pod2 = MAPPER.readValue("{\"username\":\"Bill\",\"user_password\":\"foo!\"}", Pod.class);
         assertEquals("Bill", pod2.username);
         assertEquals("foo!", pod2.userPassword);
     }

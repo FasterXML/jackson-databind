@@ -66,7 +66,7 @@ public class ObjectId2759Test extends BaseMapTest
             mapper.readerFor(JsonNode.class)
                 .with(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
                 .readValue(json);
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             fail("Should not have duplicates, but JSON content has: "+json);
         }
     }

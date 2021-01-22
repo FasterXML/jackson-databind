@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 import java.io.IOException;
 
@@ -59,8 +60,8 @@ public class TestBaseTypeAsDefault extends BaseMapTest
         try {
             /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Parent.class).readValue("{}");
             fail("Should not pass");
-        } catch (JsonMappingException ex) {
-            assertTrue(ex.getMessage().contains("missing type id property '@class'"));
+        } catch (InvalidTypeIdException e) {
+            assertTrue(e.getMessage().contains("missing type id property '@class'"));
         }
     }
 
@@ -68,7 +69,7 @@ public class TestBaseTypeAsDefault extends BaseMapTest
         try {
             /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}");
             fail("Should not pass");
-        } catch (JsonMappingException ex) {
+        } catch (InvalidTypeIdException ex) {
             assertTrue(ex.getMessage().contains("missing type id property '@class'"));
         }
     }

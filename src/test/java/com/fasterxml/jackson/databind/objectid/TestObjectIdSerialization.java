@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
@@ -334,7 +335,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         try {
             MAPPER.writeValueAsString(new Broken());
             fail("Should have thrown an exception");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find property with name 'id'");
         }
     }

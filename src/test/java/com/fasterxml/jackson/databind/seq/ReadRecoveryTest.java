@@ -16,9 +16,9 @@ public class ReadRecoveryTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; root-level value sequences via Mapper
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();

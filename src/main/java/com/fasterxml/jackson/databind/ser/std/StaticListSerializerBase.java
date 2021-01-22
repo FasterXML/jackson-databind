@@ -51,7 +51,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<?> ser = null;
         
@@ -92,7 +91,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
         JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
         if (v2 != null) {
             acceptContentVisitor(v2);
@@ -107,8 +106,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     protected abstract JsonNode contentSchema();
 
-    protected abstract void acceptContentVisitor(JsonArrayFormatVisitor visitor)
-        throws JsonMappingException;
+    protected abstract void acceptContentVisitor(JsonArrayFormatVisitor visitor);
 
     // just to make sure it gets implemented:
     @Override

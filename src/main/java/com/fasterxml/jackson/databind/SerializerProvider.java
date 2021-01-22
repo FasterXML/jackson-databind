@@ -488,7 +488,6 @@ public abstract class SerializerProvider
      */
     public JsonSerializer<Object> findTypedValueSerializer(Class<?> rawType,
             boolean cache)
-        throws JsonMappingException
     {
         // First: do we have it cached?
         JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(rawType);
@@ -522,7 +521,6 @@ public abstract class SerializerProvider
      * @param cache Whether resulting value serializer should be cached or not
      */
     public JsonSerializer<Object> findTypedValueSerializer(JavaType valueType, boolean cache)
-        throws JsonMappingException
     {
 
         JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
@@ -550,7 +548,7 @@ public abstract class SerializerProvider
      *
      * @since 3.0
      */
-    public JsonSerializer<Object> findRootValueSerializer(Class<?> rawType) throws JsonMappingException
+    public JsonSerializer<Object> findRootValueSerializer(Class<?> rawType)
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
@@ -573,7 +571,6 @@ public abstract class SerializerProvider
      * @since 3.0
      */
     public JsonSerializer<Object> findRootValueSerializer(JavaType valueType)
-        throws JsonMappingException
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
@@ -599,7 +596,6 @@ public abstract class SerializerProvider
      */
     public JsonSerializer<Object> findPrimaryPropertySerializer(JavaType valueType,
             BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
@@ -610,7 +606,6 @@ public abstract class SerializerProvider
 
     public JsonSerializer<Object> findPrimaryPropertySerializer(Class<?> rawType,
             BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
@@ -637,7 +632,6 @@ public abstract class SerializerProvider
      */
     public JsonSerializer<Object> findContentValueSerializer(JavaType valueType,
             BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
@@ -651,7 +645,6 @@ public abstract class SerializerProvider
      */
     public JsonSerializer<Object> findContentValueSerializer(Class<?> rawType,
             BeanProperty property)
-        throws JsonMappingException
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
@@ -675,7 +668,7 @@ public abstract class SerializerProvider
      * to be handled at a later point, but caller wants to be able to do that
      * as needed; sometimes to avoid infinite loops
      */
-    public JsonSerializer<Object> findValueSerializer(Class<?> rawType) throws JsonMappingException
+    public JsonSerializer<Object> findValueSerializer(Class<?> rawType)
     {
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
@@ -694,7 +687,6 @@ public abstract class SerializerProvider
      * as needed; sometimes to avoid infinite loops
      */
     public JsonSerializer<Object> findValueSerializer(JavaType valueType)
-        throws JsonMappingException
     {
         // (see comments from above method)
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
@@ -715,7 +707,7 @@ public abstract class SerializerProvider
      * for serializing for the given Java class.
      * Useful for schema generators.
      */
-    public TypeSerializer findTypeSerializer(JavaType baseType) throws JsonMappingException {
+    public TypeSerializer findTypeSerializer(JavaType baseType) {
         return findTypeSerializer(baseType, introspectClassAnnotations(baseType));
     }
 
@@ -727,7 +719,7 @@ public abstract class SerializerProvider
      * @since 3.0
      */
     public TypeSerializer findTypeSerializer(JavaType baseType, AnnotatedClass classAnnotations)
-            throws JsonMappingException {
+    {
         return _config.getTypeResolverProvider().findTypeSerializer(this, baseType,
                 classAnnotations);
     }
@@ -746,7 +738,6 @@ public abstract class SerializerProvider
      * @since 3.0
      */
     public TypeSerializer findPropertyTypeSerializer(JavaType baseType, AnnotatedMember accessor)
-            throws JsonMappingException
     {
         return _config.getTypeResolverProvider()
                 .findPropertyTypeSerializer(this, accessor, baseType);
@@ -769,7 +760,6 @@ public abstract class SerializerProvider
      * of any Java object, but not nulls.
      */
     public JsonSerializer<Object> findKeySerializer(JavaType keyType, BeanProperty property)
-        throws JsonMappingException
     {
         // 16-Mar-2018, tatu: Used to have "default key serializer" in 2.x; dropped to let/make
         //    custom code use Module interface or similar to provide key serializers
@@ -780,7 +770,6 @@ public abstract class SerializerProvider
     }
 
     public JsonSerializer<Object> findKeySerializer(Class<?> rawKeyType, BeanProperty property)
-        throws JsonMappingException
     {
         return findKeySerializer(_config.constructType(rawKeyType), property);
     }
@@ -797,7 +786,6 @@ public abstract class SerializerProvider
      */
     public JsonSerializer<Object> findNullKeySerializer(JavaType serializationType,
             BeanProperty property)
-        throws JsonMappingException
     {
         // rarely needed (that is, not on critical perf path), delegate to factory
         return _serializerFactory.getDefaultNullKeySerializer();
@@ -819,7 +807,6 @@ public abstract class SerializerProvider
      * override null handling for any specific property or class of properties.
      */
     public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
-        throws JsonMappingException
     {
         return _nullValueSerializer;
     }
@@ -876,7 +863,6 @@ public abstract class SerializerProvider
      */
     protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType,
             JavaType fullType)
-        throws JsonMappingException
     {
         // Important: must introspect all annotations, not just class
         BeanDescription beanDesc = introspectBeanDescription(fullType);
@@ -894,7 +880,6 @@ public abstract class SerializerProvider
     }
 
     protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
-        throws JsonMappingException
     {
         // Important: must introspect all annotations, not just class
         BeanDescription beanDesc = introspectBeanDescription(type);
@@ -916,7 +901,6 @@ public abstract class SerializerProvider
      */
     protected JsonSerializer<Object> _createAndCachePropertySerializer(Class<?> rawType,
             JavaType fullType, BeanProperty prop)
-        throws JsonMappingException
     {
         BeanDescription beanDesc = introspectBeanDescription(fullType);
         JsonSerializer<Object> ser;
@@ -939,7 +923,6 @@ public abstract class SerializerProvider
      */
     protected JsonSerializer<Object> _createAndCachePropertySerializer(JavaType type,
             BeanProperty prop)
-        throws JsonMappingException
     {
         BeanDescription beanDesc = introspectBeanDescription(type);
         JsonSerializer<Object> ser;
@@ -959,7 +942,6 @@ public abstract class SerializerProvider
     @SuppressWarnings("unchecked")
     private JsonSerializer<Object> _checkShapeShifting(JavaType type, BeanDescription beanDesc,
             BeanProperty prop, JsonSerializer<?> ser)
-        throws JsonMappingException
     {
         JsonFormat.Value overrides = prop.findFormatOverrides(_config);
         if (overrides != null) {
@@ -977,7 +959,6 @@ public abstract class SerializerProvider
 
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> _handleResolvable(JsonSerializer<?> ser)
-        throws JsonMappingException
     {
         ser.resolve(this);
         return (JsonSerializer<Object>) ser;
@@ -1000,8 +981,7 @@ public abstract class SerializerProvider
      * @param serDef Serializer definition: either an instance or class
      */
     public abstract JsonSerializer<Object> serializerInstance(Annotated annotated,
-            Object serDef)
-        throws JsonMappingException;
+            Object serDef);
 
     /**
      * Method that can be called to construct and configure {@link JsonInclude}
@@ -1012,16 +992,14 @@ public abstract class SerializerProvider
      *    `null` if filter created via defaulting, global or per-type.
      */
     public abstract Object includeFilterInstance(BeanPropertyDefinition forProperty,
-            Class<?> filterClass)
-        throws JsonMappingException;
+            Class<?> filterClass);
 
     /**
      * Follow-up method that may be called after calling {@link #includeFilterInstance},
      * to check handling of `null` values by the filter.
      */
-    public abstract boolean includeFilterSuppressNulls(Object filter)
-        throws JsonMappingException;
-
+    public abstract boolean includeFilterSuppressNulls(Object filter);
+ 
     /*
     /**********************************************************************
     /* Support for contextualization
@@ -1039,7 +1017,6 @@ public abstract class SerializerProvider
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> handlePrimaryContextualization(JsonSerializer<?> ser,
             BeanProperty property)
-        throws JsonMappingException
     {
         if (ser != null) {
             ser = ser.createContextual(this, property);
@@ -1064,7 +1041,6 @@ public abstract class SerializerProvider
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> handleSecondaryContextualization(JsonSerializer<?> ser,
             BeanProperty property)
-        throws JsonMappingException
     {
         if (ser != null) {
             ser = ser.createContextual(this, property);
@@ -1077,7 +1053,6 @@ public abstract class SerializerProvider
      */
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> handleRootContextualization(JsonSerializer<?> ser)
-        throws JsonMappingException
     {
         if (ser != null) {
             ser = ser.createContextual(this, null);
@@ -1101,7 +1076,7 @@ public abstract class SerializerProvider
      * @deprecated Use {@link #writeValue(JsonGenerator, Object)} instead
      */
     @Deprecated // since 3.0
-    public final void defaultSerializeValue(Object value, JsonGenerator gen) throws JacksonException {
+    public final void defaultSerializeValue(Object value, JsonGenerator gen) {
         writeValue(gen, value);
     }
 
@@ -1205,10 +1180,11 @@ public abstract class SerializerProvider
     /**
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
-     * Default behavior is to construct and throw a {@link JsonMappingException}.
+     * Default behavior is to construct and throw a {@link InvalidDefinitionException}.
      */
     public <T> T reportBadTypeDefinition(BeanDescription bean,
-            String msg, Object... msgArgs) throws JsonMappingException
+            String msg, Object... msgArgs)
+        throws DatabindException
     {
         String beanDesc = "N/A";
         if (bean != null) {
@@ -1222,10 +1198,11 @@ public abstract class SerializerProvider
     /**
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific property (of a type), unrelated to actual JSON content to map.
-     * Default behavior is to construct and throw a {@link JsonMappingException}.
+     * Default behavior is to construct and throw a {@link InvalidDefinitionException}.
      */
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
-            String message, Object... msgArgs) throws JsonMappingException
+            String message, Object... msgArgs)
+        throws DatabindException
     {
         message = _format(message, msgArgs);
         String propName = "N/A";
@@ -1242,7 +1219,7 @@ public abstract class SerializerProvider
     }
 
     @Override
-    public <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException {
+    public <T> T reportBadDefinition(JavaType type, String msg) throws DatabindException {
         throw InvalidDefinitionException.from(getGenerator(), msg, type);
     }
 
@@ -1254,7 +1231,8 @@ public abstract class SerializerProvider
     }
 
     public <T> T reportBadDefinition(Class<?> raw, String msg, Throwable cause)
-            throws JsonMappingException {
+            throws DatabindException
+    {
         InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, constructType(raw));
         e.initCause(cause);
         throw e;
@@ -1265,11 +1243,15 @@ public abstract class SerializerProvider
      * throw a {@link JsonMappingException}, but in future may collect more than one
      * and only throw after certain number, or at the end of serialization.
      */
-    public void reportMappingProblem(Throwable t, String message, Object... msgArgs) throws JsonMappingException {
+    public void reportMappingProblem(Throwable t, String message, Object... msgArgs)
+        throws DatabindException
+    {
         throw _mappingProblem(t, message, msgArgs);
     }
 
-    protected JsonMappingException _mappingProblem(Throwable t, String message, Object... msgArgs) {
+    protected JsonMappingException _mappingProblem(Throwable t, String message, Object... msgArgs)
+        throws DatabindException
+    {
         return JsonMappingException.from(getGenerator(), _format(message, msgArgs), t);
     }
     
@@ -1278,13 +1260,16 @@ public abstract class SerializerProvider
      * throw a {@link JsonMappingException}, but in future may collect more than one
      * and only throw after certain number, or at the end of serialization.
      */
-    public void reportMappingProblem(String message, Object... msgArgs) throws JsonMappingException {
+    public void reportMappingProblem(String message, Object... msgArgs)
+        throws DatabindException
+    {
         throw JsonMappingException.from(getGenerator(), _format(message, msgArgs));
     }
 
     @Override
-    public JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
-            String extraDesc) {
+    public DatabindException invalidTypeIdException(JavaType baseType, String typeId,
+            String extraDesc)
+    {
         String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
                 typeId, ClassUtil.getTypeDescription(baseType));
         return InvalidTypeIdException.from(null, _colonConcat(msg, extraDesc), baseType, typeId);

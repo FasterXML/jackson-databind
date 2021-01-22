@@ -934,7 +934,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -957,7 +957,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -979,7 +979,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -998,7 +998,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -1312,7 +1312,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -1333,7 +1333,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings({ "unchecked" })
@@ -1354,7 +1354,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -1380,7 +1380,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -1425,7 +1425,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -1447,7 +1447,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings({ "unchecked" })
@@ -1468,7 +1468,7 @@ public class ObjectMapper
      *   does NOT result in wrapping of exception even if enabled)
      * @throws StreamReadException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
-     * @throws JsonMappingException if the input JSON structure does not match structure
+     * @throws DatabindException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
@@ -2295,7 +2295,6 @@ public class ObjectMapper
      * @param type Type to generate schema for (possibly with generic signature)
      */
     public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
-        throws JsonMappingException
     {
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
@@ -2303,7 +2302,6 @@ public class ObjectMapper
     }
 
     public void acceptJsonFormatVisitor(TypeReference<?> typeRef, JsonFormatVisitorWrapper visitor)
-        throws JsonMappingException
     {
         _assertNotNull("typeRef", typeRef);
         _assertNotNull("visitor", visitor);
@@ -2321,7 +2319,6 @@ public class ObjectMapper
      * @param type Type to generate schema for (possibly with generic signature)
      */
     public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
-        throws JsonMappingException
     {
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
@@ -2481,12 +2478,8 @@ public class ObjectMapper
      *  can never be null as exception will be thrown if parser cannot
      *  provide more tokens.
      *
-     * @throws WrappedIOException if the underlying input source has problems during
-     *   parsing
-     * @throws StreamReadException if parser has problems parsing content
-     * @throws JsonMappingException if the parser does not have any more
-     *   content to map (note: Json "null" value is considered content;
-     *   enf-of-stream not)
+     * @throws JacksonException if the initialization fails during initialization
+     *   of the streaming parser
      */
     protected JsonToken _initForReading(JsonParser p, JavaType targetType)
         throws JacksonException

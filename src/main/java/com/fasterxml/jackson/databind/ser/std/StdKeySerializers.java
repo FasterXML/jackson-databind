@@ -216,12 +216,12 @@ public abstract class StdKeySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
             visitStringFormat(visitor, typeHint);
         }
 
         protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-                Class<?> type, SerializerProvider provider) throws JsonMappingException
+                Class<?> type, SerializerProvider provider)
         {
             // 27-Jun-2017, tatu: [databind#1679] Need to avoid StackOverflowError...
             if (type == Object.class) {

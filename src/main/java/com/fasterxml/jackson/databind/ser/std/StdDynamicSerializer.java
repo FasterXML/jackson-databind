@@ -1,10 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
@@ -85,7 +81,6 @@ public abstract class StdDynamicSerializer<T>
      */
 
     protected final JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
-        throws JsonMappingException
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
@@ -97,7 +92,6 @@ public abstract class StdDynamicSerializer<T>
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
-        throws JsonMappingException
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,

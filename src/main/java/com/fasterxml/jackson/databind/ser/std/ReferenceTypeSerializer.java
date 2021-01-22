@@ -150,7 +150,7 @@ public abstract class ReferenceTypeSerializer<T>
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
@@ -373,7 +373,6 @@ public abstract class ReferenceTypeSerializer<T>
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         JsonSerializer<?> ser = _valueSerializer;
         if (ser == null) {
@@ -396,7 +395,7 @@ public abstract class ReferenceTypeSerializer<T>
      * serializer.
      */
     private final JsonSerializer<Object> _findCachedSerializer(SerializerProvider provider,
-            Class<?> rawType) throws JsonMappingException
+            Class<?> rawType)
     {
         JsonSerializer<Object> ser = _dynamicValueSerializers.serializerFor(rawType);
         if (ser == null) {
@@ -422,7 +421,7 @@ public abstract class ReferenceTypeSerializer<T>
     }
 
     private final JsonSerializer<Object> _findSerializer(SerializerProvider provider,
-        JavaType type, BeanProperty prop) throws JsonMappingException
+        JavaType type, BeanProperty prop)
     {
         // 13-Mar-2017, tatu: Used to call `findTypeValueSerializer()`, but contextualization
         //   not working for that case for some reason

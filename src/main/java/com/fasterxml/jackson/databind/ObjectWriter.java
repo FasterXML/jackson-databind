@@ -1015,14 +1015,15 @@ public class ObjectWriter
      *
      * @param type Type to generate schema for (possibly with generic signature)
      */
-    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor) throws JsonMappingException
+    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
     {
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
         _serializerProvider().acceptJsonFormatVisitor(type, visitor);
     }
 
-    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
+    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
+    {
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
         acceptJsonFormatVisitor(_config.constructType(type), visitor);
@@ -1147,7 +1148,7 @@ public class ObjectWriter
                                 ((TypeWrappedSerializer) ser).typeSerializer());
                     }
                     return new Prefetch(newType, ser, null);
-                } catch (JsonMappingException e) {
+                } catch (JacksonException e) {
                     // need to swallow?
                     ;
                 }

@@ -332,18 +332,6 @@ public final class ClassUtil
         throw new IllegalArgumentException(msg, t);
     }
 
-    /*// since 3.0 / [databind#2177]
-    public static <T> T throwAsMappingException(DeserializationContext ctxt,
-            IOException e0) throws JsonMappingException
-    {
-        if (e0 instanceof JsonMappingException) {
-            throw (JsonMappingException) e0;
-        }
-        JsonMappingException e = JsonMappingException.from(ctxt, exceptionMessage(e0));
-        e.initCause(e0);
-        throw e;
-    }
-
     /**
      * Method that will locate the innermost exception for given Throwable;
      * and then wrap it as an {@link IllegalArgumentException} if it

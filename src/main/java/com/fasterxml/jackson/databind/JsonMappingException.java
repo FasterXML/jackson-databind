@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
- * Checked exception used to signal fatal problems with mapping of
+ * Exception used to signal fatal problems with mapping of
  * content, distinct from low-level I/O problems (signaled using
  * simple {@link WrappedIOException}s) or data encoding/decoding
  * problems (signaled with {@link com.fasterxml.jackson.core.exc.StreamReadException},
@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * troubleshooting.
  */
 public class JsonMappingException
-    extends JsonProcessingException
+    extends DatabindException
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Let's limit length of reference chain, to limit damage in cases

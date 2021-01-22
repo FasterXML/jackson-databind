@@ -276,10 +276,10 @@ public class CollectionDeserTest
 
         try {
             mapper.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
-        } catch (JsonMappingException exc) {
+        } catch (DatabindException exc) {
             assertEquals("I want to catch this exception", exc.getOriginalMessage());
         } catch (RuntimeException exc) {
-            fail("The RuntimeException should have been wrapped with a JsonMappingException.");
+            fail("The RuntimeException should have been wrapped with a DatabindException.");
         }
 
         ObjectMapper mapperNoWrap = jsonMapperBuilder()
@@ -288,7 +288,7 @@ public class CollectionDeserTest
 
         try {
             mapperNoWrap.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
-        } catch (JsonMappingException exc) {
+        } catch (DatabindException exc) {
             fail("It should not have wrapped the RuntimeException.");
         } catch (RuntimeException exc) {
             assertEquals("I want to catch this exception", exc.getMessage());

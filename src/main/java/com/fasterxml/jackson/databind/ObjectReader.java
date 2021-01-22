@@ -1869,7 +1869,7 @@ public class ObjectReader
      * Method called to locate deserializer for the passed root-level value.
      */
     protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt)
-        throws JsonMappingException
+        throws DatabindException
     {
         if (_rootDeserializer != null) {
             return _rootDeserializer;
@@ -1896,7 +1896,7 @@ public class ObjectReader
     }
 
     protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
-        throws JsonMappingException
+        throws DatabindException
     {
         JsonDeserializer<Object> deser = _rootDeserializers.get(JSON_NODE_TYPE);
         if (deser == null) {

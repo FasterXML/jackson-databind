@@ -154,7 +154,6 @@ public class StdArraySerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.BOOLEAN);
         }
@@ -223,7 +222,6 @@ public class StdArraySerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.INTEGER);
         }
@@ -290,7 +288,6 @@ public class StdArraySerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.STRING);
         }
@@ -367,7 +364,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.INTEGER);
         }
@@ -435,7 +432,6 @@ public class StdArraySerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.NUMBER);
         }
@@ -505,7 +501,7 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.NUMBER);
         }
@@ -585,7 +581,6 @@ public class StdArraySerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.NUMBER);
         }

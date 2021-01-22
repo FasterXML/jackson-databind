@@ -156,7 +156,6 @@ public abstract class DatabindContext
      * because such check has already been made.
      */
     public JavaType resolveSubType(JavaType baseType, String subClassName)
-        throws JsonMappingException
     {
         // 30-Jan-2010, tatu: Most ids are basic class names; so let's first
         //    check if any generics info is added; and only then ask factory
@@ -192,12 +191,9 @@ public abstract class DatabindContext
     /**
      * Lookup method similar to {@link #resolveSubType} but one that also validates
      * that resulting subtype is valid according to given {@link PolymorphicTypeValidator}.
-     *
-     * @since 2.10
      */
     public JavaType resolveAndValidateSubType(JavaType baseType, String subClass,
             PolymorphicTypeValidator ptv)
-        throws JsonMappingException
     {
         // Off-line the special case of generic (parameterized) type:
         final int ltIndex = subClass.indexOf('<');
@@ -234,7 +230,6 @@ public abstract class DatabindContext
 
     private JavaType _resolveAndValidateGeneric(JavaType baseType, String subClass,
             PolymorphicTypeValidator ptv, int ltIndex)
-        throws JsonMappingException
     {
         // 24-Apr-2019, tatu: Not 100% sure if we should pass name with type parameters
         //    or not, but guessing it's more convenient not to have to worry about it so
@@ -256,18 +251,22 @@ public abstract class DatabindContext
         return subType;
     }
 
-    protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws JsonMappingException {
+    protected <T> T _throwNotASubtype(JavaType baseType, String subType) throws DatabindException {
         throw invalidTypeIdException(baseType, subType, "Not a subtype");
     }
 
     protected <T> T _throwSubtypeNameNotAllowed(JavaType baseType, String subType,
-            PolymorphicTypeValidator ptv) throws JsonMappingException {
+            PolymorphicTypeValidator ptv)
+        throws DatabindException
+    {
         throw invalidTypeIdException(baseType, subType,
                 "Configured `PolymorphicTypeValidator` (of type "+ClassUtil.classNameOf(ptv)+") denied resolution");
     }
 
     protected <T> T _throwSubtypeClassNotAllowed(JavaType baseType, String subType,
-            PolymorphicTypeValidator ptv) throws JsonMappingException {
+            PolymorphicTypeValidator ptv)
+        throws DatabindException
+    {
         throw invalidTypeIdException(baseType, subType,
                 "Configured `PolymorphicTypeValidator` (of type "+ClassUtil.classNameOf(ptv)+") denied resolution");
     }
@@ -281,7 +280,7 @@ public abstract class DatabindContext
      * method <code>handleUnknownTypeId()</code> should be called which will call this method
      * if necessary.
      */
-    protected abstract JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
+    protected abstract DatabindException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc);
 
     public abstract TypeFactory getTypeFactory();
@@ -320,7 +319,6 @@ public abstract class DatabindContext
 
     public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
             ObjectIdInfo objectIdInfo)
-        throws JsonMappingException
     {
         Class<?> implClass = objectIdInfo.getGeneratorType();
         final MapperConfig<?> config = getConfig();
@@ -353,7 +351,6 @@ public abstract class DatabindContext
     @SuppressWarnings("unchecked")
     public Converter<Object,Object> converterInstance(Annotated annotated,
             Object converterDef)
-        throws JsonMappingException
     {
         if (converterDef == null) {
             return null;
@@ -405,9 +402,12 @@ public abstract class DatabindContext
      * definition(s), not input data, or input/output state; typically this
      * means throwing a {@link com.fasterxml.jackson.databind.exc.InvalidDefinitionException}.
      */
-    public abstract <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException;
+    public abstract <T> T reportBadDefinition(JavaType type, String msg)
+        throws DatabindException;
 
-    public <T> T reportBadDefinition(Class<?> type, String msg) throws JsonMappingException {
+    public <T> T reportBadDefinition(Class<?> type, String msg)
+        throws DatabindException
+    {
         return reportBadDefinition(constructType(type), msg);
     }
 

@@ -120,7 +120,6 @@ public class UUIDSerializer
     // Need to add bit of extra info, format
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         visitStringFormat(visitor, typeHint, JsonValueFormat.UUID);
     }

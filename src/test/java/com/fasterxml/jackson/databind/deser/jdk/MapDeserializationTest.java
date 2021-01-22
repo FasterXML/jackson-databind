@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 @SuppressWarnings("serial")
 public class MapDeserializationTest
@@ -25,7 +27,8 @@ public class MapDeserializationTest
         extends HashMap<Object,Object>
     {
         // No default ctor, nor @JsonCreators
-        public BrokenMap(boolean dummy) { super(); }
+//        public BrokenMap(boolean dummy, boolean dummy2) { super(); }
+        public BrokenMap(Object dummy) { super(); }
     }
 
     @JsonDeserialize(using=CustomMapDeserializer.class)
@@ -500,7 +503,7 @@ public class MapDeserializationTest
             Object result = MAPPER.readValue("[ 1, 2 ]", 
                     new TypeReference<Map<String,String>>() { });
             fail("Expected an exception, but got result value: "+result);
-        } catch (JsonMappingException jex) {
+        } catch (MismatchedInputException jex) {
             verifyException(jex, "START_ARRAY");
         }
     }
@@ -508,10 +511,9 @@ public class MapDeserializationTest
     public void testNoCtorMap() throws Exception
     {
         try {
-            BrokenMap result = MAPPER.readValue("{ \"a\" : 3 }", BrokenMap.class);
-            // should never get here; assert added to remove compiler warning
-            assertNull(result);
-        } catch (JsonMappingException e) {
+            /*BrokenMap result =*/ MAPPER.readValue("{ \"a\" : 3 }", BrokenMap.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
             // instead, should get this exception:
             verifyException(e, "no default constructor found");
         }

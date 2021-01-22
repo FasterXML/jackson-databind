@@ -586,7 +586,7 @@ public class EnumDeserializationTest
                 .without(DeserializationFeature.WRAP_EXCEPTIONS)
                 .readValue(quote("B"));
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             fail("Wrong exception, should not wrap, got: "+e);
         } catch (IllegalArgumentException e) {
             verifyException(e, "2164");

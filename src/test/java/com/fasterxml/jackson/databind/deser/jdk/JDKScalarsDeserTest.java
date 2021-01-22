@@ -4,7 +4,6 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
 
 import org.junit.Assert;
 
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.JsonMappingException.Reference;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -730,9 +728,8 @@ public class JDKScalarsDeserTest
     }
 
     private void verifyPath(MismatchedInputException e, String propName) {
-        final List<Reference> path = e.getPath();
-        assertEquals(1, path.size());
-        assertEquals(propName, path.get(0).getFieldName());
+        assertEquals(1, e.getPath().size());
+        assertEquals(propName, e.getPath().get(0).getFieldName());
     }
 
     public void testNullForPrimitiveArrays() throws IOException
@@ -767,7 +764,7 @@ public class JDKScalarsDeserTest
         try {
             readerNoNulls.readValue(JSON_WITH_NULL);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce `null`");
             verifyException(e, "to element of "+SIMPLE_NAME);
         }
@@ -831,8 +828,8 @@ public class JDKScalarsDeserTest
 
         try {
             MAPPER.readerFor(cls).readValue(JSON);
-            fail("Should MismatchedInputException pass");
-        } catch (JsonMappingException e) {
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize value of type `"+targetTypeName+"` from String \"foobar\"");
         }
     }

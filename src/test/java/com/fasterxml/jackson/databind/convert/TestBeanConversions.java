@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
@@ -143,14 +145,14 @@ public class TestBeanConversions
         // First: unknown property
         try {
             MAPPER.readValue("{\"unknownProp\":true}", BooleanBean.class);
-        } catch (JsonMappingException e) {
+        } catch (UnrecognizedPropertyException e) {
             verifyException(e, "unknownProp");
         }
 
         // then bad conversion
         try {
             MAPPER.readValue("{\"boolProp\":\"foobar\"}", BooleanBean.class);
-        } catch (JsonMappingException e) {
+        } catch (InvalidFormatException e) {
             verifyException(e, "Cannot deserialize value of type `boolean` from String");
         }
     }
@@ -255,7 +257,7 @@ public class TestBeanConversions
         } catch (InvalidDefinitionException e) {
             verifyException(e, "no properties discovered");
         }
-        
+
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .build();

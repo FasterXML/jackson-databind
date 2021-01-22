@@ -32,10 +32,9 @@ public class ExceptionPathTest extends BaseMapTest
         try {
             MAPPER.readValue(json, Outer.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
-            JsonMappingException.Reference reference = e.getPath().get(0);
-            assertEquals(getClass().getName()+"$Outer[\"inner\"]",
-                    reference.toString());
+        } catch (ValueInstantiationException e) {
+            String referenceStr = e.getPath().get(0).toString();
+            assertEquals(getClass().getName()+"$Outer[\"inner\"]", referenceStr);
         }
     }
 }

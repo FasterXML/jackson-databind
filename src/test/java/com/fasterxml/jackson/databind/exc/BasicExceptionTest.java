@@ -110,7 +110,7 @@ public class BasicExceptionTest extends BaseMapTest
         try {
             MAPPER.readValue(problemJson, Users.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) { // becomes "generic" due to wrapping for passing path info
+        } catch (DatabindException e) { // becomes "generic" due to wrapping for passing path info
             String msg = e.getMessage();
             String[] str = msg.split(" at \\[");
             if (str.length != 2) {

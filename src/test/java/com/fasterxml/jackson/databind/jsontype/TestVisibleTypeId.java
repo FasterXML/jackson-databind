@@ -3,7 +3,9 @@ package com.fasterxml.jackson.databind.jsontype;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Tests to verify that Type Id may be exposed during deserialization,
@@ -257,7 +259,7 @@ public class TestVisibleTypeId extends BaseMapTest
         try {
             MAPPER.writeValueAsString(new MultipleIds());
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "multiple type ids");
         }
     }

@@ -249,7 +249,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
                 .without(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         try {
             r.readValue("{ \"value\": \"\" }");
-            fail("Expected " + JsonMappingException.class);
+            fail("Expected InvalidTypeIdException");
         } catch (InvalidTypeIdException e) {
             verifyException(e, "missing type id property 'type'");
         }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 public class PolymorphicDeserErrorHandlingTest extends BaseMapTest
 {
@@ -58,7 +59,7 @@ public class PolymorphicDeserErrorHandlingTest extends BaseMapTest
         try {
             /*Child1 c =*/ MAPPER.readValue(json, Child1.class); // Deserializing into Child1
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (InvalidTypeIdException e) {
             verifyException(e, "not subtype of");
         }
     }

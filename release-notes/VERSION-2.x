@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.13.0 (not yet released)
 
-No changes since 2.12
+#2828: Add `DatabindException` as intermediate subtype of `JsonMappingException`
 
 2.12.1 (08-Jan-2021)
 

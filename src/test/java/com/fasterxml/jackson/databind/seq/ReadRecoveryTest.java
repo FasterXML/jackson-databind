@@ -34,7 +34,7 @@ public class ReadRecoveryTest extends BaseMapTest
         try {
             bean = it.nextValue();
             fail("Should not have succeeded");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Unrecognized field \"x\"");
         }
         // 21-May-2015, tatu: With [databind#734], recovery, we now know there's no more data!
@@ -59,7 +59,7 @@ public class ReadRecoveryTest extends BaseMapTest
         // second one problematic
         try {
             it.nextValue();
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Unrecognized field \"foo\"");
         }
 
@@ -88,7 +88,7 @@ public class ReadRecoveryTest extends BaseMapTest
         // second one problematic
         try {
             it.nextValue();
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Unrecognized field \"foo\"");
         }
 

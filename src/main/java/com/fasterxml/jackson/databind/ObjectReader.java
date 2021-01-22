@@ -2276,7 +2276,7 @@ public class ObjectReader
      * Method called to locate deserializer for the passed root-level value.
      */
     protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt)
-        throws JsonMappingException
+        throws DatabindException
     {
         if (_rootDeserializer != null) {
             return _rootDeserializer;
@@ -2306,7 +2306,7 @@ public class ObjectReader
      * @since 2.6
      */
     protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
-        throws JsonMappingException
+        throws DatabindException
     {
         final JavaType nodeType = _jsonNodeType();
         JsonDeserializer<Object> deser = _rootDeserializers.get(nodeType);

@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * troubleshooting.
  */
 public class JsonMappingException
-    extends JsonProcessingException
+    extends DatabindException // @since 2.13
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Let's limit length of reference chain, to limit damage in cases

@@ -24,7 +24,7 @@ public class TestUnwrappedWithUnknown650 extends BaseMapTest
         try {
             MAPPER.readValue(aposToQuotes(JSON), A.class);
             fail("Exception was not thrown on unkown property");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Unrecognized field");
         }
     }

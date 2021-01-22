@@ -1022,7 +1022,7 @@ public class ObjectWriter
      * JSON output, written to File provided.
      */
     public void writeValue(File resultFile, Object value)
-        throws IOException, StreamWriteException, JsonMappingException
+        throws IOException, StreamWriteException, DatabindException
     {
         _writeValueAndClose(createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
@@ -1039,7 +1039,7 @@ public class ObjectWriter
      * is closed).
      */
     public void writeValue(OutputStream out, Object value)
-        throws IOException, StreamWriteException, JsonMappingException
+        throws IOException, StreamWriteException, DatabindException
     {
         _writeValueAndClose(createGenerator(out, JsonEncoding.UTF8), value);
     }
@@ -1055,7 +1055,7 @@ public class ObjectWriter
      * is closed).
      */
     public void writeValue(Writer w, Object value)
-        throws IOException, StreamWriteException, JsonMappingException
+        throws IOException, StreamWriteException, DatabindException
     {
         _writeValueAndClose(createGenerator(w), value);
     }
@@ -1064,7 +1064,7 @@ public class ObjectWriter
      * @since 2.8
      */
     public void writeValue(DataOutput out, Object value)
-        throws IOException, StreamWriteException, JsonMappingException
+        throws IOException, StreamWriteException, DatabindException
     {
         _writeValueAndClose(createGenerator(out), value);
     }
@@ -1135,7 +1135,8 @@ public class ObjectWriter
      * 
      * @since 2.2
      */
-    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor) throws JsonMappingException
+    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
+        throws JsonMappingException
     {
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
@@ -1145,7 +1146,9 @@ public class ObjectWriter
     /**
      * Since 2.6
      */
-    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
+    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
+        throws JsonMappingException
+    {
         _assertNotNull("type", type);
         _assertNotNull("visitor", visitor);
         acceptJsonFormatVisitor(_config.constructType(type), visitor);
@@ -1482,7 +1485,7 @@ public class ObjectWriter
                                 ((TypeWrappedSerializer) ser).typeSerializer());
                     }
                     return new Prefetch(newType, ser, null);
-                } catch (JsonMappingException e) {
+                } catch (DatabindException e) {
                     // need to swallow?
                     ;
                 }

@@ -68,7 +68,6 @@ public class NullSerializationTest
 
         @Override
         public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
-            throws JsonMappingException
         {
             if ("name".equals(property.getName())) {
                 return new NullSerializer();

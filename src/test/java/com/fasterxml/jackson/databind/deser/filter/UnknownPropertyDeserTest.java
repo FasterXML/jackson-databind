@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -15,14 +16,6 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 public class UnknownPropertyDeserTest
     extends BaseMapTest
 {
-    final static String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     final static class TestBean
     {
         String _unknown;
@@ -126,6 +119,8 @@ public class UnknownPropertyDeserTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    final static String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
+    
     /**
      * By default we should just get an exception if an unknown property
      * is encountered
@@ -134,6 +129,7 @@ public class UnknownPropertyDeserTest
     {
         try {
             MAPPER.readValue(JSON_UNKNOWN_FIELD, TestBean.class);
+            fail("Should not pass");
         } catch (UnrecognizedPropertyException jex) {
             verifyException(jex, "Unrecognized property \"foo\"");
         }
@@ -182,7 +178,7 @@ public class UnknownPropertyDeserTest
         TestBean result = null;
         try {
             result = mapper.readValue(JSON_UNKNOWN_FIELD, TestBean.class);
-        } catch (JsonMappingException jex) {
+        } catch (JacksonException jex) {
             fail("Did not expect a problem, got: "+jex.getMessage());
         }
         assertNotNull(result);

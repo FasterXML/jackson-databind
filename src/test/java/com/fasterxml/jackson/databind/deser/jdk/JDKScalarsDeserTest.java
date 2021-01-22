@@ -458,8 +458,8 @@ public class JDKScalarsDeserTest
                 .without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .readValue("{\"v\":[" + value + "]}");
             fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
-        } catch (JsonMappingException exp) {
-            //Correctly threw exception
+        } catch (MismatchedInputException e) {
+            verifyException(e, "value of type `double` from Array value");
         }
 
         ObjectReader unwrappingR = MAPPER.readerFor(DoubleBean.class)
@@ -474,8 +474,8 @@ public class JDKScalarsDeserTest
         try {
             unwrappingR.readValue("[{\"v\":[" + value + "," + value + "]}]");
             fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
-        } catch (MismatchedInputException exp) {
-            //threw exception as required
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected token (VALUE_NUMBER_FLOAT)");
         }
         
         result = unwrappingR.readValue("{\"v\":[null]}");

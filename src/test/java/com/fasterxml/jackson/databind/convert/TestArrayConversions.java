@@ -96,7 +96,7 @@ public class TestArrayConversions
         try {
             MAPPER.convertValue(new int[] { 1000 }, byte[].class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             // 16-Jan-2021, tatu: not sure what is ideal as the underlying source
             //    exception is streaming `InputCoercionException`
 
@@ -107,14 +107,14 @@ public class TestArrayConversions
         try {
             MAPPER.convertValue(new int[] { -99999 }, short[].class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, OVERFLOW_MSG_SHORT);
         }
         // Int overflow
         try {
             MAPPER.convertValue(new long[] { Long.MAX_VALUE }, int[].class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, OVERFLOW_MSG_INT);
         }
         // Longs need help of BigInteger...
@@ -124,7 +124,7 @@ public class TestArrayConversions
         try {
             MAPPER.convertValue(l, long[].class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, OVERFLOW_MSG_LONG);
         }
     }

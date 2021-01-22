@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Tests to ensure that deserialization fails when a bean property has a null value
@@ -43,7 +44,7 @@ public class FailOnNullCreatorTest extends BaseMapTest
         try {
             r.readValue(aposToQuotes("{}"));
             fail("Should not pass third test");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Null value for creator property 'name'");
         }
 
@@ -51,7 +52,7 @@ public class FailOnNullCreatorTest extends BaseMapTest
         try {
             r.readValue(aposToQuotes("{'age': 5, 'name': null}"));
             fail("Should not pass fourth test");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Null value for creator property 'name'");
         }
     }

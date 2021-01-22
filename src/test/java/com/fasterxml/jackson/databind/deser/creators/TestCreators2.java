@@ -247,7 +247,7 @@ public class TestCreators2 extends BaseMapTest
         try {
             MAPPER.readValue("{ \"name\":\"foobar\" }", BeanFor438.class);
             fail("Should have failed");
-        } catch (JsonMappingException e0) {
+        } catch (Exception e0) {
             e = e0;
         }
         if (!(e instanceof ValueInstantiationException)) {

@@ -8,6 +8,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.OptBoolean;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -677,7 +678,7 @@ public class DateDeserializationTest
         try {
             reader.readValue(aposToQuotes("{'v':['"+inputDate+"','"+inputDate+"']}"));
             fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
-        } catch (JsonMappingException exp) {
+        } catch (MismatchedInputException exp) {
             verifyException(exp, "Attempted to unwrap");
         }
     }

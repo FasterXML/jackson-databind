@@ -30,30 +30,16 @@ public class TestOverloaded
         public void setList(ArrayList<String> l) { super.setList(l); }
     }
 
-    // 27-Feb-2010, tatus: Won't fix immediately, need to comment out
-    /*
-    static class OverloadBean
-    {
-        String a;
-
-        public OverloadBean() { }
-
-        public void setA(int value) { a = String.valueOf(value); }
-        public void setA(String value) { a = value; }
-    }
-    */
-
     static class NumberBean {
-    	protected Object value;
-    	
-    	public void setValue(Number n) { value = n; }
+        protected Object value;
+
+        public void setValue(Number n) { value = n; }
     }
 
     static class WasNumberBean extends NumberBean {
-    	public void setValue(String str) { value = str; }
+        public void setValue(String str) { value = str; }
     }
 
-    // [JACKSON-739]
     static class Overloaded739
     {
         protected Object _value;
@@ -69,35 +55,17 @@ public class TestOverloaded
      * And then a Bean that is conflicting and should not work
      */
     static class ConflictBean {
-    	public void setA(ArrayList<Object> a) { }
-    	public void setA(LinkedList<Object> a) { }
+        public void setA(ArrayList<Object> a) { }
+        public void setA(LinkedList<Object> a) { }
     }
-    
+
     /*
     /************************************************************
     /* Unit tests, valid
     /************************************************************
     */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
-    
-    /**
-     * Unit test related to [JACKSON-189]
-     */
-    // 27-Feb-2010, tatus: Won't fix immediately, need to comment out
-    /*
-    public void testSimpleOverload() throws Exception
-    {
-        OverloadBean bean;
-        try {
-            bean = new ObjectMapper().readValue("{ \"a\" : 13 }", OverloadBean.class);
-        } catch (JsonMappingException e) {
-            fail("Did not expect an exception, got: "+e.getMessage());
-            return;
-        }
-        assertEquals("13", bean.a);
-    }
-    */
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * It should be ok to overload with specialized 

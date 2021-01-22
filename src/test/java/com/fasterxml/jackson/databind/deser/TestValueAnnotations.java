@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -282,7 +283,7 @@ public class TestValueAnnotations
             BrokenCollectionHolder result = MAPPER.readValue
                 ("{ \"strings\" : [ ] }", BrokenCollectionHolder.class);
             fail("Expected a failure, but got results: "+result);
-        } catch (JsonMappingException jme) {
+        } catch (DatabindException jme) {
             verifyException(jme, "not subtype of");
         }
     }
@@ -352,7 +353,7 @@ public class TestValueAnnotations
             BrokenMapKeyHolder result = MAPPER.readValue
                 ("{ \"123\" : \"xxx\" }", BrokenMapKeyHolder.class);
             fail("Expected a failure, but got results: "+result);
-        } catch (JsonMappingException jme) {
+        } catch (DatabindException jme) {
             verifyException(jme, "not subtype of");
         }
     }

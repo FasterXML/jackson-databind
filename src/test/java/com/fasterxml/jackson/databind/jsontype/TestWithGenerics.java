@@ -87,7 +87,7 @@ public class TestWithGenerics extends BaseMapTest
         }
 
         @Override
-        public void resolve(SerializerProvider provider) throws JsonMappingException
+        public void resolve(SerializerProvider provider)
         {
             beanSerializer.resolve(provider);
         }

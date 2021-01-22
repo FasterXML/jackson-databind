@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Simple unit tests to verify that it is possible to handle
@@ -102,7 +103,7 @@ public class CyclicTypesDeserTest
         try {
             MAPPER.writeValueAsString(self1);
             fail("Should fail with direct self-ref");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Direct self-reference");
         }
         

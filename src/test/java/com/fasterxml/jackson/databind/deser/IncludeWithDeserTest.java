@@ -1,15 +1,10 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.annotation.*;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -138,7 +133,7 @@ public class IncludeWithDeserTest
         try {
             r.readValue(aposToQuotes("{'x':3, 'y': 4, 'z': 5}"));
             fail("Should fail");
-        } catch (JsonMappingException e) {
+        } catch (IgnoredPropertyException e) {
             verifyException(e, "Ignored field");
         }
 
@@ -146,7 +141,7 @@ public class IncludeWithDeserTest
         try {
             r.readValue(aposToQuotes("{'y': 3, 'z':2 }"));
             fail("Should fail");
-        } catch (JsonMappingException e) {
+        } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property \"z\"");
         }
 

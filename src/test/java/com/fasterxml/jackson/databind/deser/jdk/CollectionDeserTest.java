@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 @SuppressWarnings("serial")
 public class CollectionDeserTest
@@ -233,37 +234,34 @@ public class CollectionDeserTest
         try {
             MAPPER.readValue(OBJECTS_JSON, Key[].class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
-            List<JsonMappingException.Reference> refs = e.getPath();
-            assertEquals(1, refs.size());
-            assertEquals(1, refs.get(0).getIndex());
+            assertEquals(1, e.getPath().size());
+            assertEquals(1, e.getPath().get(0).getIndex());
         }
 
         try {
             MAPPER.readValue("[ \"xyz\", { } ]", String[].class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
-            List<JsonMappingException.Reference> refs = e.getPath();
-            assertEquals(1, refs.size());
-            assertEquals(1, refs.get(0).getIndex());
+            assertEquals(1, e.getPath().size());
+            assertEquals(1, e.getPath().get(0).getIndex());
         }
 
         try {
             MAPPER.readValue("{\"keys\":"+OBJECTS_JSON+"}", KeyListBean.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
-            List<JsonMappingException.Reference> refs = e.getPath();
-            assertEquals(2, refs.size());
+            assertEquals(2, e.getPath().size());
             // Bean has no index, but has name:
-            assertEquals(-1, refs.get(0).getIndex());
-            assertEquals("keys", refs.get(0).getFieldName());
+            assertEquals(-1, e.getPath().get(0).getIndex());
+            assertEquals("keys", e.getPath().get(0).getFieldName());
 
             // and for List, reverse:
-            assertEquals(1, refs.get(1).getIndex());
-            assertNull(refs.get(1).getFieldName());
+            assertEquals(1, e.getPath().get(1).getIndex());
+            assertNull(e.getPath().get(1).getFieldName());
         }
     }
 

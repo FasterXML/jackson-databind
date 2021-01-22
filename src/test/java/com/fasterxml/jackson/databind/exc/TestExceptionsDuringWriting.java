@@ -45,7 +45,7 @@ public class TestExceptionsDuringWriting
 
     /**
      * Unit test that verifies that by default all exceptions except for
-     * JsonMappingException are caught and wrapped.
+     * JacksonExceptions are caught and wrapped.
      */
     public void testCatchAndRethrow()
         throws Exception
@@ -63,7 +63,7 @@ public class TestExceptionsDuringWriting
             l.add(b);
             mapper.writeValue(sw, l);
             fail("Should have gotten an exception");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) { // too generic but will do for now
             // should contain original message somewhere
             verifyException(e, "test string");
             Throwable root = e.getCause();
@@ -88,8 +88,8 @@ public class TestExceptionsDuringWriting
             BrokenStringWriter sw = new BrokenStringWriter("TEST");
             mapper.writeValue(sw, createLongObject());
             fail("Should have gotten an exception");
-        } catch (JsonMappingException e) {
-            verifyException(e, JsonMappingException.class, "TEST");
+        } catch (DatabindException e) {
+            verifyException(e, "TEST");
             Throwable root = e.getCause();
             assertNotNull(root);
 

@@ -67,7 +67,7 @@ public class UntypedDeserializationTest
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-                BeanProperty property) throws JsonMappingException
+                BeanProperty property)
         {
             // For now, we just need to access "untyped" deserializer; not use it.
             

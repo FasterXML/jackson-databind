@@ -133,7 +133,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
             mapper.readValue(JSON, Issue476Bean.class);
             
             fail("Should not accept improper case properties by default");
-        } catch (JsonMappingException e) {
+        } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized field");
             assertValidLocation(e.getLocation());
         }

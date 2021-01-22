@@ -98,7 +98,7 @@ public class MapSerializationTest extends BaseMapTest
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testUsingObjectWriter() throws IOException
     {
@@ -162,7 +162,7 @@ public class MapSerializationTest extends BaseMapTest
         try {
             /*String json =*/ sortingW.writeValueAsString(mapWithNullKey);
             //assertEquals(aposToQuotes("{'':1,'b':2}"), json);
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Null key for a Map not allowed");
         }
     }

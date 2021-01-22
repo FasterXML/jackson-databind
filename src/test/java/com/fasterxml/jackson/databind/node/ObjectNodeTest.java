@@ -389,7 +389,7 @@ public class ObjectNodeTest
         try {
             MAPPER.reader(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY).readTree(DUP_JSON);
             fail("Should have thrown exception!");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "duplicate field 'a'");
         }
     }
@@ -404,7 +404,7 @@ public class ObjectNodeTest
                 .with(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
                 .readValue(DOC);
             fail("Should have thrown exception!");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "duplicate field 'foo'");
         }
     }

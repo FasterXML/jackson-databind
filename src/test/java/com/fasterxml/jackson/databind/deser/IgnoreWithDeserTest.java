@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
 
 /**
  * This unit test suite that tests use of {@link JsonIgnore}
@@ -68,7 +69,7 @@ public class IgnoreWithDeserTest
         try {
             result = r.readValue(aposToQuotes("{'x':3, 'y':4}"));
             fail("Should fail");
-        } catch (JsonMappingException e) {
+        } catch (IgnoredPropertyException e) {
             verifyException(e, "Ignored field");
         }
 
@@ -76,7 +77,7 @@ public class IgnoreWithDeserTest
         try {
             result = r.readValue(aposToQuotes("{'z':2 }"));
             fail("Should fail");
-        } catch (JsonMappingException e) {
+        } catch (IgnoredPropertyException e) {
             verifyException(e, "Ignored field");
         }
     }

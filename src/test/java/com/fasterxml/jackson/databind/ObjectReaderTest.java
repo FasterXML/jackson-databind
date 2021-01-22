@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -128,8 +129,8 @@ public class ObjectReaderTest extends BaseMapTest
         try {
             reader.without(JsonReadFeature.ALLOW_JAVA_COMMENTS).readValue(JSON);
             fail("Should not have passed");
-        } catch (JsonMappingException e) {
-            // mapping exception since it gets wrapped
+        } catch (DatabindException e) {
+            // DatabindException since it gets wrapped
             verifyException(e, "foo");
         }
     }
@@ -480,7 +481,7 @@ public class ObjectReaderTest extends BaseMapTest
         try {
             r.readValue("1");
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "No value type configured");
         }
     }

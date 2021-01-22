@@ -174,9 +174,8 @@ public class TestDefaultForObject
         try {
             m.readValue(serial, AbstractBean[].class);
             fail("Should have failed");
-        } catch (JsonMappingException e) {
-            // let's use whatever is currently thrown exception... may change tho
-            verifyException(e, "cannot construct");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "cannot construct instance of");
         }
         // and then that we will succeed with default type info
         m = JsonMapper.builder()

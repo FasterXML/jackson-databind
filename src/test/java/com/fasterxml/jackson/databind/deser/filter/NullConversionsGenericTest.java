@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 // for [databind#1402]; configurable null handling, for values themselves,
 // using generic types
@@ -55,7 +56,7 @@ public class NullConversionsGenericTest extends BaseMapTest
             /* NoCtorWrapper nogo =*/ MAPPER.readValue(aposToQuotes("{'value':null}"),
                     NoCtorWrapper.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Cannot create empty instance");
         }
     }

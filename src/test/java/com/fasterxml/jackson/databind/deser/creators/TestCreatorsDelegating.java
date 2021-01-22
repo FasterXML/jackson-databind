@@ -5,7 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -180,7 +180,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         CtorBean711 bean = null;
         try {
             bean = mapper.readValue("38", CtorBean711.class);
-        } catch (JsonMappingException e) {
+        } catch (JacksonException e) {
             fail("Did not expect problems, got: "+e.getMessage());
         }
         assertEquals(38, bean.age);
@@ -196,7 +196,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         FactoryBean711 bean = null;
         try {
             bean = mapper.readValue("38", FactoryBean711.class);
-        } catch (JsonMappingException e) {
+        } catch (JacksonException e) {
             fail("Did not expect problems, got: "+e.getMessage());
         }
         assertEquals(38, bean.age);

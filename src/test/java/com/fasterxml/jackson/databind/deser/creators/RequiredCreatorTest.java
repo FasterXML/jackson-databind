@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class RequiredCreatorTest extends BaseMapTest
 {
@@ -78,7 +79,7 @@ public class RequiredCreatorTest extends BaseMapTest
         try {
             POINT_READER.readValue(aposToQuotes("{'y':3}"));
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Missing required creator property 'x' (index 0)");
         }
     }
@@ -97,7 +98,7 @@ public class RequiredCreatorTest extends BaseMapTest
         try {
             r.readValue(aposToQuotes("{'x':6}"));
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Missing creator property 'y' (index 1)");
         }
     }
@@ -109,7 +110,7 @@ public class RequiredCreatorTest extends BaseMapTest
         try {
             /*LoginUserResponse resp =*/ MAPPER.readValue(input, LoginUserResponse.class);
             fail("Shoud not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Missing required creator property 'otp'");
         }
     }

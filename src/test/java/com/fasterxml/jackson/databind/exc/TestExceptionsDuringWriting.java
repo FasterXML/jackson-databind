@@ -44,7 +44,7 @@ public class TestExceptionsDuringWriting
 
     /**
      * Unit test that verifies that by default all exceptions except for
-     * JsonMappingException are caught and wrapped.
+     * JacksonExceptions are caught and wrapped.
      */
     public void testCatchAndRethrow()
         throws Exception

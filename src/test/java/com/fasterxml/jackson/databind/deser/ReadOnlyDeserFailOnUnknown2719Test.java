@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class ReadOnlyDeserFailOnUnknown2719Test extends BaseMapTest
 {
@@ -36,7 +37,7 @@ public class ReadOnlyDeserFailOnUnknown2719Test extends BaseMapTest
         try {
             r.readValue(aposToQuotes("{'login':'foo', 'password':'bar'}"));
             fail("Should fail");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Ignored field");
         }
 
@@ -45,7 +46,7 @@ public class ReadOnlyDeserFailOnUnknown2719Test extends BaseMapTest
         try {
             r.readValue(aposToQuotes("{'login':'foo', 'username':'bar'}"));
             fail("Should fail");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Ignored field");
         }
     }

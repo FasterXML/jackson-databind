@@ -145,7 +145,7 @@ public class TestRootName extends BaseMapTest
             result = mapper.readerFor(Bean.class).with(DeserializationFeature.UNWRAP_ROOT_VALUE)
                 .readValue(jsonUnwrapped);
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Root name ('a')");
         }
         // except wrapping may be expected:
@@ -153,8 +153,7 @@ public class TestRootName extends BaseMapTest
             .readValue(jsonWrapped);
         assertNotNull(result);
     }
-    
-    // [JACKSON-764]
+
     public void testRootUsingExplicitConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

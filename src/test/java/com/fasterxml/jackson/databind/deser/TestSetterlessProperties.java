@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Unit tests for verifying that feature requested
@@ -78,10 +79,9 @@ public class TestSetterlessProperties
             m.readValue
                 ("{\"values\":[ \"abc\", \"def\" ]}", CollectionBean.class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
-            /* Not a good exception, ideally could suggest a need for
-             * a setter...?
-             */
+        } catch (MismatchedInputException e) {
+            // Not a good exception, ideally could suggest a need for
+            // a setter...?
             verifyException(e, "Unrecognized field");
         }
     }
@@ -108,7 +108,7 @@ public class TestSetterlessProperties
             m.readValue
                 ("{\"values\":{ \"a\":3 }}", MapBean.class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Unrecognized field");
         }
     }

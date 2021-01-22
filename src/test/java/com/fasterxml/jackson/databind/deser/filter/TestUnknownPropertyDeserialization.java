@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Unit tests for checking handling of unknown properties
@@ -15,14 +16,6 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 public class TestUnknownPropertyDeserialization
     extends BaseMapTest
 {
-    final static String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     final static class TestBean
     {
         String _unknown;
@@ -127,6 +120,8 @@ public class TestUnknownPropertyDeserialization
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    final static String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
+    
     /**
      * By default we should just get an exception if an unknown property
      * is encountered
@@ -135,7 +130,8 @@ public class TestUnknownPropertyDeserialization
     {
         try {
             MAPPER.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
-        } catch (JsonMappingException jex) {
+            fail("Should not pass");
+        } catch (MismatchedInputException jex) {
             verifyException(jex, "Unrecognized field \"foo\"");
         }
     }
@@ -182,7 +178,7 @@ public class TestUnknownPropertyDeserialization
         TestBean result = null;
         try {
             result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
-        } catch (JsonMappingException jex) {
+        } catch (JacksonException jex) {
             fail("Did not expect a problem, got: "+jex.getMessage());
         }
         assertNotNull(result);
@@ -242,7 +238,8 @@ public class TestUnknownPropertyDeserialization
         // but "d" is not defined, so should still error
         try {
             MAPPER.readValue("{\"a\":1,\"b\":2,\"c\":3,\"d\":4 }", ImplicitIgnores.class);            
-        } catch (JsonMappingException e) {
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
             verifyException(e, "Unrecognized field \"d\"");
         }
     }

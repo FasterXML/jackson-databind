@@ -12,6 +12,14 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class BasicExceptionTest extends BaseMapTest
 {
+    static class User {
+        public String user;
+    }
+
+    static class Users {
+        public ArrayList<User> userList;
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
     private final JsonFactory JSON_F = MAPPER.getFactory();
 
@@ -120,7 +128,7 @@ public class BasicExceptionTest extends BaseMapTest
         try {
             MAPPER.readValue(problemJson, Users.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) { // becomes "generic" due to wrapping for passing path info
+        } catch (DatabindException e) { // becomes "generic" due to wrapping for passing path info
             String msg = e.getMessage();
             String[] str = msg.split(" at \\[");
             if (str.length != 2) {
@@ -131,12 +139,5 @@ public class BasicExceptionTest extends BaseMapTest
             assertEquals(4, loc.getLineNr());
             assertEquals(4, loc.getColumnNr());
         }
-    }
-    static class User {
-        public String user;
-    }
-
-    static class Users {
-        public ArrayList<User> userList;
     }
 }

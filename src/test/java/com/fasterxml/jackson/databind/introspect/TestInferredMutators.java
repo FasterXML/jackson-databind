@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 public class TestInferredMutators extends BaseMapTest
 {
@@ -39,7 +39,7 @@ public class TestInferredMutators extends BaseMapTest
         try {
             /*p =*/ mapper.readValue("{\"x\":2}", FixedPoint.class);
             fail("Should not try to use final field");
-        } catch (JsonMappingException e) {
+        } catch (UnrecognizedPropertyException e) {
             verifyException(e, "unrecognized field \"x\"");
         }
     }
@@ -61,7 +61,7 @@ public class TestInferredMutators extends BaseMapTest
         try {
             p = mapper.readValue(JSON,  Point.class);
             fail("Should not succeeed");
-        } catch (JsonMappingException e) {
+        } catch (UnrecognizedPropertyException e) {
             verifyException(e, "unrecognized field \"x\"");
         }
     }

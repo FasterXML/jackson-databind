@@ -5,6 +5,8 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 /**
  * Unit tests for verifying that {@link JsonAnySetter} annotation
@@ -270,7 +272,7 @@ public class AnySetterTest
             MAPPER.readValue(aposToQuotes("{'value':3}"),
                     MapImitatorDisabled.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized field \"value\"");
         }
 
@@ -292,7 +294,7 @@ public class AnySetterTest
             @SuppressWarnings("unused")
             Broken b = MAPPER.readValue("{ \"a\" : 3 }", Broken.class);
             fail("Should have gotten an exception");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Multiple 'any-setter' methods");
         }
     }

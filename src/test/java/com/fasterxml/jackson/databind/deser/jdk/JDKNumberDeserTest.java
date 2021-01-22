@@ -192,7 +192,7 @@ public class JDKNumberDeserTest extends BaseMapTest
         try {
             MAPPER.readValue(json, MyBeanHolder.class);
             fail("should have raised exception");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "not numeric");
         }
     }
@@ -202,7 +202,7 @@ public class JDKNumberDeserTest extends BaseMapTest
         try {
             MyBeanHolder result = MAPPER.readValue(json, MyBeanHolder.class);
             fail("should have raised exception instead value was set to " + result.defaultValue.value.decimal.toString());
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "not numeric");
         }
     }

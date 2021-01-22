@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.testutil.BrokenStringReader;
 /**
  * Unit test for verifying that exceptions are properly handled (caught,
  * re-thrown or wrapped, depending) with Object deserialization,
- * including using concrete subtypes of {@link JsonMappingException}
+ * including using concrete subtypes of {@link DatabindException}
  * (and streaming-level equivalents).
  */
 public class DeserExceptionTypeTest
@@ -56,16 +56,15 @@ public class DeserExceptionTypeTest
 
     /**
      * Simple test to check behavior when end-of-stream is encountered
-     * without content. Used to expect EOFException (Jackson 1.x); but
-     * nowadays ought to be JsonMappingException
+     * without content.
      */
     public void testExceptionWithEmpty() throws Exception
     {
         try {
             Object result = MAPPER.readValue("    ", Object.class);
             fail("Expected an exception, but got result value: "+result);
-        } catch (Exception e) {
-            verifyException(e, MismatchedInputException.class, "No content");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "No content");
         }
     }
 
@@ -112,7 +111,7 @@ public class DeserExceptionTypeTest
         try {
             NoCreatorsBean b = MAPPER.readValue("{}", NoCreatorsBean.class);
             fail("Should not succeed, got: "+b);
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, InvalidDefinitionException.class, "no Creators");
         }
     }

@@ -162,7 +162,7 @@ public class TestAutoDetect
             /*Feature1347DeserBean bean =*/
             MAPPER.readValue(JSON, Feature1347DeserBean.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) { // should probably be something more specific but...
             verifyException(e, "Should NOT get called");
         }
 

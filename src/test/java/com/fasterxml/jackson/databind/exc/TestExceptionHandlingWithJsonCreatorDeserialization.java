@@ -52,7 +52,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization
 
     public void testShouldThrowExceptionWithPathReference() throws IOException {
         // given
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         String input = "{\"bar\":{\"baz\":{qux:\"quxValue\"))}";
         final String THIS = getClass().getName();
 

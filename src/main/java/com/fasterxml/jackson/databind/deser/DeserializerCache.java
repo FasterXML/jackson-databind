@@ -265,7 +265,8 @@ public final class DeserializerCache
         } catch (IllegalArgumentException iae) {
             // We better only expose checked exceptions, since those
             // are what caller is expected to handle
-            throw JsonMappingException.from(ctxt, ClassUtil.exceptionMessage(iae), iae);
+            ctxt.reportBadDefinition(type, ClassUtil.exceptionMessage(iae));
+            deser = null; // never gets here
         }
         if (deser == null) {
             return null;

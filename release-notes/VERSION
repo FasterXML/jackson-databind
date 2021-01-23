@@ -36,8 +36,10 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1995: Limit size of `DeserializerCache`, auto-flush on exceeding
 #2040: Remove `JsonSerializer.isEmpty()` from 3.0
 #2176: Add `JsonMapper.shared()` static method
+#2177: Change parent type of `JsonProcessingException` to be `RuntimeException`
 #2539: Add `Deserializers.hasDeserializerFor()` (and something for `DeserializerFactory`)
   to allow detection of explicitly supported types
 #2713: Change wording of `UnrecognizedPropertyException` to refer to "property" not "field"
+#2828: Add `DatabindException` as intermediate subtype of `JsonMappingException`
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)

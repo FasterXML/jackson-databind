@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.StringWriter;
 import java.util.*;
 
-
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;

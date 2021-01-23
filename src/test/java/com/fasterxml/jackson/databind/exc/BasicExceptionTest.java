@@ -32,7 +32,7 @@ public class BasicExceptionTest extends BaseMapTest
         assertEquals(String.class, e.getType().getRawClass());
         assertNull(e.getBeanDescription());
         assertNull(e.getProperty());
-        assertSame(p, e.getProcessor());
+        assertSame(p, e.processor());
         p.close();
 
         // and via factory method:

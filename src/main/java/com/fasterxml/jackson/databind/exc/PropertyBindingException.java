@@ -63,7 +63,7 @@ public abstract class PropertyBindingException
     private final static int MAX_DESC_LENGTH = 1000;
 
     @Override
-    public String getMessageSuffix()
+    public String messageSuffix()
     {
         String suffix = _propertiesAsString;
         if (suffix == null && _propertyIds != null) {

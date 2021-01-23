@@ -306,7 +306,7 @@ public class JsonMappingException
             // 17-Aug-2015, tatu: Let's also pass the processor (parser/generator) along
             Closeable proc = null;
             if (src instanceof JacksonException) {
-                Object proc0 = ((JacksonException) src).getProcessor();
+                Object proc0 = ((JacksonException) src).processor();
                 if (proc0 instanceof Closeable) {
                     proc = (Closeable) proc0;
                 }
@@ -389,8 +389,7 @@ public class JsonMappingException
      */
 
     @Override
-    @JsonIgnore // as per [databind#1368]
-    public Object getProcessor() { return _processor; }
+    public Object processor() { return _processor; }
 
     @Override
     public String getLocalizedMessage() {

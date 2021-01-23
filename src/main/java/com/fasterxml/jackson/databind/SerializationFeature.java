@@ -33,6 +33,13 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     WRAP_ROOT_VALUE(false),
+    
+    /**
+     * Feature that allows automatically ignoring cyclic references.
+     * 
+     * Feature is disabled by default.
+     */
+    IGNORE_CYCLIC_REFERENCES(false),
 
     /**
      * Feature that allows enabling (or disabling) indentation

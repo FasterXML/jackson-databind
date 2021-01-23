@@ -205,13 +205,13 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
     }
 
     protected Object wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-            throws JacksonException
+        throws DatabindException
     {
-        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
+        throw DatabindException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
     }
 
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)
-            throws JacksonException
+        throws JacksonException
     {
         t = ClassUtil.getRootCause(t);
         // Errors to be passed as is

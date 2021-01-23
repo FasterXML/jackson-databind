@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.exc;
 
 import com.fasterxml.jackson.core.JsonParser;
 
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Exception type used for generic failures during processing by
@@ -16,12 +16,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * with input, or type definition (or possibly neither).
  * It is recommended that if either specific input, or type definition problem
  * is known, a more accurate exception is used instead.
- *
- * @since 2.10
  */
 @SuppressWarnings("serial")
 public class ValueInstantiationException
-    extends JsonMappingException
+    extends DatabindException
 {
     protected final JavaType _type;
 

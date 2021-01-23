@@ -1194,7 +1194,7 @@ public abstract class DeserializationContext
                 if ((goodValue == null) || raw.isInstance(goodValue)) {
                     return goodValue;
                 }
-                throw JsonMappingException.from(p, _format(
+                throw DatabindException.from(p, _format(
 "DeserializationProblemHandler.handleWeirdNativeValue() for type %s returned value of type %s",
                     ClassUtil.getClassDescription(targetType),
                     ClassUtil.getClassDescription(goodValue)

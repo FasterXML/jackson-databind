@@ -252,7 +252,7 @@ public abstract class StdSerializer<T>
             }
         }
         // Need to add reference information
-        throw JsonMappingException.wrapWithPath(t, bean, fieldName);
+        throw DatabindException.wrapWithPath(t, bean, fieldName);
     }
 
     public void wrapAndThrow(SerializerProvider provider,
@@ -274,7 +274,7 @@ public abstract class StdSerializer<T>
             }
         }
         // Need to add reference information
-        throw JsonMappingException.wrapWithPath(t, bean, index);
+        throw DatabindException.wrapWithPath(t, bean, index);
     }
 
     /*

@@ -4,10 +4,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
+import com.fasterxml.jackson.databind.DatabindException;
 
 /**
- * Specialized {@link JsonMappingException} sub-class used to indicate
+ * Specialized {@link DatabindException} sub-class used to indicate
  * case where an explicitly ignored property is encountered, and mapper
  * is configured to consider this an error.
  */

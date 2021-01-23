@@ -1252,7 +1252,7 @@ public abstract class SerializerProvider
 
     protected DatabindException _mappingProblem(Throwable t, String message, Object... msgArgs)
     {
-        return JsonMappingException.from(getGenerator(), _format(message, msgArgs), t);
+        return DatabindException.from(getGenerator(), _format(message, msgArgs), t);
     }
 
     /**
@@ -1263,7 +1263,7 @@ public abstract class SerializerProvider
     public void reportMappingProblem(String message, Object... msgArgs)
         throws DatabindException
     {
-        throw JsonMappingException.from(getGenerator(), _format(message, msgArgs));
+        throw DatabindException.from(getGenerator(), _format(message, msgArgs));
     }
 
     @Override

@@ -593,7 +593,7 @@ public abstract class SettableBeanProperty
             } else {
                 msg.append(" (no error message provided)");
             }
-            throw JsonMappingException.from(p, msg.toString(), e);
+            throw DatabindException.from(p, msg.toString(), e);
         }
         _throwAsJacksonE(p, e);
     }
@@ -604,7 +604,7 @@ public abstract class SettableBeanProperty
         ClassUtil.throwIfJacksonE(e);
         // let's wrap the innermost problem
         Throwable th = ClassUtil.getRootCause(e);
-        throw JsonMappingException.from(p, ClassUtil.exceptionMessage(th), th);
+        throw DatabindException.from(p, ClassUtil.exceptionMessage(th), th);
     }
 
     // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining

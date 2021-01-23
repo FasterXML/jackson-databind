@@ -150,7 +150,7 @@ public abstract class ContainerDeserializerBase<T>
         // Errors to be passed as is
         ClassUtil.throwIfError(t);
         // for [databind#1141]
-        throw JsonMappingException.wrapWithPath(t, ref,
+        throw DatabindException.wrapWithPath(t, ref,
                 ClassUtil.nonNull(key, "N/A"));
     }
 }

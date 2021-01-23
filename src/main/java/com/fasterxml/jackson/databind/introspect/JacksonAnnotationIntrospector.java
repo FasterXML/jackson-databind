@@ -7,7 +7,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
@@ -1365,12 +1365,14 @@ public class JacksonAnnotationIntrospector
     }
 
     // @since 2.12
-    private JsonMappingException _databindException(String msg) {
-        return new JsonMappingException(null, msg);
+    private DatabindException _databindException(String msg) {
+        // not optimal as we have no parser/generator/context to pass
+        return DatabindException.from((JsonParser) null, msg);
     }
 
     // @since 2.12
-    private JsonMappingException _databindException(Throwable t, String msg) {
-        return new JsonMappingException(null, msg, t);
+    private DatabindException _databindException(Throwable t, String msg) {
+        // not optimal as we have no parser/generator/context to pass
+        return DatabindException.from((JsonParser) null, msg, t);
     }
 }

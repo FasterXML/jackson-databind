@@ -255,7 +255,7 @@ public abstract class TypeDeserializerBase
      * Helper method called when given type id cannot be resolved into 
      * concrete deserializer either directly (using given {@link  TypeIdResolver}),
      * or using default type.
-     * Default implementation simply throws a {@link com.fasterxml.jackson.databind.JsonMappingException} to
+     * Default implementation simply throws a {@link com.fasterxml.jackson.databind.DatabindException} to
      * indicate the problem; sub-classes may choose
      *
      * @return If it is possible to resolve type id into a {@link JsonDeserializer}

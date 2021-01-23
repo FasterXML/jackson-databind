@@ -7,20 +7,22 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 
 /**
  * Exception thrown during deserialization when there are object id that can't
  * be resolved.
  */
-public class UnresolvedForwardReference extends JsonMappingException
+public class UnresolvedForwardReference extends DatabindException
 {
     private static final long serialVersionUID = 1L;
     private ReadableObjectId _roid;
     private List<UnresolvedId> _unresolvedIds;
 
-    public UnresolvedForwardReference(JsonParser p, String msg, JsonLocation loc, ReadableObjectId roid) {
+    public UnresolvedForwardReference(JsonParser p, String msg, JsonLocation loc,
+            ReadableObjectId roid)
+    {
         super(p, msg, loc);
         _roid = roid;
     }

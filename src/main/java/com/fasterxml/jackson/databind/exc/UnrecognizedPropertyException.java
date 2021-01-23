@@ -4,10 +4,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
- * Specialized {@link JsonMappingException} sub-class specifically used
+ * Specialized {@link PropertyBindingException} sub-class specifically used
  * to indicate problems due to encountering a JSON property that could
  * not be mapped to an Object property (via getter, constructor argument
  * or field).

@@ -349,7 +349,7 @@ _containerType,
                 if (!wrap) {
                     ClassUtil.throwIfRTE(e);
                 }
-                throw JsonMappingException.wrapWithPath(e, result, result.size());
+                throw DatabindException.wrapWithPath(e, result, result.size());
             }
         }
         return result;
@@ -396,7 +396,7 @@ _containerType,
                 ClassUtil.throwIfRTE(e);
             }
             // note: pass Object.class, not Object[].class, as we need element type for error info
-            throw JsonMappingException.wrapWithPath(e, Object.class, result.size());
+            throw DatabindException.wrapWithPath(e, Object.class, result.size());
         }
         result.add(value);
         return result;
@@ -441,7 +441,7 @@ _containerType,
                 if (!wrap) {
                     ClassUtil.throwIfRTE(e);
                 }
-                throw JsonMappingException.wrapWithPath(e, result, result.size());
+                throw DatabindException.wrapWithPath(e, result, result.size());
             }
         }
         return result;

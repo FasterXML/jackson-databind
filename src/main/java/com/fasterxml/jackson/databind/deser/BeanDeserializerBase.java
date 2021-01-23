@@ -1713,9 +1713,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * this method throw an exception; otherwise they would be required
      * to return.
      */
-    public JacksonException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+    public DatabindException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
     {
-        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt),
+        throw DatabindException.wrapWithPath(throwOrReturnThrowable(t, ctxt),
                 bean, fieldName);
     }
 

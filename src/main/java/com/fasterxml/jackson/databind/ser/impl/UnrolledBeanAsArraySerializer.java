@@ -232,9 +232,8 @@ public class UnrolledBeanAsArraySerializer
         } catch (Exception e) {
             wrapAndThrow(provider, e, bean, prop.getName());
         } catch (StackOverflowError e) {
-            JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
-            mapE.prependPath(new JsonMappingException.Reference(bean, prop.getName()));
-            throw mapE;
+            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                .prependPath(bean, prop.getName());
         }
     }
 }

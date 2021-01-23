@@ -215,7 +215,7 @@ public class ObjectArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            throw JsonMappingException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
+            throw DatabindException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
         }
 
         Object[] result;
@@ -281,7 +281,7 @@ public class ObjectArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            throw JsonMappingException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
+            throw DatabindException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
         }
 
         Object[] result;

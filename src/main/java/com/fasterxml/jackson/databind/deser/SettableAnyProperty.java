@@ -122,7 +122,7 @@ public class SettableAnyProperty
             set(instance, key, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
             if (_valueDeserializer.getObjectIdReader(ctxt) == null) {
-                throw JsonMappingException.from(p, "Unresolved forward reference but no identity info.", reference);
+                throw DatabindException.from(p, "Unresolved forward reference but no identity info.", reference);
             }
             AnySetterReferring referring = new AnySetterReferring(this, reference,
                     _type.getRawClass(), instance, propName);
@@ -193,13 +193,13 @@ public class SettableAnyProperty
             } else {
                 msg.append(" (no error message provided)");
             }
-            throw new JsonMappingException(null, msg.toString(), e);
+            throw DatabindException.from((JsonParser) null, msg.toString(), e);
         }
         ClassUtil.throwIfJacksonE(e);
         ClassUtil.throwIfRTE(e);
         // let's wrap the innermost problem
         Throwable t = ClassUtil.getRootCause(e);
-        throw new JsonMappingException(null, ClassUtil.exceptionMessage(t), t);
+        throw DatabindException.from((JsonParser) null, ClassUtil.exceptionMessage(t), t);
     }
 
     private String getClassName() { return _setter.getDeclaringClass().getName(); }

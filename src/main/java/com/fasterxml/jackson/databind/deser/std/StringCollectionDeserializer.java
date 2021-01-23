@@ -213,7 +213,7 @@ public final class StringCollectionDeserializer
                 result.add(value);
             }
         } catch (Exception e) {
-            throw JsonMappingException.wrapWithPath(e, result, result.size());
+            throw DatabindException.wrapWithPath(e, result, result.size());
         }
         return result;
     }
@@ -249,7 +249,7 @@ public final class StringCollectionDeserializer
                 result.add(value);
             }
         } catch (Exception e) {
-            throw JsonMappingException.wrapWithPath(e, result, result.size());
+            throw DatabindException.wrapWithPath(e, result, result.size());
         }
         return result;
     }

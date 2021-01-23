@@ -212,10 +212,9 @@ public class UnrolledBeanSerializer
             String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
-            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
-            String name = (prop == null) ? "[anySetter]" : prop.getName();
-            mapE.prependPath(new JsonMappingException.Reference(bean, name));
-            throw mapE;
+            final String name = (prop == null) ? "[anySetter]" : prop.getName();
+            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                .prependPath(bean, name);
         }
         gen.writeEndObject();
     }

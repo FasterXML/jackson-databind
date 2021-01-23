@@ -777,12 +777,12 @@ public abstract class BeanSerializerBase
             String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
-            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
-            String name = (prop == null) ? "[anySetter]" : prop.getName();
-            mapE.prependPath(new JsonMappingException.Reference(bean, name));
-            throw mapE;
+            final String name = (prop == null) ? "[anySetter]" : prop.getName();
+            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                .prependPath(bean, name);
         }
-    }    
+    }
+
     /**
      * Method called when no JSON Filter is to be applied, but
      * View filtering is in effect and so some of properties may be
@@ -846,10 +846,9 @@ public abstract class BeanSerializerBase
             String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
-            DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
-            String name = (prop == null) ? "[anySetter]" : prop.getName();
-            mapE.prependPath(bean, name);
-            throw mapE;
+            final String name = (prop == null) ? "[anySetter]" : prop.getName();
+            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                .prependPath(bean, name);
         }
     }
 
@@ -903,10 +902,9 @@ public abstract class BeanSerializerBase
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
             // Minimize call depth since we are close to fail:
-            DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
-            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            mapE.prependPath(bean, name);
-            throw mapE;
+            final String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+                .prependPath(bean, name);
         }
     }
 

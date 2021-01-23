@@ -318,7 +318,7 @@ public class JsonValueSerializer
                         t = t.getCause();
                     }
                     ClassUtil.throwIfError(t);
-                    throw JsonMappingException.wrapWithPath(t, en, _accessor.getName() + "()");
+                    throw DatabindException.wrapWithPath(t, en, _accessor.getName() + "()");
                 }
             }
             stringVisitor.enumTypes(enums);

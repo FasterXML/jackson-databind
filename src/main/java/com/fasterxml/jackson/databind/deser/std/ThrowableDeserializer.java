@@ -138,11 +138,11 @@ public class ThrowableDeserializer
         // Sanity check: did we find "message"?
         if (throwable == null) {
             /* 15-Oct-2010, tatu: Can't assume missing message is an error, since it may be
-             *   suppressed during serialization, as per [JACKSON-388].
+             *   suppressed during serialization.
              *   
              *   Should probably allow use of default constructor, too...
              */
-            //throw new JsonMappingException("No 'message' property found: could not deserialize "+_beanType);
+            //throw new XxxException("No 'message' property found: could not deserialize "+_beanType);
             if (hasStringCreator) {
                 throwable = _valueInstantiator.createFromString(ctxt, null);
             } else {

@@ -929,10 +929,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return;
         }
         if (_objectCodec == null) {
-            /* 28-May-2014, tatu: Tricky choice here; if no codec, should we
-             *   err out, or just embed? For now, do latter.
-             */
-//          throw new JsonMappingException("No ObjectCodec configured for TokenBuffer, writeObject() called");
+            // 28-May-2014, tatu: Tricky choice here; if no codec, should we
+            //   err out, or just embed? For now, do latter.
+
+//          throw new XxxException("No ObjectCodec configured for TokenBuffer, writeObject() called");
             _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, value);
         } else {
             _objectCodec.writeValue(this, value);

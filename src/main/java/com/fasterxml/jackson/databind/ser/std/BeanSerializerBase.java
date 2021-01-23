@@ -782,10 +782,10 @@ public abstract class BeanSerializerBase
 
             // 10-Dec-2015, tatu: and due to above, avoid "from" method, call ctor directly:
             //JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
-            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+            DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
 
-             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            mapE.prependPath(new JsonMappingException.Reference(bean, name));
+            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            mapE.prependPath(bean, name);
             throw mapE;
         }
     }
@@ -830,9 +830,9 @@ public abstract class BeanSerializerBase
         } catch (StackOverflowError e) {
             // Minimize call depth since we are close to fail:
             //JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
-            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+            DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            mapE.prependPath(new JsonMappingException.Reference(bean, name));
+            mapE.prependPath(bean, name);
             throw mapE;
         }
     }

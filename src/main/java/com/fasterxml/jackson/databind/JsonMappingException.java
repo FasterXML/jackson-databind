@@ -32,9 +32,9 @@ public class JsonMappingException
     final static int MAX_REFS_TO_LIST = 1000;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -173,9 +173,9 @@ public class JsonMappingException
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State/configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -193,11 +193,11 @@ public class JsonMappingException
      * @since 2.7
      */
     protected transient Closeable _processor;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -326,7 +326,7 @@ public class JsonMappingException
      *<p>
      * NOTE: since 2.9 should usually NOT be used on input-side (deserialization)
      *    exceptions; instead use method(s) of <code>InputMismatchException</code>
-     * 
+     *
      * @since 2.1
      */
     public static JsonMappingException fromUnexpectedIOE(IOException src) {
@@ -394,9 +394,9 @@ public class JsonMappingException
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors/mutators
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -430,19 +430,18 @@ public class JsonMappingException
      * Method called to prepend a reference information in front of
      * current path
      */
-    public void prependPath(Object referrer, String fieldName)
-    {
-        Reference ref = new Reference(referrer, fieldName);
-        prependPath(ref);
+    @Override
+    public void prependPath(Object referrer, String fieldName) {
+        prependPath(new Reference(referrer, fieldName));
     }
+
     /**
      * Method called to prepend a reference information in front of
      * current path
      */
-    public void prependPath(Object referrer, int index)
-    {
-        Reference ref = new Reference(referrer, index);
-        prependPath(ref);
+    @Override
+    public void prependPath(Object referrer, int index) {
+        prependPath(new Reference(referrer, index));
     }
 
     public void prependPath(Reference r)
@@ -458,14 +457,14 @@ public class JsonMappingException
             _path.addFirst(r);
         }
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override // since 2.7.5
+    @Override // since 2.8
     @JsonIgnore // as per [databind#1368]
     public Object getProcessor() { return _processor; }
 
@@ -509,9 +508,9 @@ public class JsonMappingException
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void _appendPathDesc(StringBuilder sb)

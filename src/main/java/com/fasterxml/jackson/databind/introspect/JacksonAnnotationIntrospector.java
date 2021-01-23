@@ -790,7 +790,8 @@ public class JacksonAnnotationIntrospector
     
     @Override
     public JavaType refineSerializationType(final MapperConfig<?> config,
-            final Annotated a, final JavaType baseType) throws JsonMappingException
+            final Annotated a, final JavaType baseType)
+        throws JsonMappingException
     {
         JavaType type = baseType;
         final TypeFactory tf = config.getTypeFactory();
@@ -818,15 +819,14 @@ public class JacksonAnnotationIntrospector
                         // 27-Apr-2017, tatu: [databind#1592] ignore primitive<->wrapper refinements
                         type = type.withStaticTyping();
                     } else {
-                        throw new JsonMappingException(null,
+                        throw _databindException(
                                 String.format("Cannot refine serialization type %s into %s; types not related",
                                         type, serClass.getName()));
                     }
                 } catch (IllegalArgumentException iae) {
-                    throw new JsonMappingException(null,
+                    throw _databindException(iae,
                             String.format("Failed to widen type %s with annotation (value %s), from '%s': %s",
-                                    type, serClass.getName(), a.getName(), iae.getMessage()),
-                                    iae);
+                                    type, serClass.getName(), a.getName(), iae.getMessage()));
                 }
             }
         }
@@ -853,15 +853,14 @@ public class JacksonAnnotationIntrospector
                             // 27-Apr-2017, tatu: [databind#1592] ignore primitive<->wrapper refinements
                             keyType = keyType.withStaticTyping();
                         } else {
-                            throw new JsonMappingException(null,
+                            throw _databindException(
                                     String.format("Cannot refine serialization key type %s into %s; types not related",
                                             keyType, keyClass.getName()));
                         }
                     } catch (IllegalArgumentException iae) {
-                        throw new JsonMappingException(null,
+                        throw _databindException(iae,
                                 String.format("Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                        type, keyClass.getName(), a.getName(), iae.getMessage()),
-                                        iae);
+                                        type, keyClass.getName(), a.getName(), iae.getMessage()));
                     }
                 }
                 type = ((MapLikeType) type).withKeyType(keyType);
@@ -889,15 +888,14 @@ public class JacksonAnnotationIntrospector
                            // 27-Apr-2017, tatu: [databind#1592] ignore primitive<->wrapper refinements
                            contentType = contentType.withStaticTyping();
                        } else {
-                           throw new JsonMappingException(null,
+                           throw _databindException(
                                    String.format("Cannot refine serialization content type %s into %s; types not related",
                                            contentType, contentClass.getName()));
                        }
                    } catch (IllegalArgumentException iae) { // shouldn't really happen
-                       throw new JsonMappingException(null,
+                       throw _databindException(iae,
                                String.format("Internal error: failed to refine value type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                       type, contentClass.getName(), a.getName(), iae.getMessage()),
-                                       iae);
+                                       type, contentClass.getName(), a.getName(), iae.getMessage()));
                    }
                }
                type = type.withContentType(contentType);
@@ -1200,10 +1198,9 @@ public class JacksonAnnotationIntrospector
             try {
                 type = tf.constructSpecializedType(type, valueClass);
             } catch (IllegalArgumentException iae) {
-                throw new JsonMappingException(null,
+                throw _databindException(iae,
                         String.format("Failed to narrow type %s with annotation (value %s), from '%s': %s",
-                                type, valueClass.getName(), a.getName(), iae.getMessage()),
-                                iae);
+                                type, valueClass.getName(), a.getName(), iae.getMessage()));
             }
         }
         // Then further processing for container types
@@ -1218,10 +1215,9 @@ public class JacksonAnnotationIntrospector
                     keyType = tf.constructSpecializedType(keyType, keyClass);
                     type = ((MapLikeType) type).withKeyType(keyType);
                 } catch (IllegalArgumentException iae) {
-                    throw new JsonMappingException(null,
+                    throw _databindException(iae,
                             String.format("Failed to narrow key type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                    type, keyClass.getName(), a.getName(), iae.getMessage()),
-                                    iae);
+                                    type, keyClass.getName(), a.getName(), iae.getMessage()));
                 }
             }
         }
@@ -1235,10 +1231,9 @@ public class JacksonAnnotationIntrospector
                     contentType = tf.constructSpecializedType(contentType, contentClass);
                     type = type.withContentType(contentType);
                 } catch (IllegalArgumentException iae) {
-                    throw new JsonMappingException(null,
+                    throw _databindException(iae,
                             String.format("Failed to narrow value type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                    type, contentClass.getName(), a.getName(), iae.getMessage()),
-                            iae);
+                                    type, contentClass.getName(), a.getName(), iae.getMessage()));
                 }
             }
         }
@@ -1564,5 +1559,15 @@ public class JacksonAnnotationIntrospector
             return refinement == ClassUtil.primitiveType(baseType.getRawClass());
         }
         return false;
+    }
+
+    // @since 2.12
+    private JsonMappingException _databindException(String msg) {
+        return new JsonMappingException(null, msg);
+    }
+
+    // @since 2.12
+    private JsonMappingException _databindException(Throwable t, String msg) {
+        return new JsonMappingException(null, msg, t);
     }
 }

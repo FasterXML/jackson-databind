@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -192,7 +191,7 @@ public class JsonMappingException
      * NOTE: typically not serializable hence <code>transient</code>
      */
     protected transient Closeable _processor;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -259,21 +258,6 @@ public class JsonMappingException
          *   SerializerProvider instance does not currently hold on to generator...
          */
         return new JsonMappingException(ctxt.getGenerator(), msg, problem);
-    }
-
-    /**
-     * Factory method used when "upgrading" an {@link IOException} into
-     * {@link JsonMappingException}: usually only needed to comply with
-     * a signature.
-     *<p>
-     * NOTE: since 2.9 should usually NOT be used on input-side (deserialization)
-     *    exceptions; instead use method(s) of <code>InputMismatchException</code>
-     */
-    public static JsonMappingException fromUnexpectedIOE(IOException src) {
-        return new JsonMappingException(null,
-                String.format("Unexpected IOException (of type %s): %s",
-                        src.getClass().getName(),
-                        ClassUtil.exceptionMessage(src)));
     }
 
     /**
@@ -370,19 +354,18 @@ public class JsonMappingException
      * Method called to prepend a reference information in front of
      * current path
      */
-    public void prependPath(Object referrer, String fieldName)
-    {
-        Reference ref = new Reference(referrer, fieldName);
-        prependPath(ref);
+    @Override
+    public void prependPath(Object referrer, String fieldName) {
+        prependPath(new Reference(referrer, fieldName));
     }
+
     /**
      * Method called to prepend a reference information in front of
      * current path
      */
-    public void prependPath(Object referrer, int index)
-    {
-        Reference ref = new Reference(referrer, index);
-        prependPath(ref);
+    @Override
+    public void prependPath(Object referrer, int index) {
+        prependPath(new Reference(referrer, index));
     }
 
     public void prependPath(Reference r)
@@ -398,7 +381,7 @@ public class JsonMappingException
             _path.addFirst(r);
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Overridden methods
@@ -413,7 +396,7 @@ public class JsonMappingException
     public String getLocalizedMessage() {
         return _buildMessage();
     }
-    
+
     /**
      * Method is overridden so that we can properly inject description
      * of problem path, if such is defined.

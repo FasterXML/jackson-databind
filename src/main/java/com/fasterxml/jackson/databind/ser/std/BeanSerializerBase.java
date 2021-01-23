@@ -846,9 +846,9 @@ public abstract class BeanSerializerBase
             String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
-            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+            DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
             String name = (prop == null) ? "[anySetter]" : prop.getName();
-            mapE.prependPath(new JsonMappingException.Reference(bean, name));
+            mapE.prependPath(bean, name);
             throw mapE;
         }
     }
@@ -903,9 +903,9 @@ public abstract class BeanSerializerBase
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
             // Minimize call depth since we are close to fail:
-            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+            DatabindException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            mapE.prependPath(new JsonMappingException.Reference(bean, name));
+            mapE.prependPath(bean, name);
             throw mapE;
         }
     }

@@ -52,9 +52,9 @@ public class BeanAsArraySerializer
     protected final BeanSerializerBase _defaultSerializer;
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public BeanAsArraySerializer(BeanSerializerBase src) {    
@@ -74,9 +74,9 @@ public class BeanAsArraySerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: factory methods, fluent factories
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -134,9 +134,9 @@ public class BeanAsArraySerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonSerializer implementation that differs between impls
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Re-defined from base class, due to differing prefixes
@@ -190,9 +190,9 @@ public class BeanAsArraySerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Field serialization methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private boolean hasSingleElement(SerializerProvider provider) {
@@ -320,8 +320,8 @@ public class BeanAsArraySerializer
         } catch (Exception e) {
             wrapAndThrow(provider, e, bean, prop.getName());
         } catch (StackOverflowError e) {
-            JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
-            mapE.prependPath(new JsonMappingException.Reference(bean, prop.getName()));
+            DatabindException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
+            mapE.prependPath(bean, prop.getName());
             throw mapE;
         }
     }

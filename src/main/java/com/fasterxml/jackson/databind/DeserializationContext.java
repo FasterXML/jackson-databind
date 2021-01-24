@@ -534,7 +534,7 @@ public abstract class DeserializationContext
     public boolean hasValueDeserializerFor(JavaType type, AtomicReference<Throwable> cause) {
         try {
             return _cache.hasValueDeserializerFor(this, _factory, type);
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             if (cause != null) {
                 cause.set(e);
             }
@@ -610,7 +610,8 @@ public abstract class DeserializationContext
      *</pre>
      */
     public final KeyDeserializer findKeyDeserializer(JavaType keyType,
-            BeanProperty prop) throws JsonMappingException {
+            BeanProperty prop) throws JsonMappingException
+    {
         KeyDeserializer kd = _cache.findKeyDeserializer(this,
                 _factory, keyType);
         // Second: contextualize?

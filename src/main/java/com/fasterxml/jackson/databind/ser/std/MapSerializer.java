@@ -668,7 +668,7 @@ public class MapSerializer
             }
             try {
                 valueSer = _findSerializer(prov, elemValue);
-            } catch (JsonMappingException e) { // Ugh... cannot just throw as-is, so...
+            } catch (DatabindException e) { // Ugh... cannot just throw as-is, so...
                 // 05-Nov-2015, tatu: For now, probably best not to assume empty then
                 return false;
             }
@@ -1133,7 +1133,8 @@ public class MapSerializer
      */
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
+            Class<?> type, SerializerProvider provider)
+        throws JsonMappingException
     {
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
         // did we get a new map of serializers? If so, start using it
@@ -1144,7 +1145,8 @@ public class MapSerializer
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
+            JavaType type, SerializerProvider provider)
+        throws JsonMappingException
     {
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
         if (map != result.map) {
@@ -1154,7 +1156,8 @@ public class MapSerializer
     }
 
     protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
-            SerializerProvider provider) throws IOException
+            SerializerProvider provider)
+        throws IOException
     {
         // minor optimization: may already be sorted?
         if (input instanceof SortedMap<?,?>) {
@@ -1196,7 +1199,8 @@ public class MapSerializer
     }
     
     protected void _writeNullKeyedEntry(JsonGenerator gen, SerializerProvider provider,
-            Object value) throws IOException
+            Object value)
+        throws IOException
     {
         JsonSerializer<Object> keySerializer = provider.findNullKeySerializer(_keyType, _property);
         JsonSerializer<Object> valueSer;
@@ -1229,7 +1233,8 @@ public class MapSerializer
     }
 
     private final JsonSerializer<Object> _findSerializer(SerializerProvider provider,
-            Object value) throws JsonMappingException
+            Object value)
+        throws JsonMappingException
     {
         final Class<?> cc = value.getClass();
         JsonSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
